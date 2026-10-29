@@ -13,10 +13,10 @@
     "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
     "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
     "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70",
-    "mediaLatestInspected": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
+    "mediaLatestInspected": "dd82099af004917fb04662e9ccc9b2d84b7cec7a",
     "sharedLatestInspected": "d15b2ce353839ee3bf666be7c0737aa7192994f5",
     "ghatanaLatestInspected": "875108953b069ba65803b8b99b713896bf9476f0",
-    "reviewScope": "Connected GitHub public main includes seven reported source commits; remote code and opt-in tests reviewed, native JDK27/Docker/model/dataset executions not rerun in this review."
+    "reviewScope": "GitHub public main source @dd82099 includes STT auth cbd06f87, OCI policy 367ab193, Piper bounded process 1293724a, and MM still fail-closed; no native JDK27/Docker/model/real alert runs executed in this review."
   },
   "notASecondPdpOrAdmittedProvider": true,
   "technicalApprovals": [
@@ -257,6 +257,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C2",
+        "action": "Finish broker source owner/version/auth binding and hard native OCI adversarial corpus, zero leaked processes",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -286,6 +293,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A1",
+        "action": "Verified identity and source rights, current Shared policy, wrong-actor/tenant/expiry/revoke no effects",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -317,6 +331,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B2",
+        "action": "Voice profile, clone and biometric owner consent denied before effect, revoked profile no reused embedding",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -348,6 +369,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C3",
+        "action": "No face/gaze/identity effect without biometric purpose/region/retention/consent, tenant isolation",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -379,6 +407,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M1",
+        "action": "Per-child tenant/principal/immutable version/current rights and policy before fanout",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -411,6 +446,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A2",
+        "action": "Real source WAV and advertised FLAC, codec headers/frame bounds/clock negatives",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -441,6 +483,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A4",
+        "action": "CAS immutable transcript/captions/word lineage, typed unsupported align/translation",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -471,6 +520,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A4",
+        "action": "Crash before/after provider receipt; reconcile UNKNOWN and idempotent transcript/outbox",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -502,6 +558,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A3",
+        "action": "True streaming ack/gap/reconnect/backpressure/cancel/EOS provider-finality",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -532,6 +595,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A2",
+        "action": "Source timebase, word/phoneme gold, ordered timings and unknown confidence when unqualified",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -563,6 +633,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A3",
+        "action": "Anonymous overlap diarization, lawful DER; speaker identity remains consent gated",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -592,6 +669,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B1",
+        "action": "Decoded genuine speech, exact PCM/codec/duration metadata and no synthetic fake bytes",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -623,6 +707,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B1",
+        "action": "Pinned voice model/sidecar/phonemizer rights, health, wrong pin not ready",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -653,6 +744,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B2",
+        "action": "Supported SSML/prosody A/B actual audio, unsupported typed instead of simulated controls",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -685,6 +783,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B1",
+        "action": "Verified permitted voice+phonemes and real decoded exact sample frames",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -714,6 +819,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B3",
+        "action": "Streaming chunk/backpressure/cancel and no false final after provider loss",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -745,6 +857,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B3",
+        "action": "Durable audio artifact CAS/outbox, receipt idempotency and real restart readback",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -775,6 +894,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C1",
+        "action": "Exact weight/export/classes/license model readiness and negative bad pin",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -806,6 +932,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C1",
+        "action": "BGR/EXIF/rotation/letterbox inverse bbox, ROI exact version and native Mat bounds",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -836,6 +969,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C1",
+        "action": "Multiple classes/NMS/NaN/bbox and heldout mAP/PR with independent rights cleared gold",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -867,6 +1007,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C3",
+        "action": "VFR/reorder/scene cut timestamp tracking, source PTS/epoch uncertainty and accuracy",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -896,6 +1043,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M6",
+        "action": "Actual source audio/visual clock/rational mapping, offset gold and unknown when not comparable",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -929,6 +1083,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M3",
+        "action": "Durable canonical per-operation executor, child STT/Vision attempts and no blind replay",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -960,6 +1121,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M6",
+        "action": "Finite grounded source association with calibrated or heuristic-only confidence, no unconsented ID",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -990,6 +1158,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M5",
+        "action": "Separate successful/UNKNOWN child and operation outcomes, no family PARTIAL as success",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1021,6 +1196,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M5",
+        "action": "Fenced durable MM result, causal source-child references, compare-and-set/restart exact readback",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1051,6 +1233,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "E2",
+        "action": "Ghatana Data Cloud owner versioned projection public API 202/commit/UNKNOWN and installed consumer",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1081,6 +1270,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "E1",
+        "action": "Ghatana Document Intelligence owner public region OCR source/box/time and rights negatives",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1112,6 +1308,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A2",
+        "action": "Actual corpus WER/CER/DER per language and capped attempts; failed tiny stays review only",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1146,6 +1349,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "A5",
+        "action": "Qualified locale-specific real STT 12-RPC and 1/16/64; all privacy/fault/restart cases",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1178,6 +1388,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B2",
+        "action": "Truthful voice-locale en/hi/ne support; no unsupported auto substitution or implicit clone",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1210,6 +1427,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "B3",
+        "action": "Real TTS 1/16/64 and decoded quality/load/rights plus fault/restart",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1243,6 +1467,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "C3",
+        "action": "Full declared Vision RPC, real mAP/native codec limits and measured load/restart",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1278,6 +1509,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "M7",
+        "action": "Real authorized STT+Vision grounded fused business outcome, optional TTS narration and load",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1308,6 +1546,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "F1",
+        "action": "Actual profile health/quality exporter-Prometheus-Alertmanager named receiver fire/clear",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     },
     {
@@ -1339,6 +1584,13 @@
         "actionAuthority": "ORIGINAL_R8_WHOLE_ROW",
         "reportedProgressNotWholeRowAcceptance": true,
         "executablePlanRef": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28"
+      },
+      "currentCompletionStep": {
+        "lane": "F2",
+        "action": "Real STT/TTS/Vision/MM plus OCI c1/16/64 resource/latency under bounded abort",
+        "originalIndependentProofUnchanged": true,
+        "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
+        "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
       }
     }
   ],
@@ -1466,88 +1718,88 @@
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
-        "observedGap": "Pinned Whisper merged-decoder encoder KV step-0 fix in c7969aa7 verified in committed source. Short gold/EOT correctness reported. Tiny quantized multilingual reference still fails real WER/CER qualification on reported private FLEURS holdout; 89 token-cap failures; performance and alternate model profile unqualified.",
-        "nextAction": "Keep tiny REVIEW_ONLY; verify per-locale token cap/failure reasons and output logs, assess pinned rights-cleared Whisper base/small or already-selected alternative with source-compatible adapter on tuning data; reserve new blind speaker-disjoint promotion holdout and collect 1/16/64 profile metrics.",
+        "observedGap": "Whisper tiny retains actual reported en/hi/ne failed WER; quality replacement required.",
+        "nextAction": "A2/A5 select rights-cleared stronger model using development data and new blind holdout; keep tiny REVIEW_ONLY.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G02": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_WITH_REAL_SOURCE_PROVENANCE",
-        "observedGap": "V024/V025 PostgreSQL source-rights/decision and Shared policy adapter committed. E2E test uses fixture AllowPolicy and owner-registered provenance, so external authenticated ingress to policy-authorized source remains unproven.",
-        "nextAction": "Bind verified credential-derived PrincipalIdentity to canonical rights administration and Shared PolicyEngine, not caller request fields; verify wrong actor/tenant/expiry/revocation and recheck at every provider retry and transcript commit.",
+        "observedGap": "STT authenticated source-bound ingress code cbd06f87 exists; MM and child VISION have no evidence-bearing admitted path, runtime rejects MULTIMODAL/VISION production.",
+        "nextAction": "M1/M3 re-use source Authorization/Shared policy+consent for exact parent and each child, add verified runtime port submit; negative zero-effect cases.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G03": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_AFTER_G02",
-        "observedGap": "Real Whisper provider and env-opt-in test (b03d35ca) execute job/attempt/fence and ADMITTED transcript reopened from PostgreSQL, with fixture-ALLOW, local artifact bytes and fake S3 server. Real policy provenance and crash/process restart semantics remain open.",
-        "nextAction": "Run real admitted qualified provider under actual installed identity, policy, durable artifact and source rights. Test complete process kill/restart before/after receipt and CAS commit, idempotency, revocation race, lost ACK and exact principal-scoped readback; no blanket promotion.",
+        "observedGap": "Real STT provider ADMITTED transcript test and STT commit-fence source exist; no actual production authority and process-crash verification from this review.",
+        "nextAction": "A1/A4 real ingress, source consent, killed process, ambiguous receipt and exact restart/outbox negative cases.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G04": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_VOICE_RIGHTS",
-        "observedGap": "PiperPhonemizeProcessConverter and real LibriTTS-R synthesis committed; output 0.755s 22.05kHz PCM reported and pinned binaries/models asserted by opt-in tests. Production phonemizer process timeout, temp stderr lifecycle and voice/source rights unqualified.",
-        "nextAction": "Enforce total wallclock across stdin/stdout/wait, drain bounded async, delete stderr on every outcome, pin espeak data/sidecar and validate license+voice scope. Add real intelligibility, streaming, controls, durability and rights negative tests.",
+        "observedGap": "Piper phoneme subprocess now has bounded deadline and temp deletion in 1293724a; no integrated host qualified voice rights/intelligibility.",
+        "nextAction": "B1/B3 test output saturation/temp cleanup, pin binary/data, voice license+consent and real audio, streaming/restart/load.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G05": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_MODEL_IMAGE_RIGHTS",
-        "observedGap": "YOLOX official raw BGR/no /255 preprocess fix committed with pinned real dog photo/blank test. mAP/PR/CI on licensed independent heldout, multiple classes, model rights, negative geometry and native load remain open.",
-        "nextAction": "Freeze rights-cleared independent labeled dataset, verify BGR channel regression, scaling/NMS/multiclass/NaNs and zero leaks, measure mAP50/PR+CI on named host; only then consider model/provider acceptance.",
+        "observedGap": "YOLOX BGR and lawful dog test source exists, but held-out mAP/PR/CI and full model rights unqualified.",
+        "nextAction": "C1 held-out rights-cleared multi-object gold, geometry/NaN/NMS and load.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
-        "observedGap": "PNG exact pixel/overflow/malformed fixture and authenticated separate OCI broker with 3 stub cases are in GitHub main. Broker accepts caller image digest/args/UID and does not visibly bind verified per-source rights/nonce replay/peer credentials; direct host invocation remains available when broker env absent.",
-        "nextAction": "Explicit production requires broker (no direct fallback), immutable server-approved image allowlist, fixed codec argument AST/grammars, verified caller+source/owner, peer credentials, anti-replay expiry, bounded socket request reads/concurrency, secure temp/cleanup and real kernel FD/CPU/PID/OOM/output failure; rerun all original VIS-03 adversarial cases.",
+        "observedGap": "OCI broker server-image allowlist, fixed uid/gid and nonce replay-window code in 367ab193; source-holder authorization/peer and TOCTOU/kernel proof incomplete.",
+        "nextAction": "C2 peer/source capability, nonce across daemon restart, strict codec AST, avoid source swap before container mount, actual OOM/PID/FD/cpu/disk.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "FleursAsrBatchEvaluationTest committed with private frozen 380 clips reported and 89 failed/capped predictions. Checked-in FLEURS metadata manifest remains not frozen; batch used clipId/text only and mixed training/holdout vs scorer contract. Java export corrected on main to locale/clipId/text + holdout only but not executed. 380 source count vs earlier max 372 must reconcile.",
-        "nextAction": "Run Java non-opt-in format/partition tests and real producer→Node evaluator end-to-end on pinned private manifest; verify selected file SHA/locale/speaker/split and count denominators, classify capped failures, and freeze fresh independent blind holdout before any model promotion.",
+        "observedGap": "FLEURS batch locale/holdout Java format fixed; 380 private evaluation source vs previous 372 maximum unresolved; no new blind holdout.",
+        "nextAction": "A2 verify hash/speaker/split/locale count, run true Java→Node scorer and freeze new blind model holdout.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "Quality alerts remain fixture-only, real per-model exporter→Prometheus→Alertmanager named receiver and real c1/c16/c64 four-modal hardware profiles not proven.",
-        "nextAction": "Wire actual admitted provider profile quality/health without high-cardinality labels, test alert firing/delivery/clear to named receiver, benchmark real STT/TTS/Vision/MM and native broker c1/16/64 with bounded queue, p50/p95/p99, RSS/CPU/RTF/fps and honest rejects/UNKNOWN.",
+        "observedGap": "OBS remains fixture-based for quality alert delivery and c1/c16/c64.",
+        "nextAction": "F1/F2 real exporter to named Alertmanager receiver and actual admitted models with bounded load.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G09": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #252 open; Media OCR integration relies on unshipped public ROI/source rights/finality API.",
-        "nextAction": "Implement DI owner public API with authenticated source/frame version/ROI/PTS and exact installed/source-free Media consumer, negative auth/retry/UNKNOWN and real OCR output.",
+        "observedGap": "Ghatana #252 OPEN.",
+        "nextAction": "E1 ship owner public ROI/source-version authenticated OCR and Java27 installed consumer.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G10": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #254 open; Media DataCloudMultimodalAdapter in-process API not the owner versioned observation projection HTTP route.",
-        "nextAction": "Implement Data Cloud public versioned projection/lookup with server Java21 and Media Java27 source-free consumer, rights/lineage/idempotency/202-vs-committed handling; verify actual persisted readback.",
+        "observedGap": "Ghatana #254 OPEN.",
+        "nextAction": "E2 ship 202 vs committed projection/lookup and Java21/Java27 source-free tests.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G11": {
         "implementationDisposition": "GENUINE_EXTERNAL_HUMAN_OR_RIGHTSHOLDER_RECORD_REQUIRED",
-        "observedGap": "LibriTTS-R voice/phonemizer source, YOLOX weights and photo and FLEURS clip usage claims in local report are not independently reviewed as production commercial/biometric rights or trusted reviewer identities.",
-        "nextAction": "Bind exact license/attribution, participant consent for human voice/biometric operations, private reviewer trust anchors, permitted scope/expiry/revocation. Keep only restricted positives NOT_ADMITTED without input; proceed with non-biometric engineering.",
+        "observedGap": "No independently reviewed human voice likeness/biometric/source/model rights universal grant.",
+        "nextAction": "B/C/E obtain real owner records and independent reviewers only for affected restricted effect; otherwise keep denied.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "No production canonical per-operation MM executor is composed: default SourceAuthorization.unavailable(), PlatformMultimodalAdapter NOT_ADMITTED and STT/Vision readiness false; reported independent child positives not actually fused or durable.",
-        "nextAction": "Reuse Media job/attempt/outbox, source-rights per child and qualified STT/Vision clients. Implement individual operation finality and source-clock, grounded fusion/cas/readback, optional TTS as separately authorized narration, cancellation/UNKNOWN, 1/16/64; never fake combined success.",
+        "observedGap": "Production MM executor null; no registered MM provider; source authorization unavailable, MediaRuntime production denies MULTIMODAL/VISION; no durable operation descriptor or per-child finality.",
+        "nextAction": "M1-M7 implement authenticated source-bound durable operation spec, typed provider, child attempts, rehydration/restart, actual STT+Vision fusion.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
       }
     },
     "localEngineeringDeltas": {
@@ -1574,7 +1826,7 @@
     "scope": "ENGINEERING_EXECUTION_AND_DOCUMENTED_POLICY; NOT_RIGHTSHOLDER_APPROVAL_OR_RUNTIME_QUALIFICATION",
     "approvalSource": "existing owner-approved R8/R10 engineering decisions, reaffirmed for post-ef823571 source",
     "policyAuthority": "docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md#13-wave-2-source-rights-model-admission-and-independent-acceptance-policy",
-    "singleActiveQueue": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md",
+    "singleActiveQueue": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md",
     "decisions": [
       {
         "id": "OD-C01",
@@ -1667,11 +1919,11 @@
       "external": 6,
       "change": 0
     },
-    "currentReviewedSource": "samujjwal/ghatana-media@fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
+    "currentReviewedSource": "samujjwal/ghatana-media@dd82099af004917fb04662e9ccc9b2d84b7cec7a",
     "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
     "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning",
     "latestSourceReview": "PUSHED_SEVEN_COMMITS_CONFIRMED",
-    "latestDecisionSummary": "All engineering work from latest push approved to continue; do not reimplement existing fixes; complete security/quality/MM/OBS/platform oracles; no new true rights/consent/model signoff inferred."
+    "latestDecisionSummary": "Proceed directly with M1-M7 (durable MM), source-bound Vision rights and authenticated runtime port; keep STT/OCI/Piper source fixes as implemented, not rework; E1/E2 and OBS parallel. 36 rows original acceptance not promoted."
   },
   "latestPulseReview": {
     "reviewDate": "2026-10-28",
@@ -1879,5 +2131,141 @@
         "why": "Production MM default provider/executor remains NOT_ADMITTED; real Alertmanager delivery and actual c1/c16/c64 workloads not established; Ghatana platform #252/#254 open."
       }
     ]
+  },
+  "currentCompletionExecution": {
+    "effectiveDate": "2026-10-29",
+    "singleActivePlan": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md",
+    "originalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+    "original36RowMatrix": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
+    "sourceReviewed": "dd82099af004917fb04662e9ccc9b2d84b7cec7a",
+    "status": "PLAN_APPROVED_IMPLEMENTATION_INCOMPLETE",
+    "originalDenominator": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6
+    },
+    "taskRows": 36,
+    "gateIds": [
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G09",
+      "G10",
+      "G11",
+      "G12"
+    ],
+    "implementationUpdates": [
+      {
+        "id": "STT_VERIFIED_INGRESS",
+        "status": "SOURCE_PRESENT_FOCUSED_TESTS_REPORTED_NO_FULL_ROW_PROMOTION",
+        "sha": "cbd06f875c92339500070d4f1938180b94dc96e1"
+      },
+      {
+        "id": "OCI_SERVER_POLICY",
+        "status": "SOURCE_PRESENT_NATIVE_ADVERSARIAL_FURTHER_PROOF_REQUIRED",
+        "sha": "367ab1937d5f"
+      },
+      {
+        "id": "PIPER_SINGLE_DEADLINE",
+        "status": "SOURCE_PRESENT_FOCUSED_JAVA_RUN_AND_PORTABILITY_PENDING",
+        "sha": "1293724a5c26345b98e05c7b86033a65c16aa616"
+      }
+    ],
+    "blockingEngineeringFacts": [
+      {
+        "code": "MM_EXECUTOR_NULL",
+        "owner": "Media MM",
+        "state": "UNIMPLEMENTED",
+        "firstAction": "M1/M3 authenticated production dispatcher+provider"
+      },
+      {
+        "code": "MM_RUNTIME_SOURCE_RIGHTS_DENY",
+        "owner": "Media Runtime+Security",
+        "state": "UNIMPLEMENTED",
+        "firstAction": "M1/M3 MM and child Vision evidence-bearing source rights path in MediaRuntime"
+      },
+      {
+        "code": "MM_PORT_UNAUTH_SUBMIT",
+        "owner": "Media Runtime Contracts",
+        "state": "CONTRACT_ADDITION_REQUIRED",
+        "firstAction": "Fail-closed authenticated submit via MediaProcessingRuntimePort, bind verified ingress"
+      },
+      {
+        "code": "MM_EPHEMERAL_LAMBDA_NOT_REPLAYABLE",
+        "owner": "Media MM+Persistence",
+        "state": "DESIGN_RESOLVED_IMPLEMENTATION_PENDING",
+        "firstAction": "M2/M5 durable rehydratable spec and child attempts; never lambda as authority"
+      },
+      {
+        "code": "MM_FANOUT_STATUS",
+        "owner": "Media MM",
+        "state": "UNIMPLEMENTED",
+        "firstAction": "M4/M5 per-child finality+reconcile+no deadlock"
+      },
+      {
+        "code": "STT_TINY_WER",
+        "owner": "Media STT Quality",
+        "state": "ACTUAL_REPORTED_QUALITY_FAIL",
+        "firstAction": "A new blind holdout and rights-cleared stronger model"
+      },
+      {
+        "code": "FLEURS_380_VS_372",
+        "owner": "Media STT Evaluation",
+        "state": "PRIVATE_INPUT_RECONCILIATION_PENDING",
+        "firstAction": "Actual scored vs selected per-locale split, audio SHA, gold and cap causes"
+      },
+      {
+        "code": "OCI_BROKER_REPLAY_TOCTOU",
+        "owner": "Media Vision Security",
+        "state": "SOURCE_HARDENED_NOT_HOST_QUALIFIED",
+        "firstAction": "C real peer, stale file, nonce crash and full native cases"
+      },
+      {
+        "code": "PIPER_ASYNC_OUTPUT_BOUND",
+        "owner": "Media TTS",
+        "state": "SOURCE_HARDENED_NOT_FULLY_QUALIFIED",
+        "firstAction": "B real stdout cap/error/disk/temp security and consent"
+      },
+      {
+        "code": "DOCUMENT_INTELLIGENCE_PUBLIC_API",
+        "owner": "samujjwal/ghatana #252",
+        "state": "OPEN_EXTERNAL_OWNER",
+        "firstAction": "E1 public authenticated OCR"
+      },
+      {
+        "code": "DATA_CLOUD_PUBLIC_PROJECTION",
+        "owner": "samujjwal/ghatana #254",
+        "state": "OPEN_EXTERNAL_OWNER",
+        "firstAction": "E2 public projection and lookup"
+      },
+      {
+        "code": "REAL_MM_AND_ALERT_LOAD",
+        "owner": "Media MM+Observability",
+        "state": "NOT_ACCEPTED",
+        "firstAction": "M7/F1/F2 true child fused result, alert delivery and real c1/16/64"
+      }
+    ],
+    "authority": {
+      "routineCodeAndTests": "APPROVED_NO_FURTHER_OWNER_MEETING",
+      "originalAcceptance": "NON_WAIVABLE_PER_ORIGINAL_ROW",
+      "externalRightsAndIndependentReview": "REQUIRES_REAL_OWNER_EVIDENCE_NOT_ASSISTANT_APPROVABLE",
+      "noNewContractsOrJobStores": true,
+      "noInMemoryCallableDurabilityClaim": true,
+      "noDataWithoutRealAuthorization": true,
+      "lifecycleClosureSeparate": true
+    },
+    "lastAcceptedLedger": {
+      "total": 58,
+      "locallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "changed": 0
+    }
   }
 }
