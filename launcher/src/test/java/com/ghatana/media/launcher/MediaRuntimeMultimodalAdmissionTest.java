@@ -102,6 +102,94 @@ class MediaRuntimeMultimodalAdmissionTest {
     }
 
     @Test
+    void admittedVisionAndSttChildrenFuseOntoTheBoundSourceClock() throws Exception {
+        var root = Files.createTempDirectory("media-mm-vision-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+        var stt = sttProvider(Map.of("text", "grounded transcript",
+                "timedObservations", List.of(MultimodalOperationSpec.timedObservation(
+                        "transcript-span", 0, 48_000, "src-clock", 48_000))));
+        var vision = visionProvider(Map.of(
+                "detections", List.of(Map.of(
+                        "label", "synthetic-object",
+                        "confidence", 0.9,
+                        "boundingBox", Map.of("x", 0.1, "y", 0.1, "w", 0.2, "h", 0.2))),
+                "timedObservations", List.of(MultimodalOperationSpec.timedObservation(
+                        "frame-window", 14_400, 43_200, "src-clock", 48_000))));
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt, vision),
+                allowAllAuthority());
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var sttChild = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var visionChild = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var spec = clockedSpec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            sttChild.artifactId(), sttChild.version().value(),
+                            sttChild.sha256(), "", sttParameters()),
+                    new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
+                            visionChild.artifactId(), visionChild.version().value(),
+                            visionChild.sha256(), "", Map.of())));
+            var accepted = runtime.submit(mmRequest(source, spec));
+            awaitTerminal(jobStore, accepted.jobId());
+            var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
+            assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
+            // Both children ran as canonical jobs and their declared ticks grounded on the
+            // operation's bound source clock — timestamp comparability, not measured sync.
+            var sttJob = jobStore.findByRequest("tenant-a", "req-mm:stt").orElseThrow();
+            var visionJob = jobStore.findByRequest("tenant-a", "req-mm:vision").orElseThrow();
+            assertThat(sttJob.jobType()).isEqualTo(JobType.SPEECH_TO_TEXT);
+            assertThat(visionJob.jobType()).isEqualTo(JobType.VISION);
+            String fused = String.valueOf(terminal.result().get("observations"));
+            assertThat(fused).contains("TIMESTAMP_ALIGNED")
+                    .contains("mediaStartMs=300").contains("mediaEndMs=900");
+            assertThat(terminal.result().get("clockComparability"))
+                    .isEqualTo("SOURCE_CLOCK_SHARED");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void visionChildOnAnUnrelatedClockStaysSyncUndetermined() throws Exception {
+        var root = Files.createTempDirectory("media-mm-wrongclock-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+        var stt = sttProvider(Map.of("text", "grounded transcript",
+                "timedObservations", List.of(MultimodalOperationSpec.timedObservation(
+                        "transcript-span", 0, 48_000, "src-clock", 48_000))));
+        var vision = visionProvider(Map.of(
+                "detections", List.of(Map.of("label", "synthetic-object")),
+                "timedObservations", List.of(MultimodalOperationSpec.timedObservation(
+                        "frame-window", 14_400, 43_200, "other-clock", 48_000))));
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt, vision),
+                allowAllAuthority());
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var sttChild = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var visionChild = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var spec = clockedSpec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            sttChild.artifactId(), sttChild.version().value(),
+                            sttChild.sha256(), "", sttParameters()),
+                    new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
+                            visionChild.artifactId(), visionChild.version().value(),
+                            visionChild.sha256(), "", Map.of())));
+            var accepted = runtime.submit(mmRequest(source, spec));
+            awaitTerminal(jobStore, accepted.jobId());
+            var terminal = runtime.job("tenant-a", "principal-a", accepted.jobId()).orElseThrow();
+            // Composition succeeded, but a child on an unverifiable clock cannot ground:
+            // comparability degrades honestly, never an estimated position.
+            assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(String.valueOf(terminal.result().get("observations")))
+                    .contains("SYNC_UNDETERMINED").contains("SOURCE_CLOCK_MISMATCH");
+            assertThat(terminal.result().get("clockComparability"))
+                    .isEqualTo("SYNC_UNDETERMINED");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void deniedMultimodalRightsProduceNoJobOrChildEffect() throws Exception {
         var root = Files.createTempDirectory("media-mm-deny-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
@@ -298,6 +386,11 @@ class MediaRuntimeMultimodalAdmissionTest {
 
     /** STT test provider returning a governed grounded transcript shape. */
     private static MediaProcessingProvider sttProvider() {
+        return sttProvider(Map.of("text", "grounded transcript"));
+    }
+
+    /** STT test provider returning the supplied governed result. */
+    private static MediaProcessingProvider sttProvider(Map<String, Object> result) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return "test-stt"; }
             @Override public String providerVersion() { return "v1"; }
@@ -322,7 +415,25 @@ class MediaRuntimeMultimodalAdmissionTest {
             @Override public String processingRegion() { return "local"; }
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
-                return CompletableFuture.completedFuture(Map.of("text", "grounded transcript"));
+                return CompletableFuture.completedFuture(result);
+            }
+        };
+    }
+
+    /** Vision test provider returning the supplied governed result. */
+    private static MediaProcessingProvider visionProvider(Map<String, Object> result) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-vision"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.VISION); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.completedFuture(result);
             }
         };
     }
@@ -333,6 +444,20 @@ class MediaRuntimeMultimodalAdmissionTest {
                 "profileVersion", "v1",
                 "profileConfigurationDigest", "sha256:" + "a".repeat(64),
                 "languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en-US"));
+    }
+
+    private static MultimodalOperationSpec clockedSpec(
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact source,
+            List<MultimodalOperationSpec.ChildOperationSpec> children) {
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, source.artifactId(), source.version().value(), source.sha256(),
+                children,
+                new MultimodalOperationSpec.SourceClockBinding(
+                        "fixture-clock-evidence", 48_000, 0, "src-clock", 96_000),
+                Map.of("purpose", "mm-observe"));
     }
 
     private static MultimodalOperationSpec spec(

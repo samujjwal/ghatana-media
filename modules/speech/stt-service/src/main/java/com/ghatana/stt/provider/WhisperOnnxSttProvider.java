@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
@@ -183,6 +184,12 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
             submissionResult.put("text", text);
             submissionResult.put("language", language == null ? "und" : language.toLanguageTag());
             submissionResult.put("semanticObservations", observations);
+            List<Map<String, Object>> timed = sourceTickObservations(
+                    audio.getSampleCount(), audio.sampleRate(), context.artifact().metadata());
+            if (!timed.isEmpty()) {
+                submissionResult.put("timedObservations", timed);
+                submissionResult.put("timingAvailable", true);
+            }
             return CompletableFuture.completedFuture(new ProviderSubmission(
                     AttemptFinality.SUCCEEDED, operationId, receiptId,
                     submissionResult, provenance, Instant.now()));
@@ -192,6 +199,27 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
             return CompletableFuture.failedFuture(new IllegalStateException(
                     "Whisper inference failed", failure));
         }
+    }
+
+    /**
+     * Measured source ticks covering the exact decoded extent of the admitted source.
+     * An entry is declared only when the artifact carries a complete exact source-clock
+     * declaration and the decoded sample extent maps to source ticks without rounding;
+     * otherwise the result honestly carries no timing claim and multimodal grounding
+     * reports {@code SYNC_UNDETERMINED}. The pinned Whisper profile supplies no
+     * qualified intra-stream word timings, so the single observation describes the
+     * whole decoded span rather than fabricated segment times.
+     */
+    static List<Map<String, Object>> sourceTickObservations(
+            long decodedSamples, int decodedSampleRate, Map<String, Object> artifactMetadata) {
+        var declared = MultimodalOperationSpec.declaredSourceClock(artifactMetadata);
+        if (declared.isEmpty() || decodedSamples < 1) return List.of();
+        var clock = declared.orElseThrow();
+        Long end = MultimodalOperationSpec.mapExtentToSourceTicks(
+                decodedSamples, decodedSampleRate, clock.ticksPerSecond());
+        if (end == null || end <= 0) return List.of();
+        return List.of(MultimodalOperationSpec.timedObservation(
+                "transcript-span", 0, end, clock.clockId(), clock.ticksPerSecond()));
     }
 
     private Locale requestLanguage(ProcessingContext context) {

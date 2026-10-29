@@ -169,6 +169,87 @@ class MultimodalOperationSpecTest {
         assertThat(noBinding).doesNotContainKey("sourceClock");
     }
 
+    @Test
+    void declaredSourceClockRequiresTheExactMetadataQuadruple() {
+        Map<String, Object> complete = Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence",
+                "sourceClockTicksPerSecond", 48_000,
+                "sourceDurationTicks", 96_000);
+        var declared = MultimodalOperationSpec.declaredSourceClock(complete);
+        assertThat(declared).isPresent();
+        assertThat(declared.orElseThrow().clockId()).isEqualTo("src-clock");
+        assertThat(declared.orElseThrow().ticksPerSecond()).isEqualTo(48_000L);
+        assertThat(declared.orElseThrow().durationTicks()).isEqualTo(96_000L);
+        assertThat(declared.orElseThrow().mappingEvidenceRef()).isEqualTo("mapping-evidence");
+        // A partial or malformed declaration is not a verifiable clock.
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of())).isEmpty();
+        assertThat(MultimodalOperationSpec.declaredSourceClock(null)).isEmpty();
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence",
+                "sourceClockTicksPerSecond", 48_000))).isEmpty(); // duration missing
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", " ",
+                "sourceClockTicksPerSecond", 48_000,
+                "sourceDurationTicks", 96_000))).isEmpty(); // blank evidence
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence",
+                "sourceClockTicksPerSecond", 0,
+                "sourceDurationTicks", 96_000))).isEmpty(); // non-positive rate
+        assertThat(MultimodalOperationSpec.declaredSourceClock(Map.of(
+                "sourceClockId", "src-clock",
+                "sourceClockMappingEvidenceRef", "mapping-evidence",
+                "sourceClockTicksPerSecond", 48_000.5,
+                "sourceDurationTicks", 96_000))).isEmpty(); // non-integral rate
+    }
+
+    @Test
+    void extentMappingIsExactRationalOrAbsent() {
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(16_000, 16_000, 48_000))
+                .isEqualTo(48_000L);
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(0, 16_000, 48_000))
+                .isEqualTo(0L);
+        // Non-integral positions are not rounded into source positions.
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(7, 16_000, 44_100)).isNull();
+        // Vision PTS convention: a 90kHz decoder timebase onto a 48kHz source clock.
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(90_000, 90_000, 48_000))
+                .isEqualTo(48_000L);
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(-1, 16_000, 48_000)).isNull();
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(1, 0, 48_000)).isNull();
+        assertThat(MultimodalOperationSpec.mapExtentToSourceTicks(1, 16_000, 0)).isNull();
+    }
+
+    @Test
+    void timedObservationEntriesAreBoundedAndGroundable() {
+        var entry = MultimodalOperationSpec.timedObservation(
+                "transcript-span", 0, 48_000, "src-clock", 48_000);
+        assertThat(entry).containsEntry("label", "transcript-span")
+                .containsEntry("startTick", 0L).containsEntry("endTick", 48_000L)
+                .containsEntry("sourceClockId", "src-clock").containsEntry("ticksPerSecond", 48_000L);
+        // The emitted shape grounds TIMESTAMP_ALIGNED on the matching binding.
+        var binding = new MultimodalOperationSpec.SourceClockBinding(
+                "ev-1", 48_000, 0, "src-clock", 96_000);
+        var child = completedChild("job-e", JobType.SPEECH_TO_TEXT,
+                Map.of("timedObservations", List.of(entry)));
+        Map<String, Object> fused = MultimodalOperationSpec.fusedResult(
+                clockedSpec(binding), List.of(child));
+        List<?> observations = (List<?>) fused.get("observations");
+        Map<?, ?> timing = (Map<?, ?>) ((Map<?, ?>) observations.get(0)).get("timing");
+        assertThat(timing.get("status")).isEqualTo("TIMESTAMP_ALIGNED");
+        // Degenerate or unidentifiable declarations are rejected at emission.
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", 10, 10, "src-clock", 48_000)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", -1, 10, "src-clock", 48_000)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", 0, 10, " ", 48_000)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MultimodalOperationSpec.timedObservation(
+                "x", 0, 10, "src-clock", 0)).isInstanceOf(IllegalArgumentException.class);
+    }
+
     private static String undetermined(List<?> observations, int index) {
         Map<?, ?> entry = (Map<?, ?>) ((List<?>) ((Map<?, ?>) ((Map<?, ?>) observations.get(index))
                 .get("timing")).get("entries")).get(0);

@@ -1086,6 +1086,120 @@ public final class MediaRuntimeContracts {
                     result == null ? Map.of() : result));
         }
 
+        /**
+         * The exact source-clock quadruple a source owner declares on governed artifact
+         * metadata: {@code sourceClockId}, {@code sourceClockMappingEvidenceRef},
+         * {@code sourceClockTicksPerSecond} and {@code sourceDurationTicks}. This is the
+         * artifact-level declaration a child provider maps its measured positions onto;
+         * the operation-level {@link SourceClockBinding} carries the admitted epoch
+         * offset and authority evidence and is verified separately at grounding time.
+         */
+        public record DeclaredSourceClock(
+                String clockId, long ticksPerSecond, long durationTicks, String mappingEvidenceRef) {
+            public DeclaredSourceClock {
+                clockId = clockId == null ? "" : clockId.trim();
+                mappingEvidenceRef = mappingEvidenceRef == null ? "" : mappingEvidenceRef.trim();
+                if (clockId.isBlank() || clockId.length() > 512
+                        || clockId.chars().anyMatch(Character::isISOControl)) {
+                    throw new IllegalArgumentException("declared sourceClockId is malformed");
+                }
+                if (mappingEvidenceRef.isBlank() || mappingEvidenceRef.length() > 512
+                        || mappingEvidenceRef.chars().anyMatch(Character::isISOControl)) {
+                    throw new IllegalArgumentException(
+                            "declared sourceClockMappingEvidenceRef is malformed");
+                }
+                if (ticksPerSecond < 1 || durationTicks < 0) {
+                    throw new IllegalArgumentException("declared source clock fields are out of bounds");
+                }
+            }
+        }
+
+        /**
+         * Parses the exact source-clock declaration a source owner pinned on governed
+         * artifact metadata. Returns empty when any of the four fields is missing,
+         * malformed, or out of bounds — a partial declaration is not a verifiable clock,
+         * so a child must omit its timed observations and let grounding report
+         * {@code SYNC_UNDETERMINED} rather than guessing.
+         */
+        public static java.util.Optional<DeclaredSourceClock> declaredSourceClock(
+                Map<String, Object> artifactMetadata) {
+            if (artifactMetadata == null) return java.util.Optional.empty();
+            Object clockId = artifactMetadata.get("sourceClockId");
+            Object evidence = artifactMetadata.get("sourceClockMappingEvidenceRef");
+            Long ticksPerSecond = integralTicks(artifactMetadata.get("sourceClockTicksPerSecond"));
+            Long durationTicks = integralTicks(artifactMetadata.get("sourceDurationTicks"));
+            if (!(clockId instanceof String id) || !(evidence instanceof String ref)
+                    || ticksPerSecond == null || ticksPerSecond < 1
+                    || durationTicks == null || durationTicks < 0) {
+                return java.util.Optional.empty();
+            }
+            try {
+                return java.util.Optional.of(
+                        new DeclaredSourceClock(id, ticksPerSecond, durationTicks, ref));
+            } catch (IllegalArgumentException malformed) {
+                return java.util.Optional.empty();
+            }
+        }
+
+        /**
+         * Exact rational conversion of a measured media extent into source ticks:
+         * {@code measuredExtent * sourceTicksPerSecond / measuredUnitsPerSecond}.
+         * Returns {@code null} when the conversion is not integral or overflows — a
+         * child must omit the observation rather than round a source position. The
+         * canonical emissions are an STT child's decoded PCM sample count (in samples
+         * per second) and a Vision child's frame/presentation-timestamp span (in its
+         * decoder timebase units per second).
+         */
+        public static Long mapExtentToSourceTicks(
+                long measuredExtent, long measuredUnitsPerSecond, long sourceTicksPerSecond) {
+            if (measuredExtent < 0 || measuredUnitsPerSecond < 1 || sourceTicksPerSecond < 1) {
+                return null;
+            }
+            java.math.BigInteger[] division = java.math.BigInteger.valueOf(measuredExtent)
+                    .multiply(java.math.BigInteger.valueOf(sourceTicksPerSecond))
+                    .divideAndRemainder(java.math.BigInteger.valueOf(measuredUnitsPerSecond));
+            if (!division[1].equals(java.math.BigInteger.ZERO)) return null;
+            try {
+                return division[0].longValueExact();
+            } catch (ArithmeticException overflow) {
+                return null;
+            }
+        }
+
+        /**
+         * Bounded {@code timedObservations} entry a child result declares for
+         * source-clock grounding. This is the single emission convention for admitted
+         * children: an STT child declares decoded PCM sample positions mapped into the
+         * artifact's declared source clock; a Vision child declares frame PTS spans
+         * from its decoder timebase mapped by {@link #mapExtentToSourceTicks}. Positions
+         * that cannot be represented exactly on the declared clock — a missing or
+         * unidentifiable clock, a non-integral mapping, or an over-range extent — must
+         * be omitted, never estimated: grounding degrades to {@code SYNC_UNDETERMINED}
+         * rather than fabricating a media position.
+         */
+        public static Map<String, Object> timedObservation(
+                String label, long startTick, long endTick, String sourceClockId, long ticksPerSecond) {
+            if (startTick < 0 || endTick <= startTick) {
+                throw new IllegalArgumentException("timed observation ticks are out of bounds");
+            }
+            if (sourceClockId == null || sourceClockId.isBlank() || sourceClockId.length() > 512
+                    || sourceClockId.chars().anyMatch(Character::isISOControl)) {
+                throw new IllegalArgumentException("timed observation sourceClockId is malformed");
+            }
+            if (ticksPerSecond < 1) {
+                throw new IllegalArgumentException("timed observation ticksPerSecond must be positive");
+            }
+            Map<String, Object> entry = new LinkedHashMap<>();
+            if (label != null && !label.isBlank() && label.length() <= 256) {
+                entry.put("label", label);
+            }
+            entry.put("startTick", startTick);
+            entry.put("endTick", endTick);
+            entry.put("sourceClockId", sourceClockId.trim());
+            entry.put("ticksPerSecond", ticksPerSecond);
+            return Map.copyOf(entry);
+        }
+
         public record ChildOperationSpec(
                 String childKey,
                 JobType jobType,

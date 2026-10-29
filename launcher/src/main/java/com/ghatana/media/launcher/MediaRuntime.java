@@ -1199,29 +1199,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private static boolean hasExactSourceClockMetadata(
             MediaArtifact artifact, MediaSourceAuthorizationContracts.Evidence evidence) {
         if (artifact == null || evidence == null || evidence.sourceClockEvidenceRef().isBlank()) return false;
-        Map<String, Object> metadata = artifact.metadata();
-        Object ticksPerSecond = metadata.get("sourceClockTicksPerSecond");
-        Object durationTicks = metadata.get("sourceDurationTicks");
-        return nonBlank(metadata.get("sourceClockId"))
-                && nonBlank(metadata.get("sourceClockMappingEvidenceRef"))
-                && positiveSafeInteger(ticksPerSecond)
-                && nonnegativeSafeInteger(durationTicks);
-    }
-
-    private static boolean nonBlank(Object value) {
-        return value instanceof String text && !text.isBlank();
-    }
-
-    private static boolean positiveSafeInteger(Object value) {
-        return value instanceof Number number && Double.isFinite(number.doubleValue())
-                && number.doubleValue() >= 1 && number.doubleValue() <= 9_007_199_254_740_991d
-                && number.doubleValue() == Math.rint(number.doubleValue());
-    }
-
-    private static boolean nonnegativeSafeInteger(Object value) {
-        return value instanceof Number number && Double.isFinite(number.doubleValue())
-                && number.doubleValue() >= 0 && number.doubleValue() <= 9_007_199_254_740_991d
-                && number.doubleValue() == Math.rint(number.doubleValue());
+        return com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
+                .declaredSourceClock(artifact.metadata()).isPresent();
     }
 
     private static String stringParameter(Map<String, Object> parameters, String key) {
