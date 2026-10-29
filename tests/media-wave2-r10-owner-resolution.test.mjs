@@ -91,7 +91,7 @@ test('current source owner dispositions never silently admit a provider or task'
     .executionOwnership.platformHandoff, /Ghatana Data Cloud/);
 });
 
-test('reported OCI BMP passes never certify missing PNG or a production broker', () => {
+test('prior BMP-only results do not certify newer pushed PNG or production broker acceptance', () => {
   const latest = plan.activeExecutionReadback;
   assert.deepEqual(latest.verifiedObservationFromUser.visionStubOci, { passed: 4, total: 4 });
   assert.equal(latest.verifiedObservationFromUser.visionRealFfmpeg.passed, 3);
@@ -100,10 +100,10 @@ test('reported OCI BMP passes never certify missing PNG or a production broker',
   assert.equal(latest.verifiedObservationFromUser.delegatedCgroup.skipped, 1);
   assert.ok(latest.verifiedObservationFromUser.noAcceptedRowsPromoted);
   assert.ok(Object.values(latest.gateStates).every((gate) => gate.wholeRowAcceptance === 'NOT_ACCEPTED'));
-  assert.match(latest.gateStates.G06.nextAction, /PNG-capable pinned licensed codec image/);
-  assert.match(latest.gateStates.G06.nextAction, /authenticated separate OCI host broker/);
-  assert.match(latest.gateStates.G02.observedGap, /no actual production source-owner/);
-  assert.match(latest.gateStates.G03.observedGap, /candidate fenced-attempt CAS/);
+  assert.match(latest.gateStates.G06.nextAction, /server-approved image allowlist/);
+  assert.match(latest.gateStates.G06.nextAction, /Explicit production requires broker/);
+  assert.match(latest.gateStates.G02.observedGap, /fixture AllowPolicy/);
+  assert.match(latest.gateStates.G03.observedGap, /Real Whisper provider and env-opt-in test/);
 });
 
 test('the authoritative Media privacy policy distinguishes engineering from legal admission', () => {
@@ -121,8 +121,8 @@ test('the authoritative Media privacy policy distinguishes engineering from lega
 test('post-pulse 992 task selection preserves all 36 original unfinished IDs and no invented successes', () => {
   const pulse = plan.latestPulseReview;
   assert.equal(pulse.reportedLocalHead, '992f77e1');
-  assert.equal(pulse.localShasGitHubAccessible, false);
-  assert.equal(pulse.remoteBaselineAtReview, 'e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd');
+  assert.equal(pulse.localShasGitHubAccessible, true);
+  assert.equal(pulse.remoteBaselineAtReview, 'fea2aae5d7d144fb7993e69c3075f669fd70c7f9');
   assert.equal(pulse.reportedCommits.length, 7);
   assert.equal(pulse.taskStatusAccounting.originalTotal, 58);
   assert.equal(pulse.taskStatusAccounting.promotedByThisUpdate, 0);
@@ -155,4 +155,23 @@ test('post-pulse model quality failure cannot promote tiny or relax registered t
   function pulseText() {
     return readFileSync(resolve(root, 'docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md'), 'utf8');
   }
+});
+
+
+test('pushed seven commits are explicitly accessible while runtime acceptance stays evidence-gated', () => {
+  const pulse = plan.latestPulseReview;
+  assert.equal(pulse.localShasGitHubAccessible, true);
+  assert.equal(pulse.reportedCommits.length, 7);
+  assert.equal(pulse.sourceReviewDisposition, 'PUSHED_SOURCE_CONFIRMED_FUNCTIONAL_AND_SECURITY_GAPS_STILL_OPEN');
+  assert.equal(plan.activeExecutionReadback.sourceAccess, 'CONFIRMED_REMOTE_GITHUB_COMMITTED');
+  assert.equal(plan.activeExecutionReadback.independentExecutionStatus, 'NOT_RUN_IN_THIS_REVIEW');
+  assert.ok(pulse.blockerCorrections.some((x) => x.id === 'SRC_PUSH' && x.disposition === 'RESOLVED'));
+  for (const id of ['STT_E2E_PROOF', 'BROKER_PRODUCTION_SECURITY', 'TTS_PROCESS_SECURITY', 'FLEURS_BATCH_SCORER']) {
+    assert.ok(pulse.blockerCorrections.some((x) => x.id === id), id + ' is not dispositioned');
+  }
+  const gate = plan.activeExecutionReadback.gateStates;
+  assert.match(gate.G01.observedGap, /fails real WER\/CER qualification/);
+  assert.match(gate.G12.observedGap, /No production canonical per-operation MM executor/);
+  assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
+  assert.ok(plan.remainingTasks.every((x) => !x.taskAccepted && x.qualifiedResult === null));
 });
