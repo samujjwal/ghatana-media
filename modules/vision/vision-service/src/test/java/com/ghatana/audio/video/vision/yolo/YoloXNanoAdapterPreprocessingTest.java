@@ -13,7 +13,7 @@ class YoloXNanoAdapterPreprocessingTest {
     static void loadOpenCv() { nu.pattern.OpenCV.loadLocally(); }
 
     @Test
-    void preprocessesRgbNormalizedTensorWithUpstreamTopLeftPadding() {
+    void preprocessesRawBgrTensorWithUpstreamTopLeftPadding() {
         Mat source = new Mat(200, 100, CvType.CV_8UC3, new Scalar(10, 20, 30));
         Mat blob = null;
         try {
@@ -25,9 +25,12 @@ class YoloXNanoAdapterPreprocessingTest {
             assertThat(blob.size(1)).isEqualTo(3);
             assertThat(blob.size(2)).isEqualTo(416);
             assertThat(blob.size(3)).isEqualTo(416);
-            assertThat(blob.get(new int[] {0, 0, 20, 20})[0]).isCloseTo(30.0 / 255.0,
+            // YOLOX consumes raw 0-255 pixels in cv2 BGR order: channel 0 holds B.
+            assertThat(blob.get(new int[] {0, 0, 20, 20})[0]).isCloseTo(10.0,
                     org.assertj.core.data.Offset.offset(0.00001));
-            assertThat(blob.get(new int[] {0, 0, 20, 300})[0]).isCloseTo(114.0 / 255.0,
+            assertThat(blob.get(new int[] {0, 2, 20, 20})[0]).isCloseTo(30.0,
+                    org.assertj.core.data.Offset.offset(0.00001));
+            assertThat(blob.get(new int[] {0, 0, 20, 300})[0]).isCloseTo(114.0,
                     org.assertj.core.data.Offset.offset(0.00001));
             assertThat(source.get(0, 0)).containsExactly(10.0, 20.0, 30.0);
         } finally {

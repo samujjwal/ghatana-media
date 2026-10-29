@@ -153,12 +153,11 @@ public final class YoloXNanoAdapter implements VisionDetector, AutoCloseable {
             int bottom = size - transform.resizedHeight() - transform.padTop();
             Core.copyMakeBorder(resized, letterboxed, 0, bottom, 0, right,
                     Core.BORDER_CONSTANT, new Scalar(114, 114, 114));
-            Mat normalized = new Mat();
-            try {
-                letterboxed.convertTo(normalized, CvType.CV_32F, 1.0 / 255.0);
-                Mat blob = Dnn.blobFromImage(normalized, 1.0, new Size(size, size), new Scalar(0, 0, 0), true, false);
-                return new PreprocessedInput(blob, transform);
-            } finally { normalized.release(); }
+            // YOLOX's official preprocessing feeds the letterboxed raster to the network
+            // as raw cv2-order (BGR) uint8 pixels in the 0-255 range; it neither
+            // normalizes to [0,1] nor swaps channel order.
+            Mat blob = Dnn.blobFromImage(letterboxed, 1.0, new Size(size, size), new Scalar(0, 0, 0), false, false);
+            return new PreprocessedInput(blob, transform);
         } finally { resized.release(); letterboxed.release(); }
     }
 
