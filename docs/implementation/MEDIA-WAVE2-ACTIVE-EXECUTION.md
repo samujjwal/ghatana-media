@@ -427,7 +427,7 @@ bash scripts/qualification/run-wave2-vision-oci-checks.sh broker
 
 Use the existing [W2-E01 through W2-E12](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#integrated-backend-effect-quality-and-fault-oracles) oracles as the final end-to-end test population; do not invent new acceptance IDs, stage enums or close gtool/PDP as a side effect. GH-90000 nine compose skips, legacy M08 writer cutover, warn-level Checkstyle and unrelated Shared build logic remain distinct operational handoffs. For the new OCI broker and source-rights implementation, full license/security/source review is required before deployment even if a local developer-host fixture passes.
 
-### 7.6 Pushed-source review — corrected priorities and executable acceptance (current)
+### 7.6 Pushed-source review — corrected priorities and executable acceptance
 
 **Authority:** Same 58 original R8 tasks and same 36 open R10 selections; no new plan, contract version, acceptance ID, formal closure or external legal approval. Reviewed exact pushed source: `c7969aa7` Whisper KV, `b03d35ca` STT integration, `2180a067` PNG, `54471fad` OCI broker, `80ade36f` YOLOX BGR, `5207bb8b` Piper/espeak, `992f77e1` FLEURS batch, all ancestors of pushed `main@fea2aae5`. Separate user-owned definition/OpenAPI commit `2b396ea` is not a backend modality pass. Later focused FLEURS batch corrections `ba9d61fd` and `16dd3044` need current-cut Java execution.
 
