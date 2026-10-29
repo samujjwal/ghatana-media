@@ -3,7 +3,7 @@
 # Reusing one globally set worker image across both suites is invalid.
 set -euo pipefail
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-  echo "Usage: bash scripts/qualification/run-wave2-vision-oci-checks.sh stub | real MEDIA_LINUX_CODECS_DIR" >&2
+  echo "Usage: bash scripts/qualification/run-wave2-vision-oci-checks.sh stub | real MEDIA_LINUX_CODECS_DIR | png MEDIA_LINUX_PNG_CODECS_DIR" >&2
   exit 2
 fi
 mode="$1"
@@ -32,6 +32,14 @@ elif [[ "$mode" == "real" ]]; then
   export GHATANA_MEDIA_VISION_WORKER_IMAGE="$image"
   export GHATANA_MEDIA_VISION_REAL_CODEC_TEST=RUN
   selection="com.ghatana.audio.video.vision.video.HostOciVisionRealCodecIntegrationTest"
+elif [[ "$mode" == "png" ]]; then
+  [[ $# -eq 2 ]] || { echo "PNG mode requires verified Linux ARM64 PNG codec directory" >&2; exit 2; }
+  info="$(bash "$root/scripts/qualification/build-wave2-vision-png-oci-image.sh" "$2")"
+  image="$(printf '%s\n' "$info" | sed -n 's/^GHATANA_MEDIA_VISION_WORKER_IMAGE=//p' | tail -n 1)"
+  [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Pinned PNG-capable OCI image unavailable" >&2; exit 4; }
+  export GHATANA_MEDIA_VISION_WORKER_IMAGE="$image"
+  export GHATANA_MEDIA_VISION_PNG_CODEC_TEST=RUN
+  selection="com.ghatana.audio.video.vision.video.HostOciVisionPngCodecIntegrationTest"
 else
   echo "Unknown mode, use stub or real" >&2
   exit 2
