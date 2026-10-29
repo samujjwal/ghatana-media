@@ -2125,6 +2125,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             submission.provenanceDigest(), submission.observedAt());
                     jobStore.commitFinalOutcome(value, recorded, terminal, observation,
                             lifecycleEvent(value, terminal, request, dispatchArtifact));
+                    if (terminal.status() == JobStatus.COMPLETED
+                            && submission.finality() == AttemptFinality.SUCCEEDED
+                            && request.jobType()
+                                    == com.ghatana.media.runtime.MediaRuntimeContracts.JobType
+                                            .SPEECH_TO_TEXT) {
+                        finalizeSpeechTranscript(request, dispatchArtifact, value, recorded,
+                                submission, providers.getFirst(), sourceAuthorization);
+                    }
                 } else if (attempt != null) {
                     ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN ? terminal
                             : transition(value, JobStatus.OUTCOME_UNKNOWN,
@@ -2164,6 +2172,53 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (active != null) active.cancel(true);
         });
         return terminalFuture;
+    }
+
+    /**
+     * Persists the admitted transcript revision for one completed STT job. The append is a
+     * separate durable effect after the fenced attempt and job are committed; the store
+     * re-verifies the attempt identity, source rights, revocation epoch and authorization
+     * snapshot inside its own transaction. A failed append leaves no transcript rather than
+     * a fabricated one, while the completed job truthfully retains its provider outcome.
+     */
+    private void finalizeSpeechTranscript(
+            ProcessingJobRequest request,
+            MediaArtifact artifact,
+            ProcessingJob job,
+            ProcessingAttempt attempt,
+            ProviderSubmission submission,
+            MediaProcessingProvider provider,
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+        try {
+            if (transcriptStore == null || sourceAuthorization == null) return;
+            Object observations = submission.result().get("semanticObservations");
+            if (!(observations instanceof Map<?, ?> observed)) return;
+            Object response = observed.get("transcriptResponse");
+            if (!(response instanceof Map<?, ?> transcript)) return;
+            String transcriptText = String.valueOf(transcript.get("transcriptText"));
+            String transcriptVersionRef = String.valueOf(transcript.get("transcriptVersionRef"));
+            MediaSpeechToTextAdmission.Request speech = speechRequest(request);
+            String consentId = sourceAuthorization.consentDecisionId().isBlank()
+                    ? "NOT_APPLICABLE_HUMAN_CONSENT" : sourceAuthorization.consentDecisionId();
+            com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft draft =
+                    new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft(
+                            request.tenantId(), request.principalId(),
+                            "transcript:" + job.jobId(), artifact.artifactId(),
+                            artifact.version().value(), artifact.sha256(), job.jobId(),
+                            speech.profileId(), provider.providerId(),
+                            provider.modelVersion(request.jobType()), speech.languageTag(),
+                            "milliseconds", transcriptText, consentId,
+                            sourceAuthorization.rightsDecisionId(),
+                            sourceAuthorization.policyVersion(),
+                            "urn:media:purpose:" + request.governanceContext().purpose(),
+                            request.governanceContext().purpose());
+            transcriptStore.appendFromSuccessfulAttempt(
+                    draft, 0, attempt.attemptNumber(), attempt.fencingToken(),
+                    attempt.requestFingerprint(), transcriptVersionRef);
+        } catch (RuntimeException failure) {
+            audit.warn("MEDIA_TRANSCRIPT_APPEND_FAILED tenantId={} jobId={} failureType={}",
+                    request.tenantId(), job.jobId(), failure.getClass().getSimpleName());
+        }
     }
 
     private CompletableFuture<ProcessingOutcome> dispatchProcessing(

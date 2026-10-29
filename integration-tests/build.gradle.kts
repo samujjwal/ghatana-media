@@ -18,6 +18,7 @@ description = "Audio-Video end-to-end integration tests (STT, TTS, multi-service
 dependencies {
     // Runtime helpers shared across audio-video Java modules
     testImplementation(project(":services:media:libs:java:common"))
+    testImplementation(project(":services:media:modules:speech:stt-service"))
 
     // Real launcher + durable-provider wiring for launcher-level end-to-end tests
     testImplementation(project(":services:media:launcher"))
@@ -25,6 +26,7 @@ dependencies {
     testImplementation(project(":services:media:providers:aws-postgresql"))
 
     // Platform testing utilities (EventloopTestBase, etc.)
+    testImplementation("com.ghatana.platform:governance:${providers.gradleProperty("ghatana.shared.version").get()}")
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
     testImplementation("com.ghatana.platform:testing-activej:${providers.gradleProperty("ghatana.shared.version").get()}")
 
