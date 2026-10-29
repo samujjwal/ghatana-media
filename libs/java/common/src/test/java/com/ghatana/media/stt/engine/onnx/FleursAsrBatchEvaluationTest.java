@@ -68,6 +68,10 @@ class FleursAsrBatchEvaluationTest {
         try (WhisperOnnxEngine engine = new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState())) {
             int done = 0;
             for (JsonNode clip : clips) {
+                // The canonical scorer consumes HOLDOUT predictions only. Pilot/training
+                // examples are intentionally excluded to avoid leaking tuning data into
+                // the reported held-out WER denominator.
+                if (!isHoldout(clip)) continue;
                 String clipId = clip.get("clipId").asText();
                 Locale locale = LOCALES.get(clip.get("locale").asText());
                 assertThat(locale).as("unsupported locale %s", clip.get("locale").asText()).isNotNull();
@@ -102,6 +106,18 @@ class FleursAsrBatchEvaluationTest {
         Files.writeString(out, "[" + String.join(",", lines) + "]");
         System.out.printf("FLEURS_PREDICTIONS_DONE clips=%d failures=%d out=%s%n",
                 lines.size(), failures, out);
+    }
+
+    private static boolean isHoldout(JsonNode clip) {
+        return "holdout".equals(clip.path("partition").asText());
+    }
+
+    @Test
+    void onlyHoldoutPartitionIsScored() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        assertThat(isHoldout(mapper.readTree("{\"partition\":\"holdout\"}"))).isTrue();
+        assertThat(isHoldout(mapper.readTree("{\"partition\":\"training\"}"))).isFalse();
+        assertThat(isHoldout(mapper.readTree("{\"partition\":\"pilot\"}"))).isFalse();
     }
 
     /** Emit the exact locale/clipId/text contract consumed by evaluate-fleurs-asr.mjs. */
