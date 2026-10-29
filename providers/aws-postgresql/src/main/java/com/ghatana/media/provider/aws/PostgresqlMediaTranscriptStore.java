@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import tools.jackson.databind.JsonNode;
 
@@ -74,8 +75,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                            source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
                            language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
                            rights_decision_id,
-                           policy_version,admission_status,created_at)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?)
+                           policy_version,admission_status,created_at,timing_availability,segments_json)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?,?,?)
                         """)) {
                     bind(insert, draft, revision, now);
                     insert.executeUpdate();
@@ -150,8 +151,9 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                           (tenant_id,transcript_id,revision,principal_id,source_artifact_id,
                            source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
                            language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
-                           rights_decision_id,policy_version,admission_status,created_at)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                           rights_decision_id,policy_version,admission_status,created_at,
+                           timing_availability,segments_json)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """)) {
                     bind(insert, draft, revision, now, admissionStatus);
                     insert.executeUpdate();
@@ -725,7 +727,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         return false;
     }
 
-    private static TranscriptRevision latest(Connection connection, String tenant, String transcript, boolean lock)
+    private TranscriptRevision latest(Connection connection, String tenant, String transcript, boolean lock)
             throws SQLException {
         String sql = "SELECT * FROM media_transcript_revisions WHERE tenant_id=? AND transcript_id=? "
                 + "ORDER BY revision DESC LIMIT 1" + (lock ? " FOR UPDATE" : "");
@@ -735,14 +737,24 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         }
     }
 
-    private static TranscriptRevision read(ResultSet row) throws SQLException {
+    private TranscriptRevision read(ResultSet row) throws SQLException {
+        String segmentsJson = row.getString("segments_json");
+        List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment> segments;
+        try {
+            segments = MediaTranscriptContracts.segmentsFromParameterValue(
+                    segmentsJson == null || segmentsJson.isBlank() ? null
+                            : state.mapper().readValue(segmentsJson,
+                                    new tools.jackson.core.type.TypeReference<List<Map<String, Object>>>() { }));
+        } catch (Exception malformed) {
+            throw new SQLException("stored transcript segments are malformed", malformed);
+        }
         TranscriptDraft draft = new TranscriptDraft(row.getString("tenant_id"), row.getString("principal_id"),
                 row.getString("transcript_id"), row.getString("source_artifact_id"),
                 row.getString("source_artifact_version"), row.getString("source_sha256"), row.getString("job_id"),
                 row.getString("profile_id"), row.getString("provider_id"), row.getString("model_id"),
                 row.getString("language"), row.getString("timebase"), row.getString("transcript_text"),
                 row.getString("consent_decision_id"), row.getString("rights_decision_id"), row.getString("policy_version"),
-                row.getString("purpose_ref"), row.getString("processing_purpose"));
+                row.getString("purpose_ref"), row.getString("processing_purpose"), segments);
         return new TranscriptRevision(draft, row.getInt("revision"), row.getLong("created_at"),
                 row.getString("admission_status"));
     }
@@ -755,15 +767,28 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " is required");
     }
 
-    private static void bind(PreparedStatement s, TranscriptDraft d, int revision, long now) throws SQLException {
+    private void bind(PreparedStatement s, TranscriptDraft d, int revision, long now) throws SQLException {
         bindFields(s, d, revision);
         s.setLong(20,now);
+        s.setString(21, d.timingAvailability().name());
+        s.setString(22, segmentsJson(d));
     }
 
-    private static void bind(PreparedStatement s, TranscriptDraft d, int revision, long now,
+    private void bind(PreparedStatement s, TranscriptDraft d, int revision, long now,
             String admissionStatus) throws SQLException {
         bindFields(s, d, revision);
         s.setString(20,admissionStatus); s.setLong(21,now);
+        s.setString(22, d.timingAvailability().name());
+        s.setString(23, segmentsJson(d));
+    }
+
+    private String segmentsJson(TranscriptDraft draft) throws SQLException {
+        try {
+            return state.mapper().writeValueAsString(
+                    MediaTranscriptContracts.segmentsToParametersValue(draft.segments()));
+        } catch (Exception unwritable) {
+            throw new SQLException("transcript segments are not JSON serializable", unwritable);
+        }
     }
 
     private static void bindFields(PreparedStatement s, TranscriptDraft d, int revision) throws SQLException {

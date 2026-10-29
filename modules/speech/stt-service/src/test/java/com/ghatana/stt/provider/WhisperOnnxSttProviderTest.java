@@ -67,4 +67,33 @@ class WhisperOnnxSttProviderTest {
                         clockMetadata(48_000, 96_000)))
                 .isEmpty();
     }
+
+    @Test
+    void declaredSpanBecomesOneSourceTicksTranscriptSegment() {
+        Map<String, Object> segment = WhisperOnnxSttProvider.sourceTickSegment(
+                "decoded text", 16_000, 16_000, clockMetadata(48_000, 96_000));
+        assertThat(segment).isNotNull();
+        assertThat(segment).containsEntry("segmentId", "transcript-span")
+                .containsEntry("text", "decoded text")
+                .containsEntry("origin", "PROVIDER");
+        assertThat(segment.get("timing")).isInstanceOf(Map.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> timing = (Map<String, Object>) segment.get("timing");
+        assertThat(timing).containsEntry("tag", "SOURCE_TICKS")
+                .containsEntry("startTick", 0L)
+                .containsEntry("endTick", 48_000L)
+                .containsEntry("sourceClockId", "src-clock")
+                .containsEntry("sourceTicksPerSecond", 48_000L)
+                .containsEntry("sourceDurationTicks", 96_000L);
+    }
+
+    @Test
+    void noVerifiedSpanMeansNoSegmentIsDeclared() {
+        assertThat(WhisperOnnxSttProvider.sourceTickSegment(
+                "text", 16_000, 16_000, Map.of())).isNull();
+        assertThat(WhisperOnnxSttProvider.sourceTickSegment(
+                "text", 7, 16_000, clockMetadata(44_100, 96_000))).isNull();
+        assertThat(WhisperOnnxSttProvider.sourceTickSegment(
+                "text", 0, 16_000, clockMetadata(48_000, 96_000))).isNull();
+    }
 }

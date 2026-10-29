@@ -2396,6 +2396,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     authenticated);
             String transcriptText = String.valueOf(transcript.get("transcriptText"));
             String transcriptVersionRef = String.valueOf(transcript.get("transcriptVersionRef"));
+            // Provider-declared ordered segments with their exact timing tags are
+            // preserved verbatim; a malformed union fails the append rather than
+            // silently dropping a supplied timing disposition.
+            List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment> segments =
+                    com.ghatana.media.runtime.MediaTranscriptContracts.segmentsFromParameterValue(
+                            transcript.get("segments"));
             MediaSpeechToTextAdmission.Request speech = speechRequest(request);
             String consentId = sourceAuthorization.consentDecisionId().isBlank()
                     ? "NOT_APPLICABLE_HUMAN_CONSENT" : sourceAuthorization.consentDecisionId();
@@ -2410,7 +2416,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             sourceAuthorization.rightsDecisionId(),
                             sourceAuthorization.policyVersion(),
                             "urn:media:purpose:" + request.governanceContext().purpose(),
-                            request.governanceContext().purpose());
+                            request.governanceContext().purpose(), segments);
             transcriptStore.appendFromSuccessfulAttempt(
                     draft, 0, attempt.attemptNumber(), attempt.fencingToken(),
                     attempt.requestFingerprint(), transcriptVersionRef);

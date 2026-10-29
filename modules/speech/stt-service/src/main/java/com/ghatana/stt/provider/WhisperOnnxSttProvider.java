@@ -189,6 +189,12 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
             if (!timed.isEmpty()) {
                 submissionResult.put("timedObservations", timed);
                 submissionResult.put("timingAvailable", true);
+                Map<String, Object> segment = sourceTickSegment(
+                        text, audio.getSampleCount(), audio.sampleRate(),
+                        context.artifact().metadata());
+                if (segment != null) {
+                    transcriptResponse.put("segments", List.of(segment));
+                }
             }
             return CompletableFuture.completedFuture(new ProviderSubmission(
                     AttemptFinality.SUCCEEDED, operationId, receiptId,
@@ -220,6 +226,36 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         if (end == null || end <= 0) return List.of();
         return List.of(MultimodalOperationSpec.timedObservation(
                 "transcript-span", 0, end, clock.clockId(), clock.ticksPerSecond()));
+    }
+
+    /**
+     * The same measured decoded span expressed as one PDP-1 transcript segment with a
+     * {@code SOURCE_TICKS} timing tag and the exact shared source-clock tuple — the
+     * honest whole-extent claim the pinned profile can make. Returns null exactly when
+     * no verified span exists; the provider never fabricates intra-stream splits.
+     */
+    static Map<String, Object> sourceTickSegment(
+            String text, long decodedSamples, int decodedSampleRate,
+            Map<String, Object> artifactMetadata) {
+        var declared = MultimodalOperationSpec.declaredSourceClock(artifactMetadata);
+        if (declared.isEmpty() || decodedSamples < 1) return null;
+        var clock = declared.orElseThrow();
+        Long end = MultimodalOperationSpec.mapExtentToSourceTicks(
+                decodedSamples, decodedSampleRate, clock.ticksPerSecond());
+        if (end == null || end <= 0) return null;
+        Map<String, Object> timing = new LinkedHashMap<>();
+        timing.put("tag", "SOURCE_TICKS");
+        timing.put("startTick", 0L);
+        timing.put("endTick", end);
+        timing.put("sourceClockId", clock.clockId());
+        timing.put("sourceTicksPerSecond", clock.ticksPerSecond());
+        timing.put("sourceDurationTicks", clock.durationTicks());
+        Map<String, Object> segment = new LinkedHashMap<>();
+        segment.put("segmentId", "transcript-span");
+        segment.put("text", text);
+        segment.put("origin", "PROVIDER");
+        segment.put("timing", Map.copyOf(timing));
+        return Map.copyOf(segment);
     }
 
     private Locale requestLanguage(ProcessingContext context) {

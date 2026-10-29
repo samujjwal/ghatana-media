@@ -100,6 +100,48 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void persistsExactSegmentTimingUnionAndDerivesHonestAggregate() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "d".repeat(64);
+            seed(state, "tenant-seg", "principal-a", "source-seg", "job-seg", "consent-seg", digest, false);
+
+            var ticks = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "transcript-span", "decoded text", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(0, 48_000, "src-clock", 48_000, 96_000));
+            TranscriptDraft bound = new TranscriptDraft("tenant-seg", "principal-a", "transcript-seg",
+                    "source-seg", "sha256:" + digest, digest, "job-seg",
+                    "profile-candidate", "provider-a", "model-a", "en-US", "milliseconds",
+                    "decoded text", "consent-seg", "rights-candidate", "policy-candidate",
+                    "urn:media:purpose:transcription", "transcription", List.of(ticks));
+            var revision = store.append(bound);
+            assertThat(revision.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                            .TimingAvailability.SOURCE_CLOCK_BOUND);
+
+            var readback = store.revisions("tenant-seg", "principal-a", "transcript-seg");
+            assertThat(readback).hasSize(1);
+            var restored = readback.get(0).draft();
+            assertThat(restored.segments()).containsExactly(ticks);
+            assertThat(restored.timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                            .TimingAvailability.SOURCE_CLOCK_BOUND);
+            assertThat(store.append(bound)).isEqualTo(revision); // same segments stay idempotent
+
+            TranscriptDraft plain = draft("tenant-seg", "principal-a", "transcript-plain",
+                    "source-seg", "job-seg", "consent-seg", digest, "no timing");
+            var plainRevision = store.append(plain);
+            assertThat(plainRevision.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                            .TimingAvailability.NOT_SUPPLIED);
+            assertThat(store.revisions("tenant-seg", "principal-a", "transcript-plain")
+                    .get(0).draft().segments()).isEmpty();
+        }
+    }
+
+    @Test
     void rejectsUnboundAndConsentMismatchedPurposesWithoutPersisting() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
