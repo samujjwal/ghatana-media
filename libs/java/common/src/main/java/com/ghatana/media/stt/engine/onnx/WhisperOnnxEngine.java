@@ -54,6 +54,8 @@ public final class WhisperOnnxEngine implements SttEngine {
     private static final long REFERENCE_DECODER_BYTES = 30_719_241L;
     private static final String REFERENCE_DECODER_SHA256 = "25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3";
     private static final int MAX_GENERATED_TOKENS = 444;
+    private static final boolean DEBUG_DECODER_TOKENS =
+            LOG.isLoggable(java.util.logging.Level.FINE);
     private static final double[][] DFT_COS = referenceDftCos();
     private static final double[][] DFT_SIN = referenceDftSin();
     private static final double[] REFERENCE_HANN_WINDOW = referenceHannWindow();
@@ -884,6 +886,7 @@ public final class WhisperOnnxEngine implements SttEngine {
             double noSpeechProbability = Double.NaN;
             boolean useCache = false;
             OrtSession.Result priorDecoderResult = null;
+            OrtSession.Result firstDecoderResult = null;
             try {
                 for (int step = 0; step < MAX_GENERATED_TOKENS; step++) {
                     Map<String, OnnxTensor> inputs = new HashMap<>();
@@ -907,6 +910,12 @@ public final class WhisperOnnxEngine implements SttEngine {
                                     new long[]{1L, 6L, 0L, 64L});
                             temporary.add(emptyCache);
                             inputs.put(inputName, emptyCache);
+                        } else if (inputName.contains(".encoder.")) {
+                            // The merged decoder's cache branch emits a dummy empty
+                            // present.*.encoder.* tensor; only the first (no-past)
+                            // step returns real cross-attention keys/values. Reuse
+                            // those rather than echoing the dummy back as past.
+                            inputs.put(inputName, findTensor(firstDecoderResult, outputName));
                         } else {
                             inputs.put(inputName, findTensor(priorDecoderResult, outputName));
                         }
@@ -933,7 +942,15 @@ public final class WhisperOnnxEngine implements SttEngine {
                         return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
                     }
                     generated[generatedCount++] = nextToken;
-                    if (priorDecoderResult != null) priorDecoderResult.close();
+                    if (DEBUG_DECODER_TOKENS) {
+                        LOG.fine("WHISPER_DECODE_STEP step=" + step
+                                + " token=" + nextToken
+                                + " logP=" + decoderStep.logProbability());
+                    }
+                    if (priorDecoderResult != null && priorDecoderResult != firstDecoderResult) {
+                        priorDecoderResult.close();
+                    }
+                    if (firstDecoderResult == null) firstDecoderResult = current;
                     priorDecoderResult = current;
                     decoderIds = new long[]{nextToken};
                     useCache = true;
@@ -946,6 +963,9 @@ public final class WhisperOnnxEngine implements SttEngine {
                         null, false);
             } finally {
                 if (priorDecoderResult != null) priorDecoderResult.close();
+                if (firstDecoderResult != null && firstDecoderResult != priorDecoderResult) {
+                    firstDecoderResult.close();
+                }
             }
         } finally {
             features.close();
