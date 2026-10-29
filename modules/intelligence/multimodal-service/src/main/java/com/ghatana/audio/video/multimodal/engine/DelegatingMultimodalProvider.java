@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaChildJobDispatcher;
@@ -133,6 +134,19 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 .thenApply(outcome -> submissionFor(context, attempt, outcome));
     }
 
+    /**
+     * The operation accepts cancellation: the runtime flips the attempt's shared
+     * {@link Cancellation} and future on {@link CancellationOutcome#CONFIRMED}, and the
+     * in-flight poll propagates the cancel to its durable children best-effort through
+     * the attempt-bound dispatcher. Each child's own durable record stays the authority
+     * for child finality — this outcome covers the parent operation's effects only.
+     */
+    @Override
+    public CancellationOutcome cancel(
+            String tenantId, String principalId, String correlationId, String jobId) {
+        return CancellationOutcome.CONFIRMED;
+    }
+
     @Override
     public Optional<ProviderObservation> reconcileAttempt(
             String tenantId, String jobId, String requestId, int attemptNumber) {
@@ -180,10 +194,16 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         try {
             children = submitChildren(spec, context, dispatcher);
         } catch (RuntimeException failure) {
-            result.complete(OperationOutcome.failed("CHILD_SUBMISSION_FAILED"));
+            // Already-submitted children were cancelled inside submitChildren. A parent
+            // cancellation racing the fanout reports UNKNOWN, never a failure code for
+            // an effect that was refused rather than attempted.
+            result.complete(context.cancellation().cancelled()
+                    ? OperationOutcome.unknown()
+                    : OperationOutcome.failed("CHILD_SUBMISSION_FAILED"));
             return result;
         }
         if (children.size() != spec.children().size()) {
+            cancelChildrenQuietly(children, dispatcher);
             result.complete(OperationOutcome.unknown());
             return result;
         }
@@ -202,19 +222,27 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         ProcessingJobRequest parent = context.request();
         List<ProcessingJob> children = new ArrayList<>(spec.children().size());
         for (MultimodalOperationSpec.ChildOperationSpec child : spec.children()) {
-            String childRequestId = MultimodalOperationSpec.childRequestId(
-                    parent.requestId(), child.childKey());
-            ProcessingJob existing = dispatcher.findJobByRequest(childRequestId).orElse(null);
-            if (existing != null) {
-                children.add(existing);
-                continue;
+            try {
+                context.cancellation().throwIfCancelled();
+                String childRequestId = MultimodalOperationSpec.childRequestId(
+                        parent.requestId(), child.childKey());
+                ProcessingJob existing = dispatcher.findJobByRequest(childRequestId).orElse(null);
+                if (existing != null) {
+                    children.add(existing);
+                    continue;
+                }
+                ProcessingJobRequest childRequest = new ProcessingJobRequest(
+                        childRequestId, parent.tenantId(), parent.principalId(),
+                        boundedCorrelation(parent.correlationId(), child.childKey()),
+                        child.artifactId(), child.artifactVersion(), child.jobType(),
+                        child.providerHint(), child.parameters(), parent.governanceContext());
+                children.add(dispatcher.submitChild(childRequest));
+            } catch (RuntimeException failure) {
+                // A denied or cancelled fanout must not leak the children already
+                // submitted: cancel them best-effort before the failure propagates.
+                cancelChildrenQuietly(children, dispatcher);
+                throw failure;
             }
-            ProcessingJobRequest childRequest = new ProcessingJobRequest(
-                    childRequestId, parent.tenantId(), parent.principalId(),
-                    boundedCorrelation(parent.correlationId(), child.childKey()),
-                    child.artifactId(), child.artifactVersion(), child.jobType(),
-                    child.providerHint(), child.parameters(), parent.governanceContext());
-            children.add(dispatcher.submitChild(childRequest));
         }
         return children;
     }
@@ -227,12 +255,16 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             MediaChildJobDispatcher dispatcher,
             CompletableFuture<OperationOutcome> result,
             Instant deadline) {
-        if (result.isDone()) return;
         try {
             if (context.cancellation().cancelled()) {
+                // Checked before result.isDone(): the runtime cancels the attempt future
+                // on a confirmed parent cancel, and propagation to the durable children
+                // must still run while the dispatcher is reachable.
+                cancelChildrenQuietly(children, dispatcher);
                 result.complete(OperationOutcome.unknown());
                 return;
             }
+            if (result.isDone()) return;
             List<ProcessingJob> current = new ArrayList<>(children.size());
             for (ProcessingJob child : children) {
                 Optional<ProcessingJob> readback = dispatcher.findJob(child.jobId());
@@ -246,6 +278,9 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             if (!Instant.now().isBefore(deadline)) {
                 // A child may still be ACCEPTED/RUNNING or its outcome lost. UNKNOWN is
                 // the honest parent finality; reconciliation reads exact child receipts.
+                // The operation bound is spent, so the remaining children are cancelled
+                // best-effort rather than left running past the parent deadline.
+                cancelChildrenQuietly(current, dispatcher);
                 result.complete(OperationOutcome.unknown());
                 return;
             }
@@ -278,6 +313,23 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         if (anyUnknown) return OperationOutcome.unknown();
         if (anyFailed) return OperationOutcome.failed("CHILD_FAILED");
         return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(spec, children));
+    }
+
+    /**
+     * Best-effort cancel of the operation's durable children. The parent outcome is
+     * already determined when this runs; each child's own job record stays the exact
+     * authority for whether the cancel took effect.
+     */
+    private void cancelChildrenQuietly(
+            List<ProcessingJob> children, MediaChildJobDispatcher dispatcher) {
+        for (ProcessingJob child : children) {
+            try {
+                dispatcher.cancelChild(child.jobId());
+            } catch (RuntimeException failure) {
+                LOG.debug("Multimodal child cancellation was not confirmed childJobId={}",
+                        child.jobId(), failure);
+            }
+        }
     }
 
     private ProviderSubmission submissionFor(

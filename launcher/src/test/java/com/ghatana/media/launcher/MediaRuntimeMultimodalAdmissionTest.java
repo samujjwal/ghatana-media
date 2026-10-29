@@ -231,6 +231,67 @@ class MediaRuntimeMultimodalAdmissionTest {
         }
     }
 
+    @Test
+    void parentCancellationPropagatesToInflightChildrenThroughCanonicalJobs() throws Exception {
+        var root = Files.createTempDirectory("media-mm-cancel-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+        var stt = pendingCancellableSttProvider();
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt), allowAllAuthority());
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var child = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var spec = spec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            child.artifactId(), child.version().value(), child.sha256(), "",
+                            sttParameters())));
+            var accepted = runtime.submit(mmRequest(source, spec));
+            var childJob = awaitJob(jobStore, "req-mm:stt");
+            var cancelled = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
+            assertThat(cancelled.status()).isEqualTo(JobStatus.CANCELLED);
+            awaitTerminal(jobStore, childJob.jobId());
+            var childAfter = jobStore.find("tenant-a", childJob.jobId()).orElseThrow();
+            assertThat(childAfter.status()).isEqualTo(JobStatus.CANCELLED);
+            assertThat(jobStore.find("tenant-a", accepted.jobId()).orElseThrow().status())
+                    .isEqualTo(JobStatus.CANCELLED);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void deniedChildDuringFanoutCancelsAlreadySubmittedSiblings() throws Exception {
+        var root = Files.createTempDirectory("media-mm-partial-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        var mm = new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider();
+        var stt = pendingCancellableSttProvider();
+        var runtime = runtimeWithAuthority(root, jobStore, List.of(mm, stt),
+                denyOperationAuthority(JobType.VISION.name()));
+        try {
+            var source = artifact(runtime, "tenant-a", "principal-a");
+            var sttChild = artifact(runtime, "tenant-a", "principal-a", sourceClockMetadata());
+            var deniedChild = artifact(runtime, "tenant-a", "principal-a");
+            var spec = spec(source, List.of(
+                    new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT,
+                            sttChild.artifactId(), sttChild.version().value(), sttChild.sha256(), "",
+                            sttParameters()),
+                    new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION,
+                            deniedChild.artifactId(), deniedChild.version().value(),
+                            deniedChild.sha256(), "", Map.of())));
+            var accepted = runtime.submit(mmRequest(source, spec));
+            awaitTerminal(jobStore, accepted.jobId());
+            var parent = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
+            assertThat(parent.status()).isEqualTo(JobStatus.FAILED);
+            // The refused vision child never created a durable job; the submitted STT
+            // sibling was cancelled rather than left running as a leaked effect.
+            assertThat(jobStore.findByRequest("tenant-a", "req-mm:vision")).isEmpty();
+            var sttJob = awaitJob(jobStore, "req-mm:stt");
+            assertThat(sttJob.status()).isEqualTo(JobStatus.CANCELLED);
+        } finally {
+            runtime.close();
+        }
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaRuntime runtime(
@@ -318,6 +379,31 @@ class MediaRuntimeMultimodalAdmissionTest {
                     MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
                 return new MediaSourceAuthorizationContracts.Decision(
                         MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
+            }
+        };
+    }
+
+    /** Fixture authority identical to {@link #allowAllAuthority()} except one denied operation. */
+    private static MediaSourceAuthorizationContracts.Authority denyOperationAuthority(String operation) {
+        var delegate = allowAllAuthority();
+        return new MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public MediaSourceAuthorizationContracts.Decision resolve(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                if (operation.equals(request.operation())) {
+                    return new MediaSourceAuthorizationContracts.Decision(
+                            MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
+                return delegate.resolve(request, authenticated);
+            }
+            @Override public MediaSourceAuthorizationContracts.Decision revalidate(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                return delegate.revalidate(request, expectedEvidence, authenticated);
             }
         };
     }
@@ -438,6 +524,44 @@ class MediaRuntimeMultimodalAdmissionTest {
         };
     }
 
+    /**
+     * STT test provider whose attempt stays in flight until cancelled; its cancel is
+     * provider-confirmed so the canonical child cancel path is exercised end to end.
+     */
+    private static MediaProcessingProvider pendingCancellableSttProvider() {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "test-stt-pending"; }
+            @Override public String providerVersion() { return "v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public java.util.Optional<com.ghatana.media.runtime
+                    .MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+                return java.util.Optional.of(new com.ghatana.media.runtime
+                        .MediaSpeechToTextAdmission.Profile(
+                        "test-stt-pending", "v1", "profile-a", "v1",
+                        "sha256:" + "a".repeat(64),
+                        com.ghatana.media.runtime.MediaSpeechToTextAdmission
+                                .ProfileQualification.QUALIFIED,
+                        Set.of("en-US"), false,
+                        com.ghatana.media.runtime.MediaSpeechToTextAdmission
+                                .TimingDisposition.SOURCE_CLOCK_BOUND,
+                        "fixture-qualification-evidence"));
+            }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 0; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return new CompletableFuture<>();
+            }
+            @Override public com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome cancel(
+                    String tenantId, String principalId, String correlationId, String jobId) {
+                return com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome.CONFIRMED;
+            }
+        };
+    }
+
     private static Map<String, Object> sttParameters() {
         return Map.of(
                 "profileId", "profile-a",
@@ -528,5 +652,16 @@ class MediaRuntimeMultimodalAdmissionTest {
             }
             Thread.sleep(25);
         }
+    }
+
+    private static com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob awaitJob(
+            LocalMediaRuntimeSupport.JobStore store, String requestId) throws InterruptedException {
+        for (int i = 0; i < 200; i++) {
+            var job = store.findByRequest("tenant-a", requestId);
+            if (job.isPresent()) return job.orElseThrow();
+            Thread.sleep(25);
+        }
+        throw new AssertionError("durable child job never appeared: " + requestId
+                + " jobs=" + store.list("tenant-a", 100));
     }
 }

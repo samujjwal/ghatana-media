@@ -2,6 +2,7 @@ package com.ghatana.audio.video.multimodal.engine;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
@@ -111,6 +112,84 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void unknownChildWithSucceededSiblingKeepsParentUnknown() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.OUTCOME_UNKNOWN, Map.of())
+                    .with(JobType.VISION, JobStatus.COMPLETED, Map.of("detections", List.of()));
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void parentCancellationPropagatesToInflightChildren() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(30), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.RUNNING, Map.of())
+                    .with(JobType.VISION, JobStatus.RUNNING, Map.of());
+            var cancellation = new Cancellation();
+            var future = provider.processAttempt(
+                    context(cancellation, dispatcher, twoChildRequest()), attempt());
+            assertThat(dispatcher.submits.get()).isEqualTo(2);
+            cancellation.cancel();
+            var submission = future.get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(dispatcher.cancelledJobIds()).containsExactlyInAnyOrder(
+                    "job-req-1:stt", "job-req-1:vision");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void deniedSecondChildCancelsAlreadySubmittedSiblings() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.RUNNING, Map.of())
+                    .failOn(JobType.VISION, new SecurityException("child source rights revoked"));
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.FAILED);
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void expiredOperationDeadlineCancelsStillRunningChildren() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofMillis(120), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.RUNNING, Map.of())
+                    .with(JobType.VISION, JobStatus.RUNNING, Map.of());
+            var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(dispatcher.cancelledJobIds()).containsExactlyInAnyOrder(
+                    "job-req-1:stt", "job-req-1:vision");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void missingDispatcherProducesNoEffectProven() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -133,6 +212,33 @@ class DelegatingMultimodalProviderTest {
     private static ProcessingContext context(FixtureDispatcher dispatcher) {
         return new ProcessingContext(request(), artifact(), new Cancellation(), null,
                 null, null, dispatcher);
+    }
+
+    private static ProcessingContext context(FixtureDispatcher dispatcher, ProcessingJobRequest request) {
+        return new ProcessingContext(request, artifact(), new Cancellation(), null,
+                null, null, dispatcher);
+    }
+
+    private static ProcessingContext context(
+            Cancellation cancellation, FixtureDispatcher dispatcher, ProcessingJobRequest request) {
+        return new ProcessingContext(request, artifact(), cancellation, null,
+                null, null, dispatcher);
+    }
+
+    private static ProcessingJobRequest twoChildRequest() {
+        var spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "cap", "op", 1, "src", "sha256:" + SHA, SHA,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec(
+                        "stt", JobType.SPEECH_TO_TEXT, "stt-art",
+                        "sha256:" + SHA, SHA, "", Map.of()),
+                        new MultimodalOperationSpec.ChildOperationSpec(
+                        "vision", JobType.VISION, "vision-art",
+                        "sha256:" + SHA, SHA, "", Map.of())),
+                null, Map.of());
+        return new ProcessingJobRequest("req-1", "tenant-a", "principal-a", "corr-1",
+                "src", "sha256:" + SHA, JobType.MULTIMODAL, "",
+                Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()));
     }
 
     private static ProcessingContext clockedContext(FixtureDispatcher dispatcher) {
@@ -177,21 +283,46 @@ class DelegatingMultimodalProviderTest {
 
     private static final class FixtureDispatcher implements MediaChildJobDispatcher {
         private final Map<String, ProcessingJob> jobs = new ConcurrentHashMap<>();
-        private JobStatus status = JobStatus.COMPLETED;
-        private Map<String, Object> result = Map.of();
+        private final Map<JobType, JobStatus> statuses = new ConcurrentHashMap<>();
+        private final Map<JobType, Map<String, Object>> results = new ConcurrentHashMap<>();
+        private final Map<JobType, RuntimeException> failures = new ConcurrentHashMap<>();
+        private final java.util.Set<String> cancelled = ConcurrentHashMap.newKeySet();
         private final AtomicInteger submits = new AtomicInteger();
+        private JobStatus defaultStatus = JobStatus.COMPLETED;
+        private Map<String, Object> defaultResult = Map.of();
 
         FixtureDispatcher with(JobStatus status, Map<String, Object> result) {
-            this.status = status;
-            this.result = result;
+            this.defaultStatus = status;
+            this.defaultResult = result;
             return this;
+        }
+
+        FixtureDispatcher with(JobType jobType, JobStatus status, Map<String, Object> result) {
+            statuses.put(jobType, status);
+            results.put(jobType, result);
+            return this;
+        }
+
+        FixtureDispatcher failOn(JobType jobType, RuntimeException failure) {
+            failures.put(jobType, failure);
+            return this;
+        }
+
+        java.util.Set<String> cancelledJobIds() {
+            return cancelled;
         }
 
         @Override public ProcessingJob submitChild(ProcessingJobRequest childRequest) {
             submits.incrementAndGet();
+            RuntimeException failure = failures.get(childRequest.jobType());
+            if (failure != null) throw failure;
+            JobStatus status = statuses.getOrDefault(childRequest.jobType(), defaultStatus);
+            Map<String, Object> result =
+                    results.getOrDefault(childRequest.jobType(), defaultResult);
             boolean terminal = status == JobStatus.COMPLETED || status == JobStatus.FAILED
                     || status == JobStatus.CANCELLED || status == JobStatus.OUTCOME_UNKNOWN;
-            ProcessingJob job = new ProcessingJob("child-1", childRequest.requestId(),
+            ProcessingJob job = new ProcessingJob("job-" + childRequest.requestId(),
+                    childRequest.requestId(),
                     childRequest.tenantId(), childRequest.principalId(), childRequest.artifactId(),
                     childRequest.jobType(), "child-provider", status, Instant.now(), Instant.now(),
                     terminal ? Instant.now() : null,
@@ -206,6 +337,18 @@ class DelegatingMultimodalProviderTest {
 
         @Override public Optional<ProcessingJob> findJobByRequest(String requestId) {
             return Optional.ofNullable(jobs.get(requestId));
+        }
+
+        @Override public CancellationOutcome cancelChild(String jobId) {
+            cancelled.add(jobId);
+            jobs.replaceAll((requestId, job) -> job.jobId().equals(jobId)
+                    ? new ProcessingJob(job.jobId(), job.requestId(), job.tenantId(),
+                            job.principalId(), job.artifactId(), job.jobType(), job.providerId(),
+                            JobStatus.CANCELLED, job.createdAt(), job.startedAt(), Instant.now(),
+                            job.result(), job.failureCode(), job.version() + 1,
+                            job.expectedArtifactVersion(), job.requestFingerprint())
+                    : job);
+            return CancellationOutcome.CONFIRMED;
         }
     }
 }

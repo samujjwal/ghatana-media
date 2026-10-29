@@ -2610,6 +2610,24 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
 
         @Override
+        public CancellationOutcome cancelChild(String jobId) {
+            ensureOpen();
+            try {
+                ProcessingJob stored = cancelOwnedJob(parent.tenantId(), parent.principalId(), jobId);
+                if (stored.status() == JobStatus.CANCELLED) {
+                    return CancellationOutcome.CONFIRMED;
+                }
+                // Already-terminal children never observed the request; a still-running
+                // child carries the durable cancellation annotation.
+                return terminal(stored.status())
+                        ? CancellationOutcome.UNSUPPORTED
+                        : CancellationOutcome.REQUESTED_UNCONFIRMED;
+            } catch (IllegalArgumentException missingOrForeign) {
+                return CancellationOutcome.UNSUPPORTED;
+            }
+        }
+
+        @Override
         public Optional<com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot>
                 operationSnapshot(String jobId) {
             ensureOpen();

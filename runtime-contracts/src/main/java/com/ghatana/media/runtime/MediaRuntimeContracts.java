@@ -1445,6 +1445,16 @@ public final class MediaRuntimeContracts {
         /** Principal-scoped child job readback by its deterministic request id. */
         Optional<ProcessingJob> findJobByRequest(String requestId);
 
+        /**
+         * Best-effort, principal-scoped child cancellation bound to the authenticated
+         * parent principal. A terminal or vanished child is a no-op. The returned
+         * outcome describes the cancel request only; the durable child job record
+         * remains the reconciliation authority.
+         */
+        default CancellationOutcome cancelChild(String jobId) {
+            return CancellationOutcome.UNSUPPORTED;
+        }
+
         /** Reconstructs the durable multimodal operation spec for the parent job. */
         default Optional<MultimodalOperationSnapshot> operationSnapshot(String jobId) {
             return Optional.empty();
