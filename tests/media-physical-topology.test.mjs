@@ -13,6 +13,14 @@ test('physical topology is deterministic and source-backed', () => {
   assert.deepEqual(validateTopology(topology), []);
 });
 
+test('rejects an active authored public build module missing from the topology', () => {
+  const changed = copy();
+  changed.manifestCandidates = changed.manifestCandidates.filter((candidate) => candidate.sourcePath !== 'adapters/data-cloud-media');
+  changed.activeManifestCandidateCount = changed.manifestCandidates.length;
+  const errors = validateTopology(changed);
+  assert.ok(errors.some((error) => error.includes('active build manifest has no topology candidate/disposition: adapters/data-cloud-media/build.gradle.kts')));
+});
+
 test('rejects an unclassified or duplicate manifest candidate', () => {
   const changed = copy();
   changed.manifestCandidates[0].disposition = 'MAYBE';

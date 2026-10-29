@@ -9,6 +9,25 @@ const sourcePath = (ref) => ref.split('#', 1)[0];
 const existsRef = (root, ref) => fs.existsSync(path.join(root, sourcePath(ref)));
 const ids = (p) => new Set([...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]));
 const idList = (p) => [...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]);
+const manifestNames = new Set(['package.json', 'build.gradle', 'build.gradle.kts', 'Cargo.toml']);
+const ignoredManifestDirectories = new Set(['.git', 'node_modules', 'build', 'dist', '.gradle', '.vite', 'target']);
+
+function activeBuildManifests(root) {
+  const refs = [];
+  const roots = ['apps', 'libs', 'modules', 'adapters', 'providers', 'launcher', 'runtime-contracts', 'audio-video-observability', 'integration-tests'];
+  const walk = (directory) => {
+    if (!fs.existsSync(directory)) return;
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      if (entry.isDirectory()) {
+        if (!ignoredManifestDirectories.has(entry.name)) walk(path.join(directory, entry.name));
+      } else if (entry.isFile() && manifestNames.has(entry.name)) {
+        refs.push(path.relative(root, path.join(directory, entry.name)).split(path.sep).join('/'));
+      }
+    }
+  };
+  for (const relative of roots) walk(path.join(root, relative));
+  return refs.sort();
+}
 
 function compareExactIds(actualValues, expectedValues, label, fail) {
   const actual = new Set(actualValues ?? []);
@@ -26,7 +45,7 @@ export function validateTopology(topology, root = repo) {
   const candidates = topology.manifestCandidates ?? [];
   const byId = new Map(candidates.map((candidate) => [candidate.surfaceId, candidate]));
   if (topology.schemaVersion !== 'media.physical-topology.v1') fail('schemaVersion must be media.physical-topology.v1');
-  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 28) fail('active manifest candidate count must include the two isolated optional adapter modules (28 total)');
+  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 29) fail('active manifest candidate count must include every authored FULL-scope build manifest (29 total)');
   if (new Set(candidates.map((candidate) => candidate.sourcePath)).size !== candidates.length) fail('physical source paths must be unique');
   if (new Set(candidates.map((candidate) => candidate.surfaceId)).size !== candidates.length) fail('physical identities must be unique');
   const dispositions = new Set(['PHYSICAL', 'SUBSUMED', 'SUPPORT_ONLY', 'ARCHIVED', 'EXTERNAL']);
@@ -48,6 +67,10 @@ export function validateTopology(topology, root = repo) {
       for (const ref of cell.implementationRefs ?? []) if (!existsRef(root, ref)) fail(`${candidate.surfaceId}: ${phase} has missing implementation ref ${ref}`);
     }
   }
+  const activeManifests = new Set(activeBuildManifests(root));
+  const candidateManifests = new Set(candidates.map((candidate) => candidate.manifestPath));
+  for (const manifest of activeManifests) if (!candidateManifests.has(manifest)) fail(`active build manifest has no topology candidate/disposition: ${manifest}`);
+  for (const manifest of candidateManifests) if (!activeManifests.has(manifest)) fail(`topology candidate manifest is not in the active authored build inventory: ${manifest}`);
   const crosswalk = topology.consumerCrosswalk ?? [];
   const successor = topology.recorderStudioConsumerSuccessor;
   if (!successor || successor.status !== 'SOURCE_DEFINED_PENDING_DISCOVERY_READMISSION'

@@ -10,7 +10,7 @@ const read = path => readFileSync(resolve(root, path), 'utf8');
 
 function readSourceFixture() {
   const operations = parse(read('.product-experience/pdp-1-domain-data/operations.yaml'));
-  const openapi = parse(read('contracts/openapi/media.yaml'));
+  const openapiDocument = parse(read('contracts/openapi/media.yaml'));
   return {
     operations: operations.individualOperationContracts.records,
     sourceDenominators: operations.sourceDenominators,
@@ -22,7 +22,8 @@ function readSourceFixture() {
     qualificationPolicy: parse(read('.product-experience/pdp-0-product-truth/qualification-policy.yaml')),
     privacyPolicy: read('docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md'),
     domainObjects: parse(read('.product-experience/pdp-1-domain-data/domain-objects.yaml')).objects,
-    openapi: openapi.paths,
+    openapi: openapiDocument.paths,
+    openapiSchemas: openapiDocument.components.schemas,
     runtime: read('runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaUploadRequestFingerprint.java'),
     sdk: read('libs/audio-video-client/src/operations.ts'),
   };
@@ -184,6 +185,30 @@ test('source identity drift or invented completion key is not silently accepted 
   const keyed = fixture();
   keyed.openapi['/api/v1/artifacts/uploads/{uploadId}/complete'].post.parameters.push({ name: 'Idempotency-Key' });
   assert.ok(validate(keyed).some(error => error.includes('bodyless completion')));
+});
+
+test('upload OpenAPI schemas match the source DTO bounds and reject unknown request/response fields', () => {
+  const f = fixture();
+  const request = f.openapiSchemas.UploadRequest;
+  const session = f.openapiSchemas.UploadSession;
+  const artifact = f.openapiSchemas.MediaArtifact;
+  assert.equal(request.additionalProperties, false);
+  assert.equal(request.properties.expectedSizeBytes.maximum, 1_099_511_627_776);
+  assert.equal(session.additionalProperties, false);
+  assert.deepEqual(session.required, [
+    'uploadId', 'tenantId', 'principalId', 'fileName', 'contentType', 'expectedSizeBytes',
+    'expectedSha256', 'classification', 'createdAt', 'expiresAt', 'bytesReceived',
+    'nextChunkIndex', 'status', 'metadata',
+  ]);
+  assert.equal(session.properties.expectedSizeBytes.maximum, 1_099_511_627_776);
+  assert.deepEqual(session.properties.status.enum, ['OPEN', 'FINALIZING', 'COMPLETED', 'ABORTED', 'EXPIRED']);
+  assert.equal(artifact.additionalProperties, false);
+  assert.deepEqual(artifact.required, [
+    'tenantId', 'principalId', 'artifactId', 'fileName', 'contentType', 'sizeBytes', 'sha256',
+    'objectReference', 'classification', 'createdAt', 'expiresAt', 'metadata',
+  ]);
+  assert.equal(artifact.properties.sizeBytes.maximum, 1_099_511_627_776);
+  assert.match(artifact.properties.objectReference.description, /not an authorization credential/u);
 });
 
 test('upload state, action and object bindings reject availability, rights and action-equivalence expansion', () => {

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "contract-definition-static-validation.v1",
+  "repositoryId": "ghatana-media",
+  "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+  "scope": "Definition projection shape, source refs/fingerprints, owner mapping, dependencies and bounded API type compatibility. No runtime or lifecycle execution.",
+  "checks": [
+    {
+      "id": "surface-matrix",
+      "status": "PASS",
+      "surfaceCount": 21,
+      "errors": []
+    },
+    {
+      "id": "static-negative-cases",
+      "status": "PASS",
+      "cases": [
+        {
+          "case": "malformed schema version",
+          "result": "PASS",
+          "observedFinding": "malformed schema version"
+        },
+        {
+          "case": "duplicate IDs",
+          "result": "PASS",
+          "observedFinding": "duplicate surface ID"
+        },
+        {
+          "case": "unknown Closure fields",
+          "result": "PASS",
+          "observedFinding": "unknown Closure field"
+        },
+        {
+          "case": "unresolved references",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: unresolved ref missing-contract.json"
+        },
+        {
+          "case": "wrong owner",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: wrong owner"
+        },
+        {
+          "case": "ambiguous dependency",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: ambiguous dependency x"
+        },
+        {
+          "case": "invalid extension namespace",
+          "result": "PASS",
+          "observedFinding": "invalid extension namespace"
+        },
+        {
+          "case": "stale generated/source fingerprint",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: stale source fingerprint ../ghatana-lifecycle/config/closure/contract-applicability.json"
+        },
+        {
+          "case": "declared source ref must have a file fingerprint",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: source reference lacks per-file fingerprint adapters/data-cloud-media/CONSUMER_GUIDE.md"
+        },
+        {
+          "case": "physical surface missing public interface",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: PHYSICAL candidate has no source-backed public interface ref"
+        },
+        {
+          "case": "noncanonical dimension identity rejected",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: noncanonical applicableContractDimensions"
+        },
+        {
+          "case": "proposal interface inventory drift",
+          "result": "PASS",
+          "observedFinding": "media.product-definition: protobuf RPC inventory count mismatch"
+        },
+        {
+          "case": "noncanonical structural kind rejected",
+          "result": "PASS",
+          "observedFinding": "media.physical.adapters-data-cloud-media: noncanonical surfaceKind"
+        },
+        {
+          "case": "individual operation wire binding drift",
+          "result": "PASS",
+          "observedFinding": "media.operation-slice.begin-upload: wire binding does not match exact OpenAPI operation inventory"
+        },
+        {
+          "case": "incompatible exported type",
+          "result": "PASS",
+          "observedFinding": "incompatible exported type"
+        }
+      ]
+    }
+  ]
+}

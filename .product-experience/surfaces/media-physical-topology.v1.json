@@ -11,8 +11,132 @@
     "config/route-manifest.json",
     ".product-experience/surface-registry.yaml"
   ],
-  "activeManifestCandidateCount": 28,
+  "activeManifestCandidateCount": 29,
   "manifestCandidates": [
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "sourcePath": "adapters/agent-tools-media",
+      "manifestPath": "adapters/agent-tools-media/build.gradle.kts",
+      "buildSystem": "gradle",
+      "buildCoordinate": {
+        "standaloneProjectPath": ":services:media:adapters:agent-tools-media",
+        "monorepoProjectPath": ":media:adapters:agent-tools-media",
+        "coordinateKind": "Gradle project path; settings.gradle.kts assigns mode-dependent prefix"
+      },
+      "deployability": "LIBRARY_OR_TOOL",
+      "owner": "media-runtime",
+      "publicBoundaryRef": "adapters/agent-tools-media/src/main",
+      "disposition": "SUPPORT_ONLY",
+      "dispositionRationale": "Optional Tools SPI adapter module; keeps agent-tool integrations outside core modality libraries.",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "capabilityFamilyIds": [],
+          "capabilityIntentIds": [],
+          "requirementIds": [],
+          "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
+          "intentIds": []
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "operationIds": [],
+          "rationale": "No separate canonical domain or operation ownership is assigned.",
+          "domainObjectIds": []
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRefs": [
+            ".product-experience/pdp-2-design-interface-system/api/",
+            ".product-experience/pdp-2-design-interface-system/sdk/",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRefs": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/"
+          ],
+          "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+          "journeyIds": [],
+          "screenIds": []
+        }
+      },
+      "consumerSurfaceRefs": [
+        "media.surface.agent-tools"
+      ],
+      "consumerMappingState": "MAPPED",
+      "sourceOwnedObservations": [
+        {
+          "sourcePath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools",
+          "consumerSurfaceId": "media.surface.agent-tools",
+          "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
+          "statusReason": "Observed Agent Tool handler sources are optional adapters; no execution authority is established."
+        }
+      ]
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "sourcePath": "adapters/data-cloud-media",
+      "manifestPath": "adapters/data-cloud-media/build.gradle.kts",
+      "buildSystem": "gradle",
+      "buildCoordinate": {
+        "standaloneProjectPath": ":services:media:adapters:data-cloud-media",
+        "monorepoProjectPath": ":media:adapters:data-cloud-media",
+        "coordinateKind": "Gradle project path; settings.gradle.kts assigns mode-dependent prefix"
+      },
+      "deployability": "LIBRARY_OR_TOOL",
+      "owner": "media-runtime",
+      "publicBoundaryRef": "adapters/data-cloud-media/src/main/java/com/ghatana/stt/datacloud/DataCloudSttAdapter.java",
+      "disposition": "PHYSICAL",
+      "dispositionRationale": "Public provider/library adapter implementation of Data Cloud MediaProcessorPort. The source types define adapter requests, results, supported operations, and failures; runtime wiring and qualification remain separate.",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "APPLICABLE",
+          "authorityRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+          "capabilityFamilyIds": [],
+          "capabilityIntentIds": [],
+          "requirementIds": [],
+          "intentIds": [],
+          "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics."
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "objectAuthorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "operationIds": [],
+          "domainObjectIds": [],
+          "rationale": "The adapter implements an external MediaProcessorPort and delegates to Media-owned modality services. No cross-channel operation binding is accepted by this inventory record."
+        },
+        "PDP-2": {
+          "disposition": "HEADLESS_CONTRACT",
+          "authorityRefs": [
+            ".product-experience/pdp-2-design-interface-system/api/conventions.yaml"
+          ],
+          "rationale": "Machine-to-machine adapter contract; no GUI surface is defined."
+        },
+        "PDP-3": {
+          "disposition": "CONSUMER_CONTRACT",
+          "authorityRefs": [
+            ".product-experience/pdp-3-product-experience/services/service-registry.yaml"
+          ],
+          "rationale": "The public integration boundary is linked to the existing service registry; no runtime wiring or availability is asserted.",
+          "journeyIds": [],
+          "screenIds": []
+        }
+      },
+      "consumerSurfaceRefs": [
+        "media.surface.integrations"
+      ],
+      "consumerMappingState": "MAPPED"
+    },
     {
       "surfaceId": "media.physical.adapters-ledger",
       "sourcePath": "adapters/ledger",
@@ -72,6 +196,65 @@
         "media.surface.integrations"
       ],
       "consumerMappingState": "MAPPED"
+    },
+    {
+      "surfaceId": "media.physical.adapters-ocr-compat",
+      "sourcePath": "adapters/ocr-compat",
+      "manifestPath": "adapters/ocr-compat/build.gradle.kts",
+      "buildSystem": "gradle",
+      "buildCoordinate": {
+        "standaloneProjectPath": ":services:media:adapters:ocr-compat",
+        "monorepoProjectPath": ":media:adapters:ocr-compat",
+        "coordinateKind": "Gradle project path; settings.gradle.kts assigns mode-dependent prefix"
+      },
+      "deployability": "LIBRARY_OR_TOOL",
+      "owner": "media-runtime",
+      "publicBoundaryRef": "adapters/ocr-compat/src/main",
+      "disposition": "SUPPORT_ONLY",
+      "dispositionRationale": "Optional Kernel OCR compatibility adapter; generic OCR and provider qualification remain outside this support module.",
+      "phaseApplicability": {
+        "PDP-0": {
+          "disposition": "NOT_APPLICABLE_SUPPORT",
+          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          "capabilityFamilyIds": [],
+          "capabilityIntentIds": [],
+          "requirementIds": [],
+          "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
+          "intentIds": []
+        },
+        "PDP-1": {
+          "disposition": "REFERENCED_ONLY",
+          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
+          "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
+          "operationIds": [],
+          "rationale": "No separate canonical domain or operation ownership is assigned.",
+          "domainObjectIds": []
+        },
+        "PDP-2": {
+          "disposition": "NOT_APPLICABLE",
+          "authorityRefs": [
+            ".product-experience/pdp-2-design-interface-system/api/",
+            ".product-experience/pdp-2-design-interface-system/sdk/",
+            ".product-experience/pdp-2-design-interface-system/gui/"
+          ],
+          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
+        },
+        "PDP-3": {
+          "disposition": "TOOLING_OR_SUPPORT",
+          "authorityRefs": [
+            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
+            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
+            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
+            ".product-experience/pdp-3-product-experience/grpc/"
+          ],
+          "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
+          "journeyIds": [],
+          "screenIds": []
+        }
+      },
+      "consumerSurfaceRefs": [],
+      "consumerMappingState": "NO_DIRECT_CONSUMER_SUPPORT_ONLY",
+      "sourceOwnedObservations": []
     },
     {
       "surfaceId": "media.physical.apps-media-experience-explorer",
@@ -3353,133 +3536,6 @@
         "media.surface.capture-adapters"
       ],
       "consumerMappingState": "MAPPED"
-    },
-    {
-      "surfaceId": "media.physical.adapters-agent-tools-media",
-      "sourcePath": "adapters/agent-tools-media",
-      "manifestPath": "adapters/agent-tools-media/build.gradle.kts",
-      "buildSystem": "gradle",
-      "buildCoordinate": {
-        "standaloneProjectPath": ":services:media:adapters:agent-tools-media",
-        "monorepoProjectPath": ":media:adapters:agent-tools-media",
-        "coordinateKind": "Gradle project path; settings.gradle.kts assigns mode-dependent prefix"
-      },
-      "deployability": "LIBRARY_OR_TOOL",
-      "owner": "media-runtime",
-      "publicBoundaryRef": "adapters/agent-tools-media/src/main",
-      "disposition": "SUPPORT_ONLY",
-      "dispositionRationale": "Optional Tools SPI adapter module; keeps agent-tool integrations outside core modality libraries.",
-      "phaseApplicability": {
-        "PDP-0": {
-          "disposition": "NOT_APPLICABLE_SUPPORT",
-          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "capabilityFamilyIds": [],
-          "capabilityIntentIds": [],
-          "requirementIds": [],
-          "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
-          "intentIds": []
-        },
-        "PDP-1": {
-          "disposition": "REFERENCED_ONLY",
-          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-          "operationIds": [],
-          "rationale": "No separate canonical domain or operation ownership is assigned.",
-          "domainObjectIds": []
-        },
-        "PDP-2": {
-          "disposition": "NOT_APPLICABLE",
-          "authorityRefs": [
-            ".product-experience/pdp-2-design-interface-system/api/",
-            ".product-experience/pdp-2-design-interface-system/sdk/",
-            ".product-experience/pdp-2-design-interface-system/gui/"
-          ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
-        },
-        "PDP-3": {
-          "disposition": "TOOLING_OR_SUPPORT",
-          "authorityRefs": [
-            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
-            ".product-experience/pdp-3-product-experience/grpc/"
-          ],
-          "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
-          "journeyIds": [],
-          "screenIds": []
-        }
-      },
-      "consumerSurfaceRefs": [
-        "media.surface.agent-tools"
-      ],
-      "consumerMappingState": "MAPPED",
-      "sourceOwnedObservations": [
-        {
-          "sourcePath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools",
-          "consumerSurfaceId": "media.surface.agent-tools",
-          "classification": "LEGACY_SUBSUMED_NOT_ADMITTED",
-          "statusReason": "Observed Agent Tool handler sources are optional adapters; no execution authority is established."
-        }
-      ]
-    },
-    {
-      "surfaceId": "media.physical.adapters-ocr-compat",
-      "sourcePath": "adapters/ocr-compat",
-      "manifestPath": "adapters/ocr-compat/build.gradle.kts",
-      "buildSystem": "gradle",
-      "buildCoordinate": {
-        "standaloneProjectPath": ":services:media:adapters:ocr-compat",
-        "monorepoProjectPath": ":media:adapters:ocr-compat",
-        "coordinateKind": "Gradle project path; settings.gradle.kts assigns mode-dependent prefix"
-      },
-      "deployability": "LIBRARY_OR_TOOL",
-      "owner": "media-runtime",
-      "publicBoundaryRef": "adapters/ocr-compat/src/main",
-      "disposition": "SUPPORT_ONLY",
-      "dispositionRationale": "Optional Kernel OCR compatibility adapter; generic OCR and provider qualification remain outside this support module.",
-      "phaseApplicability": {
-        "PDP-0": {
-          "disposition": "NOT_APPLICABLE_SUPPORT",
-          "authorityRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
-          "capabilityFamilyIds": [],
-          "capabilityIntentIds": [],
-          "requirementIds": [],
-          "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
-          "intentIds": []
-        },
-        "PDP-1": {
-          "disposition": "REFERENCED_ONLY",
-          "authorityRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml",
-          "operationAuthorityRef": ".product-experience/pdp-1-domain-data/operations.yaml",
-          "operationIds": [],
-          "rationale": "No separate canonical domain or operation ownership is assigned.",
-          "domainObjectIds": []
-        },
-        "PDP-2": {
-          "disposition": "NOT_APPLICABLE",
-          "authorityRefs": [
-            ".product-experience/pdp-2-design-interface-system/api/",
-            ".product-experience/pdp-2-design-interface-system/sdk/",
-            ".product-experience/pdp-2-design-interface-system/gui/"
-          ],
-          "rationale": "Uses the matching existing machine/API/SDK/GUI grammar when a consumer boundary exists; no GUI contract is inferred for service packages."
-        },
-        "PDP-3": {
-          "disposition": "TOOLING_OR_SUPPORT",
-          "authorityRefs": [
-            ".product-experience/pdp-3-product-experience/screen-registry.yaml",
-            ".product-experience/pdp-3-product-experience/journey-registry.yaml",
-            ".product-experience/pdp-3-product-experience/cli/command-registry.yaml",
-            ".product-experience/pdp-3-product-experience/grpc/"
-          ],
-          "rationale": "Existing screens, journeys, commands and RPC experience contracts remain canonical; this node is a discovery/ownership binding, not a copied experience. No direct PDP-3 experience is assigned to this supporting package; canonical journey authority remains at the product root.",
-          "journeyIds": [],
-          "screenIds": []
-        }
-      },
-      "consumerSurfaceRefs": [],
-      "consumerMappingState": "NO_DIRECT_CONSUMER_SUPPORT_ONLY",
-      "sourceOwnedObservations": []
     }
   ],
   "archivedManifestLocations": [
@@ -3648,12 +3704,13 @@
       "surfaceId": "media.surface.integrations",
       "consumerType": "SYSTEM_TO_SYSTEM_SERVICE",
       "physicalRefs": [
+        "media.physical.adapters-data-cloud-media",
         "media.physical.adapters-ledger",
-        "media.physical.providers-aws-postgresql",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging",
         "media.physical.modules-infrastructure-persistence",
         "media.physical.modules-infrastructure-security",
-        "media.physical.modules-infrastructure-cache",
-        "media.physical.modules-infrastructure-messaging"
+        "media.physical.providers-aws-postgresql"
       ],
       "bindingState": "HOST_DEPENDENT",
       "statusReason": "Integration contracts are source records; provider/identity/storage hosts require their owner/runtime admission.",
@@ -3785,15 +3842,16 @@
         "media.composition.ingestion-and-versioned-artifacts",
         "media.composition.speech-and-caption-workflows",
         "media.composition.vision-and-multimodal-analysis",
+        "media.physical.adapters-agent-tools-media",
+        "media.physical.adapters-data-cloud-media",
+        "media.physical.adapters-ocr-compat",
         "media.physical.audio-video-observability",
         "media.physical.integration-tests",
         "media.physical.libs-common",
         "media.physical.libs-java-common",
         "media.physical.libs-media-experience-simulation",
         "media.physical.modules-integration-tests",
-        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
-        "media.physical.adapters-agent-tools-media",
-        "media.physical.adapters-ocr-compat"
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
       ],
       "phaseApplicability": {
         "PDP-0": {

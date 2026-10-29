@@ -1,0 +1,173 @@
+{
+  "schemaVersion": "mandatory-surface-areas.v2",
+  "repositoryId": "ghatana-media",
+  "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+  "scope": "MED-01..MED-05",
+  "areas": [
+    {
+      "id": "prompt-repo-guidance",
+      "status": "reviewed-no-gap",
+      "evidence": "`AGENTS.md` and Lifecycle `.ghatana/definition/campaign-scope.md` were read; MED scope is static contract definition and preserves separate runtime, phase and release gates."
+    },
+    {
+      "id": "recursive-inventory",
+      "status": "implemented",
+      "evidence": "`.product-experience/surfaces/media-physical-topology.v1.json`, `settings.gradle.kts`, `pnpm-workspace.yaml`, `Cargo.toml`, provider/route manifests and `scripts/check-media-physical-topology.mjs` reconcile 29 authored active manifests into 21 physical/logical/composition surfaces and 16 explicit support/subsumed dispositions; the checker excludes generated `node_modules` and rejects unmodeled active manifests."
+    },
+    {
+      "id": "surface-kind-build-unit",
+      "status": "implemented",
+      "evidence": "`.ghatana/definition/surface-matrix.json` separates canonical PHYSICAL/LOGICAL/COMPOSITION structure from `inventoryClassification`; `scripts/contract-definition/validate.py` rejects noncanonical kinds."
+    },
+    {
+      "id": "ownership-boundary-placement",
+      "status": "reviewed-no-gap",
+      "evidence": "`config/closure/media-product-definition/surface.json`, `.product-experience/surfaces/media-physical-topology.v1.json`, and `adapters/data-cloud-media/build.gradle.kts` keep Lifecycle identity, Media owner sources, and the provider/library build unit distinct."
+    },
+    {
+      "id": "vision-non-goals-consumers",
+      "status": "reviewed-no-gap",
+      "evidence": "`README.md`, `docs/README.md`, `.product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md`, and `docs/architecture/MEDIA_CONTRACT_BOUNDARIES.md` state Media ownership, intended consumers, and the contract-only boundary."
+    },
+    {
+      "id": "architecture-design",
+      "status": "implemented",
+      "evidence": "`docs/architecture/MEDIA_CONTRACT_BOUNDARIES.md`, `contracts/openapi/media.yaml`, `config/provider-manifest.json`, protocol schemas and runtime type contracts point consumers to existing API/provider/policy authorities without adding a second policy engine."
+    },
+    {
+      "id": "documentation-examples",
+      "status": "implemented",
+      "evidence": "`docs/architecture/MEDIA_CONTRACT_BOUNDARIES.md`, `adapters/data-cloud-media/CONSUMER_GUIDE.md`, and `.ghatana/definition/README.md` describe the public provider/package source and validation commands."
+    },
+    {
+      "id": "requirements-current-state",
+      "status": "reviewed-no-gap",
+      "evidence": "`.product-experience/pdp-0-product-truth/capabilities.yaml`, PDP-1 domain/operation inventories, `config/route-manifest.json`, and `config/provider-manifest.json` are source-pinned in per-surface requirement/API mappings; PDP-1 semantic binding remains explicitly proposal-only."
+    },
+    {
+      "id": "gap-backlog-classification",
+      "status": "implemented",
+      "evidence": "`MED-01..MED-05` in `.ghatana/definition/task-register.json` distinguish completed static definition work from proposal/acceptance, external license, consent, provider qualification, and runtime wiring facts."
+    },
+    {
+      "id": "feature-completeness",
+      "status": "reviewed-no-gap",
+      "evidence": "`.ghatana/definition/surface-matrix.json` covers the registered 27 HTTP operations, 43 gRPC RPCs, 16 operation slices, 21 surfaces and seven compositions; exact cross-channel semantic acceptance is expressly not claimed."
+    },
+    {
+      "id": "correctness",
+      "status": "implemented",
+      "evidence": "`.ghatana/definition/static-validation.json` records PASS for 21 surface rows and all negative projection cases; `scripts/check-media-contract-parity.mjs` checks OpenAPI, protobuf, SDK type and route-source facts."
+    },
+    {
+      "id": "api-contracts-config",
+      "status": "implemented",
+      "evidence": "`contracts/openapi/media.yaml`, `libs/audio-video-types/src/contracts.ts`, `libs/audio-video-client/src/operations.ts`, service protobuf files and both UI package entrypoints are referenced from source-backed public-interface rows."
+    },
+    {
+      "id": "generated-source-of-truth-parity",
+      "status": "implemented",
+      "evidence": "`pnpm check:physical-topology`, `pnpm check:contract-parity`, and `.ghatana/definition/static-validation.json` verify topology, source refs, per-file pins, operation inventories and negative parity cases."
+    },
+    {
+      "id": "naming",
+      "status": "reviewed-no-gap",
+      "evidence": "Stable `media.*` IDs in `.ghatana/definition/surface-matrix.json` preserve authored service/API names and canonical structural kind names."
+    },
+    {
+      "id": "duplication",
+      "status": "reviewed-no-gap",
+      "evidence": "`docs/architecture/MEDIA_CONTRACT_BOUNDARIES.md` and MED-04 reference existing policy authorities; no duplicate generic Closure, privacy, rights, or provider policy authority was added."
+    },
+    {
+      "id": "organization-placement",
+      "status": "implemented",
+      "evidence": "Public API schemas remain in `contracts/`, package exports in `libs/`, service/provider sources in owner modules, consumer guides in `docs/`, and non-authoritative projections in `.ghatana/definition/`."
+    },
+    {
+      "id": "cohesion-coupling",
+      "status": "reviewed-no-gap",
+      "evidence": "`.product-experience/surfaces/media-physical-topology.v1.json` declares compositions and child identities; Data Cloud adapter source references the Data Cloud-owned `MediaProcessorPort` rather than duplicating it."
+    },
+    {
+      "id": "tests-coverage",
+      "status": "implemented",
+      "evidence": "MED-05 records the 39 focused static tests; `.ghatana/definition/static-validation.json` captures malformed version, duplicate ID, unknown Closure property, broken ref/owner/dependency, stale pin, missing interface and API drift negative cases."
+    },
+    {
+      "id": "compatibility-migration-deprecation",
+      "status": "reviewed-no-gap",
+      "evidence": "`contracts/openapi/media.yaml`, SDK package exports, protobuf schemas, `MED-02/03/05` preserve versioned interfaces and keep proposal status separate from compatibility/acceptance."
+    },
+    {
+      "id": "affected-scope-verification",
+      "status": "implemented",
+      "evidence": "The recorded commands are `pnpm check:physical-topology`, `pnpm check:contract-parity`, and `python3 scripts/contract-definition/validate.py`; runtime services, model qualification and Lifecycle phases are excluded by campaign scope."
+    },
+    {
+      "id": "evidence-generator-integration",
+      "status": "not-applicable",
+      "evidence": "The authorized MED contract-definition scope requests static checks and forbids Evidence Generator/phase execution; `.ghatana/definition/static-validation.json` records only static outcomes."
+    },
+    {
+      "id": "missing-evidence-generator-capabilities",
+      "status": "not-applicable",
+      "evidence": "No Evidence Generator capability is required to validate these source refs, schema mappings, inventories or bounded API type facts; no convergence claim is made."
+    },
+    {
+      "id": "security",
+      "status": "reviewed-no-gap",
+      "evidence": "`.product-experience/pdp-0-product-truth/policy-authority-model.yaml`, provider manifest and `MediaRuntimeContracts.java` are referenced as existing security/tenant authorities; no secrets or access-policy engine was introduced."
+    },
+    {
+      "id": "privacy-data-governance-compliance",
+      "status": "reviewed-no-gap",
+      "evidence": "`docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md`, PDP-0 qualification/policy files and runtime type authorities remain cited owners; unresolved consent/license admission is explicitly outside the current definition task."
+    },
+    {
+      "id": "observability-diagnostics",
+      "status": "reviewed-no-gap",
+      "evidence": "`audio-video-observability/` and existing service contracts are referenced for telemetry/error identity; no runtime health is inferred from static mapping."
+    },
+    {
+      "id": "reliability-resilience-operability",
+      "status": "reviewed-no-gap",
+      "evidence": "Existing service/provider contract references specify error/dependency behavior; `MED-04` makes no runtime resilience or qualification claim."
+    },
+    {
+      "id": "performance-scalability",
+      "status": "not-applicable",
+      "evidence": "The campaign is contract/schema definition only; performance and resource qualification require separate provider/model runtime evidence."
+    },
+    {
+      "id": "accessibility-internationalization",
+      "status": "reviewed-no-gap",
+      "evidence": "`libs/audio-video-ui/package.json` and UI export sources are mapped; accessibility and internationalization applicability is represented in the UI profile, without claiming UI execution tests."
+    },
+    {
+      "id": "ai-ml-applicability",
+      "status": "reviewed-no-gap",
+      "evidence": "STT/TTS/Vision/Multimodal public contract and provider references are inventoried; model selection, provider qualification, and inference quality are not promoted."
+    },
+    {
+      "id": "build-dependency-release-readiness",
+      "status": "not-applicable",
+      "evidence": "Build/release admission is not part of MED contract-definition acceptance; active package/build membership is inventoried without deployment or release claims."
+    },
+    {
+      "id": "dependency-supply-chain-licensing",
+      "status": "not-applicable",
+      "evidence": "`MED-04` cites current provider/license authorities; external license qualification and supply-chain admission are explicitly excluded from this definition-only slice."
+    },
+    {
+      "id": "repeatability-reproducibility",
+      "status": "implemented",
+      "evidence": "`scripts/contract-definition/generate.py`, `scripts/contract-definition/validate.py`, and the recorded topology/API parity commands produce deterministic source-ref and negative-case checks."
+    },
+    {
+      "id": "convergence-stability",
+      "status": "not-applicable",
+      "evidence": "This is a bounded static contract-definition review and does not calculate a convergence score or change any phase/readiness/acceptance status."
+    }
+  ]
+}

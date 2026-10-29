@@ -1148,6 +1148,7 @@ components:
         version: { type: integer, format: int64, minimum: 1 }
     UploadRequest:
       type: object
+      additionalProperties: false
       required:
         [
           tenantId,
@@ -1169,8 +1170,8 @@ components:
           {
             type: integer,
             minimum: 1,
-            maximum: 1073741824,
-            description: Maximum 1 GiB upload.,
+            maximum: 1099511627776,
+            description: "Maximum service-level artifact size is 1 TiB. A deployment may configure a lower MEDIA_MAX_ARTIFACT_BYTES limit; requests above that limit are rejected."
           }
         expectedSha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
         classification:
@@ -1184,8 +1185,78 @@ components:
           }
         metadata:
           { type: object, additionalProperties: true, maxProperties: 64 }
-    UploadSession: { type: object, additionalProperties: true }
-    MediaArtifact: { type: object, additionalProperties: true }
+    UploadSession:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          uploadId,
+          tenantId,
+          principalId,
+          fileName,
+          contentType,
+          expectedSizeBytes,
+          expectedSha256,
+          classification,
+          createdAt,
+          expiresAt,
+          bytesReceived,
+          nextChunkIndex,
+          status,
+          metadata,
+        ]
+      properties:
+        uploadId: { type: string, minLength: 1 }
+        tenantId: { type: string, minLength: 1 }
+        principalId: { type: string, minLength: 1 }
+        fileName: { type: string, minLength: 1 }
+        contentType: { type: string, minLength: 1 }
+        expectedSizeBytes: { type: integer, format: int64, minimum: 1, maximum: 1099511627776 }
+        expectedSha256: { type: string, pattern: "^[0-9a-fA-F]{64}$" }
+        classification: { type: string, enum: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED] }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        bytesReceived: { type: integer, format: int64, minimum: 0, maximum: 1099511627776 }
+        nextChunkIndex: { type: integer, minimum: 0 }
+        status: { type: string, enum: [OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED] }
+        metadata: { type: object, additionalProperties: true, maxProperties: 64 }
+    MediaArtifact:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          tenantId,
+          principalId,
+          artifactId,
+          fileName,
+          contentType,
+          sizeBytes,
+          sha256,
+          objectReference,
+          classification,
+          createdAt,
+          expiresAt,
+          metadata,
+        ]
+      properties:
+        tenantId: { type: string, minLength: 1 }
+        principalId: { type: string, minLength: 1 }
+        artifactId: { type: string, minLength: 1 }
+        fileName: { type: string, minLength: 1 }
+        contentType: { type: string, minLength: 1 }
+        sizeBytes: { type: integer, format: int64, minimum: 1, maximum: 1099511627776 }
+        sha256:
+          type: string
+          pattern: "^[0-9a-fA-F]{64}$"
+          description: Full content digest used to derive the immutable artifact version.
+        objectReference:
+          type: string
+          minLength: 1
+          description: Opaque store reference; it is not an authorization credential or public download URL.
+        classification: { type: string, enum: [PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED] }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        metadata: { type: object, additionalProperties: true, maxProperties: 64 }
     MediaGovernanceContext:
       type: object
       required:
@@ -1244,17 +1315,37 @@ components:
     ProcessingJob:
       type: object
       additionalProperties: true
+      required:
+        [
+          jobId,
+          requestId,
+          tenantId,
+          principalId,
+          artifactId,
+          jobType,
+          providerId,
+          status,
+          createdAt,
+          startedAt,
+          completedAt,
+          result,
+          failureCode,
+          version,
+          expectedArtifactVersion,
+          requestFingerprint,
+        ]
       description: >-
         Current Media launcher ProcessingJob response projection. The status enum mirrors the
         serialized runtime JobStatus; it is an observed transport contract, not a canonical
         PDP-1 state mapping. In particular, ACCEPTED does not establish durable queueing and
-        OUTCOME_UNKNOWN must not be collapsed into RUNNING or failure.
+        OUTCOME_UNKNOWN must not be collapsed into RUNNING or failure. Unknown response properties
+        remain tolerated for compatibility with legacy consumers.
       properties:
-        jobId: { type: string }
-        requestId: { type: string }
-        tenantId: { type: string }
-        principalId: { type: string }
-        artifactId: { type: string }
+        jobId: { type: string, minLength: 1 }
+        requestId: { type: string, minLength: 1 }
+        tenantId: { type: string, minLength: 1 }
+        principalId: { type: string, minLength: 1 }
+        artifactId: { type: string, minLength: 1 }
         jobType:
           type: string
           enum: [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL]
@@ -1269,11 +1360,15 @@ components:
         result: { type: object, additionalProperties: true }
         failureCode: { type: [string, "null"] }
         version: { type: integer, format: int64, minimum: 1 }
+        expectedArtifactVersion:
+          type: string
+          description: Empty for compatibility jobs without an explicit source version; otherwise sha256:<64 lowercase hex>.
         requestFingerprint:
           type: string
           description: >-
             SHA-256 semantic request digest (schema media.job-request-fingerprint.v1, digestVersion 1).
             Empty for legacy jobs created before fingerprint admission; such jobs are not safe to replay.
+          pattern: "^(|sha256:[0-9a-f]{64})$"
     StreamSessionRequest:
       type: object
       required:
@@ -1299,15 +1394,65 @@ components:
           { type: object, additionalProperties: true, maxProperties: 64 }
         governanceContext:
           { $ref: "#/components/schemas/MediaGovernanceContext" }
-    StreamSession: { type: object, additionalProperties: true }
+    StreamSession:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          tenantId,
+          sessionId,
+          principalId,
+          streamKind,
+          providerId,
+          state,
+          lastSequence,
+          bufferedBytes,
+          maximumBufferedBytes,
+          reconnectCount,
+          leaseExpiresAt,
+          createdAt,
+          updatedAt,
+          closedAt,
+          metadata,
+          version,
+          acknowledgementRevision,
+          finality,
+        ]
+      description: >-
+        Public HTTP projection of the stream session. Credential hashes and internal in-flight
+        provider attempt identifiers are omitted.
+      properties:
+        tenantId: { type: string, minLength: 1 }
+        sessionId: { type: string, minLength: 1 }
+        principalId: { type: string, minLength: 1 }
+        streamKind: { type: string, enum: [AUDIO, VIDEO, MULTIMODAL] }
+        providerId: { type: string, minLength: 1 }
+        state: { type: string, enum: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED] }
+        lastSequence: { type: integer, format: int64, minimum: -1 }
+        bufferedBytes: { type: integer, format: int64, minimum: 0 }
+        maximumBufferedBytes: { type: integer, format: int64, minimum: 1, maximum: 1073741824 }
+        reconnectCount: { type: integer, minimum: 0 }
+        leaseExpiresAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        closedAt: { type: [string, "null"], format: date-time }
+        metadata: { type: object, additionalProperties: true, maxProperties: 64 }
+        version: { type: integer, format: int64, minimum: 1 }
+        acknowledgementRevision: { type: integer, format: int64, minimum: 0 }
+        finality: { type: string, enum: [NONE, FINAL_ACKNOWLEDGED, UNKNOWN] }
     StreamSessionRegistration:
       type: object
+      additionalProperties: false
       required: [session, connectionToken]
       properties:
         session: { $ref: "#/components/schemas/StreamSession" }
-        connectionToken: { type: string, minLength: 32, writeOnly: true }
+        connectionToken:
+          type: string
+          minLength: 32
+          description: One-time session credential returned to the authenticated owner for stream connection.
     StreamAck:
       type: object
+      additionalProperties: false
       required: [acceptedSequence, bufferedBytes, backpressured]
       properties:
         acceptedSequence: { type: integer, format: int64, minimum: 0 }

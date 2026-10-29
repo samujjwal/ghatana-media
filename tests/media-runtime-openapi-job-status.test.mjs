@@ -73,6 +73,26 @@ test("ProcessingJob HTTP schema mirrors the serialized runtime record without cl
     "the separate PlatformOperation enum remains distinct until its owner mapping is decided");
 });
 
+test("stream response schemas match the public projection and expose its one-time token as a response value", () => {
+  const session = openApi.components.schemas.StreamSession;
+  const registration = openApi.components.schemas.StreamSessionRegistration;
+  assert.equal(session.additionalProperties, false);
+  assert.deepEqual(Object.keys(session.properties), [
+    "tenantId", "sessionId", "principalId", "streamKind", "providerId", "state", "lastSequence",
+    "bufferedBytes", "maximumBufferedBytes", "reconnectCount", "leaseExpiresAt", "createdAt",
+    "updatedAt", "closedAt", "metadata", "version", "acknowledgementRevision", "finality",
+  ]);
+  assert.ok(!Object.hasOwn(session.properties, "sequenceTokenHash"));
+  assert.ok(!Object.hasOwn(session.properties, "inFlightAttemptId"));
+  assert.deepEqual(session.properties.state.enum, ["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"]);
+  assert.deepEqual(session.properties.finality.enum, ["NONE", "FINAL_ACKNOWLEDGED", "UNKNOWN"]);
+  assert.equal(session.properties.maximumBufferedBytes.maximum, 1_073_741_824);
+  assert.equal(registration.additionalProperties, false);
+  assert.deepEqual(registration.required, ["session", "connectionToken"]);
+  assert.equal(registration.properties.connectionToken.writeOnly, undefined);
+  assert.match(registration.properties.connectionToken.description, /returned to the authenticated owner/u);
+});
+
 test("principal-scoped upload, artifact, and job routes declare the principal header", () => {
   const routes = [
     ["/api/v1/artifacts/uploads", "post"],

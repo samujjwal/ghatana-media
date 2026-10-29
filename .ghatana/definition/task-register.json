@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "contract-definition-task-register.v1",
+  "repositoryId": "ghatana-media",
+  "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+  "tasks": [
+    {
+      "title": "Inventory physical candidates and compositions",
+      "status": "COMPLETE",
+      "sourceAuthorityRefs": [
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "settings.gradle.kts",
+        "pnpm-workspace.yaml",
+        "Cargo.toml",
+        "config/provider-manifest.json",
+        "config/route-manifest.json",
+        "adapters/data-cloud-media/build.gradle.kts",
+        "adapters/data-cloud-media/CONSUMER_GUIDE.md",
+        "adapters/data-cloud-media/src/main/java/com/ghatana/stt/datacloud/DataCloudSttAdapter.java",
+        "adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/vision/datacloud/DataCloudVisionAdapter.java",
+        "adapters/data-cloud-media/src/main/java/com/ghatana/audio/video/multimodal/datacloud/DataCloudMultimodalAdapter.java",
+        "../ghatana/services/data-cloud/delivery/api/src/main/java/com/ghatana/datacloud/memory/media/MediaProcessorPort.java"
+      ],
+      "definitionWork": "Reconciled all 29 authored active build manifests with the topology: 13 PHYSICAL, 14 SUPPORT_ONLY, and two SUBSUMED candidates; 21 consumer mappings; and seven compositions. Added the source-backed Data Cloud provider/library adapter surface. The inventory checker excludes generated node_modules content and rejects any active build manifest without an explicit topology disposition.",
+      "unresolvedFacts": "The Data Cloud adapter has no in-repository production instantiation identified; its public contract-bearing provider/library boundary is inventoried, while runtime wiring and qualification remain separate.",
+      "claimBoundary": "Contract-definition and static compatibility only; no runtime/phase/acceptance/release claim.",
+      "id": "MED-01",
+      "summary": "Reconciled all 29 authored active build manifests with the topology: 13 PHYSICAL, 14 SUPPORT_ONLY, and two SUBSUMED candidates; 21 consumer mappings; and seven compositions. Added the source-backed Data Cloud provider/library adapter surface. The inventory checker excludes generated node_modules content and rejects any active build manifest without an explicit topology disposition.",
+      "verificationRefs": [
+        ".ghatana/definition/static-validation.json",
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "blockers": []
+    },
+    {
+      "title": "Reconcile logical Closure identity with physical/composition crosswalk",
+      "status": "COMPLETE",
+      "sourceAuthorityRefs": [
+        "config/closure/media-product-definition/surface.json",
+        "config/closure/media-product-definition/phase-program.json",
+        "config/closure/media-product-definition/phase-binding.json",
+        ".product-experience/surfaces/media-physical-topology.v1.json"
+      ],
+      "definitionWork": "Kept the one logical media.product-definition Closure descriptor distinct from manifest candidates and seven declared compositions. Linked the proposal operation source to the public HTTP, gRPC, SDK, client type, UI action/experience, CLI, tool and event interface inventories.",
+      "unresolvedFacts": "The top-level operation-family inventory remains proposal-only; six exact HTTP slice bindings and all 16 source records retain their original owner/status, but cross-channel semantic equivalence still awaits source-owner review. No phase status was promoted.",
+      "claimBoundary": "Contract-definition and static compatibility only; no runtime/phase/acceptance/release claim.",
+      "id": "MED-02",
+      "summary": "Kept the one logical media.product-definition Closure descriptor distinct from manifest candidates and seven declared compositions. Linked the proposal operation source to the public HTTP, gRPC, SDK, client type, UI action/experience, CLI, tool and event interface inventories.",
+      "verificationRefs": [
+        ".ghatana/definition/static-validation.json",
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "blockers": []
+    },
+    {
+      "title": "Align public HTTP, SDK and modality contracts to source DTO/interface facts",
+      "status": "COMPLETE",
+      "sourceAuthorityRefs": [
+        "contracts/openapi/media.yaml",
+        "config/route-manifest.json",
+        "config/provider-manifest.json",
+        "libs/audio-video-types/src/contracts.ts",
+        "libs/audio-video-client/src/operations.ts",
+        "modules/speech/stt-service/src/main/proto/stt_service.proto",
+        "modules/speech/tts-service/src/main/proto/tts_service.proto",
+        "modules/vision/vision-service/src/main/proto/vision_service.proto",
+        "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java"
+      ],
+      "definitionWork": "Corrected source DTO/API mismatches for upload, artifact, job and stream schemas; added public package entrypoint refs for both UI libraries and provider interface/implementation refs. The matrix enumerates 27 HTTP operations, 43 gRPC RPCs, and 16 individual operation-slice records, including six exact HTTP wire bindings.",
+      "unresolvedFacts": "PDP-1 semantic bindings remain proposal-only; inventory enumeration is not acceptance or operation equivalence. Provider capability `upload` explicitly maps to HTTP `beginMediaUpload` across distinct identifier namespaces.",
+      "claimBoundary": "Contract-definition and static compatibility only; no runtime/phase/acceptance/release claim.",
+      "id": "MED-03",
+      "summary": "Corrected source DTO/API mismatches for upload, artifact, job and stream schemas; added public package entrypoint refs for both UI libraries and provider interface/implementation refs. The matrix enumerates 27 HTTP operations, 43 gRPC RPCs, and 16 individual operation-slice records, including six exact HTTP wire bindings.",
+      "verificationRefs": [
+        ".ghatana/definition/static-validation.json",
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "blockers": []
+    },
+    {
+      "title": "Reference Media security, rights, consent, privacy and data authorities",
+      "status": "COMPLETE",
+      "sourceAuthorityRefs": [
+        ".product-experience/pdp-0-product-truth/policy-authority-model.yaml",
+        ".product-experience/pdp-0-product-truth/qualification-policy.yaml",
+        "docs/MEDIA_PRIVACY_AND_RETENTION_POLICY.md",
+        "config/provider-manifest.json",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java"
+      ],
+      "definitionWork": "Recorded existing owner policy authorities in per-surface source refs; did not add duplicate policy engine or alter provider admission/readiness fields.",
+      "unresolvedFacts": "External model/provider licenses, human consent, and quality qualification remain outside this contract-definition campaign; cited owner policies stay authoritative and no qualification is inferred.",
+      "claimBoundary": "Contract-definition and static compatibility only; no runtime/phase/acceptance/release claim.",
+      "id": "MED-04",
+      "summary": "Recorded existing owner policy authorities in per-surface source refs; did not add duplicate policy engine or alter provider admission/readiness fields.",
+      "verificationRefs": [
+        ".ghatana/definition/static-validation.json",
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs"
+      ],
+      "blockers": []
+    },
+    {
+      "title": "Run static reference, topology, API parity and consumer guide checks",
+      "status": "COMPLETE",
+      "sourceAuthorityRefs": [
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs",
+        "contracts/openapi/media.yaml",
+        "config/route-manifest.json"
+      ],
+      "definitionWork": "Media topology and source-reference/fingerprint validation pass; 39 focused static tests pass. Public inventory has 27 OpenAPI and 43 gRPC operations. All static negative projection cases pass.",
+      "unresolvedFacts": "PDP-1 cross-channel semantic equivalence remains explicitly proposal-only with six exact per-slice HTTP bindings; this is recorded without promoting semantic acceptance or phase status.",
+      "claimBoundary": "Contract-definition and static compatibility only; no runtime/phase/acceptance/release claim.",
+      "id": "MED-05",
+      "summary": "Media topology and source-reference/fingerprint validation pass; 39 focused static tests pass. Public inventory has 27 OpenAPI and 43 gRPC operations. All static negative projection cases pass.",
+      "verificationRefs": [
+        ".ghatana/definition/static-validation.json",
+        "scripts/check-media-physical-topology.mjs",
+        "scripts/check-media-contract-parity.mjs",
+        "scripts/contract-definition/generate.py",
+        "scripts/contract-definition/validate.py"
+      ],
+      "blockers": []
+    }
+  ]
+}
