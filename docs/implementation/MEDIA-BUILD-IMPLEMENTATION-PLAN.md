@@ -1,5 +1,7 @@
 # Ghatana Media — canonical BUILD / Plan Implementation
 
+> **CURRENT PUSHED BACKEND SOURCE — review 2026-10-28 PT:** Seven implementation commits through `992f77e1` are now reachable on GitHub `main` (verified at `fea2aae5`). Refer to the **one active [Wave 2 plan §7.6](MEDIA-WAVE2-ACTIVE-EXECUTION.md#76-pushed-source-review--corrected-priorities-and-executable-acceptance)** and the existing [R10 36-task/12-gate map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) for remaining source-security, FLEURS producer/scorer, failed tiny multilingual model, TTS subprocess, Vision quality, MM production, OBS/Alertmanager, and Ghatana #252/#254 work. The old 'local commits unavailable' source recovery is **resolved**; original 50 Build work packages and original 58 acceptance tasks are unchanged. Neither merged source nor opt-in fixtures are production admission or independent host proof.
+
 > **One active Media modality implementation queue:** [Wave 2 active work plan](MEDIA-WAVE2-ACTIVE-EXECUTION.md) combines the latest host OCI native qualification, first genuinely authorized STT job→transcript restart path, TTS/Vision reference quality, existing Ghatana owner API work and all 36 original open task dispositions. Preserve this Build source's 50 work packages; never infer formal PDP/gtool closure.
 
 
