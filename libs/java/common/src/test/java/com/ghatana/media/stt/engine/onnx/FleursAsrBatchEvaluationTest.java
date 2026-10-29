@@ -40,10 +40,16 @@ class FleursAsrBatchEvaluationTest {
     void transcribesFrozenManifestClipsWithPinnedProfile() throws Exception {
         String profileValue = System.getenv("GHATANA_MEDIA_WHISPER_PROFILE");
         String manifestValue = System.getenv(MANIFEST_ENV);
-        assumeTrue(profileValue != null && manifestValue != null && System.getenv(OUT_ENV) != null,
-                "Set GHATANA_MEDIA_WHISPER_PROFILE, " + MANIFEST_ENV + " and " + OUT_ENV);
+        assumeTrue(profileValue != null && manifestValue != null && System.getenv(OUT_ENV) != null
+                        && System.getenv(CLIP_DIR_ENV) != null,
+                "Set GHATANA_MEDIA_WHISPER_PROFILE, " + MANIFEST_ENV + ", " + OUT_ENV
+                        + " and " + CLIP_DIR_ENV);
         Path clipDir = Path.of(System.getenv(CLIP_DIR_ENV)).toAbsolutePath();
-        JsonNode manifest = new ObjectMapper().readTree(Files.newInputStream(Path.of(manifestValue)));
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode manifest;
+        try (var input = Files.newInputStream(Path.of(manifestValue))) {
+            manifest = mapper.readTree(input);
+        }
         assertThat(manifest.get("status").asText()).isEqualTo("FROZEN");
         JsonNode clips = manifest.path("selection").path("clips");
         Path out = Path.of(System.getenv(OUT_ENV)).toAbsolutePath();
@@ -85,7 +91,7 @@ class FleursAsrBatchEvaluationTest {
                     System.out.printf("FLEURS_CLIP_FAILED clip=%s error=%s%n",
                             clipId, failure.getClass().getSimpleName());
                 }
-                lines.add("{\"clipId\":\"" + clipId + "\",\"text\":" + json(text) + "}");
+                lines.add(predictionJson(mapper, clip.get("locale").asText(), clipId, text));
                 done++;
                 if (done % 20 == 0) {
                     Files.writeString(out, "[" + String.join(",", lines) + "]");
@@ -98,9 +104,21 @@ class FleursAsrBatchEvaluationTest {
                 lines.size(), failures, out);
     }
 
-    private static String json(String value) {
-        String v = value == null ? "" : value;
-        return "\"" + v.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", " ") + "\"";
+    /** Emit the exact locale/clipId/text contract consumed by evaluate-fleurs-asr.mjs. */
+    private static String predictionJson(ObjectMapper mapper, String locale, String clipId, String text) {
+        return mapper.writeValueAsString(Map.of(
+                "locale", locale, "clipId", clipId, "text", text == null ? "" : text));
+    }
+
+    @Test
+    void predictionJsonCarriesLocaleAndEscapesMultilingualControlCharacters() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String clipId = "clip-\"x";
+        String transcript = "नमस्ते\nworld\t\"quoted\"";
+        JsonNode record = mapper.readTree(predictionJson(mapper, "npi", clipId, transcript));
+        assertThat(record.get("locale").asText()).isEqualTo("npi");
+        assertThat(record.get("clipId").asText()).isEqualTo(clipId);
+        assertThat(record.get("text").asText()).isEqualTo(transcript);
     }
 
     private static AudioData readPcm16MonoWav(Path path) throws IOException, Exception {
