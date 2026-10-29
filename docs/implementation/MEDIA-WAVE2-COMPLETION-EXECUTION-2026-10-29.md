@@ -226,4 +226,4 @@ node --test tests/media-fleurs-asr-evaluation.test.mjs
 # bash scripts/qualification/run-wave2-vision-oci-checks.sh png "$MEDIA_LINUX_PNG_CODECS_DIR"
 ```
 
-**Actual source/data receipts are the completion standard.** Keep FLEURS local cache bounded to selected lawful clips, do not download full archives or use hundreds of GB. Operational Track B (GH-90000 compose service-image skips, legacy writer cutover, warnings, formal PDP/gtool and release) remains separately owned and cannot manufacture Wave 2 Build completion. All 36 original unfinished tasks remain in `5 with their exact R8 dependencies/proof columns.
+**Actual source/data receipts are the completion standard.** Keep FLEURS local cache bounded to selected lawful clips, do not download full archives or use hundreds of GB. Operational Track B (GH-90000 compose service-image skips, legacy writer cutover, warnings, formal PDP/gtool and release) remains separately owned and cannot manufacture Wave 2 Build completion. All 36 original unfinished tasks remain in section 5 with their exact R8 dependencies and proof columns.
