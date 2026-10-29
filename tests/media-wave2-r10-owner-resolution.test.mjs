@@ -116,3 +116,43 @@ test('the authoritative Media privacy policy distinguishes engineering from lega
   assert.match(policy, /original audio clip recorded by an actual human still requires/);
   assert.match(policy, /separately authenticated, least-privilege host\/CRI broker/);
 });
+
+
+test('post-pulse 992 task selection preserves all 36 original unfinished IDs and no invented successes', () => {
+  const pulse = plan.latestPulseReview;
+  assert.equal(pulse.reportedLocalHead, '992f77e1');
+  assert.equal(pulse.localShasGitHubAccessible, false);
+  assert.equal(pulse.remoteBaselineAtReview, 'e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd');
+  assert.equal(pulse.reportedCommits.length, 7);
+  assert.equal(pulse.taskStatusAccounting.originalTotal, 58);
+  assert.equal(pulse.taskStatusAccounting.promotedByThisUpdate, 0);
+  const selected = pulse.lanes.flatMap((lane) => lane.tasks);
+  assert.equal(pulse.lanes.length, 6);
+  assert.equal(selected.length, 36);
+  assert.equal(new Set(selected).size, 36);
+  assert.deepEqual(selected.sort(), original.rows.map((row) => row.id).sort());
+  assert.ok(plan.remainingTasks.every((task) => task.taskAccepted === false
+    && task.qualifiedResult === null
+    && task.pulse992Selection?.actionAuthority === 'ORIGINAL_R8_WHOLE_ROW'
+    && task.pulse992Selection?.reportedProgressNotWholeRowAcceptance === true));
+});
+
+test('post-pulse model quality failure cannot promote tiny or relax registered thresholds', () => {
+  const results = plan.latestPulseReview.reportedOutcomes.fleurs;
+  assert.equal(results.totalReportedClips, 380);
+  assert.equal(results.decoderCapEmptyPredictions, 89);
+  assert.equal(results.allReferenceThresholdsMet, false);
+  assert.equal(results.manifestVerifiedByThisReview, false);
+  assert.match(results.candidateDisposition, /REVIEW_ONLY_FAILED/);
+  const reference = plan.approvedReferenceQualificationProfiles.stt.qualityGateProvisional;
+  assert.deepEqual(Object.fromEntries(Object.entries(results.locales)
+    .map(([locale, result]) => [locale, result.limit])),
+  { eng: reference.enUsWerMax, hin: reference.hiInWerMax, npi: reference.neNpWerMax });
+  assert.ok(Object.values(results.locales).every((row) =>
+    row.pass === false && row.wer > row.limit && row.upper95 > row.limit));
+  assert.match(results.accountingRisk, /372/);
+  assert.match(pulseText(), /fresh blinded, speaker-disjoint promotion holdout/);
+  function pulseText() {
+    return readFileSync(resolve(root, 'docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md'), 'utf8');
+  }
+});

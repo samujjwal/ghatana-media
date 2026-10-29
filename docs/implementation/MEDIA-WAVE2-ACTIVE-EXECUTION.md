@@ -1,5 +1,7 @@
 # Ghatana Media — ACTIVE Wave 2 implementation and blocker-elimination execution
 
+**LATEST PULSE REVIEW — 2026-10-28 22:37 PT:** [§7 post-pulse source review and executable all-36-task completion plan](#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28) supersedes the *execution order* in earlier dated §5/§6 notes, not the original R8 acceptance. The implementer reports local `992f77e1` with seven commits, but connected GitHub lacks those SHA refs; verified remote runtime source at review was `e28c755f` and documentation has subsequently advanced. Whisper tiny's **reported** real FLEURS WER upper bounds fail every approved locale, even though exact single-clip decoding reportedly works. The 36 unfinished R8 rows retain their status. Preserve nine existing dirty paths; reconcile and test a single merged implementation SHA before promoting any row. Detailed owner/wave selection is in the [same existing R10 JSON](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json#latestPulseReview).
+
 **CURRENT-CUT EXECUTION CONTROL — 2026-10-28 16:38 PT:** Media `ef823571b1dbbed2c1ea38fa291657cb04855103`, Shared `d15b2ce353839ee3bf666be7c0737aa7192994f5`, Ghatana `875108953b069ba65803b8b99b713896bf9476f0` inspected through connected GitHub. Source changes include STT source-authorization contracts and candidate transcript outbox, TTS readiness guard, Vision resource/PTS hardening and Multimodal clock checks. Reported focused passes are not new whole-row acceptance. The **current 12-gate/36-task owner decisions** now reside in the existing [R10 machine-readable map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json), with binding privacy/rights policy in [Media Privacy](../MEDIA_PRIVACY_AND_RETENTION_POLICY.md#13-wave-2-source-rights-model-admission-and-independent-acceptance-policy). Follow §6 of this same file as the latest executable sequence; older dated cut descriptions are evidence history, not fresh status.
 
 **Owner engineering direction:** October 28, 2026. This is the **single current executable work queue** for five backend modality/observability surfaces; earlier R7–R10 plans are preserved as historical decisions and source/evidence references, not separate concurrent work plans. The original [58-task acceptance authority](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) and the [exact original 36-row acceptance criteria](MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json) remain unchanged. [R10 machine-readable 12-gate/36-task map](MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json) is a selection input, not a second phase/provider contract.
@@ -241,3 +243,182 @@ pnpm test:wave2-r10-owner-resolution
 ```
 
 **Next still-missing G07 input:** lawful selected real per-clip audio and actual SHA, independently frozen transcript and speaker IDs backed by the source, documented usage rights and split/training-overlap, test results and an independent qualification reviewer. If chosen FLEURS clips cannot be source-attributed or fit the bounded 120MiB cache, select a smaller lawful alternate corpus with equivalent **original R8/R10** metric obligations; never lower the minimum holdout or falsely label synthetic gold as human-quality evidence.
+
+
+## 7. Post-pulse 992f77e1 — implementation review and all remaining Wave 2 tasks (2026-10-28)
+
+> **Source-access qualification:** The implementer reports seven local commits ending `992f77e1` and nine unrelated dirty worktree paths. As of this inspection, connected GitHub `main` is `e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd`; GitHub does **not** resolve `992f77e1`, `c7969aa7`, `b03d35ca`, `2180a067`, `54471fad`, `80ade36f`, or `5207bb8b`. This review inspects the publicly available remote source and separately adjudicates the **user-reported** native tests. It neither fabricates review of inaccessible code nor overwrites local changes. **Before acceptance or test reproduction, recover/integrate the local commits and re-pin the exact implementation SHA.** The current R8 ledger remains 22 locally verified, 30 partial, 6 external-owner; 36 original nonverified rows retain `taskAccepted=false`.
+
+### 7.1 Decisions and findings at this pulse
+
+1. **Accept development progress, not blanket task closure.** Reported local results: Whisper merged-decoder step-0 encoder KV retention, actual reference transcript/EOT, authorized STT→successful fenced attempt→PostgreSQL `ADMITTED` transcript and reopened readback, PNG pixel oracle, separately authenticated OCI host broker, YOLOX official BGR preprocessing positive dog 0.80/blank negative, genuine Piper/espeak-derived 0.755s 22.05 kHz PCM, and 380 lawful FLEURS clip measurements. No specific original row is promoted solely from this report; verify source, host and all original row oracles.
+2. **Whisper-tiny **FAILS** provisional multilingual reference qualification.** User-reported speaker-cluster upper 95% WER confidence limits: `eng 0.454 > 0.30`, `hin 1.267 > 0.45`, `npi 1.072 > 0.55`; observed WER `0.3996/1.0938/1.0448`. 89/380 decoder attempts hit a bounded token cap and were reported as empty output. **Decision:** do not promote quantized Whisper tiny to an unrestricted production/multilingual profile, do not lower pre-registered thresholds after seeing the holdout, and do not count keyword-EOT/single-clip correctness as corpus quality. WER > 1 is mathematically possible from insertions. Diagnose cap/codec/locale/text normalization on development data only; compare rights-cleared previously selected Whisper base/small or another already allowed backend, preserving the current STT SPI and admission rules. Use a **fresh blind holdout** for model-selection promotion after exploratory access to the existing holdout.
+3. **Corpus accounting needs reconciliation before accepting G07.** The previous checked-in evaluator allows at most 24 pilot + 100 qualification clips per locale (372 total across three locales) under a 120 MiB selected-audio ceiling; the local report says **380 lawful clips**. Determine whether 380 means downloaded/cached metadata, pilot+holdout across extra splits, or the local evaluator legitimately amended those limits. Require an exact per-locale/split manifest, source IDs, authentic speaker/clip hashes, bounds and scoring denominator; do not silently discard eight clips or change existing thresholds. Report token-cap counts by locale and split, normalized-script WER/CER and an explicit failed model decision. A model result without source-linked frozen audio rights is an experiment observation, not independent rights signoff.
+4. **MM remains a primary code integration gap in remote source.** `MultimodalGrpcServer.createRuntime` wires a default `MultimodalGrpcService`; the default `PlatformMultimodalAdapter` emits STT/Vision `NOT_ADMITTED`, `SourceAuthorization.unavailable()` is selected, `CanonicalOperationExecutor` is a test fixture only, `canonicalOperationExecutionAvailable()` rejects real production calls, and `isSttProviderReady/isVisionProviderReady` return false. `PersistentMultimodalService` has legacy family methods that fail closed and an aggregate `PARTIAL` type; this cannot satisfy per-capability finality. Implement the real composition **through existing Media owned job/attempt/outbox** and verified source authority; do not route live traffic through legacy family methods or promote a dummy fusion.
+5. **Actual source clock is still separate from measured synchronization.** `SourceClockAssociation` and `MediaClockMapping` are deterministic candidate utilities; the gRPC cross-modal result explicitly reports `SYNC_UNDETERMINED`. Correct result until actual owner source clock, epoch/discontinuity, reference offset measurement and uncertainty are supplied. TTS output is a **generated narration effect**, not independent evidence of physical A/V synchronization; use it only as a separately authorized capability.
+6. **OBS production alert and capacity still lack real effects.** `MediaAlertDeliveryExporterFixture` is synthetic; `MediaWorkflowAlertRulesTest` explicitly tests fixture-only regression, and `MediaResourceProfileHarness` is a bounded test workload rather than four actual admitted modality providers. Reuse existing low-cardinality metrics and alert rules, but add admitted per-profile observed quality/readiness, tested Prometheus→Alertmanager receiver delivery and c1/c16/c64 named-host real workloads. An absent/NaN quality signal must remain UNKNOWN, not zero/failure.
+7. **Security review before promoting remote STT.** In remote `PostgresqlMediaSourceAuthorizationAuthority.evaluatePolicy`, a `PrincipalIdentity` is assembled using the processing request's tenant/principal and `Instant.now()`. Confirm a **genuinely verified ingress identity** is bound to those values; a freshly created wrapper is not authentication. `PostgresqlMediaSourceRightsAdministration.register` must only be reachable through an authenticated owner/admin boundary, not direct caller-chosen grants. `PostgresqlMediaTranscriptProductionAdmissionTest` seeds authorized jobs/rights/policy snapshots in SQL and reopens a store; do not mistake that fixture for a real provider/process restart. Revalidate policy, model profile, consent and revocation with a documented linearizable/fenced commit boundary: same-database rights epoch is necessary but does not atomically revalidate an external Shared policy engine. Fail closed where authority is stale.
+8. **Platform handoffs still external.** Ghatana [#252](https://github.com/samujjwal/ghatana/issues/252) and [#254](https://github.com/samujjwal/ghatana/issues/254) are OPEN. Ghatana's Document Intelligence exposes its existing bounded Python worker, not yet the authorized Media frame/ROI public API. Ghatana Data Cloud's current `/api/v1/media` compatibility read model is not the requested committed observation projection. The Media `DataCloudMultimodalAdapter` consumes a Data Cloud in-process type, and the projection helper alone is not an authenticated cross-JVM write/read contract. **Ghatana owners must implement public APIs, Media consumes stable installed/source-free clients only.**
+9. **Keep original human-rights boundaries.** The CC-BY-4.0 LibriTTS-R source, a real PCM waveform, a dog photograph and Apache-2.0 detector source do not independently grant human voice likeness, speaker identification, all model derivative weights or production publication rights. Preserve actual chain-of-title, per-voice/model/source license, biometric consent and independent reviewer evidence; unrelated nonbiometric engineering continues without waiting.
+
+### 7.2 Recovery and baseline preflight — P0, first engineering pulse
+
+**R00-SOURCE (Media owner, Git / worktree only):** On the local host, preserve all nine pre-existing dirty paths **without reset/stash/checkout replacement**. Record `git status --porcelain=v1 -uall`, `git rev-parse HEAD origin/main`, `git merge-base HEAD origin/main`, `git rev-list --left-right --count HEAD...origin/main`, `git log --oneline --left-right HEAD...origin/main`, `git cat-file -t 992f77e1`. Do not conflate this remote documentation HEAD with local implementation HEAD. Test the local commit in a **separate detached Git worktree** sharing Git objects; if remote and local diverge, use an **integration branch/worktree** based on latest `origin/main` and apply only the seven locally owned commits in order after reviewing diffs/overlap. Never force-push. On a real merge conflict, stop and record exact file+owner; do not discard the nine dirty entries or merge unreconciled contract changes. **Exit:** a single source cut containing both latest remote authorizations and all seven reported commits, with diff and merge-base attested; all nine preserved local modifications remain untouched.
+
+**R01-EXECUTION (Media QA + modality owners):** Re-run exact JDK27 local-focused tests, real OCI/BMP/PNG/broker cases, PostgreSQL with real containers, actual Whisper/TTS/Vision model cases and FLEURS frozen-manifest checker **against the reconciled SHA**. Capture Gradle test totals, skip names/reasons, Docker image/FFmpeg, model/export/tokenizer/phonemizer hashes, GPU/CPU/OS/profile, host cgroup, 380 source manifest counts, per-clip cap events and observed outputs. Distinguish test-only SQL-seeded `ADMITTED` from real source→job→attempt→transcript. **Exit:** every previously reported local positive reproducible at the actual SHA; otherwise first failed command and owner are recorded and repaired before row acceptance.
+
+**R02-ACCOUNTING (Media task owner):** Keep existing R8 58-task source and R10 36-task/12-gate mapping. For every originally unfinished row record `CODE_PRESENT`, `REAL_EFFECT_OBSERVED`, `NEGATIVE_AND_CHAOS_PROVED`, `LEGAL_MODEL_INPUTS_VERIFIED`, `NAMED_HOST_QUALIFIED` and `WHOLE_ROW_ACCEPTED` as independent **reporting observations**, never new runtime statuses. Do not update the 22/30/6 denominator until each original acceptance condition is actually met on the reconciled source; immediately promote only specific whole rows whose tests and rights can be independently reviewed.
+
+### 7.3 Implementation waves — exact dependencies and changed code
+
+#### Wave A — STT correctness, true model quality and durable authorization (G01/G02/G03/G07)
+
+**A01 (STT Runtime+Security; STT-03/04/08/09):** Audit/finish verified token/service principal propagation through `MediaRuntime` → `MediaSourceAuthorizationContracts` → `PostgresqlMediaSourceAuthorizationAuthority` and `SharedPolicySttRequestAuthorization`. The Shared `VerifiedPolicyContext` must derive from a verified security-boundary `PrincipalIdentity`, not merely request strings. Bound tenant/principal/source SHA/version, provider, purpose, region, consent, revocation epoch, retention, qualified profile, source clock and source data to the admitted job snapshot. Re-evaluate before each provider effect/retry and at transcript commit; if current Shared policy cannot be consistently proven, return typed not-admitted or reconcile UNKNOWN rather than falsely certifying transaction isolation across services. Ensure the backend has no separate STT writer and reuses the source-pinned and fenced Media PostgreSQL CAS/outbox.
+
+**A02 (STT Provider; STT-04/06/10/12):** Reproduce the reported merged-decoder encoder KV fix with exact tokenizer/mel/EOT and full reference transcript. Partition all 89 bounded cap cases by locale, source duration, token cap, model/hardware and output reason: invalid framing vs known non-English failure vs missing EOT vs cap exhaustion. Do not change a token cap merely to make WER better; retain time/memory bounds and mark a cap as genuine empty/missing prediction for scoring. Verify independent WAV/FLAC advertised codec handling; never claim FLAC support from WAV only. Preserve authoritative word/phoneme timing and unknown confidence where model does not supply it.
+
+**A03 (Model Quality; STT-10/12):** Quarantine quantized Whisper tiny as `REVIEW_ONLY_FAILED_MULTILINGUAL_REFERENCE` (the product/public capability is not deleted). Compare pinned official reference inference with exact ONNX export, then evaluate previously selected, rights-cleared base/small or alternative model **using a development/tuning set only**. Pre-register threshold, normalization, per-locale policy, model size/CPU/RSS and inference budget. Because the existing holdout has now influenced model selection, create a **fresh blinded, speaker-disjoint promotion holdout**, with lawful audio SHA, speaker source references, independent gold, no training overlap and speaker-cluster CIs. Reevaluate English/Hindi/Nepali per model and keep an exact model+profile+locale ledger; a model passes only all admitted locales and normative thresholds without cap-induced false completions. An English-only accepted profile cannot silently serve Hindi/Nepali. Bound cache and do not download hundreds of GB.
+
+**A04 (STT Streaming and diarization; STT-05/07):** On the now-real provider, test loss/reorder/duplicate chunks, backpressure, paused/broken streams, reconnect/cancel and revoked consent before finalization. Preserve one final transcript and durable UNKNOWN on ambiguous provider receipt. Keep diarization anonymous; speaker-to-identity association requires separate biometric consent and licensed gold. Evaluate overlap, speaker boundaries and DER where lawful, no fabricated speaker identity.
+
+**A05 (Production STT E2E; STT-08/09/12):** Run W2-E01/E02/E12 real, not seeded SQL: authenticated upload immutable audio → current source/Shared policy + consent → qualified exact provider → durable job and fenced real attempt → actual resulting complete transcript → immutable revision/transactional outbox → kill/restart of process/pool → principal-scoped byte/version/attempt readback. Exercise lost ack before and after effect, duplicate same-ID/different-body, stale rights epoch, revoked consent at commit, wrong tenant, expired model/profile, wrong provider receipt and publisher replay. Do not promote broad production STT locale capability while the selected tiny fails WER.
+
+#### Wave B — Vision native/detector complete quality and security (G05/G06)
+
+**B01 (Vision Native; VIS-03):** Re-run reported PNG pixel-exact 4/4 plus existing 4/4 OCI stub, 3/3 BMP, VFR and 54 parser adversarial where applicable. The dedicated OCI broker must enforce authenticated peer identity, source-owner artifact and digest, FFmpeg/FFprobe command grammar, private mounts, output byte/frame/pixel/diagnostic bounds, cap-drop/seccomp/no-network/read-only root, uid/gid, CPU/PID/RSS/tmpfs/no-file limits and forced cleanup. Test client compromise attempts (arbitrary Docker arguments/socket/host mount, symlink race, shell injection), noncooperative codec kill, OOM, fork-bomb, disk exhaustion, delayed FD/child leaks and recovery after restart. **No unsandboxed fallback.** Report true Mac/Linux coverage per original NFR; a success test image alone is not VIS-03 closure.
+
+**B02 (Vision Model/Geometry; VIS-02/05/06):** Reproduce the official YOLOX cv2 BGR preprocessing and correct scaling/NMS against source-pinned weights; assert dog/blank positive/negative only as **functional smoke**, not accuracy qualification. Run BGR vs RGB regression and deliberate /255 mismatch detection. Verify source RGB/BGR/alpha/orientation/letterbox inversion, multiple objects, invalid NaNs, bbox clipping, class indices and JNI Mat ownership. Acquire a separately lawful, labeled held-out corpus, compute mAP50, PR and CI against existing registered thresholds; include occluded/noisy/multiclass images, memory/leak/capacity and model/license lineage. Never infer probability calibration from score 0.80.
+
+**B03 (Vision Video/Privacy; VIS-07/10/12):** Bind real detections/tracks to source PTS/timebase/epoch and provenance from a VFR source with reordering and discontinuities. Keep frame indices separate from physical time, and quantify tracking accuracy. Gated landmarks, gaze, face IDs and embeddings deny effects without biometric purpose/consent, retention/region and current owner rights. Then run W2-E05/E06/E11/E12 and Vision 1/16/64 measured workload; no generic OCR fork.
+
+#### Wave C — TTS actual voice, format, rights, stream and durability (G04/G11)
+
+**C01 (TTS Production; TTS-02/03/07):** Re-run pinned `piper_phonemize` with exact eSpeak sidecar phoneme-to-ID tables and libespeak/worker license, 22.05 kHz PCM 0.755s audio and real speech intelligibility. Harden subprocess cancellation/pipe deadlock, UTF-8/SSML injection, output length, bounded stderr/stdout, missing executable/sidecar, sample clock, multi-speaker `sid`, and source-controlled binary/digest provenance. Decode PCM and declared encoded formats under real audio decoder; do not call PCM MP3/OPUS. No runtime model download, no heuristics in qualified production.
+
+**C02 (TTS Rights/Controls; TTS-05/06/10):** Review exact LibriTTS-R model/voice, dataset, sidecar, phonemizer, speaker/likeness and distribution terms independently; attribution where required. Non-cloning generic voice can proceed **only** under the verified licensed source and production purpose; never turn CC-BY-4.0 dataset text into implicit individual voice-clone consent. Keep cross-language, speaker conversion and biometric identification disabled without explicit model and actual subject grants. Run per-control A/B for supported prosody/SSML/rate/voice selection and typed unsupported responses; en/hi/ne capability matrix must be truthful.
+
+**C03 (TTS Streaming/Persistence/Load; TTS-08/09/12):** Real generated chunks with backpressure, cancellation after first bytes, slow reader, timeout and no false completed audio. Persist through the existing Media job/outbox/artifact version + fenced provider result; compare exact bytes on restart/replay; reject changed digest and revoked voice before effect. Run c1/c16/c64 with real model and source-pinned voice on named host, p50/p95/p99, RTF/CPU/RSS, admitted vs rejected, and quality/format negative cases.
+
+#### Wave D — real governed Multimodal operation composition (G02/G12)
+
+**D01 (MM production admission/executor; MM-02/05):** In `MultimodalGrpcServer`, `MultimodalGrpcService`, `CanonicalOperationExecutor` and `PlatformMultimodalAdapter`, replace **production** default-not-admitted composition with the real authorized `MediaProcessingRuntimePort` job/attempt bridge and public STT/Vision clients. Build one production operation executor **per canonical operationRef**, not a legacy family handler. `SourceAuthorization` must be composed from Media's actual source/rights/consent+Shared policy decision and checked **per child**, with tenant/principal, source/version, purpose, provider/egress and rights revocation. Child discovery and readiness reflect supported, qualified provider/profile, not a permanent `false`; unavailable child remains typed unavailable. Cap concurrent fanout, deadlines, IPC bytes and cancellation; preserve `OUTCOME_UNKNOWN` after ambiguous remote effects without automatic retry.
+
+**D02 (MM source clock and grounding; MM-03/06):** Reuse `SourceClockAssociation`, `MediaClockMapping`, `GrpcSttClientAdapter` bounded timing, real FFmpeg VFR PTS and source owner time mappings. Use sample-zero audio origin, rational resampling, frame reorder/epoch/discontinuity and independent sync reference impulses/markers with measured uncertainty. Timestamp comparability is **not** proof of A/V synchrony. Produce `SYNC_UNDETERMINED` when mapping or actual signals are absent. Tie every statement/entity/detection to child source version, frame/word time and model/attempt. Calibrate fusion confidence only with lawful labeled data; otherwise emit explicitly heuristic or abstain. No speaker↔face identity inference without separate grants.
+
+**D03 (MM per-operation durability/finality; MM-08/09):** Eliminate using `MultimodalResult.Outcome.PARTIAL` or `PersistentMultimodalService` family aggregation as the canonical user-visible result of a selected operation. Each selected operation has its own identity, status, source version, successful/unknown child refs, causal watermark and result digest. Persist a grounded fused observation with the existing canonical Media fenced job/attempt/outbox and CAS; exact owner-scoped restart readback and idempotent replay. With STT response lost but Vision completed, retain independent STT `UNKNOWN` and Vision success, no falsely successful family output or duplicate effect. Unsupported semantic summarization / emotion / identity must remain typed unavailable.
+
+**D04 (MM genuine three-modality composition; MM-05/09/12):** Exercise an original rights-cleared source with **real STT + real Vision** and known independent offset, verify child output digests and source clock, then compose a grounded scene/audio observation. Add **real TTS** as a separately authorized narration/synthesis operation after the source-grounded analysis, preserving the generated-audio version and voice rights; never present TTS narration as third independent sensor input. Run partial denial, child timeout/cancel, crash/restart, wrong tenant/digest, policy revocation, provider saturation and c1/c16/c64 bounded load. Complete W2-E07/E08/E12.
+
+#### Wave E — Ghatana public API owners, independently parallel (G09/G10)
+
+**E01 — Document Intelligence [#252] (Ghatana DI owner; VIS-09).** Implement and publish one bounded, versioned Media frame-region OCR public service/client over the **existing** Document Intelligence worker: verified service/delegated principal, actual source and frame SHA/version, oriented pixel XYWH ROI, source timebase/PTS/epoch, policy/rights/retention, purpose, idempotency, cancellation generation, typed error and UNKNOWN. No arbitrary URL fetch, tenant-only identity or Media generic OCR implementation. Test authentic source-owned text/box/time positive, wrong-tenant/stale/oversize/revoked/timeout/cancel and exact installed Java27 Media consumer; cross-repository revisions independently pinned.
+
+**E02 — Data Cloud [#254] (Ghatana Data Cloud owner; MM-10).** Implement a **new qualified public projection route under existing Data Cloud route/security/OpenAPI authority**, not by turning the tenant-only in-process `MediaProcessorPort` into a remote effect API. Proposed source-authorized request and exact result lookup bind Media's successfully fenced job/attempt, source/observation hash, operation/rights/consent/policy/classification and retention. Differentiate HTTP 202 receipt from committed projection; same idempotency+digest returns stable ID, changed digest conflicts, timeout leaves UNKNOWN and GET reconciles. Verify Java21 Data Cloud service and **source-free** Java27 Media HTTP consumer, corrupt/wrong tenant/revoked/stale proof failures, restart readback, no duplicate Media writer. Run W2-E06/E07/E12 then review VIS-09/MM-10 original acceptance.
+
+**E03 — Owner unblock tracking.** Post exact delivered public endpoint/schema/client SHA, source-free tests and response/finality contract to the existing two issues, not new competing issues. If the platform has not shipped, continue D01–D04 local real child composition and OBS tests; only DI-OCR and Data Cloud read-model operations remain unavailable.
+
+#### Wave F — real observability and capacity (G08)
+
+**F01 (OBS-07; real delivery):** Feed each admitted provider's **actual model/profile readiness, last quality observation and reasoned failure** to existing bounded `MediaWorkflowMetrics`; no tenant/user/content/model-weight hash or audio text in Prometheus labels. Use existing `infra/monitoring/alerts/audio-video.yml` and explicit source provider quality/freshness events, never the `MediaAlertDeliveryExporterFixture` as production source. Real endpoint scrape → Prometheus ingest/rule evaluation → Alertmanager routing → named test receiver delivery and clear-after-recovery; test unavailable model, quality regression, missing/stale gauge, and recovery. Verify target registration, `promtool`, Alertmanager endpoint and receiver receipt with timestamps. No real provider alert delivery means OBS-07 remains partial.
+
+**F02 (OBS-08; real load):** Extend/drive `MediaResourceProfileHarness` or equivalent bounded harness against actual STT/TTS/Vision/MM service endpoints and native OCI broker on named Mac ARM64 and Linux ARM64 JDK27 with actual model weights, source input digests, selected license/locale and isolated cgroups. At requested c1/c16/c64, record queued/admitted/completed/rejected/timeout/cancel/UNKNOWN, p50/p95/p99 end-to-end and provider-only latency, RTF/fps/throughput, CPU RSS+native, fd/pids/threads, network, disk, DB/connection pool and memory. A legal c64 resource-exhausted response proves bounded overload but **not** a 64-completion latency SLO. Abort on declared resource ceilings, use ≤30s clips and limited cache; compare before/after against a stable source hash. Only name production SLO after real host/quality proof.
+
+### 7.4 All 36 original unfinished rows — specific owner and acceptance work
+
+The rows below map **exact original R8 identities**. Their current R8 status is retained until whole-row independent proof is actually recorded. This is a scoped implementation selection crosswalk, not a replacement requirement contract.
+
+| Original ID | Lane | Specific remaining effect / negative oracle required |
+|---|---|---|
+| `STT-03` | A01 | Authenticated tenant/principal/purpose/rights/Shared ALLOW; unauth/wrong-tenant/revoked gives zero provider/job/outbox |
+| `STT-04` | A02/A05 | Real source-pinned lawful WAV and admitted FLAC or explicitly typed unavailable; bad codec/clock/bomb bounded |
+| `STT-05` | A04 | Real streaming resume/reorder/EOS/cancel/revocation; one terminal result with no phantom final |
+| `STT-06` | A02 | Source clock, word/phoneme gold, ordered sample bounds and explicitly uncalibrated confidence |
+| `STT-07` | A04 | Anonymous overlapping-speaker DER and revoked biometric identity/no unauthorized embedding |
+| `STT-08` | A05 | Actual immutable version/CAS, parent source+attempt, draft captions and honest unmet derived operations |
+| `STT-09` | A05 | Reconciled real attempt after loss/kill/replay; no duplicate transcript or fabricated UNKNOWN success |
+| `STT-10` | A02/A03 | Multilingual gold distribution and per-locale WER/CER including capped predictions; tiny remains failed |
+| `STT-12` | A03/A05/F02 | All 12 STT RPC and 16 intent members, qualified real provider, 1/16/64, privacy/restart/quality, no skip promotion |
+| `TTS-02` | C01 | Genuine decoded speech not synthetic repeating bytes; exact format header/duration |
+| `TTS-03` | C01/C02 | Sidecar/voice/model/locale/license readiness, no implicit model download |
+| `TTS-05` | C02 | Clone/identity/revoked profile denies before call and embedding/credential leakage |
+| `TTS-06` | C02 | Supported control A/B audible difference, unsupported explicitly typed without imaginary effect |
+| `TTS-07` | C01 | Licensed phonemizer+voice gives decoded playable audio, exact PCM/codec/sample count |
+| `TTS-08` | C03 | Stream chunks bounded/ordered, slow reader, cancel-after-output, no false complete |
+| `TTS-09` | C03 | Generated audio immutable artifact/job/outbox, replay/digest conflict, owner restart readback |
+| `TTS-10` | C02 | Real voice-locale support matrix en/hi/ne, unsupported language/clone typed not-admitted |
+| `TTS-12` | C03/F02 | Real TTS c1/16/64, p50/95/99, RTF, quality, stream/restart/rights negative suites |
+| `VIS-02` | B02 | Actual licensed detector model and exact export/class/digest, wrong package not ready |
+| `VIS-03` | B01 | Full original malformed native codec, expansion, CPU/RAM/PIDs/disk/fd/time and zero leaked processes |
+| `VIS-05` | B02 | Rotation/color/bbox/source ROI inverse and native memory bounded stress |
+| `VIS-06` | B02 | YOLOX golden multi-object score/NMS/NaN/class and licensed held-out mAP/PR |
+| `VIS-07` | B03 | Real VFR/reorder/discontinuity/shot tracking/source PTS with uncertainty |
+| `VIS-09` | E01 | Real Ghatana public OCR ROI text/box/time/source and revoked/wrong tenant/UNKNOWN |
+| `VIS-10` | B03 | Face/gaze/landmark identity/sensitive purpose denied before effect without appropriate consent |
+| `VIS-12` | B03/F02 | All 10 source-declared Vision RPCs as applicable, real reference image/model, 1/16/64 native load and restart |
+| `MM-02` | D01 | Every child tenant/principal/source/version/rights intersection verified before fanout |
+| `MM-03` | D02 | Source rational clock vs measured sync, variable frame rate and honest `SYNC_UNDETERMINED` |
+| `MM-05` | D01/D04 | Real STT/Vision child execution, bounded parallel timeouts/UNKNOWN without synthetic result |
+| `MM-06` | D02 | Compatible embedding/coordinate dimensions, weighted fusion/calibration or explicit heuristic abstention |
+| `MM-08` | D03 | Each canonical operation's attempt/finality separate; no legacy aggregate `PARTIAL` as success |
+| `MM-09` | D03/D04 | Source-grounded immutable fusion readback/CAS/job/outbox/replay and no effect from missing children |
+| `MM-10` | E02 | Data Cloud public projection 202/pending/committed/UNKNOWN; source-free Java21/27 consumer |
+| `MM-12` | D04/F02 | Real composited, labeled relative clock and 1/16/64 capacity plus fault/restart/readback |
+| `OBS-07` | F01 | Actual provider health/quality exporter→Prometheus→Alertmanager→named receiver event |
+| `OBS-08` | F02 | Real four-modality and native measured c1/c16/c64 resource/latency/RTF/fps with abort budgets |
+
+### 7.5 Dependency DAG, stop rules and acceptance reporting
+
+```mermaid
+flowchart LR
+  R[Recover local 992f77e1 and merge remote e28] --> V[Run current cut real native tests]
+  R --> A[Audit real identity/rights and STT CAS]
+  A --> S[Real STT negative/restart]
+  V --> Q[Model and corpus quality triage]
+  Q --> P[Qualify replacement speech profile]
+  P --> S
+  V --> N[Complete Vision broker/detector]
+  V --> T[Complete voice/phoneme rights and TTS]
+  S --> M[MM per-operation source-authorized fanout]
+  N --> M
+  M --> O[MM grounded persistence and TTS narration]
+  T --> O
+  N --> D[DI owner public OCR API #252]
+  O --> C[Data Cloud owner projection API #254]
+  M --> H[Live provider alerts + load]
+  O --> H
+  C --> H
+```
+
+This is a *dependency order*, not a request to serialize independent B/C/E/F coding. Source rights and the tested provider profile are prerequisites only for the **affected live dispatch**, not generic implementation, negative tests or seeded functional contract tests.
+
+Use the existing 90-minute engineering pulse and 4-hour acceptance checkpoint. A pulse must produce changed code, executable test result or exact first failure; after two pulses without an original row accepted, fix the first bounded missing executable artifact/contract or switch to an already-approved lawful alternative. **Never** replace genuinely unavailable voice consent, source ownership or model-license records with fixture-author signatures. The local-only seven commits must not be counted as independently source-reviewed until safely integrated. Each whole-row promotion needs exact original R8 acceptance, named `repo@SHA`, host/JDK/model/codec SHA, authentic input/rights IDs, actual positive/negative/fault receipts and no unexamined skip.
+
+**Execution commands from a clean worktree pinned to the integrated SHA:**
+
+```bash
+git fetch origin main
+git status --porcelain=v1 -uall
+git rev-parse HEAD origin/main
+git rev-list --left-right --count HEAD...origin/main
+git log --oneline --left-right HEAD...origin/main
+git cat-file -t 992f77e1
+
+pnpm test:wave2-r10-owner-resolution
+node --test tests/media-fleurs-asr-evaluation.test.mjs
+pnpm check:wave2-reference-sources
+pnpm check:candidate-decision-crosswalk
+
+./gradlew :services:media:modules:speech:stt-service:test --no-daemon --no-parallel --max-workers=2
+./gradlew :services:media:modules:speech:tts-service:test --no-daemon --no-parallel --max-workers=2
+./gradlew :services:media:modules:vision:vision-service:test --no-daemon --no-parallel --max-workers=2
+./gradlew :services:media:modules:intelligence:multimodal-service:test --no-daemon --no-parallel --max-workers=2
+./gradlew :services:media:audio-video-observability:test --no-daemon --no-parallel --max-workers=2
+./gradlew :services:media:adapters:data-cloud-media:test --no-daemon --no-parallel --max-workers=2
+
+# Opt-in native images are verified independently in dedicated JVMs:
+bash scripts/qualification/run-wave2-vision-oci-checks.sh stub
+# real-codec requires the actual provisioned MEDIA_LINUX_CODECS_DIR:
+# bash scripts/qualification/run-wave2-vision-oci-checks.sh real "$MEDIA_LINUX_CODECS_DIR"
+```
+
+Use the existing [W2-E01 through W2-E12](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#integrated-backend-effect-quality-and-fault-oracles) oracles as the final end-to-end test population; do not invent new acceptance IDs, stage enums or close gtool/PDP as a side effect. GH-90000 nine compose skips, legacy M08 writer cutover, warn-level Checkstyle and unrelated Shared build logic remain distinct operational handoffs. For the new OCI broker and source-rights implementation, full license/security/source review is required before deployment even if a local developer-host fixture passes.
