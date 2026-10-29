@@ -326,6 +326,11 @@ The following are requirements, not implementation claims:
 - **Vision JNI/OCI:** the early 4/4 stub, 3/3 real BMP and 54/54 adversarial runs were reported development outcomes. BMP-only proof was **not PNG proof** at that cut. Commit `2180a067` now supplies a separate pinned PNG-capable FFmpeg image plus exact Java PNG pixel tests, and `54471fad` a separate HMAC-authenticated host broker/daemon/client. **Implementation is in source, but production use is not yet qualified:** verify current-cut PNG/native/invalid input tests, server allowlisted image/args, authenticated peer and actual source-owner scope, nonce replay prevention, verified uid/gid, request wall-time and concurrency, resource caps/cleanup and never allow direct Docker CLI fallback in a production Media service. A delegated-cgroup skip never counts as hard sandbox proof; keep the genuine rights and original VIS-03 adversarial contract unchanged.
 - **Capacity and alerts:** measure real admitted/completed/rejected/UNKNOWN outcomes on the exact named host at requested 1/16/64; saturation may yield typed rejection but not 64 falsely successful operations. Only real provider quality errors and Alertmanager notification to a named receiver count as integrated observability proof.
 
+### 13.4 Restricted evidence and acceptance accounting
+
+Proof files can contain nonsecret IDs/digests/versions, source revision, profiler results and public test source. Full identity documents, consent forms, reviewer private keys, raw media containing personal data and rights-holder communications remain in the access-controlled intake—not in public Git or application logs. In the absence of a real trust anchor or authority, record `EXTERNAL_INPUT_UNAVAILABLE` with owner, evidence type and recheck point rather than inventing approvals.
+
+All 36 remaining tasks retain their original `PARTIAL` or `OWNER_EXTERNAL` ledger status. Engineering permission and passing unit/OCI fixtures **never** promote a row until its original positive, negative, fault/restart, privacy, source-rights and quality expectations are independently satisfied. PDP closure, operational writer migration, deployment and release remain different gates.
 
 ### 13.5 Pushed implementation, trustworthy authority and failed model qualification
 
@@ -338,9 +343,3 @@ The following are requirements, not implementation claims:
 **Piper process privacy:** `PiperPhonemizeProcessConverter` presently does blocking stdin/stdout before the 15-second `waitFor`, so total deadline is not yet enforced; the temporary stderr log is not removed by observed code. Require bounded asynchronous pumps, one deadline, descendant kill, private log cleanup and dependency-data pins before production voice activation. LibriTTS-R dataset license or audible generic voice alone is not voice likeness/clone consent.
 
 See [current active Wave 2 §7.6](implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#76-pushed-source-review--corrected-priorities-and-executable-acceptance). These rules authorize ordinary engineering and first-party nonhuman tests but grant no rights, reviewer credibility, model quality, deployment or Lifecycle/gtool acceptance.
-
-### 13.4 Restricted evidence and acceptance accounting
-
-Proof files can contain nonsecret IDs/digests/versions, source revision, profiler results and public test source. Full identity documents, consent forms, reviewer private keys, raw media containing personal data and rights-holder communications remain in the access-controlled intake—not in public Git or application logs. In the absence of a real trust anchor or authority, record `EXTERNAL_INPUT_UNAVAILABLE` with owner, evidence type and recheck point rather than inventing approvals.
-
-All 36 remaining tasks retain their original `PARTIAL` or `OWNER_EXTERNAL` ledger status. Engineering permission and passing unit/OCI fixtures **never** promote a row until its original positive, negative, fault/restart, privacy, source-rights and quality expectations are independently satisfied. PDP closure, operational writer migration, deployment and release remain different gates.
