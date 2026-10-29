@@ -252,6 +252,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         this.processingProviders = List.copyOf(processingProviders);
         this.streamingProviders = List.copyOf(streamingProviders);
         this.concurrency = new Semaphore(config.maximumConcurrentJobs(), true);
+        bindDelegatedProviderCapabilities(this.processingProviders, config.productionLike());
         reconcileJobsAfterRestart();
         recoveryScheduler.scheduleWithFixedDelay(() -> {
             if (closed.get()) return;
@@ -522,6 +523,120 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         requirePrincipal(principalId);
         return artifactStore.artifact(tenantId, artifactId)
                 .filter(value -> value.principalId().equals(principalId));
+    }
+
+    /**
+     * Truthful provider availability for a job type, evaluated with the exact
+     * provider-selection rules used at submission. Never implies rights admission.
+     */
+    @Override
+    public boolean processingReady(
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType) {
+        try {
+            ensureOpen();
+            java.util.Objects.requireNonNull(jobType, "jobType");
+            return !selectProcessingProviders(jobType, "").isEmpty();
+        } catch (RuntimeException failure) {
+            return false;
+        }
+    }
+
+    /**
+     * Effect-free source-rights probe over the same artifact, provider-selection and
+     * authority path used by job admission. A missing authority, invisible or stale
+     * source, or unusable provider resolves to a non-ALLOWED decision, never an
+     * exception that could be mistaken for approval.
+     */
+    @Override
+    public MediaSourceAuthorizationContracts.Decision resolveSourceAuthorization(
+            String tenantId,
+            String principalId,
+            String artifactId,
+            ArtifactVersion sourceVersion,
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType,
+            String purpose,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(sourceVersion, "sourceVersion");
+        java.util.Objects.requireNonNull(jobType, "jobType");
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated.tenantId().equals(tenantId)
+                || !authenticated.principalId().equals(principalId)) {
+            return sourceAuthorizationDecision(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
+        MediaArtifact artifact = artifactStore.artifact(tenantId, artifactId)
+                .filter(value -> value.principalId().equals(principalId))
+                .orElse(null);
+        if (artifact == null) {
+            return sourceAuthorizationDecision(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
+        if (!artifact.version().equals(sourceVersion)
+                || !artifact.expiresAt().isAfter(clock.instant())) {
+            return sourceAuthorizationDecision(MediaSourceAuthorizationContracts.Status.STALE);
+        }
+        final MediaProcessingProvider provider;
+        try {
+            provider = selectProcessingProviders(jobType, "").getFirst();
+        } catch (MediaCapabilityNotAdmittedException unavailable) {
+            return sourceAuthorizationDecision(
+                    MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
+        }
+        if (sourceAuthorizationAuthority == null || !sourceAuthorizationAuthority.ready()
+                || (config.productionLike() && !sourceAuthorizationAuthority.productionEligible())) {
+            return sourceAuthorizationDecision(
+                    MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
+        }
+        MediaSourceAuthorizationContracts.Request authorizationRequest;
+        try {
+            authorizationRequest = new MediaSourceAuthorizationContracts.Request(
+                    tenantId, principalId, artifact.artifactId(), artifact.version(),
+                    artifact.sha256(), jobType.name(), purpose,
+                    provider.providerId(), provider.providerVersion(),
+                    provider.processingBoundary(), provider.processingRegion(),
+                    provider.providerDataRetention());
+        } catch (IllegalArgumentException malformed) {
+            return sourceAuthorizationDecision(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
+        try {
+            MediaSourceAuthorizationContracts.Decision decision =
+                    sourceAuthorizationAuthority.resolve(authorizationRequest, authenticated);
+            return decision == null
+                    ? sourceAuthorizationDecision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE)
+                    : decision;
+        } catch (RuntimeException unavailable) {
+            return sourceAuthorizationDecision(
+                    MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
+        }
+    }
+
+    private static MediaSourceAuthorizationContracts.Decision sourceAuthorizationDecision(
+            MediaSourceAuthorizationContracts.Status status) {
+        return new MediaSourceAuthorizationContracts.Decision(status, null);
+    }
+
+    /**
+     * One-time composition binding: each provider that declares downstream canonical
+     * child job types learns which job types are usable through other providers under
+     * the same eligibility rules. Binding happens before any usable-provider gate so
+     * conditional production eligibility reflects the composed set; a provider that
+     * rejects the binding stays unbound and therefore ineligible.
+     */
+    private static void bindDelegatedProviderCapabilities(
+            List<MediaProcessingProvider> providers, boolean productionLike) {
+        for (MediaProcessingProvider provider : providers) {
+            Set<com.ghatana.media.runtime.MediaRuntimeContracts.JobType> usable = providers.stream()
+                    .filter(other -> other != provider)
+                    .filter(other -> usableProcessingProvider(other, productionLike))
+                    .flatMap(other -> other.capabilities().stream())
+                    .collect(java.util.stream.Collectors.toCollection(
+                            java.util.LinkedHashSet::new));
+            try {
+                provider.bindRuntimeCapabilities(Set.copyOf(usable));
+            } catch (RuntimeException rejected) {
+                log.debug("Media provider rejected runtime capability binding providerId={}",
+                        provider.providerId(), rejected);
+            }
+        }
     }
 
     @Override
@@ -2923,17 +3038,23 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     }
 
     private List<MediaProcessingProvider> selectProcessingProviders(ProcessingJobRequest request) {
+        return selectProcessingProviders(request.jobType(), request.providerHint());
+    }
+
+    private List<MediaProcessingProvider> selectProcessingProviders(
+            com.ghatana.media.runtime.MediaRuntimeContracts.JobType jobType, String providerHint) {
+        String hint = providerHint == null ? "" : providerHint;
         List<MediaProcessingProvider> configured = processingProviders.stream()
                 .filter(provider -> provider.capabilities() != null
-                        && provider.capabilities().contains(request.jobType()))
-                .filter(provider -> request.providerHint().isBlank()
-                        || provider.providerId().equalsIgnoreCase(request.providerHint()))
+                        && provider.capabilities().contains(jobType))
+                .filter(provider -> hint.isBlank()
+                        || provider.providerId().equalsIgnoreCase(hint))
                 .toList();
         List<MediaProcessingProvider> eligible = processingProviders.stream()
                 .filter(provider -> usableProcessingProvider(provider, config.productionLike())
-                        && provider.capabilities().contains(request.jobType()))
-                .filter(provider -> request.providerHint().isBlank()
-                        || provider.providerId().equalsIgnoreCase(request.providerHint()))
+                        && provider.capabilities().contains(jobType))
+                .filter(provider -> hint.isBlank()
+                        || provider.providerId().equalsIgnoreCase(hint))
                 .sorted(Comparator.comparingInt(MediaProcessingProvider::priority)
                         .thenComparing(provider -> canonical(provider.providerId())))
                 .toList();
@@ -2941,7 +3062,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaCapabilityNotAdmittedException.Reason reason = configured.isEmpty()
                     ? MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED
                     : MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE;
-            throw new MediaCapabilityNotAdmittedException(reason, request.jobType().name());
+            throw new MediaCapabilityNotAdmittedException(reason, jobType.name());
         }
         return eligible;
     }

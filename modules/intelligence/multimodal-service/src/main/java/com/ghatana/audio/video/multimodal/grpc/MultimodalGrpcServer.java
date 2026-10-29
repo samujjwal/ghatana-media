@@ -11,7 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
@@ -68,7 +71,13 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
-        MultimodalGrpcService service = new MultimodalGrpcService(MediaProcessingMetrics.create(), mediaRuntimePort);
+        // A composed runtime port supplies the real source-rights seam; without one the
+        // service remains fail-closed on the unavailable default.
+        SourceAuthorization sourceAuthorization = mediaRuntimePort == null
+                ? SourceAuthorization.unavailable()
+                : new MediaRuntimeSourceAuthorization(mediaRuntimePort);
+        MultimodalGrpcService service = new MultimodalGrpcService(
+                MediaProcessingMetrics.create(), sourceAuthorization, mediaRuntimePort);
         return new ServerRuntime(service, readinessService(service));
     }
 
@@ -100,11 +109,13 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
             return;
         }
 
+        MediaProcessingRuntimePort runtimePort = null;
         try {
             Map<String, String> environment = System.getenv();
             int port = parsePort(environment.get("MULTIMODAL_GRPC_PORT"));
             TransportSecurity transportSecurity = transportSecurity(environment);
-            new MultimodalGrpcServer(port, transportSecurity).startAndAwaitShutdown();
+            runtimePort = composeRuntimePort(environment);
+            new MultimodalGrpcServer(port, transportSecurity, runtimePort).startAndAwaitShutdown();
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             LOG.info("Multimodal server interrupted");
@@ -114,6 +125,47 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
         } catch (RuntimeException configurationFailure) {
             LOG.error("Multimodal server configuration or provider startup failed", configurationFailure);
             System.exit(1);
+        } finally {
+            closeRuntimePort(runtimePort);
+        }
+    }
+
+    /**
+     * Discovers the canonical Media runtime through the installed
+     * {@link com.ghatana.media.runtime.MediaRuntimePortFactory} SPI and composes it
+     * against the real environment. Composition failures propagate so the server
+     * cannot start on a half-initialized runtime; an absent factory leaves the
+     * service fail-closed with every operation not-admitted and readiness down.
+     */
+    static MediaProcessingRuntimePort composeRuntimePort(Map<String, String> environment) {
+        List<com.ghatana.media.runtime.MediaRuntimePortFactory> factories = new ArrayList<>();
+        for (com.ghatana.media.runtime.MediaRuntimePortFactory factory
+                : ServiceLoader.load(com.ghatana.media.runtime.MediaRuntimePortFactory.class)) {
+            factories.add(factory);
+        }
+        if (factories.isEmpty()) {
+            LOG.warn("No MediaRuntimePortFactory installed; multimodal operations stay NOT_ADMITTED");
+            return null;
+        }
+        if (factories.size() > 1) {
+            throw new IllegalStateException(
+                    "Multiple MediaRuntimePortFactory implementations are installed: "
+                            + factories.stream().map(
+                                    com.ghatana.media.runtime.MediaRuntimePortFactory::factoryId)
+                                    .sorted().toList());
+        }
+        MediaProcessingRuntimePort port = factories.getFirst().compose(environment);
+        LOG.info("Composed Media runtime port via factory {}", factories.getFirst().factoryId());
+        return port;
+    }
+
+    private static void closeRuntimePort(MediaProcessingRuntimePort runtimePort) {
+        if (runtimePort instanceof AutoCloseable closeable) {
+            try {
+                closeable.close();
+            } catch (Exception closeFailure) {
+                LOG.error("Media runtime port shutdown failed", closeFailure);
+            }
         }
     }
 

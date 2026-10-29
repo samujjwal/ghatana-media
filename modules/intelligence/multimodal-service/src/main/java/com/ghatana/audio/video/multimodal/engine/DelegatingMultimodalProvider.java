@@ -63,12 +63,20 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     private static final Duration DEFAULT_OPERATION_DEADLINE = Duration.ofMinutes(4);
     private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(250);
     private static final int MAX_OBSERVATION_RESULT_CHARS = 8_192;
+    /**
+     * Canonical child job types this orchestrator can fan out to. Production
+     * eligibility requires every one of them to be usable through another provider.
+     */
+    private static final Set<JobType> DELEGATED_CHILDREN =
+            Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
 
     private final ScheduledExecutorService scheduler;
     private final boolean ownsScheduler;
     private final Duration operationDeadline;
     private final Duration pollInterval;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    /** Composition-bound usable child capabilities; unbound stays ineligible. */
+    private volatile Set<JobType> boundUsableCapabilities;
 
     /** ServiceLoader composition. */
     public DelegatingMultimodalProvider() {
@@ -110,7 +118,20 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     @Override public String modelVersion(JobType modality) { return providerVersion(); }
     @Override public Set<JobType> capabilities() { return Set.of(JobType.MULTIMODAL); }
     @Override public boolean ready() { return !closed.get(); }
-    @Override public boolean productionEligible() { return false; }
+    /**
+     * Conditional eligibility only: a multimodal orchestrator is production-usable
+     * when the composing runtime bound usable providers for every child job type it
+     * can fan out to. Independently qualified child/source admission is still
+     * enforced per job and per attempt; unbound providers remain ineligible.
+     */
+    @Override public boolean productionEligible() {
+        Set<JobType> bound = boundUsableCapabilities;
+        return !closed.get() && bound != null && bound.containsAll(delegatedCapabilities());
+    }
+    @Override public Set<JobType> delegatedCapabilities() { return DELEGATED_CHILDREN; }
+    @Override public void bindRuntimeCapabilities(Set<JobType> usableJobTypes) {
+        boundUsableCapabilities = usableJobTypes == null ? Set.of() : Set.copyOf(usableJobTypes);
+    }
     @Override public int priority() { return 0; }
     @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
     @Override public String processingRegion() { return "local"; }

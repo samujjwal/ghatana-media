@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
@@ -79,5 +80,37 @@ public interface MediaProcessingRuntimePort {
             String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
             OutputStream target, long maxBytes) throws IOException {
         return Optional.empty();
+    }
+
+    /**
+     * Reports whether the composed runtime can currently dispatch a job of this type
+     * through a usable provider, evaluated the same way job submission selects one.
+     * This is provider availability only — it grants no source rights and does not
+     * admit any operation. The default fails closed: a port that cannot inspect its
+     * provider registry reports not-ready.
+     */
+    default boolean processingReady(JobType jobType) {
+        return false;
+    }
+
+    /**
+     * Resolves source-rights admission for one immutable source version and operation
+     * without creating a job, attempt, upload, or provider effect. Implementations must
+     * resolve the exact artifact version owned by the authenticated principal against the
+     * composed trusted authority, using the provider the runtime would actually select for
+     * {@code jobType}. The default fails closed with {@link
+     * com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status#UNAVAILABLE}:
+     * a port that cannot reach an authority never reports an admission.
+     */
+    default MediaSourceAuthorizationContracts.Decision resolveSourceAuthorization(
+            String tenantId,
+            String principalId,
+            String artifactId,
+            ArtifactVersion sourceVersion,
+            JobType jobType,
+            String purpose,
+            AuthenticatedPrincipal authenticated) {
+        return new MediaSourceAuthorizationContracts.Decision(
+                MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
     }
 }

@@ -90,7 +90,11 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this(metrics, sourceAuthorization, defaultTracingService(), null);
     }
 
-    private MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+    /**
+     * Production composition: the real runtime port supplies the canonical executor and
+     * child readiness, and the real source-rights seam supplies admission decisions.
+     */
+    MultimodalGrpcService(MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
                                   MediaProcessingRuntimePort mediaRuntimePort) {
         this(metrics, sourceAuthorization, defaultTracingService(), mediaRuntimePort);
     }
@@ -841,14 +845,22 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         }
     }
 
-    /** The modality adapters have no qualified STT provider readiness source yet. */
+    /**
+     * Truthful STT child readiness: the composed runtime reports a currently usable
+     * provider for the child job type. No runtime port means no readiness claim.
+     */
     boolean isSttProviderReady() {
-        return false;
+        return mediaRuntimePort != null && mediaRuntimePort.processingReady(
+                com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT);
     }
 
-    /** The modality adapters have no qualified Vision provider readiness source yet. */
+    /**
+     * Truthful Vision child readiness: the composed runtime reports a currently usable
+     * provider for the child job type. No runtime port means no readiness claim.
+     */
     boolean isVisionProviderReady() {
-        return false;
+        return mediaRuntimePort != null && mediaRuntimePort.processingReady(
+                com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION);
     }
 
     void setReadinessProbe(BooleanSupplier readinessProbe) {

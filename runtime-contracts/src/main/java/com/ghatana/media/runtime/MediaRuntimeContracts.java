@@ -2126,6 +2126,25 @@ public final class MediaRuntimeContracts {
         }
         boolean ready();
         boolean productionEligible();
+        /**
+         * Job types this provider does not serve itself but requires as independently
+         * authorized downstream canonical child jobs (for example a multimodal
+         * orchestrator delegating to STT and Vision). Providers with no downstream
+         * fanout declare none.
+         */
+        default Set<JobType> delegatedCapabilities() {
+            return Set.of();
+        }
+        /**
+         * One-time composition binding: the owning runtime reports the job types that
+         * currently have a usable provider other than this provider, evaluated with the
+         * same readiness and production-eligibility rules used for dispatch. Providers
+         * that require delegated children may consult it for conditional production
+         * eligibility; an unbound provider must remain ineligible. The binding is
+         * composition-time information only — it grants no rights and does not admit
+         * any operation.
+         */
+        default void bindRuntimeCapabilities(Set<JobType> usableJobTypes) { }
         int priority();
         CompletableFuture<Map<String, Object>> process(ProcessingContext context);
         default CompletableFuture<ProviderSubmission> processAttempt(
