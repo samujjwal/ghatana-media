@@ -101,7 +101,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 sourceSha256(binding, authenticated),
                 children,
                 plan.sourceClock(),
-                Map.of());
+                Map.of("purpose", binding.getPurpose()));
         Map<String, Object> parameters = new LinkedHashMap<>();
         parameters.put(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue());
         ProcessingJobRequest jobRequest = new ProcessingJobRequest(

@@ -856,6 +856,48 @@ public final class MediaRuntimeContracts {
                             "multimodal child is not declared: " + childKey));
         }
 
+        /**
+         * Deterministic fused result of one multimodal operation from its durable child
+         * jobs. Used identically by the attempt-time provider and the restart reconciler:
+         * the composition is a pure function of the persisted spec and child terminal
+         * state, so a parent result rebuilt after a process crash is exactly the result
+         * the live attempt would have committed.
+         */
+        public static Map<String, Object> fusedResult(List<ProcessingJob> children) {
+            Map<String, Object> fused = new LinkedHashMap<>();
+            List<Object> observations = new ArrayList<>(children.size());
+            for (ProcessingJob child : children) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("childJobId", child.jobId());
+                entry.put("childRequestId", child.requestId());
+                entry.put("childJobType", child.jobType().name());
+                entry.put("childStatus", child.status().name());
+                entry.put("childResultDigest", childResultDigest(child.result()));
+                entry.put("observations", boundedChildResult(child.result()));
+                observations.add(Map.copyOf(entry));
+            }
+            fused.put("observations", List.copyOf(observations));
+            fused.put("childCount", children.size());
+            return Map.copyOf(fused);
+        }
+
+        private static Map<String, Object> boundedChildResult(Map<String, Object> result) {
+            Map<String, Object> copy = new LinkedHashMap<>();
+            int budget = 8_192;
+            for (Map.Entry<String, Object> entry : result.entrySet()) {
+                String serialized = String.valueOf(entry.getValue());
+                if (serialized.length() > budget) continue;
+                budget -= serialized.length();
+                copy.put(entry.getKey(), entry.getValue());
+            }
+            return Map.copyOf(copy);
+        }
+
+        private static String childResultDigest(Map<String, Object> result) {
+            return sha256Hex(MediaJobRequestFingerprint.canonicalJson(
+                    result == null ? Map.of() : result));
+        }
+
         public record ChildOperationSpec(
                 String childKey,
                 JobType jobType,

@@ -277,38 +277,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         }
         if (anyUnknown) return OperationOutcome.unknown();
         if (anyFailed) return OperationOutcome.failed("CHILD_FAILED");
-        Map<String, Object> fused = new LinkedHashMap<>();
-        List<Object> observations = new ArrayList<>(children.size());
-        for (ProcessingJob child : children) {
-            Map<String, Object> entry = new LinkedHashMap<>();
-            entry.put("childJobId", child.jobId());
-            entry.put("childRequestId", child.requestId());
-            entry.put("childJobType", child.jobType().name());
-            entry.put("childStatus", child.status().name());
-            entry.put("childResultDigest", digest(child.result()));
-            entry.put("observations", boundedChildResult(child.result()));
-            observations.add(Map.copyOf(entry));
-        }
-        fused.put("observations", observations);
-        fused.put("childCount", children.size());
-        return OperationOutcome.succeeded(fused);
-    }
-
-    /**
-     * Bounds one child result for the durable parent result. Raw media bytes are stripped
-     * by the job-result sanitizer downstream; here we cap serialized size so the parent
-     * record stays small.
-     */
-    private static Map<String, Object> boundedChildResult(Map<String, Object> result) {
-        Map<String, Object> copy = new LinkedHashMap<>();
-        int budget = MAX_OBSERVATION_RESULT_CHARS;
-        for (Map.Entry<String, Object> entry : result.entrySet()) {
-            String serialized = String.valueOf(entry.getValue());
-            if (serialized.length() > budget) continue;
-            budget -= serialized.length();
-            copy.put(entry.getKey(), entry.getValue());
-        }
-        return Map.copyOf(copy);
+        return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(children));
     }
 
     private ProviderSubmission submissionFor(

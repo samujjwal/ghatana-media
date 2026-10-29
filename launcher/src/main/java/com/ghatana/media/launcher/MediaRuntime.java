@@ -2684,6 +2684,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             for (ProcessingJob job : batch) {
                 processed++;
                 try {
+                    // A multimodal parent mid-dispatch at crash time may be fully
+                    // reconstructible: its outcome is a pure function of the persisted
+                    // operation spec and the durable child terminal states.
+                    if (job.status() == JobStatus.RUNNING
+                            && job.jobType()
+                                    == com.ghatana.media.runtime.MediaRuntimeContracts
+                                            .JobType.MULTIMODAL
+                            && reconcileMultimodalParent(job)) {
+                        continue;
+                    }
                     JobStatus recoveredStatus = job.status() == JobStatus.ACCEPTED
                             ? JobStatus.FAILED : JobStatus.OUTCOME_UNKNOWN;
                     ProcessingJob reconciled = transition(
@@ -2710,6 +2720,78 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
         }
         audit.warn("MEDIA_JOB_RECONCILIATION_PASS_LIMIT reached={}", maximumJobsPerPass);
+    }
+
+    /**
+     * Reconstructs one crashed multimodal parent from its durable operation spec and the
+     * independently durable child terminal states. Returns true only when an exact
+     * terminal outcome is derivable; ambiguous states keep the default OUTCOME_UNKNOWN
+     * path — reconciliation never fabricates a result and never redispatches a child.
+     */
+    private boolean reconcileMultimodalParent(ProcessingJob job) {
+        try {
+            var snapshot = jobStore.findMultimodalOperationSnapshot(job.tenantId(), job.jobId());
+            if (snapshot.isEmpty()) return false;
+            var spec = snapshot.orElseThrow().operationSpec();
+            List<ProcessingJob> children = new java.util.ArrayList<>();
+            for (var child : spec.children()) {
+                var found = jobStore.findByRequest(job.tenantId(),
+                        com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
+                                .childRequestId(job.requestId(), child.childKey()))
+                        .filter(found2 -> found2.principalId().equals(job.principalId()));
+                if (found.isEmpty()) return false;
+                children.add(found.orElseThrow());
+            }
+            boolean allCompleted = children.stream()
+                    .allMatch(child -> child.status() == JobStatus.COMPLETED);
+            boolean anyFailed = children.stream().anyMatch(child ->
+                    child.status() == JobStatus.FAILED || child.status() == JobStatus.CANCELLED);
+            if (!allCompleted && !anyFailed) return false;
+            ProcessingJob terminal;
+            if (allCompleted) {
+                MediaArtifact artifact = artifactStore.artifact(job.tenantId(), job.artifactId(),
+                                new ArtifactVersion(job.expectedArtifactVersion())).orElse(null);
+                Object purpose = spec.plan().get("purpose");
+                MediaProcessingProvider provider = processingProviders.stream()
+                        .filter(candidate -> candidate.providerId().equals(job.providerId()))
+                        .findFirst().orElse(null);
+                if (artifact == null || !(purpose instanceof String) || provider == null) return false;
+                MediaGovernanceContext governance = new MediaGovernanceContext("",
+                        (String) purpose,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification
+                                .valueOf(artifact.classification()),
+                        "unspecified", Set.of(), false, "service-default", false, false, "",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity.NONE,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk.ASSISTIVE);
+                ProcessingJobRequest synthetic = new ProcessingJobRequest(
+                        job.requestId(), job.tenantId(), job.principalId(), job.requestId(),
+                        job.artifactId(), job.expectedArtifactVersion(), job.jobType(), "",
+                        Map.of(com.ghatana.media.runtime.MediaRuntimeContracts
+                                        .MultimodalOperationSpec.PARAMETERS_KEY,
+                                spec.toParametersValue()),
+                        governance);
+                Map<String, Object> governed = MediaModalityContracts.governedResult(
+                        synthetic, artifact, provider.providerId(), provider.providerVersion(),
+                        provider.modelVersion(job.jobType()),
+                        com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
+                                .fusedResult(children),
+                        ConsentDecision.unverified(), ProcessingBoundary.LOCAL,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE);
+                terminal = transition(job, provider.providerId(), JobStatus.COMPLETED, governed, "");
+            } else {
+                terminal = transition(job, JobStatus.FAILED, Map.of(
+                        "childOutcome", "FAILED", "providerOutcome", "NO_EFFECT_PROVEN"),
+                        "MULTIMODAL_CHILD_FAILED");
+            }
+            jobStore.reconcileExpired(job, terminal, lifecycleEvent(job, terminal, "INTERNAL"));
+            audit.warn("MEDIA_MULTIMODAL_PARENT_RECONCILED tenantId={} jobId={} status={}",
+                    job.tenantId(), job.jobId(), terminal.status());
+            return true;
+        } catch (RuntimeException failure) {
+            audit.error("MEDIA_MULTIMODAL_RECONCILE_FAILED tenantId={} jobId={} failureType={}",
+                    job.tenantId(), job.jobId(), failure.getClass().getSimpleName());
+            return false;
+        }
     }
 
     private void publishLifecycle(
