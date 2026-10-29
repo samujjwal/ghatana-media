@@ -13,10 +13,10 @@
     "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
     "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
     "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70",
-    "mediaLatestInspected": "ef823571b1dbbed2c1ea38fa291657cb04855103",
+    "mediaLatestInspected": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
     "sharedLatestInspected": "d15b2ce353839ee3bf666be7c0737aa7192994f5",
     "ghatanaLatestInspected": "875108953b069ba65803b8b99b713896bf9476f0",
-    "reviewScope": "remote main source and user-reported focused host tests; not a fresh local execution"
+    "reviewScope": "Connected GitHub public main includes seven reported source commits; remote code and opt-in tests reviewed, native JDK27/Docker/model/dataset executions not rerun in this review."
   },
   "notASecondPdpOrAdmittedProvider": true,
   "technicalApprovals": [
@@ -1429,9 +1429,9 @@
     "ownerStatus": "ENGINEERING_APPROVED_TEST_SCOPE_AND_PROVISIONAL_THRESHOLDS; NONE_OF_THESE_VALUES_CERTIFY_RUNTIME_OR_LICENSE"
   },
   "activeExecutionReadback": {
-    "asOf": "2026-10-28T16:38:00-07:00",
+    "asOf": "2026-10-28 post-push review",
     "activePlan": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md",
-    "reportedMediaHostOciBaseline": "ef823571b1dbbed2c1ea38fa291657cb04855103",
+    "reportedMediaHostOciBaseline": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
     "verifiedObservationFromUser": {
       "reportSource": "implementer handoff; focused results reported, not rerun by this GitHub review",
       "visionStubOci": {
@@ -1466,88 +1466,88 @@
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
-        "observedGap": "Implementer reports exact gold/EOT Whisper merged-decoder fix for a single clip, but quantized tiny FLEURS on 380 clips FAILED all three locale WER thresholds; 89 decoder token caps (empty scoring). Seven local commits not on connected GitHub source.",
-        "nextAction": "Reconcile local 992f77e1; inspect KV/EOT fix and complete gold, categorize capped clip failures, evaluate rights-cleared previously selected larger/offical reference model on tuning set only; fresh blinded holdout for promotion; keep tiny REVIEW_ONLY.",
+        "observedGap": "Pinned Whisper merged-decoder encoder KV step-0 fix in c7969aa7 verified in committed source. Short gold/EOT correctness reported. Tiny quantized multilingual reference still fails real WER/CER qualification on reported private FLEURS holdout; 89 token-cap failures; performance and alternate model profile unqualified.",
+        "nextAction": "Keep tiny REVIEW_ONLY; verify per-locale token cap/failure reasons and output logs, assess pinned rights-cleared Whisper base/small or already-selected alternative with source-compatible adapter on tuning data; reserve new blind speaker-disjoint promotion holdout and collect 1/16/64 profile metrics.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G02": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_WITH_REAL_SOURCE_PROVENANCE",
-        "observedGap": "MediaSourceAuthorizationContracts and fail-closed runtime admission now exist, but no actual production source-owner/revocation Authority, trusted Shared ALLOW composition or legal speech-source record is installed.",
-        "nextAction": "Implement a PostgreSQL-backed versioned owner-rights/revocation resolver and real Shared PolicyEngine binding; ingest genuine first-party producer records through authenticated ingress; test positive and revoke-before-provider/commit, wrong principal/tenant and stale policy; no caller-self-approval.",
+        "observedGap": "V024/V025 PostgreSQL source-rights/decision and Shared policy adapter committed. E2E test uses fixture AllowPolicy and owner-registered provenance, so external authenticated ingress to policy-authorized source remains unproven.",
+        "nextAction": "Bind verified credential-derived PrincipalIdentity to canonical rights administration and Shared PolicyEngine, not caller request fields; verify wrong actor/tenant/expiry/revocation and recheck at every provider retry and transcript commit.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_IMPLEMENTED_FAIL_CLOSED_NO_REAL_POSITIVE"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G03": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_AFTER_G02",
-        "observedGap": "PostgreSQL candidate fenced-attempt CAS and content-free outbox are implemented in source and focused tests reportedly pass; production writes remain deliberately gated and no authorized real STT/job->restart outcome exists.",
-        "nextAction": "After actual G02 + G01 admission, reconcile provider result/fence, recheck commit-time rights/policy in the canonical transaction or fail closed; append ADMITTED revision only with qualified proof; verify exact restart readback, duplicate and UNKNOWN recovery.",
+        "observedGap": "Real Whisper provider and env-opt-in test (b03d35ca) execute job/attempt/fence and ADMITTED transcript reopened from PostgreSQL, with fixture-ALLOW, local artifact bytes and fake S3 server. Real policy provenance and crash/process restart semantics remain open.",
+        "nextAction": "Run real admitted qualified provider under actual installed identity, policy, durable artifact and source rights. Test complete process kill/restart before/after receipt and CAS commit, idempotency, revocation race, lost ACK and exact principal-scoped readback; no blanket promotion.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_IMPLEMENTED_FAIL_CLOSED_NO_REAL_POSITIVE"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G04": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_VOICE_RIGHTS",
-        "observedGap": "TTS locale/phoneme/sidecar hardening and focused tests reportedly pass; eSpeak-NG and a rights-qualified voice/quality pack remain unavailable.",
-        "nextAction": "Integrate license-reviewed eSpeak-NG equivalent or independently validated phonemizer behind current Piper adapter; acquire exact voice/sidecar rights, independently check audible output and revoke-before-effect. Heuristic stays NOT_ADMITTED.",
+        "observedGap": "PiperPhonemizeProcessConverter and real LibriTTS-R synthesis committed; output 0.755s 22.05kHz PCM reported and pinned binaries/models asserted by opt-in tests. Production phonemizer process timeout, temp stderr lifecycle and voice/source rights unqualified.",
+        "nextAction": "Enforce total wallclock across stdin/stdout/wait, drain bounded async, delete stderr on every outcome, pin espeak data/sidecar and validate license+voice scope. Add real intelligibility, streaming, controls, durability and rights negative tests.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G05": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_MODEL_IMAGE_RIGHTS",
-        "observedGap": "YOLOX source parser and tests hardened; no legitimate held-out positive nonhuman-object photo with independent boxes or model/export rights qualification.",
-        "nextAction": "Create owner-authenticated nonhuman object photograph and independent COCO boxes; pin/review actual YOLOX weights/export, qualify positive and negative and held-out mAP/PR. If rights unavailable use another already-selected lawful detector.",
+        "observedGap": "YOLOX official raw BGR/no /255 preprocess fix committed with pinned real dog photo/blank test. mAP/PR/CI on licensed independent heldout, multiple classes, model rights, negative geometry and native load remain open.",
+        "nextAction": "Freeze rights-cleared independent labeled dataset, verify BGR channel regression, scaling/NMS/multiclass/NaNs and zero leaks, measure mAP50/PR+CI on named host; only then consider model/provider acceptance.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
-        "observedGap": "Reported current cut: OCI stub 4/4, real pinned BMP FFmpeg 3/3, VFR 3/3, extractor adversarial 54/54; delegated-cgroup test skipped; PNG pixel-exact case untested because pinned codec image lacks PNG; direct-JVM Docker privilege still exists.",
-        "nextAction": "Keep BMP results but separately provision/verify a PNG-capable pinned licensed codec image and exact PNG oracle; test full original parser/resource corpus including actual kernel OOM/PID/CPU/scratch. Implement authenticated separate OCI host broker before production, remove service Docker CLI authority. Only whole-row VIS-03 original acceptance promotes.",
+        "observedGap": "PNG exact pixel/overflow/malformed fixture and authenticated separate OCI broker with 3 stub cases are in GitHub main. Broker accepts caller image digest/args/UID and does not visibly bind verified per-source rights/nonce replay/peer credentials; direct host invocation remains available when broker env absent.",
+        "nextAction": "Explicit production requires broker (no direct fallback), immutable server-approved image allowlist, fixed codec argument AST/grammars, verified caller+source/owner, peer credentials, anti-replay expiry, bounded socket request reads/concurrency, secure temp/cleanup and real kernel FD/CPU/PID/OOM/output failure; rerun all original VIS-03 adversarial cases.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL",
-        "verificationClass": "USER_REPORTED_FOCUSED_PASS_PLUS_UNVERIFIED_REQUIRED_ORACLES"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "Local report has frozen 380 lawful FLEURS clips and true failed multilingual WER. Source manifest and seven local commits not visible on remote; prior evaluator max 372 across three locales means need exact population reconciliation. Quality qualification failed.",
-        "nextAction": "Reconcile 380 total vs prior max selected 372, confirm per-locale scored holdout and original audio SHA/rights/speaker IDs, inspect 89 token caps, freeze new independent blind promotion holdout; no threshold lowering.",
+        "observedGap": "FleursAsrBatchEvaluationTest committed with private frozen 380 clips reported and 89 failed/capped predictions. Checked-in FLEURS metadata manifest remains not frozen; batch used clipId/text only and mixed training/holdout vs scorer contract. Java export corrected on main to locale/clipId/text + holdout only but not executed. 380 source count vs earlier max 372 must reconcile.",
+        "nextAction": "Run Java non-opt-in format/partition tests and real producer→Node evaluator end-to-end on pinned private manifest; verify selected file SHA/locale/speaker/split and count denominators, classify capped failures, and freeze fresh independent blind holdout before any model promotion.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "CODE_UPDATED_IN_MEMORY_FUNCTIONAL_CHECKS_PASS_NODE_ON_REPO_NOT_RUN_REAL_CORPUS_ABSENT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "OBS still fixture-only alerts/capacity at remote source; real provider profile quality regression, exporter -> Prometheus -> Alertmanager named receiver and actual c1/c16/c64 four-modal provider measurements not demonstrated.",
-        "nextAction": "Implement real low-cardinality model health/quality observer, full monitoring delivery, and bounded four-modality and native host measurements; no synthetic PASS.",
+        "observedGap": "Quality alerts remain fixture-only, real per-model exporter→Prometheus→Alertmanager named receiver and real c1/c16/c64 four-modal hardware profiles not proven.",
+        "nextAction": "Wire actual admitted provider profile quality/health without high-cardinality labels, test alert firing/delivery/clear to named receiver, benchmark real STT/TTS/Vision/MM and native broker c1/16/64 with bounded queue, p50/p95/p99, RSS/CPU/RTF/fps and honest rejects/UNKNOWN.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G09": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #252 remains open: no published source-free Media-specific Document Intelligence frame/ROI rights OCR public contract is confirmed.",
-        "nextAction": "Ghatana owner ships versioned authenticated ROI/clock/rights OCR contract and service, installed source-free Java27 Media consumer and wrong-tenant/stale/UNKNOWN tests; preserve Media-only frame/time/ROI semantics.",
+        "observedGap": "Ghatana #252 open; Media OCR integration relies on unshipped public ROI/source rights/finality API.",
+        "nextAction": "Implement DI owner public API with authenticated source/frame version/ROI/PTS and exact installed/source-free Media consumer, negative auth/retry/UNKNOWN and real OCR output.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G10": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #254 remains open: no published governed Media observation projection/readback public contract is confirmed.",
-        "nextAction": "Ghatana Data Cloud owner ships versioned Java21 public projection with exact 202-acceptance vs finality and lookup, idempotency/UNKNOWN/revocation tests; Media Java27 source-free installed consumer. No second canonical Media writer.",
+        "observedGap": "Ghatana #254 open; Media DataCloudMultimodalAdapter in-process API not the owner versioned observation projection HTTP route.",
+        "nextAction": "Implement Data Cloud public versioned projection/lookup with server Java21 and Media Java27 source-free consumer, rights/lineage/idempotency/202-vs-committed handling; verify actual persisted readback.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G11": {
         "implementationDisposition": "GENUINE_EXTERNAL_HUMAN_OR_RIGHTSHOLDER_RECORD_REQUIRED",
-        "observedGap": "No human/voice/biometric grants, third-party weights/corpus rights determination or independent trusted reviewer key installed.",
-        "nextAction": "Use first-party nonhuman source-owned development cases only where lawful; obtain actual private rights-holder/person grants and independent reviewed trust anchor for restricted effects. Missing grant prohibits that effect, not unrelated engineering.",
+        "observedGap": "LibriTTS-R voice/phonemizer source, YOLOX weights and photo and FLEURS clip usage claims in local report are not independently reviewed as production commercial/biometric rights or trusted reviewer identities.",
+        "nextAction": "Bind exact license/attribution, participant consent for human voice/biometric operations, private reviewer trust anchors, permitted scope/expiry/revocation. Keep only restricted positives NOT_ADMITTED without input; proceed with non-biometric engineering.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "Real STT, YOLOX and TTS isolated positive results reported locally, but MM default grpc still unavailable on inspectable remote, per-operation durable fusion and actual source clock not established.",
-        "nextAction": "Implement source-authorized production MM CanonicalOperationExecutor and individual child attempts; produce real STT+Vision grounded fused readback then optional separately authorized TTS narration, test UNKNOWN and c1/c16/c64.",
+        "observedGap": "No production canonical per-operation MM executor is composed: default SourceAuthorization.unavailable(), PlatformMultimodalAdapter NOT_ADMITTED and STT/Vision readiness false; reported independent child positives not actually fused or durable.",
+        "nextAction": "Reuse Media job/attempt/outbox, source-rights per child and qualified STT/Vision clients. Implement individual operation finality and source-clock, grounded fusion/cas/readback, optional TTS as separately authorized narration, cancellation/UNKNOWN, 1/16/64; never fake combined success.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "MISSING_QUALIFIED_REAL_INPUT_OR_EFFECT"
+        "verificationClass": "PUSHED_SOURCE_REVIEWED_NATIVE_E2E_ACCEPTANCE_PENDING"
       }
     },
     "localEngineeringDeltas": {
@@ -1563,7 +1563,11 @@
         "selectedByteBudget": 125829120
       },
       "originalCorpusState": "METADATA_ONLY_NOT_FROZEN"
-    }
+    },
+    "currentReviewedSource": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
+    "sourceAccess": "CONFIRMED_REMOTE_GITHUB_COMMITTED",
+    "independentExecutionStatus": "NOT_RUN_IN_THIS_REVIEW",
+    "goForward": "Implement and verify production source trust, broker hardening, FLEURS scoring, alternative STT quality, MM, OBS and platform owners; do not repeat merged-decoder, PNG, broker wiring, YOLOX BGR or espeak implementation."
   },
   "latestOwnerResolution": {
     "asOf": "2026-10-28",
@@ -1663,13 +1667,15 @@
       "external": 6,
       "change": 0
     },
-    "currentReviewedSource": "samujjwal/ghatana-media@ef823571b1dbbed2c1ea38fa291657cb04855103",
+    "currentReviewedSource": "samujjwal/ghatana-media@fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
     "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
-    "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning"
+    "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning",
+    "latestSourceReview": "PUSHED_SEVEN_COMMITS_CONFIRMED",
+    "latestDecisionSummary": "All engineering work from latest push approved to continue; do not reimplement existing fixes; complete security/quality/MM/OBS/platform oracles; no new true rights/consent/model signoff inferred."
   },
   "latestPulseReview": {
     "reviewDate": "2026-10-28",
-    "reviewScope": "Connected GitHub remote main source inspection + implementer local report; no direct access to reported local commits or native test environment",
+    "reviewScope": "Seven committed source patches, implementation and opt-in tests reviewed from GitHub main; this review did not independently run JDK27, Docker, PostgreSQL, TTS, YOLOX or FLEURS jobs.",
     "reportedLocalHead": "992f77e1",
     "reportedCommits": [
       "c7969aa7",
@@ -1680,10 +1686,10 @@
       "5207bb8b",
       "992f77e1"
     ],
-    "localShasGitHubAccessible": false,
-    "remoteBaselineAtReview": "e28c755fbaf88ac1cf2f35e8c48b4ef8bc5ddbdd",
+    "localShasGitHubAccessible": true,
+    "remoteBaselineAtReview": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
     "activeImplementationPlan": "docs/implementation/MEDIA-WAVE2-ACTIVE-EXECUTION.md#7-post-pulse-992f77e1--implementation-review-and-all-remaining-wave-2-tasks-2026-10-28",
-    "sourceReconciliation": "Required before independently reviewing the seven local commits. Preserve nine unrelated dirty paths. No force-push/reset; integrate via separate worktree and review remote differences.",
+    "sourceReconciliation": "All seven reported commits were verified by exact SHA on GitHub main, ancestor of merged main fea2aae5. No local-commit recovery is required; inspect additional 2b396ea definition/OpenAPI changes for relevant contract effects. GitHub cannot establish current local worktree cleanliness.",
     "reportedOutcomes": {
       "stt": "Real source-authorized STT to fenced attempt to ADMITTED transcript with actual PostgreSQL process restart readback reported; independent original-row proof not reviewed",
       "codec": "PNG pixel oracle 4/4 reported, prior BMP-only image remains separately dispositioned",
@@ -1814,6 +1820,63 @@
           "OBS-08"
         ],
         "originalTaskIdsUnchanged": true
+      }
+    ],
+    "sourceReviewDisposition": "PUSHED_SOURCE_CONFIRMED_FUNCTIONAL_AND_SECURITY_GAPS_STILL_OPEN",
+    "blockerCorrections": [
+      {
+        "id": "SRC_PUSH",
+        "disposition": "RESOLVED",
+        "sourceCommits": [
+          "c7969aa7",
+          "b03d35ca",
+          "2180a067",
+          "54471fad",
+          "80ade36f",
+          "5207bb8b",
+          "992f77e1"
+        ],
+        "note": "All seven SHAs now reachable on main; no separate recovery branch necessary."
+      },
+      {
+        "id": "STT_E2E_PROOF",
+        "disposition": "IMPLEMENTED_WITH_TEST_AUTHORITIES",
+        "file": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaAuthorizedSttTranscriptRestartIT.java",
+        "why": "Real Whisper provider and PostgreSQL ADMITTED revision/reopen; fixture AllowPolicy, source rights registration, local artifact bytes, HTTPS S3 stub and env-opt-in test. Production ingress policy, true provider qualification and actual process-restart recovery not established."
+      },
+      {
+        "id": "FLEURS_BATCH_SCORER",
+        "disposition": "SOURCE_FIX_COMMITTED_TEST_EXECUTION_PENDING",
+        "sha": [
+          "ba9d61fdbc18c73137ff91fdc732c859d632d7e6",
+          "16dd3044962e10688b732f2ad54f0dd27b980922"
+        ],
+        "why": "Java output now contains locale and only holdout predictions, mapped with ObjectMapper; non-opt-in Java regression tests added. Actual model scoring and clip digest verification not rerun."
+      },
+      {
+        "id": "STT_TINY_QUALITY",
+        "disposition": "FAIL_REFERENCE_QUALITY_REPORTED",
+        "why": "Whisper-tiny EOT/short transcript success is not en/hi/ne WER; keep selected tiny candidate REVIEW_ONLY; investigate 89 token cap, test larger lawful candidates on tuning set and fresh blind holdout."
+      },
+      {
+        "id": "BROKER_PRODUCTION_SECURITY",
+        "disposition": "SOURCE_IMPLEMENTED_HARDENING_REQUIRED",
+        "why": "HMAC Unix socket and Docker isolation exist. Audit peer credential, socket/token file permissions, nonce replay, per-source authorization, fixed image and args allowlist, backpressure/deadlines, cgroup real enforcement and cleanup before production."
+      },
+      {
+        "id": "TTS_PROCESS_SECURITY",
+        "disposition": "SOURCE_IMPLEMENTED_HARDENING_REQUIRED",
+        "why": "Pinned phonemizer and PCM source present, but process stdout and stdin may block before timeout, and stderr temp files need secure bounded deletion and privacy review."
+      },
+      {
+        "id": "VISION_MODEL_QUALITY",
+        "disposition": "FUNCTIONAL_REFERENCE_SMOKE_ONLY",
+        "why": "YOLOX BGR correction with real dog positive and blank negative; independent labeled heldout corpus mAP/PR, runtime admission and model rights still required."
+      },
+      {
+        "id": "MM_OBS_PLATFORM",
+        "disposition": "ENGINEERING_NEXT",
+        "why": "Production MM default provider/executor remains NOT_ADMITTED; real Alertmanager delivery and actual c1/c16/c64 workloads not established; Ghatana platform #252/#254 open."
       }
     ]
   }
