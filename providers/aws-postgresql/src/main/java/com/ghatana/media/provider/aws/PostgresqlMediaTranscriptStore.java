@@ -112,9 +112,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 || transcriptVersionRef.codePointCount(0, transcriptVersionRef.length()) > 384) {
             throw new IllegalArgumentException("Transcript attempt binding is malformed or does not identify this candidate");
         }
-        if (state.productionEligible()) {
-            throw new UnsupportedOperationException("Transcript rights and profile admission is pending");
-        }
+        boolean productionAdmission = state.productionEligible();
         if (MediaTranscriptContracts.UNBOUND_PURPOSE_REF.equals(draft.purposeRef())
                 || MediaTranscriptContracts.UNRESOLVED_PROCESSING_PURPOSE.equals(draft.processingPurpose())) {
             throw new IllegalArgumentException("Transcript purpose reference and effective processing purpose must be bound");
@@ -125,6 +123,10 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 validateSourceJobConsent(connection, draft);
                 AttemptBinding binding = validateAttempt(connection, draft, attemptNumber, fencingToken,
                         requestFingerprint, transcriptVersionRef);
+                if (productionAdmission) {
+                    verifyProductionSourceRights(connection, draft);
+                }
+                String admissionStatus = productionAdmission ? "ADMITTED" : "CANDIDATE";
                 TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
                 if (latest != null && sameDraft(latest.draft(), draft)) {
                     AttemptBinding existing = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
@@ -149,9 +151,9 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                            source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
                            language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
                            rights_decision_id,policy_version,admission_status,created_at)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'CANDIDATE',?)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                         """)) {
-                    bind(insert, draft, revision, now);
+                    bind(insert, draft, revision, now, admissionStatus);
                     insert.executeUpdate();
                 }
                 try (PreparedStatement insertBinding = connection.prepareStatement("""
@@ -171,7 +173,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 }
                 insertRevisionOutbox(connection, draft, revision, now);
                 connection.commit();
-                return new TranscriptRevision(draft, revision, now, "CANDIDATE");
+                return new TranscriptRevision(draft, revision, now, admissionStatus);
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
@@ -328,6 +330,84 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         requestFingerprint, draft.sourceVersion(), transcriptVersionRef, resultDigest);
             } catch (tools.jackson.core.JacksonException malformed) {
                 throw new IllegalStateException("Provider attempt result is malformed", malformed);
+            }
+        }
+    }
+
+    /**
+     * Production ADMITTED writes are allowed only while the durable authority evidence is still
+     * current inside this commit boundary: the authorized STT snapshot's rights decision must
+     * exist unrevoked and unexpired, match this exact source/job/provider, and carry the same
+     * revocation epoch as the still-live source record. Anything else fails the transaction.
+     */
+    private void verifyProductionSourceRights(Connection connection, TranscriptDraft draft) throws SQLException {
+        String snapshotJson;
+        try (PreparedStatement job = connection.prepareStatement("""
+                SELECT stt_request_snapshot FROM media_processing_jobs
+                 WHERE tenant_id=? AND job_id=? AND status='COMPLETED' FOR UPDATE
+                """)) {
+            job.setString(1, draft.tenantId()); job.setString(2, draft.jobId());
+            try (ResultSet result = job.executeQuery()) {
+                if (!result.next()) throw new IllegalStateException("Production transcript job is missing");
+                snapshotJson = result.getString(1);
+            }
+        }
+        final JsonNode snapshot;
+        try {
+            snapshot = snapshotJson == null ? null : state.mapper().readTree(snapshotJson);
+        } catch (tools.jackson.core.JacksonException malformed) {
+            throw new IllegalStateException("Production STT job authorization snapshot is malformed", malformed);
+        }
+        if (!validSttSnapshot(snapshot)
+                || !MediaRuntimeContracts.SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(text(snapshot, "version"))
+                || !draft.rightsDecisionId().equals(text(snapshot, "rightsDecisionId"))
+                || !draft.consentDecisionId().equals(text(snapshot, "consentDecisionId"))
+                || !draft.policyVersion().equals(text(snapshot, "policyVersion"))) {
+            throw new IllegalStateException(
+                    "Production transcript requires an authorized STT job snapshot matching this draft");
+        }
+        long snapshotEpoch = snapshot.get("revocationEpoch").longValue();
+        long now = System.currentTimeMillis();
+        long decisionEpoch;
+        try (PreparedStatement decision = connection.prepareStatement("""
+                SELECT artifact_id,source_version,principal_id,operation,provider_id,revocation_epoch,
+                       expires_at,revoked_at
+                  FROM media_source_rights_decisions
+                 WHERE tenant_id=? AND decision_id=? FOR UPDATE
+                """)) {
+            decision.setString(1, draft.tenantId()); decision.setString(2, draft.rightsDecisionId());
+            try (ResultSet row = decision.executeQuery()) {
+                if (!row.next()
+                        || row.getObject("revoked_at") != null
+                        || row.getLong("expires_at") <= now
+                        || !draft.sourceArtifactId().equals(row.getString("artifact_id"))
+                        || !draft.sourceVersion().equals(row.getString("source_version"))
+                        || !draft.principalId().equals(row.getString("principal_id"))
+                        || !"SPEECH_TO_TEXT".equals(row.getString("operation"))
+                        || !draft.providerId().equals(row.getString("provider_id"))) {
+                    throw new IllegalStateException(
+                            "Production transcript rights decision is missing, revoked, expired, or mismatched");
+                }
+                decisionEpoch = row.getLong("revocation_epoch");
+            }
+        }
+        if (decisionEpoch != snapshotEpoch) {
+            throw new IllegalStateException("Production transcript rights decision epoch does not match the job snapshot");
+        }
+        try (PreparedStatement record = connection.prepareStatement("""
+                SELECT revocation_epoch,expires_at,revoked_at FROM media_source_records
+                 WHERE tenant_id=? AND artifact_id=? AND source_version=? FOR UPDATE
+                """)) {
+            record.setString(1, draft.tenantId()); record.setString(2, draft.sourceArtifactId());
+            record.setString(3, draft.sourceVersion());
+            try (ResultSet row = record.executeQuery()) {
+                if (!row.next()
+                        || row.getObject("revoked_at") != null
+                        || row.getLong("expires_at") <= now
+                        || row.getLong("revocation_epoch") != snapshotEpoch) {
+                    throw new IllegalStateException(
+                            "Production transcript source rights are missing, revoked, expired, or stale");
+                }
             }
         }
     }
@@ -676,13 +756,24 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     }
 
     private static void bind(PreparedStatement s, TranscriptDraft d, int revision, long now) throws SQLException {
+        bindFields(s, d, revision);
+        s.setLong(20,now);
+    }
+
+    private static void bind(PreparedStatement s, TranscriptDraft d, int revision, long now,
+            String admissionStatus) throws SQLException {
+        bindFields(s, d, revision);
+        s.setString(20,admissionStatus); s.setLong(21,now);
+    }
+
+    private static void bindFields(PreparedStatement s, TranscriptDraft d, int revision) throws SQLException {
         s.setString(1,d.tenantId()); s.setString(2,d.transcriptId()); s.setInt(3,revision); s.setString(4,d.principalId());
         s.setString(5,d.sourceArtifactId()); s.setString(6,d.sourceVersion()); s.setString(7,d.sourceSha256());
         s.setString(8,d.jobId()); s.setString(9,d.profileId()); s.setString(10,d.providerId()); s.setString(11,d.modelId());
         s.setString(12,d.language()); s.setString(13,d.timebase()); s.setString(14,d.text());
         s.setString(15,d.consentDecisionId()); s.setString(16,d.purposeRef());
         s.setString(17,d.processingPurpose()); s.setString(18,d.rightsDecisionId());
-        s.setString(19,d.policyVersion()); s.setLong(20,now);
+        s.setString(19,d.policyVersion());
     }
 
     private static void rollback(Connection c, Throwable failure) {
@@ -695,6 +786,6 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         if (closed.get()) throw new IllegalStateException("Transcript store is closed");
     }
     @Override public boolean ready() { return !closed.get() && state.ready(); }
-    @Override public boolean productionEligible() { return false; }
+    @Override public boolean productionEligible() { return !closed.get() && state.productionEligible(); }
     @Override public void close() { if (closed.compareAndSet(false, true)) state.release(); }
 }

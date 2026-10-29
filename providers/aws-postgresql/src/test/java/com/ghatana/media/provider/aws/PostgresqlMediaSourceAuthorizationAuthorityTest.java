@@ -1,0 +1,317 @@
+package com.ghatana.media.provider.aws;
+
+import com.ghatana.governance.PolicyDecisionOutcome;
+import com.ghatana.governance.PolicyDecisionRecord;
+import com.ghatana.governance.PolicyEngine;
+import com.ghatana.governance.PolicyEngineLifecycle;
+import com.ghatana.governance.PolicyEvaluationContext;
+import com.ghatana.governance.PolicyEvaluationRequest;
+import com.ghatana.governance.PolicyReasonCode;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import com.ghatana.media.runtime.MediaSourceRightsAdministration;
+import com.ghatana.media.runtime.MediaSourceRightsAdministration.RegisterRequest;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.localstack.LocalStackContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@Testcontainers(disabledWithoutDocker = true)
+class PostgresqlMediaSourceAuthorizationAuthorityTest {
+    @Container static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"));
+    @Container static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
+            DockerImageName.parse("localstack/localstack:3.8")).withServices("s3");
+
+    private static final String DIGEST = "a".repeat(64);
+
+    @Test
+    void registeredNonhumanSourceResolvesToAllowedEvidenceAndSurvivesRevalidation() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-reg", "principal-a", "artifact-a"));
+            var decision = fixture.authority().resolve(request("tenant-reg", "principal-a", "artifact-a"));
+            assertThat(decision.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            var evidence = decision.evidence();
+            assertThat(evidence.authorityId()).isEqualTo("postgresql-media-source-authorization");
+            assertThat(evidence.sourceKind())
+                    .isEqualTo(MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN);
+            assertThat(evidence.humanConsentDisposition()).isEqualTo(
+                    MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT);
+            assertThat(evidence.revocationEpoch()).isZero();
+            assertThat(evidence.policyDecisionId()).isEqualTo("policy-decision-fixture");
+            assertThat(evidence.policyVersion()).isEqualTo("policy-v1");
+            var revalidated = fixture.authority().revalidate(
+                    request("tenant-reg", "principal-a", "artifact-a"), evidence);
+            assertThat(revalidated.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            assertThat(revalidated.evidence().decisionId()).isEqualTo(evidence.decisionId());
+        }
+    }
+
+    @Test
+    void unregisteredOrOutOfScopeSourcesFailClosedWithoutDecisions() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-scope", "principal-a", "artifact-a"));
+            assertThat(fixture.authority().resolve(
+                    request("tenant-scope", "principal-a", "missing-artifact")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-scope", "another-principal", "artifact-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-scope", "principal-a", "artifact-a", "UNKNOWN_PURPOSE",
+                            "denied-region", ProviderDataRetention.NONE)).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(fixture.authority().resolve(
+                    new MediaSourceAuthorizationContracts.Request(
+                            "tenant-scope", "principal-a", "artifact-a",
+                            new ArtifactVersion("sha256:" + "b".repeat(64)), "b".repeat(64),
+                            "SPEECH_TO_TEXT", "transcription", "provider-a", "v1",
+                            ProcessingBoundary.LOCAL, "local", ProviderDataRetention.NONE)).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
+    }
+
+    @Test
+    void revokedSourceFailsResolveAndRevalidateClosed() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-rev", "principal-a", "artifact-a"));
+            var allowed = fixture.authority().resolve(request("tenant-rev", "principal-a", "artifact-a"));
+            assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            var revoked = fixture.administration().revoke(
+                    "tenant-rev", "artifact-a", "sha256:" + DIGEST, "principal-a", "corr-1");
+            assertThat(revoked).isPresent();
+            assertThat(revoked.get().revocationEpoch()).isEqualTo(1);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-rev", "principal-a", "artifact-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.REVOKED);
+            assertThat(fixture.authority().revalidate(
+                    request("tenant-rev", "principal-a", "artifact-a"), allowed.evidence()).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.REVOKED);
+            assertThatThrownBy(() -> fixture.administration().revoke(
+                    "tenant-rev", "artifact-a", "sha256:" + DIGEST, "wrong-principal", "corr-2"))
+                    .isInstanceOf(SecurityException.class);
+        }
+    }
+
+    @Test
+    void expiredAndPolicyDeniedSourcesNeverProduceEvidence() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-exp", "principal-a", "artifact-a"));
+            fixture.engine().outcome.set(PolicyDecisionOutcome.DENY);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            fixture.engine().outcome.set(null);
+            fixture.engine().throwOnEvaluate.set(true);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
+            expireRecord(fixture.state(), "tenant-exp", "artifact-a");
+            fixture.engine().throwOnEvaluate.set(false);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.STALE);
+        }
+    }
+
+    @Test
+    void revalidationDetectsMismatchedOrExpiredDecisions() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-mis", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-mis", "principal-a", "artifact-b",
+                    "b".repeat(64)));
+            var allowed = fixture.authority().resolve(request("tenant-mis", "principal-a", "artifact-a"));
+            assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            assertThat(fixture.authority().revalidate(
+                    request("tenant-mis", "principal-a", "artifact-b", "b".repeat(64)),
+                    allowed.evidence()).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
+    }
+
+    private static MediaSourceAuthorizationContracts.Request request(
+            String tenant, String principal, String artifact) {
+        return request(tenant, principal, artifact, "transcription", "local", ProviderDataRetention.NONE);
+    }
+
+    private static MediaSourceAuthorizationContracts.Request request(
+            String tenant, String principal, String artifact,
+            String purpose, String region, ProviderDataRetention retention) {
+        return new MediaSourceAuthorizationContracts.Request(
+                tenant, principal, artifact, new ArtifactVersion("sha256:" + DIGEST), DIGEST,
+                "SPEECH_TO_TEXT", purpose, "provider-a", "v1",
+                ProcessingBoundary.LOCAL, region, retention);
+    }
+
+    private static MediaSourceAuthorizationContracts.Request request(
+            String tenant, String principal, String artifact, String digest) {
+        return new MediaSourceAuthorizationContracts.Request(
+                tenant, principal, artifact, new ArtifactVersion("sha256:" + digest), digest,
+                "SPEECH_TO_TEXT", "transcription", "provider-a", "v1",
+                ProcessingBoundary.LOCAL, "local", ProviderDataRetention.NONE);
+    }
+
+    private static RegisterRequest register(String tenant, String principal, String artifact) {
+        return register(tenant, principal, artifact, DIGEST);
+    }
+
+    private static RegisterRequest register(String tenant, String principal, String artifact, String digest) {
+        return new RegisterRequest(
+                tenant, principal, artifact, "sha256:" + digest, digest, "owner-producer-1",
+                MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                "", Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
+                Set.of(ProviderDataRetention.NONE), "source-clock-ref-1", "provenance://record/1",
+                Instant.now().plus(Duration.ofHours(1)), "corr-register");
+    }
+
+    private static void expireRecord(MediaAwsPostgresqlRuntimeState state, String tenant, String artifact)
+            throws Exception {
+        try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
+                "UPDATE media_source_records SET expires_at=? WHERE tenant_id=? AND artifact_id=?")) {
+            s.setLong(1, System.currentTimeMillis() - 1000);
+            s.setString(2, tenant);
+            s.setString(3, artifact);
+            assertThat(s.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static final class Fixture implements AutoCloseable {
+        private final AutoCloseable installed;
+        private final MediaAwsPostgresqlRuntimeState state;
+        private final FakePolicyEngine engine;
+        private final PostgresqlMediaSourceRightsAdministration administration;
+        private final PostgresqlMediaSourceAuthorizationAuthority authority;
+
+        Fixture(AutoCloseable installed, MediaAwsPostgresqlRuntimeState state, FakePolicyEngine engine,
+                PostgresqlMediaSourceRightsAdministration administration,
+                PostgresqlMediaSourceAuthorizationAuthority authority) {
+            this.installed = installed;
+            this.state = state;
+            this.engine = engine;
+            this.administration = administration;
+            this.authority = authority;
+        }
+
+        MediaAwsPostgresqlRuntimeState state() { return state; }
+        FakePolicyEngine engine() { return engine; }
+        PostgresqlMediaSourceRightsAdministration administration() { return administration; }
+        PostgresqlMediaSourceAuthorizationAuthority authority() { return authority; }
+
+        @Override public void close() throws Exception {
+            authority.close();
+            administration.close();
+            state.release();
+            installed.close();
+        }
+    }
+
+    private static Fixture openFixture() throws Exception {
+        String bucket = "media-source-rights-" + UUID.randomUUID().toString().replace("-", "");
+        try (S3Client client = S3Client.builder().endpointOverride(LOCALSTACK.getEndpoint())
+                .region(Region.of(LOCALSTACK.getRegion()))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
+                        LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build()).build()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        FakePolicyEngine engine = new FakePolicyEngine();
+        return new Fixture(installed, state, engine,
+                new PostgresqlMediaSourceRightsAdministration(state),
+                new PostgresqlMediaSourceAuthorizationAuthority(state, engine));
+    }
+
+    private static Map<String, String> environment(String bucket) {
+        Map<String, String> env = new HashMap<>();
+        env.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+        env.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
+        env.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
+        env.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_SOURCE_DB_PASSWORD");
+        env.put("MEDIA_SOURCE_DB_PASSWORD", POSTGRES.getPassword());
+        env.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
+        env.put("MEDIA_S3_BUCKET", bucket);
+        env.put("MEDIA_S3_REGION", LOCALSTACK.getRegion());
+        env.put("MEDIA_S3_ENDPOINT", LOCALSTACK.getEndpoint().toString());
+        env.put("MEDIA_S3_PATH_STYLE", "true");
+        env.put("MEDIA_S3_ACCESS_KEY_REFERENCE", "secret:env:MEDIA_ACCESS");
+        env.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_SECRET");
+        env.put("MEDIA_ACCESS", LOCALSTACK.getAccessKey());
+        env.put("MEDIA_SECRET", LOCALSTACK.getSecretKey());
+        return env;
+    }
+
+    private static final class FakePolicyEngine implements PolicyEngine {
+        private final AtomicReference<PolicyDecisionOutcome> outcome = new AtomicReference<>(PolicyDecisionOutcome.ALLOW);
+        private final AtomicReference<Boolean> throwOnEvaluate = new AtomicReference<>(false);
+
+        @Override public CompletionStage<PolicyDecisionRecord> evaluate(PolicyEvaluationRequest request) {
+            if (throwOnEvaluate.get()) throw new IllegalStateException("policy engine unavailable");
+            PolicyEvaluationContext context = new PolicyEvaluationContext(
+                    request.principalId(), request.tenantId(), request.actionClass(), request.targetType(),
+                    request.targetId(), request.toolId(), request.criticality(), request.reversibility(),
+                    request.attributes(), Instant.now(), request.correlationId(), request.verifiedContext());
+            PolicyDecisionOutcome actual = outcome.get();
+            PolicyDecisionRecord decision = new PolicyDecisionRecord(
+                    "policy-decision-fixture", actual,
+                    List.of("policy-v1:rule-allow-media"), List.of("rule-allow-media"),
+                    List.of("fixture policy evaluation"), context, Instant.now(), null, "policy-v1",
+                    List.of(actual == PolicyDecisionOutcome.ALLOW
+                            ? PolicyReasonCode.POLICY_ALLOWED : PolicyReasonCode.POLICY_DENIED));
+            return CompletableFuture.completedFuture(decision);
+        }
+
+        @Override public CompletionStage<Boolean> policyExists(String policyId) {
+            return CompletableFuture.completedFuture("policy-v1".equals(policyId));
+        }
+
+        @Override public CompletionStage<Boolean> policyExists(String policyId, String policyVersion) {
+            return policyExists(policyId);
+        }
+
+        @Override public boolean isOpen() { return true; }
+
+        @Override public void close() { }
+
+        @Override public PolicyEngineLifecycle.State lifecycleState() {
+            return PolicyEngineLifecycle.State.OPEN;
+        }
+
+        @Override public long inFlightEvaluations() { return 0; }
+
+        @Override public PolicyEngineLifecycle.Result drain(Duration timeout) {
+            return new PolicyEngineLifecycle.Result(PolicyEngineLifecycle.State.DRAINED, 0);
+        }
+
+        @Override public PolicyEngineLifecycle.Result close(Duration timeout) {
+            return new PolicyEngineLifecycle.Result(PolicyEngineLifecycle.State.CLOSED, 0);
+        }
+    }
+}

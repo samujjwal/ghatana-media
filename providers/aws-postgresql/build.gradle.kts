@@ -18,6 +18,8 @@ dependencies {
     api(project(":services:media:runtime-contracts"))
     implementation("com.ghatana.platform:core:$sharedVersion")
     implementation("com.ghatana.platform:messaging:$sharedVersion")
+    implementation("com.ghatana.platform:governance:$sharedVersion")
+    implementation("com.ghatana.platform:security:$sharedVersion")
     implementation(project(":platform:java:launcher-support"))
     implementation(platform(libs.jackson.bom))
     implementation(libs.jackson.databind)
