@@ -49,6 +49,23 @@ class MediaSourceAuthorizationContractsTest {
     }
 
     @Test
+    void authenticatedPrincipalRequiresBoundedIdentityAndVerificationTime() {
+        var authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-a", Instant.parse("2026-10-28T12:00:00Z"));
+        assertThat(authenticated.tenantId()).isEqualTo("tenant-a");
+        assertThat(authenticated.principalId()).isEqualTo("principal-a");
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                " ", "principal-a", Instant.now()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", null, Instant.now()))
+                .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-a", null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void decisionStatusAndEvidenceCannotContradictEachOther() {
         assertThatThrownBy(() -> new MediaSourceAuthorizationContracts.Decision(
                 MediaSourceAuthorizationContracts.Status.ALLOWED, null))

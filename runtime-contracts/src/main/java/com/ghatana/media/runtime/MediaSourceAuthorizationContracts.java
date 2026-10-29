@@ -29,6 +29,25 @@ public final class MediaSourceAuthorizationContracts {
 
     public enum HumanConsentDisposition { REQUIRED, NOT_APPLICABLE_HUMAN_CONSENT, UNRESOLVED }
 
+    /**
+     * Principal established by an authenticated ingress boundary (a verified gRPC identity or
+     * gateway-authenticated transport headers) or by a trusted in-process composition. Only
+     * that boundary may create this value; {@link Request} fields remain lookup inputs that
+     * must match it exactly. An authority derives any downstream verified policy context from
+     * this credential and its real {@link #authenticatedAt} time, never from identity strings
+     * freshly constructed out of the processing request.
+     */
+    public record AuthenticatedPrincipal(
+            String tenantId,
+            String principalId,
+            Instant authenticatedAt) {
+        public AuthenticatedPrincipal {
+            tenantId = required(tenantId, "tenantId");
+            principalId = required(principalId, "principalId");
+            authenticatedAt = Objects.requireNonNull(authenticatedAt, "authenticatedAt");
+        }
+    }
+
     /** Exact processing identity passed to a trusted source/policy authority. */
     public record Request(
             String tenantId,
@@ -193,13 +212,19 @@ public final class MediaSourceAuthorizationContracts {
      * Runtime SPI. Production compositions must implement this by calling the real Media source
      * rights authority and Shared PolicyEngine. Revalidation must re-read source ownership,
      * current rights/revocation and current Shared policy for the same immutable request.
+     *
+     * <p>Every call carries the {@link AuthenticatedPrincipal} established at the ingress
+     * boundary. Implementations must deny when the request's tenant/principal do not match the
+     * credential and must build the Shared verified policy context from the credential, not
+     * from a newly constructed request identity.
      */
     public interface Authority extends AutoCloseable {
         String authorityId();
         boolean ready();
         boolean productionEligible();
-        Decision resolve(Request request);
-        Decision revalidate(Request request, Evidence expectedEvidence);
+        Decision resolve(Request request, AuthenticatedPrincipal authenticated);
+        Decision revalidate(
+                Request request, Evidence expectedEvidence, AuthenticatedPrincipal authenticated);
         @Override default void close() { }
     }
 

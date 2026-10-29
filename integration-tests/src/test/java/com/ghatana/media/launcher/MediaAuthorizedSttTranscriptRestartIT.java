@@ -150,20 +150,22 @@ class MediaAuthorizedSttTranscriptRestartIT {
             MediaSourceRightsAdministration.SourceRecord record = administration.register(
                     new MediaSourceRightsAdministration.RegisterRequest(
                             "tenant-a", "principal-a", artifact.artifactId(),
-                            artifact.version().value(), wavSha, "owner-producer-1",
+                            artifact.version().value(), wavSha, "principal-a",
                             MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
                             MediaSourceAuthorizationContracts.HumanConsentDisposition
                                     .NOT_APPLICABLE_HUMAN_CONSENT,
                             "", Set.of("speech_to_text"), Set.of("transcription"),
                             Set.of("local"), Set.of(ProviderDataRetention.NONE),
                             "fixture-clock-evidence", "provenance://fixture/1",
-                            Instant.now().plusSeconds(3600), "correlation-e2e"));
+                            Instant.now().plusSeconds(3600), "correlation-e2e"),
+                    authenticated("tenant-a", "principal-a"));
             assertThat(record.revoked()).isFalse();
 
             var accepted = runtime.submit(new ProcessingJobRequest(
                     "e2e-stt-1", "tenant-a", "principal-a", "correlation-e2e",
                     artifact.artifactId(), artifact.version().value(), JobType.SPEECH_TO_TEXT,
-                    "stt-whisper-local", parameters(), governance()));
+                    "stt-whisper-local", parameters(), governance()),
+                    authenticated("tenant-a", "principal-a"));
             assertThat(accepted.status()).isEqualTo(JobStatus.ACCEPTED);
 
             var terminal = await(runtime, accepted.jobId());
@@ -191,6 +193,13 @@ class MediaAuthorizedSttTranscriptRestartIT {
         } finally {
             installed.close();
         }
+    }
+
+    /** Ingress-authenticated credential used by both registration and job submission. */
+    private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
+            String tenantId, String principalId) {
+        return new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                tenantId, principalId, Instant.now());
     }
 
     /** Mirrors the artifact store's durable admission record for the fixture upload. */

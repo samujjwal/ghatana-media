@@ -1,6 +1,7 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
@@ -48,18 +49,30 @@ public final class PostgresqlMediaSourceRightsAdministration implements MediaSou
     @Override public String administrationId() { return ADMINISTRATION_ID; }
 
     @Override
-    public SourceRecord register(RegisterRequest request) {
+    public SourceRecord register(
+            RegisterRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         ensureOpen();
         java.util.Objects.requireNonNull(request, "request");
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated.tenantId().equals(request.tenantId())
+                || !authenticated.principalId().equals(request.principalId())) {
+            throw new SecurityException(
+                    "Media source record must be registered by the authenticated principal");
+        }
+        if (!authenticated.principalId().equals(request.sourceOwnerId())) {
+            throw new SecurityException(
+                    "Media source record must be registered by the actual source holder");
+        }
         Instant registeredAt = Instant.now();
         SourceRecord record = new SourceRecord(
                 request.tenantId(), request.artifactId(), request.sourceVersion(), request.sourceSha256(),
-                request.principalId(), request.sourceOwnerId(), request.sourceKind(),
+                authenticated.principalId(), request.sourceOwnerId(), request.sourceKind(),
                 request.humanConsentDisposition(), request.consentDecisionId(),
                 request.allowedOperations(), request.allowedPurposes(), request.allowedRegions(),
                 request.allowedProviderRetentions(), request.sourceClockEvidenceRef(),
-                request.provenanceRef(), request.principalId(), registeredAt, request.expiresAt(),
-                0L, null);
+                request.provenanceRef(), authenticated.principalId(), registeredAt,
+                request.expiresAt(), 0L, null);
         String sql = """
                 INSERT INTO media_source_records
                     (tenant_id,artifact_id,source_version,source_sha256,principal_id,source_owner_id,
@@ -113,9 +126,14 @@ public final class PostgresqlMediaSourceRightsAdministration implements MediaSou
             String tenantId,
             String artifactId,
             String sourceVersion,
-            String principalId,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
             String correlationId) {
         ensureOpen();
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated.tenantId().equals(tenantId)) {
+            throw new SecurityException(
+                    "Media source record is not owned by the authenticated tenant");
+        }
         long now = Instant.now().toEpochMilli();
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
@@ -141,7 +159,7 @@ public final class PostgresqlMediaSourceRightsAdministration implements MediaSou
                         current = readRecord(row, tenantId, artifactId, sourceVersion);
                     }
                 }
-                if (!current.principalId().equals(principalId)) {
+                if (!current.principalId().equals(authenticated.principalId())) {
                     connection.rollback();
                     throw new SecurityException("Media source record is not owned by the authenticated principal");
                 }

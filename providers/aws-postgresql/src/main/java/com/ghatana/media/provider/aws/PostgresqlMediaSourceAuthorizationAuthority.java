@@ -88,9 +88,14 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
 
     @Override
     public MediaSourceAuthorizationContracts.Decision resolve(
-            MediaSourceAuthorizationContracts.Request request) {
+            MediaSourceAuthorizationContracts.Request request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         ensureOpen();
         Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated(authenticated, request)) {
+            return decision(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
         try {
             SourceRecord record = readRecord(request.tenantId(), request.artifactId(),
                     request.sourceVersion().value());
@@ -98,12 +103,12 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             MediaSourceAuthorizationContracts.Status scope = scopeStatus(record, request, Instant.now());
             if (scope != MediaSourceAuthorizationContracts.Status.ALLOWED) return decision(scope);
 
-            PolicyDecisionRecord policy = evaluatePolicy(request, record);
+            PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             if (policy.outcome() == PolicyDecisionOutcome.DENY) {
                 return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             }
-            if (!authoritativeAllow(policy, request)) {
+            if (!authoritativeAllow(policy, authenticated)) {
                 return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             }
             return issue(request, record, policy);
@@ -115,10 +120,15 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
     @Override
     public MediaSourceAuthorizationContracts.Decision revalidate(
             MediaSourceAuthorizationContracts.Request request,
-            MediaSourceAuthorizationContracts.Evidence expectedEvidence) {
+            MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         ensureOpen();
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(expectedEvidence, "expectedEvidence");
+        Objects.requireNonNull(authenticated, "authenticated");
+        if (!authenticated(authenticated, request)) {
+            return decision(MediaSourceAuthorizationContracts.Status.DENIED);
+        }
         try {
             Instant now = Instant.now();
             DecisionRow decision = readDecisionForUpdate(request.tenantId(), expectedEvidence.decisionId());
@@ -136,12 +146,12 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             }
             if (record.expiredAt(now)) return decision(MediaSourceAuthorizationContracts.Status.STALE);
 
-            PolicyDecisionRecord policy = evaluatePolicy(request, record);
+            PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             if (policy.outcome() == PolicyDecisionOutcome.DENY) {
                 return decision(MediaSourceAuthorizationContracts.Status.DENIED);
             }
-            if (!authoritativeAllow(policy, request)) {
+            if (!authoritativeAllow(policy, authenticated)) {
                 return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             }
             return new MediaSourceAuthorizationContracts.Decision(
@@ -358,12 +368,30 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
         }
     }
 
+    /**
+     * The request is trusted only when the authenticated ingress credential names the same
+     * tenant and principal and was not minted with a future-dated verification time.
+     */
+    private static boolean authenticated(
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+            MediaSourceAuthorizationContracts.Request request) {
+        return authenticated.tenantId().equals(request.tenantId())
+                && authenticated.principalId().equals(request.principalId())
+                && !authenticated.authenticatedAt()
+                        .isAfter(Instant.now().plus(Duration.ofMinutes(1)));
+    }
+
     private PolicyDecisionRecord evaluatePolicy(
-            MediaSourceAuthorizationContracts.Request request, SourceRecord record) {
+            MediaSourceAuthorizationContracts.Request request,
+            SourceRecord record,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         if (policyEngine == null) return null;
         String correlationId = UUID.randomUUID().toString();
+        // The Shared verified context derives from the ingress-authenticated credential with
+        // its real verification time, never from a request identity re-minted here.
         PrincipalIdentity principal = new PrincipalIdentity(
-                request.tenantId(), request.principalId(), null, Set.of(), Instant.now());
+                authenticated.tenantId(), authenticated.principalId(), null, Set.of(),
+                authenticated.authenticatedAt());
         PolicyEvaluationRequest evaluation = PolicyEvaluationRequest.builder()
                 .principalId(request.principalId())
                 .tenantId(request.tenantId())
@@ -407,15 +435,22 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
     }
 
     private static boolean authoritativeAllow(
-            PolicyDecisionRecord decision, MediaSourceAuthorizationContracts.Request request) {
+            PolicyDecisionRecord decision,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         if (decision.outcome() != PolicyDecisionOutcome.ALLOW || !decision.isAuthoritative()
                 || decision.policyVersion() == null || decision.policyVersion().isBlank()) {
             return false;
         }
         var context = decision.context();
-        return context != null && context.isTrusted()
-                && context.principalId().equals(request.principalId())
-                && context.tenantId().equals(request.tenantId());
+        if (context == null || !context.isTrusted()
+                || !context.principalId().equals(authenticated.principalId())
+                || !context.tenantId().equals(authenticated.tenantId())
+                || context.verifiedContext() == null) {
+            return false;
+        }
+        var verified = context.verifiedContext();
+        return verified.principalId().equals(authenticated.principalId())
+                && verified.tenantId().equals(authenticated.tenantId());
     }
 
     private static MediaSourceAuthorizationContracts.Decision decision(

@@ -655,7 +655,27 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     @Override
     public ProcessingJob submit(ProcessingJobRequest request) {
+        // In-process callers present the request's tenant/principal as the trusted credential;
+        // transports that authenticate ingress separately must use the two-argument overload
+        // so the downstream verified policy context derives from the real credential.
+        return submit(request, new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                request.tenantId(), request.principalId(), clock.instant()));
+    }
+
+    /**
+     * Submits a job bound to the principal established at the authenticated ingress boundary.
+     * The request's tenant/principal must match the credential exactly; request identity
+     * fields are lookup inputs and never authority on their own.
+     */
+    public ProcessingJob submit(
+            ProcessingJobRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         ensureOpen();
+        if (!authenticated.tenantId().equals(request.tenantId())
+                || !authenticated.principalId().equals(request.principalId())) {
+            throw new SecurityException(
+                    "Media job request does not match the authenticated principal");
+        }
         ArtifactVersion requestedVersion = request.requestedArtifactVersion().orElse(null);
         MediaArtifact artifact = requestedVersion == null
                 ? artifactStore.artifact(request.tenantId(), request.artifactId())
@@ -671,7 +691,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         MediaProcessingProvider provider = providers.getFirst();
         MediaSourceAuthorizationContracts.Evidence sourceAuthorization = null;
         if (request.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
-            sourceAuthorization = admitSpeechToTextOrThrow(request, artifact, provider);
+            sourceAuthorization = admitSpeechToTextOrThrow(request, artifact, provider, authenticated);
             // The authorization evidence is bound to the exact provider/profile. STT must not
             // silently fall back to a provider with a different model or processing boundary.
             providers = List.of(provider);
@@ -707,7 +727,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
         Cancellation cancellation = new Cancellation();
         CompletableFuture<?> future = startJob(
-                accepted, request, providers, cancellation, sourceAuthorization);
+                accepted, request, providers, cancellation, sourceAuthorization, authenticated);
         JobControl control = new JobControl(cancellation, future);
         activeJobs.put(jobId, control);
         future.whenComplete((result, failure) -> activeJobs.remove(jobId, control));
@@ -734,7 +754,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private MediaSourceAuthorizationContracts.Evidence admitSpeechToTextOrThrow(
             ProcessingJobRequest request,
             MediaArtifact artifact,
-            MediaProcessingProvider provider) {
+            MediaProcessingProvider provider,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         MediaSpeechToTextAdmission.Request speechRequest = speechRequest(request);
         MediaSpeechToTextAdmission.Profile profile = null;
         try {
@@ -753,7 +774,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             try {
                 authorizationRequest = sourceAuthorizationRequest(request, artifact, provider);
                 if (sourceAuthorizationAuthority != null && sourceAuthorizationAuthority.ready()) {
-                    authorizationDecision = sourceAuthorizationAuthority.resolve(authorizationRequest);
+                    authorizationDecision = sourceAuthorizationAuthority.resolve(
+                            authorizationRequest, authenticated);
                 }
             } catch (RuntimeException unavailable) {
                 authorizationDecision = new MediaSourceAuthorizationContracts.Decision(
@@ -852,7 +874,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingJobRequest request,
             MediaArtifact artifact,
             MediaProcessingProvider provider,
-            MediaSourceAuthorizationContracts.Evidence expectedEvidence) {
+            MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         if (request.jobType()
                 != com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) return;
         if (expectedEvidence == null || sourceAuthorizationAuthority == null) {
@@ -884,7 +907,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         "source rights evidence is mismatched or expired");
             }
             MediaSourceAuthorizationContracts.Decision refreshed =
-                    sourceAuthorizationAuthority.revalidate(authorizationRequest, expectedEvidence);
+                    sourceAuthorizationAuthority.revalidate(
+                            authorizationRequest, expectedEvidence, authenticated);
             if (refreshed == null
                     || refreshed.status() != MediaSourceAuthorizationContracts.Status.ALLOWED
                     || !sameAuthorityBinding(expectedEvidence, refreshed.evidence())
@@ -1910,7 +1934,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingJobRequest request,
             List<MediaProcessingProvider> providers,
             Cancellation cancellation,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         ArtifactVersion expectedVersion;
         try {
             expectedVersion = new ArtifactVersion(accepted.expectedArtifactVersion());
@@ -1985,7 +2010,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 new java.util.concurrent.atomic.AtomicReference<>();
         CompletableFuture<ProcessingOutcome> providerFuture = dispatchProcessing(
                 request, dispatchArtifact, providers, 0, attempt, cancellation, activeProvider,
-                sourceAuthorization);
+                sourceAuthorization, authenticated);
         CompletableFuture<ProcessingOutcome> terminalFuture = providerFuture.whenComplete((outcome, failure) -> {
             concurrency.release();
             releaseTenantPermit(accepted.tenantId(), tenantPermits);
@@ -2131,7 +2156,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     == com.ghatana.media.runtime.MediaRuntimeContracts.JobType
                                             .SPEECH_TO_TEXT) {
                         finalizeSpeechTranscript(request, dispatchArtifact, value, recorded,
-                                submission, providers.getFirst(), sourceAuthorization);
+                                submission, providers.getFirst(), sourceAuthorization, authenticated);
                     }
                 } else if (attempt != null) {
                     ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN ? terminal
@@ -2188,13 +2213,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingAttempt attempt,
             ProviderSubmission submission,
             MediaProcessingProvider provider,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         try {
             if (transcriptStore == null || sourceAuthorization == null) return;
             Object observations = submission.result().get("semanticObservations");
             if (!(observations instanceof Map<?, ?> observed)) return;
             Object response = observed.get("transcriptResponse");
             if (!(response instanceof Map<?, ?> transcript)) return;
+            // The fenced transcript append is a separate effect boundary: the exact source and
+            // the current rights/policy decision must still hold for the authenticated principal
+            // immediately before the durable revision is written.
+            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
+                    authenticated);
             String transcriptText = String.valueOf(transcript.get("transcriptText"));
             String transcriptVersionRef = String.valueOf(transcript.get("transcriptVersionRef"));
             MediaSpeechToTextAdmission.Request speech = speechRequest(request);
@@ -2215,6 +2246,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             transcriptStore.appendFromSuccessfulAttempt(
                     draft, 0, attempt.attemptNumber(), attempt.fencingToken(),
                     attempt.requestFingerprint(), transcriptVersionRef);
+        } catch (MediaCapabilityNotAdmittedException notAdmitted) {
+            audit.warn("MEDIA_TRANSCRIPT_APPEND_NOT_ADMITTED tenantId={} jobId={} reason={}",
+                    request.tenantId(), job.jobId(), notAdmitted.reason());
         } catch (RuntimeException failure) {
             audit.warn("MEDIA_TRANSCRIPT_APPEND_FAILED tenantId={} jobId={} failureType={}",
                     request.tenantId(), job.jobId(), failure.getClass().getSimpleName());
@@ -2229,7 +2263,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingAttempt attempt,
             Cancellation cancellation,
             java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         MediaProcessingProvider provider = providers.get(index);
         final ConsentDecision consent;
         final CompletableFuture<Map<String, Object>> raw;
@@ -2237,7 +2272,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         final java.util.concurrent.atomic.AtomicReference<ProviderSubmission> submission =
                 new java.util.concurrent.atomic.AtomicReference<>();
         try {
-            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
+            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
+                    authenticated);
             consent = consentFor(
                     request.tenantId(), request.principalId(), request.governanceContext(),
                     "job:" + request.jobType().name(), provider.processingBoundary(),
@@ -2250,7 +2286,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             MediaArtifactContentReader sourceContentReader = (target, maxBytes) -> {
                 if (request.jobType()
                         == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
-                    requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
+                    requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
+                            authenticated);
                 } else if (config.productionLike()) {
                     throw new MediaCapabilityNotAdmittedException(
                             MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "SOURCE_ARTIFACT",
@@ -2287,7 +2324,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     request, artifact, cancellation, consent, sourceContentReader, sourceAuthorization);
             // Rights, Shared policy, source digest, and provider binding are refreshed at the
             // effect boundary. The source reader repeats this check before each content copy.
-            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization);
+            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
+                    authenticated);
             providerHandoffStarted = true;
             if (attempt == null) {
                 raw = java.util.Objects.requireNonNull(provider.process(context),
@@ -2316,7 +2354,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (failure instanceof SecurityException) return CompletableFuture.failedFuture(failure);
             return fallbackOrFail(
                     request, artifact, providers, index, attempt, cancellation, active, provider, failure,
-                    sourceAuthorization);
+                    sourceAuthorization, authenticated);
         }
         active.set(raw);
         io.micrometer.core.instrument.Timer.Sample providerSample = workflowMetrics.startTimer();
@@ -2337,7 +2375,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 cause = new ProviderHandoffFailure(cause);
             }
             fallbackOrFail(request, artifact, providers, index, attempt, cancellation, active, provider, cause,
-                    sourceAuthorization)
+                    sourceAuthorization, authenticated)
                     .whenComplete((next, nextFailure) -> {
                         if (nextFailure == null) result.complete(next);
                         else result.completeExceptionally(unwrap(nextFailure));
@@ -2362,7 +2400,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
             MediaProcessingProvider failedProvider,
             Throwable failure,
-            MediaSourceAuthorizationContracts.Evidence sourceAuthorization) {
+            MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         if (attempt == null
                 && !(unwrap(failure) instanceof ProviderHandoffFailure)
                 && !(unwrap(failure) instanceof PreDispatchNoEffectException)
@@ -2377,7 +2416,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     fallback.providerId(), failure.getClass().getSimpleName());
             return dispatchProcessing(
                     request, artifact, providers, index + 1, null, cancellation, active,
-                    sourceAuthorization);
+                    sourceAuthorization, authenticated);
         }
         return CompletableFuture.failedFuture(failure);
     }

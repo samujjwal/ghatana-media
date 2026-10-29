@@ -28,15 +28,26 @@ public interface MediaSourceRightsAdministration extends AutoCloseable {
 
     boolean productionEligible();
 
-    SourceRecord register(RegisterRequest request);
+    /**
+     * Registers one immutable source version. The {@code authenticated} credential is the
+     * transport-verified principal; the request's tenant, principal and source owner must all
+     * equal it, so only the actual source holder can create a rights record.
+     */
+    SourceRecord register(
+            RegisterRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated);
 
     Optional<SourceRecord> record(String tenantId, String artifactId, String sourceVersion);
 
+    /**
+     * Revokes one immutable source version. Only the authenticated principal recorded at
+     * registration may revoke; the credential's tenant must equal {@code tenantId}.
+     */
     Optional<SourceRecord> revoke(
             String tenantId,
             String artifactId,
             String sourceVersion,
-            String principalId,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
             String correlationId);
 
     @Override

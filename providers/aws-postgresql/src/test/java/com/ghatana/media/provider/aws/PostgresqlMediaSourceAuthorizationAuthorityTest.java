@@ -54,8 +54,10 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
     @Test
     void registeredNonhumanSourceResolvesToAllowedEvidenceAndSurvivesRevalidation() throws Exception {
         try (Fixture fixture = openFixture()) {
-            fixture.administration().register(register("tenant-reg", "principal-a", "artifact-a"));
-            var decision = fixture.authority().resolve(request("tenant-reg", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-reg", "principal-a", "artifact-a"),
+                    authenticated("tenant-reg", "principal-a"));
+            var decision = fixture.authority().resolve(request("tenant-reg", "principal-a", "artifact-a"),
+                    authenticated("tenant-reg", "principal-a"));
             assertThat(decision.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
             var evidence = decision.evidence();
             assertThat(evidence.authorityId()).isEqualTo("postgresql-media-source-authorization");
@@ -67,7 +69,8 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
             assertThat(evidence.policyDecisionId()).isEqualTo("policy-decision-fixture");
             assertThat(evidence.policyVersion()).isEqualTo("policy-v1");
             var revalidated = fixture.authority().revalidate(
-                    request("tenant-reg", "principal-a", "artifact-a"), evidence);
+                    request("tenant-reg", "principal-a", "artifact-a"), evidence,
+                    authenticated("tenant-reg", "principal-a"));
             assertThat(revalidated.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
             assertThat(revalidated.evidence().decisionId()).isEqualTo(evidence.decisionId());
         }
@@ -76,81 +79,158 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
     @Test
     void unregisteredOrOutOfScopeSourcesFailClosedWithoutDecisions() throws Exception {
         try (Fixture fixture = openFixture()) {
-            fixture.administration().register(register("tenant-scope", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-scope", "principal-a", "artifact-a"),
+                    authenticated("tenant-scope", "principal-a"));
             assertThat(fixture.authority().resolve(
-                    request("tenant-scope", "principal-a", "missing-artifact")).status())
+                    request("tenant-scope", "principal-a", "missing-artifact"),
+                    authenticated("tenant-scope", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            // A different authenticated principal hits the registered record's scope and is denied.
             assertThat(fixture.authority().resolve(
-                    request("tenant-scope", "another-principal", "artifact-a")).status())
+                    request("tenant-scope", "another-principal", "artifact-a"),
+                    authenticated("tenant-scope", "another-principal")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
             assertThat(fixture.authority().resolve(
                     request("tenant-scope", "principal-a", "artifact-a", "UNKNOWN_PURPOSE",
-                            "denied-region", ProviderDataRetention.NONE)).status())
+                            "denied-region", ProviderDataRetention.NONE),
+                    authenticated("tenant-scope", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
             assertThat(fixture.authority().resolve(
                     new MediaSourceAuthorizationContracts.Request(
                             "tenant-scope", "principal-a", "artifact-a",
                             new ArtifactVersion("sha256:" + "b".repeat(64)), "b".repeat(64),
                             "SPEECH_TO_TEXT", "transcription", "provider-a", "v1",
-                            ProcessingBoundary.LOCAL, "local", ProviderDataRetention.NONE)).status())
+                            ProcessingBoundary.LOCAL, "local", ProviderDataRetention.NONE),
+                    authenticated("tenant-scope", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(decisionCount(fixture.state(), "tenant-scope")).isZero();
+        }
+    }
+
+    @Test
+    void requestIdentityMismatchedToAuthenticatedCredentialIsDeniedWithoutEffects() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-mix", "principal-a", "artifact-a"),
+                    authenticated("tenant-mix", "principal-a"));
+            // A caller authenticated as one principal cannot resolve rights under another
+            // principal's request identity, even for a record it legitimately owns.
+            assertThat(fixture.authority().resolve(
+                    request("tenant-mix", "principal-a", "artifact-a"),
+                    authenticated("tenant-mix", "impostor-principal")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            assertThat(fixture.authority().resolve(
+                    request("tenant-mix", "principal-a", "artifact-a"),
+                    authenticated("other-tenant", "principal-a")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            var allowed = fixture.authority().resolve(
+                    request("tenant-mix", "principal-a", "artifact-a"),
+                    authenticated("tenant-mix", "principal-a"));
+            assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            // The same credential mismatch fails closed on revalidation of valid evidence.
+            assertThat(fixture.authority().revalidate(
+                    request("tenant-mix", "principal-a", "artifact-a"), allowed.evidence(),
+                    authenticated("tenant-mix", "impostor-principal")).status())
+                    .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+            // Only the single legitimately issued decision exists; denials wrote no durable row.
+            assertThat(decisionCount(fixture.state(), "tenant-mix")).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void registrationAndRevocationAreLockedToTheAuthenticatedSourceHolder() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            assertThatThrownBy(() -> fixture.administration().register(
+                    register("tenant-hold", "principal-a", "artifact-a"),
+                    authenticated("tenant-hold", "impostor-principal")))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> fixture.administration().register(
+                    register("tenant-hold", "principal-a", "artifact-a"),
+                    authenticated("other-tenant", "principal-a")))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> fixture.administration().register(
+                    register("tenant-hold", "principal-a", "artifact-a", DIGEST,
+                            "not-the-authenticated-holder"),
+                    authenticated("tenant-hold", "principal-a")))
+                    .isInstanceOf(SecurityException.class);
+            fixture.administration().register(register("tenant-hold", "principal-a", "artifact-a"),
+                    authenticated("tenant-hold", "principal-a"));
+            assertThatThrownBy(() -> fixture.administration().revoke(
+                    "tenant-hold", "artifact-a", "sha256:" + DIGEST,
+                    authenticated("tenant-hold", "impostor-principal"), "corr-x"))
+                    .isInstanceOf(SecurityException.class);
+            assertThatThrownBy(() -> fixture.administration().revoke(
+                    "tenant-hold", "artifact-a", "sha256:" + DIGEST,
+                    authenticated("other-tenant", "principal-a"), "corr-x"))
+                    .isInstanceOf(SecurityException.class);
+            assertThat(fixture.administration().record(
+                    "tenant-hold", "artifact-a", "sha256:" + DIGEST))
+                    .hasValueSatisfying(record -> assertThat(record.revoked()).isFalse());
         }
     }
 
     @Test
     void revokedSourceFailsResolveAndRevalidateClosed() throws Exception {
         try (Fixture fixture = openFixture()) {
-            fixture.administration().register(register("tenant-rev", "principal-a", "artifact-a"));
-            var allowed = fixture.authority().resolve(request("tenant-rev", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-rev", "principal-a", "artifact-a"),
+                    authenticated("tenant-rev", "principal-a"));
+            var allowed = fixture.authority().resolve(request("tenant-rev", "principal-a", "artifact-a"),
+                    authenticated("tenant-rev", "principal-a"));
             assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
             var revoked = fixture.administration().revoke(
-                    "tenant-rev", "artifact-a", "sha256:" + DIGEST, "principal-a", "corr-1");
+                    "tenant-rev", "artifact-a", "sha256:" + DIGEST,
+                    authenticated("tenant-rev", "principal-a"), "corr-1");
             assertThat(revoked).isPresent();
             assertThat(revoked.get().revocationEpoch()).isEqualTo(1);
             assertThat(fixture.authority().resolve(
-                    request("tenant-rev", "principal-a", "artifact-a")).status())
+                    request("tenant-rev", "principal-a", "artifact-a"),
+                    authenticated("tenant-rev", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.REVOKED);
             assertThat(fixture.authority().revalidate(
-                    request("tenant-rev", "principal-a", "artifact-a"), allowed.evidence()).status())
+                    request("tenant-rev", "principal-a", "artifact-a"), allowed.evidence(),
+                    authenticated("tenant-rev", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.REVOKED);
-            assertThatThrownBy(() -> fixture.administration().revoke(
-                    "tenant-rev", "artifact-a", "sha256:" + DIGEST, "wrong-principal", "corr-2"))
-                    .isInstanceOf(SecurityException.class);
         }
     }
 
     @Test
     void expiredAndPolicyDeniedSourcesNeverProduceEvidence() throws Exception {
         try (Fixture fixture = openFixture()) {
-            fixture.administration().register(register("tenant-exp", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-exp", "principal-a", "artifact-a"),
+                    authenticated("tenant-exp", "principal-a"));
             fixture.engine().outcome.set(PolicyDecisionOutcome.DENY);
             assertThat(fixture.authority().resolve(
-                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    request("tenant-exp", "principal-a", "artifact-a"),
+                    authenticated("tenant-exp", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
             fixture.engine().outcome.set(null);
             fixture.engine().throwOnEvaluate.set(true);
             assertThat(fixture.authority().resolve(
-                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    request("tenant-exp", "principal-a", "artifact-a"),
+                    authenticated("tenant-exp", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             expireRecord(fixture.state(), "tenant-exp", "artifact-a");
             fixture.engine().throwOnEvaluate.set(false);
             assertThat(fixture.authority().resolve(
-                    request("tenant-exp", "principal-a", "artifact-a")).status())
+                    request("tenant-exp", "principal-a", "artifact-a"),
+                    authenticated("tenant-exp", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.STALE);
+            assertThat(decisionCount(fixture.state(), "tenant-exp")).isZero();
         }
     }
 
     @Test
     void revalidationDetectsMismatchedOrExpiredDecisions() throws Exception {
         try (Fixture fixture = openFixture()) {
-            fixture.administration().register(register("tenant-mis", "principal-a", "artifact-a"));
+            fixture.administration().register(register("tenant-mis", "principal-a", "artifact-a"),
+                    authenticated("tenant-mis", "principal-a"));
             fixture.administration().register(register("tenant-mis", "principal-a", "artifact-b",
-                    "b".repeat(64)));
-            var allowed = fixture.authority().resolve(request("tenant-mis", "principal-a", "artifact-a"));
+                    "b".repeat(64)), authenticated("tenant-mis", "principal-a"));
+            var allowed = fixture.authority().resolve(request("tenant-mis", "principal-a", "artifact-a"),
+                    authenticated("tenant-mis", "principal-a"));
             assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
             assertThat(fixture.authority().revalidate(
                     request("tenant-mis", "principal-a", "artifact-b", "b".repeat(64)),
-                    allowed.evidence()).status())
+                    allowed.evidence(), authenticated("tenant-mis", "principal-a")).status())
                     .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
         }
     }
@@ -177,18 +257,41 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
                 ProcessingBoundary.LOCAL, "local", ProviderDataRetention.NONE);
     }
 
+    private static MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated(
+            String tenant, String principal) {
+        return new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                tenant, principal, Instant.now());
+    }
+
     private static RegisterRequest register(String tenant, String principal, String artifact) {
         return register(tenant, principal, artifact, DIGEST);
     }
 
     private static RegisterRequest register(String tenant, String principal, String artifact, String digest) {
+        return register(tenant, principal, artifact, digest, principal);
+    }
+
+    private static RegisterRequest register(
+            String tenant, String principal, String artifact, String digest, String sourceOwnerId) {
         return new RegisterRequest(
-                tenant, principal, artifact, "sha256:" + digest, digest, "owner-producer-1",
+                tenant, principal, artifact, "sha256:" + digest, digest, sourceOwnerId,
                 MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
                 MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
                 "", Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
                 Set.of(ProviderDataRetention.NONE), "source-clock-ref-1", "provenance://record/1",
                 Instant.now().plus(Duration.ofHours(1)), "corr-register");
+    }
+
+    private static long decisionCount(MediaAwsPostgresqlRuntimeState state, String tenant)
+            throws Exception {
+        try (Connection c = state.connection(); PreparedStatement s = c.prepareStatement(
+                "SELECT COUNT(*) FROM media_source_rights_decisions WHERE tenant_id=?")) {
+            s.setString(1, tenant);
+            try (var row = s.executeQuery()) {
+                row.next();
+                return row.getLong(1);
+            }
+        }
     }
 
     private static void expireRecord(MediaAwsPostgresqlRuntimeState state, String tenant, String artifact)

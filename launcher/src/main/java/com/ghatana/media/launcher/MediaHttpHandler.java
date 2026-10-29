@@ -16,6 +16,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -320,7 +321,10 @@ public final class MediaHttpHandler implements HttpHandler {
         if (!principalId.equals(request.principalId())) {
             throw new SecurityException("Job principal does not match authenticated principal");
         }
-        json(exchange, 202, runtime.projectJobView(runtime.submit(request)));
+        // The credential comes from the authenticated ingress headers, not from request fields.
+        json(exchange, 202, runtime.projectJobView(runtime.submit(request,
+                new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        tenantId, principalId, Instant.now()))));
     }
 
     private void listJobs(HttpExchange exchange, String tenantId, String principalId) throws IOException {

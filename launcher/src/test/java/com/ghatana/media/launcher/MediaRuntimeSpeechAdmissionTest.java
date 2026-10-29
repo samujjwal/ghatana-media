@@ -318,7 +318,13 @@ class MediaRuntimeSpeechAdmissionTest {
             @Override public boolean ready() { return true; }
             @Override public boolean productionEligible() { return false; }
             @Override public MediaSourceAuthorizationContracts.Decision resolve(
-                    MediaSourceAuthorizationContracts.Request request) {
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                if (!authenticated.tenantId().equals(request.tenantId())
+                        || !authenticated.principalId().equals(request.principalId())) {
+                    return new MediaSourceAuthorizationContracts.Decision(
+                            MediaSourceAuthorizationContracts.Status.DENIED, null);
+                }
                 if (!allowResolve) return new MediaSourceAuthorizationContracts.Decision(
                         MediaSourceAuthorizationContracts.Status.DENIED, null);
                 return new MediaSourceAuthorizationContracts.Decision(
@@ -326,7 +332,8 @@ class MediaRuntimeSpeechAdmissionTest {
             }
             @Override public MediaSourceAuthorizationContracts.Decision revalidate(
                     MediaSourceAuthorizationContracts.Request request,
-                    MediaSourceAuthorizationContracts.Evidence expectedEvidence) {
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
                 revalidations.incrementAndGet();
                 if (!revokeOnRevalidate) {
                     return new MediaSourceAuthorizationContracts.Decision(
