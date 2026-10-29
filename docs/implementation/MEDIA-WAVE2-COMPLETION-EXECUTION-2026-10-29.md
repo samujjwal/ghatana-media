@@ -32,7 +32,7 @@
 | OD-29-09 | **Ghatana platform owners: work authorized, outcomes not invented** | #252 must publish a real ROI/OCR source-free client; #254 a governed 202/pending/committed projection+lookup API. Media consumes installed public APIs, never internal classes or a duplicate Data Cloud Media writer. |
 | OD-29-10 | **Review/rights and lifecycle separation** | Third-party weight/voice/recording rights, genuine biometric consent and independently trusted review cannot be self-approved. Track B PDP closure/release/cutover/gtool may progress separately; no Track B condition blocks Build source development. |
 
-## 3. HISTORICAL M0–M7 design orders (source now substantially implemented; current work is §8)
+## 3. HISTORICAL M0–M7 design orders (source now substantially implemented; current work is section 8)
 
 **M0 — isolate file ownership and compile current source (Media MM owner; first 90-minute pulse).** Read and pin the actual gRPC/PDP-1 binding, Gradle profile, `MediaRuntime`, `MediaProcessingRuntimePort`, `MediaRuntimeContracts`, `MediaModalityContracts.governedResult` and provider selection. Record whether any MM provider is installed and verify current `FAILED_PRECONDITION` for missing executor is truthful. Do not edit `MediaRuntime.java` concurrently with STT owner.
 
@@ -52,7 +52,7 @@
 
 **MM design failure matrix, tests are REQUIRED:** caller spoofed principal; MM source present but child source stale; MM parent admitted but VISION denied; parent callback evicted before attempt; process crash loses all in-memory work; child completed but response lost; parent result validation/sanitization fails; parent and child share a one-thread pool; repeated request hash changes; expired policy during commit; missing real timebase; gRPC timeout with no discoverable job ID. No in-memory fixture may create an apparent durable successful result.
 
-## 4. HISTORICAL parallel non-MM orders (superseded by §8; original requirements unchanged)
+## 4. HISTORICAL parallel non-MM orders (superseded by section 8; original requirements unchanged)
 
 **A — STT Runtime/Provider/Science.** Inspect `cbd06f87` credential and source-authority binding and `MediaSttTranscriptCommitFenceIT`; test real auth/Shared policy denied/revoked at submission, retry and transcript commit; eliminate direct production use of request-derived identity and prove real process crash (not just store reopening). Keep exact WER failure, identify 89 token-cap/nonlanguage causes, reconcile 380 total with 372 earlier selected bound and full clip/split/digest/gold provenance. Java holdout-only locale output fixes must pass actual Node scoring. Evaluate lawful previously selected larger Whisper/reference model(s) on **development** set and a *new blinded speaker-disjoint* holdout, with never-invented license/model performance. Complete WAV/FLAC (as advertised), stream finality, timing, diarization and captions; assess STT-03..10/12 against unchanged R8.
 
