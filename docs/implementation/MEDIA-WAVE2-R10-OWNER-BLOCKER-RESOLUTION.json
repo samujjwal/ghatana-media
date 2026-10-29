@@ -13,10 +13,10 @@
     "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
     "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
     "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70",
-    "mediaLatestInspected": "dd82099af004917fb04662e9ccc9b2d84b7cec7a",
+    "mediaLatestInspected": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
     "sharedLatestInspected": "d15b2ce353839ee3bf666be7c0737aa7192994f5",
     "ghatanaLatestInspected": "875108953b069ba65803b8b99b713896bf9476f0",
-    "reviewScope": "GitHub public main source @dd82099 includes STT auth cbd06f87, OCI policy 367ab193, Piper bounded process 1293724a, and MM still fail-closed; no native JDK27/Docker/model/real alert runs executed in this review."
+    "reviewScope": "Current GitHub source M1-M7 and V027 reviewed on 2026-10-29. Live PostgreSQL 3/3 + 2/2 verified by implementer report after V027, not independently rerun in this review; opt-in models/codec real modes remain unverified."
   },
   "notASecondPdpOrAdmittedProvider": true,
   "technicalApprovals": [
@@ -264,6 +264,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -300,6 +306,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -338,6 +350,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -376,6 +394,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -414,6 +438,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R01",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -453,6 +483,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -490,6 +526,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R04",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -527,6 +569,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R03",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -565,6 +613,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -602,6 +656,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R04",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -640,6 +700,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -676,6 +742,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -714,6 +786,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -751,6 +829,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -790,6 +874,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -826,6 +916,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -864,6 +960,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -901,6 +1003,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R02",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -939,6 +1047,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -976,6 +1090,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1014,6 +1134,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1050,6 +1176,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R08",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1090,6 +1222,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R02",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1128,6 +1266,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R08",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1165,6 +1309,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R03",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1203,6 +1353,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R03",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1240,6 +1396,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R10",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1277,6 +1439,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R10",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1315,6 +1483,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1356,6 +1530,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R05",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1395,6 +1575,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1434,6 +1620,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R06",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1474,6 +1666,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R07",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1516,6 +1714,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R02",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1553,6 +1757,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R09",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     },
     {
@@ -1591,6 +1801,12 @@
         "originalIndependentProofUnchanged": true,
         "acceptance": "NOT_ACCEPTED_CURRENT_REVIEW",
         "implementationPlanRef": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md"
+      },
+      "currentCutAfterV027": {
+        "primaryWorkPackage": "R09",
+        "lastWholeRowAcceptance": false,
+        "sourceNotWholeRow": true,
+        "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
       }
     }
   ],
@@ -1714,92 +1930,92 @@
     "currentOwnerRule": "All routine engineering work preapproved and executable; external-rights/actual-data gates remain genuine and scoped, never silently removed or treated as blanket development blockers.",
     "noAdditionalWorkPackageIds": true,
     "nextFullRowCandidate": "VIS-03",
-    "nextRealBusinessOutcome": "Independently audit reported authorized STT E2E at reconciled source + qualified replacement multilingual model; then real MM, alerts and capacity",
+    "nextRealBusinessOutcome": "W2-R01 actual MM production runtime/authority bootstrap, W2-R02 qualified STT+Vision canonical child jobs, W2-R03 durable PostgreSQL parent/child restart; TTS-05 local negatives and OBS source parallel",
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
-        "observedGap": "Whisper tiny retains actual reported en/hi/ne failed WER; quality replacement required.",
-        "nextAction": "A2/A5 select rights-cleared stronger model using development data and new blind holdout; keep tiny REVIEW_ONLY.",
+        "observedGap": "Whisper tiny retains failed true FLEURS WER with 89 reported token caps; merged decoder fixes exist.",
+        "nextAction": "W2-R05 select lawful stronger STT and new blind holdout, no promotion of tiny.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G02": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_WITH_REAL_SOURCE_PROVENANCE",
-        "observedGap": "STT authenticated source-bound ingress code cbd06f87 exists; MM and child VISION have no evidence-bearing admitted path, runtime rejects MULTIMODAL/VISION production.",
-        "nextAction": "M1/M3 re-use source Authorization/Shared policy+consent for exact parent and each child, add verified runtime port submit; negative zero-effect cases.",
+        "observedGap": "Authenticated source-rights STT and MM child admission code present; standalone MM server still uses default unavailable source authority.",
+        "nextAction": "W2-R01 production bootstrap trusted JWT/port/authority, no effect on wrong tenant/revocation.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G03": {
         "implementationDisposition": "ENGINEERING_CODE_NOW_AFTER_G02",
-        "observedGap": "Real STT provider ADMITTED transcript test and STT commit-fence source exist; no actual production authority and process-crash verification from this review.",
-        "nextAction": "A1/A4 real ingress, source consent, killed process, ambiguous receipt and exact restart/outbox negative cases.",
+        "observedGap": "Real STT provider and PostgreSQL fenced transcript source implemented; user reports 3/3 late-policy/abandoned-UNKNOWN and 2/2 effect-denial UNKNOWN Testcontainers passes after V027.",
+        "nextAction": "W2-R03/04 avoid redundant rerun, add actual MM parent/child DB recovery and V027 nonempty tagged data; full STT-09 original fault proof not established.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_IMPLEMENTER_REPORTED_POSTGRES_5OF5_NOT_WHOLE_ROW"
       },
       "G04": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_VOICE_RIGHTS",
-        "observedGap": "Piper phoneme subprocess now has bounded deadline and temp deletion in 1293724a; no integrated host qualified voice rights/intelligibility.",
-        "nextAction": "B1/B3 test output saturation/temp cleanup, pin binary/data, voice license+consent and real audio, streaming/restart/load.",
+        "observedGap": "Piper phonemizer bounded subprocess source implemented; actual independent voice rights/quality and streaming remain missing.",
+        "nextAction": "W2-R06 TTS-05 consent negatives and licensed real voice/PCM/stream/restart/load.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G05": {
         "implementationDisposition": "BOTH_CODE_AND_EXTERNAL_MODEL_IMAGE_RIGHTS",
-        "observedGap": "YOLOX BGR and lawful dog test source exists, but held-out mAP/PR/CI and full model rights unqualified.",
-        "nextAction": "C1 held-out rights-cleared multi-object gold, geometry/NaN/NMS and load.",
+        "observedGap": "YOLOX BGR and dog/blank source smoke implemented; independent mAP/PR/multiclass/rights pending.",
+        "nextAction": "W2-R02/07 rights-checked real canonical Vision job and heldout benchmark.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
-        "observedGap": "OCI broker server-image allowlist, fixed uid/gid and nonce replay-window code in 367ab193; source-holder authorization/peer and TOCTOU/kernel proof incomplete.",
-        "nextAction": "C2 peer/source capability, nonce across daemon restart, strict codec AST, avoid source swap before container mount, actual OOM/PID/FD/cpu/disk.",
+        "observedGap": "Server-pinned OCI image and nonce policy source present; live real/png assets and host peer/source TOCTOU limits unverified.",
+        "nextAction": "W2-R07 provision actual pinned codec directories and run real/png plus source/peer/TOCTOU/native fault tests.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G07": {
         "implementationDisposition": "EXTERNAL_LICENSED_DATA_THEN_ENGINEERING_METRICS",
-        "observedGap": "FLEURS batch locale/holdout Java format fixed; 380 private evaluation source vs previous 372 maximum unresolved; no new blind holdout.",
-        "nextAction": "A2 verify hash/speaker/split/locale count, run true Java→Node scorer and freeze new blind model holdout.",
+        "observedGap": "Java holdout-only FLEURS scoring source fixed; 380 private clips and 89 failures still require source/gold/accounting verification.",
+        "nextAction": "W2-R05 reconcile selected/used corpus and run new blind heldout model.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "OBS remains fixture-based for quality alert delivery and c1/c16/c64.",
-        "nextAction": "F1/F2 real exporter to named Alertmanager receiver and actual admitted models with bounded load.",
+        "observedGap": "Live quality profile alert delivery and real four-modality capacity not demonstrated.",
+        "nextAction": "W2-R09 real Prometheus/Alertmanager receiver, model profile quality, c1/c16/c64.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G09": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #252 OPEN.",
-        "nextAction": "E1 ship owner public ROI/source-version authenticated OCR and Java27 installed consumer.",
+        "observedGap": "Ghatana #252 ROI OCR public API remains open.",
+        "nextAction": "W2-R10 owner public DI and installed Media consumer.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G10": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
-        "observedGap": "Ghatana #254 OPEN.",
-        "nextAction": "E2 ship 202 vs committed projection/lookup and Java21/Java27 source-free tests.",
+        "observedGap": "Ghatana #254 governed observation projection remains open.",
+        "nextAction": "W2-R10 owner Data Cloud projection/lookup and source-free client.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G11": {
         "implementationDisposition": "GENUINE_EXTERNAL_HUMAN_OR_RIGHTSHOLDER_RECORD_REQUIRED",
-        "observedGap": "No independently reviewed human voice likeness/biometric/source/model rights universal grant.",
-        "nextAction": "B/C/E obtain real owner records and independent reviewers only for affected restricted effect; otherwise keep denied.",
+        "observedGap": "Genuine human voice likeness/biometric and model/dataset licensed grants/reviewers are not established by test assets.",
+        "nextAction": "W2-R06/R07/W2-R05 authentic scoped rights and separate reviewer as applicable; unrelated source work proceeds.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "Production MM executor null; no registered MM provider; source authorization unavailable, MediaRuntime production denies MULTIMODAL/VISION; no durable operation descriptor or per-child finality.",
-        "nextAction": "M1-M7 implement authenticated source-bound durable operation spec, typed provider, child attempts, rehydration/restart, actual STT+Vision fusion.",
+        "observedGap": "M1-M7 durable MM descriptor/provider/executor/fanout/restart/source-clock source now implemented; standalone server unbound, provider not production-qualified and real child STT+Vision/MM result absent.",
+        "nextAction": "W2-R01/02/03/08 connect real runtime, qualified child providers and Postgres parent/child, then original MM whole-row proof.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_NO_CURRENT_HOST_PROOF"
+        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       }
     },
     "localEngineeringDeltas": {
@@ -1816,7 +2032,7 @@
       },
       "originalCorpusState": "METADATA_ONLY_NOT_FROZEN"
     },
-    "currentReviewedSource": "fea2aae5d7d144fb7993e69c3075f669fd70c7f9",
+    "currentReviewedSource": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
     "sourceAccess": "CONFIRMED_REMOTE_GITHUB_COMMITTED",
     "independentExecutionStatus": "NOT_RUN_IN_THIS_REVIEW",
     "goForward": "Implement and verify production source trust, broker hardening, FLEURS scoring, alternative STT quality, MM, OBS and platform owners; do not repeat merged-decoder, PNG, broker wiring, YOLOX BGR or espeak implementation."
@@ -1919,11 +2135,11 @@
       "external": 6,
       "change": 0
     },
-    "currentReviewedSource": "samujjwal/ghatana-media@dd82099af004917fb04662e9ccc9b2d84b7cec7a",
+    "currentReviewedSource": "samujjwal/ghatana-media@4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
     "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
     "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning",
     "latestSourceReview": "PUSHED_SEVEN_COMMITS_CONFIRMED",
-    "latestDecisionSummary": "Proceed directly with M1-M7 (durable MM), source-bound Vision rights and authenticated runtime port; keep STT/OCI/Piper source fixes as implemented, not rework; E1/E2 and OBS parallel. 36 rows original acceptance not promoted."
+    "latestDecisionSummary": "Current W2-R01 through W2-R11 remain, M1-M6, V026/V027 implementation and reported Postgres 5/5 are source/focused-test completed; no whole-row promotion. Production MM bootstrap and real child jobs, tagged V027 value tests, voice negatives, OBS and Ghatana owners remain."
   },
   "latestPulseReview": {
     "reviewDate": "2026-10-28",
@@ -2137,7 +2353,7 @@
     "singleActivePlan": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md",
     "originalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
     "original36RowMatrix": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
-    "sourceReviewed": "dd82099af004917fb04662e9ccc9b2d84b7cec7a",
+    "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
     "status": "PLAN_APPROVED_IMPLEMENTATION_INCOMPLETE",
     "originalDenominator": {
       "total": 58,
@@ -2179,76 +2395,82 @@
     ],
     "blockingEngineeringFacts": [
       {
-        "code": "MM_EXECUTOR_NULL",
-        "owner": "Media MM",
-        "state": "UNIMPLEMENTED",
-        "firstAction": "M1/M3 authenticated production dispatcher+provider"
+        "id": "MM_STANDALONE_BOOTSTRAP",
+        "owner": "MM gRPC/Runtime",
+        "state": "SOURCE_INTEGRATION_MISSING",
+        "evidence": "MultimodalGrpcServer.main uses createRuntime(null), default SourceAuthorization.unavailable",
+        "next": "W2-R01 real trusted port+authority+health via standalone bootstrap"
       },
       {
-        "code": "MM_RUNTIME_SOURCE_RIGHTS_DENY",
-        "owner": "Media Runtime+Security",
-        "state": "UNIMPLEMENTED",
-        "firstAction": "M1/M3 MM and child Vision evidence-bearing source rights path in MediaRuntime"
+        "id": "MM_PRODUCTION_PROFILE",
+        "owner": "MM Provider/Runtime Security",
+        "state": "QUALIFICATION_GATED",
+        "evidence": "DelegatingMultimodalProvider.productionEligible() returns false",
+        "next": "conditional eligibility only when verified child and source profiles are eligible; no unconditional readiness"
       },
       {
-        "code": "MM_PORT_UNAUTH_SUBMIT",
-        "owner": "Media Runtime Contracts",
-        "state": "CONTRACT_ADDITION_REQUIRED",
-        "firstAction": "Fail-closed authenticated submit via MediaProcessingRuntimePort, bind verified ingress"
+        "id": "MM_REAL_CHILD_VISION",
+        "owner": "Vision/MM",
+        "state": "REAL_MODEL_JOB_UNVERIFIED",
+        "evidence": "YOLOX source smoke exists; no qualified actual MM VISION child positive",
+        "next": "W2-R02 reuse existing provider adapter or add one narrow canonical Vision adapter"
       },
       {
-        "code": "MM_EPHEMERAL_LAMBDA_NOT_REPLAYABLE",
-        "owner": "Media MM+Persistence",
-        "state": "DESIGN_RESOLVED_IMPLEMENTATION_PENDING",
-        "firstAction": "M2/M5 durable rehydratable spec and child attempts; never lambda as authority"
+        "id": "MM_POSTGRES_CHILD_RESTART",
+        "owner": "MM/Postgres",
+        "state": "TEST_NOT_RUN",
+        "evidence": "MM restart suite uses in-process store; Postgres MM snapshot test tests descriptor",
+        "next": "W2-R03 actual parent/child Testcontainers kill/restart/receipt/no duplicate"
       },
       {
-        "code": "MM_FANOUT_STATUS",
-        "owner": "Media MM",
-        "state": "UNIMPLEMENTED",
-        "firstAction": "M4/M5 per-child finality+reconcile+no deadlock"
+        "id": "STT_V027_SEGMENT_VALUES",
+        "owner": "STT/Postgres",
+        "state": "SOURCE_IMPLEMENTED_FOCUSED_HOST_IT_MISSING",
+        "evidence": "V027 columns, source union; reported 5/5 ITs establish schema compatibility only",
+        "next": "W2-R04 nonempty mixed/source tick segments via fenced append+restart, and truthful per-word unavailable"
       },
       {
-        "code": "STT_TINY_WER",
-        "owner": "Media STT Quality",
-        "state": "ACTUAL_REPORTED_QUALITY_FAIL",
-        "firstAction": "A new blind holdout and rights-cleared stronger model"
+        "id": "STT_MODEL_TINY_FAIL",
+        "owner": "STT Quality",
+        "state": "REFERENCE_QUALITY_FAILED",
+        "evidence": "reported en/hi/ne WER 0.3996/1.0938/1.0448 with 89 caps",
+        "next": "W2-R05 lawful alternate model with new blind holdout"
       },
       {
-        "code": "FLEURS_380_VS_372",
-        "owner": "Media STT Evaluation",
-        "state": "PRIVATE_INPUT_RECONCILIATION_PENDING",
-        "firstAction": "Actual scored vs selected per-locale split, audio SHA, gold and cap causes"
+        "id": "TTS_CONSENT_AND_LIVE_VOICE",
+        "owner": "TTS",
+        "state": "LOCAL_NEGATIVE_NOW_EXTERNAL_POSITIVE_LATER",
+        "next": "W2-R06 TTS-05 wrong actor/revoked no synthesis; independently licensed voice later"
       },
       {
-        "code": "OCI_BROKER_REPLAY_TOCTOU",
-        "owner": "Media Vision Security",
-        "state": "SOURCE_HARDENED_NOT_HOST_QUALIFIED",
-        "firstAction": "C real peer, stale file, nonce crash and full native cases"
+        "id": "OCI_REAL_CODECS",
+        "owner": "Vision/Host",
+        "state": "ASSETS_UNAVAILABLE",
+        "next": "W2-R07 source-pinned real/png directories and host sandbox tests"
       },
       {
-        "code": "PIPER_ASYNC_OUTPUT_BOUND",
-        "owner": "Media TTS",
-        "state": "SOURCE_HARDENED_NOT_FULLY_QUALIFIED",
-        "firstAction": "B real stdout cap/error/disk/temp security and consent"
+        "id": "MM_SYNC_ASSOCIATION_QUALITY",
+        "owner": "MM Science",
+        "state": "INDEPENDENT_GOLD_MISSING",
+        "next": "W2-R08 source-clock compare vs independent acoustic/visual offset and calibration"
       },
       {
-        "code": "DOCUMENT_INTELLIGENCE_PUBLIC_API",
-        "owner": "samujjwal/ghatana #252",
-        "state": "OPEN_EXTERNAL_OWNER",
-        "firstAction": "E1 public authenticated OCR"
+        "id": "OBS_REAL_RECEIVER_AND_CAPACITY",
+        "owner": "Media OBS",
+        "state": "REAL_EFFECT_MISSING",
+        "next": "W2-R09 provider quality alert delivery and real c1/c16/c64"
       },
       {
-        "code": "DATA_CLOUD_PUBLIC_PROJECTION",
-        "owner": "samujjwal/ghatana #254",
-        "state": "OPEN_EXTERNAL_OWNER",
-        "firstAction": "E2 public projection and lookup"
+        "id": "GHATANA_DI_ROI",
+        "owner": "Ghatana #252",
+        "state": "OWNER_API_OPEN",
+        "next": "W2-R10 publish source-free ROI OCR"
       },
       {
-        "code": "REAL_MM_AND_ALERT_LOAD",
-        "owner": "Media MM+Observability",
-        "state": "NOT_ACCEPTED",
-        "firstAction": "M7/F1/F2 true child fused result, alert delivery and real c1/16/64"
+        "id": "GHATANA_DC_PROJECTION",
+        "owner": "Ghatana #254",
+        "state": "OWNER_API_OPEN",
+        "next": "W2-R10 publish 202/commit/UNKNOWN projection"
       }
     ],
     "authority": {
@@ -2266,6 +2488,141 @@
       "partial": 30,
       "ownerExternal": 6,
       "changed": 0
+    },
+    "latestImplementationReview": {
+      "reviewAsOf": "2026-10-29T16:02:00-07:00",
+      "currentPlanSection": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md#8-current-2026-10-29-m7v0275-of-5-postgres-remaining-work-lock",
+      "sourcePresent": [
+        "cf5ac0fe M1-M4 durable authorized MM spec/provider/executor V026",
+        "6f4fb5de M5 parent reconstructed from child job state",
+        "07fbbeb3 M6 source clock fused result and typed gRPC finality",
+        "e21ad948 MM source-tick and Postgres snapshot tests",
+        "a7519e7c M7 bounded child cancellation/fanout",
+        "fa20a8c7 mixed-principal pre-fanout denial",
+        "4fa88ca9 STT V027 tagged segment timing persistence"
+      ],
+      "implementerReportedLiveTests": {
+        "sourceCutClaim": "branch 7 ahead and clean; seven commits now appear on GitHub main by review",
+        "ranAfterMigration": "V027__media_transcript_segment_timing.sql",
+        "suites": [
+          {
+            "className": "MediaSttTranscriptCommitFenceIT",
+            "passed": 3,
+            "total": 3,
+            "proof": "admitted fenced append; after-provider policy denied transcript; abandoned attempt UNKNOWN on reconstruction"
+          },
+          {
+            "className": "MediaProviderPolicyDeniedFinalityPostgresIT",
+            "passed": 2,
+            "total": 2,
+            "proof": "sync and async after-provider effect denial remains UNKNOWN across runtime reconstruction"
+          }
+        ],
+        "totalPassed": 5,
+        "totalDiscovered": 5,
+        "reportedBy": "implementer",
+        "independentlyReexecutedByThisReview": false,
+        "notProven": [
+          "actual real Whisper model source rights+gold replay",
+          "nonempty V027 segment union via fenced real provider",
+          "full post-receipt process crash+idempotency",
+          "MM parent/child PostgreSQL real outcomes",
+          "full original STT-09 acceptance"
+        ]
+      },
+      "currentEngineeringBlockers": [
+        {
+          "id": "MM_STANDALONE_BOOTSTRAP",
+          "owner": "MM gRPC/Runtime",
+          "state": "SOURCE_INTEGRATION_MISSING",
+          "evidence": "MultimodalGrpcServer.main uses createRuntime(null), default SourceAuthorization.unavailable",
+          "next": "W2-R01 real trusted port+authority+health via standalone bootstrap"
+        },
+        {
+          "id": "MM_PRODUCTION_PROFILE",
+          "owner": "MM Provider/Runtime Security",
+          "state": "QUALIFICATION_GATED",
+          "evidence": "DelegatingMultimodalProvider.productionEligible() returns false",
+          "next": "conditional eligibility only when verified child and source profiles are eligible; no unconditional readiness"
+        },
+        {
+          "id": "MM_REAL_CHILD_VISION",
+          "owner": "Vision/MM",
+          "state": "REAL_MODEL_JOB_UNVERIFIED",
+          "evidence": "YOLOX source smoke exists; no qualified actual MM VISION child positive",
+          "next": "W2-R02 reuse existing provider adapter or add one narrow canonical Vision adapter"
+        },
+        {
+          "id": "MM_POSTGRES_CHILD_RESTART",
+          "owner": "MM/Postgres",
+          "state": "TEST_NOT_RUN",
+          "evidence": "MM restart suite uses in-process store; Postgres MM snapshot test tests descriptor",
+          "next": "W2-R03 actual parent/child Testcontainers kill/restart/receipt/no duplicate"
+        },
+        {
+          "id": "STT_V027_SEGMENT_VALUES",
+          "owner": "STT/Postgres",
+          "state": "SOURCE_IMPLEMENTED_FOCUSED_HOST_IT_MISSING",
+          "evidence": "V027 columns, source union; reported 5/5 ITs establish schema compatibility only",
+          "next": "W2-R04 nonempty mixed/source tick segments via fenced append+restart, and truthful per-word unavailable"
+        },
+        {
+          "id": "STT_MODEL_TINY_FAIL",
+          "owner": "STT Quality",
+          "state": "REFERENCE_QUALITY_FAILED",
+          "evidence": "reported en/hi/ne WER 0.3996/1.0938/1.0448 with 89 caps",
+          "next": "W2-R05 lawful alternate model with new blind holdout"
+        },
+        {
+          "id": "TTS_CONSENT_AND_LIVE_VOICE",
+          "owner": "TTS",
+          "state": "LOCAL_NEGATIVE_NOW_EXTERNAL_POSITIVE_LATER",
+          "next": "W2-R06 TTS-05 wrong actor/revoked no synthesis; independently licensed voice later"
+        },
+        {
+          "id": "OCI_REAL_CODECS",
+          "owner": "Vision/Host",
+          "state": "ASSETS_UNAVAILABLE",
+          "next": "W2-R07 source-pinned real/png directories and host sandbox tests"
+        },
+        {
+          "id": "MM_SYNC_ASSOCIATION_QUALITY",
+          "owner": "MM Science",
+          "state": "INDEPENDENT_GOLD_MISSING",
+          "next": "W2-R08 source-clock compare vs independent acoustic/visual offset and calibration"
+        },
+        {
+          "id": "OBS_REAL_RECEIVER_AND_CAPACITY",
+          "owner": "Media OBS",
+          "state": "REAL_EFFECT_MISSING",
+          "next": "W2-R09 provider quality alert delivery and real c1/c16/c64"
+        },
+        {
+          "id": "GHATANA_DI_ROI",
+          "owner": "Ghatana #252",
+          "state": "OWNER_API_OPEN",
+          "next": "W2-R10 publish source-free ROI OCR"
+        },
+        {
+          "id": "GHATANA_DC_PROJECTION",
+          "owner": "Ghatana #254",
+          "state": "OWNER_API_OPEN",
+          "next": "W2-R10 publish 202/commit/UNKNOWN projection"
+        }
+      ],
+      "lastWholeRowLedger": {
+        "total": 58,
+        "previouslyVerified": 22,
+        "partial": 30,
+        "externalOwner": 6,
+        "changed": 0
+      },
+      "ownerAuthorization": "ALL_SCOPED_IMPLEMENTATION_AND_SAFE_NEGATIVES_APPROVED; REAL_RIGHTSHOLDER_AND_RELEASE_PERMISSION_NOT_MINTED",
+      "noReopen": [
+        "M1-M6 source implementation",
+        "V027 schema source",
+        "STT Postgres 5/5 unchanged host suites"
+      ]
     }
   }
 }
