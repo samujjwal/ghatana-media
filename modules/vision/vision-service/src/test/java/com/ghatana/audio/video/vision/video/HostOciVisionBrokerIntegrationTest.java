@@ -46,6 +46,12 @@ class HostOciVisionBrokerIntegrationTest {
         builder.environment().put("MEDIA_OCI_BROKER_SOURCE_ROOT", sandboxRoot.toString());
         builder.environment().put("MEDIA_OCI_BROKER_OUTPUT_ROOT", sandboxRoot.toString());
         builder.environment().put("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
+        builder.environment().put("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST",
+                System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV));
+        builder.environment().put("MEDIA_OCI_BROKER_WORKER_UID",
+                String.valueOf(Files.getAttribute(sandboxRoot, "unix:uid")));
+        builder.environment().put("MEDIA_OCI_BROKER_WORKER_GID",
+                String.valueOf(Files.getAttribute(sandboxRoot, "unix:gid")));
         builder.redirectErrorStream(true);
         builder.redirectOutput(ProcessBuilder.Redirect.appendTo(Files.createTempFile("broker-", ".log").toFile()));
         brokerDaemon = builder.start();

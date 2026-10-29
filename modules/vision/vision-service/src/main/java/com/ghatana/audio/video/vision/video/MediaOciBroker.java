@@ -19,6 +19,7 @@ public interface MediaOciBroker {
             String executable,
             List<String> workerArgs,
             String sourceFile,
+            String sourceSha256,
             String outputDirectory,
             long uid,
             long gid,

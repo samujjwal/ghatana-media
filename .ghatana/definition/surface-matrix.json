@@ -1,7 +1,7 @@
 {
   "schemaVersion": "contract-definition-surface-matrix.v1",
   "repositoryId": "ghatana-media",
-  "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+  "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
   "externalSourceCommits": [
     {
       "repositoryId": "ghatana-lifecycle",
@@ -230,7 +230,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -607,7 +607,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -1170,7 +1170,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -1555,7 +1555,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
-            "sha256": "19105396c1f0a9ccaee3c8eb60af3bb1e8bf43a5c3b05ac6eaa8156ea5fed812"
+            "sha256": "2464e8730057d01ffe77206d8ecfec02296ca745a0a1b2bbc7fc499f503442c1"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
@@ -1575,7 +1575,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
-            "sha256": "86da3ecd12a328718e00c428fef8862912972186de27dc855a1bb1f77267c05c"
+            "sha256": "e0e85754cb27ba1f9923d004c63f9a22f32f9e59d8bcbcae3bc70aed93bcfbe5"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntimeConfig.java",
@@ -2100,7 +2100,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -3022,7 +3022,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -3933,7 +3933,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -5211,7 +5211,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -5851,7 +5851,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -6577,7 +6577,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -7273,7 +7273,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -7962,7 +7962,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -8693,7 +8693,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -9612,7 +9612,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -10493,7 +10493,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -11742,11 +11742,15 @@
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaAuthorizedSttTranscriptRestartIT.java",
-            "sha256": "f9cdde9204c049582fbec5e905d027cc1b86704563719cab6974774ec86f3a53"
+            "sha256": "32c53d461cdd289612336c4321f424a93938ac248a9be9894f333536b8de748e"
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaProviderPolicyDeniedFinalityPostgresIT.java",
             "sha256": "f011d8c39c34b66762aab79d2bf6a49350f92d0d36e718d9c3d0ca6477bf2ac4"
+          },
+          {
+            "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaSttTranscriptCommitFenceIT.java",
+            "sha256": "0169fc10af2e44f15320862cdd40c404637c97248355a1d140983381432b3421"
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/provider/aws/TestAwsStateInstall.java",
@@ -12918,7 +12922,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -13103,7 +13107,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
-            "sha256": "19105396c1f0a9ccaee3c8eb60af3bb1e8bf43a5c3b05ac6eaa8156ea5fed812"
+            "sha256": "2464e8730057d01ffe77206d8ecfec02296ca745a0a1b2bbc7fc499f503442c1"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
@@ -13123,7 +13127,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
-            "sha256": "86da3ecd12a328718e00c428fef8862912972186de27dc855a1bb1f77267c05c"
+            "sha256": "e0e85754cb27ba1f9923d004c63f9a22f32f9e59d8bcbcae3bc70aed93bcfbe5"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntimeConfig.java",
@@ -13820,7 +13824,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -13997,7 +14001,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
-            "sha256": "19105396c1f0a9ccaee3c8eb60af3bb1e8bf43a5c3b05ac6eaa8156ea5fed812"
+            "sha256": "2464e8730057d01ffe77206d8ecfec02296ca745a0a1b2bbc7fc499f503442c1"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
@@ -14017,7 +14021,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
-            "sha256": "86da3ecd12a328718e00c428fef8862912972186de27dc855a1bb1f77267c05c"
+            "sha256": "e0e85754cb27ba1f9923d004c63f9a22f32f9e59d8bcbcae3bc70aed93bcfbe5"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntimeConfig.java",
@@ -14570,7 +14574,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -15162,7 +15166,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -15757,7 +15761,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -15934,7 +15938,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
-            "sha256": "19105396c1f0a9ccaee3c8eb60af3bb1e8bf43a5c3b05ac6eaa8156ea5fed812"
+            "sha256": "2464e8730057d01ffe77206d8ecfec02296ca745a0a1b2bbc7fc499f503442c1"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaLauncher.java",
@@ -15954,7 +15958,7 @@
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
-            "sha256": "86da3ecd12a328718e00c428fef8862912972186de27dc855a1bb1f77267c05c"
+            "sha256": "e0e85754cb27ba1f9923d004c63f9a22f32f9e59d8bcbcae3bc70aed93bcfbe5"
           },
           {
             "path": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntimeConfig.java",
@@ -16667,7 +16671,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -17555,7 +17559,7 @@
         ]
       },
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "workingTreeState": "HEAD plus per-file SHA-256; may include uncommitted source changes",
         "files": [
           {
@@ -18673,7 +18677,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -19159,7 +19163,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -19595,7 +19599,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -20031,7 +20035,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -20479,7 +20483,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -20891,11 +20895,15 @@
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaAuthorizedSttTranscriptRestartIT.java",
-            "sha256": "f9cdde9204c049582fbec5e905d027cc1b86704563719cab6974774ec86f3a53"
+            "sha256": "32c53d461cdd289612336c4321f424a93938ac248a9be9894f333536b8de748e"
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaProviderPolicyDeniedFinalityPostgresIT.java",
             "sha256": "f011d8c39c34b66762aab79d2bf6a49350f92d0d36e718d9c3d0ca6477bf2ac4"
+          },
+          {
+            "path": "integration-tests/src/test/java/com/ghatana/media/launcher/MediaSttTranscriptCommitFenceIT.java",
+            "sha256": "0169fc10af2e44f15320862cdd40c404637c97248355a1d140983381432b3421"
           },
           {
             "path": "integration-tests/src/test/java/com/ghatana/media/provider/aws/TestAwsStateInstall.java",
@@ -20987,7 +20995,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -21523,7 +21531,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -22351,7 +22359,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -22819,7 +22827,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -23257,7 +23265,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -23700,7 +23708,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -24142,7 +24150,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -24624,7 +24632,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -25060,7 +25068,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -25528,7 +25536,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -25964,7 +25972,7 @@
         ".product-experience/pdp-3-product-experience/grpc/"
       ],
       "sourceFingerprint": {
-        "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+        "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
         "files": [
           {
             "path": ".product-experience/pdp-0-product-truth/capabilities.yaml",

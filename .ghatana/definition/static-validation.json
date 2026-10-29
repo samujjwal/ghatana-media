@@ -1,7 +1,7 @@
 {
   "schemaVersion": "contract-definition-static-validation.v1",
   "repositoryId": "ghatana-media",
-  "sourceCommit": "992f77e1b4f5e1b7e3b00a98ad9a0e48f9efbc73",
+  "sourceCommit": "cbd06f875c92339500070d4f1938180b94dc96e1",
   "scope": "Definition projection shape, source refs/fingerprints, owner mapping, dependencies and bounded API type compatibility. No runtime or lifecycle execution.",
   "checks": [
     {

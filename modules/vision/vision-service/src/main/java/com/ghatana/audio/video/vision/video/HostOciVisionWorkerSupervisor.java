@@ -39,6 +39,8 @@ final class HostOciVisionWorkerSupervisor {
 
     static final String BROKER_SOCKET_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET";
     static final String BROKER_TOKEN_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE";
+    /** When set to true, codec workers may only run through the authenticated broker. */
+    static final String BROKER_REQUIRED_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_REQUIRED";
 
     private HostOciVisionWorkerSupervisor() { }
 
@@ -51,6 +53,15 @@ final class HostOciVisionWorkerSupervisor {
         String socket = System.getenv(BROKER_SOCKET_ENV);
         String token = System.getenv(BROKER_TOKEN_ENV);
         return socket != null && !socket.isBlank() && token != null && !token.isBlank();
+    }
+
+    /**
+     * Production deployments must not fall back to a direct Docker CLI: when the
+     * broker is required but unconfigured the caller fails closed.
+     */
+    static boolean brokerRequired() {
+        String required = System.getenv(BROKER_REQUIRED_ENV);
+        return required != null && (required.equalsIgnoreCase("true") || required.equals("1"));
     }
 
     /**
@@ -80,6 +91,7 @@ final class HostOciVisionWorkerSupervisor {
         MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
                 plan.imageDigest(), plan.containerName(), executable, workerArgs,
                 plan.source() == null ? null : plan.source().toString(),
+                plan.source() == null ? null : sha256File(plan.source()),
                 plan.output() == null ? null : plan.output().toString(),
                 plan.uid(), plan.gid(), plan.outputFileLimit(), timeout));
         String output = result.outputTail();
@@ -767,6 +779,21 @@ final class HostOciVisionWorkerSupervisor {
             if (closed) return;
             removeContainer(plan.dockerCli(), containerId);
             closed = true;
+        }
+    }
+
+    /** Digest the exact source bytes the broker will verify before mounting. */
+    private static String sha256File(Path file) throws IOException {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            try (InputStream in = Files.newInputStream(file)) {
+                byte[] buffer = new byte[64 * 1024];
+                int read;
+                while ((read = in.read(buffer)) >= 0) digest.update(buffer, 0, read);
+            }
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
         }
     }
 }

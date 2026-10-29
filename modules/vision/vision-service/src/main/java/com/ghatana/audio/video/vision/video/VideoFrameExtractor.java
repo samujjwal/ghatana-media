@@ -1015,6 +1015,10 @@ public class VideoFrameExtractor {
                             command, sandboxWorkspace, monitoredOutput, timeout,
                             maxOutputBytes, maxOutputChars);
                 }
+                if (HostOciVisionWorkerSupervisor.brokerRequired()) {
+                    throw new IOException("Vision native media processing is unavailable: "
+                            + "the authenticated OCI broker is required and unconfigured");
+                }
                 hostOciWorker = HostOciVisionWorkerSupervisor.prepare(
                         command, sandboxWorkspace, monitoredOutput, maxOutputBytes);
                 launchCommand = hostOciWorker.command();

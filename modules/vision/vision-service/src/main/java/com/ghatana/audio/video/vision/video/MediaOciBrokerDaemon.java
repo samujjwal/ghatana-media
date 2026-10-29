@@ -54,6 +54,7 @@ public final class MediaOciBrokerDaemon {
     private static final long OUTPUT_FILE_LIMIT = 512L * 1024 * 1024;
     private static final int MAX_ARGS = 64;
     private static final int MAX_REQUEST_BYTES = 64 * 1024;
+    private static final Duration READ_DEADLINE = Duration.ofSeconds(10);
     private static final int OUTPUT_TAIL = 8192;
 
     private MediaOciBrokerDaemon() { }
@@ -63,18 +64,55 @@ public final class MediaOciBrokerDaemon {
         String tokenFile = System.getenv("MEDIA_OCI_BROKER_TOKEN_FILE");
         String sourceRoot = System.getenv("MEDIA_OCI_BROKER_SOURCE_ROOT");
         String outputRoot = System.getenv("MEDIA_OCI_BROKER_OUTPUT_ROOT");
+        String allowlist = System.getenv("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST");
+        String workerUid = System.getenv("MEDIA_OCI_BROKER_WORKER_UID");
+        String workerGid = System.getenv("MEDIA_OCI_BROKER_WORKER_GID");
         String docker = System.getenv().getOrDefault("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
-        if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot)) {
-            System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT and _OUTPUT_ROOT are required");
+        if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot)
+                || blank(allowlist) || blank(workerUid) || blank(workerGid)) {
+            System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT, _OUTPUT_ROOT,"
+                    + " _IMAGE_ALLOWLIST, _WORKER_UID and _WORKER_GID are required");
             System.exit(2);
         }
-        String token = Files.readString(Path.of(tokenFile)).trim();
+        Path tokenPath = Path.of(tokenFile);
+        // The credential file must be owner-only; group/other readers make the HMAC
+        // proof forgeable, so the broker refuses to start.
+        if (!MediaOciBrokerPolicy.ownerOnlyFile(tokenPath)) {
+            System.err.println("Broker token file must have 0600 owner-only permissions");
+            System.exit(2);
+        }
+        String token = Files.readString(tokenPath).trim();
         if (token.length() < 32) {
             System.err.println("Broker token must be at least 32 bytes");
             System.exit(2);
         }
-        Path root = Path.of(sourceRoot).toRealPath();
-        Path out = Path.of(outputRoot).toRealPath();
+        java.util.Set<String> images = new java.util.HashSet<>();
+        for (String entry : allowlist.split(",")) {
+            String digest = entry.trim();
+            if (IMAGE.matcher(digest).matches()) images.add(digest);
+        }
+        if (images.isEmpty()) {
+            System.err.println("Broker image allowlist must contain at least one digest-pinned image");
+            System.exit(2);
+        }
+        long uid;
+        long gid;
+        try {
+            uid = Long.parseLong(workerUid);
+            gid = Long.parseLong(workerGid);
+        } catch (NumberFormatException invalid) {
+            System.err.println("Broker worker uid/gid must be numeric");
+            System.exit(2);
+            return;
+        }
+        if (uid <= 0 || gid < 0 || uid > Integer.MAX_VALUE || gid > Integer.MAX_VALUE) {
+            System.err.println("Broker worker uid must be positive and unprivileged");
+            System.exit(2);
+        }
+        MediaOciBrokerPolicy.Policy policy = new MediaOciBrokerPolicy.Policy(
+                java.util.Set.copyOf(images), uid, gid,
+                Path.of(sourceRoot).toRealPath(), Path.of(outputRoot).toRealPath());
+        MediaOciBrokerPolicy.NonceReplayGuard nonces = new MediaOciBrokerPolicy.NonceReplayGuard();
         Path socket = Path.of(socketPath);
         Files.deleteIfExists(socket);
         try (ServerSocketChannel server = ServerSocketChannel.open(
@@ -84,7 +122,7 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Media OCI broker listening on " + socket);
             while (true) {
                 try (SocketChannel client = server.accept()) {
-                    handle(client, token, docker, root, out);
+                    handle(client, token, docker, policy, nonces);
                 } catch (Exception failure) {
                     System.err.println("broker request failed: " + failure.getClass().getSimpleName());
                 }
@@ -93,25 +131,33 @@ public final class MediaOciBrokerDaemon {
     }
 
     private static void handle(SocketChannel client, String token, String docker,
-            Path sourceRoot, Path outputRoot) throws Exception {
-        byte[] body = readFrame(client, MAX_REQUEST_BYTES);
+            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces)
+            throws Exception {
+        byte[] body = readFrame(client, MAX_REQUEST_BYTES,
+                System.nanoTime() + READ_DEADLINE.toNanos());
         if (body == null) { writeResult(client, -1, "unauthenticated"); return; }
         String request = new String(body, StandardCharsets.UTF_8);
         String expected = field(request, "proof");
         String nonce = field(request, "nonce");
+        long issuedAt = number(request, "ts", -1, -1, Long.MAX_VALUE);
         String payload = object(request, "payload");
-        if (expected == null || nonce == null || payload == null
+        if (expected == null || nonce == null || payload == null || issuedAt < 0
                 || nonce.length() < 16 || nonce.length() > 128) {
             writeResult(client, -1, "unauthenticated"); return;
         }
         if (!MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8),
-                hmac(token, nonce + "\n" + payload).getBytes(StandardCharsets.UTF_8))) {
+                hmac(token, nonce + "\n" + issuedAt + "\n" + payload)
+                        .getBytes(StandardCharsets.UTF_8))) {
+            writeResult(client, -1, "unauthenticated"); return;
+        }
+        if (!nonces.admit(nonce, issuedAt, System.currentTimeMillis())) {
             writeResult(client, -1, "unauthenticated"); return;
         }
         String image = field(payload, "image");
         String name = field(payload, "name");
         String executable = field(payload, "executable");
         String source = field(payload, "source");
+        String sourceSha256 = field(payload, "sourceSha256");
         String output = field(payload, "output");
         List<String> workerArgs = array(payload, "args");
         long timeout = number(payload, "timeoutMs", 60_000, 1_000, 900_000);
@@ -119,23 +165,21 @@ public final class MediaOciBrokerDaemon {
         long uid = number(payload, "uid", 0, 1, Integer.MAX_VALUE);
         long gid = number(payload, "gid", 0, 0, Integer.MAX_VALUE);
         if (image == null || !IMAGE.matcher(image).matches()
+                || !MediaOciBrokerPolicy.imageAllowed(policy, image)
                 || name == null || !NAME.matcher(name).matches()
                 || executable == null || !EXECUTABLE.matcher(executable).matches()
-                || uid <= 0 || workerArgs.size() > MAX_ARGS) {
+                || uid <= 0 || workerArgs.size() > MAX_ARGS
+                || !MediaOciBrokerPolicy.workerIdentityAllowed(policy, uid, gid)
+                || !MediaOciBrokerPolicy.workerArgsAllowed(workerArgs)
+                || !MediaOciBrokerPolicy.sourceAllowed(policy, source, sourceSha256)
+                || !MediaOciBrokerPolicy.outputAllowed(policy, output)) {
             writeResult(client, -2, "rejected"); return;
         }
         Path sourcePath = source == null ? null : Path.of(source).toRealPath();
         Path outputPath = output == null ? null : Path.of(output).toRealPath();
-        if (sourcePath != null && (!sourcePath.startsWith(sourceRoot)
-                || !Files.isRegularFile(sourcePath))) {
-            writeResult(client, -2, "rejected"); return;
-        }
-        if (outputPath != null
-                && (!outputPath.startsWith(outputRoot) || !Files.isDirectory(outputPath))) {
-            writeResult(client, -2, "rejected"); return;
-        }
         writeResult(client, 0, runWorker(docker, image, name, executable, workerArgs,
-                sourcePath, outputPath, uid, gid, Duration.ofMillis(timeout), outLimit));
+                sourcePath, outputPath, policy.workerUid(), policy.workerGid(),
+                Duration.ofMillis(timeout), outLimit));
     }
 
     private static String runWorker(String docker, String image, String name,
@@ -231,26 +275,37 @@ public final class MediaOciBrokerDaemon {
         run(List.of(docker, "kill", "--signal=KILL", id), Duration.ofSeconds(5));
     }
 
-    private static byte[] readFrame(SocketChannel channel, int limit) throws IOException {
+    private static byte[] readFrame(SocketChannel channel, int limit, long deadlineNanos)
+            throws IOException {
+        // The request read is wall-time bounded so a stalled peer cannot pin the
+        // single serialized broker loop forever.
+        channel.configureBlocking(false);
         ByteBuffer header = ByteBuffer.allocate(4);
-        int read = readFully(channel, header);
-        if (read < 4) return null;
+        if (!fill(channel, header, deadlineNanos)) return null;
         header.flip();
         int length = header.getInt();
         if (length < 0 || length > limit) return null;
         ByteBuffer body = ByteBuffer.allocate(length);
-        if (readFully(channel, body) < length) return null;
+        if (!fill(channel, body, deadlineNanos)) return null;
         return body.array();
     }
 
-    private static int readFully(SocketChannel channel, ByteBuffer buffer) throws IOException {
-        int total = 0;
+    private static boolean fill(SocketChannel channel, ByteBuffer buffer, long deadlineNanos)
+            throws IOException {
         while (buffer.hasRemaining()) {
+            if (System.nanoTime() > deadlineNanos) return false;
             int n = channel.read(buffer);
-            if (n < 0) return total;
-            total += n;
+            if (n < 0) return false;
+            if (n == 0) {
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    return false;
+                }
+            }
         }
-        return total;
+        return true;
     }
 
     private static void writeResult(SocketChannel channel, int status, String jsonBody)

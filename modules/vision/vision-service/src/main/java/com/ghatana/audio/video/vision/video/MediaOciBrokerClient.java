@@ -41,6 +41,8 @@ public final class MediaOciBrokerClient implements MediaOciBroker {
         payload.append("\"executable\":\"").append(escape(launch.executable())).append("\",");
         payload.append("\"source\":").append(launch.sourceFile() == null
                 ? "null" : "\"" + escape(launch.sourceFile()) + "\"").append(',');
+        payload.append("\"sourceSha256\":").append(launch.sourceSha256() == null
+                ? "null" : "\"" + escape(launch.sourceSha256()) + "\"").append(',');
         payload.append("\"output\":").append(launch.outputDirectory() == null
                 ? "null" : "\"" + escape(launch.outputDirectory()) + "\"").append(',');
         payload.append("\"args\":[");
@@ -53,14 +55,15 @@ public final class MediaOciBrokerClient implements MediaOciBroker {
         payload.append("\"outputLimit\":").append(launch.maximumOutputBytes()).append(',');
         payload.append("\"uid\":").append(launch.uid()).append(',');
         payload.append("\"gid\":").append(launch.gid()).append('}');
+        long issuedAt = System.currentTimeMillis();
         String proof;
         try {
-            proof = hmac(token, nonce + "\n" + payload);
+            proof = hmac(token, nonce + "\n" + issuedAt + "\n" + payload);
         } catch (Exception failure) {
             throw new IOException("Broker proof unavailable", failure);
         }
-        String request = "{\"nonce\":\"" + nonce + "\",\"proof\":\"" + proof
-                + "\",\"payload\":" + payload + "}";
+        String request = "{\"nonce\":\"" + nonce + "\",\"ts\":" + issuedAt
+                + ",\"proof\":\"" + proof + "\",\"payload\":" + payload + "}";
         String response = exchange(request);
         long status = number(response, "status", -1);
         String body = unquote(field(response, "body"));
