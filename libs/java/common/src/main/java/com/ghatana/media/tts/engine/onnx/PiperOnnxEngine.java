@@ -45,6 +45,9 @@ public final class PiperOnnxEngine implements TtsEngine {
     private final TextToPhonemeConverter phonemeConverter;
     private final Map<String, List<Long>> phonemeIdMap;
     private final int voiceSampleRate;
+    private final int numSpeakers;
+    private final float noiseScale;
+    private final float noiseW;
     private final boolean productionPhonemizerCompatible;
 
     public PiperOnnxEngine(TtsConfig config, AudioVideoLibrary.LibraryState libraryState) throws ModelLoadingError {
@@ -59,6 +62,10 @@ public final class PiperOnnxEngine implements TtsEngine {
 
             this.phonemeIdMap = loadPhonemeIdMap(config.voiceModelPath());
             this.voiceSampleRate = loadVoiceSampleRate(config.voiceModelPath());
+            this.numSpeakers = loadNumSpeakers(config.voiceModelPath());
+            float[] inferenceScales = loadInferenceScales(config.voiceModelPath());
+            this.noiseScale = inferenceScales[0];
+            this.noiseW = inferenceScales[1];
             if (config.sampleRate() != voiceSampleRate) {
                 throw new ModelLoadingError("Configured Piper sample rate does not match the voice sidecar");
             }
@@ -517,9 +524,10 @@ public final class PiperOnnxEngine implements TtsEngine {
         long[] phoneIds = encodePhonemes(phonemes, phonemeIdMap);
         int seqLen = phoneIds.length;
 
-        // Prosody scales: noise_scale, length_scale, noise_w
+        // Prosody scales: noise_scale, length_scale, noise_w — from the voice sidecar,
+        // with only the caller's speed altering length_scale.
         float lengthScale = (float) (1.0 / bounded(options.speed(), 0.5, 2.0));
-        float[] scales = {0.667f, lengthScale, 0.8f};
+        float[] scales = {noiseScale, lengthScale, noiseW};
 
         OnnxTensor inputTensor = OnnxTensor.createTensor(
             environment,
@@ -535,10 +543,13 @@ public final class PiperOnnxEngine implements TtsEngine {
             new long[]{3}
         );
 
+        OnnxTensor speakerTensor = numSpeakers > 1
+                ? OnnxTensor.createTensor(environment, new long[]{speakerId(options)}) : null;
         Map<String, OnnxTensor> inputs = new LinkedHashMap<>();
         inputs.put("input",          inputTensor);
         inputs.put("input_lengths",  lengthTensor);
         inputs.put("scales",         scalesTensor);
+        if (speakerTensor != null) inputs.put("sid", speakerTensor);
 
         try (OrtSession.Result results = session.run(inputs)) {
             OnnxValue value = results.get("output").orElseThrow(() ->
@@ -565,7 +576,50 @@ public final class PiperOnnxEngine implements TtsEngine {
             inputTensor.close();
             lengthTensor.close();
             scalesTensor.close();
+            if (speakerTensor != null) speakerTensor.close();
         }
+    }
+
+    /** Selects the declared speaker for a multi-speaker voice; index 0 when unspecified. */
+    private static long speakerId(SynthesisOptions options) {
+        return 0L;
+    }
+
+    static int loadNumSpeakers(Path modelPath) throws ModelLoadingError {
+        Path sidecar = sidecarPath(modelPath);
+        try {
+            JsonNode root = new ObjectMapper().readTree(sidecar.toFile());
+            JsonNode count = root == null ? null : root.get("num_speakers");
+            if (count == null || !count.isIntegralNumber() || count.intValue() < 1) {
+                throw new IllegalArgumentException("num_speakers must be a positive integer");
+            }
+            return count.intValue();
+        } catch (Exception failure) {
+            throw new ModelLoadingError("Invalid Piper speaker count in sidecar: " + sidecar, failure);
+        }
+    }
+
+    /** Returns {@code {noise_scale, noise_w}} from the sidecar inference block. */
+    static float[] loadInferenceScales(Path modelPath) throws ModelLoadingError {
+        Path sidecar = sidecarPath(modelPath);
+        try {
+            JsonNode root = new ObjectMapper().readTree(sidecar.toFile());
+            JsonNode inference = root == null ? null : root.get("inference");
+            if (inference == null || !inference.isObject()) {
+                throw new IllegalArgumentException("inference scales are missing");
+            }
+            return new float[]{
+                    boundedScale(inference.get("noise_scale")),
+                    boundedScale(inference.get("noise_w"))};
+        } catch (Exception failure) {
+            throw new ModelLoadingError("Invalid Piper inference scales in sidecar: " + sidecar, failure);
+        }
+    }
+
+    private static float boundedScale(JsonNode node) {
+        if (node == null || !node.isNumber()) return 0.333f;
+        double value = node.doubleValue();
+        return (float) Math.max(0.0, Math.min(value, 2.0));
     }
 
     static Path sidecarPath(Path modelPath) {

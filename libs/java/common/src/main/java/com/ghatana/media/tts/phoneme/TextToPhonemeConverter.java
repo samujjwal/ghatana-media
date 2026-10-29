@@ -64,8 +64,9 @@ public interface TextToPhonemeConverter {
      * @return best available converter
      */
     static TextToPhonemeConverter forLocale(Locale locale) {
-        return EspeakNgPhonemeConverter.tryCreate()
-            .<TextToPhonemeConverter>map(e -> e)
+        return PiperPhonemizeProcessConverter.tryCreate()
+            .<TextToPhonemeConverter>or(() -> EspeakNgPhonemeConverter.tryCreate()
+                    .<TextToPhonemeConverter>map(e -> e))
             .orElseGet(HeuristicPhonemeConverter::new);
     }
 
