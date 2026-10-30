@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "decision": "RETAIN_COMPAT_SHIM",
+  "decidedAt": "2026-10-30",
+  "task": "OC-04",
+  "adapter": "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java",
+  "rationale": "Exact Document Intelligence owner adoption has not occurred: no admitted public DI contract is wired into this repository. Retiring the Kernel adapter now would prematurely break the legacy ProductRuntimeFacets.OcrProvider consumer shape; replacing it with a Media-owned executor would be an unqualified OCR claim.",
+  "retirementPreconditions": {
+    "diOwnerAdoption": "An admitted Document Intelligence public client is wired and proven — external owner: Ghatana #252",
+    "consumerMigration": "Every registered consumer of ProductRuntimeFacets.OcrProvider has a verified migration path to the DI-owned capability",
+    "proofArtifacts": "Migration/consumer proof recorded before adapter source is removed"
+  },
+  "currentState": {
+    "claim": "No OCR capability is claimed. extract()/status()/cancel() return bounded terminal failures only; the legacy constructor shape and provider interface are preserved for consumer compatibility.",
+    "closure": "Closure is limited to fail-closed compatibility; no retirement commit may land without the preconditions above."
+  },
+  "externalOwner": {
+    "work": "Document Intelligence public contract",
+    "reference": "Ghatana #252"
+  },
+  "guards": [
+    "adapters/ocr-compat/src/test/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapterTest.java",
+    "adapters/ocr-compat/src/test/java/com/ghatana/audio/video/vision/ocr/OcrRetirementReadinessTest.java"
+  ]
+}
