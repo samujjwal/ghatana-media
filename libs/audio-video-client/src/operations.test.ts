@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   MediaClientError,
+  MediaOperationAmbiguousError,
   MediaOperationNotAdmittedError,
   createMediaOperationClient,
   type CanonicalMediaUploadSessionObservation,
@@ -445,6 +446,32 @@ describe("MediaOperationClient", () => {
 
     await expect(client.retryOperation("operation-1", { parse: (value) => value })).rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("maps a submit abort/timeout after dispatch to OUTCOME_UNKNOWN, never a clean failure", async () => {
+    for (const name of ["AbortError", "TimeoutError"] as const) {
+      const fetchImpl = vi.fn(async (): Promise<Response> => {
+        throw new DOMException(
+          name === "AbortError" ? "The operation was aborted." : "Request timed out",
+          name,
+        );
+      }) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+      const failure = await client.transcribe(
+        { artifactId: "art-1", idempotencyKey: "submit-ambig-1" },
+      ).then(
+        () => { throw new Error("expected the submit to fail"); },
+        (error) => error,
+      );
+      // An abort surfacing at submit is ambiguous — the job may already exist
+      // server-side. It must surface as OUTCOME_UNKNOWN, not a clean failure.
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect(failure.path).toBe("/api/v1/media/transcriptions");
+      expect(fetchImpl).toHaveBeenCalledTimes(1); // no blind retry attempted
+    }
   });
 
   it("submits with tenant and idempotency identity, reports progress, and returns a validated result", async () => {

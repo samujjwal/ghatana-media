@@ -311,6 +311,22 @@ function parseCanonicalMediaArtifactObservation(input: unknown): CanonicalMediaA
 }
 
 /** A source-compatible SDK method whose server route has not been admitted. */
+/**
+ * A submit effect aborted after the request may have been dispatched — the
+ * server-side outcome is OUTCOME_UNKNOWN, never a clean failure. Callers must
+ * not retry blindly or report the job as failed; reconciliation reads the
+ * durable job state instead.
+ */
+export class MediaOperationAmbiguousError extends Error {
+  public readonly path: string;
+  public constructor(path: string, cause: unknown) {
+    super(`Media operation outcome is unknown after dispatch abort on ${path}`);
+    this.name = "MediaOperationAmbiguousError";
+    this.path = path;
+    this.cause = cause;
+  }
+}
+
 export class MediaOperationNotAdmittedError extends Error {
   public constructor(public readonly operation: string) {
     super(`Media operation is not admitted by the current server contract: ${operation}`);
@@ -874,14 +890,26 @@ export class MediaOperationClient {
     idempotencyKey: string,
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<T>> {
-    const accepted = await this.request(
-      "POST",
-      path,
-      body,
-      OperationAcceptedSchema,
-      signal,
-      { "Idempotency-Key": idempotencyKey },
-    );
+    let accepted: OperationAccepted;
+    try {
+      accepted = await this.request(
+        "POST",
+        path,
+        body,
+        OperationAcceptedSchema,
+        signal,
+        { "Idempotency-Key": idempotencyKey },
+      );
+    } catch (failure) {
+      // An abort/timeout surfacing here means the job may already exist
+      // server-side — the outcome is ambiguous and must stay UNKNOWN, never
+      // a fabricated clean failure that invites a duplicate retry.
+      if (failure instanceof DOMException
+          && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+        throw new MediaOperationAmbiguousError(path, failure);
+      }
+      throw failure;
+    }
     return new MediaOperationHandle(this, accepted, resultParser);
   }
 
