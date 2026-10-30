@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "IT-01 census: classify every integration-tests surface. Only suites wired to real containers/channels count as integration evidence; literal/simulated stub tests are marked scaffold and disabled, never counted as passes.",
+  "module": "integration-tests (com.ghatana.audio.video.integration)",
+  "classification": {
+    "CONTAINER_GATED_REAL_INTEGRATION": {
+      "meaning": "extends AudioVideoContainerBase; IntegrationImagesCondition reports an honest skip when GH-90000 service images are absent",
+      "files": [
+        "AudioVideoContainerBase.java (base)",
+        "AudioVideoContainerProcessTest.java",
+        "AudioVideoIntegrationTest.java",
+        "FullWorkflowIntegrationTest.java"
+      ]
+    },
+    "STUB_SCAFFOLD_DISABLED": {
+      "meaning": "literal-constant assertions, Map.of fixtures or simulated local calls with no real service/container/channel interaction; @Disabled until replaced by a wired suite — not evidence",
+      "files": [
+        "AudioVideoDataCloudAepAgentE2ETest.java",
+        "AudioVideoDataCloudAepIntegrationJourneyTest.java",
+        "EndToEndWorkflowTest.java",
+        "ErrorScenarioIntegrationTest.java",
+        "LoadTest.java",
+        "PerformanceIntegrationTest.java"
+      ]
+    },
+    "SUPPORT": {
+      "files": ["IntegrationImagesCondition.java (image-presence execution condition)"]
+    }
+  },
+  "perModuleIntegrationSurfaces": {
+    "note": "outside the integration-tests module; owned by their packages",
+    "observability": ["audio-video-observability tracing/instrumentation/health ITs"],
+    "provider": ["providers/aws-postgresql MediaUploadCrashRecoveryIT, MediaDurableWorkerCrashIT, MediaSeededQueryPlanIT, MediaAwsPostgresqlRuntimeStateIntegrationTest"]
+  },
+  "guards": {
+    "noTautologyAsIntegration": "a test asserting only literals/Map.of fixtures/simulated locals may not carry an Integration/E2E/Load/Journey name without an explicit @Disabled scaffold reason",
+    "honestSkip": "container-gated suites skip via IntegrationImagesCondition with the missing image names — never silently pass",
+    "crosswalkComplete": "every *.java file in the integration-tests source tree is classified"
+  }
+}

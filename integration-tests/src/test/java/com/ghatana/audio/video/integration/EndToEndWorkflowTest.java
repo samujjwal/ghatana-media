@@ -6,6 +6,7 @@
  */
 package com.ghatana.audio.video.integration;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * Test end-to-end audio-video workflows from input to output.
  */
+@Disabled("IT-01 scaffold: End-to-end workflow assertions are literal/Map.of/simulated locals with no real service, container or channel interaction — kept as scaffold, not integration evidence. Replace with a real wired suite.")
 @DisplayName("End-to-End Workflow Tests")
 class EndToEndWorkflowTest {
 

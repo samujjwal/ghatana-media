@@ -4,6 +4,7 @@
  */
 package com.ghatana.audio.video.integration;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @doc.layer product
  * @doc.pattern Test
  */
+@Disabled("IT-01 scaffold: Data-Cloud AEP agent E2E assertions are literal/Map.of/simulated locals with no real service, container or channel interaction — kept as scaffold, not integration evidence. Replace with a real wired suite.")
 @DisplayName("Audio-Video → Data-Cloud → AEP → Agent E2E Tests")
 @Tag("audio-video")
 @Tag("data-cloud")

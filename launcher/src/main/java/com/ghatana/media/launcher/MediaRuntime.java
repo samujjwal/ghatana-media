@@ -362,6 +362,17 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     environment, config.productionLike(), config.jobTimeout());
             lifecyclePublisher = MediaLifecyclePublisher.compose(environment, config.productionLike());
 
+            // ServiceLoader instantiates every registered candidate and some
+            // implementations own resources at construction (e.g., a shared
+            // provider-state reference). Candidates not selected must be closed
+            // here — the failure path below already does the same.
+            closeUnselected(artifactStores, artifactStore);
+            closeUnselected(jobStores, jobStore);
+            closeUnselected(streamStores, streamStore);
+            closeUnselected(consentAuthorities, consentAuthority);
+            closeUnselected(sourceAuthorizationAuthorities, sourceAuthorizationAuthority);
+            closeUnselected(transcriptStores, transcriptStore);
+
             MediaRuntime runtime = new MediaRuntime(
                     config, artifactStore, jobStore, streamStore, consentAuthority, semanticRedaction,
                     lifecyclePublisher, processing, streaming, lifecycleOutboxSources,
@@ -3493,6 +3504,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new IllegalStateException("Duplicate Media provider ID: " + providerId);
         }
         providers.add(provider);
+    }
+
+    private static <T> void closeUnselected(List<T> candidates, T selected) {
+        for (T candidate : candidates) {
+            if (candidate != selected && candidate instanceof AutoCloseable closeable) {
+                try {
+                    closeable.close();
+                } catch (Exception failure) {
+                    throw new IllegalStateException(
+                            "Failed to close an unselected Media runtime component", failure);
+                }
+            }
+        }
     }
 
     private static <T> List<T> loadUnique(

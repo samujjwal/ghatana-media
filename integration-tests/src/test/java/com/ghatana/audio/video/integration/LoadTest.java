@@ -6,6 +6,7 @@
  */
 package com.ghatana.audio.video.integration;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * Test system performance under load with concurrent operations.
  */
+@Disabled("IT-01 scaffold: Load assertions are literal/Map.of/simulated locals with no real service, container or channel interaction — kept as scaffold, not integration evidence. Replace with a real wired suite.")
 @DisplayName("Load Tests")
 class LoadTest {
 

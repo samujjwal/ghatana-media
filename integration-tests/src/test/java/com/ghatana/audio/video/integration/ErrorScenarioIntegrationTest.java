@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.integration;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @doc.layer integration
  */
 @Tag("error-scenarios")
+@Disabled("IT-01 scaffold: Error scenario assertions are literal/Map.of/simulated locals with no real service, container or channel interaction — kept as scaffold, not integration evidence. Replace with a real wired suite.")
 @DisplayName("Audio-Video Error Scenario Integration Tests (AV-012.4)")
 class ErrorScenarioIntegrationTest {
 
