@@ -546,9 +546,9 @@ groups:
   #    service, stage, event, contract_version. No tenant/request/job/attempt
   #    identity is ever exported as a label.
 #
-# Model-quality alert rules remain intentionally absent because no admitted
-# model-quality metric source exists. Provider readiness uses the shared gRPC
-# server lifecycle's low-cardinality readiness gauge.
+# Provider-quality alert rules are defined in audio_video.provider_quality.
+# They report source-linked measurements only; they do not admit providers.
+# Provider readiness uses the shared gRPC server lifecycle's low-cardinality gauge.
   # -------------------------------------------------------------------------
   - name: media.workflow
     rules:

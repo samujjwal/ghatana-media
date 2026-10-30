@@ -75,11 +75,50 @@ pub enum SpeechAudioError {
     #[error("Invalid audio input: {0}")]
     InvalidInput(String),
 
+    #[error("Audio resource limit exceeded: {0}")]
+    ResourceLimit(String),
+
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 }
 
 pub type Result<T> = std::result::Result<T, SpeechAudioError>;
+
+/**
+ * Finite decode budget protecting against decoded-memory bombs. Container
+ * metadata is validated before any sample allocation, and decoding stops with
+ * [`SpeechAudioError::ResourceLimit`] once the sample bound is exceeded —
+ * a small compressed file can never expand into an unbounded buffer.
+ */
+#[derive(Debug, Clone, Copy)]
+pub struct DecodeLimits {
+    /// Maximum decoded interleaved samples retained in memory (~384 MiB of f32).
+    pub max_decoded_samples: usize,
+    /// Maximum channel count accepted from container metadata.
+    pub max_channels: u16,
+    /// Maximum sample rate accepted from container metadata.
+    pub max_sample_rate: u32,
+}
+
+impl DecodeLimits {
+    pub const DEFAULT: Self = Self {
+        max_decoded_samples: 96_000_000,
+        max_channels: 8,
+        max_sample_rate: 768_000,
+    };
+
+    fn validate(&self) -> Result<()> {
+        if self.max_decoded_samples == 0
+            || self.max_channels == 0
+            || self.max_sample_rate == 0
+        {
+            return Err(SpeechAudioError::InvalidInput(
+                "decode limits must be positive".to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
 
 pub struct Resampler {
     target_sample_rate: u32,
@@ -160,7 +199,15 @@ pub fn load_audio_metadata<P: AsRef<Path>>(path: P) -> Result<AudioMetadata> {
 }
 
 pub fn load_audio_buffer<P: AsRef<Path>>(path: P) -> Result<AudioBuffer> {
-    let decoded = decode_audio(path.as_ref())?;
+    load_audio_buffer_bounded(path, DecodeLimits::DEFAULT)
+}
+
+/// Loads a decoded buffer under an explicit finite resource budget.
+pub fn load_audio_buffer_bounded<P: AsRef<Path>>(
+    path: P,
+    limits: DecodeLimits,
+) -> Result<AudioBuffer> {
+    let decoded = decode_audio_bounded(path.as_ref(), limits)?;
     Ok(AudioBuffer::new(decoded.samples, decoded.config))
 }
 
@@ -296,6 +343,11 @@ impl DecodedAudio {
 }
 
 fn decode_audio(path: &Path) -> Result<DecodedAudio> {
+    decode_audio_bounded(path, DecodeLimits::DEFAULT)
+}
+
+fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudio> {
+    limits.validate()?;
     if !path.exists() {
         return Err(SpeechAudioError::FileNotFound(path.display().to_string()));
     }
@@ -326,10 +378,22 @@ fn decode_audio(path: &Path) -> Result<DecodedAudio> {
     let sample_rate = codec_params
         .sample_rate
         .ok_or_else(|| SpeechAudioError::Decode("missing sample rate".to_string()))?;
+    if sample_rate == 0 || sample_rate > limits.max_sample_rate {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "sample rate {sample_rate} is outside the bounded range 1..={}",
+            limits.max_sample_rate
+        )));
+    }
     let channels = codec_params
         .channels
         .map(|channels| channels.count() as u16)
         .ok_or_else(|| SpeechAudioError::Decode("missing channel layout".to_string()))?;
+    if channels == 0 || channels > limits.max_channels {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "channel count {channels} is outside the bounded range 1..={}",
+            limits.max_channels
+        )));
+    }
 
     let mut decoder = get_codecs()
         .make(&codec_params, &DecoderOptions::default())
@@ -378,6 +442,13 @@ fn decode_audio(path: &Path) -> Result<DecodedAudio> {
                 buffer.copy_interleaved_ref(other);
                 samples.extend_from_slice(buffer.samples());
             }
+        }
+
+        if samples.len() > limits.max_decoded_samples {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "decoded audio exceeds the {} sample budget",
+                limits.max_decoded_samples
+            )));
         }
     }
 
@@ -485,6 +556,63 @@ mod tests {
         assert_eq!(decoded.config.sample_rate, 16000);
         assert_eq!(decoded.config.channels, 1);
         assert_eq!(decoded.samples.len(), buffer.samples.len());
+    }
+
+    #[test]
+    fn decode_budget_rejects_oversized_channels_and_samples() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("budget.wav");
+        let buffer = AudioBuffer::new(
+            vec![0.1; 32],
+            AudioConfig {
+                sample_rate: 16000,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        write_wav(&path, &buffer).unwrap();
+
+        // A zero-valued limit is an invalid input, not an unbounded decode.
+        assert!(matches!(
+            load_audio_buffer_bounded(
+                &path,
+                DecodeLimits {
+                    max_decoded_samples: 0,
+                    ..DecodeLimits::DEFAULT
+                }
+            ),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        // A sample budget below the actual decoded extent fails closed.
+        let limited = DecodeLimits {
+            max_decoded_samples: 8,
+            ..DecodeLimits::DEFAULT
+        };
+        assert!(matches!(
+            load_audio_buffer_bounded(&path, limited),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        // A sample-rate bound rejects this 16kHz source before allocation.
+        let rate_limited = DecodeLimits {
+            max_sample_rate: 8000,
+            ..DecodeLimits::DEFAULT
+        };
+        assert!(matches!(
+            load_audio_buffer_bounded(&path, rate_limited),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        // A zero-channel bound is invalid input; the default decodes fine.
+        assert!(matches!(
+            load_audio_buffer_bounded(
+                &path,
+                DecodeLimits {
+                    max_channels: 0,
+                    ..DecodeLimits::DEFAULT
+                }
+            ),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert_eq!(load_audio_buffer(&path).unwrap().samples.len(), 32);
     }
 
     #[test]
