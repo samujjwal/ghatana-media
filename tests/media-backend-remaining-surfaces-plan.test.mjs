@@ -233,3 +233,72 @@ test('cross-wave acceptance edges are valid and do not convert negative coding i
   assert.match(plan,/not a second writable task ledger/u);
   assert.match(plan,/36 unaccepted task rows/u);
 });
+
+
+test('reported green commit reconciliation is honest and preserves all original task identities', () => {
+  const report = index.reportedEngineeringPulse;
+  assert.match(report.recordKind,/OWNER_REPORTED_IMPLEMENTATION_HANDOFF/u);
+  assert.equal(report.userReportedCommitCount,19);
+  assert.equal(report.suppliedUniqueHashPrefixCount,18);
+  assert.equal(report.missingReportedCommitHashCount,1);
+  assert.equal(report.confirmedSuppliedHashPrefixesReachableOnConnectedGithubAtReview,0);
+  assert.equal(report.commitClaims.length,18);
+  const claimed = report.commitClaims.flatMap(x=>x.taskIds);
+  assert.equal(claimed.length,24);
+  assert.equal(new Set(claimed).size,24);
+  assert.deepEqual(report.namedTaskIds,claimed);
+  assert.equal(report.reportedTaskCount,24);
+  assert.equal(report.otherWave3TaskCount,72);
+  assert.equal(report.perLocalTaskReadback.length,96);
+  const taskIds=new Set([...backendTasks,...logicalTasks].map(x=>x.id));
+  for(const claim of report.commitClaims){
+    assert.match(claim.claimedHashPrefix,/^[0-9a-f]{8}$/u);
+    assert.equal(claim.reportedCommitPresence,'NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW');
+    assert.ok(claim.reportedChange.length>=12);
+    for(const taskId of claim.taskIds)assert.ok(taskIds.has(taskId),'invented reported task '+taskId);
+  }
+  assert.deepEqual(report.perLocalTaskReadback.map(x=>x.taskId),
+    [...backendTasks,...logicalTasks].map(x=>x.id));
+  const reported=report.perLocalTaskReadback.filter(x=>x.claimedCommitHashPrefix);
+  const notIndividuallyMapped=report.perLocalTaskReadback.filter(x=>!x.claimedCommitHashPrefix);
+  assert.equal(reported.length,24);
+  assert.equal(notIndividuallyMapped.length,72);
+  for(const row of report.perLocalTaskReadback){
+    assert.ok(taskIds.has(row.taskId));
+    assert.equal(row.actualCodeAcceptance,'NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT');
+    assert.equal(row.reviewDisposition,'DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK');
+  }
+  assert.ok(plan.includes('## 14. Current engineering residual readback'));
+  assert.match(plan,/18 distinct abbreviated commit hashes/u);
+  assert.match(plan,/other \*\*72\*\* of the existing/u);
+  assert.match(plan,/REPORTED_COMPLETED_PENDING_GIT_AND_TEST_READBACK/u);
+});
+
+test('remaining real integration, Wave 2, Track B and external ownership gates remain explicit',()=>{
+  const reported=index.reportedEngineeringPulse;
+  assert.equal(index.wave2Continuation.unfinishedOriginalTasks.length,36);
+  assert.equal(index.wave2Continuation.lastAcceptedStatus.changeFromThisPlan,0);
+  assert.deepEqual(reported.externalOwnerFacts.map(x=>x.id),['G09','G10']);
+  assert.ok(reported.externalOwnerFacts.every(x=>x.observedState==='OPEN'));
+  for(const [taskId,expected] of [
+    ['AS-07','REAL_TRANSPORT_RUNTIME_AND_PERFORMANCE_TARGET_UNAVAILABLE'],
+    ['VS-07','REAL_TRANSPORT_RUNTIME_AND_PERFORMANCE_TARGET_UNAVAILABLE'],
+    ['H-08','SYNTHETIC_ONLY_CAPTURE_NOT_QUALIFIED_LIVE_PRODUCT_FILM'],
+    ['AS-06','FIVE_TRANSPORT_AND_LEASE_INTENTS_NOT_ADMITTED'],
+    ['VS-05','EXTERNAL_REAL_TRANSPORT_PROFILES_UNQUALIFIED'],
+    ['DC-04','GHATANA_DATA_CLOUD_PUBLIC_SOURCE_READBACK_AND_RECEIPT_EXTERNAL'],
+    ['OC-04','GHATANA_DI_252_PUBLIC_CLIENT_EXTERNAL'],
+  ]){
+    const item=reported.perLocalTaskReadback.find(x=>x.taskId===taskId);
+    assert.ok(item);
+    assert.equal(item.ownerProofGap,expected);
+  }
+  for(const phrase of [
+    'FLEURS', 'STT-10/12', 'OBS-07/08', 'VIS-03',
+    'Ghatana DI #252', 'Ghatana Data/Action/Event Plane #254',
+    'GH-90000', 'AS-07', 'VS-07', 'Track B', 'not a second writable task ledger'
+  ]) assert.ok(plan.includes(phrase),'missing gate or status '+phrase);
+  assert.match(plan,/no operational writer cutover/u);
+  assert.ok(!reported.nonClaims.includes('GTOOL_CLOSED'));
+  assert.ok(reported.nonClaims.includes('NOT_GTOOL_CLOSURE'));
+});
