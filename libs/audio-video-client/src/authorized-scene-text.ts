@@ -57,6 +57,7 @@ export interface AuthorizedMediaSceneTextObservation extends SceneTextObservatio
 
 const HASH = /^[0-9a-f]{64}$/u;
 const TEXT = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$/u;
+const MIME = /^[a-z][a-z0-9.+-]*\/[a-z0-9.+-]+$/u;
 const MAX_FRAME_BYTES = 16 * 1024 * 1024;
 function reject(code: MediaSceneTextAdmissionCode): never {
   throw new MediaSceneTextAdmissionError(code);
@@ -91,8 +92,9 @@ export async function recognizeAuthorizedMediaSceneText(
     || !diClient || typeof diClient.providers !== 'function'
     || typeof diClient.parse !== 'function' || !diPolicy
     || !validText(operationId) || !frame || !access
-    || ![frame.sourceArtifactId,frame.sourceVersion,frame.frameId,frame.mediaType,
+    || ![frame.sourceArtifactId,frame.sourceVersion,frame.frameId,
       access.tenantId,access.principalId,access.purposeRef].every(validText)
+    || !MIME.test(frame.mediaType)
     || !(frame.bytes instanceof Uint8Array)
     || frame.bytes.byteLength === 0 || frame.bytes.byteLength > MAX_FRAME_BYTES
     || !Number.isSafeInteger(frame.timestampUs) || frame.timestampUs < 0
