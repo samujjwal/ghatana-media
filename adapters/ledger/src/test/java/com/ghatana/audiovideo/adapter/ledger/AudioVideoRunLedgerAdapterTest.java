@@ -401,4 +401,66 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(running.state()).isEqualTo(JobExecutionState.RUNNING);
         assertThat(running.outcome()).isNull();
     }
+
+    @Test
+    @DisplayName("Terminal, partial, retry, cancelled and uncertain outcomes project truthfully")
+    void testCanonicalOutcomeProjections() {
+        long now = System.currentTimeMillis();
+
+        // Terminal success.
+        RunLedger done = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-ok", "AUDIO", "STT", "col", "src", Map.of(), "COMPLETED",
+                now - 100, now - 90, "out-1", null, "whisper", "pj-1", "t", "c");
+        assertThat(done.state()).isEqualTo(JobExecutionState.COMPLETED);
+        assertThat(done.outcome()).isEqualTo(ExecutionOutcome.SUCCEEDED);
+        assertThat(done.outputs().statusCode()).isEqualTo(200);
+        assertThat(done.outputs().resultId()).isEqualTo("out-1");
+
+        // Partial output — degraded completion, never a clean success claim.
+        RunLedger partial = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-part", "AUDIO", "STT", "col", "src", Map.of(), "PARTIALLY_SUCCEEDED",
+                now - 100, now - 90, "out-2", null, "whisper", "pj-2", "t", "c");
+        assertThat(partial.state()).isEqualTo(JobExecutionState.COMPLETED);
+        assertThat(partial.outcome()).isEqualTo(ExecutionOutcome.DEGRADED);
+        assertThat(partial.outputs().statusCode()).isEqualTo(206);
+        assertThat(partial.attributes()).containsEntry("effectFinality", "PARTIAL");
+
+        // Retry pending — waiting, not executing, no outcome.
+        RunLedger retry = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-retry", "AUDIO", "STT", "col", "src", Map.of(), "RETRY_PENDING",
+                now - 100, now - 90, null, null, "whisper", "pj-3", "t", "c");
+        assertThat(retry.state()).isEqualTo(JobExecutionState.PENDING);
+        assertThat(retry.outcome()).isNull();
+        assertThat(retry.attributes()).containsEntry("effectFinality", "UNRESOLVED");
+
+        // Cancellation requested is not cancellation confirmed.
+        RunLedger cancelling = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-cxreq", "AUDIO", "STT", "col", "src", Map.of(), "CANCELLING",
+                now - 100, now - 90, null, null, "whisper", "pj-4", "t", "c");
+        assertThat(cancelling.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(cancelling.outcome()).isNull();
+
+        RunLedger cancelled = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-cx", "AUDIO", "STT", "col", "src", Map.of(), "CANCELLED",
+                now - 100, now - 90, null, null, "whisper", "pj-5", "t", "c");
+        assertThat(cancelled.state()).isEqualTo(JobExecutionState.CANCELLED);
+        assertThat(cancelled.outcome()).isEqualTo(ExecutionOutcome.CANCELLED);
+
+        // Uncertain finality stays open and preserves the raw observation.
+        RunLedger unknown = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-unk", "AUDIO", "STT", "col", "src", Map.of(), "OUTCOME_UNKNOWN",
+                now - 100, now - 90, null, null, "whisper", "pj-6", "t", "c");
+        assertThat(unknown.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(unknown.outcome()).isNull();
+        assertThat(unknown.outputs()).isNull();
+        assertThat(unknown.attributes())
+                .containsEntry("jobState", "OUTCOME_UNKNOWN")
+                .containsEntry("effectFinality", "UNRESOLVED");
+
+        RunLedger reconciling = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-rec", "AUDIO", "STT", "col", "src", Map.of(), "RECONCILING",
+                now - 100, now - 90, null, null, "whisper", "pj-7", "t", "c");
+        assertThat(reconciling.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(reconciling.outcome()).isNull();
+    }
 }

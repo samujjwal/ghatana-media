@@ -85,9 +85,9 @@ public final class AudioVideoRunLedgerAdapter {
         );
 
         OutputSnapshot outputs;
-        if (mappedOutcome == ExecutionOutcome.SUCCEEDED) {
+        if (mappedOutcome == ExecutionOutcome.SUCCEEDED || mappedOutcome == ExecutionOutcome.DEGRADED) {
             outputs = new OutputSnapshot(
-                200,
+                mappedOutcome == ExecutionOutcome.DEGRADED ? 206 : 200,
                 null,
                 Map.of(),
                 (startedAtMs > 0 ? now - startedAtMs : 0),
@@ -121,6 +121,14 @@ public final class AudioVideoRunLedgerAdapter {
         attributes.put("processingType", processingType);
         attributes.put("collectionId", collectionId);
         attributes.put("mediaArtifactId", mediaArtifactId);
+        // Preserve the raw observed state so a coarse projection never drops
+        // uncertainty, cancellation-requested or partial-finality information.
+        attributes.put("jobState", jobState);
+        if (mappedOutcome == null) {
+            attributes.put("effectFinality", "UNRESOLVED");
+        } else if (mappedOutcome == ExecutionOutcome.DEGRADED) {
+            attributes.put("effectFinality", "PARTIAL");
+        }
         if (providerName != null && !providerName.isBlank()) {
             attributes.put("provider", providerName);
         }
@@ -169,9 +177,17 @@ public final class AudioVideoRunLedgerAdapter {
      */
     private static JobExecutionState mapProcessingJobState(String jobState) {
         return switch (jobState.toUpperCase(Locale.ENGLISH)) {
-            case "SUBMITTED", "QUEUED", "PREPARING" -> JobExecutionState.PENDING;
-            case "TRANSCODING", "PROCESSING", "ANALYZING", "STORING", "UPLOADING", "INDEXING" -> JobExecutionState.RUNNING;
-            case "COMPLETED", "SUCCEEDED", "STORED", "FAILED", "ERROR" -> JobExecutionState.COMPLETED;
+            // Queued-but-not-started and retry-pending are waiting states, not execution.
+            case "SUBMITTED", "QUEUED", "PREPARING", "RETRY_PENDING" -> JobExecutionState.PENDING;
+            case "TRANSCODING", "PROCESSING", "ANALYZING", "STORING", "UPLOADING", "INDEXING",
+                 "RUNNING" -> JobExecutionState.RUNNING;
+            // An uncertain or reconciling outcome is nonterminal: the job ran
+            // but finality is unresolved — honest "still open", never complete.
+            case "OUTCOME_UNKNOWN", "RECONCILING" -> JobExecutionState.RUNNING;
+            // A cancellation request is not confirmed cancellation.
+            case "CANCELLING" -> JobExecutionState.RUNNING;
+            case "COMPLETED", "SUCCEEDED", "STORED", "FAILED", "ERROR",
+                 "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
             case "CANCELLED", "ABORTED" -> JobExecutionState.CANCELLED;
             // An unrecognized state must never be projected as RUNNING or a
             // final outcome; fail closed so the caller must not fabricate.
@@ -183,8 +199,11 @@ public final class AudioVideoRunLedgerAdapter {
     private static ExecutionOutcome mapProcessingJobOutcome(String jobState) {
         return switch (jobState.toUpperCase(Locale.ENGLISH)) {
             case "COMPLETED", "SUCCEEDED", "STORED" -> ExecutionOutcome.SUCCEEDED;
+            case "PARTIALLY_SUCCEEDED" -> ExecutionOutcome.DEGRADED;
             case "FAILED", "ERROR" -> ExecutionOutcome.FAILED;
             case "CANCELLED", "ABORTED" -> ExecutionOutcome.CANCELLED;
+            // Uncertain/cancelling/queued states carry no outcome — the ledger
+            // must not infer success or failure.
             default -> null;
         };
     }
