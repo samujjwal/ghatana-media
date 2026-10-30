@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "IP-01 schema lineage crosswalk: classify the legacy JPA persistence module against the canonical Media PostgreSQL migration history. This is a census, not a migration cutover or runtime admission.",
+  "canonical": {
+    "owner": "providers/aws-postgresql",
+    "flywayLocations": ["db/media-runtime"],
+    "appliedRange": "V009..V027",
+    "schemaStyle": "unqualified media_* tables in the canonical datasource",
+    "semantics": "immutable artifact/job/attempt/outbox/transcript revision history with fencing, CAS and provenance; single authoritative writer",
+    "tablesObserved": [
+      "media_transcript_revisions",
+      "media_* artifact/job/attempt/outbox/lease tables introduced by V009..V027"
+    ]
+  },
+  "legacyJpa": {
+    "owner": "modules/infrastructure/persistence",
+    "migration": "src/main/resources/db/migration/V1__init_schema.sql",
+    "schemaStyle": "audio_video schema; JPA entities AudioFileEntity + TranscriptionEntity",
+    "semantics": "mutable rows with version BIGINT optimistic-lock column and deleted/deleted_at soft-delete; PENDING status fields; full-text search index on transcriptions.text",
+    "tables": ["audio_video.audio_files", "audio_video.transcriptions"],
+    "disposition": "LEGACY_COMPATIBILITY_CANDIDATE: not an independent canonical Media runtime schema. Dual-read/adapter reconciliation per IP-02..IP-07; never a second migration runner or second transcript writer against canonical state.",
+    "collisions": "none observed: table names and schema namespace are disjoint from canonical media_* tables"
+  },
+  "guards": {
+    "noDuplicateMigrationRunner": "canonical Flyway history is owned solely by providers/aws-postgresql db/media-runtime; the JPA V1 script must never be applied to the canonical datasource",
+    "noJpaDdlAuto": "JPA entities must not auto-create or auto-mutate canonical tables; ddl-auto is forbidden on the canonical datasource",
+    "disjointNamespaces": "canonical migrations must not create audio_video schema objects; the JPA script must not create media_* tables"
+  }
+}
