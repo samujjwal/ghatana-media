@@ -9,6 +9,10 @@ export default defineConfig({
         replacement: resolve(import.meta.dirname, '../audio-video-types/src/contracts.ts'),
       },
       {
+        find: '@audio-video/types/production',
+        replacement: resolve(import.meta.dirname, '../audio-video-types/src/production.ts'),
+      },
+      {
         find: '@audio-video/types',
         replacement: resolve(import.meta.dirname, '../audio-video-types/src/index.ts'),
       },

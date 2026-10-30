@@ -12,6 +12,9 @@
       ],
       "@audio-video/types/contracts": [
         "../audio-video-types/src/contracts.ts"
+      ],
+      "@audio-video/types/production": [
+        "../audio-video-types/src/production.ts"
       ]
     },
     "allowSyntheticDefaultImports": true,
