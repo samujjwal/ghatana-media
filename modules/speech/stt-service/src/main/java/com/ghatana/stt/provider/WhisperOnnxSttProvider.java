@@ -153,6 +153,10 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
      * do not invent timestamps, confidence, word-level alignment or supported
      * formats the current provider cannot decode.
      */
+    @Override public MediaModalityContracts.ProviderHealth health() {
+        return capabilityProfiles().getFirst().health();
+    }
+
     @Override public List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
         EngineStatus.State state;
         try {
