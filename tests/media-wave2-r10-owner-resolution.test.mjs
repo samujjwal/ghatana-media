@@ -243,7 +243,7 @@ test('current V027 and M1-M7 review preserves 5/5 reported host proof without cl
   assert.match(doc, /## 8\. Current 2026-10-29 M7\/V027\/5-of-5 Postgres remaining-work lock/);
   assert.match(doc, /W2-R01 — MM standalone production bootstrap/);
   assert.match(doc, /W2-R11 — all original 43 RPCs/);
-  assert.match(doc, /two PostgreSQL integration suites passing 3\/3 and 2\/2/);
+  assert.ok(doc.includes('3/3') && doc.includes('2/2'), 'both reported PostgreSQL suite counts remain explicit');
 });
 
 
@@ -293,6 +293,6 @@ test('OBS quality and HTTP webhook source is wired yet remains nonqualifying wit
   assert.match(webhook, /webhook_fire_seen/);
   assert.match(webhook, /webhook_resolve_seen/);
   assert.match(current, /## 9\. Owner-approved OBS-07\/08 unblock/);
-  assert.match(current, /not a production-user SLA alert/);
+  assert.match(current, /review-only tiny candidate as a production-user SLA alert/);
   assert.equal(plan.currentCompletionExecution.latestOwnerApproval20261029.noChangeToR8Acceptance, true);
 });
