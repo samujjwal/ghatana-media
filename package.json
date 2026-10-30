@@ -92,7 +92,8 @@
     "test:backend-remaining-surfaces-plan": "node --test tests/media-backend-remaining-surfaces-plan.test.mjs",
     "check:monitoring-rules": "bash infra/monitoring/tests/promtool-rules.sh",
     "test:backend-terminal-qualification": "node --test tests/media-backend-terminal-qualification-plan.test.mjs",
-    "test:media-core-independence": "node --test tests/media-core-independence.test.mjs"
+    "test:media-core-independence": "node --test tests/media-core-independence.test.mjs",
+    "test:ocr-single-authority": "node --test tests/media-ocr-ownership-hygiene.test.mjs tests/media-core-independence.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
