@@ -19,6 +19,13 @@ import java.util.concurrent.CountDownLatch;
  */
 public final class MediaAlertDeliveryExporterFixture {
     private static final int MAX_STATE_BYTES = 32;
+    private static final int MAX_ALERT_WEBHOOK_BYTES = 64 * 1024;
+
+    /** Counts actual HTTP POSTs from Alertmanager, not merely routed receiver metadata. */
+    private static final class WebhookReceipts {
+        final java.util.concurrent.atomic.AtomicInteger firing = new java.util.concurrent.atomic.AtomicInteger();
+        final java.util.concurrent.atomic.AtomicInteger resolved = new java.util.concurrent.atomic.AtomicInteger();
+    }
 
     private MediaAlertDeliveryExporterFixture() { }
 
@@ -31,9 +38,16 @@ public final class MediaAlertDeliveryExporterFixture {
         PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
         CountDownLatch stop = new CountDownLatch(1);
+        WebhookReceipts receipts = new WebhookReceipts();
 
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", 0), 0);
         server.createContext("/metrics", exchange -> handleMetrics(exchange, stateFile, metrics, registry, stop));
+        // Both webhook and receipt collection are confined to the opt-in test exporter.
+        // No production metric endpoint or alert rule is modified by this fixture.
+        server.createContext("/alert-webhook",
+                exchange -> handleAlertWebhook(exchange, receipts));
+        server.createContext("/alert-receipts",
+                exchange -> handleAlertReceipts(exchange, receipts));
         server.start();
         try {
             Files.writeString(portFile, Integer.toString(server.getAddress().getPort()), StandardCharsets.US_ASCII);
@@ -86,6 +100,54 @@ public final class MediaAlertDeliveryExporterFixture {
                         "alert-delivery-fixture", "fixture-v1", "fixture-model", "fixture-r1",
                         readiness, checkedAt, null));
         send(exchange, 200, registry.scrape());
+    }
+
+    /** Test-only actual HTTP delivery target. The payload is bounded and never logged. */
+    private static void handleAlertWebhook(
+            HttpExchange exchange, WebhookReceipts receipts) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())
+                || !"/alert-webhook".equals(exchange.getRequestURI().getPath())) {
+            send(exchange, 405, "POST required\n");
+            return;
+        }
+        String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
+        if (contentType == null || !contentType.toLowerCase(java.util.Locale.ROOT)
+                .startsWith("application/json")) {
+            send(exchange, 415, "JSON required\n");
+            return;
+        }
+        byte[] bytes = exchange.getRequestBody().readNBytes(MAX_ALERT_WEBHOOK_BYTES + 1);
+        if (bytes.length > MAX_ALERT_WEBHOOK_BYTES) {
+            send(exchange, 413, "alert payload exceeded bound\n");
+            return;
+        }
+        String body = new String(bytes, StandardCharsets.UTF_8);
+        if (!body.matches("(?s).*\\\"receiver\\\"\\s*:\\s*\\\"media-local-test\\\".*")
+                || !body.contains("MediaProviderProfileUnavailableFixture")) {
+            send(exchange, 400, "unexpected test-only alert\n");
+            return;
+        }
+        if (body.matches("(?s).*\\\"status\\\"\\s*:\\s*\\\"firing\\\".*")) {
+            receipts.firing.incrementAndGet();
+        } else if (body.matches("(?s).*\\\"status\\\"\\s*:\\s*\\\"resolved\\\".*")) {
+            receipts.resolved.incrementAndGet();
+        } else {
+            send(exchange, 400, "unknown alert status\n");
+            return;
+        }
+        send(exchange, 200, "delivered\n");
+    }
+
+    /** Exposes only aggregate receipt counters; never emits Alertmanager payload/labels. */
+    private static void handleAlertReceipts(
+            HttpExchange exchange, WebhookReceipts receipts) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())
+                || !"/alert-receipts".equals(exchange.getRequestURI().getPath())) {
+            send(exchange, 405, "GET required\n");
+            return;
+        }
+        send(exchange, 200, "{\"firing\":" + receipts.firing.get()
+                + ",\"resolved\":" + receipts.resolved.get() + "}\n");
     }
 
     private static void send(HttpExchange exchange, int status, String body) throws IOException {
