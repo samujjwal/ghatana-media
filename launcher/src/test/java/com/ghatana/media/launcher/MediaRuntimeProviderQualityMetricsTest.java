@@ -34,8 +34,11 @@ class MediaRuntimeProviderQualityMetricsTest {
         try (var runtime = runtime(provider)) {
             String scraped = qualityLine(runtime.prometheusMetrics());
             assertThat(scraped).contains("provider_id=\"quality-test\"",
-                    "model_revision=\"model-r1\"", Double.toString(measuredAt.getEpochSecond()));
+                    "model_revision=\"model-r1\"");
             assertThat(scraped).doesNotContain("NaN");
+            double exportedTimestamp = Double.parseDouble(scraped.substring(scraped.lastIndexOf(' ') + 1));
+            assertThat(exportedTimestamp).isBetween(
+                    (double) measuredAt.getEpochSecond(), (double) measuredAt.getEpochSecond() + 1.0);
             assertThat(provider.productionEligible()).isFalse();
             assertThat(provider.source.measuredValue()).isEqualTo(1.0938);
         }
