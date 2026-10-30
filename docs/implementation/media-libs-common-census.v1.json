@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "MC-01 census: classify every libs/common type against platform/shared primitives. Media-specific wrappers and Media-owned SPIs are kept; duplicate engine, provider, cache or observability implementations are marked for reuse, not silently retained.",
+  "surface": "libs/common (com.ghatana.audio.video.common.*)",
+  "classification": {
+    "MEDIA_OWNED": {
+      "meaning": "Media-specific contract or SPI with no platform-owned equivalent; kept as Media source",
+      "types": [
+        "AudioVideoGrpcServerBase", "GrpcExceptionMapper", "GrpcInterceptorChain",
+        "GrpcTransportSecurityPolicy",
+        "health.HealthMetricsServer", "health.ServerReadinessLifecycle",
+        "model.ModelRegistry", "model.FileSystemModelStore", "model.ModelMetadata",
+        "security.AudioVideoMethodRbacRegistry", "security.InputValidationServerInterceptor",
+        "security.JwtServerInterceptor", "security.AuditEventSink",
+        "resilience.CircuitBreakerServerInterceptor", "resilience.RetryPolicy",
+        "platform.AiRegistryClient", "platform.AuthGatewayClient", "platform.FeatureStoreClient"
+      ]
+    },
+    "PLATFORM_WRAPPER": {
+      "meaning": "Media-scoped adapter over a platform/shared primitive; kept, must not re-grow the platform feature",
+      "types": [
+        "security.AudioVideoRequestContextInterceptor (com.ghatana.security.tenant)",
+        "resilience.RateLimitingServerInterceptor (com.ghatana.security.ratelimit)",
+        "resilience.TenantAwareRateLimitingInterceptor (com.ghatana.security.ratelimit)",
+        "observability.TracingServerInterceptor (io.opentelemetry)",
+        "observability.TracingClientInterceptor (io.opentelemetry)",
+        "observability.MetricsServerInterceptor (io.grpc + MediaProcessingMetrics)",
+        "observability.StructuredLogger (slf4j+MDC)"
+      ]
+    },
+    "REUSE_REVIEW": {
+      "meaning": "Duplicates a canonical capability; callers migrate to the canonical module — marked, not deleted in-place",
+      "types": [
+        "observability.MediaProcessingMetrics: zero-dependency ad-hoc metrics collector duplicating the role of audio-video-observability MediaWorkflowMetrics (Micrometer) and platform observability; no new production sink should be built on it"
+      ]
+    },
+    "DUPLICATE_ENGINE": {"meaning": "reimplements a platform engine", "types": []},
+    "DUPLICATE_PROVIDER": {"meaning": "reimplements a platform provider", "types": []},
+    "DUPLICATE_CACHE": {"meaning": "reimplements cache; canonical path is modules/infrastructure/cache over DistributedCachePort", "types": []}
+  },
+  "guards": {
+    "noPlatformInternals": "libs/common must not import com.ghatana.platform internals beyond the published dependency boundary",
+    "noSecondMetricsSink": "audio-video-observability MediaWorkflowMetrics is the canonical metrics surface; MediaProcessingMetrics is REUSE_REVIEW and must not gain new production sinks",
+    "noDuplicateEngine": "any new DUPLICATE_* entry is a build failure, not a silent addition"
+  }
+}
