@@ -83,22 +83,57 @@ class MultimodalRpcMatrixIntegrationTest {
     void authenticatedAllTenRpcsReturnOnlyNotAdmittedOrReadinessResponses() {
         ByteString payload = ByteString.copyFrom(new byte[] {1});
 
+        // A request without a valid canonical operation binding fails closed before
+        // any rights, provider or persistence effect.
         assertRpcError(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
-                        .setAudioData(payload).build()), Status.Code.UNAVAILABLE,
-                "Trusted artifact rights, purpose, and consent authority is not configured");
+                        .setAudioData(payload).build()), Status.Code.FAILED_PRECONDITION,
+                "MULTIMODAL_FAMILY_NOT_ADMITTED");
         assertRpcError(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
                         .setVideoData(payload).setExtractAudio(true).setAnalyzeFrames(true).build()),
-                Status.Code.UNAVAILABLE,
+                Status.Code.FAILED_PRECONDITION, "MULTIMODAL_FAMILY_NOT_ADMITTED");
+        assertRpcError(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
+                        .setAudioData(payload).build()), Status.Code.FAILED_PRECONDITION,
+                "MULTIMODAL_FAMILY_NOT_ADMITTED");
+        assertRpcError(() -> authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
+                        .setAudioData(payload).setVideoData(payload).build()),
+                Status.Code.FAILED_PRECONDITION, "MULTIMODAL_FAMILY_NOT_ADMITTED");
+        assertRpcError(() -> authenticated.getInsights(InsightsRequest.newBuilder()
+                        .setAudioData(payload).build()), Status.Code.FAILED_PRECONDITION,
+                "MULTIMODAL_FAMILY_NOT_ADMITTED");
+
+        // A well-formed canonical binding reaches the trusted source-rights authority,
+        // which is not configured in this composition and must fail closed.
+        assertRpcError(() -> authenticated.processMultimodal(MultimodalRequest.newBuilder()
+                        .setAudioData(payload)
+                        .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                                "media.operation.capability.media-multimodal-observe-source-grounded"))
+                        .build()), Status.Code.UNAVAILABLE,
+                "Trusted artifact rights, purpose, and consent authority is not configured");
+        assertRpcError(() -> authenticated.analyzeVideoWithAudio(VideoAudioRequest.newBuilder()
+                        .setVideoData(payload).setExtractAudio(true).setAnalyzeFrames(true)
+                        .setOperationBinding(binding("media.multimodal.relate.scene-audio",
+                                "media.operation.capability.media-multimodal-relate-scene-audio"))
+                        .build()), Status.Code.UNAVAILABLE,
                 "Trusted artifact rights, purpose, and consent authority is not configured");
         assertRpcError(() -> authenticated.generateDescription(DescriptionRequest.newBuilder()
-                        .setAudioData(payload).build()), Status.Code.UNAVAILABLE,
+                        .setAudioData(payload)
+                        .setOperationBinding(binding("media.multimodal.describe",
+                                "media.operation.capability.media-multimodal-describe"))
+                        .build()), Status.Code.UNAVAILABLE,
                 "Trusted artifact rights, purpose, and consent authority is not configured");
         assertRpcError(() -> authenticated.analyzeCrossModal(CrossModalRequest.newBuilder()
-                        .setAudioData(payload).setVideoData(payload).build()), Status.Code.UNAVAILABLE,
+                        .setAudioData(payload).setVideoData(payload)
+                        .setOperationBinding(binding("media.multimodal.analyze.cross-modal",
+                                "media.operation.capability.media-multimodal-analyze-cross-modal"))
+                        .build()), Status.Code.UNAVAILABLE,
                 "Trusted artifact rights, purpose, and consent authority is not configured");
         assertRpcError(() -> authenticated.getInsights(InsightsRequest.newBuilder()
-                        .setAudioData(payload).build()), Status.Code.UNAVAILABLE,
+                        .setAudioData(payload)
+                        .setOperationBinding(binding("media.multimodal.summarize",
+                                "media.operation.capability.media-multimodal-summarize"))
+                        .build()), Status.Code.UNAVAILABLE,
                 "Trusted artifact rights, purpose, and consent authority is not configured");
+
         assertRpcError(() -> authenticated.loadModel(LoadModelRequest.newBuilder()
                         .setModelId("unadmitted-model").build()), Status.Code.UNAVAILABLE,
                 "Qualified multimodal model provider is unavailable");
@@ -114,6 +149,18 @@ class MultimodalRpcMatrixIntegrationTest {
         assertThat(health.getHealthy()).isFalse();
         assertThat(health.getMessage()).isEqualTo(
                 "MULTIMODAL_NOT_SERVING: qualified child provider readiness unavailable");
+    }
+
+    private static CanonicalOperationBinding binding(String capabilityRef, String operationRef) {
+        return CanonicalOperationBinding.newBuilder()
+                .setCapabilityRef(capabilityRef)
+                .setOperationRef(operationRef)
+                .setOperationVersion(1)
+                .setRequestId("rpc-matrix-request")
+                .setSourceArtifactId("rpc-matrix-artifact")
+                .setSourceVersionId("v1")
+                .setPurpose("authenticated-rpc-matrix-test")
+                .build();
     }
 
     @Test

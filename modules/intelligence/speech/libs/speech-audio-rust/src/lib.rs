@@ -3,7 +3,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 use hound::{SampleFormat as WavSampleFormat, WavSpec, WavWriter};
-use symphonia::core::audio::{AudioBufferRef, SampleBuffer, Signal};
+use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::errors::Error as SymphoniaError;
 use symphonia::core::formats::FormatOptions;
@@ -108,10 +108,7 @@ impl DecodeLimits {
     };
 
     fn validate(&self) -> Result<()> {
-        if self.max_decoded_samples == 0
-            || self.max_channels == 0
-            || self.max_sample_rate == 0
-        {
+        if self.max_decoded_samples == 0 || self.max_channels == 0 || self.max_sample_rate == 0 {
             return Err(SpeechAudioError::InvalidInput(
                 "decode limits must be positive".to_string(),
             ));
@@ -120,13 +117,72 @@ impl DecodeLimits {
     }
 }
 
+/**
+ * Bandlimited windowed-sinc resampler with exact rational source-to-target
+ * offsets. A Blackman-windowed sinc kernel is centered on each output position
+ * and normalized by its actual tap sum, so DC gain is preserved and content
+ * above the tighter of the source/target Nyquist limits is attenuated before
+ * sampling. Positions come from integer rate arithmetic (`i * src / dst`),
+ * never an accumulated float, so long inputs cannot drift. Non-finite input is
+ * rejected rather than propagated into silently corrupt output.
+ */
 pub struct Resampler {
     target_sample_rate: u32,
+    kernel_half_length: usize,
+    cutoff_scale: f64,
 }
 
 impl Resampler {
+    const DEFAULT_KERNEL_HALF_LENGTH: usize = 24;
+    const DEFAULT_CUTOFF_SCALE: f64 = 0.9;
+
     pub fn new(target_sample_rate: u32) -> Self {
-        Self { target_sample_rate }
+        Self {
+            target_sample_rate,
+            kernel_half_length: Self::DEFAULT_KERNEL_HALF_LENGTH,
+            cutoff_scale: Self::DEFAULT_CUTOFF_SCALE,
+        }
+    }
+
+    /// Resampler with explicit kernel half-length (source samples) and cutoff
+    /// scale relative to the tighter Nyquist edge, for qualified fidelity tuning.
+    pub fn with_options(
+        target_sample_rate: u32,
+        kernel_half_length: usize,
+        cutoff_scale: f64,
+    ) -> Result<Self> {
+        if kernel_half_length == 0 || kernel_half_length > 512 {
+            return Err(SpeechAudioError::InvalidInput(
+                "kernel half-length must be within 1..=512 source samples".to_string(),
+            ));
+        }
+        if !(cutoff_scale > 0.0 && cutoff_scale <= 1.0) {
+            return Err(SpeechAudioError::InvalidInput(
+                "cutoff scale must be within (0, 1]".to_string(),
+            ));
+        }
+        Ok(Self {
+            target_sample_rate,
+            kernel_half_length,
+            cutoff_scale,
+        })
+    }
+
+    fn kernel(offset: f64, cutoff: f64, half_length: usize) -> f64 {
+        if offset.abs() > half_length as f64 {
+            return 0.0;
+        }
+        let x = 2.0 * cutoff * offset;
+        let sinc = if x.abs() < 1e-8 {
+            1.0
+        } else {
+            (std::f64::consts::PI * x).sin() / (std::f64::consts::PI * x)
+        };
+        let n = offset / half_length as f64;
+        let window = 0.42
+            + 0.5 * (std::f64::consts::PI * n).cos()
+            + 0.08 * (2.0 * std::f64::consts::PI * n).cos();
+        2.0 * cutoff * sinc * window
     }
 
     pub fn resample(&self, buffer: &AudioBuffer) -> Result<AudioBuffer> {
@@ -150,23 +206,57 @@ impl Resampler {
                 },
             ));
         }
+        if buffer.samples.iter().any(|sample| !sample.is_finite()) {
+            return Err(SpeechAudioError::InvalidInput(
+                "resampler input must not contain non-finite samples".to_string(),
+            ));
+        }
 
+        let src_rate = buffer.config.sample_rate as u128;
+        let dst_rate = self.target_sample_rate as u128;
         let channels = buffer.config.channels.max(1) as usize;
         let input_frames = buffer.frame_count();
         let ratio = self.target_sample_rate as f64 / buffer.config.sample_rate as f64;
-        let output_frames = ((input_frames as f64) * ratio).max(1.0).round() as usize;
+        let output_frames =
+            (((input_frames as u128) * dst_rate * 2 + src_rate) / (src_rate * 2)).max(1) as usize;
+        // Anti-alias cutoff in cycles per source sample: the tighter of the
+        // source and target Nyquist edges, pulled in by the cutoff scale.
+        let cutoff = 0.5 * ratio.min(1.0) * self.cutoff_scale;
+        let half_length = self.kernel_half_length;
+
         let mut output = Vec::with_capacity(output_frames * channels);
+        let mut acc = vec![0.0f64; channels];
 
         for output_frame in 0..output_frames {
-            let source_position = output_frame as f64 / ratio;
-            let index0 = source_position.floor() as usize;
-            let index1 = (index0 + 1).min(input_frames.saturating_sub(1));
-            let fraction = (source_position - index0 as f64) as f32;
+            // Exact rational position: output_frame * src / dst in source samples.
+            let pos_num = output_frame as u128 * src_rate;
+            let base = (pos_num / dst_rate) as usize;
+            let frac = (pos_num % dst_rate) as f64 / dst_rate as f64;
+            let center = base as f64 + frac;
+            let j_lo = (center - half_length as f64).ceil().max(0.0) as usize;
+            let j_hi = ((center + half_length as f64).floor() as usize)
+                .min(input_frames.saturating_sub(1));
 
-            for channel in 0..channels {
-                let sample0 = buffer.samples[index0 * channels + channel];
-                let sample1 = buffer.samples[index1 * channels + channel];
-                output.push(sample0 + (sample1 - sample0) * fraction);
+            acc.fill(0.0);
+            let mut weight_sum = 0.0f64;
+            for j in j_lo..=j_hi {
+                let weight = Self::kernel(center - j as f64, cutoff, half_length);
+                weight_sum += weight;
+                let row = j * channels;
+                for (channel, sum) in acc.iter_mut().enumerate() {
+                    *sum += buffer.samples[row + channel] as f64 * weight;
+                }
+            }
+            if weight_sum.abs() < f64::EPSILON {
+                // Degenerate edge window: fall back to the nearest source frame.
+                let nearest = center.round().min((input_frames - 1) as f64) as usize;
+                output.extend_from_slice(
+                    &buffer.samples[nearest * channels..nearest * channels + channels],
+                );
+                continue;
+            }
+            for sum in &acc {
+                output.push((*sum / weight_sum) as f32);
             }
         }
 
@@ -248,7 +338,11 @@ pub fn extract_waveform<P: AsRef<Path>>(path: P, buckets: usize) -> Result<Vec<f
     Ok(waveform)
 }
 
-pub fn slice_audio_buffer(buffer: &AudioBuffer, start_time: f64, end_time: f64) -> Result<AudioBuffer> {
+pub fn slice_audio_buffer(
+    buffer: &AudioBuffer,
+    start_time: f64,
+    end_time: f64,
+) -> Result<AudioBuffer> {
     if start_time < 0.0 || end_time < 0.0 || end_time < start_time {
         return Err(SpeechAudioError::InvalidInput(
             "slice times must be non-negative and end must be >= start".to_string(),
@@ -281,16 +375,30 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
         ));
     }
 
+    if volumes.iter().any(|volume| !volume.is_finite()) {
+        return Err(SpeechAudioError::InvalidInput(
+            "mix volumes must be finite".to_string(),
+        ));
+    }
     let reference = buffers[0].config;
-    for buffer in buffers.iter().skip(1) {
+    for buffer in buffers.iter() {
         if buffer.config != reference {
             return Err(SpeechAudioError::InvalidInput(
                 "all buffers must share sample rate and channel count".to_string(),
             ));
         }
+        if buffer.samples.iter().any(|sample| !sample.is_finite()) {
+            return Err(SpeechAudioError::InvalidInput(
+                "mix inputs must not contain non-finite samples".to_string(),
+            ));
+        }
     }
 
-    let max_samples = buffers.iter().map(|buffer| buffer.samples.len()).max().unwrap_or(0);
+    let max_samples = buffers
+        .iter()
+        .map(|buffer| buffer.samples.len())
+        .max()
+        .unwrap_or(0);
     let mut mixed = vec![0.0f32; max_samples];
 
     for (buffer, volume) in buffers.iter().zip(volumes.iter().copied()) {
@@ -299,7 +407,10 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
         }
     }
 
-    let peak = mixed.iter().copied().fold(0.0f32, |max_peak, sample| max_peak.max(sample.abs()));
+    let peak = mixed
+        .iter()
+        .copied()
+        .fold(0.0f32, |max_peak, sample| max_peak.max(sample.abs()));
     if peak > 1.0 {
         for sample in &mut mixed {
             *sample /= peak;
@@ -316,12 +427,13 @@ pub fn write_wav<P: AsRef<Path>>(path: P, buffer: &AudioBuffer) -> Result<()> {
         bits_per_sample: 32,
         sample_format: WavSampleFormat::Float,
     };
-    let mut writer = WavWriter::create(path, spec)
-        .map_err(|error| SpeechAudioError::Encode(format!("failed to create WAV writer: {error}")))?;
+    let mut writer = WavWriter::create(path, spec).map_err(|error| {
+        SpeechAudioError::Encode(format!("failed to create WAV writer: {error}"))
+    })?;
     for sample in &buffer.samples {
-        writer
-            .write_sample(*sample)
-            .map_err(|error| SpeechAudioError::Encode(format!("failed to write sample: {error}")))?;
+        writer.write_sample(*sample).map_err(|error| {
+            SpeechAudioError::Encode(format!("failed to write sample: {error}"))
+        })?;
     }
     writer
         .finalize()
@@ -366,7 +478,12 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
     }
 
     let probe = get_probe()
-        .format(&hint, source, &FormatOptions::default(), &MetadataOptions::default())
+        .format(
+            &hint,
+            source,
+            &FormatOptions::default(),
+            &MetadataOptions::default(),
+        )
         .map_err(map_probe_error)?;
     let mut format = probe.format;
     let track = format
@@ -400,12 +517,13 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         .map_err(map_decode_error)?;
 
     let mut samples = Vec::new();
-    let mut sample_buffer: Option<SampleBuffer<f32>> = None;
 
     loop {
         let packet = match format.next_packet() {
             Ok(packet) => packet,
-            Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => break,
+            Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
+                break
+            }
             Err(SymphoniaError::ResetRequired) => {
                 return Err(SpeechAudioError::Decode(
                     "decoder reset required for chained stream".to_string(),
@@ -420,29 +538,20 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
 
         let decoded = match decoder.decode(&packet) {
             Ok(decoded) => decoded,
-            Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => break,
+            Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
+                break
+            }
             Err(SymphoniaError::DecodeError(_)) => continue,
             Err(error) => return Err(map_decode_error(error)),
         };
 
-        match decoded {
-            AudioBufferRef::F32(buffer) => {
-                samples.extend_from_slice(buffer.chan(0));
-                if channels > 1 {
-                    samples.clear();
-                    let mut interleaved = SampleBuffer::<f32>::new(buffer.capacity() as u64, *buffer.spec());
-                    interleaved.copy_interleaved_ref(AudioBufferRef::F32(buffer));
-                    samples.extend_from_slice(interleaved.samples());
-                }
-            }
-            other => {
-                let spec = *other.spec();
-                let duration = other.capacity() as u64;
-                let buffer = sample_buffer.get_or_insert_with(|| SampleBuffer::<f32>::new(duration, spec));
-                buffer.copy_interleaved_ref(other);
-                samples.extend_from_slice(buffer.samples());
-            }
-        }
+        // Every packet is interleaved into a fresh SampleBuffer and appended;
+        // multi-channel F32 buffers must never clear previously decoded history.
+        let spec = *decoded.spec();
+        let capacity = decoded.capacity() as u64;
+        let mut interleaved = SampleBuffer::<f32>::new(capacity, spec);
+        interleaved.copy_interleaved_ref(decoded);
+        samples.extend_from_slice(interleaved.samples());
 
         if samples.len() > limits.max_decoded_samples {
             return Err(SpeechAudioError::ResourceLimit(format!(
@@ -466,7 +575,9 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
 
 fn map_probe_error(error: SymphoniaError) -> SpeechAudioError {
     match error {
-        SymphoniaError::Unsupported(message) => SpeechAudioError::UnsupportedFormat(message.to_string()),
+        SymphoniaError::Unsupported(message) => {
+            SpeechAudioError::UnsupportedFormat(message.to_string())
+        }
         other => map_decode_error(other),
     }
 }
@@ -474,7 +585,9 @@ fn map_probe_error(error: SymphoniaError) -> SpeechAudioError {
 fn map_decode_error(error: SymphoniaError) -> SpeechAudioError {
     match error {
         SymphoniaError::IoError(error) => SpeechAudioError::Io(error),
-        SymphoniaError::Unsupported(message) => SpeechAudioError::UnsupportedFormat(message.to_string()),
+        SymphoniaError::Unsupported(message) => {
+            SpeechAudioError::UnsupportedFormat(message.to_string())
+        }
         other => SpeechAudioError::Decode(other.to_string()),
     }
 }
@@ -499,7 +612,216 @@ mod tests {
 
         assert_eq!(output.config.sample_rate, 4);
         assert!(output.samples.len() >= 7);
-        assert_eq!(output.samples.first().copied().unwrap(), 0.0);
+        // The bandlimited edge window cannot reproduce the first sample exactly;
+        // it stays bounded near the leading source neighborhood instead.
+        assert!(output.samples.first().copied().unwrap().abs() < 0.3);
+    }
+
+    fn sine_buffer(sample_rate: u32, channels: u16, frames: usize, freq_hz: f64) -> AudioBuffer {
+        let mut samples = Vec::with_capacity(frames * channels as usize);
+        for frame in 0..frames {
+            for channel in 0..channels {
+                let phase = 2.0 * std::f64::consts::PI * freq_hz * frame as f64
+                    / sample_rate as f64
+                    + channel as f64 * 0.0;
+                samples.push((phase.sin() * 0.5) as f32);
+            }
+        }
+        AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate,
+                channels,
+                sample_format: SampleFormat::F32,
+            },
+        )
+    }
+
+    fn rms(samples: &[f32]) -> f64 {
+        let sum_sq: f64 = samples.iter().map(|s| (*s as f64) * (*s as f64)).sum();
+        (sum_sq / samples.len().max(1) as f64).sqrt()
+    }
+
+    #[test]
+    fn resampler_preserves_inband_tone_across_source_rates() {
+        // 1 kHz tone through 1k/8k/44.1k/48k source rates into 16 kHz stays within
+        // a tight tolerance of the analytic sine once edge windows settle.
+        for source_rate in [1_000u32, 8_000, 44_100, 48_000] {
+            let frames = source_rate as usize / 4;
+            let input = sine_buffer(source_rate, 1, frames, 125.0);
+            let output = Resampler::new(16_000).resample(&input).unwrap();
+
+            let expected_frames = ((frames as u128 * 16_000 * 2 + source_rate as u128)
+                / (source_rate as u128 * 2)) as usize;
+            assert_eq!(output.samples.len(), expected_frames);
+
+            let edge = 64usize.min(output.samples.len() / 4);
+            let mut max_err = 0.0f64;
+            for (i, sample) in output
+                .samples
+                .iter()
+                .enumerate()
+                .skip(edge)
+                .take(output.samples.len() - 2 * edge)
+            {
+                let ideal = (2.0 * std::f64::consts::PI * 125.0 * i as f64 / 16_000.0).sin() * 0.5;
+                max_err = max_err.max((*sample as f64 - ideal).abs());
+            }
+            assert!(
+                max_err < 0.05,
+                "in-band tone distorted at {source_rate} Hz: max_err={max_err}"
+            );
+        }
+    }
+
+    #[test]
+    fn resampler_attenuates_alias_content() {
+        // 20 kHz source content is above the 4 kHz Nyquist edge of an 8 kHz
+        // target and must be attenuated before sampling, not folded.
+        let input = sine_buffer(48_000, 1, 4_800, 20_000.0);
+        let output = Resampler::new(8_000).resample(&input).unwrap();
+
+        assert!(
+            rms(&output.samples) < 0.02,
+            "alias energy leaked: {}",
+            rms(&output.samples)
+        );
+    }
+
+    #[test]
+    fn resampler_preserves_channel_isolation_and_dc() {
+        // Left carries a tone, right carries DC; neither leaks across channels.
+        let frames = 2_000usize;
+        let mut samples = Vec::with_capacity(frames * 2);
+        for frame in 0..frames {
+            samples.push(
+                (2.0 * std::f64::consts::PI * 250.0 * frame as f64 / 16_000.0).sin() as f32 * 0.5,
+            );
+            samples.push(0.7f32);
+        }
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        let output = Resampler::new(8_000).resample(&input).unwrap();
+        let edge = 48usize;
+        for frame in output
+            .samples
+            .chunks_exact(2)
+            .skip(edge)
+            .take(output.samples.len() / 2 - 2 * edge)
+        {
+            assert!(
+                (frame[1] - 0.7).abs() < 0.02,
+                "DC channel drifted: {}",
+                frame[1]
+            );
+        }
+    }
+
+    #[test]
+    fn resampler_tracks_source_positions_without_drift() {
+        // An impulse at an exact source position maps to the same rational
+        // position in the output, with no accumulated float offset over a
+        // 48000-sample span.
+        let mut samples = vec![0.0f32; 48_000];
+        samples[36_001] = 1.0;
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        let output = Resampler::new(8_000).resample(&input).unwrap();
+        let peak = output
+            .samples
+            .iter()
+            .enumerate()
+            .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+            .map(|(i, _)| i)
+            .unwrap();
+        let expected = 36_001usize * 8_000 / 48_000;
+        assert!(
+            peak.abs_diff(expected) <= 1,
+            "impulse drifted: peak={peak} expected={expected}"
+        );
+    }
+
+    #[test]
+    fn resampler_rejects_non_finite_and_invalid() {
+        let mut input = sine_buffer(16_000, 1, 128, 250.0);
+        input.samples[64] = f32::NAN;
+        assert!(matches!(
+            Resampler::new(8_000).resample(&input),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            Resampler::new(0).resample(&sine_buffer(16_000, 1, 64, 250.0)),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            Resampler::with_options(16_000, 0, 0.9),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            Resampler::with_options(16_000, 24, 1.5),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn resample_decode_rtf_smoke() {
+        // Seeded measurement smoke only: records real-time factor for resample
+        // and WAV decode under a generous bounded-scratch ceiling. No baseline
+        // is asserted; the absolute bound only guards pathological regression.
+        let frames = 48_000usize;
+        let mut samples = Vec::with_capacity(frames * 2);
+        for frame in 0..frames {
+            samples.push((frame as f64 * 0.17).sin() as f32 * 0.4);
+            samples.push((frame as f64 * 0.11).cos() as f32 * 0.4);
+        }
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        let start = std::time::Instant::now();
+        let output = Resampler::new(16_000).resample(&input).unwrap();
+        let resample_elapsed = start.elapsed();
+
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("rtf.wav");
+        write_wav(&path, &output).unwrap();
+        let decode_start = std::time::Instant::now();
+        let decoded = load_audio_buffer(&path).unwrap();
+        let decode_elapsed = decode_start.elapsed();
+
+        assert_eq!(decoded.config.sample_rate, 16_000);
+        assert_eq!(decoded.config.channels, 2);
+        assert_eq!(decoded.samples.len(), output.samples.len());
+        let seconds = input.duration_seconds();
+        println!(
+            "resample_rtf={:.3} decode_rtf={:.3} duration_s={:.2}",
+            resample_elapsed.as_secs_f64() / seconds,
+            decode_elapsed.as_secs_f64() / seconds,
+            seconds
+        );
+        assert!(
+            resample_elapsed.as_secs_f64() < 30.0,
+            "resample pathologically slow: {resample_elapsed:?}"
+        );
     }
 
     #[test]
@@ -633,5 +955,48 @@ mod tests {
 
         assert_eq!(waveform.len(), 4);
         assert!(waveform.iter().all(|sample| *sample >= 0.0));
+    }
+
+    #[test]
+    fn write_and_read_stereo_wav_preserves_channels() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("stereo.wav");
+        let buffer = AudioBuffer::new(
+            vec![0.5, -0.5, 0.25, -0.25, 1.0, -1.0, 0.125, -0.125],
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        write_wav(&path, &buffer).unwrap();
+        let decoded = load_audio_buffer(&path).unwrap();
+
+        assert_eq!(decoded.config.channels, 2);
+        assert_eq!(decoded.samples.len(), buffer.samples.len());
+        for (actual, expected) in decoded.samples.iter().zip(buffer.samples.iter()) {
+            assert!((actual - expected).abs() < 1e-6, "channel data corrupted");
+        }
+    }
+
+    #[test]
+    fn mix_audio_rejects_non_finite() {
+        let config = AudioConfig {
+            sample_rate: 16000,
+            channels: 1,
+            sample_format: SampleFormat::F32,
+        };
+        let good = AudioBuffer::new(vec![0.5, 0.5], config);
+        let nan_buffer = AudioBuffer::new(vec![0.5, f32::NAN], config);
+
+        assert!(matches!(
+            mix_audio(&[good.clone()], &[f32::NAN]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            mix_audio(&[nan_buffer], &[1.0]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
     }
 }

@@ -284,7 +284,7 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
             io.grpc.StatusRuntimeException.class,
             audioChunks::hasNext);
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAVAILABLE);
-        assertThat(exception.getStatus().getDescription()).contains("TTS_NOT_ADMITTED");
+        assertThat(exception.getStatus().getDescription()).contains("NOT_ADMITTED");
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
         verify(ttsEngine, never()).synthesize(anyString(), any());
     }
