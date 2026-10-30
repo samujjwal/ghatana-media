@@ -310,3 +310,10 @@ export type SuccessCallback<T = any> = (result: T) => void;
 export declare const DEFAULT_AUDIO_FORMAT: CanonicalAudioFormat;
 export declare function createAudioData(data: ArrayBuffer, overrides?: Partial<Omit<AudioData, 'data'>>): AudioData;
 export declare function isSupportedAudioFormat(format: string): format is AudioFormat;
+
+export declare const STTResultSchema: import('zod').ZodType<STTResult, unknown>;
+export declare const DetectionResultSchema: import('zod').ZodType<DetectionResult, unknown>;
+export declare const MultimodalResultSchema: import('zod').ZodType<MultimodalResult, unknown>;
+export declare function parseSTTResult(input: unknown): STTResult;
+export declare function parseDetectionResult(input: unknown): DetectionResult;
+export declare function parseMultimodalResult(input: unknown): MultimodalResult;
