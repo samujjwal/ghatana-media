@@ -25,6 +25,10 @@
     "./contracts": {
       "types": "./dist/contracts.d.ts",
       "import": "./dist/contracts.js"
+    },
+    "./production": {
+      "types": "./dist/production.d.ts",
+      "import": "./dist/production.js"
     }
   },
   "dependencies": {
