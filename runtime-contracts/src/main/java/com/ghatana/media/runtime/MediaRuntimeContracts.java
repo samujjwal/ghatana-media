@@ -2105,6 +2105,19 @@ public final class MediaRuntimeContracts {
         default List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
             return List.of();
         }
+        /**
+         * Real, source-owned quality evidence for the exact provider modality and model revision.
+         * The default exposes no measurement; callers must not infer quality from readiness,
+         * an arbitrary evidence reference, source metadata, or a candidate model.
+         *
+         * <p>This read-only telemetry seam does not qualify or admit any provider. An
+         * implementation must verify its evaluation report and source rights independently.
+         * Only immutable source-linked records matching the requested identity may be returned.
+         */
+        default java.util.Optional<MediaModalityContracts.ProviderQualityObservation>
+                qualityObservation(JobType modality, String modelRevision) {
+            return java.util.Optional.empty();
+        }
         default MediaModalityContracts.ProviderHealth health() {
             return new MediaModalityContracts.ProviderHealth(
                     providerId(), providerVersion(),
