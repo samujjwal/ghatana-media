@@ -87,6 +87,58 @@ public final class MediaModalityContracts {
         }
     }
 
+    /**
+     * A source-owned, measured model-quality observation linked to an immutable
+     * evaluation report. This is observational telemetry only: the record's
+     * existence, score, or report hash does NOT establish model qualification,
+     * dataset rights, an independent reviewer, or authorization to serve traffic.
+     *
+     * <p>Providers must obtain these fields from their trusted measurement
+     * source, never from a processing request or an environment promotion flag.
+     * No raw transcripts, audio, locale/speaker IDs or report paths are exposed
+     * as Prometheus labels. A missing observation is represented by absence
+     * rather than a synthetic timestamp or zero score.</p>
+     */
+    public record ProviderQualityObservation(
+            String providerId,
+            String providerVersion,
+            JobType modality,
+            String modelRevision,
+            Metric metric,
+            double measuredValue,
+            Instant measuredAt,
+            String reportSha256) {
+
+        /** Metric orientation is independent of readiness or admission. */
+        public enum Metric { WER, CER, MAP50, REAL_TIME_FACTOR, INTELLIGIBILITY }
+
+        public ProviderQualityObservation {
+            providerId = required(providerId, "quality providerId");
+            providerVersion = required(providerVersion, "quality providerVersion");
+            modality = Objects.requireNonNull(modality, "quality modality");
+            modelRevision = required(modelRevision, "quality modelRevision");
+            if (providerId.length() > 128 || providerVersion.length() > 128
+                    || modelRevision.length() > 128
+                    || !providerId.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")
+                    || !providerVersion.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")
+                    || !modelRevision.matches("[A-Za-z0-9][A-Za-z0-9._:+-]*")) {
+                throw new IllegalArgumentException("quality identities must be bounded metric tokens");
+            }
+            metric = Objects.requireNonNull(metric, "quality metric");
+            if (!Double.isFinite(measuredValue) || measuredValue < 0) {
+                throw new IllegalArgumentException("quality measurement must be finite and nonnegative");
+            }
+            measuredAt = Objects.requireNonNull(measuredAt, "measuredAt");
+            if (measuredAt.isAfter(Instant.now().plusSeconds(60))) {
+                throw new IllegalArgumentException("quality observation timestamp cannot be in the future");
+            }
+            reportSha256 = Objects.requireNonNull(reportSha256, "reportSha256").trim();
+            if (!reportSha256.matches("[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("quality report must have a SHA-256 content digest");
+            }
+        }
+    }
+
     /** Safe capability discovery projection for one provider modality. */
     public record CapabilityProfile(
             String providerId,
