@@ -461,7 +461,14 @@ describe("MediaOperationClient", () => {
         defaultHeaders: { "X-Principal-Id": "principal-1" },
       });
       const failure = await client.transcribe(
-        { artifactId: "art-1", idempotencyKey: "submit-ambig-1" },
+        {
+          artifactId: "art-1",
+          punctuation: true,
+          wordTimestamps: false,
+          alternatives: 1,
+          profanityPolicy: "PRESERVE",
+          idempotencyKey: "submit-ambig-1",
+        },
       ).then(
         () => { throw new Error("expected the submit to fail"); },
         (error) => error,

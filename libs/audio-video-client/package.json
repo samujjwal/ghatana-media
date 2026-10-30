@@ -32,6 +32,14 @@
     "./canonical-routes": {
       "types": "./dist/canonical-routes.d.ts",
       "import": "./dist/canonical-routes.js"
+    },
+    "./canonical-operations": {
+      "types": "./dist/canonical-operations.d.ts",
+      "import": "./dist/canonical-operations.js"
+    },
+    "./http-core": {
+      "types": "./dist/http-core.d.ts",
+      "import": "./dist/http-core.js"
     }
   },
   "dependencies": {

@@ -1,6 +1,5 @@
 import {
   MediaArtifactSchema,
-  MediaCanonicalErrorSchema,
   MediaProcessingJobSchema,
   MultimodalAnalysisRequestSchema,
   OperationAcceptedSchema,
@@ -12,7 +11,6 @@ import {
   VoiceConversionRequestSchema,
   VoiceTrainingRequestSchema,
   type MediaArtifact,
-  type MediaCanonicalError,
   type MediaProcessingJob,
   type MultimodalAnalysisRequest,
   type OperationAccepted,
@@ -25,26 +23,29 @@ import {
   type VoiceTrainingRequest,
 } from "@audio-video/types/contracts";
 
-interface RuntimeParser<T> {
-  parse(input: unknown): T;
-}
+import {
+  MediaHttpTransport,
+  boundedPositive,
+  linkAbortSignal,
+  safeIdentityHeader,
+  wait,
+  type MediaTransportConfig,
+  type RuntimeParser,
+} from "./http-core.js";
 
-export interface MediaOperationClientConfig {
-  readonly baseUrl: string;
-  readonly tenantId: string;
-  readonly fetchImpl?: typeof fetch;
-  readonly getAccessToken?: () => string | undefined | Promise<string | undefined>;
-  readonly defaultHeaders?: Readonly<Record<string, string>>;
-  readonly requestTimeoutMs?: number;
-  readonly pollIntervalMs?: number;
-  /** Causal context propagated across service boundaries; a fresh request ID is always generated. */
-  readonly requestContext?: Readonly<{
-    correlationId?: string;
-    causationId?: string;
-    parentRunId?: string;
-    principalDelegation?: string;
-  }>;
-}
+export {
+  MediaClientError,
+  MediaOperationAmbiguousError,
+  MediaOperationNotAdmittedError,
+} from "./http-core.js";
+export type { RuntimeParser } from "./http-core.js";
+
+import {
+  MediaOperationAmbiguousError,
+  MediaOperationNotAdmittedError,
+} from "./http-core.js";
+
+export interface MediaOperationClientConfig extends MediaTransportConfig {}
 
 /** Runtime UploadRequest fields accepted by POST /api/v1/artifacts/uploads. */
 export type CanonicalMediaClassification = "PUBLIC" | "INTERNAL" | "CONFIDENTIAL" | "RESTRICTED";
@@ -91,18 +92,6 @@ export interface UploadProgress {
   readonly uploadedBytes: number;
   readonly totalBytes: number;
   readonly percentage: number;
-}
-
-export class MediaClientError extends Error {
-  public readonly detail: MediaCanonicalError;
-  public readonly statusCode?: number;
-
-  public constructor(detail: MediaCanonicalError, statusCode?: number) {
-    super(detail.message);
-    this.name = "MediaClientError";
-    this.detail = detail;
-    this.statusCode = statusCode;
-  }
 }
 
 /** Exact current runtime DTO from MediaRuntimeContracts.MediaArtifact. */
@@ -311,42 +300,6 @@ function parseCanonicalMediaArtifactObservation(input: unknown): CanonicalMediaA
 }
 
 /** A source-compatible SDK method whose server route has not been admitted. */
-/**
- * A submit effect aborted after the request may have been dispatched — the
- * server-side outcome is OUTCOME_UNKNOWN, never a clean failure. Callers must
- * not retry blindly or report the job as failed; reconciliation reads the
- * durable job state instead.
- */
-export class MediaOperationAmbiguousError extends Error {
-  public readonly path: string;
-  public constructor(path: string, cause: unknown) {
-    super(`Media operation outcome is unknown after dispatch abort on ${path}`);
-    this.name = "MediaOperationAmbiguousError";
-    this.path = path;
-    this.cause = cause;
-  }
-}
-
-export class MediaOperationNotAdmittedError extends Error {
-  public constructor(public readonly operation: string) {
-    super(`Media operation is not admitted by the current server contract: ${operation}`);
-    this.name = "MediaOperationNotAdmittedError";
-  }
-}
-
-function normalizeBaseUrl(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) throw new Error("Media client baseUrl is required.");
-  return trimmed.replace(/\/+$/u, "");
-}
-
-function safeIdentityHeader(name: string, value: string | undefined): string | undefined {
-  if (value === undefined) return undefined;
-  if (value.length === 0 || value.length > 255 || !/^[\x21-\x7e]+$/u.test(value)) {
-    throw new Error(`Invalid media client request identity field: ${name}.`);
-  }
-  return value;
-}
 
 function validateUploadFileName(value: string): void {
   if (typeof value !== "string" || !value || value.trim() !== value
@@ -361,36 +314,6 @@ function validateUploadTextField(value: string, field: "contentType"): void {
     || /[\u0000-\u001f\u007f-\u009f]/u.test(value)) {
     throw new Error(`${field} must be non-empty and canonical without surrounding whitespace or control characters.`);
   }
-}
-
-function boundedPositive(value: number | undefined, fallback: number): number {
-  return Number.isFinite(value) && (value ?? 0) > 0 ? Math.round(value as number) : fallback;
-}
-
-function wait(milliseconds: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(signal.reason ?? new DOMException("Operation cancelled", "AbortError"));
-      return;
-    }
-    const timeout = setTimeout(resolve, milliseconds);
-    const onAbort = (): void => {
-      clearTimeout(timeout);
-      reject(signal?.reason ?? new DOMException("Operation cancelled", "AbortError"));
-    };
-    signal?.addEventListener("abort", onAbort, { once: true });
-  });
-}
-
-function linkAbortSignal(source: AbortSignal | undefined, target: AbortController): () => void {
-  if (!source) return () => undefined;
-  if (source.aborted) {
-    target.abort(source.reason);
-    return () => undefined;
-  }
-  const onAbort = (): void => target.abort(source.reason);
-  source.addEventListener("abort", onAbort, { once: true });
-  return () => source.removeEventListener("abort", onAbort);
 }
 
 function terminal(job: MediaProcessingJob): boolean {
@@ -480,40 +403,16 @@ export class MediaOperationHandle<T> {
  * this annotation does not change routes or runtime behavior.
  */
 export class MediaOperationClient {
-  private readonly baseUrl: string;
-  private readonly tenantId: string;
-  private readonly fetchImpl: typeof fetch;
-  private readonly getAccessToken?: MediaOperationClientConfig["getAccessToken"];
-  private readonly defaultHeaders: Readonly<Record<string, string>>;
-  private readonly requestTimeoutMs: number;
-  private readonly requestContext: NonNullable<MediaOperationClientConfig["requestContext"]>;
+  private readonly transport: MediaHttpTransport;
   public readonly pollIntervalMs: number;
 
   public constructor(config: MediaOperationClientConfig) {
-    this.baseUrl = normalizeBaseUrl(config.baseUrl);
-    this.tenantId = safeIdentityHeader("tenantId", config.tenantId.trim()) ?? "";
-    if (!this.tenantId) throw new Error("Media client tenantId is required.");
-    this.fetchImpl = config.fetchImpl ?? fetch;
-    this.getAccessToken = config.getAccessToken;
-    // The configured caller identity must not change through an external mutable alias.
-    this.defaultHeaders = Object.freeze({ ...config.defaultHeaders });
-    this.requestTimeoutMs = boundedPositive(config.requestTimeoutMs, 30_000);
-    this.pollIntervalMs = boundedPositive(config.pollIntervalMs, 1_000);
-    const requestContext = config.requestContext ?? {};
-    this.requestContext = {
-      ...(safeIdentityHeader("correlationId", requestContext.correlationId) === undefined
-        ? {}
-        : { correlationId: requestContext.correlationId }),
-      ...(safeIdentityHeader("causationId", requestContext.causationId) === undefined
-        ? {}
-        : { causationId: requestContext.causationId }),
-      ...(safeIdentityHeader("parentRunId", requestContext.parentRunId) === undefined
-        ? {}
-        : { parentRunId: requestContext.parentRunId }),
-      ...(safeIdentityHeader("principalDelegation", requestContext.principalDelegation) === undefined
-        ? {}
-        : { principalDelegation: requestContext.principalDelegation }),
-    };
+    this.transport = new MediaHttpTransport(config);
+    this.pollIntervalMs = this.transport.pollIntervalMs;
+  }
+
+  private get tenantId(): string {
+    return this.transport.tenantId;
   }
 
   public async createUploadSession(
@@ -559,7 +458,7 @@ export class MediaOperationClient {
     // Detach caller-owned metadata before headers() can await token acquisition.
     // The same immutable JSON snapshot is sent and then used for response binding.
     const requestSnapshot = JSON.parse(JSON.stringify(uploadRequest)) as typeof uploadRequest;
-    const created = await this.request(
+    const created = await this.transport.request(
       "POST", "/api/v1/artifacts/uploads", requestSnapshot,
       { parse: parseCanonicalMediaUploadSession }, signal,
       { "Idempotency-Key": idempotencyKey },
@@ -599,16 +498,17 @@ export class MediaOperationClient {
     const unlink = linkAbortSignal(options.signal, controller);
     const timeout = setTimeout(
       () => controller.abort(new DOMException("Upload timed out", "TimeoutError")),
-      this.requestTimeoutMs,
+      this.transport.requestTimeoutMs,
     );
     options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
     try {
-      const headers = await this.headers({ "Content-Type": "application/octet-stream" });
-      const response = await this.fetchImpl(
-        `${this.baseUrl}/api/v1/artifacts/uploads/${encodeURIComponent(current.uploadId)}/chunks/${chunkIndex}`,
-        { method: "PUT", headers, body: data, signal: controller.signal },
+      const headers = await this.transport.headers({ "Content-Type": "application/octet-stream" });
+      const response = await this.transport.fetchRaw(
+        `${this.transport.baseUrl}/api/v1/artifacts/uploads/${encodeURIComponent(current.uploadId)}/chunks/${chunkIndex}`,
+        { method: "PUT", headers, body: data },
+        controller.signal,
       );
-      if (!response.ok) throw await this.errorFromResponse(response);
+      if (!response.ok) throw await this.transport.errorFromResponse(response);
       const updated = parseCanonicalMediaUploadSession(await response.json());
       this.assertUploadScope(updated, principalId);
       if (!uploadImmutableFieldsMatch(updated, current) || updated.status !== "OPEN"
@@ -635,7 +535,7 @@ export class MediaOperationClient {
       throw new Error("Canonical upload reads require a safe single path-segment upload ID.");
     }
     const principalId = this.requirePrincipalId("upload reads");
-    return this.request(
+    return this.transport.request(
       "GET",
       `/api/v1/artifacts/uploads/${encodeURIComponent(requestedUploadId)}`,
       undefined,
@@ -680,7 +580,7 @@ export class MediaOperationClient {
         throw new Error("Session-based completion requires an OPEN, complete upload session.");
       }
     }
-    const artifact = await this.request(
+    const artifact = await this.transport.request(
       "POST", `/api/v1/artifacts/uploads/${encodeURIComponent(requestedId)}/complete`, undefined,
       { parse: parseCanonicalMediaArtifactObservation }, signal,
     );
@@ -697,7 +597,7 @@ export class MediaOperationClient {
   }
 
   private requirePrincipalId(operation: string): string {
-    const value = Object.entries(this.defaultHeaders)
+    const value = Object.entries(this.transport.callerDefaultHeaders())
       .find(([name]) => name.toLowerCase() === "x-principal-id")?.[1];
     const principalId = safeIdentityHeader("principalId", value);
     if (!principalId) throw new Error(`Canonical ${operation} require the caller's X-Principal-Id scope header.`);
@@ -719,14 +619,14 @@ export class MediaOperationClient {
     if (requestedArtifactId === "." || requestedArtifactId === ".." || /[\\/]/u.test(requestedArtifactId)) {
       throw new Error("Canonical artifact reads require a safe single path-segment artifact ID.");
     }
-    const principalValue = Object.entries(this.defaultHeaders)
+    const principalValue = Object.entries(this.transport.callerDefaultHeaders())
       .find(([name]) => name.toLowerCase() === "x-principal-id")?.[1];
     if (!principalValue) {
       throw new Error("Canonical artifact reads require the caller's X-Principal-Id scope header.");
     }
     const principalId = safeIdentityHeader("principalId", principalValue);
     if (!principalId) throw new Error("Canonical artifact reads require the caller's X-Principal-Id scope header.");
-    return this.request(
+    return this.transport.request(
       "GET",
       `/api/v1/artifacts/${encodeURIComponent(requestedArtifactId)}`,
       undefined,
@@ -757,7 +657,7 @@ export class MediaOperationClient {
         return input.map((item) => ProviderCapabilitySchema.parse(item));
       },
     };
-    return this.request(
+    return this.transport.request(
       "GET",
       "/api/v1/media/providers/capabilities",
       undefined,
@@ -835,7 +735,7 @@ export class MediaOperationClient {
     operationId: string,
     signal?: AbortSignal,
   ): Promise<MediaProcessingJob> {
-    return this.request(
+    return this.transport.request(
       "GET",
       `/api/v1/media/operations/${encodeURIComponent(operationId)}`,
       undefined,
@@ -848,7 +748,7 @@ export class MediaOperationClient {
     operationId: string,
     signal?: AbortSignal,
   ): Promise<MediaProcessingJob> {
-    return this.request(
+    return this.transport.request(
       "POST",
       `/api/v1/media/operations/${encodeURIComponent(operationId)}:cancel`,
       {},
@@ -874,7 +774,7 @@ export class MediaOperationClient {
     parser: RuntimeParser<T>,
     signal?: AbortSignal,
   ): Promise<T> {
-    return this.request(
+    return this.transport.request(
       "GET",
       `/api/v1/media/operations/${encodeURIComponent(operationId)}/result`,
       undefined,
@@ -892,7 +792,7 @@ export class MediaOperationClient {
   ): Promise<MediaOperationHandle<T>> {
     let accepted: OperationAccepted;
     try {
-      accepted = await this.request(
+      accepted = await this.transport.request(
         "POST",
         path,
         body,
@@ -913,129 +813,6 @@ export class MediaOperationClient {
     return new MediaOperationHandle(this, accepted, resultParser);
   }
 
-  private async headers(
-    additions: Readonly<Record<string, string>> = {},
-  ): Promise<Headers> {
-    const headers = new Headers(this.defaultHeaders);
-    headers.set("Accept", "application/json");
-    const requestId = crypto.randomUUID();
-    headers.set("X-Request-ID", requestId);
-    headers.set("X-Correlation-ID", this.requestContext.correlationId ?? requestId);
-    headers.set("X-Tenant-ID", this.tenantId);
-    if (this.requestContext.causationId) {
-      headers.set("X-Causation-ID", this.requestContext.causationId);
-    } else {
-      headers.delete("X-Causation-ID");
-    }
-    if (this.requestContext.parentRunId) {
-      headers.set("X-Parent-Run-ID", this.requestContext.parentRunId);
-    } else {
-      headers.delete("X-Parent-Run-ID");
-    }
-    if (this.requestContext.principalDelegation) {
-      headers.set("X-Ghatana-Delegation", this.requestContext.principalDelegation);
-    } else {
-      headers.delete("X-Ghatana-Delegation");
-    }
-    for (const [name, value] of Object.entries(additions)) {
-      headers.set(name, value);
-    }
-    const token = await this.getAccessToken?.();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
-    return headers;
-  }
-
-  private async request<T>(
-    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
-    path: string,
-    body: unknown,
-    parser: RuntimeParser<T>,
-    signal?: AbortSignal,
-    additionalHeaders: Readonly<Record<string, string>> = {},
-  ): Promise<T> {
-    const controller = new AbortController();
-    const unlink = linkAbortSignal(signal, controller);
-    const timeout = setTimeout(
-      () => controller.abort(new DOMException("Request timed out", "TimeoutError")),
-      this.requestTimeoutMs,
-    );
-    try {
-      const headers = await this.headers(additionalHeaders);
-      if (body !== undefined) headers.set("Content-Type", "application/json");
-      const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
-        method,
-        headers,
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-        signal: controller.signal,
-      });
-      if (!response.ok) throw await this.errorFromResponse(response);
-      if (response.status === 204) return parser.parse(undefined);
-      return parser.parse(await response.json());
-    } finally {
-      clearTimeout(timeout);
-      unlink();
-    }
-  }
-
-  private async errorFromResponse(response: Response): Promise<MediaClientError> {
-    let value: unknown;
-    try {
-      value = await response.json();
-    } catch {
-      value = undefined;
-    }
-    const parsed = MediaCanonicalErrorSchema.safeParse(value);
-    if (parsed.success) return new MediaClientError(parsed.data, response.status);
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      const envelope = value as Record<string, unknown>;
-      const detail = envelope.error;
-      const meta = envelope.meta;
-      if (detail && typeof detail === "object" && !Array.isArray(detail)
-        && meta && typeof meta === "object" && !Array.isArray(meta)) {
-        const error = detail as Record<string, unknown>;
-        const metadata = meta as Record<string, unknown>;
-        if (typeof error.code === "string" && typeof error.message === "string"
-          && typeof error.retryable === "boolean" && typeof metadata.correlationId === "string") {
-          return new MediaClientError({
-            code: error.code,
-            message: error.message,
-            correlationId: metadata.correlationId,
-            retryable: error.retryable,
-            category: response.status === 401 ? "AUTHENTICATION"
-              : response.status === 403 ? "AUTHORIZATION"
-                : response.status === 409 ? "CONFLICT"
-                  : response.status === 429 ? "RATE_LIMIT"
-                    : response.status >= 500 ? "INTERNAL" : "VALIDATION",
-          }, response.status);
-        }
-      }
-    }
-    return new MediaClientError({
-      code: `HTTP_${response.status}`,
-      message: response.statusText || "Media request failed.",
-      correlationId: response.headers.get("x-correlation-id") ?? "not-reported",
-      retryable: response.status === 429 || response.status >= 500,
-      category:
-        response.status === 401
-          ? "AUTHENTICATION"
-          : response.status === 403
-            ? "AUTHORIZATION"
-            : response.status === 409
-              ? "CONFLICT"
-              : response.status === 429
-                ? "RATE_LIMIT"
-                : response.status >= 500
-                  ? "INTERNAL"
-                  : "VALIDATION",
-      ...(response.headers.get("retry-after")
-        ? {
-            retryAfterMs:
-              Number.parseFloat(response.headers.get("retry-after") ?? "0") *
-              1_000,
-          }
-        : {}),
-    }, response.status);
-  }
 }
 
 export function createMediaOperationClient(
