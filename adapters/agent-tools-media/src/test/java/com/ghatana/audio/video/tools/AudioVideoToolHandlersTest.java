@@ -268,6 +268,22 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("an envelope without tenant context fails closed before any provider call")
+    void missingTenantNeverReachesDelegate() {
+        // The envelope factory itself is the first guard: a null/blank tenant
+        // cannot be constructed into an invocation at all.
+        for (String tenant : new String[]{null, "", "   "}) {
+            assertThatThrownBy(() -> ToolExecutionEnvelope.of(
+                    "av.speech-to-text", "1.0.0", "caller-agent", null,
+                    tenant, ToolActionClass.CALL_EXTERNAL, "1.0",
+                    Map.of("audioSource", Map.of("mediaArtifactId", "art-1"))))
+                    .hasMessageContaining("tenantId");
+        }
+        // The adapter additionally re-checks inside checked() so no alternate
+        // construction path can bypass tenant attribution before a provider call.
+    }
+
+    @Test
     @DisplayName("all handlers reject null envelope and contract before returning a result promise")
     void nullArgumentsThrowDirectlyForEveryHandler() {
         List<com.ghatana.toolruntime.ToolHandler> handlers = List.of(

@@ -68,6 +68,11 @@ final class AgentToolInput {
             throw new IllegalArgumentException("TOOL_ACTION_CLASS_MISMATCH");
         if (!fields.containsAll(envelope.input().keySet()))
             throw new IllegalArgumentException("UNKNOWN_INPUT_FIELD");
+        // A Media tool effect is tenant-scoped: without a non-blank tenant
+        // context no authorization decision is possible, so the envelope must
+        // fail closed before any provider call rather than run unattributed.
+        if (envelope.tenantId() == null || envelope.tenantId().isBlank())
+            throw new IllegalArgumentException("MISSING_TENANT_CONTEXT");
         return envelope.input();
     }
 
