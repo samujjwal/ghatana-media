@@ -236,3 +236,95 @@
 | **IT-04** | IT-01,DC-05,AT-06,SK-07 | `integration-tests/src/test/java/.../AudioVideoDataCloudAepAgentE2ETest.java; MediaProviderLifecycle.test.ts` | Exercise Action Plane tool→Media job→event/outbox→Data Cloud consumer readback, exact source credential auth and secret-free errors, protected failure recovery. | One authorized real provider effect with source rights and receipt where available; unavailable platform returns exact missing external dependency. |
 | **IT-05** | IT-01,IT-02,IT-03 | `integration-tests/src/test/java/com/ghatana/audio/video/integration/IntegrationImagesCondition.java; AudioVideoContainerBase.java; docker-compose.integration.yml` | Resolve GH-90000 as separate ops lane: CI-pinned service images or `AUDIO_VIDEO_STT_IMAGE`/`AUDIO_VIDEO_TTS_IMAGE` with digest/host/version proof; rerun only nine previously skipped compose cases. | 9 image-dependent test statuses observed as true PASS/FAIL/SKIP with documented reason; never rewrite skip totals or turn test absence into PASS. |
 | **IT-06** | IT-02..IT-05,CT-05 | `integration-tests/src/test/java/com/ghatana/media/integration/*; docs/TESTING.md; resource/fixture profile` | Run incremental affected suites, then single correct whole-backend suite for selected 15 physical targets, including mixed workload, terminal/partial, provider ambiguity, cross-product and resource-bound tests. | Every selected backend surface has real test IDs/commands/observed counts, negative/fault and compatibility; Track B/PDP/production cutover remain untouched. |
+
+## 4. Cross-surface headless production outcomes (H01–H08; no new physical surface)
+
+These are **backend product behavior packages** under canonical `M-BLD-F13`, `M-BLD-L01`, `M-BLD-V12..V15`, and `M-BLD-X01`. They bind the existing **logical** recorder/capture/animation/simulation contracts to actual Media physical code owners; they do **not** create a 20th remaining physical surface, new product definition, another job/artifact writer or second engine architecture. They may be developed in parallel where the owning physical files are unlocked; shared `runtime-contracts` and `launcher` mutations require Wave 1 owner coordination.
+
+**Normative source:** `.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml` (typed production value schemas, no new canonical domain objects), `recorder-studio-contracts.yaml` (one project revision/MediaRun/JobAttempt), `pdp-2-design-interface-system/animation-simulation-grammar.yaml` (distinct rational story/media/simulation/wall clocks), `pdp-3-product-experience/declarative-production-experience.yaml` and `demo-recording-standard.yaml`. The latter's one curated Explorer film is **EXPLORER_SIMULATED**, not runtime, scientific or publication proof.
+
+| Task | Dependencies | Exact existing Media host / planned source | Implementation and expected test |
+| --- | --- | --- | --- |
+| **H-01** | TY-04,TY-05 | `libs/audio-video-types/src/contracts.ts`; PDP-1 JSON Schema compiled validator | Compile versioned ProductionSpec/CaptureSceneSpec/AnimationSpec/SimulationSpec with exact bigint/rational/custom formats and closed parameters. Invalid units, unbounded recursion, missing source digest, and unsafe code/shader block before job admission; schema fixture roundtrips. |
+| **H-02** | H-01,IP-04 | `runtime-contracts/` and existing `launcher` project-revision/job SPI (serialized owner edit) | Compile typed specs into a deterministic DAG of existing Media commands with one canonical project revision, manual operation locks, source/rights decisions, bounded cost and plan fingerprint. Same input/rights/engine hashes yield same plan; source change invalidates affected descendants only. |
+| **H-03** | H-02,SK-06 | `libs/audio-video-client/src/operations.ts`, `src/cli.ts`; existing `media.surface.recorder-orchestrator` logical consumer | Data-driven unattended scenario runner: typed actors/scenes/source refs, capture orchestration, timed narration/captions/track refs, noninteractive bounded recapture and dry-run; no hidden business action or production provider enabled from fixture. Test two identical runs + selective changed scene with stable output lineage. |
+| **H-04** | H-02,AS-05,VS-06 | `runtime-contracts/` Media capture source SPI + `libs/audio-video-client` authorized source adapter | Exact browser/desktop/mobile/terminal/http-api/grpc-api/camera/media-file **adapter eligibility** through existing public device/product interfaces. Requires source identity, rights/purpose/version, controlled secrets, frame clock and actual captured bytes. Disabled adapters return NOT_ADMITTED; never fabricate screen pixels, device availability or product success. |
+| **H-05** | H-01,RS-03 | Media-qualified renderer/animation provider behind existing `launcher` job and `runtime-contracts` | Compile declarative 2D/3D keyframe/scene/animation graph with typed easing, dimensions, time and assets; reuse selected renderer/codec, source and quality policies. Rendered frames must be actual outputs with exact version; unsupported rigs/physics/3D model ⇒ typed unavailable, not placeholder video. |
+| **H-06** | H-01,RS-03 | New Media-owned simulation worker within existing qualified module/launcher SPI; no new physical surface identity unless separately registered | Implement deterministic seeded stepper, model IR, solver identity, units/boundary/initial state, checkpoints, adaptive-step error/uncertainty and reproducible observables. Analytical PDP-3 Newton constant-force fixture (mass 2 kg, force 6 N, t=2 s ⇒ a=3 m/s², v=6 m/s, x=6 m) validates solver, not just animation; mismatched units/unstable solver ABSTAIN. |
+| **H-07** | H-03,H-04,H-05,H-06 | `launcher` canonical job/attempt, artifact version, outbox, existing provider SPI | Produce qualified real-capture/animation/simulation outputs with origin class REAL_CAPTURE/DECLARATIVE_ANIMATION/MODEL_SIMULATION, immutable source/version + plan fingerprint, verifiable checksum, sealed result provenance, effective rights and process-fence. Crash/UNKNOWN cannot cause duplicate external effect or fake scientific validation. |
+| **H-08** | H-03,H-07,IT-06 | `integration-tests/`, `libs/audio-video-client`, PDP-3 `media.demo.j03.corrected-captions.v1` | Run one end-to-end **real product** business scenario against authorized synthetic/curated data, capture genuine source-derived video with narration and captions and verify exact terminal artifact/version. Keep Explorer static counterpart visibly labeled and same scenario source; no actual customer recording or external publication, Track B PDP-3 closure untouched. |
+
+**Scientific/provenance rule:** a declared animation frame is NOT a simulation proof; a synthetic PDP Explorer state is NOT a production Media completion. Keep source class, solver/fidelity unit, qualified provider/model, quality estimates, caption alignment and human-authored edit locks separate and verifiable. No mass "new module" registration just to satisfy task counting.
+
+## 5. Whole-remaining physical applicability and explicit non-backend handoff
+
+The remainder has **19 registered physical candidates**, not nineteen new backend services. All 19 are accounted for exactly; the four outside backend scope remain real product work, not silent N/A:
+
+| Physical surface | This plan's disposition | Owner handoff and why |
+| --- | --- | --- |
+| `media.physical.apps-media-experience-explorer` | **UI/Explorer tooling only** | PDP/Explorer owner; static curated scenarios J-14 and source-linked review. Keep fake state, fake screenshots and narration clearly simulated; no backend readiness or runtime source. |
+| `media.physical.libs-audio-video-ui` | **GUI library / Studio** | Media UI owner; F10/L02, 202 exact PDP-0 intent memberships, 27 PDP-3 journey links. Needs real host, accessibility, editor/project revisions; explicitly outside this backend-only implementation slice. |
+| `media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react` | **Voice GUI / UX** | Media UI owner; J-04/J-16, one mapped `media.speech.synthesis.text-to-speech` intent; do not confuse React voice controls with qualified TTS provider or voice consent. |
+| `media.physical.libs-media-experience-simulation` | **Source-owned Explorer simulator / fixture tooling** | Media product-experience owner; J-14/J-15 local fixture simulations and CLI proof remain nonproduction. Headless actual scientific solver is H-06; preserve separation. |
+
+**The other 15 exact physical identities** are the JC, MC, TY, RS, IP, CA, LD, AS, VS, DC, OC, AT, SK, CT and IT sections above. SU​BSUMED leaves `libs/common` and `libs/java/common` are supporting implementation code with existing consumers; do not create a parallel self-standing service or closure claim. `adapters/data-cloud-media` is PDP-0 APPLICABLE but currently has **zero directly mapped capabilityIntentIds**; address exact consumer contract and Media/Data Cloud authority under DC tasks, not by fabricating a capability ref. Streaming modules currently say `NO_IMPLEMENTATION_ADMITTED`; real transport/source proof is needed before anyone calls them complete.
+
+## 6. Dependency and concurrency plan
+
+```mermaid
+flowchart LR
+  P["Earlier Media foundations and current Wave2 owner contracts"] --> A["W3A: JC, MC, TY, RS"]
+  A --> B["W3B: IP, CA, LD, AS, VS"]
+  B --> C["W3C: DC, OC, AT, SK"]
+  A --> C
+  B --> D["W3D: CT, IT"]
+  C --> D
+  D --> H["H: actual headless recorder/animation/simulation"]
+  A --> H
+  B --> H
+```
+
+| Pulse window (guidance only) | Parallel, nonoverlapping work | Observable exit |
+| --- | --- | --- |
+| **W3A — first two engineering pulses** | JC-01, MC-01, TY-01, RS-01 and independent AS-02/VS-02 frame-decoder negative tests | At least one concrete code/test patch with exact failing/green repro; current Wave2 source ownership reconciled. |
+| **W3B — subsequent scoped 2–4 days** | IP-01/02/03, CA-01/02, LD-01/02, AS/VS domain and temporal streaming tests, Rust resample/fuzz | One writer for storage, correct frame bounds, class/codec/tenant/security invariants, no invisible duplicate platform mechanism. |
+| **W3C — following 2–4 days** | TY/SDK wire/client parity, DC public semantic/read boundary, OCR compatibility, bounded Agent Tools | Current consumer API/Tool/CLI readback with truthful UNBOUND/NOT_ADMITTED, no unsafe external effect. |
+| **W3D — one focused final integration pulse per group** | CT + IT actual Postgres/S3/process tests; H01..H08 independent headless product outcomes when prerequisites established | Exact real/fixture status, latency/resource, negative + restart/replay/UNKNOWN, ready only if actual output and source authority exist. |
+
+Timeboxes set a **pulse/checkpoint**, not promise of wall-time delivery. A stalled legal/provider/model/hardware dependency must produce a named owner/fallback and progress on independent local tests; do not self-approve a rights grant or alter Wave2 R8 status. Highest-impact immediate bug fixes are AS-02 and VS-02, but serialize any shared MediaRuntime source edits with Wave2's active writer.
+
+## 7. Actual acceptance oracles and resource limits
+
+| Oracle | Cross-surface procedure | Required observable result |
+| --- | --- | --- |
+| **W3-E01** | Untrusted audio/video frame short/negative/overflow length into existing codec helper | No unbounded allocation or native decode, typed invalid-frame, legitimate legacy frame roundtrip |
+| **W3-E02** | One tenant starts audio+video stream, drops frames, revokes consent, disconnects and reconnects under two contender workers | Single sequenced current lease, bounded queue, correct PTS/ACK/partial, no unauthorized replay or cross-tenant frame |
+| **W3-E03** | Ingest source WAV → Rust decode/resample → authorized STT segment → immutable transcript readback | Real valid audio sample/time/quantization, stable provenance, no aliasing/clipping or invented transcript |
+| **W3-E04** | Old JPA transcript + canonical PostgreSQL artifact/job/attempt through versioned adapter and cache | Same immutable source/version, tenant isolation, no second schema writer or stale cache after revocation |
+| **W3-E05** | Job attempt → Media ledger projection → Data Cloud read model/event observation | Unknown/partial/cancel finality preserved, no fake ledger ACK or raw data disclosure |
+| **W3-E06** | Authorized Agent Tool → typed Media job → qualified provider → SDK status | One actual effect and version, safe idempotency, forged/invalid tool denied before dispatch |
+| **W3-E07** | CLI artifact inspect against authentic isolated Media server | Existing production-bound read-only CLI returns stable JSON, token never in arg/log, 404 not conflated with absolute absence |
+| **W3-E08** | Legacy generic OCR compatibility call without admitted DI public client | NOT_ADMITTED, no copied OCR model or user image exfiltration, stable status and fallback |
+| **W3-E09** | ProductionSpec same inputs twice then changed one source scene, with selective recapture | Same plan hash and unchanged scene outputs, affected descendants regenerated; manual locks and rights enforced |
+| **W3-E10** | Newton constant-force deterministic simulation + animation + narration source | a=3 m/s², v=6 m/s, x=6 m from solver, unit/fidelity independently checked; animation alone not scientific proof |
+| **W3-E11** | Real media business scenario J-03 through authorized project/job/artifact + recorder source | Verified source and terminal output version, actual recorded video/narration/captions, distinct EXPLORER_SIMULATED counterpart |
+| **W3-E12** | Real source-free SDK/Agent Tools/DataCloud clients, service process restart and broker/network loss | No duplicate external effect or falsely final success, all contract status/UNKNOWN and identity preserved |
+| **W3-E13** | 1/16/64-stream, cache, SDK and tool mixed workload with hostile payload and privacy marker | p50/p95/p99 + CPU/RSS/scratch/network, bounded queue/threads, no secret or payload in logs/metrics |
+| **W3-E14** | Restart old/public client fixtures against reconciled Media with image-gated compose cohort available | Current real tests run under pinned images; missing GH-90000 images remain explicit SKIPPED, not PASS |
+
+**Benchmark discipline:** pin source SHA, JVM/Rust/Node, hardware, CPU/GPU, DB/object-store image, codec/model digest, fixture, tenant mix and cost/retention policy. Test cheap affected paths first; no full rerun of closed Wave2 suites unless a changed input invalidates them. PDP-0 NFR-PERF-001 metadata/job-ack budgets remain proposed until reference environment is approved; no invented latency claim. Keep all applicable finite budget dimensions, deterministic clock/units, and temporary-source cleanup.
+
+**Per-physical disposition:** Only physical surfaces with actual code + negative/boundary tests + integrated consumer readback + claimed feature implementation may be `LOGICALLY_BACKEND_DEV_COMPLETE`. A truthful NOT_ADMITTED is the correct safe response for an unqualified optional provider, but **not completion** of a required PDP capability. For SUPPORT_ONLY or SUBSUMED, record TESTED_COMPATIBLE / RETAINED / DEPRECATED / RECONCILED rather than pretending a new deployed service exists.
+
+## 8. Residual operational / Track B / upstream handoff — explicitly not the Wave 3 task denominator
+
+- **GH-90000:** previously reported nine compose tests are image-gated; real pinned service images or `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` plus provider admission are required to execute them. Their skip remains a skip, not a backend code blocker or proof of passing integrated behavior.
+- **Checkstyle:** warning-level violations are nonblocking under current convention; distinguish genuine correctness/security failure (blocking) from style warning. Fix touched source violations incrementally; don't silence governance globally.
+- **Wave2 active:** 22/30/6 last accepted classifications as of inspected plan; Wave3 may implement **disjoint files only**, no automatic promotion/reopen of 36 open R8 rows or unlicensed FLEURS/Whisper/TTS/Vision success. Current STT source-rights and model-quality changes are Wave2 work.
+- **Track B:** no PDP0–3 phase closure, gtool, Kernel stage transition, independent receipts, release or deployment performed here. Use exact current phase owner process when subsequently requested; no fake phase transition to mark local code complete.
+- **Legacy operational cutover:** Media V009→V018 was fixture-reconciled in prior work; actual applied legacy DB, queues, leases, outbox publisher, other consumers and one active writer remain independently authorized operational checks. Never run duplicate runtime/DB migrators.
+- **Shared convention latent issue:** `VerifyIntentionalPublicApiTask` `@InputDirectory` fails Gradle input validation when a test-only module has `compileJava NO-SOURCE`; owner is `ghatana-shared`. Preserve Media's narrow sourceless-test guard; publishable modules with missing classes MUST still fail closed.
+- **External producer/consumer:** Data Cloud append authority, Action Plane tool enrollment, Document Intelligence client, model/codec/voice license and product-specific capture adapters remain owning-service/rights gates. Code can progress locally; qualified real effect claims require real owner/client/receipt.
+- **Large-file/privacy:** `ghatana-media` is a public repository; importing from private Ghatana repos requires ownership/license/secret provenance review. Never upload test model weights, private audio/video or person-identifiable fixtures to git. No massive data caches or 100GB testing.
+
+**Next safe tasks:** JC-01 and TY-01 source parity; AS-02/VS-02 untrusted-size parser regression; IP-01 legacy-vs-canonical DB census; CA-02 cache-key privacy; RS-02 decoder bounds; all can progress without changing any active Wave2 owner file. This plan is a review and implementation worklist, not evidence of executing those tasks.
