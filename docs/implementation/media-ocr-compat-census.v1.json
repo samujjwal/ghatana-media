@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "OC-01..03 census: the kernel OCR compatibility adapter is a fail-closed shim preserving the legacy constructor/API while Document Intelligence admission is absent. No generic OCR model executes in Media.",
+  "adapter": "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java",
+  "verdict": {
+    "status": "COMPAT_SHIM_NOT_ADMITTED",
+    "behaviors": [
+      "constructor preserves legacy shape but never retains or invokes the model",
+      "extract() returns PROVIDER_CLOSED / PROVIDER_NOT_STARTED / NOT_ADMITTED — never OCR text",
+      "payload reference without resolved bytes rejected; no payload/model/endpoint/storage access",
+      "cross-tenant status and idempotency payload reuse rejected",
+      "lifecycle fail-closed before start and stopped after close; cancellation is terminal"
+    ],
+    "externalOwner": "Document Intelligence public contract — Ghatana #252"
+  },
+  "guards": {
+    "noGenericOcr": "extract() must not dispatch to an executor, model or remote endpoint",
+    "failClosedCodesOnly": "terminal results are bounded failure codes (PROVIDER_CLOSED, PROVIDER_NOT_STARTED, NOT_ADMITTED, CANCELLED) — never text output",
+    "constructorCompat": "legacy ctor signature preserved; service/modelRef/modelVersion validated then dropped, not invoked"
+  }
+}
