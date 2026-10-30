@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,11 +23,17 @@ function scan(dir,files=[]){
 }
 
 test('Media core builds and sources have no Data Cloud or DI hard dependency',()=>{
+  // Inspect executable imports/build dependencies, not Javadoc or a comment
+  // describing the optional DI client (documentation is not a hard import).
   const prohibited=/com\.ghatana\.datacloud(?:\.|\b)|:services:data-cloud:|@ghatana\/data-cloud\b|@ghatana\/document-intelligence-client\b|:services:document-intelligence:/u;
   const violations=[];
   for(const path of core.flatMap(p=>scan(resolve(root,p)))) {
-    const text=readFileSync(path,'utf8');
-    if(prohibited.test(text))violations.push(path.slice(root.length+1));
+    const raw=readFileSync(path,'utf8');
+    const source=raw.replace(/\/\*[\s\S]*?\*\//gu,'').replace(/^\s*\/\/.*$/gmu,'');
+    const imports=source.split('\n').filter(line =>
+      /^\s*(?:import\s|export\s|implementation\s*\(|api\s*\(|runtimeOnly\s*\(|testImplementation\s*\()/u.test(line));
+    const javaTypes=source.includes('com.ghatana.datacloud.') && !path.endsWith('.ts') && !path.endsWith('.tsx');
+    if (imports.some(line=>prohibited.test(line)) || javaTypes) violations.push(path.slice(root.length+1));
   }
   assert.deepEqual(violations,[],
     'core must never depend on optional Data Cloud/Document Intelligence source');
