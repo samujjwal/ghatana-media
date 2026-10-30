@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   MediaArtifactSchema,
+  MediaCanonicalErrorSchema,
+  MultimodalAnalysisRequestSchema,
+  ProviderCapabilitySchema,
+  TranscriptionResultSchema,
   normalizeLegacyMediaJobState,
   observeMediaJobState,
   MediaJobStateSchema,
@@ -149,5 +153,48 @@ describe("media contracts", () => {
         completedAt: timestamp,
       }).state,
     ).toBe("COMPLETED");
+  });
+
+  it("TY-02: rejects unbounded request and result payloads", () => {
+    const huge = "x".repeat(2_000_001);
+    // TranscriptionResult text is capped; a 2 MiB+1 payload fails closed.
+    const baseResult = {
+      artifactId: "a1", transcriptArtifactId: "t1",
+      languageTag: "en", confidence: 0.9, providerId: "p",
+      modelId: "m", modelVersion: "v1", processingTimeMs: 1,
+    };
+    expect(() => TranscriptionResultSchema.parse({ ...baseResult, text: huge })).toThrow();
+    expect(TranscriptionResultSchema.parse({ ...baseResult, text: "ok" }).text).toBe("ok");
+    // Word and alternative collections are item- and count-bounded.
+    expect(() => TranscriptionResultSchema.parse({
+      ...baseResult, text: "ok",
+      words: [{ text: "w".repeat(257), startMs: 0, endMs: 1, confidence: 0.5 }],
+    })).toThrow();
+    expect(() => TranscriptionResultSchema.parse({
+      ...baseResult, text: "ok",
+      alternatives: Array.from({ length: 11 }, () => ({ text: "x", confidence: 0.5 })),
+    })).toThrow();
+    // Request collection bounds.
+    expect(() => VoiceTrainingRequestSchema.parse({
+      name: "n", sampleArtifactIds: Array.from({ length: 65 }, (_, i) => `s${i}`),
+      consentReference: "c", rightsAttestation: true,
+      languageTags: ["en"], idempotencyKey: "k",
+    })).toThrow();
+    expect(() => MultimodalAnalysisRequestSchema.parse({
+      sources: Array.from({ length: 33 }, () => ({ kind: "TEXT", text: "x" })),
+      intent: "i", outputFormat: "TEXT", idempotencyKey: "k",
+    })).toThrow();
+    // Canonical error detail bounds.
+    expect(() => MediaCanonicalErrorSchema.parse({
+      code: "E", message: "m".repeat(2_001), correlationId: "c",
+      retryable: false, category: "VALIDATION",
+    })).toThrow();
+    // Capability list bounds.
+    expect(() => ProviderCapabilitySchema.parse({
+      id: "c", providerId: "p", operation: "TRANSCRIBE",
+      state: "AVAILABLE", supportedMimeTypes: Array.from({ length: 513 }, (_, i) => `a/${i}`),
+      supportedLanguages: [], streamingSupported: false, cancellationSupported: true,
+      lastCheckedAt: "2026-10-29T00:00:00Z",
+    })).toThrow();
   });
 });

@@ -54,14 +54,14 @@ export const MediaArtifactSchema = z
     correlationId: IdentifierSchema.optional(),
     provenance: z
       .object({
-        sourceArtifactIds: z.array(IdentifierSchema).default([]),
+        sourceArtifactIds: z.array(IdentifierSchema).max(512).default([]),
         operationId: IdentifierSchema.optional(),
         providerId: IdentifierSchema.optional(),
         modelId: IdentifierSchema.optional(),
-        modelVersion: z.string().optional(),
+        modelVersion: z.string().max(128).optional(),
       })
       .strict(),
-    metadata: z.record(z.string(), z.unknown()).default({}),
+    metadata: z.record(z.string().max(128), z.unknown()).default({}),
   })
   .strict();
 export type MediaArtifact = z.infer<typeof MediaArtifactSchema>;
@@ -79,8 +79,8 @@ export const UploadSessionSchema = z
       "CANCELLED",
       "EXPIRED",
     ]),
-    uploadUrl: z.string().url().optional(),
-    partSizeBytes: z.number().int().positive(),
+    uploadUrl: z.string().url().max(2048).optional(),
+    partSizeBytes: z.number().int().positive().max(5_368_709_120),
     uploadedBytes: NonNegativeIntegerSchema,
     totalBytes: NonNegativeIntegerSchema,
     expiresAt: IsoTimestampSchema,
@@ -189,25 +189,25 @@ const JobBaseSchema = z.object({
   createdAt: IsoTimestampSchema,
   updatedAt: IsoTimestampSchema,
   correlationId: IdentifierSchema,
-  inputArtifactIds: z.array(IdentifierSchema),
-  outputArtifactIds: z.array(IdentifierSchema).default([]),
+  inputArtifactIds: z.array(IdentifierSchema).max(512),
+  outputArtifactIds: z.array(IdentifierSchema).max(512).default([]),
   cancellable: z.boolean(),
   retryable: z.boolean(),
   providerId: IdentifierSchema.optional(),
   modelId: IdentifierSchema.optional(),
-  modelVersion: z.string().optional(),
+  modelVersion: z.string().max(128).optional(),
 });
 
 const QueuedJobSchema = JobBaseSchema.extend({
   state: z.literal("QUEUED"),
   progress: z.literal(0),
-  message: z.string().optional(),
+  message: z.string().max(2_000).optional(),
 }).strict();
 
 const RunningJobSchema = JobBaseSchema.extend({
   state: z.literal("RUNNING"),
   progress: PercentageSchema,
-  message: z.string().optional(),
+  message: z.string().max(2_000).optional(),
   startedAt: IsoTimestampSchema,
   estimatedCompletionAt: IsoTimestampSchema.optional(),
 }).strict();
@@ -215,22 +215,22 @@ const RunningJobSchema = JobBaseSchema.extend({
 const RetryPendingJobSchema = JobBaseSchema.extend({
   state: z.literal("RETRY_PENDING"),
   progress: PercentageSchema,
-  message: z.string().optional(),
+  message: z.string().max(2_000).optional(),
   retryAfter: IsoTimestampSchema.optional(),
-  retryReason: z.string().min(1),
+  retryReason: z.string().min(1).max(2_000),
 }).strict();
 
 const OutcomeUnknownJobSchema = JobBaseSchema.extend({
   state: z.literal("OUTCOME_UNKNOWN"),
   progress: PercentageSchema,
-  message: z.string().optional(),
+  message: z.string().max(2_000).optional(),
   outcomeUnknownSince: IsoTimestampSchema,
 }).strict();
 
 const ReconcilingJobSchema = JobBaseSchema.extend({
   state: z.literal("RECONCILING"),
   progress: PercentageSchema,
-  message: z.string().optional(),
+  message: z.string().max(2_000).optional(),
   reconciliationStartedAt: IsoTimestampSchema,
 }).strict();
 
@@ -246,10 +246,10 @@ const FailedJobSchema = JobBaseSchema.extend({
   progress: PercentageSchema,
   completedAt: IsoTimestampSchema,
   error: z.object({
-    code: z.string().min(1),
-    message: z.string().min(1),
+    code: z.string().min(1).max(128),
+    message: z.string().min(1).max(2_000),
     retryable: z.boolean(),
-    remediation: z.string().optional(),
+    remediation: z.string().max(2_000).optional(),
   }),
 }).strict();
 
@@ -284,13 +284,13 @@ export const ProviderCapabilitySchema = z
       "UNAVAILABLE",
       "RECOVERING",
     ]),
-    supportedMimeTypes: z.array(z.string()),
-    supportedLanguages: z.array(z.string()),
+    supportedMimeTypes: z.array(z.string().max(256)).max(512),
+    supportedLanguages: z.array(z.string().max(64)).max(512),
     maxInputBytes: NonNegativeIntegerSchema.optional(),
     maxDurationMs: NonNegativeIntegerSchema.optional(),
     streamingSupported: z.boolean(),
     cancellationSupported: z.boolean(),
-    limitations: z.array(z.string()).default([]),
+    limitations: z.array(z.string().max(512)).max(256).default([]),
     lastCheckedAt: IsoTimestampSchema,
   })
   .strict();
@@ -298,8 +298,8 @@ export type ProviderCapability = z.infer<typeof ProviderCapabilitySchema>;
 
 export const MediaCanonicalErrorSchema = z
   .object({
-    code: z.string().min(1),
-    message: z.string().min(1),
+    code: z.string().min(1).max(128),
+    message: z.string().min(1).max(2_000),
     correlationId: IdentifierSchema,
     retryable: z.boolean(),
     category: z.enum([
@@ -317,15 +317,15 @@ export const MediaCanonicalErrorSchema = z
     fieldErrors: z
       .array(
         z.object({
-          field: z.string(),
-          code: z.string(),
-          message: z.string(),
+          field: z.string().max(256),
+          code: z.string().max(128),
+          message: z.string().max(2_000),
         }),
       )
       .optional(),
-    runtimeDependency: z.string().optional(),
+    runtimeDependency: z.string().max(128).optional(),
     retryAfterMs: NonNegativeIntegerSchema.optional(),
-    remediation: z.string().optional(),
+    remediation: z.string().max(2_000).optional(),
   })
   .strict();
 export type MediaCanonicalError = z.infer<typeof MediaCanonicalErrorSchema>;
@@ -348,28 +348,30 @@ export const TranscriptionResultSchema = z
   .object({
     artifactId: IdentifierSchema,
     transcriptArtifactId: IdentifierSchema,
-    text: z.string(),
-    languageTag: z.string(),
+    text: z.string().max(2_000_000),
+    languageTag: z.string().max(64),
     confidence: ConfidenceSchema,
     words: z
       .array(
         z.object({
-          text: z.string(),
+          text: z.string().max(256),
           startMs: NonNegativeIntegerSchema,
           endMs: NonNegativeIntegerSchema,
           confidence: ConfidenceSchema,
           speakerId: IdentifierSchema.optional(),
         }),
       )
+      .max(200_000)
       .default([]),
     alternatives: z
       .array(
-        z.object({ text: z.string(), confidence: ConfidenceSchema }),
+        z.object({ text: z.string().max(2_000_000), confidence: ConfidenceSchema }),
       )
+      .max(10)
       .default([]),
     providerId: IdentifierSchema,
     modelId: IdentifierSchema,
-    modelVersion: z.string(),
+    modelVersion: z.string().max(128),
     processingTimeMs: NonNegativeIntegerSchema,
   })
   .strict();
@@ -380,7 +382,7 @@ export const SynthesisRequestSchema = z
     text: z.string().min(1).max(100_000),
     voiceId: IdentifierSchema,
     languageTag: z.string().min(2).max(64),
-    outputMimeType: z.string().min(1),
+    outputMimeType: z.string().min(1).max(256),
     rate: z.number().min(0.25).max(4).default(1),
     pitch: z.number().min(0).max(2).default(1),
     volume: z.number().min(0).max(1).default(1),
@@ -396,7 +398,7 @@ export const SynthesisResultSchema = z
     voiceId: IdentifierSchema,
     providerId: IdentifierSchema,
     modelId: IdentifierSchema.optional(),
-    modelVersion: z.string().optional(),
+    modelVersion: z.string().max(128).optional(),
     durationMs: NonNegativeIntegerSchema,
     characterCount: NonNegativeIntegerSchema,
     processingTimeMs: NonNegativeIntegerSchema,
@@ -407,10 +409,10 @@ export type SynthesisResult = z.infer<typeof SynthesisResultSchema>;
 export const VoiceTrainingRequestSchema = z
   .object({
     name: z.string().min(1).max(256),
-    sampleArtifactIds: z.array(IdentifierSchema).min(1),
+    sampleArtifactIds: z.array(IdentifierSchema).min(1).max(64),
     consentReference: IdentifierSchema,
     rightsAttestation: z.literal(true),
-    languageTags: z.array(z.string()).min(1),
+    languageTags: z.array(z.string().max(64)).min(1).max(128),
     qualityThreshold: ConfidenceSchema.default(0.8),
     idempotencyKey: IdentifierSchema,
   })
@@ -436,10 +438,10 @@ export const MultimodalSourceSchema = z.discriminatedUnion("kind", [
 
 export const MultimodalAnalysisRequestSchema = z
   .object({
-    sources: z.array(MultimodalSourceSchema).min(1),
+    sources: z.array(MultimodalSourceSchema).min(1).max(32),
     intent: z.string().min(1).max(1_000),
     outputFormat: z.enum(["TEXT", "STRUCTURED", "ANNOTATIONS"]),
-    languageTag: z.string().optional(),
+    languageTag: z.string().max(64).optional(),
     idempotencyKey: IdentifierSchema,
   })
   .strict();
@@ -451,8 +453,8 @@ export const OperationAcceptedSchema = z
   .object({
     operationId: IdentifierSchema,
     job: MediaProcessingJobSchema,
-    statusUrl: z.string().min(1),
-    cancelUrl: z.string().min(1).optional(),
+    statusUrl: z.string().min(1).max(2048),
+    cancelUrl: z.string().min(1).max(2048).optional(),
     correlationId: IdentifierSchema,
   })
   .strict();
