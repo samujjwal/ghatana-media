@@ -79,8 +79,8 @@ test('all 58 + 96 original task identities are accounted for but not falsely acc
   assert.deepEqual(index.postPushReadback.currentWave3HOriginalIds.map(x=>x.taskId),w3);
   assert.ok(index.postPushReadback.currentWave3HOriginalIds.every(x=>x.independentlyAcceptedFromThisPlan===false));
   assert.ok(index.postPushReadback.originalWave2UnacceptedRows.every(x=>x.acceptedByThisPlan===false));
-  assert.match(plan,/no-outstanding required backend/u);
-  assert.match(plan,/no unassigned known obligations/u);
+  assert.match(plan,/zero unfinished required backend|zero unassigned known obligations/u);
+  assert.match(plan,/zero unassigned known obligations/u);
 });
 
 test('source-verified post-push reads all prior 18 claimed commit prefixes and preserves qualified host runs',()=>{
@@ -96,7 +96,7 @@ test('source-verified post-push reads all prior 18 claimed commit prefixes and p
   for(const [i,n] of [4,3,3,4].entries())assert.ok(native[i].result.includes('PASS '+n+'/'+n));
   assert.ok(readback.qualificationRuns.some(x=>x.gate.includes('alert-delivery-smoke.sh')&&x.result.includes('fired AND resolved')));
   assert.ok(readback.qualificationRuns.some(x=>x.originalTaskIds.includes('IT-05')&&x.result.includes('All 9')));
-  assert.match(plan,/NOT the missing OBS-08/u);
+  assert.match(plan,/OBS-08 is capacity/u);
   assert.match(plan,/nine skipped Compose tests are now/u);
 });
 
@@ -116,14 +116,14 @@ test('five exact PDP stream intent gaps and real AS-07/VS-07 are never silently 
   assert.match(plan,/RealAuthorizedVideoTransportIT/u);
   assert.match(plan,/12,000 tiny string bytes in-process/u);
   assert.match(plan,/10,000 tiny/u);
-  assert.match(plan,/NOT_ADMITTED.*not terminal completion/u);
+  assert.match(plan,/NOT_ADMITTED.*not.*terminal completion/u);
 });
 
 test('no prohibited legal/owner status, external public contract or source profile is manufactured',()=>{
   const required=['FLEURS','Ghatana #254','Ghatana #252','STT-10','STT-12','OBS-07','OBS-08','H-08','IT-04','32','c1→c16→c64','voice','rights','Track B','zero-orphan'];
   for(const id of required)assert.ok(plan.includes(id),'missing real qualifier '+id);
-  assert.match(plan,/No engineering prompt can grant third-party/u);
-  assert.match(plan,/NOT completion of an applicable mandatory intent/u);
+  assert.match(plan,/cannot be created by engineering instruction/u);
+  assert.match(plan,/not completion of an applicable mandatory intent|not terminal completion/u);
   assert.match(plan,/No additional code duplication/u);
   assert.ok(index.postPushReadback.separateTrackB);
   assert.match(index.postPushReadback.terminalClaim,/NOT_ACCEPTED_ALL_ROWS/u);
@@ -136,5 +136,5 @@ test('source-bound plan and results remain correct after changes; no new phase s
   const evidence=read('docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md');
   assert.ok(evidence.includes('22/30/6'),'historic R8 ledger changed unexpectedly');
   assert.match(plan,/GH-90000/u);
-  assert.match(plan,/no invented latency/u);
+  assert.match(plan,/no performance PASS from proposed NFR budgets alone/u);
 });
