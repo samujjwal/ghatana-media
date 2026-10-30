@@ -5,6 +5,7 @@ import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.config.SttConfig;
+import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
@@ -92,15 +93,43 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     private final SttConfig config;
     private final ProfileBinding binding;
     private final long maxSourceBytes;
+    /** Trusted in-process measurement source; never an RPC, request field or admission flag. */
+    private final QualityEvidenceReader qualityEvidenceReader;
     private final java.util.concurrent.atomic.AtomicBoolean closed =
             new java.util.concurrent.atomic.AtomicBoolean();
 
+    /**
+     * The default instance has no measured model-quality source. A ready engine
+     * alone never creates a score, evaluation receipt or production authorization.
+     */
     public WhisperOnnxSttProvider(
             SttConfig config, ProfileBinding binding, long maxSourceBytes) {
+        this(config, binding, maxSourceBytes,
+                (providerId, providerVersion, modelRevision) -> Optional.empty());
+    }
+
+    /**
+     * Read-only, low-cost snapshot of an independently measured and verified
+     * quality report, supplied solely by trusted server-side composition.
+     * Implementations MUST hash-check source report bytes, model/voice dataset
+     * version and gold/rights before returning a measurement; this constructor
+     * does not turn a candidate measurement into an admitted provider.
+     */
+    @FunctionalInterface
+    public interface QualityEvidenceReader {
+        Optional<MediaModalityContracts.ProviderQualityObservation> latest(
+                String providerId, String providerVersion, String modelRevision);
+    }
+
+    public WhisperOnnxSttProvider(
+            SttConfig config, ProfileBinding binding, long maxSourceBytes,
+            QualityEvidenceReader qualityEvidenceReader) {
         this.config = java.util.Objects.requireNonNull(config, "config");
         this.binding = java.util.Objects.requireNonNull(binding, "binding");
         if (maxSourceBytes < 1) throw new IllegalArgumentException("maxSourceBytes must be positive");
         this.maxSourceBytes = maxSourceBytes;
+        this.qualityEvidenceReader = java.util.Objects.requireNonNull(
+                qualityEvidenceReader, "qualityEvidenceReader");
         this.engine = new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState());
     }
 
@@ -117,6 +146,76 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     }
     @Override public boolean productionEligible() { return binding.productionEligible(); }
     @Override public int priority() { return 10; }
+
+    /**
+     * Observed health is independent of scientific model qualification. Report
+     * the engine's actual state with the exact local WAV/16kHz PCM capabilities;
+     * do not invent timestamps, confidence, word-level alignment or supported
+     * formats the current provider cannot decode.
+     */
+    @Override public List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
+        EngineStatus.State state;
+        try {
+            state = engine.getStatus().state();
+        } catch (RuntimeException unavailable) {
+            state = EngineStatus.State.ERROR;
+        }
+        return List.of(observedCapabilityProfile(binding, config.modelId(), state, Instant.now()));
+    }
+
+    static MediaModalityContracts.CapabilityProfile observedCapabilityProfile(
+            ProfileBinding binding, String modelRevision, EngineStatus.State state, Instant checkedAt) {
+        java.util.Objects.requireNonNull(binding, "binding");
+        java.util.Objects.requireNonNull(state, "state");
+        java.util.Objects.requireNonNull(checkedAt, "checkedAt");
+        String revision = java.util.Objects.requireNonNull(modelRevision, "modelRevision")
+                .trim().toLowerCase(Locale.ROOT);
+        if (!revision.matches("[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}")) {
+            throw new IllegalArgumentException("Whisper observed model revision must be a bounded metric token");
+        }
+        boolean ready = state == EngineStatus.State.READY;
+        var degradation = binding.productionEligible()
+                ? MediaModalityContracts.DegradationPolicy.FAIL_CLOSED
+                : MediaModalityContracts.DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY;
+        var health = new MediaModalityContracts.ProviderHealth(
+                binding.providerId(), binding.providerVersion(),
+                ready ? MediaModalityContracts.ProviderHealthStatus.HEALTHY
+                        : MediaModalityContracts.ProviderHealthStatus.UNAVAILABLE,
+                degradation,
+                ready ? "engine ready; model quality and legal admission are independent"
+                        : "Whisper engine not ready: " + state.name(),
+                checkedAt);
+        return new MediaModalityContracts.CapabilityProfile(
+                binding.providerId(), binding.providerVersion(), JobType.SPEECH_TO_TEXT,
+                Set.of("pcm_s16le"), Set.of("wav"), Set.of(16_000),
+                0, 0, Set.of(revision), Set.of(binding.processingRegion()),
+                ProcessingBoundary.LOCAL,
+                false, false, false, health, degradation,
+                MediaModalityContracts.ExecutionBounds.defaults());
+    }
+
+    /**
+     * No measured score is reported unless the trusted provider-owned reader
+     * supplies the same exact provider, modality and model revision. A model
+     * reference, readiness flag and candidate evidence ID never substitute.
+     */
+    @Override
+    public Optional<MediaModalityContracts.ProviderQualityObservation> qualityObservation(
+            JobType modality, String modelRevision) {
+        if (modality != JobType.SPEECH_TO_TEXT || closed.get() || modelRevision == null) {
+            return Optional.empty();
+        }
+        String revision = config.modelId().trim().toLowerCase(Locale.ROOT);
+        if (!revision.equals(modelRevision)) return Optional.empty();
+        Optional<MediaModalityContracts.ProviderQualityObservation> candidate =
+                qualityEvidenceReader.latest(binding.providerId(), binding.providerVersion(), revision);
+        if (candidate == null) return Optional.empty();
+        return candidate.filter(value ->
+                value.providerId().equals(binding.providerId())
+                && value.providerVersion().equals(binding.providerVersion())
+                && value.modality() == JobType.SPEECH_TO_TEXT
+                && value.modelRevision().equals(revision));
+    }
 
     @Override public Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
         return Optional.of(new MediaSpeechToTextAdmission.Profile(
