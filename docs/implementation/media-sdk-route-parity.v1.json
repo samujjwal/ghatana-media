@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "SK-01 parity table: every OpenAPI operationId, its canonical route, and the SDK method that serves it — or an explicit UNBOUND/LEGACY_ONLY disposition. Unsupported PDP capability is never advertised as a live API.",
+  "boundCanonical": {
+    "beginMediaUpload": {"route": "POST /api/v1/artifacts/uploads", "sdk": "createUploadSession"},
+    "appendMediaChunk": {"route": "POST /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}", "sdk": "uploadPart"},
+    "getMediaUpload": {"route": "GET /api/v1/artifacts/uploads/{uploadId}", "sdk": "getUploadSession"},
+    "completeMediaUpload": {"route": "POST /api/v1/artifacts/uploads/{uploadId}/complete", "sdk": "completeUploadSession"},
+    "getMediaArtifact": {"route": "GET /api/v1/artifacts/{artifactId}", "sdk": "getArtifact"}
+  },
+  "legacyServed": {
+    "note": "canonical operationIds whose equivalent function the SDK serves only through the legacy /api/v1/media/* compatibility routes; the canonical operation itself is not invoked",
+    "submitMediaJob": {"canonical": "POST /api/v1/jobs", "legacy": ["POST /api/v1/media/transcriptions", "POST /api/v1/media/syntheses"], "sdk": "transcribe, synthesize"},
+    "getMediaJob": {"canonical": "GET /api/v1/jobs/{jobId}", "legacy": ["GET /api/v1/media/operations/{operationId}"], "sdk": "getOperation"},
+    "cancelMediaJob": {"canonical": "POST /api/v1/jobs/{jobId}/cancel", "legacy": ["POST /api/v1/media/operations/{operationId}:cancel"], "sdk": "cancelOperation"},
+    "getMediaProviders": {"canonical": "GET /api/v1/providers", "legacy": ["GET /api/v1/media/providers/capabilities"], "sdk": "listProviderCapabilities"}
+  },
+  "unbound": {
+    "note": "OpenAPI operations with no SDK method — honest UNBOUND, never advertised as implemented",
+    "consent": ["getMediaConsent", "grantMediaConsent", "listMediaConsents", "revokeMediaConsent"],
+    "stream": ["openMediaStream", "connectMediaStream", "getMediaStream", "closeMediaStream", "submitMediaStreamFrame"],
+    "healthAdmin": ["getMediaHealth", "getMediaLiveness", "getMediaReadiness", "getMediaStartup", "getMediaVersionedHealth", "getMediaReadyAlias", "getMediaInfo", "getMediaMetrics"],
+    "jobs": ["listMediaJobs"]
+  },
+  "legacyOnlySdkRoutes": {
+    "note": "SDK routes with no OpenAPI operationId — legacy compat only, not canonical contract",
+    "routes": ["POST /api/v1/media/voice-models:train", "POST /api/v1/media/voice-conversions", "POST /api/v1/media/multimodal-analyses", "GET /api/v1/media/operations/{operationId}/result"]
+  },
+  "guards": {
+    "everyOperationClassified": "all 27 OpenAPI operationIds appear exactly once",
+    "unboundNotAdvertised": "no UNBOUND operationId route appears as a live SDK literal",
+    "routeLiteralsClassified": "every /api/v1 literal in operations.ts is classified"
+  }
+}
