@@ -1,0 +1,936 @@
+{
+  "schemaVersion": "media.wire-projection-snapshot.v1",
+  "semantics": "OBSERVED_PROJECTION_NOT_SOURCE",
+  "note": "fields/routes/RPCs are wire projections; absent PDP binding = UNBOUND, never admitted",
+  "http": {
+    "count": 27,
+    "operations": [
+      {
+        "operationId": "appendMediaChunk",
+        "method": "PUT",
+        "path": "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "beginMediaUpload",
+        "method": "POST",
+        "path": "/api/v1/artifacts/uploads",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "cancelMediaJob",
+        "method": "POST",
+        "path": "/api/v1/jobs/{jobId}/cancel",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "closeMediaStream",
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/close",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "completeMediaUpload",
+        "method": "POST",
+        "path": "/api/v1/artifacts/uploads/{uploadId}/complete",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "connectMediaStream",
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/connect",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaArtifact",
+        "method": "GET",
+        "path": "/api/v1/artifacts/{artifactId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaConsent",
+        "method": "GET",
+        "path": "/api/v1/consents/{consentId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaHealth",
+        "method": "GET",
+        "path": "/health",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaInfo",
+        "method": "GET",
+        "path": "/info",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaJob",
+        "method": "GET",
+        "path": "/api/v1/jobs/{jobId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaLiveness",
+        "method": "GET",
+        "path": "/health/live",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaMetrics",
+        "method": "GET",
+        "path": "/metrics",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaProviders",
+        "method": "GET",
+        "path": "/api/v1/providers",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaReadiness",
+        "method": "GET",
+        "path": "/health/ready",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaReadyAlias",
+        "method": "GET",
+        "path": "/ready",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaStartup",
+        "method": "GET",
+        "path": "/health/startup",
+        "visibility": "public"
+      },
+      {
+        "operationId": "getMediaStream",
+        "method": "GET",
+        "path": "/api/v1/streams/{sessionId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaUpload",
+        "method": "GET",
+        "path": "/api/v1/artifacts/uploads/{uploadId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaVersionedHealth",
+        "method": "GET",
+        "path": "/api/v1/health",
+        "visibility": "public"
+      },
+      {
+        "operationId": "grantMediaConsent",
+        "method": "POST",
+        "path": "/api/v1/consents",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "listMediaConsents",
+        "method": "GET",
+        "path": "/api/v1/consents",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "listMediaJobs",
+        "method": "GET",
+        "path": "/api/v1/jobs",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "openMediaStream",
+        "method": "POST",
+        "path": "/api/v1/streams",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "revokeMediaConsent",
+        "method": "DELETE",
+        "path": "/api/v1/consents/{consentId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "submitMediaJob",
+        "method": "POST",
+        "path": "/api/v1/jobs",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "submitMediaStreamFrame",
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/frames/{sequence}",
+        "visibility": "authenticated"
+      }
+    ]
+  },
+  "grpc": {
+    "count": 43,
+    "rpcs": [
+      {
+        "service": "stt_service.proto",
+        "rpc": "AdaptModel",
+        "request": "AdaptRequest",
+        "response": "AdaptResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "AnalyzeCrossModal",
+        "request": "CrossModalRequest",
+        "response": "CrossModalResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "AnalyzeImage",
+        "request": "AnalyzeRequest",
+        "response": "AnalyzeResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "AnalyzeVideoFile",
+        "request": "VideoFileRequest",
+        "response": "VideoFileResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "AnalyzeVideoWithAudio",
+        "request": "VideoAudioRequest",
+        "response": "VideoAudioResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "ClassifyImage",
+        "request": "ClassifyRequest",
+        "response": "ClassifyResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "CloneVoice",
+        "request": "CloneVoiceRequest",
+        "response": "CloneVoiceResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "CreateProfile",
+        "request": "CreateProfileRequest",
+        "response": "ProfileResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "CreateProfile",
+        "request": "CreateProfileRequest",
+        "response": "ProfileResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "DetectObjects",
+        "request": "DetectRequest",
+        "response": "DetectResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "GenerateDescription",
+        "request": "DescriptionRequest",
+        "response": "DescriptionResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "GetInsights",
+        "request": "InsightsRequest",
+        "response": "InsightsResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "GetMetrics",
+        "request": "MetricsRequest",
+        "response": "MetricsResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "GetProfile",
+        "request": "GetProfileRequest",
+        "response": "ProfileResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "GetProfile",
+        "request": "GetProfileRequest",
+        "response": "ProfileResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "GetStatus",
+        "request": "StatusRequest",
+        "response": "StatusResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "GetStatus",
+        "request": "StatusRequest",
+        "response": "StatusResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "GetStatus",
+        "request": "StatusRequest",
+        "response": "StatusResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "GetStatus",
+        "request": "StatusRequest",
+        "response": "StatusResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "GetVoices",
+        "request": "GetVoicesRequest",
+        "response": "GetVoicesResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "HealthCheck",
+        "request": "HealthCheckRequest",
+        "response": "HealthCheckResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "HealthCheck",
+        "request": "HealthCheckRequest",
+        "response": "HealthCheckResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "HealthCheck",
+        "request": "HealthCheckRequest",
+        "response": "HealthCheckResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "ListModels",
+        "request": "ListModelsRequest",
+        "response": "ListModelsResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "ListModels",
+        "request": "ListModelsRequest",
+        "response": "ListModelsResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "ListModels",
+        "request": "ListModelsRequest",
+        "response": "ListModelsResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "LoadModel",
+        "request": "LoadModelRequest",
+        "response": "LoadModelResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "LoadModel",
+        "request": "LoadModelRequest",
+        "response": "LoadModelResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "LoadModel",
+        "request": "LoadModelRequest",
+        "response": "LoadModelResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "LoadVoice",
+        "request": "LoadVoiceRequest",
+        "response": "LoadVoiceResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "ProcessMultimodal",
+        "request": "MultimodalRequest",
+        "response": "MultimodalResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "ProcessVideo",
+        "request": "VideoFrameRequest",
+        "response": "VideoFrameResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "StreamSynthesize",
+        "request": "SynthesizeRequest",
+        "response": "AudioChunk"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "StreamTranscribe",
+        "request": "AudioChunk",
+        "response": "Transcription"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "SubmitCorrection",
+        "request": "CorrectionRequest",
+        "response": "CorrectionResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "SubmitFeedback",
+        "request": "FeedbackRequest",
+        "response": "FeedbackResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "Synthesize",
+        "request": "SynthesizeRequest",
+        "response": "SynthesizeResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "Transcribe",
+        "request": "TranscribeRequest",
+        "response": "TranscribeResponse"
+      },
+      {
+        "service": "multimodal_service.proto",
+        "rpc": "UnloadModel",
+        "request": "UnloadModelRequest",
+        "response": "UnloadModelResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "UnloadModel",
+        "request": "UnloadModelRequest",
+        "response": "UnloadModelResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "UnloadModel",
+        "request": "UnloadModelRequest",
+        "response": "UnloadModelResponse"
+      },
+      {
+        "service": "stt_service.proto",
+        "rpc": "UpdateProfile",
+        "request": "UpdateProfileRequest",
+        "response": "ProfileResponse"
+      },
+      {
+        "service": "tts_service.proto",
+        "rpc": "UpdateProfile",
+        "request": "UpdateProfileRequest",
+        "response": "ProfileResponse"
+      }
+    ]
+  },
+  "messages": {
+    "MultimodalRequest": [
+      "analysis_types",
+      "artifact_id",
+      "audio_data",
+      "consent_status",
+      "correlation_id",
+      "image_data",
+      "job_id",
+      "operation_binding",
+      "retention_policy",
+      "tenant_id",
+      "text",
+      "video_data"
+    ],
+    "CanonicalOperationBinding": [
+      "capability_ref",
+      "correlation_id",
+      "dimensions",
+      "operation_ref",
+      "operation_version",
+      "purpose",
+      "request_id",
+      "source_artifact_id",
+      "source_version_id"
+    ],
+    "MultimodalResponse": [
+      "audio_analysis",
+      "combined_analysis",
+      "processing_time_ms",
+      "visual_analysis"
+    ],
+    "AudioAnalysis": [
+      "confidence",
+      "detected_sounds",
+      "sentiment",
+      "transcription"
+    ],
+    "VisualAnalysis": [
+      "activities",
+      "confidence",
+      "objects",
+      "scene_description"
+    ],
+    "Detection": [
+      "bounding_box",
+      "class_name",
+      "confidence"
+    ],
+    "BoundingBox": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "VideoAudioRequest": [
+      "analyze_frames",
+      "extract_audio",
+      "frame_sample_rate",
+      "operation_binding",
+      "video_data"
+    ],
+    "VideoAudioResponse": [
+      "audio_transcription",
+      "combined_narrative",
+      "frame_analyses",
+      "video_summary"
+    ],
+    "FrameAnalysis": [
+      "description",
+      "objects",
+      "timestamp_ms"
+    ],
+    "DescriptionRequest": [
+      "audio_data",
+      "context",
+      "image_data",
+      "operation_binding",
+      "style"
+    ],
+    "DescriptionResponse": [
+      "confidence",
+      "description",
+      "key_elements"
+    ],
+    "CrossModalRequest": [
+      "analysis_window_ms",
+      "audio_data",
+      "operation_binding",
+      "video_data"
+    ],
+    "CrossModalResponse": [
+      "alignment_score",
+      "events",
+      "processing_time_ms",
+      "summary"
+    ],
+    "CrossModalEvent": [
+      "confidence",
+      "description",
+      "event_type",
+      "timestamp_ms"
+    ],
+    "InsightsRequest": [
+      "audio_data",
+      "image_data",
+      "insight_types",
+      "operation_binding",
+      "text",
+      "video_data"
+    ],
+    "InsightsResponse": [
+      "actions",
+      "entities",
+      "overall_sentiment",
+      "processing_time_ms",
+      "topics"
+    ],
+    "LoadModelRequest": [
+      "model_id",
+      "use_gpu"
+    ],
+    "LoadModelResponse": [
+      "load_time_ms",
+      "memory_usage_bytes",
+      "message",
+      "model_id",
+      "success"
+    ],
+    "UnloadModelRequest": [
+      "model_id"
+    ],
+    "UnloadModelResponse": [
+      "memory_freed_bytes",
+      "message",
+      "success"
+    ],
+    "ListModelsRequest": [
+      "include_loaded_only"
+    ],
+    "MultimodalModelInfo": [
+      "is_loaded",
+      "modalities",
+      "model_id",
+      "name",
+      "size_bytes",
+      "version"
+    ],
+    "ListModelsResponse": [
+      "loaded_count",
+      "models",
+      "total_count"
+    ],
+    "StatusRequest": [],
+    "StatusResponse": [
+      "avg_processing_time_ms",
+      "degraded_reason",
+      "model_name",
+      "status",
+      "total_requests"
+    ],
+    "HealthCheckRequest": [],
+    "HealthCheckResponse": [
+      "healthy",
+      "message"
+    ],
+    "TranscribeRequest": [
+      "artifact_id",
+      "audio_data",
+      "consent_status",
+      "correlation_id",
+      "job_id",
+      "language",
+      "options",
+      "profile_id",
+      "retention_policy",
+      "sample_rate",
+      "tenant_id"
+    ],
+    "TranscribeResponse": [
+      "alternatives",
+      "confidence",
+      "confidence_calibration",
+      "language",
+      "model_used",
+      "processing_time_ms",
+      "text",
+      "word_timing_timebase",
+      "word_timings"
+    ],
+    "AlternativeHypothesis": [
+      "confidence",
+      "text"
+    ],
+    "AudioChunk": [
+      "audio_data",
+      "is_final",
+      "sample_rate",
+      "timestamp_ms"
+    ],
+    "Transcription": [
+      "accepted_sequence_snapshot",
+      "acknowledgement_revision",
+      "backpressured",
+      "confidence",
+      "durable_resume_enabled",
+      "finality",
+      "is_final",
+      "outcome_unknown",
+      "revision",
+      "sequence_token",
+      "session_id",
+      "text",
+      "timestamp_ms",
+      "word_timings"
+    ],
+    "WordTiming": [
+      "confidence",
+      "end_ms",
+      "start_ms",
+      "word"
+    ],
+    "TranscriptionOptions": [
+      "confidence_threshold",
+      "context_id",
+      "enable_punctuation",
+      "enable_word_timings",
+      "max_alternatives"
+    ],
+    "AdaptRequest": [
+      "interactions",
+      "mode",
+      "profile_id"
+    ],
+    "Interaction": [
+      "audio_features",
+      "context_id",
+      "corrected_transcript",
+      "original_transcript",
+      "timestamp_ms"
+    ],
+    "AdaptResponse": [
+      "message",
+      "stats",
+      "success"
+    ],
+    "AdaptationStats": [
+      "interactions_processed",
+      "new_vocabulary_terms",
+      "wer_after",
+      "wer_before"
+    ],
+    "EngineMetrics": [
+      "active_sessions",
+      "average_confidence",
+      "memory_usage_bytes",
+      "real_time_factor",
+      "total_transcriptions"
+    ],
+    "ModelInfo": [
+      "is_loaded",
+      "languages",
+      "model_id",
+      "name",
+      "size_bytes",
+      "version"
+    ],
+    "CreateProfileRequest": [
+      "display_name",
+      "settings"
+    ],
+    "GetProfileRequest": [
+      "profile_id"
+    ],
+    "UpdateProfileRequest": [
+      "profile_id",
+      "settings"
+    ],
+    "ProfileResponse": [
+      "display_name",
+      "profile_id",
+      "settings",
+      "stats"
+    ],
+    "ProfileSettings": [
+      "adaptation_mode",
+      "default_options",
+      "default_voice_id",
+      "preferred_language",
+      "privacy_level"
+    ],
+    "ProfileStats": [
+      "created_at_ms",
+      "last_used_at_ms",
+      "total_characters_synthesized",
+      "total_synthesis_time_ms"
+    ],
+    "ModelLoadOptions": [
+      "num_threads",
+      "optimization_level",
+      "preload_vocabulary",
+      "use_gpu"
+    ],
+    "ComponentHealth": [
+      "last_check_ms",
+      "message",
+      "status"
+    ],
+    "CorrectionRequest": [
+      "audio_features",
+      "context_id",
+      "corrected_text",
+      "original_text",
+      "profile_id"
+    ],
+    "CorrectionResponse": [
+      "accepted",
+      "message",
+      "vocabulary_updates"
+    ],
+    "SynthesizeRequest": [
+      "artifact_id",
+      "consent_status",
+      "correlation_id",
+      "job_id",
+      "options",
+      "profile_id",
+      "retention_policy",
+      "tenant_id",
+      "text",
+      "voice_id"
+    ],
+    "SynthesizeResponse": [
+      "audio_data",
+      "duration_ms",
+      "processing_time_ms",
+      "sample_rate",
+      "voice_used"
+    ],
+    "SynthesisOptions": [
+      "emotion",
+      "energy",
+      "language",
+      "output_format",
+      "pitch",
+      "speed"
+    ],
+    "MetricsRequest": [],
+    "MetricsResponse": [
+      "active_sessions",
+      "average_latency_ms",
+      "memory_usage_bytes",
+      "real_time_factor",
+      "total_syntheses"
+    ],
+    "GetVoicesRequest": [
+      "language"
+    ],
+    "GetVoicesResponse": [
+      "voices"
+    ],
+    "VoiceInfo": [
+      "description",
+      "gender",
+      "is_cloned",
+      "is_loaded",
+      "languages",
+      "name",
+      "size_bytes",
+      "voice_id"
+    ],
+    "LoadVoiceRequest": [
+      "voice_id"
+    ],
+    "LoadVoiceResponse": [
+      "message",
+      "success",
+      "voice"
+    ],
+    "CloneVoiceRequest": [
+      "audio_samples",
+      "options",
+      "voice_name"
+    ],
+    "CloneOptions": [
+      "fine_tune_epochs",
+      "learning_rate"
+    ],
+    "CloneVoiceResponse": [
+      "message",
+      "similarity_score",
+      "success",
+      "voice",
+      "voice_id"
+    ],
+    "FeedbackRequest": [
+      "comment",
+      "feedback_type",
+      "profile_id",
+      "synthesis_id"
+    ],
+    "FeedbackResponse": [
+      "message",
+      "success"
+    ],
+    "DetectRequest": [
+      "artifact_id",
+      "confidence_threshold",
+      "consent_status",
+      "correlation_id",
+      "image_data",
+      "job_id",
+      "max_detections",
+      "retention_policy",
+      "source_raster_roi",
+      "target_classes",
+      "tenant_id"
+    ],
+    "SourceRasterRoi": [
+      "height",
+      "source_frame_version",
+      "width",
+      "x",
+      "y"
+    ],
+    "DetectResponse": [
+      "detections",
+      "processing_time_ms"
+    ],
+    "AnalyzeRequest": [
+      "analysis_types",
+      "image_data"
+    ],
+    "AnalyzeResponse": [
+      "detected_text",
+      "faces",
+      "scene_description"
+    ],
+    "FaceDetection": [
+      "bounding_box",
+      "confidence"
+    ],
+    "ClassifyRequest": [
+      "confidence_threshold",
+      "image_data",
+      "top_k"
+    ],
+    "ClassifyResponse": [
+      "labels",
+      "model_used",
+      "processing_time_ms"
+    ],
+    "ClassLabel": [
+      "confidence",
+      "label",
+      "rank"
+    ],
+    "VisionModelInfo": [
+      "is_loaded",
+      "model_id",
+      "name",
+      "size_bytes",
+      "supported_tasks",
+      "version"
+    ],
+    "VideoFrameRequest": [
+      "frame_data",
+      "frame_number",
+      "timestamp_ms"
+    ],
+    "VideoFrameResponse": [
+      "detections",
+      "frame_number",
+      "timestamp_ms"
+    ],
+    "VideoFileRequest": [
+      "confidence_threshold",
+      "max_frames",
+      "sample_fps",
+      "target_classes",
+      "video_data"
+    ],
+    "VideoFrameDetections": [
+      "detections",
+      "frame_number",
+      "source_pts",
+      "source_time_base_denominator",
+      "source_time_base_numerator",
+      "timestamp_ms",
+      "timestamp_status",
+      "timestamp_unknown_reason"
+    ],
+    "VideoFileResponse": [
+      "frame_results",
+      "processing_time_ms",
+      "summary",
+      "total_frames_analyzed",
+      "tracking_status",
+      "video_duration_ms"
+    ]
+  }
+}
