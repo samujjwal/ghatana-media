@@ -194,3 +194,66 @@ pnpm --filter @audio-video/client test
 - No additional code duplication, second Media job store/DB writer, private cross-repo source import, unlicensed asset or incorrect status promotion. Formal PDP/gtool/Kernel phases, deployment cutover and product GUI/Studio remain independently tracked.
 - **Stop only when every mandatory backend row is honestly accepted and zero unassigned open backend proof remains.** If a genuinely external entitlement is unavailable, finish all independent code, publish exact remaining owner/input/test, and truthfully report **INCOMPLETE_EXTERNAL**, never "no tasks left" prematurely.
 
+
+## 8. Stream intent-by-intent implementation: the real missing features, not more frame-only microbenchmarks
+
+**Source-verified defect in completion assumptions:** `modules/audio-streaming/src/test/java/com/ghatana/audio/streaming/AudioStreamingPerformanceTierTest.java` currently encodes/decodes **12,000 tiny string bytes in-process** and asserts FPS; `modules/video-streaming/src/test/java/com/ghatana/video/streaming/VideoStreamingPerformanceTierTest.java` does the same with **10,000 tiny 'h264-key-frame' string bytes**. Those are **not real PCM/Opus/H264 streams, network transport, decoded playback or c1/c16/c64 provider capacity tests**. Preserve the pure fast microbenchmarks as unit tests, but add genuine integrated tests instead of giving them a new passing name.
+
+| Exact existing PDP stream intent | Media-only source owner and concrete implementation | Real acceptance result |
+| --- | --- | --- |
+| `media.stream.lease.renew` | `modules/audio-streaming/StreamIntentSupport.java` currently NOT_ADMITTED; add typed lease-renew path through the **existing** Media runtime `MediaStreamSessionStore` CAS/worker claim, tenant/rights/expiry/generation; bind video/audio Guarded*Session rather than new lease database. Author public API only if a PDP-1 operation and source-bound route/SDK contract exist. | Two worker contenders renew old/new claim; stale old claim returns conflict, resume fails after actual expiry or revocation; restart preserves last ack and exact sequence, never dual dispatch. |
+| `media.stream.transport.webrtc` | Implement **adapter to a currently accepted external WebRTC host** (signaling/WHIP/WHEP/ICE/TURN as provided, reviewed exact version), with authenticated ephemeral DTLS/SRTP credentials, no arbitrary caller server URLs, tenant limits, consent/revocation and codec negotiation. `modules/audio-streaming`/`modules/video-streaming` keep source clocks and packet/ACK identity; platform transport remains provider-owned. | Real two-endpoint packet/audio/video flow on authenticated host; codec decoded and checksummed, network loss/reconnect, keyframe dependency, no media leak, constrained latency/CPU/network at c1/c16/c64. |
+| `media.stream.transport.hls` | Admit a version-pinned bounded HLS packager on the already governed host-owned native codec runner; write signed/expiring tenant-scoped playlist+segments to canonical artifacts, preserve PTS/DTS/codec/license and legal retention. Never use raw client-supplied FFmpeg command or public object bucket. | Independent HLS player can fetch/parse playlist, decode true segments/keyframe boundaries and revocation makes future downloads unauthorized. Real segment and manifest signatures/source versions proven. |
+| `media.stream.transport.dash` | Use same canonical source/codec/rights infrastructure to produce qualified MPEG-DASH MPD/segments, proper timebase and exact representation/segment URLs; no duplicate result store. | Independent DASH player can decode original track and verify segment timeline, expired/foreign-tenant URLs denied and full source lineage preserved. |
+| `media.stream.transport.adaptive-http` | Bind **genuinely qualified** HLS/DASH representations and a bitrate/codec variant policy under bounded available capacity; propagate source clocks, rights and manifest/version, and conservatively fail incompatible profiles. Do not classify as separately implemented merely because one HLS profile exists. | On real client network throttle/switch, playback remains source-time aligned without leaked/misclassified content; requires qualified variants and source-scoped URIs. |
+
+**Test additions** (within the existing physical modules, not a sixth stream service):
+- `modules/audio-streaming/src/test/java/com/ghatana/audio/streaming/RealAuthorizedAudioTransportIT.java` (new): lawful generated PCM/real encoded format, authenticated host session, actual packet receive+decode, monotonic PTS, lost-ACK, purpose revocation, reconnect, c1/c16/c64 bounded measurements and contract no-effect.
+- `modules/video-streaming/src/test/java/com/ghatana/video/streaming/RealAuthorizedVideoTransportIT.java` (new): actual encoded keyframe/segment/manifest, decoder cross-check, missing-keyframe truth, source VFR and native cleanup, signed HLS/DASH playback, WebRTC loss and consent expiry, real c1/c16/c64.
+- Any new SDP/ICE/HLS/MPD HTTP route or Media CLI/SDK public command requires exact PDP-1/2/3 + OpenAPI/route/proto consumer parity before a production claim. A local adapter may be tested behind a private typed SPI first, **but full intent is not accepted until actual client result and source-rights proof exist**.
+
+**AS-07/VS-07 terminal requirement:** the existing microbenchmark passes remain as **fast local evidence**. To complete the original physical stream requirements, require admitted transport and real input/playback plus lower and upper resource/performance bounds. If target c64 is over hardware capacity, report explicit true lower supported profile and get original product owner acceptance only if it meets source-required operating constraints; do not assert 64 completed streams simply because 64 attempts were rejected.
+
+## 9. Exact final proof record (one per original task, not another PDP status authority)
+
+A task result generated **only from actual execution** should contain:
+
+```json
+{
+  "originalTaskId": "STT-12",
+  "sourceSha": "40-char-current-Media-SHA",
+  "implementationFiles": ["repo-relative-existing-path"],
+  "originalAcceptanceRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/N",
+  "owner": "actual responsible owner",
+  "sourceInputs": {
+    "artifactDigestSha256": "actual SHA256",
+    "providerModelDigestSha256": "actual SHA256",
+    "rightsDecisionRef": "real opaque owner decision",
+    "independentGoldRef": "rights-controlled immutable file digest",
+    "hostProfileRef": "pinned runtime+OS+CPU+native image"
+  },
+  "verification": [{
+    "command": "actual-run-command",
+    "discovered": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "junitRef": "actual-run-report-path",
+    "realEffect": true,
+    "negativeAndRestart": true
+  }],
+  "effectResult": {
+    "tenantScopedJobId": "actual source ID",
+    "artifactVersionRef": "actual committed version",
+    "outputDigestSha256": "actual output hash",
+    "providerFinality": "actual truthful status"
+  },
+  "outcome": "REAL_EFFECT_AND_RIGHTS_QUALIFIED",
+  "unresolvedRequiredCriteria": []
+}
+```
+
+This is **an example schema**, not a filled proof or a new R8/gtool contract. Do not invent test counts, IDs or hashes. Reuse the existing R8 owner evidence and status writer; keep any private source/model/voice/subject records in a controlled vault, with public proofs containing digests and opaque references only.
+
+**Final acceptance computation:** original 58 Wave2 task identities, 96 W3/H identities and each applicable PDP leaf are each uniquely assigned and fully verified/legitimately N/A. Exactly zero original *required* tasks remain with missing real positive/denial/recovery/quality tests; tests/host and rights evidence are versioned and current. A reopened source or model/rights change invalidates only its affected proof surfaces. Stage/PDP/gtool/release authority remains independently sourced.
+
