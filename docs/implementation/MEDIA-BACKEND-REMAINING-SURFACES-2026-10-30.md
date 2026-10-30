@@ -328,3 +328,43 @@ Timeboxes set a **pulse/checkpoint**, not promise of wall-time delivery. A stall
 - **Large-file/privacy:** `ghatana-media` is a public repository; importing from private Ghatana repos requires ownership/license/secret provenance review. Never upload test model weights, private audio/video or person-identifiable fixtures to git. No massive data caches or 100GB testing.
 
 **Next safe tasks:** JC-01 and TY-01 source parity; AS-02/VS-02 untrusted-size parser regression; IP-01 legacy-vs-canonical DB census; CA-02 cache-key privacy; RS-02 decoder bounds; all can progress without changing any active Wave2 owner file. This plan is a review and implementation worklist, not evidence of executing those tasks.
+
+## 9. All 21 logical consumers — no omitted or double-counted implementers
+
+The topology has **21 logical consumer identities**. These are requirements/contract channels cross-walked to their **existing physical packages**, NOT additional physical services or hidden backend work units. The [source-derived coverage index](MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json) copies exact `consumerCrosswalk` physical references and records which lane owns subsequent proof. A headless tool/SDK may be implemented and tested without proving its GUI host or release.
+
+| Exact logical consumer | Physical implementation hosts | Current plan lane | Acceptance handoff |
+| --- | --- | --- | --- |
+| `media.surface.web` | `libs/audio-video-ui` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+| `media.surface.embedded` | `libs/audio-video-ui` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+| `media.surface.public-http` | `launcher`, `runtime-contracts` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.service-grpc` | `runtime-contracts`, `modules/speech/stt-service`, `modules/speech/tts-service`, `modules/vision/vision-service`, `modules/intelligence/multimodal-service` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.grpc.stt` | `modules/speech/stt-service` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.grpc.tts` | `modules/speech/tts-service` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.grpc.vision` | `modules/vision/vision-service` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.grpc.multimodal` | `modules/intelligence/multimodal-service` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.sdk` | `libs/audio-video-client`, `libs/audio-video-types` | W3_PARTIAL_OR_BACKEND_CONSUMER | W3 linked physical tasks; do not claim all PDP intents implemented |
+| `media.surface.cli` | `libs/audio-video-client`, `libs/media-experience-simulation` | W3_PARTIAL_OR_BACKEND_CONSUMER | W3 linked physical tasks; do not claim all PDP intents implemented |
+| `media.surface.agent-tools` | `runtime-contracts`, `adapters/agent-tools-media` | W3_PARTIAL_OR_BACKEND_CONSUMER | W3 linked physical tasks; do not claim all PDP intents implemented |
+| `media.surface.events` | `modules/infrastructure/messaging`, `runtime-contracts` | PREVIOUS_WAVES_STATUS_NOT_REEVALUATED | Foundation/Wave2 existing owner; no reopen |
+| `media.surface.integrations` | `adapters/data-cloud-media`, `adapters/ledger`, `modules/infrastructure/cache`, `modules/infrastructure/messaging`, `modules/infrastructure/persistence`, `modules/infrastructure/security`, `providers/aws-postgresql` | W3_PARTIAL_OR_BACKEND_CONSUMER | W3 linked physical tasks; do not claim all PDP intents implemented |
+| `media.surface.types-library` | `libs/audio-video-types` | W3_PARTIAL_OR_BACKEND_CONSUMER | W3 linked physical tasks; do not claim all PDP intents implemented |
+| `media.surface.ui-library` | `libs/audio-video-ui`, `modules/intelligence/ai-voice/libs/ai-voice-ui-react` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+| `media.surface.explorer` | `apps/media-experience-explorer`, `libs/media-experience-simulation` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+| `media.surface.desktop-archive` | None (archive) | ARCHIVED_NOT_ACTIVE | Archived N/A; no executable implementation |
+| `media.surface.recorder-orchestrator` | `libs/audio-video-client`, `libs/media-experience-simulation` | H_CROSS_SURFACE_BACKEND | H-01,H-02,H-03,H-07,H-08 |
+| `media.surface.capture-adapters` | `runtime-contracts` | H_CROSS_SURFACE_BACKEND | H-04,H-07,AS-07,VS-07 |
+| `media.surface.production-studio` | `libs/audio-video-ui` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+| `media.surface.interactive-demo-player` | `libs/audio-video-ui` | NONBACKEND_HANDOFF | GUI/Explorer owner; backend-only scope excludes host |
+
+**Compositions:** The six semantic compositions + repository root remain governed by existing PDP surface definitions. Source membership and code-path review allow local leaf work; composition/root acceptance requires actual cross-child business outcomes and contract parity. The earliest unfinished applicable source phase still owns formal status, independently of implementation. A backend pass cannot close `media.composition.creation-composition-and-delivery` while UI/Studio is unimplemented.
+
+## 10. Exact selected task and source-currentness accounting
+
+The canonical local task list is **only the Markdown task tables in §3 and §4**: **88** backend-physical tasks across fifteen groups and **8** additional *logical* headless production tasks. The [source coverage JSON](MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json) is a **generated read-only join index**, NOT a new lifecycle task registry, new PDP authority, duplicate contracts or independent acceptance record. It enumerates **29 physical** dispositions (10 earlier, 15 this backend scope, 4 explicit non-backend handoffs), **21 logical** consumer references, and **602 remaining physical-to-PDP0 capability memberships**: 399 technical/backend package responsibilities plus 203 deferred GUI/voice UI memberships.
+
+For each task implementation handoff record: local task ID, exact source/PDP owner reference, Media code file(s), owning agent/reviewer, predecessor proofs, compile+contract+negative/fault/test selector, runtime/model/host/rights identity if real, observed success/failure/skip and benchmark, and next remaining task. For capability memberships, the JSON `workOwnerTaskId` is *a responsible code/conformance reviewer*, **not** implementation evidence, a gtool task identifier or authorization for an unqualified provider. Do not use the count as evidence of 399 implemented features; many are repeated/interface/delegated intents.
+
+**Track B, deployment and external qualifications** are independent. No PDP0–3 DEV_COMPLETE claim is asserted anew, no source-currentness receipt, signed model/codec/license approval, lifecycle phase/Kernel transition, Ghatana producer adoption, release, PR state, and no operational writer cutover are performed by this plan. The current [Wave2 execution owner](MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md) continues executing its original 36 unfinished R8 tasks and current source-rights/model/host/quality gates. Only disjoint-file Wave3 work starts in parallel.
+
+**Next exact engineering order:** As soon as existing owner checkout is clean, perform `AS-02` and `VS-02` negative frame parser tests and fixes; `IP-01` exact schema/JPA compatibility audit; `TY-01` and `JC-01` contract/transport currentness; `CA-02` private-cache-key redaction; `RS-02` bounded codec test. Re-run only changed-package tests; reserve W3D full integration for real integrated commits and authenticated sources. Every 90-minute pulse reports a code/test result, not a new plan.
