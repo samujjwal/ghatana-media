@@ -119,6 +119,40 @@ public final class MediaWorkflowMetrics {
         }
     }
 
+    /**
+     * One bounded measured-quality sample row for a provider model revision,
+     * sourced only from a verified source-linked evaluation report. Labels use a
+     * fixed vocabulary: {@code aggregate} or a bounded lowercase locale token, a
+     * registered metric name, and a provenance scope. No tenant, clip, speaker,
+     * transcript, report path or free-form value is exported. A {@code
+     * reference_only} row is a development measurement, never a qualified-model
+     * or production-SLO series.
+     */
+    public record ProviderQualitySeriesSample(
+            String locale,
+            String metric,
+            double value,
+            Instant measuredAt,
+            String scope) {
+        public ProviderQualitySeriesSample {
+            locale = locale == null ? "" : locale.trim();
+            if (!"aggregate".equals(locale) && !locale.matches("[a-z]{3}")) {
+                throw new IllegalArgumentException(
+                        "quality locale must be aggregate or a 3-letter source locale code");
+            }
+            if (metric == null || !QUALITY_METRICS.contains(metric)) {
+                throw new IllegalArgumentException("quality metric is outside the bounded vocabulary");
+            }
+            if (!Double.isFinite(value) || value < 0) {
+                throw new IllegalArgumentException("quality value must be finite and nonnegative");
+            }
+            java.util.Objects.requireNonNull(measuredAt, "measuredAt");
+            if (scope == null || !QUALITY_SCOPES.contains(scope)) {
+                throw new IllegalArgumentException("quality scope is outside the bounded vocabulary");
+            }
+        }
+    }
+
     /** A single-use monotonic timer bound to its bounded modality, boundary, and outcome. */
     public static final class ModalityTimingSample {
         private final Timer.Sample sample;
@@ -138,7 +172,22 @@ public final class MediaWorkflowMetrics {
     private record ProviderProfileKey(Modality modality, String providerId, String providerVersion,
                                       String modelProfile, String modelRevision) {}
 
+    private record ProviderQualityGroupKey(Modality modality, String providerId,
+                                           String providerVersion, String modelRevision) {}
+
+    private record ProviderQualityKey(Modality modality, String providerId, String providerVersion,
+                                      String modelRevision, String locale, String metric,
+                                      String scope) {}
+
     private static final int MAX_PROVIDER_PROFILES = 64;
+    private static final int MAX_PROVIDER_QUALITY_SERIES = 1024;
+    private static final int MAX_QUALITY_SAMPLES_PER_MODEL = 32;
+    /** Fixed measured-quality label vocabulary; no free-form or source-derived label. */
+    private static final Set<String> QUALITY_METRICS = Set.of(
+            "wer", "cer", "map50", "real_time_factor", "intelligibility",
+            "wer_ci95_lower", "wer_ci95_upper");
+    private static final Set<String> QUALITY_SCOPES = Set.of(
+            "reference_only", "independent_qualified");
 
     private final Map<Stage, Timer> stageTimers = new EnumMap<>(Stage.class);
     private final MeterRegistry registry;
@@ -146,6 +195,11 @@ public final class MediaWorkflowMetrics {
     private final ConcurrentMap<ProviderProfileKey, ProviderProfileGauges> providerProfiles =
             new ConcurrentHashMap<>();
     private final Object providerProfileLock = new Object();
+    private final ConcurrentMap<ProviderQualityKey, AtomicReference<Double>> providerQualitySeries =
+            new ConcurrentHashMap<>();
+    private final ConcurrentMap<ProviderQualityGroupKey, Instant> providerQualityCheckedAt =
+            new ConcurrentHashMap<>();
+    private final Object providerQualityLock = new Object();
     private final Map<Event, Counter> eventCounters = new EnumMap<>(Event.class);
     private final String safeService;
     private final Counter requests;
@@ -337,6 +391,100 @@ public final class MediaWorkflowMetrics {
                 .description("Unix timestamp of the latest measured provider quality observation; NaN if absent")
                 .tags(tags)
                 .register(registry);
+    }
+
+    /**
+     * Replace the measured-quality series for one provider model revision with the
+     * latest verified report rows. Series present in an earlier refresh but absent
+     * now are set to NaN — stale evidence never leaves a phantom measured value.
+     * A refresh older than the recorded check time is rejected. The registry keeps
+     * at most {@value MAX_PROVIDER_QUALITY_SERIES} quality series; label values are
+     * restricted to the fixed locale/metric/scope vocabulary.
+     *
+     * @return false when the refresh is stale, exceeds bounded capacity, or the
+     *         sample rows are ambiguous for one series
+     */
+    public boolean recordProviderQualitySeries(
+            Modality modality, String providerId, String providerVersion,
+            String modelRevision, Instant checkedAt,
+            java.util.List<ProviderQualitySeriesSample> samples) {
+        if (modality == null || providerId == null || providerVersion == null
+                || modelRevision == null || checkedAt == null) {
+            return false;
+        }
+        java.util.List<ProviderQualitySeriesSample> rows =
+                samples == null ? java.util.List.of() : samples;
+        if (rows.size() > MAX_QUALITY_SAMPLES_PER_MODEL) {
+            registry.counter("media.provider.quality.series.rejected",
+                    "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+            return false;
+        }
+        ProviderQualityGroupKey group = new ProviderQualityGroupKey(
+                modality, providerId, providerVersion, modelRevision);
+        synchronized (providerQualityLock) {
+            Instant last = providerQualityCheckedAt.get(group);
+            if (last != null && checkedAt.isBefore(last)) {
+                registry.counter("media.provider.quality.series.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            java.util.Set<ProviderQualityKey> desired = new java.util.HashSet<>();
+            for (ProviderQualitySeriesSample sample : rows) {
+                if (sample == null || !desired.add(new ProviderQualityKey(modality, providerId,
+                        providerVersion, modelRevision, sample.locale(), sample.metric(),
+                        sample.scope()))) {
+                    registry.counter("media.provider.quality.series.rejected",
+                            "service", safeService, "contract_version", CONTRACT_VERSION)
+                            .increment();
+                    return false;
+                }
+            }
+            long additional = desired.stream()
+                    .filter(key -> !providerQualitySeries.containsKey(key)).count();
+            if (providerQualitySeries.size() + additional > MAX_PROVIDER_QUALITY_SERIES) {
+                registry.counter("media.provider.quality.series.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            for (java.util.Map.Entry<ProviderQualityKey, AtomicReference<Double>> entry
+                    : providerQualitySeries.entrySet()) {
+                ProviderQualityKey key = entry.getKey();
+                if (key.modality() == modality && key.providerId().equals(providerId)
+                        && key.providerVersion().equals(providerVersion)
+                        && key.modelRevision().equals(modelRevision) && !desired.contains(key)) {
+                    entry.getValue().set(Double.NaN);
+                }
+            }
+            for (ProviderQualitySeriesSample sample : rows) {
+                ProviderQualityKey key = new ProviderQualityKey(modality, providerId,
+                        providerVersion, modelRevision, sample.locale(), sample.metric(),
+                        sample.scope());
+                AtomicReference<Double> value = providerQualitySeries.computeIfAbsent(key,
+                        this::registerQualityGauge);
+                value.set(sample.value());
+            }
+            providerQualityCheckedAt.put(group, checkedAt);
+            return true;
+        }
+    }
+
+    private AtomicReference<Double> registerQualityGauge(ProviderQualityKey key) {
+        AtomicReference<Double> value = new AtomicReference<>(Double.NaN);
+        Gauge.builder("media.provider.quality.measured_value", value, AtomicReference::get)
+                .description("Latest measured provider quality value from a verified "
+                        + "source-linked evaluation report; NaN if absent")
+                .tags(io.micrometer.core.instrument.Tags.of(
+                        "service", safeService,
+                        "modality", key.modality().label,
+                        "provider_id", key.providerId(),
+                        "provider_version", key.providerVersion(),
+                        "model_revision", key.modelRevision(),
+                        "locale", key.locale(),
+                        "metric", key.metric(),
+                        "scope", key.scope(),
+                        "contract_version", CONTRACT_VERSION))
+                .register(registry);
+        return value;
     }
 
     private static double epochSeconds(Instant instant) {

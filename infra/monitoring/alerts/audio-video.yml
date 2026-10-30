@@ -263,6 +263,67 @@ groups:
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
   # -------------------------------------------------------------------------
+  # Real source-derived model-quality rules. They consume only the bounded
+  # media_provider_quality_* series exported from a verified, source-linked
+  # evaluation report; absent or revoked evidence stays NaN and never fires a
+  # phantom pass or failure. Threshold literals implement the owner-registered
+  # R10 provisional reference limits (MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json
+  # approvedReferenceQualificationProfiles.stt: eng 0.30 / hin 0.45 / npi 0.55 on
+  # upper-95% speaker-cluster WER). They gate alerting only, never admission.
+  # -------------------------------------------------------------------------
+  - name: audio_video.provider_quality
+    rules:
+      - alert: MediaProviderQualifiedQualityRegression
+        expr: |
+          media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="eng"} > 0.30
+          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="hin"} > 0.45
+          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="npi"} > 0.55
+        for: 5m
+        labels:
+          severity: critical
+          product: audio-video
+          component: model-quality
+        annotations:
+          summary: "Qualified Media model quality regressed past the registered threshold"
+          description: "The independently measured upper-95% WER for {{ $labels.model_revision }} (locale {{ $labels.locale }}) is {{ $value }}, above its registered reference threshold. Investigate the exact report provenance and keep the affected profile unadmitted until a healthy independent measurement clears this."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      # A reference-only result is a development measurement, not a production
+      # SLA breach; it still signals that a selected candidate is below bar.
+      - alert: MediaProviderReferenceQualityBelowThreshold
+        expr: |
+          media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="eng"} > 0.30
+          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="hin"} > 0.45
+          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="npi"} > 0.55
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: model-quality
+        annotations:
+          summary: "Reference-only Media model measurement is below the registered threshold"
+          description: "A REFERENCE_ONLY measured WER for {{ $labels.model_revision }} (locale {{ $labels.locale }}) is {{ $value }}, above its registered provisional threshold. This is evaluation telemetry, not a production-user SLA alert; do not infer admission or reroute traffic from it."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+      # An observed provider profile with no valid measured quality is an
+      # explicitly unknown capability state: absent, revoked, stale or mismatched
+      # evidence must never read as a pass.
+      - alert: MediaProviderQualityEvidenceMissing
+        expr: |
+          (media_provider_profile_readiness{contract_version="v1"} == media_provider_profile_readiness{contract_version="v1"})
+          and on (service, modality, provider_id, provider_version, model_profile, model_revision, contract_version)
+          (media_provider_quality_observation_timestamp_seconds{contract_version="v1"} != media_provider_quality_observation_timestamp_seconds{contract_version="v1"})
+        for: 15m
+        labels:
+          severity: warning
+          product: audio-video
+          component: model-quality
+        annotations:
+          summary: "Media provider profile has no measured quality evidence"
+          description: "Provider profile {{ $labels.provider_id }}/{{ $labels.model_revision }} ({{ $labels.modality }}) is observed, but its measured-quality timestamp is NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
+  # -------------------------------------------------------------------------
   # 2. STT (Speech-to-Text) Performance
   # -------------------------------------------------------------------------
   - name: audio_video.stt

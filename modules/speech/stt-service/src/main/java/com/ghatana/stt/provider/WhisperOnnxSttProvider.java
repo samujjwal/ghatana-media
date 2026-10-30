@@ -119,6 +119,17 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     public interface QualityEvidenceReader {
         Optional<MediaModalityContracts.ProviderQualityObservation> latest(
                 String providerId, String providerVersion, String modelRevision);
+
+        /**
+         * All measured rows a verified report carries for the exact identity —
+         * aggregate plus bounded per-locale series. The default derives from
+         * {@link #latest}; every row must still match the exact provider and model.
+         */
+        default List<MediaModalityContracts.ProviderQualityObservation> latestAll(
+                String providerId, String providerVersion, String modelRevision) {
+            return latest(providerId, providerVersion, modelRevision)
+                    .map(List::of).orElse(List.of());
+        }
     }
 
     public WhisperOnnxSttProvider(
@@ -214,6 +225,29 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         Optional<MediaModalityContracts.ProviderQualityObservation> candidate =
                 qualityEvidenceReader.latest(binding.providerId(), binding.providerVersion(), revision);
         return matchingQualityObservation(binding, revision, candidate);
+    }
+
+    /**
+     * Every measured row the trusted evidence source supplies for the exact
+     * provider and model — aggregate plus any bounded per-locale series.
+     * Each row is independently identity-checked before it is exposed.
+     */
+    @Override
+    public List<MediaModalityContracts.ProviderQualityObservation> qualityObservations(
+            JobType modality, String modelRevision) {
+        if (modality != JobType.SPEECH_TO_TEXT || closed.get() || modelRevision == null) {
+            return List.of();
+        }
+        String revision = config.modelId().trim().toLowerCase(Locale.ROOT);
+        if (!revision.equals(modelRevision)) return List.of();
+        return qualityEvidenceReader
+                .latestAll(binding.providerId(), binding.providerVersion(), revision)
+                .stream()
+                .filter(value -> value.providerId().equals(binding.providerId())
+                        && value.providerVersion().equals(binding.providerVersion())
+                        && value.modality() == JobType.SPEECH_TO_TEXT
+                        && value.modelRevision().equals(revision))
+                .toList();
     }
 
     static Optional<MediaModalityContracts.ProviderQualityObservation> matchingQualityObservation(

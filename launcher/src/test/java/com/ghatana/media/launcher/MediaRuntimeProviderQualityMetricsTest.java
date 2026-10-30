@@ -32,13 +32,21 @@ class MediaRuntimeProviderQualityMetricsTest {
                 MediaModalityContracts.ProviderQualityObservation.Metric.WER,
                 1.0938, measuredAt, "a".repeat(64));
         try (var runtime = runtime(provider)) {
-            String scraped = qualityLine(runtime.prometheusMetrics());
+            String scrape = runtime.prometheusMetrics();
+            String scraped = qualityLine(scrape);
             assertThat(scraped).contains("provider_id=\"quality-test\"",
                     "model_revision=\"model-r1\"");
             assertThat(scraped).doesNotContain("NaN");
             double exportedTimestamp = Double.parseDouble(scraped.substring(scraped.lastIndexOf(' ') + 1));
             assertThat(exportedTimestamp).isBetween(
                     (double) measuredAt.getEpochSecond(), (double) measuredAt.getEpochSecond() + 1.0);
+            String measuredSeries = scrape.lines()
+                    .filter(line -> line.startsWith("media_provider_quality_measured_value{"))
+                    .findFirst().orElseThrow();
+            assertThat(measuredSeries).contains("provider_id=\"quality-test\"",
+                    "model_revision=\"model-r1\"", "locale=\"aggregate\"",
+                    "metric=\"wer\"", "scope=\"reference_only\"");
+            assertThat(measuredSeries).endsWith(" 1.0938");
             assertThat(provider.productionEligible()).isFalse();
             assertThat(provider.source.measuredValue()).isEqualTo(1.0938);
         }

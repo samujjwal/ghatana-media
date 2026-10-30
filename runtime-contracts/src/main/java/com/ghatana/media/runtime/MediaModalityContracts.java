@@ -107,10 +107,22 @@ public final class MediaModalityContracts {
             Metric metric,
             double measuredValue,
             Instant measuredAt,
-            String reportSha256) {
+            String reportSha256,
+            String locale,
+            QualityScope scope) {
 
         /** Metric orientation is independent of readiness or admission. */
-        public enum Metric { WER, CER, MAP50, REAL_TIME_FACTOR, INTELLIGIBILITY }
+        public enum Metric { WER, CER, MAP50, REAL_TIME_FACTOR, INTELLIGIBILITY,
+            WER_CI95_LOWER, WER_CI95_UPPER }
+
+        /**
+         * Provenance scope of the measurement. {@code REFERENCE_ONLY} marks a
+         * development/evaluation result that is explicitly not a qualified model
+         * or production SLO; {@code INDEPENDENT_QUALIFIED} marks a source-linked
+         * measurement from an independently qualified holdout. Neither scope
+         * admits the provider for traffic.
+         */
+        public enum QualityScope { REFERENCE_ONLY, INDEPENDENT_QUALIFIED }
 
         public ProviderQualityObservation {
             providerId = required(providerId, "quality providerId");
@@ -136,6 +148,26 @@ public final class MediaModalityContracts {
             if (!reportSha256.matches("[0-9a-f]{64}")) {
                 throw new IllegalArgumentException("quality report must have a SHA-256 content digest");
             }
+            locale = locale == null ? "" : locale.trim();
+            if (!locale.isEmpty()
+                    && (locale.length() > 32 || !locale.matches("[a-z0-9][a-z0-9_-]*"))) {
+                throw new IllegalArgumentException(
+                        "quality locale must be empty or a bounded lowercase token");
+            }
+            scope = Objects.requireNonNull(scope, "quality scope");
+        }
+
+        /**
+         * Compatibility constructor for an aggregate (non-locale) observation.
+         * An omitted scope stays {@code REFERENCE_ONLY}; no caller can upgrade a
+         * measurement to qualified merely by omitting the field.
+         */
+        public ProviderQualityObservation(
+                String providerId, String providerVersion, JobType modality,
+                String modelRevision, Metric metric, double measuredValue,
+                Instant measuredAt, String reportSha256) {
+            this(providerId, providerVersion, modality, modelRevision, metric,
+                    measuredValue, measuredAt, reportSha256, "", QualityScope.REFERENCE_ONLY);
         }
     }
 

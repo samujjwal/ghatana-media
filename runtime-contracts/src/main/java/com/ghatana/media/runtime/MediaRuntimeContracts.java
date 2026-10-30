@@ -2118,6 +2118,19 @@ public final class MediaRuntimeContracts {
                 qualityObservation(JobType modality, String modelRevision) {
             return java.util.Optional.empty();
         }
+        /**
+         * All source-owned measured observations for the exact provider modality and
+         * model revision, including any bounded per-locale series a verified
+         * evaluation report carries. The default wraps the single aggregate
+         * observation; each returned row must independently match the requested
+         * provider identity, modality and revision. An empty list is the honest
+         * absent/missing state, never a zero score.
+         */
+        default List<MediaModalityContracts.ProviderQualityObservation>
+                qualityObservations(JobType modality, String modelRevision) {
+            return qualityObservation(modality, modelRevision)
+                    .map(List::of).orElse(List.of());
+        }
         default MediaModalityContracts.ProviderHealth health() {
             return new MediaModalityContracts.ProviderHealth(
                     providerId(), providerVersion(),

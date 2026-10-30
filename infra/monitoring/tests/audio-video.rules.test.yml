@@ -897,3 +897,125 @@ tests:
   - eval_time: 11m
     alertname: MediaProviderProfileStale
     exp_alerts: []
+- name: qualified-quality-regression-fires-and-recovers
+  interval: 1m
+  input_series:
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="hin",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
+    values: 1.2x19
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="eng",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
+    values: 0.2x19
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: model-quality
+        service: stt
+        modality: stt
+        provider_id: whisper-provider
+        provider_version: whisper-v1
+        model_revision: whisper-tiny
+        locale: hin
+        metric: wer_ci95_upper
+        scope: independent_qualified
+        contract_version: v1
+      exp_annotations:
+        summary: Qualified Media model quality regressed past the registered threshold
+        description: The independently measured upper-95% WER for whisper-tiny (locale hin) is 1.2, above its registered reference threshold. Investigate the exact report provenance and keep the affected profile unadmitted until a healthy independent measurement clears this.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 20m
+    alertname: MediaProviderReferenceQualityBelowThreshold
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaProviderQualityEvidenceMissing
+    exp_alerts: []
+- name: reference-quality-below-threshold-warns-without-admission
+  interval: 1m
+  input_series:
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="npi",metric="wer",scope="reference_only",contract_version="v1"}
+    values: 1.05x19
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderReferenceQualityBelowThreshold
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: model-quality
+        service: stt
+        modality: stt
+        provider_id: whisper-provider
+        provider_version: whisper-v1
+        model_revision: whisper-tiny
+        locale: npi
+        metric: wer
+        scope: reference_only
+        contract_version: v1
+      exp_annotations:
+        summary: Reference-only Media model measurement is below the registered threshold
+        description: A REFERENCE_ONLY measured WER for whisper-tiny (locale npi) is 1.05, above its registered provisional threshold. This is evaluation telemetry, not a production-user SLA alert; do not infer admission or reroute traffic from it.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 20m
+    alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts: []
+- name: quality-thresholds-hold-at-registered-values
+  interval: 1m
+  input_series:
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="eng",metric="wer",scope="reference_only",contract_version="v1"}
+    values: 0.30x19
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="hin",metric="wer",scope="reference_only",contract_version="v1"}
+    values: 0.45x19
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="npi",metric="wer",scope="reference_only",contract_version="v1"}
+    values: 0.55x19
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="hin",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
+    values: 0.45x19
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderReferenceQualityBelowThreshold
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts: []
+- name: missing-quality-evidence-alerts-on-observed-profile
+  interval: 1m
+  input_series:
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_profile="stt",model_revision="whisper-tiny",contract_version="v1"}
+    values: 1x19
+  - series: media_provider_quality_observation_timestamp_seconds{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_profile="stt",model_revision="whisper-tiny",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderQualityEvidenceMissing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: model-quality
+        service: stt
+        modality: stt
+        provider_id: whisper-provider
+        provider_version: whisper-v1
+        model_profile: stt
+        model_revision: whisper-tiny
+        contract_version: v1
+      exp_annotations:
+        summary: Media provider profile has no measured quality evidence
+        description: Provider profile whisper-provider/whisper-tiny (stt) is observed, but its measured-quality timestamp is NaN for 15 minutes — the source evidence is absent, revoked, stale or mismatched. Treat the capability quality as unknown, not failed and not passed.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+- name: finite-quality-evidence-and-unknown-profile-stay-quiet
+  interval: 1m
+  input_series:
+  - series: media_provider_profile_readiness{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_profile="stt",model_revision="whisper-tiny",contract_version="v1"}
+    values: 1x19
+  - series: media_provider_quality_observation_timestamp_seconds{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_profile="stt",model_revision="whisper-tiny",contract_version="v1"}
+    values: 1760000000x19
+  - series: media_provider_profile_readiness{service="vision",modality="vision",provider_id="yolox-provider",provider_version="yolox-v1",model_profile="vision",model_revision="yolox-nano",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+  - series: media_provider_quality_observation_timestamp_seconds{service="vision",modality="vision",provider_id="yolox-provider",provider_version="yolox-v1",model_profile="vision",model_revision="yolox-nano",contract_version="v1"}
+    values: NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN NaN
+  alert_rule_test:
+  - eval_time: 20m
+    alertname: MediaProviderQualityEvidenceMissing
+    exp_alerts: []

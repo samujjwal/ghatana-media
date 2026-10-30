@@ -326,4 +326,59 @@ class MediaWorkflowMetricsTest {
         assertThat(registry.get("media.provider.profile.observation.rejected")
                 .tag("service", "vision").counter().count()).isEqualTo(1);
     }
+
+    @Test
+    void measuredQualitySeriesUsesBoundedVocabularyAndHonestAbsence() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-10-29T12:00:00Z");
+
+        assertThat(metrics.recordProviderQualitySeries(
+                MediaWorkflowMetrics.Modality.STT, "whisper-provider", "whisper-v1",
+                "whisper-tiny", now, java.util.List.of(
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "aggregate", "wer", 1.096, now.minusSeconds(3600),
+                                "reference_only"),
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "hin", "wer", 1.096, now.minusSeconds(3600),
+                                "reference_only"),
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "hin", "wer_ci95_upper", 1.267, now.minusSeconds(3600),
+                                "reference_only")))).isTrue();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "hin").tag("metric", "wer").gauge().value()).isEqualTo(1.096);
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("metric", "wer_ci95_upper").gauge().value()).isEqualTo(1.267);
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "aggregate").gauge().value()).isEqualTo(1.096);
+
+        // A later refresh without measured rows leaves NaN, never a phantom value.
+        assertThat(metrics.recordProviderQualitySeries(
+                MediaWorkflowMetrics.Modality.STT, "whisper-provider", "whisper-v1",
+                "whisper-tiny", now.plusSeconds(60), java.util.List.of())).isTrue();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "hin").tag("metric", "wer").gauge().value()).isNaN();
+
+        // An older refresh and out-of-vocabulary labels are rejected.
+        assertThat(metrics.recordProviderQualitySeries(
+                MediaWorkflowMetrics.Modality.STT, "whisper-provider", "whisper-v1",
+                "whisper-tiny", now, java.util.List.of())).isFalse();
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "tenant-987", "wer", 0.1, now, "reference_only"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "raw_transcript", 0.1, now, "reference_only"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.1, now, "production_admitted"))
+                .isInstanceOf(IllegalArgumentException.class);
+        // Two rows claiming the same series are ambiguous and dropped together.
+        assertThat(metrics.recordProviderQualitySeries(
+                MediaWorkflowMetrics.Modality.STT, "whisper-provider", "whisper-v1",
+                "whisper-tiny", now.plusSeconds(120), java.util.List.of(
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "eng", "wer", 0.1, now, "reference_only"),
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "eng", "wer", 0.2, now, "reference_only")))).isFalse();
+    }
 }

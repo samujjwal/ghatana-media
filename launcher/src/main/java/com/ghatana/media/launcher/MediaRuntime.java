@@ -1836,6 +1836,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     safeValue(profile.providerId(), "unknown"),
                                     profile.modality().name(), invalidQuality.getClass().getSimpleName());
                         }
+                        recordProviderQualitySeries(provider, profile, modelRevision, modality);
                         workflowMetrics.recordProviderProfile(modality,
                                 new MediaWorkflowMetrics.ProviderProfileObservation(
                                         profile.providerId(), profile.providerVersion(),
@@ -1849,6 +1850,63 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Export the provider's verified measured-quality rows for one model revision.
+     * Every row is independently identity-checked; a batch with any mismatched or
+     * ambiguous row is dropped entirely rather than exporting partial evidence.
+     * Absent or invalid quality leaves the series NaN.
+     */
+    private void recordProviderQualitySeries(
+            MediaProcessingProvider provider,
+            MediaModalityContracts.CapabilityProfile profile,
+            String modelRevision,
+            MediaWorkflowMetrics.Modality modality) {
+        java.util.List<MediaWorkflowMetrics.ProviderQualitySeriesSample> samples =
+                java.util.List.of();
+        try {
+            var rows = provider.qualityObservations(profile.modality(), modelRevision);
+            if (rows != null && !rows.isEmpty()) {
+                var checked = new java.util.ArrayList<MediaWorkflowMetrics.ProviderQualitySeriesSample>(
+                        rows.size());
+                var seriesKeys = new java.util.HashSet<String>(rows.size());
+                for (var row : rows) {
+                    if (row == null
+                            || !row.providerId().equals(profile.providerId())
+                            || !row.providerVersion().equals(profile.providerVersion())
+                            || row.modality() != profile.modality()
+                            || !row.modelRevision().equals(modelRevision)
+                            || row.measuredAt().isAfter(profile.health().checkedAt())) {
+                        throw new IllegalArgumentException(
+                                "provider quality series does not match its observed profile");
+                    }
+                    String locale = row.locale().isEmpty() ? "aggregate" : row.locale();
+                    String metric = row.metric().name().toLowerCase(java.util.Locale.ROOT);
+                    if (!seriesKeys.add(locale + "|" + metric + "|"
+                            + row.scope().name().toLowerCase(java.util.Locale.ROOT))) {
+                        throw new IllegalArgumentException(
+                                "provider quality series contains an ambiguous duplicate row");
+                    }
+                    checked.add(new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                            locale, metric, row.measuredValue(), row.measuredAt(),
+                            row.scope().name().toLowerCase(java.util.Locale.ROOT)));
+                }
+                samples = checked;
+            }
+        } catch (RuntimeException invalidQuality) {
+            log.warn("Media provider quality series unavailable provider={} modality={} cause={}",
+                    safeValue(profile.providerId(), "unknown"),
+                    profile.modality().name(), invalidQuality.getClass().getSimpleName());
+        }
+        try {
+            workflowMetrics.recordProviderQualitySeries(modality, profile.providerId(),
+                    profile.providerVersion(), modelRevision, profile.health().checkedAt(), samples);
+        } catch (RuntimeException metricFailure) {
+            log.warn("Media provider quality series export failed provider={} modality={} cause={}",
+                    safeValue(profile.providerId(), "unknown"),
+                    profile.modality().name(), metricFailure.getClass().getSimpleName());
         }
     }
 

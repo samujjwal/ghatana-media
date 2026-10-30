@@ -129,6 +129,14 @@ class MediaWorkflowAlertRulesTest {
                         "alert: MediaProviderProfileStale",
                         "media_provider_profile_readiness{contract_version=\"v1\"}")
                 .doesNotContain("alert: MediaQualityRegression", "alert: MediaModelQualityRegression\n");
+        assertThat(rules).contains(
+                "alert: MediaProviderQualifiedQualityRegression",
+                "alert: MediaProviderReferenceQualityBelowThreshold",
+                "alert: MediaProviderQualityEvidenceMissing",
+                "media_provider_quality_measured_value{contract_version=\"v1\"",
+                "scope=\"independent_qualified\"", "scope=\"reference_only\"",
+                "metric=\"wer_ci95_upper\"", "locale=\"eng\"", "locale=\"hin\"", "locale=\"npi\"",
+                "media_provider_quality_observation_timestamp_seconds{contract_version=\"v1\"}");
         assertThat(operations).contains(
                 "`av_service_readiness{service=\"stt|tts|vision|multimodal\"}`",
                 "Modality-specific provider-not-ready alerts fire only when an observed readiness",
@@ -274,6 +282,17 @@ class MediaWorkflowAlertRulesTest {
                 "values: 100x11",
                 "values: 0x11",
                 "values: 590x11");
+        assertThat(fixture).contains(
+                "name: qualified-quality-regression-fires-and-recovers",
+                "name: reference-quality-below-threshold-warns-without-admission",
+                "name: quality-thresholds-hold-at-registered-values",
+                "name: missing-quality-evidence-alerts-on-observed-profile",
+                "name: finite-quality-evidence-and-unknown-profile-stay-quiet",
+                "alertname: MediaProviderQualifiedQualityRegression",
+                "alertname: MediaProviderReferenceQualityBelowThreshold",
+                "alertname: MediaProviderQualityEvidenceMissing",
+                "metric=\"wer_ci95_upper\"", "scope=\"independent_qualified\"",
+                "scope=\"reference_only\"");
         assertThat(rules).doesNotContain("tenant_id", "principal_id", "request_id", "job_id",
                 "attempt_id", "model_id", "voice_id", "face_id", "token");
         assertThat(fixture).doesNotContain("tenant-987", "request-654", "private-media-marker");
