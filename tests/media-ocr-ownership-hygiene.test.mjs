@@ -44,3 +44,19 @@ test('MDI-001 is the sole OCR execution owner and Media has no generic recognize
   assert.match(architecture, /prior idea of adding an independent Media Vision OCR provider is/u);
   assert.doesNotMatch(architecture, /OR qualified Media model/u);
 });
+
+test('development consumer migration accounts for every DI-only adoption and retirement stage', () => {
+  const matrix = read('docs/migration/document-intelligence-media-crosswalk.md');
+  const ids = [...matrix.matchAll(/^\| \*\*(OCR-[A-Z]\d\d) — /gmu)]
+    .map(match => match[1]);
+  assert.deepEqual(ids, [
+    'OCR-C01', 'OCR-D01', 'OCR-D02', 'OCR-M01', 'OCR-M02',
+    'OCR-K01', 'OCR-M03', 'OCR-X01',
+  ]);
+  assert.match(matrix, /source-free DI-backed capability conformance/u);
+  assert.match(matrix, /After OCR-M01\/M02\/K01 prove their replacement/u);
+  assert.match(matrix, /No callable Media generic OCR implementation remains/u);
+  assert.match(matrix, /swap the adapter\/model \*\*inside Document Intelligence\*\*/u);
+  assert.match(matrix, /Ghatana #252/u);
+  assert.match(matrix, /VIS-09\/OC-04/u);
+});
