@@ -31,6 +31,38 @@ class MediaProcessingProviderCapabilityProfileTest {
     }
 
     @Test
+    void measuredQualityIsOptionalSourceEvidenceNotProviderAdmission() {
+        MediaProcessingProvider diagnostic = new TestProvider(false, Set.of(JobType.SPEECH_TO_TEXT));
+        assertThat(diagnostic.qualityObservation(JobType.SPEECH_TO_TEXT, "model-v1")).isEmpty();
+
+        Instant observed = Instant.now().minusSeconds(10);
+        var evidence = new MediaModalityContracts.ProviderQualityObservation(
+                "test-provider", "provider-v1", JobType.SPEECH_TO_TEXT, "model-v1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                1.0938, observed, "a".repeat(64));
+        // WER may exceed one due to insertions: measured failure is not a parsing error.
+        assertThat(evidence.measuredValue()).isEqualTo(1.0938);
+        assertThat(evidence.reportSha256()).hasSize(64);
+        assertThat(diagnostic.productionEligible()).isFalse();
+
+        assertThatThrownBy(() -> new MediaModalityContracts.ProviderQualityObservation(
+                "test-provider", "provider-v1", JobType.SPEECH_TO_TEXT, "model-v1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                Double.NaN, observed, "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaModalityContracts.ProviderQualityObservation(
+                "test-provider", "provider-v1", JobType.SPEECH_TO_TEXT, "model-v1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.4, observed, "not-a-source-digest"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaModalityContracts.ProviderQualityObservation(
+                "test-provider", "provider-v1", JobType.SPEECH_TO_TEXT, "model-v1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.4, Instant.now().plusSeconds(120), "a".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void productionProviderRequiresExplicitProfilesForEveryDeclaredModality() {
         MediaProcessingProvider missing = new TestProvider(true, Set.of(JobType.SPEECH_TO_TEXT));
 
