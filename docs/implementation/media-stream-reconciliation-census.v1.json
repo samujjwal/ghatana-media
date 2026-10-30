@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "AS-01/VS-01 audit: verify the audio/video streaming session helpers own no second persistence, dedup or reconciliation engine — durable stream-session reconciliation (acks, in-flight attempts, resume) is owned solely by the canonical media_stream_sessions lineage.",
+  "modules": {
+    "modules/audio-streaming": {
+      "type": "com.ghatana.audio.streaming.AudioStreamSession",
+      "classification": "STATELESS_WIRE_HELPER",
+      "owns": "wire encode/decode (seq:int + ts:long + len:int + payload), frames-per-second math, next-expected-sequence and ordering helpers",
+      "hasNoPersistence": true,
+      "hasNoDedupEngine": true,
+      "hasNoSecondSessionStore": true
+    },
+    "modules/video-streaming": {
+      "type": "com.ghatana.video.streaming.VideoStreamSession",
+      "classification": "STATELESS_WIRE_HELPER",
+      "owns": "wire encode/decode (seq:int + keyframe:byte + ts:long + len:int + payload), frames-per-second math, next-expected-frame and ordering helpers",
+      "hasNoPersistence": true,
+      "hasNoDedupEngine": true,
+      "hasNoSecondSessionStore": true
+    }
+  },
+  "canonicalOwner": {
+    "table": "media_stream_sessions",
+    "acknowledgements": "V019__media_stream_acknowledgements.sql",
+    "inflightAttempts": "V020__media_stream_inflight_attempts.sql",
+    "semantics": "durable per-session ack/receipt and bounded in-flight attempt tracking; reconnect dedup and resume reconciliation live here, not in the wire helpers"
+  },
+  "guards": {
+    "noSecondWriter": "streaming modules must not import java.sql/javax.sql/jakarta.persistence/Flyway/JDBC or any canonical store — they remain deterministic pure helpers",
+    "reconcileAtBoundary": "callers reconcile received sequences against media_stream_sessions acks/attempts; the wire helpers never decide resume dedup",
+    "boundedWireDecode": "decodeFrame enforces the fixed header, declared-length bound, exact-remaining and (video) keyframe-flag validation before allocation"
+  }
+}
