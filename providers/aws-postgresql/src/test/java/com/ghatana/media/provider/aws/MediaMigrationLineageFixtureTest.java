@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
- * must migrate forward through V010–V023 without checksum conflicts, row loss or phantom state;
+ * must migrate forward through V010–V027 without checksum conflicts, row loss or phantom state;
  * a repeated migrate pass must be a no-op and the V009-era column surface must remain readable.
  */
 class MediaMigrationLineageFixtureTest {
@@ -59,7 +59,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(14); // V010..V023 only
+        assertThat(forward.migrationsExecuted).isEqualTo(18); // V010..V027 only
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -113,7 +113,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(23);
+                assertThat(history.getLong(1)).isEqualTo(27);
                 assertThat(history.getLong(2)).isZero();
             }
         }

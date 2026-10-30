@@ -36,7 +36,7 @@ test('DC-01: zero mapped capability IDs is explicit, never fabricated', () => {
 });
 
 test('DC-02: projector keeps exact-source binding checks before emitting', () => {
-  const proj = sources.find((s) => s.includes('MediaSemanticObservationProjector'));
+  const proj = sources.find((s) => s.includes('class MediaSemanticObservationProjector {'));
   for (const check of ['requireSameTenant', 'requireExactVersion',
     'requireClassificationFloor', 'requireRedactionEvidence']) {
     assert.ok(proj.includes(check), `projector missing ${check}`);
