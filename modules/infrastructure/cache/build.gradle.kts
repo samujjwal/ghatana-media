@@ -28,6 +28,9 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)
+    // Captured-log tests need the same Log4j-backed SLF4J binding used by service tests.
+    testImplementation(libs.log4j.core)
+    testRuntimeOnly(libs.log4j.slf4j.impl)
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.redis)

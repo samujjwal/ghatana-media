@@ -6,6 +6,7 @@ import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -178,18 +179,30 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
     }
 
     /**
-     * Loads a trusted evidence snapshot from a local path. The file size is
-     * checked before reading and the same bounded-content rules as
-     * {@link #parse} apply. A missing file is an {@link IOException} at
-     * composition time, never an admitted observation.
+     * Loads a trusted evidence snapshot from a local path. The actual opened
+     * stream is bounded while reading, so a file that grows after inspection
+     * cannot make composition allocate an unbounded snapshot. A missing file
+     * is an {@link IOException} at composition time, never an admitted
+     * observation.
      */
     public static FrozenHoldoutQualityEvidence load(
             Path path, Clock clock, Duration maxEvidenceAge) throws IOException {
-        long size = Files.size(path);
-        if (size < 1 || size > MAX_EVIDENCE_BYTES) {
+        try (InputStream input = Files.newInputStream(path)) {
+            return parse(readBoundedSnapshot(input), clock, maxEvidenceAge);
+        }
+    }
+
+    /**
+     * Reads no more than the configured bound plus one detection byte. The
+     * extra byte distinguishes an exact-bound snapshot from an oversized
+     * stream without trusting a prior file-size observation.
+     */
+    static byte[] readBoundedSnapshot(InputStream input) throws IOException {
+        byte[] bytes = input.readNBytes(MAX_EVIDENCE_BYTES + 1);
+        if (bytes.length > MAX_EVIDENCE_BYTES) {
             throw new IllegalArgumentException("evidence snapshot exceeds bounded size");
         }
-        return parse(Files.readAllBytes(path), clock, maxEvidenceAge);
+        return bytes;
     }
 
     /**

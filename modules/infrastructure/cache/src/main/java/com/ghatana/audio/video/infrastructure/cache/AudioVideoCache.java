@@ -58,7 +58,8 @@ public class AudioVideoCache<K, V> {
         
         return cachePort.get(key).whenComplete((opt, error) -> {
             if (error != null) {
-                LOG.error("Cache get error: namespace={}, keyRef={}", namespace, keyReference(key), error);
+                LOG.error("Cache get error: namespace={}, keyRef={}, causeType={}",
+                        namespace, keyReference(key), failureType(error));
             } else if (opt.isPresent()) {
                 LOG.trace("Cache hit: namespace={}, keyRef={}", namespace, keyReference(key));
             } else {
@@ -107,7 +108,8 @@ public class AudioVideoCache<K, V> {
             });
         }).whenComplete((ignored, error) -> {
             if (error != null) {
-                LOG.error("Cache load error: namespace={}, keyRef={}", namespace, keyReference(key), error);
+                LOG.error("Cache load error: namespace={}, keyRef={}, causeType={}",
+                        namespace, keyReference(key), failureType(error));
             }
         });
     }
@@ -124,8 +126,8 @@ public class AudioVideoCache<K, V> {
                 if (error == null) {
                     LOG.debug("Cache invalidate: namespace={}, keyRef={}", namespace, keyReference(key));
                 } else {
-                    LOG.error("Cache invalidate error: namespace={}, keyRef={}", namespace,
-                            keyReference(key), error);
+                    LOG.error("Cache invalidate error: namespace={}, keyRef={}, causeType={}",
+                            namespace, keyReference(key), failureType(error));
                 }
             });
         }
@@ -141,7 +143,8 @@ public class AudioVideoCache<K, V> {
             if (error == null) {
                 LOG.info("Cache invalidate all: namespace={}", namespace);
             } else {
-                LOG.error("Cache invalidate all error: namespace={}", namespace, error);
+                LOG.error("Cache invalidate all error: namespace={}, causeType={}",
+                        namespace, failureType(error));
             }
         });
     }
@@ -159,9 +162,14 @@ public class AudioVideoCache<K, V> {
                 LOG.trace("Cache put: namespace={}, keyRef={}, ttl={}s",
                         namespace, keyReference(key), ttl.getSeconds());
             } else {
-                LOG.error("Cache put error: namespace={}, keyRef={}", namespace,
-                        keyReference(key), error);
+                LOG.error("Cache put error: namespace={}, keyRef={}, causeType={}",
+                        namespace, keyReference(key), failureType(error));
             }
         });
+    }
+
+    /** Never render backend exception messages or stack traces in cache diagnostics. */
+    private static String failureType(Throwable failure) {
+        return failure.getClass().getSimpleName();
     }
 }

@@ -5,6 +5,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +15,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Optional;
 
@@ -254,6 +257,27 @@ class FrozenHoldoutQualityEvidenceTest {
     }
 
     @Test
+    void boundedStreamReadConsumesOnlyTheLimitPlusOneDetectionByte() {
+        CountingUnboundedInputStream input = new CountingUnboundedInputStream();
+
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.readBoundedSnapshot(input))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("evidence snapshot exceeds bounded size");
+        assertThat(input.bytesRead)
+                .isEqualTo(FrozenHoldoutQualityEvidence.MAX_EVIDENCE_BYTES + 1);
+    }
+
+    @Test
+    void boundedStreamReadAcceptsAnExactLimitSnapshot() throws Exception {
+        byte[] atLimit = new byte[FrozenHoldoutQualityEvidence.MAX_EVIDENCE_BYTES];
+        byte[] result = FrozenHoldoutQualityEvidence.readBoundedSnapshot(
+                new ByteArrayInputStream(atLimit));
+
+        assertThat(result).hasSize(FrozenHoldoutQualityEvidence.MAX_EVIDENCE_BYTES);
+        assertThat(result).containsExactly(atLimit);
+    }
+
+    @Test
     void malformedTamperedOrUntrustedSnapshotsFailClosed() {
         Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
         byte[] valid = validSnapshot();
@@ -303,5 +327,22 @@ class FrozenHoldoutQualityEvidenceTest {
                                 .replace("MEASURED_ON_FROZEN_HOLDOUT", "MEASURED_ON_TRAINING")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    private static final class CountingUnboundedInputStream extends InputStream {
+        private int bytesRead;
+
+        @Override
+        public int read() {
+            bytesRead++;
+            return 0;
+        }
+
+        @Override
+        public int read(byte[] target, int offset, int length) {
+            Arrays.fill(target, offset, offset + length, (byte) 'x');
+            bytesRead += length;
+            return length;
+        }
     }
 }
