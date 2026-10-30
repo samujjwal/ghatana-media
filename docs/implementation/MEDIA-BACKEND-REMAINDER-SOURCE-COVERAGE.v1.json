@@ -19,7 +19,11 @@
     "logicalConsumers": 21,
     "remainingBackendCapabilityMemberships": 399,
     "nonBackendHandoffCapabilityMemberships": 203,
-    "remainingCapabilityMemberships": 602
+    "remainingCapabilityMemberships": 602,
+    "wave2UnacceptedTaskCount": 36,
+    "wave2PreservedVerifiedTaskCount": 22,
+    "combinedSelectedOutstandingWorkItems": 132,
+    "crossWaveCoordinationEdges": 26
   },
   "physicalSurfaces": [
     {
@@ -5649,5 +5653,1002 @@
       "lane": "NONBACKEND_HANDOFF"
     }
   ],
-  "classificationNotice": "Task references designate responsible engineering work only; they are not verified implementation, closure, admission, or standalone service evidence."
+  "classificationNotice": "Task references designate responsible engineering work only; they are not verified implementation, closure, admission, or standalone service evidence.",
+  "wave2Continuation": {
+    "recordKind": "READ_ONLY_R8_R10_CONTINUATION_NOT_CANONICAL_TASK_OR_ACCEPTANCE_REGISTRY",
+    "originalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
+    "currentSingleActiveExecutionPlan": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md#10",
+    "r8Matrix": {
+      "path": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
+      "blobSha": "e881a03535214b16864e97cd5d7047dbd84cebd4"
+    },
+    "r10OwnerResolution": {
+      "path": "docs/implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json",
+      "blobSha": "ba80677057d6556cb0643cd220fff889ea224aaf"
+    },
+    "lastAcceptedStatus": {
+      "allOriginal": 58,
+      "previouslyLocallyVerified": 22,
+      "partial": 30,
+      "ownerExternal": 6,
+      "stillUnaccepted": 36,
+      "changeFromThisPlan": 0
+    },
+    "preservedVerifiedOriginalIds": [
+      "STT-01",
+      "STT-02",
+      "STT-11",
+      "TTS-01",
+      "TTS-04",
+      "TTS-11",
+      "VIS-01",
+      "VIS-04",
+      "VIS-08",
+      "VIS-11",
+      "MM-01",
+      "MM-04",
+      "MM-07",
+      "MM-11",
+      "OBS-01",
+      "OBS-02",
+      "OBS-03",
+      "OBS-04",
+      "OBS-05",
+      "OBS-06",
+      "OBS-09",
+      "OBS-10"
+    ],
+    "unfinishedOriginalTasks": [
+      {
+        "id": "VIS-03",
+        "originalR8RowIndex": 0,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-01"
+        ],
+        "r10GateIds": [
+          "G06"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-03",
+        "lastOwnerNextAction": "Finish broker source owner/version/auth binding and hard native OCI adversarial corpus, zero leaked processes",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/0/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-03",
+        "originalR8RowIndex": 1,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-01"
+        ],
+        "r10GateIds": [
+          "G02"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-03",
+        "lastOwnerNextAction": "Verified identity and source rights, current Shared policy, wrong-actor/tenant/expiry/revoke no effects",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/1/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-05",
+        "originalR8RowIndex": 2,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-03"
+        ],
+        "r10GateIds": [
+          "G02",
+          "G04",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-05",
+        "lastOwnerNextAction": "Voice profile, clone and biometric owner consent denied before effect, revoked profile no reused embedding",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/2/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-10",
+        "originalR8RowIndex": 3,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-03",
+          "VIS-06"
+        ],
+        "r10GateIds": [
+          "G02",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-10",
+        "lastOwnerNextAction": "No face/gaze/identity effect without biometric purpose/region/retention/consent, tenant isolation",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/3/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-02",
+        "originalR8RowIndex": 4,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-01",
+          "STT-03",
+          "VIS-03"
+        ],
+        "r10GateIds": [
+          "G02"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-02",
+        "lastOwnerNextAction": "Per-child tenant/principal/immutable version/current rights and policy before fanout",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/4/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-04",
+        "originalR8RowIndex": 5,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-02",
+          "STT-03"
+        ],
+        "r10GateIds": [
+          "G01",
+          "G02",
+          "G03"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-04",
+        "lastOwnerNextAction": "Real source WAV and advertised FLAC, codec headers/frame bounds/clock negatives",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/5/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-08",
+        "originalR8RowIndex": 6,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-06",
+          "STT-07"
+        ],
+        "r10GateIds": [
+          "G03"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-08",
+        "lastOwnerNextAction": "CAS immutable transcript/captions/word lineage, typed unsupported align/translation",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/6/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-09",
+        "originalR8RowIndex": 7,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-03",
+          "STT-08"
+        ],
+        "r10GateIds": [
+          "G03"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-09",
+        "lastOwnerNextAction": "Crash before/after provider receipt; reconcile UNKNOWN and idempotent transcript/outbox",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/7/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-05",
+        "originalR8RowIndex": 8,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-02",
+          "STT-04"
+        ],
+        "r10GateIds": [
+          "G01",
+          "G03"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-05",
+        "lastOwnerNextAction": "True streaming ack/gap/reconnect/backpressure/cancel/EOS provider-finality",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/8/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-06",
+        "originalR8RowIndex": 9,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-04"
+        ],
+        "r10GateIds": [
+          "G01",
+          "G07"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-06",
+        "lastOwnerNextAction": "Source timebase, word/phoneme gold, ordered timings and unknown confidence when unqualified",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/9/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-07",
+        "originalR8RowIndex": 10,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-03",
+          "STT-06"
+        ],
+        "r10GateIds": [
+          "G07",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-07",
+        "lastOwnerNextAction": "Anonymous overlap diarization, lawful DER; speaker identity remains consent gated",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/10/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-02",
+        "originalR8RowIndex": 11,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-01"
+        ],
+        "r10GateIds": [
+          "G04"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-02",
+        "lastOwnerNextAction": "Decoded genuine speech, exact PCM/codec/duration metadata and no synthetic fake bytes",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/11/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-03",
+        "originalR8RowIndex": 12,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-01",
+          "TTS-02"
+        ],
+        "r10GateIds": [
+          "G04",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-03",
+        "lastOwnerNextAction": "Pinned voice model/sidecar/phonemizer rights, health, wrong pin not ready",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/12/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-06",
+        "originalR8RowIndex": 13,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-03",
+          "TTS-04"
+        ],
+        "r10GateIds": [
+          "G04"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-06",
+        "lastOwnerNextAction": "Supported SSML/prosody A/B actual audio, unsupported typed instead of simulated controls",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/13/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-07",
+        "originalR8RowIndex": 14,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-02",
+          "TTS-03",
+          "TTS-06"
+        ],
+        "r10GateIds": [
+          "G04",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-07",
+        "lastOwnerNextAction": "Verified permitted voice+phonemes and real decoded exact sample frames",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/14/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-08",
+        "originalR8RowIndex": 15,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-07"
+        ],
+        "r10GateIds": [
+          "G04"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-08",
+        "lastOwnerNextAction": "Streaming chunk/backpressure/cancel and no false final after provider loss",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/15/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-09",
+        "originalR8RowIndex": 16,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-05",
+          "TTS-07"
+        ],
+        "r10GateIds": [
+          "G03",
+          "G04"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-09",
+        "lastOwnerNextAction": "Durable audio artifact CAS/outbox, receipt idempotency and real restart readback",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/16/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-02",
+        "originalR8RowIndex": 17,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-01"
+        ],
+        "r10GateIds": [
+          "G05",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-02",
+        "lastOwnerNextAction": "Exact weight/export/classes/license model readiness and negative bad pin",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/17/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-05",
+        "originalR8RowIndex": 18,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-02",
+          "VIS-03"
+        ],
+        "r10GateIds": [
+          "G05",
+          "G06"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-05",
+        "lastOwnerNextAction": "BGR/EXIF/rotation/letterbox inverse bbox, ROI exact version and native Mat bounds",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/18/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-06",
+        "originalR8RowIndex": 19,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-05"
+        ],
+        "r10GateIds": [
+          "G05",
+          "G07"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-06",
+        "lastOwnerNextAction": "Multiple classes/NMS/NaN/bbox and heldout mAP/PR with independent rights cleared gold",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/19/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-07",
+        "originalR8RowIndex": 20,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-04",
+          "VIS-06"
+        ],
+        "r10GateIds": [
+          "G05",
+          "G06"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-07",
+        "lastOwnerNextAction": "VFR/reorder/scene cut timestamp tracking, source PTS/epoch uncertainty and accuracy",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/20/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-03",
+        "originalR8RowIndex": 21,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-02"
+        ],
+        "r10GateIds": [
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-03",
+        "lastOwnerNextAction": "Actual source audio/visual clock/rational mapping, offset gold and unknown when not comparable",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/21/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-05",
+        "originalR8RowIndex": 22,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-02",
+          "STT-09",
+          "VIS-06",
+          "VIS-07"
+        ],
+        "r10GateIds": [
+          "G03",
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-05",
+        "lastOwnerNextAction": "Durable canonical per-operation executor, child STT/Vision attempts and no blind replay",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/22/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-06",
+        "originalR8RowIndex": 23,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-04",
+          "MM-05"
+        ],
+        "r10GateIds": [
+          "G11",
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-06",
+        "lastOwnerNextAction": "Finite grounded source association with calibrated or heuristic-only confidence, no unconsented ID",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/23/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-08",
+        "originalR8RowIndex": 24,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-05",
+          "MM-06"
+        ],
+        "r10GateIds": [
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-08",
+        "lastOwnerNextAction": "Separate successful/UNKNOWN child and operation outcomes, no family PARTIAL as success",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/24/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-09",
+        "originalR8RowIndex": 25,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-05",
+          "MM-08"
+        ],
+        "r10GateIds": [
+          "G03",
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-09",
+        "lastOwnerNextAction": "Fenced durable MM result, causal source-child references, compare-and-set/restart exact readback",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/25/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-10",
+        "originalR8RowIndex": 26,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-05",
+          "MM-07"
+        ],
+        "r10GateIds": [
+          "G10"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-10",
+        "lastOwnerNextAction": "Ghatana Data Cloud owner versioned projection public API 202/commit/UNKNOWN and installed consumer",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/26/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-09",
+        "originalR8RowIndex": 27,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-04",
+          "VIS-07"
+        ],
+        "r10GateIds": [
+          "G09"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-09",
+        "lastOwnerNextAction": "Ghatana Document Intelligence owner public region OCR source/box/time and rights negatives",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/27/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-10",
+        "originalR8RowIndex": 28,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-06",
+          "STT-08"
+        ],
+        "r10GateIds": [
+          "G07",
+          "G08"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-10",
+        "lastOwnerNextAction": "Actual corpus WER/CER/DER per language and capped attempts; failed tiny stays review only",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/28/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "STT-12",
+        "originalR8RowIndex": 29,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "STT-03..STT-11"
+        ],
+        "r10GateIds": [
+          "G01",
+          "G02",
+          "G03",
+          "G07",
+          "G08",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media STT and Runtime Security",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#STT-12",
+        "lastOwnerNextAction": "Qualified locale-specific real STT 12-RPC and 1/16/64; all privacy/fault/restart cases",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/29/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-10",
+        "originalR8RowIndex": 30,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-05",
+          "TTS-06",
+          "TTS-07"
+        ],
+        "r10GateIds": [
+          "G04",
+          "G07"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-10",
+        "lastOwnerNextAction": "Truthful voice-locale en/hi/ne support; no unsupported auto substitution or implicit clone",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/30/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "TTS-12",
+        "originalR8RowIndex": 31,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "TTS-04..TTS-11"
+        ],
+        "r10GateIds": [
+          "G04",
+          "G07",
+          "G08",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media TTS and Voice Governance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#TTS-12",
+        "lastOwnerNextAction": "Real TTS 1/16/64 and decoded quality/load/rights plus fault/restart",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/31/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "VIS-12",
+        "originalR8RowIndex": 32,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "VIS-01..VIS-11"
+        ],
+        "r10GateIds": [
+          "G05",
+          "G06",
+          "G07",
+          "G08",
+          "G11"
+        ],
+        "accountableOwnerRole": "Media Vision Native and Model Quality",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#VIS-12",
+        "lastOwnerNextAction": "Full declared Vision RPC, real mAP/native codec limits and measured load/restart",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/32/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "MM-12",
+        "originalR8RowIndex": 33,
+        "lastRecordedStatus": "OWNER_EXTERNAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "MM-01..MM-11"
+        ],
+        "r10GateIds": [
+          "G03",
+          "G05",
+          "G07",
+          "G08",
+          "G10",
+          "G11",
+          "G12"
+        ],
+        "accountableOwnerRole": "Media Multimodal Integration",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#MM-12",
+        "lastOwnerNextAction": "Real authorized STT+Vision grounded fused business outcome, optional TTS narration and load",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/33/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "OBS-07",
+        "originalR8RowIndex": 34,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "OBS-02",
+          "OBS-05"
+        ],
+        "r10GateIds": [
+          "G08"
+        ],
+        "accountableOwnerRole": "Media Observability and Performance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#OBS-07",
+        "lastOwnerNextAction": "Actual profile health/quality exporter-Prometheus-Alertmanager named receiver fire/clear",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/34/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      },
+      {
+        "id": "OBS-08",
+        "originalR8RowIndex": 35,
+        "lastRecordedStatus": "PARTIAL",
+        "lastRecordedTaskAccepted": false,
+        "originalDependencyIds": [
+          "OBS-05",
+          "OBS-06"
+        ],
+        "r10GateIds": [
+          "G06",
+          "G08"
+        ],
+        "accountableOwnerRole": "Media Observability and Performance",
+        "implementationRepository": "samujjwal/ghatana-media",
+        "existingWave2PlanRef": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md#OBS-08",
+        "lastOwnerNextAction": "Real STT/TTS/Vision/MM plus OCI c1/16/64 resource/latency under bounded abort",
+        "originalWholeRowProofRef": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/35/independentAcceptanceProof",
+        "independentAcceptanceAlreadyProven": false,
+        "noPromotionFromSourceOnly": true
+      }
+    ],
+    "twelveExistingGateIds": [
+      "G01",
+      "G02",
+      "G03",
+      "G04",
+      "G05",
+      "G06",
+      "G07",
+      "G08",
+      "G09",
+      "G10",
+      "G11",
+      "G12"
+    ],
+    "crossWaveAcceptanceAndOwnerLockEdges": [
+      {
+        "fromTaskId": "STT-03",
+        "toTaskId": "CT-02",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "Untrusted identity/rights negative cases; no Wave 2 positive effect needed for local test",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "TTS-05",
+        "toTaskId": "CT-02",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "Voice and consent denial; service/provider scope must agree",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-09",
+        "toTaskId": "IP-04",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "Immutable transcript and job/attempt persistence must agree; Wave 3 JPA stays compatibility-only",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-05",
+        "toTaskId": "AS-05",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Claim actual live STT stream only with source-authorized provider, final receipt and bounded transport",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "TTS-08",
+        "toTaskId": "AS-06",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Claim actual TTS live stream transport only with licensed voice and true playable chunks",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-03",
+        "toTaskId": "VS-05",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "Reused OCI/FFmpeg codec qualification, not an independent or new native worker",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-07",
+        "toTaskId": "VS-05",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Vision-linked video tracking/PTS effect needs real source+native detector readback",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-09",
+        "toTaskId": "AT-03",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Real Agent Tool STT effect requires exact fenced durable transcript and rights; negative tool tests independent",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "TTS-07",
+        "toTaskId": "AT-03",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Real Agent Tool TTS effect requires playable authorized output; other tool actions independent",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-06",
+        "toTaskId": "AT-04",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Actual Vision tool detection requires qualified model/ROI/provenance; typed denial independent",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "MM-09",
+        "toTaskId": "AT-04",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Actual MM tool output requires source-grounded child-result/readback; handler tests independent",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-09",
+        "toTaskId": "SK-07",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "SDK job/status/revision behavior matches one durable source without claiming model qualification",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "MM-09",
+        "toTaskId": "SK-07",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "SDK Multimodal readback preserves per-operation outcome/finality and source versions",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-09",
+        "toTaskId": "OC-03",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "DI legacy compatibility must align with scoped ROI/rights/clock and Ghatana #252 public contract when published",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "MM-10",
+        "toTaskId": "DC-05",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Real Data Cloud projection requires public Ghatana #254 owner receipt and installed API",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "MM-10",
+        "toTaskId": "IT-04",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Integrated projection requires authentic source-bound external acknowledgment",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-08",
+        "toTaskId": "H-08",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Actual J03 capture requires real immutable caption/edited source version",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-09",
+        "toTaskId": "H-08",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Actual J03 capture requires genuine authorized STT transcript after restart",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "OBS-08",
+        "toTaskId": "IT-06",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Claim measured real-model capacity only after named host c1/c16/c64; local fault tests independent",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-12",
+        "toTaskId": "MC-04",
+        "type": "FILE_OWNER_LOCK",
+        "acceptanceCondition": "Wave 2 controls Whisper/engine file changes until serialized handoff; no completion wait for independent MC work",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "TTS-12",
+        "toTaskId": "MC-04",
+        "type": "FILE_OWNER_LOCK",
+        "acceptanceCondition": "Wave 2 controls Piper/model file changes; do not edit same engine concurrently",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-12",
+        "toTaskId": "MC-04",
+        "type": "FILE_OWNER_LOCK",
+        "acceptanceCondition": "Wave 2 controls Vision provider internals; current Java common compatibility tests may proceed",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "STT-06",
+        "toTaskId": "RS-06",
+        "type": "CONTRACT_PARITY",
+        "acceptanceCondition": "Rust output timing and sample offsets must match exact STT source/segment time",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "MM-09",
+        "toTaskId": "H-07",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Only a selected multimodal production scenario needs an independently completed MM version/receipt",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "TTS-07",
+        "toTaskId": "H-07",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Only a selected voice/approved TTS scenario needs fully cleared playable synthesis",
+        "doesNotBlockIndependentCoding": true
+      },
+      {
+        "fromTaskId": "VIS-06",
+        "toTaskId": "H-07",
+        "type": "REAL_EFFECT_PROOF",
+        "acceptanceCondition": "Only a selected Vision-dependent scene requires a qualified detector source result",
+        "doesNotBlockIndependentCoding": true
+      }
+    ],
+    "truthRule": "Full original Wave2 acceptance never changes in this derived index. First obtain original R8 positive+negative+restart+rights+quality and update canonical owners; this is only executable selection, not a native PDP/gtool status, legal authorization, provider admission, or deployment approval."
+  }
 }
