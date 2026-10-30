@@ -1,11 +1,18 @@
 package com.ghatana.stt.provider;
 
 import org.junit.jupiter.api.Test;
+import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.runtime.MediaModalityContracts;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.Optional;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Source-tick emission coverage for the Whisper provider result path. The pinned
@@ -13,6 +20,64 @@ import static org.assertj.core.api.Assertions.assertThat;
  * decoded span on the artifact's exact source clock or honestly declares nothing.
  */
 class WhisperOnnxSttProviderTest {
+
+    private static WhisperOnnxSttProvider.ProfileBinding binding(boolean productionEligible) {
+        return new WhisperOnnxSttProvider.ProfileBinding(
+                "whisper-provider", "whisper-v1", "whisper-profile", "v1",
+                "sha256:" + "a".repeat(64), Set.of("en-US"), "", "local", productionEligible);
+    }
+
+    @Test
+    void observedModelProfileReflectsRealEngineStateWithoutClaimingWordTimingOrQualification() {
+        Instant checkedAt = Instant.now().minusSeconds(5);
+        var ready = WhisperOnnxSttProvider.observedCapabilityProfile(
+                binding(false), "WHISPER-TINY", EngineStatus.State.READY, checkedAt);
+        assertThat(ready.modelVersions()).containsExactly("whisper-tiny");
+        assertThat(ready.codecs()).containsExactly("pcm_s16le");
+        assertThat(ready.containers()).containsExactly("wav");
+        assertThat(ready.sampleRatesHz()).containsExactly(16_000);
+        assertThat(ready.timingAvailable()).isFalse();
+        assertThat(ready.confidenceAvailable()).isFalse();
+        assertThat(ready.biometricDerivativesAvailable()).isFalse();
+        assertThat(ready.health().status())
+                .isEqualTo(MediaModalityContracts.ProviderHealthStatus.HEALTHY);
+        assertThat(ready.degradationPolicy())
+                .isEqualTo(MediaModalityContracts.DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY);
+
+        var stopped = WhisperOnnxSttProvider.observedCapabilityProfile(
+                binding(true), "WHISPER-TINY", EngineStatus.State.ERROR, checkedAt);
+        assertThat(stopped.health().status())
+                .isEqualTo(MediaModalityContracts.ProviderHealthStatus.UNAVAILABLE);
+        assertThat(stopped.degradationPolicy())
+                .isEqualTo(MediaModalityContracts.DegradationPolicy.FAIL_CLOSED);
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.observedCapabilityProfile(
+                binding(false), "invalid/engine-path", EngineStatus.State.READY, checkedAt))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void measuredQualityIsReadOnlyAndMustMatchTheExactSourceOwnedProviderAndModel() {
+        var at = Instant.now().minusSeconds(12);
+        var measured = new MediaModalityContracts.ProviderQualityObservation(
+                "whisper-provider", "whisper-v1", JobType.SPEECH_TO_TEXT, "whisper-tiny",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                1.0938, at, "a".repeat(64));
+        assertThat(WhisperOnnxSttProvider.matchingQualityObservation(
+                binding(false), "whisper-tiny", Optional.of(measured)))
+                .contains(measured);
+        assertThat(WhisperOnnxSttProvider.matchingQualityObservation(
+                binding(false), "another-model", Optional.of(measured))).isEmpty();
+        assertThat(WhisperOnnxSttProvider.matchingQualityObservation(
+                binding(false), "whisper-tiny", Optional.empty())).isEmpty();
+        assertThat(WhisperOnnxSttProvider.matchingQualityObservation(
+                binding(false), "whisper-tiny", null)).isEmpty();
+        var foreign = new MediaModalityContracts.ProviderQualityObservation(
+                "other-provider", "whisper-v1", JobType.SPEECH_TO_TEXT, "whisper-tiny",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.10, at, "b".repeat(64));
+        assertThat(WhisperOnnxSttProvider.matchingQualityObservation(
+                binding(false), "whisper-tiny", Optional.of(foreign))).isEmpty();
+    }
 
     private static Map<String, Object> clockMetadata(long ticksPerSecond, long durationTicks) {
         return Map.of(
