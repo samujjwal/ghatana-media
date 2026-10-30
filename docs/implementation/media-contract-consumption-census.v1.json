@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "CT-01 census: which surfaces consume the canonical media contracts versus re-declaring them. One public schema exists (libs/audio-video-types); Java surfaces hold bounded domain/runtime projections that must map explicitly, never silently re-declare the public vocabulary.",
+  "canonical": {
+    "surface": "libs/audio-video-types/src/contracts.ts",
+    "owns": "public TS request/result/error/job-state schemas — nine canonical job states + legacy machine-scoped spellings",
+    "parityGuard": "tests/media-job-state-contract-parity.test.mjs locks MediaJobStateSchema to the PDP-1 canonicalStateEnum"
+  },
+  "consumers": {
+    "runtime-contracts MediaRuntimeContracts.JobStatus": "six-value runtime status projection (ACCEPTED/RUNNING/OUTCOME_UNKNOWN/COMPLETED/FAILED/CANCELLED); every value has an explicit PDP-1 sourceStatus disposition",
+    "runtime-contracts MediaLifecycleProjection": "Java projection logic over runtime status; not a second public schema",
+    "stt-service AvTranscriptionJob.JobStatus": "ten-value domain lifecycle (CREATED, QUEUED, PROCESSING, RETRY_PENDING, OUTCOME_UNKNOWN, RECONCILING, COMPLETED, FAILED, CANCELLED + deprecated RETRYING wire compat); mapped to CanonicalJobStatus through AvJobLifecycleAdapter — every enum value handled explicitly",
+    "adapters/ledger AudioVideoRunLedgerAdapter": "bounded string→RunLedger mapping with exhaustive tables; unmapped input fails closed (b6e4873d)",
+    "integration-tests JobState": "test-scoped fixture enum — never exported as a public contract"
+  },
+  "regeneratedPublicSchemas": {
+    "meaning": "second public zod/JSON schema for the same vocabulary — forbidden",
+    "found": []
+  },
+  "guards": {
+    "singlePublicSchema": "only libs/audio-video-types may define the public zod contract surface for media job/artifact/error vocabulary",
+    "explicitProjection": "every Java-side enum value touching canonical semantics must pass an explicit mapping (adapter/projection); no unmapped fallthrough",
+    "noLegacyPromotion": "legacy spellings (RETRYING, CANCELLING) remain machine-scoped observations, never canonical outputs"
+  }
+}
