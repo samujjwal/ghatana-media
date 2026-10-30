@@ -80,7 +80,7 @@ if [[ ! "$exporter_port" =~ ^[0-9]+$ ]]; then
 fi
 exporter_url="http://127.0.0.1:$exporter_port"
 
-cat > "$temp_dir/alertmanager.yml" <<'YAML'
+cat > "$temp_dir/alertmanager.yml" <<YAML
 route:
   receiver: media-local-test
   group_wait: 1s
@@ -88,6 +88,9 @@ route:
   repeat_interval: 1h
 receivers:
   - name: media-local-test
+    webhook_configs:
+      - url: http://host.docker.internal:$exporter_port/alert-webhook
+        send_resolved: true
 YAML
 
 cat > "$temp_dir/prometheus.yml" <<YAML
@@ -111,6 +114,7 @@ docker network create "$network" >/dev/null
 docker run --detach --rm \
   --name "$alertmanager_container" \
   --network "$network" --network-alias alertmanager \
+  --add-host=host.docker.internal:host-gateway \
   --publish 127.0.0.1::9093 \
   --volume "$temp_dir/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro" \
   "$ALERTMANAGER_IMAGE" \
@@ -229,6 +233,24 @@ if [[ "$delivered" != 1 ]]; then
   exit 1
 fi
 
+# A receiver route alone does not establish webhook delivery. Verify Alertmanager
+# POSTed the firing notification to the bounded test-only sink.
+webhook_fire_seen=0
+webhook_deadline=$((SECONDS + 30))
+while (( SECONDS < webhook_deadline )); do
+  if webhook_receipts="$(curl --fail --silent --show-error --max-time 2 \
+      "$exporter_url/alert-receipts" 2>/dev/null)" \
+      && jq -e '.firing >= 1 and .resolved == 0' <<<"$webhook_receipts" >/dev/null; then
+    webhook_fire_seen=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$webhook_fire_seen" != 1 ]]; then
+  printf '%s\n' 'Alertmanager routed the alert, but no firing webhook POST reached the sink.' >&2
+  exit 1
+fi
+
 printf 'healthy' > "$state_file"
 wait_for_query 'media_provider_profile_readiness{service="stt",modality="stt",provider_id="alert-delivery-fixture",contract_version="v1"}' \
   '.status == "success" and any(.data.result[]; .value[1] == "1")'
@@ -249,5 +271,22 @@ if [[ "$recovered" != 1 ]]; then
   exit 1
 fi
 
-printf '%s\n' 'PASS: MediaWorkflowMetrics exporter -> Prometheus -> Alertmanager fired and recovered with finite redacted alert labels.'
-printf '%s\n' 'This deterministic profile fixture proves local wiring only; quality freshness remained NaN, with no real provider, quality, deployment, tenant, request, or production claim.'
+# send_resolved is contractual. Verify a distinct HTTP POST after recovery.
+webhook_resolve_seen=0
+webhook_deadline=$((SECONDS + 30))
+while (( SECONDS < webhook_deadline )); do
+  if webhook_receipts="$(curl --fail --silent --show-error --max-time 2 \
+      "$exporter_url/alert-receipts" 2>/dev/null)" \
+      && jq -e '.firing >= 1 and .resolved >= 1' <<<"$webhook_receipts" >/dev/null; then
+    webhook_resolve_seen=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$webhook_resolve_seen" != 1 ]]; then
+  printf '%s\n' 'No resolved webhook HTTP POST reached the test sink.' >&2
+  exit 1
+fi
+
+printf '%s\n' 'PASS: fixture exporter -> Prometheus -> Alertmanager -> local webhook HTTP POST fired and resolved.'
+printf '%s\n' 'This proves actual test-only webhook transport, NOT external pager delivery, real provider quality, or production admission. Quality freshness remained NaN.'
