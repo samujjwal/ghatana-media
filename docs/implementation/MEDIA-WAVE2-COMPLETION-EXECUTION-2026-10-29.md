@@ -227,3 +227,76 @@ node --test tests/media-fleurs-asr-evaluation.test.mjs
 ```
 
 **Actual source/data receipts are the completion standard.** Keep FLEURS local cache bounded to selected lawful clips, do not download full archives or use hundreds of GB. Operational Track B (GH-90000 compose service-image skips, legacy writer cutover, warnings, formal PDP/gtool and release) remains separately owned and cannot manufacture Wave 2 Build completion. All 36 original unfinished tasks remain in section 5 with their exact R8 dependencies and proof columns.
+
+
+## 9. Owner-approved OBS-07/08 unblock and full Wave 2 remaining-task authority — 2026-10-29 18:12 PDT
+
+> **Controlling latest execution addendum:** This section supersedes `8 **for OBS-07/OBS-08, cross-cutting owners and remaining blockers**; `8 retains the specific unfinished STT/TTS/Vision/MM/Ghatana work and `5 retains the full 36 original R8 row crosswalk. Inspected baseline: GitHub `9096f12ad0bbfecb2a11049746a014b1c9101b5c` and the new engineering source commits below. No new project, R8 requirement, R10 gate, runtime stage, provider-admission version, or parallel work ledger.
+
+### 9.1 What is implemented, what was actually exercised, and what is still open
+
+| Exact observation | State | Proof boundary / remaining work |
+|---|---|---|
+| `MediaWorkflowMetrics` production gauge API, NaN initial/no observation, real `MediaRuntime.prometheusMetrics()` → `PrometheusMeterRegistry.scrape()` → HTTP `/metrics` | **IMPLEMENTED SOURCE**; actually uses registered provider `capabilityProfiles()` health | Live model-quality evidence still missing: the earlier runtime passed `null` for every provider/model. New quality SPI wiring below fixes the missing *injection seam*, not the existence of a genuine report. |
+| `infra/monitoring/alerts/audio-video.yml` actual readiness/health/lease/outbox/latency rules | **IMPLEMENTED SOURCE** | Production model-quality-specific rule intentionally absent until an authenticated, pre-registered true measurement/threshold and source-freshness semantics exist. Fixture-only quality rules **must never** substitute. |
+| `alert-delivery-smoke.sh` pinned real Prometheus + Alertmanager, `media-local-test` receiver, 1 → -1 → 1 readiness and alert clear | **Implementer-reported PASSED**, tested against actual local servers and fixture source | Original named receiver was a routing entry with **no webhook channel**; that earlier test proved Alertmanager routing and alert status only, not downstream delivery. |
+| **New source: provider quality observation and production metric refresh** | `a2dcf83f` typed `MediaModalityContracts.ProviderQualityObservation`; `6229da62` optional fail-closed provider SPI; `23d3a96b` runtime identity-matched source quality timestamp; `7da54b60` contract tests; `0848e088`/`2e526c1d` launcher metrics test | **SOURCE IMPLEMENTED; NOT HOST EXECUTED HERE.** Validated model/provider identity, immutable evaluation report digest, bounded metric and measured time. Unknown or mismatched quality remains **NaN**; no hard-coded Whisper FLEURS WER, consumer flag, fake timestamp or quality admission. Real provider must still implement the SPI from an authentic measured quality report and declare an observed `capabilityProfiles()`. |
+| **New source: actual HTTP webhook test sink and opt-in verification** | `bcc004ef` adds bounded `POST /alert-webhook` and aggregate `GET /alert-receipts` to the **test-only** exporter; `030559be` configures Alertmanager `webhook_configs` with `send_resolved: true` and checks **firing and resolved actual HTTP POST** receipts | **SOURCE IMPLEMENTED; NEW SMOKE NOT RERUN HERE.** When executed on the named host, it will distinguish real local HTTP notification delivery from mere routing metadata. It does **not** certify a production/external pager or a real model-quality alert. |
+| Focused source Java tests: launcher 24 + MM 14 + contracts 20 + Vision 6; Observability separate suite 136 | **Implementer-reported 64 + 136 = 200 PASSED, 0 failures/errors/skips** on prior source cut | These counts do **not** include the new source quality SPI, new launcher test and webhook changes, which need their own current-cut tests; do not call 200 current new-cut tests. |
+| R8 OBS-07/OBS-08 | **BOTH PARTIAL**, original `22/30/6` unchanged | OBS-07: actual named provider/model quality source, real threshold/freshness alert and accountable notification receipt. OBS-08: real four-modality admitted c1/16/64 named-host measurements and resource caps. |
+
+### 9.2 Explicit binding owner decisions — no further blanket engineering approvals
+
+| Owner decision | Authority, disposition, and exact limit |
+|---|---|
+| **OD-OBS-01 · Media owner · APPROVED** | Extend the existing `MediaModalityContracts`/`MediaProcessingProvider` SPI and `MediaRuntime` metrics consumer additively, without new contract version, polling raw content or creating a second quality authority. Source-owned quality is **telemetry only**, not model or source-rights admission. |
+| **OD-OBS-02 · Media QA & STT model owner · APPROVED** | Reuse existing lawful FLEURS **failed** quantized tiny observations as reference-only scientific evidence **once actual immutable measured report digest, model/export identity, speaker-disjoint source refs and per-locale scoring are reverified**. No self-signed pass, no threshold lowering or blind promotion; return absent when proof isn't available. Provenance/private media stays off metrics labels and public Git. |
+| **OD-OBS-03 · Media Observability owner · APPROVED** | Test an actual local HTTP webhook receipt with pinned Prometheus/Alertmanager; the test fixture is scoped to the opt-in smoke and is not a production service. For OBS-07 whole-row, an **owner-operated HTTPS notification endpoint with an actual durable receiver acknowledgment** is a permitted first-party alternative to commercial pager infrastructure. Source-controlled Alertmanager configuration must reference a secret-free endpoint/config; credentials and private targets stay out of Git. A named route alone never counts as notification. |
+| **OD-OBS-04 · Media Ops/QA owner · APPROVED** | Use the existing named JDK27 development host, provision only pinned genuine model/codec files with verified rights, and execute c1/c16/c64 in **bounded sequential profiles** for STT/TTS/Vision/MM/OCI. Record admitted/completed/typed rejected/UNKNOWN separately, host+model SHA, p50/p95/p99, RTF/fps/CPU/RSS/native memory/FD/PIDs/db pool; abort on budget. An intentional typed saturation response is a valid safety proof, **not** 64-completed SLO evidence. Do not allocate hundreds of GB. |
+| **OD-OBS-05 · Ghatana DI/Data Cloud owners · APPROVED FOR CODE** | #252 and #254 may implement their published APIs and source-free consumers in parallel now. No new Media-internal document OCR or Data Cloud writer, no second stage authority. These external public API results can be integrated as soon as genuinely published. |
+| **OD-OBS-06 · Rights/qualified reviewers · CONDITIONAL** | Owner engineering approval **cannot** authorize another person's voice likeness, biometric data, third-party checkpoint redistributions, unlicensed held-out corpus or create an independent signature. The owner must acquire authentic grants or select a genuinely first-party, nonhuman, lawful substitute **for diagnostic/development only**, preserving the exact original positive quality requirements for final row acceptance. |
+| **OD-OBS-07 · Release/lifecycle separation · NOT IN SCOPE** | This approves remaining BUILD code and tests. It does not claim gtool/PDP closure, M08 live-writer cutover, deployment, service-image publication (GH-90000), customer rights or release. Missing Track B receipts do **not** block ordinary code progress. |
+
+### 9.3 Prescriptive implementation, tests and exit criteria
+
+**OBS-Q01 · Wire the REAL measured source (Media STT/Provider + OBS owner).** The typed SPI is now in place; the real `WhisperOnnxSttProvider` currently does **not** declare observed `capabilityProfiles()` or implement `qualityObservation(...)`. First implement honest observed profile health for the exact pinned model/provider/version and actual supported locale/codec. Then consume the **real** source-linked report from the existing FLEURS evaluator/intake or an authorized provider evaluation adapter. Enforce report SHA/source revision, model/export SHA, speaker-disjoint holdout, measured time and metric scope, and exact provider/profile version before returning `ProviderQualityObservation`. For the failed tiny report, preserve actual en/hi/ne numeric WER and 95% upper bounds in private evidence; no invented pass/production profile. Missing report or mismatch returns empty. **Exit:** real `/metrics` quality timestamp is finite only with the genuine source; after source removal/staleness it stays NaN, while readiness is independently observed. Current single-observation SPI does **not** yet constitute a full per-locale quality/threshold alarm; implement the per-locale measured metric series with bounded vocabulary and source provenance in the same existing telemetry capability when a real report is available.
+
+**OBS-Q02 · Real QUALITY rule, not fixture rule (Media OBS owner).** Promote only source-backed numeric model-quality error/threshold metadata under fixed source scope (reference-only vs truly qualified); link to pre-registered R10 limits **without re-registering new thresholds**. Alert on an actual measured quality regression, stale/absent/invalid quality separately, and clear on a new healthy independent measurement; do not confuse missing/NaN with zero or a failed model, and do not route a review-only tiny candidate as a production-user SLA alert. Create `promtool` deterministic tests for real numeric/threshold/absent/recovered semantics. Preserve ≤64 provider profile series, no tenant/clip/transcript/speaker or free-form labels. **Exit:** actual provider-derived metric and firing/clearing production quality alert on a named qualified scope; existing fixture alerts stay explicitly tests only.
+
+**OBS-N01 · Run local HTTP webhook delivery (Media Ops, no new SaaS needed).** Execute `RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh` on the existing host after ensuring the exact pinned Prometheus/Alertmanager image digests are cached. The new script **fails** unless Alertmanager sends distinct actual firing and resolved POSTs to the bounded test sink. Inspect the requested label-key whitelist and receiver counts. This is a **source/test validation task** that needs Docker, not legal consent or a third-party pager. **Exit:** test returns 0, exact HTTP post counts, redacted label set and zero unexplained skips. No premature claim this has already passed.
+
+**OBS-N02 · Real operational notification (Media Ops owner; no vendor lock).** Provision a named owner-controlled HTTPS receiver with authentication, rotation, bounded payload, redacted labels, durable receipt ID and acknowledgment. Configure Alertmanager to route the **same actual provider quality/readiness** rule to that sink; verify firing and resolved/deduplication and maintain a source-free deployable template with secrets injected at runtime. An external SaaS account is **optional**, not a global blocker: a qualifying owner-managed receiver is sufficient if it satisfies the original contract. **Exit:** actual receiver persistence/receipt, Alertmanager retry/failure/recovery and no sensitive labels; absent live receiver leaves only this positive proof `NOT_EXECUTED`.
+
+**OBS-C01 · Real c1/c16/c64 capacity (Media QA+owners).** Reuse the existing `MediaResourceProfileHarness` for bounded request/CPU/RSS measurements but replace its synthetic operation with actual source-pinned STT, TTS, Vision and MM endpoint calls. Test each at c1, c16 and c64 (in separate bounded host runs), including OCI native worker; freeze source/model/voice/image SHA and actual admitted purpose/region rights. A fake model output or unqualified provider may prove only refusal or harness correctness; it does not count toward actual model SLO. Capture exact p50/p95/p99, queue, CPU/RSS/native, fd/pid, data+temp disk, RTF/fps, host kernel/governor and typed overload/rejection. Stop at declared ceilings and avoid large caches. **Exit:** per-modality and composed service real host signed run manifests with 1/16/64, no zero-record success.
+
+**OBS-C02 · Exception/limit proof (Media Runtime+Vision/MM owners).** Forced provider timeout, source revocation, slow reader, native process OOM/PID, denied source and partial MM child UNKNOWN; verify metrics/exporter/alert reflect real state, cancel cleans resources, and exact previously accepted provider effect is not retried without an idempotent receipt. **Exit:** no resource leak, no unbounded queue, evidence-backed UNKNOWN versus denied versus completed.
+
+**ALL-OTHER-ROWS · Still open, executable in parallel:** Follow `8 W2-R01..W2-R08 and W2-R10/11 for genuine MM server/child/DB positive, V027 nonempty timing/word-gold, STT model/corpus/streaming, TTS consent/playable streamed audio, Vision real/native mAP/VFR/biometrics, two Ghatana public APIs and full 43 RPC/12 W2-E oracles. Source commits `ed284403` (MM server bootstrap), `d525f831` (TTS-05 denial tests), `a91111ac` (V027 timing tests), `ee9a4082` (MM PostgreSQL parent/child), and `9096f12a` (canonical Vision provider adapter) are **implemented and must not be rebuilt**. Reproduce and complete only their original still-unmet real rights/quality/fault acceptance. Full 36 original IDs remain tracked in `5 and R10.
+
+### 9.4 First executable local batch and dispatch
+
+```bash
+git fetch origin main
+git status --porcelain=v1 -uall
+git rev-parse HEAD origin/main
+
+# After the new quality SPI and local webhook source patches:
+./gradlew :services:media:runtime-contracts:test \
+  --tests '*MediaProcessingProviderCapabilityProfileTest' --no-daemon --max-workers=2
+./gradlew :services:media:launcher:test \
+  --tests '*MediaRuntimeProviderQualityMetricsTest' --no-daemon --max-workers=2
+./gradlew :services:media:audio-video-observability:test \
+  --tests '*MediaWorkflowMetricsTest' --tests '*MediaWorkflowAlertRulesTest' \
+  --no-daemon --max-workers=2
+
+# Pinned actual Prometheus/Alertmanager and actual HTTP firing+resolved receipts.
+# Opt-in only; requires cached exact images and working Docker Desktop/host gateway.
+RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh
+
+# Original full-row and other owner work:
+pnpm test:wave2-r10-owner-resolution
+pnpm test:backend-modality-wave2-plan
+node --test tests/media-fleurs-asr-evaluation.test.mjs
+```
+
+**No host execution is claimed by this document.** The prior 64 + 136 success summary remains source-cut-specific; the new source modifications require fresh focused tests. **Pulse:** one original R8 ID, code SHA, host, exact command/skip/fail/measurements, first failure and next correction every 90 minutes; every four hours record only genuine newly accepted original rows. A user-owned license, reviewer/subject consent, private model asset, actual webhook account, or JDK27 host result is never fabricated by assistant or test fixtures.
