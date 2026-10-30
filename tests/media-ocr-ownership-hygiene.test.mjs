@@ -27,3 +27,20 @@ test('legacy OCR is not an automatically selected provider', () => {
   assert.match(meaning, /classification: LEGACY_COMPATIBILITY/u);
   assert.match(meaning, /status: EXTERNAL_BLOCKER/u);
 });
+
+test('MDI-001 is the sole OCR execution owner and Media has no generic recognizer path', () => {
+  const owner = read('docs/migration/decisions/MDI-001-document-intelligence-ownership.md');
+  const pdp = read('.product-experience/pdp-0-product-truth/ocr-ownership.yaml');
+  const source = read('libs/audio-video-client/src/authorized-scene-text.ts');
+  const contract = read('libs/audio-video-client/src/scene-text-adapter.ts');
+  const architecture = read('docs/architecture/MEDIA-OCR-DATACLOUD-DEPENDENCY-DECISION-2026-10-30.md');
+  assert.match(owner, /All OCR\s+execution anywhere in Ghatana is exposed \*\*exclusively through Document/u);
+  assert.match(pdp, /PDP0-003-D4/u);
+  assert.match(source, /diClient: DocumentIntelligenceV1Client/u);
+  assert.match(source, /new DocumentIntelligenceSceneTextAdapter\(diClient, diPolicy\)/u);
+  assert.doesNotMatch(source, /interface MediaSceneTextRecognizer/u);
+  assert.doesNotMatch(source, /qualified Vision OCR provider|Media-owned OCR model/u);
+  assert.match(contract, /DOCUMENT_INTELLIGENCE_PROTOCOL_V1/u);
+  assert.match(architecture, /prior idea of adding an independent Media Vision OCR provider is/u);
+  assert.doesNotMatch(architecture, /OR qualified Media model/u);
+});

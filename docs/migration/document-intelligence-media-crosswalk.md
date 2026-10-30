@@ -1,10 +1,12 @@
 # Document Intelligence v1 to Media OCR crosswalk
 
-**State:** source-observed conformance crosswalk; no runtime binding or owner
-acceptance is implied.
+**State:** DI is the single OCR execution authority under MDI-001/PDP0-003-D4.
+This is a source/consumer crosswalk, not proof of real model admission or an
+installed/qualified DI runtime.
 
 This crosswalk compares the observed `document-intelligence.v1` TypeScript
-client with Media's OCR provider boundary. A thin, source/version-aware scene
+client with Media's scene/frame/time adapter. Media cannot select a separate
+OCR engine or own a generic OCR provider; DI chooses all internal adapters. A thin, source/version-aware scene
 text adapter candidate now exists at
 [`scene-text-adapter.ts`](../../libs/audio-video-client/src/scene-text-adapter.ts).
 It does not embed OCR, publish or install the Document Intelligence client,
@@ -79,3 +81,14 @@ contracts or activation state.
 - Media `modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/{OcrService,KernelOcrProviderAdapter}.java`
 - Accepted boundary: `decisions/MDI-001-document-intelligence-ownership.md`
 - Source snapshot and publication/qualification limitations: `external-platform-contract-observation.json` (X-04)
+
+## October 30 single-authority implementation refinement
+
+The canonical MDI-001/PDP0-003-D4 decision makes DI the **sole** OCR gateway.
+`authorized-scene-text.ts` no longer takes a generic Media OCR recognizer;
+it takes the DI v1 public client and typed provider policy, performs Media-owned
+source rights/version/digest checks, and calls `DocumentIntelligenceSceneTextAdapter`
+only. Any old Media `OcrService`/Kernel facades remain fail-closed until
+consumer migration and deletion. The client package/version, real worker,
+provider qualifications and installed end-to-end tests still need proof
+under Ghatana #252; no new wire protocol version was introduced.

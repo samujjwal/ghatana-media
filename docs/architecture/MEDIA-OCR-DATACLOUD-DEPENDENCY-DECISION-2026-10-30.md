@@ -1,48 +1,109 @@
-# Media Vision OCR and Data Cloud dependency — clarified owner boundary
+# OCR authority and optional Data Cloud integration
 
-**Status:** source-inspected architecture decision, not a PDP scope/status transition.
-**Current canonical OCR owner decision:** \`docs/migration/decisions/MDI-001-document-intelligence-ownership.md\` and \`.product-experience/pdp-0-product-truth/ocr-ownership.yaml\`. They explicitly assigned **generic OCR/document parsing** to Ghatana Document Intelligence, and Media-specific scene/temporal text intent to Media. Do not silently contradict this accepted decision while editing Java/TypeScript files.
-**Current Data Cloud owner decision:** Media owns artifact, upload, job/attempt, stream, rights/consent and processing finality. Data Cloud owns optional governed metadata/search/semantic projections and must not become a second Media runtime.
+**Decision owner:** Media Product Truth (MDI-001, PDP0-003-D4). **Date:** October 30, 2026.
+This is a source/ownership clarification, **not** a product-phase acceptance
+or real provider qualification.
 
-## Answer and decision
+## One OCR gateway for all Ghatana products
 
-**Media owns the scene-text product feature**, including source image/frame, ROI selection, clocks, shot/scene/tracking, confidence/identity/provenance, permission checks, correction/edit/use in narration/video and provider choice. It must be operationally capable of denying/failing safely with **zero** Document Intelligence and **zero** Data Cloud availability.
+**Document Intelligence is the only OCR execution API in Ghatana.** The
+generic model worker, provider selection, OCR inference, language/model
+evaluation, document layout, parser pipelines and text extraction all belong
+to `ghatana/services/document-intelligence`, with provider-neutral public
+`document-intelligence.v1` contracts. DI may use PaddleOCR, Tesseract,
+Docling, qualified accelerated models, or other internally admitted
+OCR adapters. Consumers must not call those engines directly.
 
-**Document Intelligence owns the already accepted reusable generic OCR engine and document-focused processing** (PDF/Office parsing, text lines, tables/layout, extracted fields, provider/model evaluation), per MDI-001. It can serve as an **optional OCR provider** for Media via its frozen \`document-intelligence.v1\` public client. Media does not import DI's internal Python/provider code or borrow its document structures as product authority. The Media-owned \`libs/audio-video-client/src/scene-text-adapter.ts\` is a thin optional DI provider client; \`authorized-scene-text.ts\` independently requires current Media source-version/digest/tenant/rights readback and checks returned source identity.
+**Media owns no OCR engine.** Media owns image/video frame sampling, precise
+source version/PTS, frame cropping, source-owner rights/consent, regions,
+scene/track identity, rendering and editing recognized text. It calls DI
+through the already-existing `libs/audio-video-client/src/scene-text-adapter.ts`
+(client/catalog/provider/response validation). Media's
+`authorized-scene-text.ts` first enforces current source authorization and
+both original frame and crop digests; **then constructs the DI-only adapter**.
+The old generic Media recognizer callback has been removed; there is no local
+alternative Media OCR inference fallback.
 
-**What if Media must operate OCR without DI?** Add an admitted Media Vision OCR provider behind the same Media-owned recognition port, using a model with lawful weights/runtime and independently measured quality; it must pass real text+ROI+time, resource, consent and provenance tests. This is **additional provider implementation** without taking over generic document parsing. A wholesale transfer of the generic OCR engine into Media would *supersede MDI-001* and require an actual owner-approved PDP source/consumer migration, testing every DI downstream consumer, not merely renaming directories. There is no need to duplicate currently working DI models just for a Media-specific feature.
+Other Ghatana consumers (Kernel, TutorPutor, GharBatai, Data Cloud, Agents)
+must use the same DI public gateway, not Media as an OCR proxy. They may
+locally own workflows, authorizations and interpretation of returned OCR
+text, but OCR model execution/provider qualification are single-owned.
 
-## The Data Cloud dependency is optional integration, not an input to Media runtime
-
-Current source:
-- \`runtime-contracts\`, \`launcher\`, Vision/STT/TTS/Multimodal, Media job persistence, OCI codecs and streaming are Media-owned and should have **no Data Cloud build/runtime source imports**.
-- \`adapters/data-cloud-media/build.gradle.kts\` currently imports Ghatana Data Cloud \`:services:data-cloud:delivery:api\` and \`:services:data-cloud:planes:shared-spi\`, and the adapter's \`MediaObservationPublicationCoordinator\` uses Data Cloud's \`OperationalSemanticContext.SemanticObject\`. **That is the actual direct compile-time dependency.** Other optional \`adapters/ledger\` code also refers to Data Cloud types. They are compatibility integration modules, not Media core.
-- \`FOCUSED\` Media builds expressly omit Data Cloud; optional **FULL** composite builds compile the interop adapter. A FULL-build test passing does not prove a source-free installed public client.
-- \`MediaSemanticObservationProjector\` checks tenant/version/classification/reference shapes but does **not** independently authenticate a source, grant rights, or prove a destination write. The coordinator has a source readback hook, idempotent outbox and \`OUTCOME_UNKNOWN\` semantics. Its receipt is **not** Media job finality.
-
-Correct data direction:
-
-\`\`\`mermaid
+```mermaid
 flowchart LR
-    M["Media Core: Artifacts / Jobs / Video / Speech / Scene OCR / Rights"]
-    O["Optional Vision OCR Provider: DI v1 client OR qualified Media model"]
-    C["Optional Data Cloud projection adapter"]
-    D["Ghatana Data Cloud: indexing, semantic read model, search"]
-    M --> O
-    M -->|immutable, permissioned metadata/events only| C
-    C --> D
-    D -.->|never commands Media job finality| M
-\`\`\`
+  Media["Media frame + source rights + scene/time"] --> DI["Document Intelligence public OCR v1 gateway"]
+  Docs["Documents / Data Cloud / TutorPutor / other products"] --> DI
+  DI --> Provider["Internal provider router / bounded OCR adapters"]
+  Provider --> Engines["PaddleOCR / Tesseract / qualified engines"]
+  Media -.-> DC["Optional Data Cloud metadata/read-model projection"]
+```
 
-**Failure law:** Data Cloud disabled/unreachable -> Media jobs and artifacts continue to operate and persist normally. Projection is queued, \`OUTCOME_UNKNOWN\`, or explicitly unavailable. No fake ACK; no duplicate job store or second active writer. DI disabled/unreachable -> Vision detection, capture and all other Media operations continue. Scene-text OCR that requires the unavailable provider returns typed \`NOT_ADMITTED\`, without a fabricated OCR result.
+The prior idea of adding an independent Media Vision OCR provider is
+**rejected**. Because all consumers remain in development, prefer direct
+migration over maintaining two active OCR authorities. See the canonical
+[MDI-001 source decision](../migration/decisions/MDI-001-document-intelligence-ownership.md)
+and [OCR Product Truth](../../.product-experience/pdp-0-product-truth/ocr-ownership.yaml).
 
-## Concrete migration and acceptance sequence
+## Media does not require Data Cloud
 
-1. **Now: enforce the core boundary.** Run \`pnpm test:media-core-independence\`. All Media core source and Gradle modules must remain free of Data Cloud compilation imports. Only \`adapters/data-cloud-media\` and \`adapters/ledger\` may refer to external Data Cloud types while their compatibility contracts are active.
-2. **Now: source-authorized OCR admission.** \`authorized-scene-text.ts\` requires trusted original frame digest/version and live purpose+tenant/principal consent, checks the exact cropped-content SHA-256, then calls a pluggable recognizer. Revalidate the returned frame/time/version and observe no model effect for denial/stale source/altered bytes. Tests are fixtures, not real OCR model qualification.
-3. **Next: make interop truly source-free.** Data Cloud owner publishes a versioned governed metadata POST/GET (Ghatana #254) with auth/current rights, tenant/source and proper \`ACCEPTED/PENDING/COMMITTED/UNKNOWN\` semantics. Keep the full Data Cloud implementation and storage in \`ghatana\`. Media consumes only a public client or HTTP contract; retire legacy Media \`MediaProcessorPort\` compatibility adapters after all consumers have migrated.
-4. **Next: DI provider qualification.** Ghatana #252 publishes the accepted versioned/installed \`document-intelligence.v1\` client, with immutable provider catalog, ROI/media limits, model proof and independent negative tests. Media's Vision scene-text adapter translates source region/time and preserves rights. DI remains document OCR owner; Media retains scene semantics.
-5. **Optional independent Vision OCR runtime.** If standalone OCR without DI is a product requirement, register a Media-owned inference provider under the existing Vision runtime/modality provider admission contract, with vetted model, corpus, real OCR metrics and OCI isolation. Do not copy DI internal implementations; reuse third-party model/runtime only under qualified license and current source contract.
-6. **Integrated test:** Start Media **without** Data Cloud and DI: upload → job → saved artifact/transcript/stream remains unaffected; scene-text using DI returns typed unavailability. Start DI only: actual OCR result must have frame/version/ROI/time and real provider provenance. Start Data Cloud only: upload/processing remains Media-owned. Start both: actual governed metadata readback with idempotency and reconciliation after timeout/crash, no tenant leak. No mock-only result may be claimed as live integration.
+Media owns artifact/upload, job/attempt, stream, provider dispatch,
+consent/rights, transcript/caption versions, render outputs and finality.
+Data Cloud is an *optional downstream subscriber* for metadata, semantic
+search/read models and analytics. The current
+`adapters/data-cloud-media/build.gradle.kts` imports Data Cloud
+`:services:data-cloud:delivery:api` and `:services:data-cloud:planes:shared-spi`;
+this source-composite compatibility adapter is not a core Media dependency.
+Later bind the optional adapter to an installed public Data Cloud API
+(Ghatana #254) without creating a second Media store or finality authority.
+Data Cloud outage must not prevent Media from completing its own jobs.
 
-**Formal boundaries:** MDI-001 remains the accepted generic-document OCR ownership until explicitly superseded. This architecture clarification does not close VIS-09, OC-04, Ghatana #252/#254, R8/PDP, gtool stage, release or legacy deployment cutover. Do not claim real OCR inference/real Data Cloud readback until the exact installed service tests run.
+Document Intelligence outage likewise affects **only OCR-dependent
+operations**; Media speech/video/recording/caption editing remain functional.
+A missing OCR provider yields typed `NOT_ADMITTED` or `UNAVAILABLE`,
+not fabricated text.
+
+## Exact development migration sequence
+
+1. **DI provider inventory/contract.** Use `ghatana/services/document-intelligence`
+   existing `document-intelligence.v1`, `GET /v1/providers`,
+   `POST /v1/parse`, operation-generation cancellation and provider
+   routing. Publish a source-free/immutable `@ghatana/document-intelligence-client`
+   with compatible Shared extraction peer (current 0.1.0 vs
+   0.1.0-SNAPSHOT observation). No new v2 or duplicate OCR entry point.
+2. **Media integration.** Prove the authorized DI-only scene-text call with
+   source digest/version, rights/purpose, immutable PNG ROI and live DI
+   provider catalog; map normalized boxes to source-frame coordinates and
+   timestamp without assigning false reading order or confidence. Provide
+   native Java Vision bridge only as a thin DI client where a Java consumer
+   actually requires it. Retain all independent Vision object detectors.
+3. **Consumer migration.** Enumerate old `OcrService`,
+   `KernelOcrProviderAdapter`, `VisionModelEngine.extractText`,
+   `VisionDetector.extractText` and all other Ghatana consumer imports.
+   Replace active consumers with the DI public client, conformance-test
+   invalid tenant/version, no consent, corrupt image, model unavailable,
+   cancellation generation, repeat/UNKNOWN and actual text/box results.
+   During migration, legacy shims stay explicitly **not admitted**; no
+   second active OCR model is allowed.
+4. **Remove obsolete code in dev.** Once each real consumer passes its
+   source-free DI test, delete orphan OCR implementation methods/shims,
+   private OCR provider registrations and stale build/dependency paths,
+   retaining only legitimate non-OCR Vision features. Regenerate existing
+   public API and topology projections using their owning tools, never
+   manually mutate generated contracts or manufacture PDP completion.
+5. **Positive real qualification.** Run DI on a pinned supported model
+   and rights-cleared images (including Media cropped frames) to establish
+   text, ROI geometry, per-language quality, timeout/cancel, hostile input,
+   memory/PIDs, source rights and repeatability. Check at least two independent
+   consumers (Media and a document consumer) against the *same* DI entry
+   point. An in-process mock is not real OCR validation.
+6. **Cross-repo boundary regression.** `pnpm test:media-core-independence`
+   and `pnpm test:ocr-single-authority` in Media; DI worker
+   `python scripts/verify_increment3.py` plus client typecheck/test and
+   source-free installed consumer. Ensure Data Cloud absence cannot change
+   Media job finality and DI absence cannot break non-OCR Media operations.
+
+**Current truthful completion status:** MDI-001 ownership decision reaffirmed;
+DI real-provider rights, installed client and runtime consumer integration,
+VIS-09, OC-04 and Ghatana #252 are NOT automatically accepted by this
+decision or source-only tests. Track B/gtool, release and deployment remain
+separately governed.

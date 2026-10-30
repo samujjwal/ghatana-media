@@ -12,8 +12,10 @@ publicDependency:
   authority: Ghatana services/document-intelligence public client; Shared owns neutral document-extraction contracts
   status: EXTERNAL_BLOCKER
   reason: >-
-    The current checkout contains a Kernel adapter and a local OcrService but
-    does not expose the admitted public DI client needed for runtime cutover.
+    A DI v1 client implementation exists in Ghatana but the source-free,
+    version-compatible installed client and real provider rights/qualifications
+    are not yet admitted for Media. The retained Kernel adapter and local
+    OcrService are fail-closed legacy remnants, not alternate OCR runtimes.
 classifications:
   - id: media.ocr.semantic-capability
     target: CANONICAL_MEDIA_SEMANTIC
@@ -94,3 +96,19 @@ decisions:
   - id: PDP0-003-D3
     decision: Runtime correction remains blocked until the external public DI client is available and independently verified.
     state: blocked-external-dependency
+
+  - id: PDP0-003-D4
+    decision: >-
+      Document Intelligence is the ONLY Ghatana OCR execution authority and
+      versioned public gateway. PaddleOCR, Tesseract, Docling and future OCR
+      engines are internal Document Intelligence provider adapters. Media
+      consumes DI through a source-authorized scene/frame/time/region mapping
+      adapter and must never register a separate Media OCR model or fallback.
+      During development migrate all consumers then retire legacy OCR
+      compatibility files; do not duplicate or move the DI OCR runtime.
+    state: accepted-boundary
+    authority: docs/migration/decisions/MDI-001-document-intelligence-ownership.md
+    qualificationStatus: PENDING_EXTERNAL_DI
+    implementationNotes: >-
+      This clarifies the existing MDI-001 ownership rather than creating
+      a new contract or claiming a completed DI runtime/public release.

@@ -63,5 +63,5 @@ test('documented optional Data Cloud metadata is never Media job finality',()=>{
   const decision=read('docs/architecture/MEDIA-OCR-DATACLOUD-DEPENDENCY-DECISION-2026-10-30.md');
   assert.match(decision,/Data Cloud disabled\/unreachable/u);
   assert.match(decision,/DI disabled\/unreachable/u);
-  assert.match(decision,/MDI-001 remains the accepted/u);
+  assert.match(decision,/MDI-001 ownership decision reaffirmed/u);
 });
