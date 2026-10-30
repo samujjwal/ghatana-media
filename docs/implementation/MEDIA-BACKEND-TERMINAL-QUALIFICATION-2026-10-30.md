@@ -22,6 +22,8 @@
 5. A real product host executes J-03 from source upload to approved corrected caption artifact; an admitted capture adapter creates the seven-scene *real* recording with narration, captions, immutable version+source lineage. H-08 synthetic Explorer film is separate proof only, not this real path.
 6. **No remaining required backend tasks or unassigned known obligations**: every failed oracle gets a precise bug fix and rerun; legitimate optional scope retirement requires versioned PDP owner decision plus downstream compatibility. Track B PDP/gtool closure, deployment/live writer migration, release and four UI/Explorer physical handoffs stay independent projects and cannot be declared complete on backend evidence alone.
 
+**Checkable completion target:** zero unassigned known obligations, zero unverified required positive outputs, zero skipped mandatory real-integration suites, zero unresolved source/rights/host input claims, and no status promotion outside the genuine original task owner. These are terminal predicates to establish by execution, not present-tense achievements.
+
 **Allowed per-row states:** `CODE_PRESENT`, `FOCUSED_TESTED`, `REAL_EFFECT_AND_RIGHTS_QUALIFIED`, `EXTERNAL_OWNER_PROOF_REQUIRED`, `FAILED_ACTUAL_TEST`, `ORIGINALLY_ACCEPTED`, or genuinely reviewed `OPTIONAL_SCOPE_NOT_APPLICABLE`. For an applicable mandatory capability, `NOT_ADMITTED` is safe but **not terminal completion**. Only the owning canonical R8/PDP status authority may record final acceptance.
 
 ## 3. All 36 original Wave 2 unaccepted rows — executable task-by-task requirements
