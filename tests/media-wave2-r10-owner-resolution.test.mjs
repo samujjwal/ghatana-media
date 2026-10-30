@@ -71,7 +71,7 @@ test('current source owner dispositions never silently admit a provider or task'
   assert.equal(plan.latestOwnerResolution.protectedLedger.external, 6);
   assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
   assert.equal(plan.latestOwnerResolution.currentReviewedSource,
-    'samujjwal/ghatana-media@4fa88ca9f70887f5e801af6d7d92c2a70aa5a158');
+    'samujjwal/ghatana-media@9096f12ad0bbfecb2a11049746a014b1c9101b5c');
   const ownerDecisions = plan.latestOwnerResolution.decisions;
   assert.equal(ownerDecisions.length, 13);
   assert.equal(new Set(ownerDecisions.map((row) => row.id)).size, ownerDecisions.length);
@@ -171,7 +171,7 @@ test('pushed seven commits are explicitly accessible while runtime acceptance st
   }
   const gate = plan.activeExecutionReadback.gateStates;
   assert.match(gate.G01.observedGap, /Whisper tiny retains failed true FLEURS WER/);
-  assert.match(gate.G12.observedGap, /M1-M7 durable MM descriptor\/provider\/executor/);
+  assert.match(gate.G12.observedGap, /M1-M7 source and W2-R01 standalone bootstrap/);
   assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
   assert.ok(plan.remainingTasks.every((x) => !x.taskAccepted && x.qualifiedResult === null));
 });
@@ -185,7 +185,7 @@ test('single active 2026-10-29 plan preserves each of the 36 original R8 depende
   assert.equal(plan.currentCompletionExecution.taskRows, 36);
   assert.equal(plan.currentCompletionExecution.lastAcceptedLedger.changed, 0);
   assert.equal(plan.currentCompletionExecution.sourceReviewed,
-    '4fa88ca9f70887f5e801af6d7d92c2a70aa5a158');
+    '9096f12ad0bbfecb2a11049746a014b1c9101b5c');
   const lines = markdown.split('\n').filter((line) =>
     /^\| (?:STT|TTS|VIS|MM|OBS)-\d{2} \|/u.test(line));
   const entries = lines.map((line) => {
@@ -237,11 +237,62 @@ test('current V027 and M1-M7 review preserves 5/5 reported host proof without cl
   assert.equal(plan.remainingTasks.every((row) => !row.taskAccepted && row.qualifiedResult === null),
     true);
   assert.match(plan.activeExecutionReadback.gateStates.G12.nextAction,
-    /connect real runtime, qualified child providers and Postgres parent/);
+    /Run W2-R02 genuine Vision child and STT/);
   const doc = readFileSync(resolve(root,
     'docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md'), 'utf8');
   assert.match(doc, /## 8\. Current 2026-10-29 M7\/V027\/5-of-5 Postgres remaining-work lock/);
   assert.match(doc, /W2-R01 — MM standalone production bootstrap/);
   assert.match(doc, /W2-R11 — all original 43 RPCs/);
   assert.match(doc, /two PostgreSQL integration suites passing 3\/3 and 2\/2/);
+});
+
+
+test('latest OBS-07/08 owner approvals and prior 64 plus 136 results never forge whole-row acceptance', () => {
+  const approved = plan.currentCompletionExecution.latestOwnerApproval20261029;
+  assert.equal(approved.status, 'ENGINEERING_APPROVED_WITH_AUTHENTIC_EXTERNAL_EVIDENCE_STILL_REQUIRED');
+  assert.equal(approved.reportedTests.focus.total, 64);
+  assert.equal(approved.reportedTests.observability.total, 136);
+  assert.equal(approved.reportedTests.totalReportedPassing, 200);
+  assert.equal(approved.reportedTests.newSourceRetestedByThisReview, false);
+  assert.equal(approved.ownerDecisions.length, 7);
+  assert.equal(new Set(approved.ownerDecisions.map((x) => x.id)).size, 7);
+  assert.equal(approved.lastAccepted.changed, 0);
+  assert.equal(approved.reportedTests.infrastructure.realWebhookHttpPost,
+    'SOURCE_IMPLEMENTED_PENDING_CURRENT_HOST_RUN');
+  assert.equal(approved.reportedTests.infrastructure.realModelQuality,
+    'NO_AUTHENTIC_PROVIDER_MEASUREMENT_YET');
+  assert.equal(approved.reportedTests.infrastructure.qualityFreshnessWithoutEvidence, 'NaN');
+  assert.ok(approved.workstreamExceptions.some((x) => x.code === 'OBS_C1_C16_C64'
+    && x.engineeringState === 'HOST_MEASUREMENTS_NOT_EXECUTED'));
+  assert.ok(['OBS-07', 'OBS-08'].every((id) => {
+    const row = plan.remainingTasks.find((x) => x.taskId === id);
+    return row && row.latestObsCut?.originalWholeRowAccepted === false
+      && row.taskAccepted === false && row.qualifiedResult === null;
+  }));
+  assert.match(plan.activeExecutionReadback.gateStates.G08.observedGap,
+    /quality SPI now implemented with NaN honest unknown/);
+});
+
+test('OBS quality and HTTP webhook source is wired yet remains nonqualifying without authentic evidence', () => {
+  const source = (path) => readFileSync(resolve(root, path), 'utf8');
+  const runtime = source('launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java');
+  const provider = source('runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java');
+  const model = source('runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaModalityContracts.java');
+  const exporter = source('audio-video-observability/src/test/java/com/ghatana/audiovideo/observability/MediaAlertDeliveryExporterFixture.java');
+  const webhook = source('infra/monitoring/tests/alert-delivery-smoke.sh');
+  const current = source('docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md');
+  assert.match(provider, /qualityObservation\(JobType modality, String modelRevision\)/);
+  assert.match(provider, /return java\.util\.Optional\.empty\(\)/);
+  assert.match(model, /record ProviderQualityObservation\(/);
+  assert.match(runtime, /provider\.qualityObservation\(profile\.modality\(\), modelRevision\)/);
+  assert.match(runtime, /qualityObservedAt = null/);
+  assert.match(exporter, /handleAlertWebhook\(/);
+  assert.match(exporter, /MAX_ALERT_WEBHOOK_BYTES/);
+  assert.match(webhook, /webhook_configs:/);
+  assert.match(webhook, /send_resolved: true/);
+  assert.match(webhook, /webhook_fire_seen/);
+  assert.match(webhook, /webhook_resolve_seen/);
+  assert.match(current, /## 9\. Owner-approved OBS-07\/08 unblock/);
+  assert.match(current, /not a production-user SLA alert/);
+  assert.equal(plan.currentCompletionExecution.latestOwnerApproval20261029.noChangeToR8Acceptance, true);
 });
