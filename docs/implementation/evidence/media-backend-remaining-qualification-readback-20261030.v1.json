@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "ghatana.media.engineering-readback.v1",
+  "recordedAt": "2026-10-30",
+  "repo": "samujjwal/ghatana-media",
+  "basis": "Engineering readback on local main after reported 19-commit run; includes commits up to 86fd7800. Source/status entries use REPORTED_ONLY | SOURCE_PRESENT | TESTED | REAL_EFFECT_QUALIFIED | EXTERNAL_OWNER_REQUIRED per combined plan 14.5.",
+  "codeChanges": [
+    {
+      "originalTaskIds": ["RS-03", "RS-04", "RS-07"],
+      "status": "TESTED",
+      "sha": "86fd7800",
+      "change": "Resampler replaced naive linear interpolation with Blackman windowed-sinc bandlimited kernel; anti-alias cutoff at tighter Nyquist edge, per-tap-sum normalization, exact rational source-to-target offsets, non-finite input rejected; Resampler.with_options for qualified kernel tuning. mix_audio rejects non-finite volumes/samples. Seeded resample/decode RTF measurement smoke added (measurement reported, no baseline asserted).",
+      "tests": "cargo test 14/14 pass; cargo clippy -D warnings clean; cargo fmt clean",
+      "oracle": "In-band tone across 1k/8k/44.1k/48k sources within tolerance, alias attenuation, channel isolation, impulse position drift bound, invalid input rejected, stereo WAV round-trip."
+    },
+    {
+      "originalTaskIds": ["RS-02", "RS-05"],
+      "status": "TESTED",
+      "sha": "86fd7800",
+      "change": "Fixed multi-channel F32 decode defect: samples.clear() discarded all previously decoded packets for channels>1; decode now interleaves every packet and appends.",
+      "tests": "cargo test 14/14 pass including write_and_read_stereo_wav_preserves_channels"
+    },
+    {
+      "originalTaskIds": ["CT-02", "CT-04"],
+      "status": "TESTED",
+      "sha": "86fd7800",
+      "change": "MultimodalRpcMatrixIntegrationTest reconciled to current fail-closed contract: missing canonical binding -> FAILED_PRECONDITION MULTIMODAL_FAMILY_NOT_ADMITTED; well-formed canonical binding -> UNAVAILABLE trusted-rights authority. TtsAuthenticatedIntegrationTest asserts refined NOT_ADMITTED admission description.",
+      "tests": ":services:media:modules:integration-tests:test green (39 tests, 0 failures)"
+    }
+  ],
+  "qualificationRuns": [
+    {
+      "originalTaskIds": ["VIS-03", "R10-G06"],
+      "gate": "scripts/qualification/run-wave2-vision-oci-checks.sh stub",
+      "status": "REAL_EFFECT_QUALIFIED",
+      "result": "PASS 4/4 HostOciVisionWorkerDockerIntegrationTest on Docker 29.1.3, image sha256:0ff215768e99665a76c09373ce72195a84fb92c2a473f7509b708e6044606d1f: pids-cgroup child rejection, container limits/private mounts, actual cgroup OOM kill without output, truthful timeout kill."
+    },
+    {
+      "originalTaskIds": ["VIS-03", "R10-G06"],
+      "gate": "scripts/qualification/run-wave2-vision-oci-checks.sh broker",
+      "status": "REAL_EFFECT_QUALIFIED",
+      "result": "PASS 3/3 HostOciVisionBrokerIntegrationTest, image sha256:3aac57d93bc93c07a067f01080668e326fb47402c775600a4a76b43482ff6f50: broker-enforced kernel pid limit inside worker, truthful timeout kill, bounded worker with no Docker access from the Media JVM."
+    },
+    {
+      "originalTaskIds": ["VIS-03", "R10-G06"],
+      "gate": "scripts/qualification/run-wave2-vision-oci-checks.sh real MEDIA_LINUX_CODECS_DIR",
+      "status": "REAL_EFFECT_QUALIFIED",
+      "result": "PASS 3/3 HostOciVisionRealCodecIntegrationTest on real pinned FFmpeg 8.1.2 aarch64 (archive sha256 ead92446...533586, six-package noble runtime closure verified), image sha256:6d2a571bc6ee53bb700e8b03e8d1ea026fe32e9135cf8e9b099bf5a9c36b23c6: BMP decode under limits, malformed-source rejection without output, exact-overflow not successful."
+    },
+    {
+      "originalTaskIds": ["VIS-03", "R10-G06"],
+      "gate": "scripts/qualification/run-wave2-vision-oci-checks.sh png MEDIA_LINUX_PNG_CODECS_DIR",
+      "status": "REAL_EFFECT_QUALIFIED",
+      "result": "PASS 4/4 HostOciVisionPngCodecIntegrationTest on pinned BtbN LGPL PNG-capable FFmpeg, image sha256:f2532a912e29c8278d89c87400553cf1f738cc1a09ee7dcd52cdcce48fbcf253: PNG decode to exact pixels cross-checked by independent Java decoder, PNG encode readable by independent decoder, corrupt PNG rejection, output-overflow not successful."
+    },
+    {
+      "originalTaskIds": ["OBS-08", "R10-G08"],
+      "gate": "RUN_MEDIA_ALERT_DELIVERY_TEST=1 infra/monitoring/tests/alert-delivery-smoke.sh",
+      "status": "TESTED",
+      "result": "PASS: fixture exporter -> Prometheus -> Alertmanager -> local webhook HTTP POST fired AND resolved on pinned images (prom/prometheus fa330227..., prom/alertmanager 286ad883...). Proves actual test-only webhook transport only: NOT external pager delivery, real provider quality, or production admission; quality freshness remained NaN."
+    },
+    {
+      "originalTaskIds": ["IT-05", "GH-90000"],
+      "gate": ":services:media:integration-tests:test with locally built ghatana/stt-service:latest and ghatana/tts-service:latest (installDist + docker/Dockerfile.*, linux/arm64, Java 27)",
+      "status": "TESTED",
+      "result": "All 9 previously image-gated cases now PASS as true results: 4 Audio-Video Image Startup (typed provider-admission refusal, refusal before port publish, Java 27) + 5 Fail-Closed Full Workflow (no fabricated transcript/audio, bounded diagnostics, no published ports). Candidate images remain development-only, not provider-eligible; no licensed model/voice was admitted."
+    }
+  ],
+  "remainingExternal": [
+    {"ids": ["AS-07", "VS-07"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "Admitted real transport (WebRTC/HLS/DASH/adaptive HTTP) plus c1/c16/c64 perf-tier runs; AS-06 keeps 5 NOT_ADMITTED leaves, VS-05 is IN_PROCESS only."},
+    {"ids": ["STT-10", "STT-12", "G01", "G07"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "Lawful frozen FLEURS corpus + independently authored gold transcript; MediaAuthorizedSttTranscriptRestartIT remains SKIPPED; quantized tiny WER previously failed thresholds."},
+    {"ids": ["OBS-07"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "Real approved immutable quality report feeding WER/CER metrics and sequential c1/c16/c64 provider capacity runs."},
+    {"ids": ["DC-04", "DC-05", "DC-06", "IT-04"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "ghatana#254 public Data Cloud consumer contract for live readback; 32 AEP scaffold tests remain @Disabled pending a real wired suite."},
+    {"ids": ["OC-04"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "ghatana#252 public DI OCR contract; fail-closed shim retained."},
+    {"ids": ["H-08", "IT-04-ts"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "Real product-host recording and live Media HTTP host for MediaProviderLifecycle.test.ts; H-08 stays synthetic seven-scene."},
+    {"ids": ["36 Wave2 R8 rows"], "status": "EXTERNAL_OWNER_REQUIRED", "missing": "External voice/biometric consent, licensed model weights, source/weight copyrights unchanged by this run."}
+  ],
+  "explicitNonClaims": [
+    "No R8/PDP/gtool status is promoted or altered by this readback.",
+    "Built stt-service/tts-service images are development candidates only, not qualified release images.",
+    "OCI qualification is scoped to the tested host/toolchain; it does not certify other hosts or release admission.",
+    "Alert smoke proves webhook transport, not external pager ACK or production alerting.",
+    "No secrets, private audio or model weights were committed."
+  ]
+}
