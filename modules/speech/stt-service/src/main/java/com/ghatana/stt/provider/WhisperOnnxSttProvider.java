@@ -209,12 +209,18 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         if (!revision.equals(modelRevision)) return Optional.empty();
         Optional<MediaModalityContracts.ProviderQualityObservation> candidate =
                 qualityEvidenceReader.latest(binding.providerId(), binding.providerVersion(), revision);
+        return matchingQualityObservation(binding, revision, candidate);
+    }
+
+    static Optional<MediaModalityContracts.ProviderQualityObservation> matchingQualityObservation(
+            ProfileBinding binding, String modelRevision,
+            Optional<MediaModalityContracts.ProviderQualityObservation> candidate) {
         if (candidate == null) return Optional.empty();
         return candidate.filter(value ->
                 value.providerId().equals(binding.providerId())
                 && value.providerVersion().equals(binding.providerVersion())
                 && value.modality() == JobType.SPEECH_TO_TEXT
-                && value.modelRevision().equals(revision));
+                && value.modelRevision().equals(modelRevision));
     }
 
     @Override public Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
