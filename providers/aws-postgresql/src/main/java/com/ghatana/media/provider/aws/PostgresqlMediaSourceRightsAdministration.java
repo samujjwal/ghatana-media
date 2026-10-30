@@ -122,6 +122,36 @@ public final class PostgresqlMediaSourceRightsAdministration implements MediaSou
     }
 
     @Override
+    public java.util.List<SourceRecord> currentRecords(String tenantId, String artifactId) {
+        ensureOpen();
+        String sql = """
+                SELECT source_version,source_sha256,principal_id,source_owner_id,source_kind,
+                       human_consent_disposition,consent_decision_id,allowed_operations_csv,
+                       allowed_purposes_csv,allowed_regions_csv,allowed_provider_retentions_csv,
+                       source_clock_evidence_ref,provenance_ref,registered_by,registered_at,
+                       expires_at,revocation_epoch,revoked_at
+                  FROM media_source_records
+                 WHERE tenant_id=? AND artifact_id=?
+                 ORDER BY registered_at DESC
+                """;
+        java.util.List<SourceRecord> records = new java.util.ArrayList<>();
+        try (Connection connection = state.connection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, artifactId);
+            try (ResultSet row = statement.executeQuery()) {
+                while (row.next()) {
+                    records.add(readRecord(
+                            row, tenantId, artifactId, row.getString("source_version")));
+                }
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("list Media source records", failure);
+        }
+        return java.util.List.copyOf(records);
+    }
+
+    @Override
     public Optional<SourceRecord> revoke(
             String tenantId,
             String artifactId,

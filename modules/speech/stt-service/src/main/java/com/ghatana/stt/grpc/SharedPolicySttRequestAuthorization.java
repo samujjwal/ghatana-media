@@ -22,9 +22,10 @@ import java.util.concurrent.TimeoutException;
 /**
  * STT consumer of Shared PolicyEngine plus a separate Media source-rights authority.
  *
- * <p>This adapter is intentionally injectable and is not installed by the production server:
- * no Media policy identity/version or authoritative source-rights resolver is currently
- * configured there. A policy permit alone never admits provider work.</p>
+ * <p>The production service composes this adapter only when a ready Media source-rights
+ * administration and an open Shared policy engine are installed; otherwise the server keeps
+ * the fail-closed {@code unavailable} authorization. A policy permit alone never admits
+ * provider work.</p>
  */
 final class SharedPolicySttRequestAuthorization implements SttRequestAuthorization {
     private static final Duration MAX_TIMEOUT = Duration.ofSeconds(30);

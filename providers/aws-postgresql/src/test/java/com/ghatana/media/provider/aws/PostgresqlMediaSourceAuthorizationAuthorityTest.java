@@ -235,6 +235,40 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
         }
     }
 
+    @Test
+    void currentRecordsReturnsEveryArtifactVersionIncludingRevokedForStatusMapping() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-list", "principal-a", "artifact-a"),
+                    authenticated("tenant-list", "principal-a"));
+            fixture.administration().register(register("tenant-list", "principal-a", "artifact-a",
+                    "c".repeat(64)), authenticated("tenant-list", "principal-a"));
+            fixture.administration().register(register("tenant-list", "principal-a", "artifact-b",
+                    "d".repeat(64)), authenticated("tenant-list", "principal-a"));
+
+            var listed = fixture.administration().currentRecords("tenant-list", "artifact-a");
+            assertThat(listed).hasSize(2);
+            assertThat(listed.get(0).registeredAt())
+                    .isAfterOrEqualTo(listed.get(1).registeredAt());
+            assertThat(listed.stream().map(MediaSourceRightsAdministration.SourceRecord::sourceVersion))
+                    .containsExactlyInAnyOrder("sha256:" + DIGEST, "sha256:" + "c".repeat(64));
+
+            // Revoked rows stay visible so a resolver can distinguish REVOKED from DENIED.
+            fixture.administration().revoke("tenant-list", "artifact-a",
+                    "sha256:" + "c".repeat(64), authenticated("tenant-list", "principal-a"), "corr-l1");
+            var afterRevoke = fixture.administration().currentRecords("tenant-list", "artifact-a");
+            assertThat(afterRevoke).hasSize(2);
+            assertThat(afterRevoke.stream()
+                    .filter(r -> r.sourceVersion().equals("sha256:" + "c".repeat(64)))
+                    .findFirst().orElseThrow().revoked()).isTrue();
+            assertThat(afterRevoke.stream()
+                    .filter(r -> r.sourceVersion().equals("sha256:" + DIGEST))
+                    .findFirst().orElseThrow().revoked()).isFalse();
+
+            assertThat(fixture.administration().currentRecords("tenant-list", "missing")).isEmpty();
+            assertThat(fixture.administration().currentRecords("other-tenant", "artifact-a")).isEmpty();
+        }
+    }
+
     private static MediaSourceAuthorizationContracts.Request request(
             String tenant, String principal, String artifact) {
         return request(tenant, principal, artifact, "transcription", "local", ProviderDataRetention.NONE);

@@ -1,8 +1,10 @@
 package com.ghatana.stt.grpc;
 
+import com.ghatana.governance.PolicyEngine;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.runtime.MediaSourceRightsAdministration;
 import com.ghatana.stt.core.grpc.proto.AdaptRequest;
 import com.ghatana.stt.core.grpc.proto.AdaptResponse;
 import com.ghatana.stt.core.grpc.proto.CorrectionRequest;
@@ -23,10 +25,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
 /**
  * Production composition and lifecycle owner for {@link SttGrpcService}.
@@ -46,6 +51,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     private final AudioVideoLibrary ownedLibrary;
     private final MediaProcessingRuntimePort mediaRuntimePort;
+    private final AutoCloseable authorizationResource;
 
     enum ProviderMode {
         GRPC,
@@ -71,9 +77,97 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     /** Runtime integration seam; current STT RPCs remain not admitted without versioned rights inputs. */
     public ProductionSttGrpcService(MeterRegistry metrics, MediaProcessingRuntimePort mediaRuntimePort) {
-        this(createInitializedLibrary(System.getenv()), metrics,
-                io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
-                SttRequestAuthorization.unavailable(), mediaRuntimePort);
+        this(composition(System.getenv(), metrics, mediaRuntimePort));
+    }
+
+    private ProductionSttGrpcService(Composition composition) {
+        super(composition.library(), composition.metrics(), composition.tracer(),
+                composition.authorization());
+        this.ownedLibrary = composition.library();
+        this.mediaRuntimePort = composition.mediaRuntimePort();
+        this.authorizationResource = composition.authorizationResource();
+    }
+
+    private record Composition(
+            AudioVideoLibrary library,
+            MeterRegistry metrics,
+            Tracer tracer,
+            SttRequestAuthorization authorization,
+            MediaProcessingRuntimePort mediaRuntimePort,
+            AutoCloseable authorizationResource) { }
+
+    private static Composition composition(
+            Map<String, String> environment,
+            MeterRegistry metrics,
+            MediaProcessingRuntimePort mediaRuntimePort) {
+        AudioVideoLibrary library = createInitializedLibrary(environment);
+        try {
+            AuthorizationComposition authorization = productionAuthorization(environment);
+            return new Composition(library, metrics,
+                    io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
+                    authorization.authorization(), mediaRuntimePort, authorization.resource());
+        } catch (RuntimeException failure) {
+            library.close();
+            throw failure;
+        }
+    }
+
+    private record AuthorizationComposition(
+            SttRequestAuthorization authorization, AutoCloseable resource) { }
+
+    /**
+     * Composes the canonical Shared policy + Media source-rights authorization when a ready
+     * rights administration and an open Shared policy engine are installed on this runtime.
+     * Any missing or unready authority keeps the fail-closed unavailable authorization; a
+     * production-like profile additionally requires a production-eligible record store.
+     */
+    private static AuthorizationComposition productionAuthorization(Map<String, String> environment) {
+        String profile = firstNonBlank(
+                environment.get("MEDIA_RUNTIME_ENVIRONMENT"),
+                environment.get("MEDIA_PROFILE"),
+                "local");
+        boolean productionLike = productionLike(profile);
+        MediaSourceRightsAdministration administration = null;
+        try {
+            for (MediaSourceRightsAdministration candidate
+                    : ServiceLoader.load(MediaSourceRightsAdministration.class)) {
+                try {
+                    if (candidate != null && candidate.ready()
+                            && (!productionLike || candidate.productionEligible())) {
+                        administration = candidate;
+                        break;
+                    }
+                } catch (RuntimeException unavailable) { }
+            }
+        } catch (RuntimeException | ServiceConfigurationError unavailable) { }
+        PolicyEngine engine = null;
+        try {
+            for (PolicyEngine candidate : ServiceLoader.load(PolicyEngine.class)) {
+                try {
+                    if (candidate != null && candidate.isOpen()) {
+                        engine = candidate;
+                        break;
+                    }
+                } catch (RuntimeException unavailable) { }
+            }
+        } catch (RuntimeException | ServiceConfigurationError unavailable) { }
+        if (administration == null || engine == null) {
+            safeClose(administration);
+            return new AuthorizationComposition(SttRequestAuthorization.unavailable(), null);
+        }
+        return new AuthorizationComposition(
+                new SharedPolicySttRequestAuthorization(
+                        engine,
+                        new MediaRuntimeSttRightsSourceResolver(administration, Clock.systemUTC()),
+                        Duration.ofSeconds(10)),
+                administration);
+    }
+
+    private static void safeClose(AutoCloseable closeable) {
+        if (closeable == null) return;
+        try {
+            closeable.close();
+        } catch (Exception ignored) { }
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics) {
@@ -96,6 +190,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
         super(library, metrics, tracer, requestAuthorization);
         this.ownedLibrary = Objects.requireNonNull(library, "library");
         this.mediaRuntimePort = mediaRuntimePort;
+        this.authorizationResource = null;
     }
 
     MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
@@ -397,7 +492,11 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     @Override
     public void close() {
-        ownedLibrary.close();
+        try {
+            safeClose(authorizationResource);
+        } finally {
+            ownedLibrary.close();
+        }
     }
 
     private static <T> void unimplemented(StreamObserver<T> observer, String message) {

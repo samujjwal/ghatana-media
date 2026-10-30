@@ -29,7 +29,7 @@ interface SttRequestAuthorization {
 
     Decision authorize(Request request);
 
-    /** No production rights/ownership authority is currently wired to Media STT. */
+    /** Fail-closed authorization when no production rights/ownership authority is installed. */
     static SttRequestAuthorization unavailable() {
         return request -> Decision.UNAVAILABLE;
     }

@@ -40,6 +40,17 @@ public interface MediaSourceRightsAdministration extends AutoCloseable {
     Optional<SourceRecord> record(String tenantId, String artifactId, String sourceVersion);
 
     /**
+     * Reads every source-rights record registered for one artifact across all immutable
+     * versions, including expired and revoked rows so a resolver can distinguish DENIED,
+     * REVOKED and STALE instead of collapsing them into an absent lookup. Implementations
+     * must return the caller-visible rows ordered by {@code registeredAt} descending; the
+     * default empty result is fail-closed for authorities that cannot read records.
+     */
+    default java.util.List<SourceRecord> currentRecords(String tenantId, String artifactId) {
+        return java.util.List.of();
+    }
+
+    /**
      * Revokes one immutable source version. Only the authenticated principal recorded at
      * registration may revoke; the credential's tenant must equal {@code tenantId}.
      */
