@@ -173,7 +173,10 @@ public final class AudioVideoRunLedgerAdapter {
             case "TRANSCODING", "PROCESSING", "ANALYZING", "STORING", "UPLOADING", "INDEXING" -> JobExecutionState.RUNNING;
             case "COMPLETED", "SUCCEEDED", "STORED", "FAILED", "ERROR" -> JobExecutionState.COMPLETED;
             case "CANCELLED", "ABORTED" -> JobExecutionState.CANCELLED;
-            default -> JobExecutionState.RUNNING;
+            // An unrecognized state must never be projected as RUNNING or a
+            // final outcome; fail closed so the caller must not fabricate.
+            default -> throw new IllegalArgumentException(
+                    "unmapped Media processing job state: " + jobState);
         };
     }
 
@@ -428,8 +431,9 @@ public final class AudioVideoRunLedgerAdapter {
      * (Useful for STT/TTS/Vision providers with varying state vocabularies)
      */
     private static JobExecutionState mapProviderJobState(String providerState) {
-        if (providerState == null) {
-            return JobExecutionState.RUNNING;
+        if (providerState == null || providerState.isBlank()) {
+            throw new IllegalArgumentException(
+                    "provider job state is absent; an unreported state is not RUNNING");
         }
 
         String upperState = providerState.toUpperCase(Locale.ENGLISH);
@@ -445,7 +449,10 @@ public final class AudioVideoRunLedgerAdapter {
                 JobExecutionState.COMPLETED;
             case "CANCELLED", "ABORTED", "STOPPED", "TERMINATED", "INTERRUPTED" ->
                 JobExecutionState.CANCELLED;
-            default -> JobExecutionState.RUNNING;
+            // An unrecognized provider vocabulary must never be projected as
+            // RUNNING; fail closed and let the caller normalize new spellings.
+            default -> throw new IllegalArgumentException(
+                    "unmapped provider job state: " + providerState);
         };
     }
 

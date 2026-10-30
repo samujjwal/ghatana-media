@@ -53,6 +53,30 @@ val focusedSharedPlatformArtifacts = setOf(
     "testing-integration"
 )
 
+// Monorepo projects redirect their projectDir outside this repository and may
+// pin a toolchain older than the Media catalog. The shared java-module
+// convention stamps the catalog release on every Java project while respecting
+// an explicit toolchain pin, which leaves such a module compiling with a
+// mismatched source level (javac 21 receiving -source 27). Inside this
+// composite the monorepo modules must compile at the composite level anyway:
+// their upstream dependencies resolve to source-substituted platform modules
+// that only exist as catalog-level bytecode.
+subprojects.forEach { project ->
+    if (!project.projectDir.toPath().startsWith(rootDir.toPath())) {
+        project.plugins.withId("java") {
+            project.afterEvaluate {
+                val javaExtension = project.extensions.getByType(
+                    org.gradle.api.plugins.JavaPluginExtension::class.java)
+                val toolchainVersion = javaExtension.toolchain.languageVersion.orNull?.asInt()
+                if (toolchainVersion != null && toolchainVersion != mediaJavaTarget) {
+                    javaExtension.toolchain.languageVersion.set(
+                        JavaLanguageVersion.of(mediaJavaTarget))
+                }
+            }
+        }
+    }
+}
+
 // A focused source composite intentionally omits Kernel, Tools, Ghatana services,
 // Data Cloud, Event Plane, and AI Inference. Reject their coordinates during
 // resolution so an accidental new dependency cannot fall through to Maven.

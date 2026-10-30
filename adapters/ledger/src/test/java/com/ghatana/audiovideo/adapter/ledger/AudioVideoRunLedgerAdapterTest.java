@@ -367,4 +367,38 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(ledger.requiresBlockingAudit()).isFalse();
         assertThat(ledger.attributes()).containsEntry("policyAllowed", "false");
     }
+
+    @Test
+    @DisplayName("Unmapped or absent job states fail closed and are never projected as RUNNING")
+    void testUnmappedStatesFailClosed() {
+        long now = System.currentTimeMillis();
+
+        // An unrecognized provider vocabulary cannot be recorded as RUNNING.
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "j1", "a1", "provider", "p1", "THROTTLED_BY_VENDOR",
+                Map.of(), now, 0, "t", "c"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("unmapped provider job state");
+
+        // An absent provider state is not progress either.
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "j2", "a2", "provider", "p2", null, Map.of(), now, 0, "t", "c"))
+            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "j3", "a3", "provider", "p3", "   ", Map.of(), now, 0, "t", "c"))
+            .isInstanceOf(IllegalArgumentException.class);
+
+        // The internal processing-state vocabulary is equally fail-closed.
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-x", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
+                "MYSTERY_STATE", now, now, null, null, null, null, "t", "c"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("unmapped Media processing job state");
+
+        // Mapped nonterminal states keep an honest null outcome.
+        RunLedger running = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+            "j4", "a4", "provider", "p4", "EXECUTING", Map.of(), now, 0, "t", "c");
+        assertThat(running.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(running.outcome()).isNull();
+    }
 }
