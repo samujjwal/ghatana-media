@@ -1,0 +1,16 @@
+{
+  "authority": "LOCAL_USER_TOOL_INSTALLATION_NOT_SERVICE_DEPLOYMENT",
+  "installedAt": "2026-10-30T15:13:21.197606+00:00",
+  "tool": "promtool",
+  "route": "DIGEST_PINNED_DOCKER_BACKED_USER_COMMAND",
+  "source": "/Users/samujjwal/Development/ghatana-media/infra/monitoring/tests/promtool.sh",
+  "destination": "/Users/samujjwal/.local/bin/promtool",
+  "sha256": "sha256:dab4195565b2b97760effc4fb8150f7d0271e66e167e3c91cea4a77d956988d3",
+  "image": "prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+  "imageState": "REUSED_EXISTING_VERIFIED_LOCAL_IMAGE",
+  "shellProfile": "/Users/samujjwal/.zprofile",
+  "profileCreated": true,
+  "profileSha256": "sha256:68f181ffa6b7c1fb07c1eb1882c1b506d217e685d06fe6c671e9ce7189d79f66",
+  "administratorRequired": false,
+  "systemServiceStarted": false
+}

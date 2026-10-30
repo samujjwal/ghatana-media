@@ -37,6 +37,7 @@ if [[ ! "$user_id" =~ ^[0-9]+$ || ! "$group_id" =~ ^[0-9]+$ ]]; then
 fi
 
 exec docker run \
+  --interactive \
   --pull=never \
   --rm \
   --network=none \

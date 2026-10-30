@@ -1,0 +1,6 @@
+Checking monitoring/prometheus/rules/media.yml
+  SUCCESS: 6 rules found
+
+Checking infra/monitoring/alerts/audio-video.yml
+  SUCCESS: 46 rules found
+
