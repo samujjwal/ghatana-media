@@ -95,7 +95,11 @@ class MediaMultimodalParentChildRestartPostgresIT {
                 accepted = firstRuntime.submit(mmRequest("request-" + runId, tenant, principal, source, spec));
                 ProcessingJob terminal = awaitTerminal(
                         firstRuntime, tenant, principal, accepted.jobId());
-                assertThat(terminal.status()).isEqualTo(JobStatus.COMPLETED);
+                assertThat(terminal.status())
+                        .as("parent terminal state; failureCode=%s result=%s jobs=%s attempts=%s",
+                                terminal.failureCode(), terminal.result(), dumpJobs(tenant),
+                                dumpAttempts(tenant))
+                        .isEqualTo(JobStatus.COMPLETED);
                 assertThat(terminal.result()).containsKey("observations");
                 // Both children ran as their own canonical durable jobs.
                 assertThat(jobState(tenant, "request-" + runId + ":stt")).isEqualTo("COMPLETED");
@@ -120,7 +124,7 @@ class MediaMultimodalParentChildRestartPostgresIT {
                 var replay = restarted.submit(mmRequest("request-" + runId, tenant, principal,
                         source, spec(source, List.of(
                                 child("stt", JobType.SPEECH_TO_TEXT, sttChild, sttParameters()),
-                                child("vision", JobType.VISION, visionChild, Map.of()))))));
+                                child("vision", JobType.VISION, visionChild, Map.of())))));
                 assertThat(replay.jobId()).isEqualTo(accepted.jobId());
                 assertThat(sttEffects).hasValue(1);
                 assertThat(visionEffects).hasValue(1);
@@ -228,16 +232,15 @@ class MediaMultimodalParentChildRestartPostgresIT {
     // ── Providers / fixtures ────────────────────────────────────────────────
 
     private static MediaProcessingProvider sttProvider(AtomicInteger effects) {
-        return sttLikeProvider("stt-done", effects, CompletableFuture.completedFuture(
-                Map.of("text", "grounded transcript")));
+        return sttLikeProvider("stt-done", effects, true);
     }
 
     private static MediaProcessingProvider pendingSttProvider(AtomicInteger effects) {
-        return sttLikeProvider("stt-pending", effects, new CompletableFuture<>());
+        return sttLikeProvider("stt-pending", effects, false);
     }
 
     private static MediaProcessingProvider sttLikeProvider(
-            String id, AtomicInteger effects, CompletableFuture<Map<String, Object>> result) {
+            String id, AtomicInteger effects, boolean completes) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return id; }
             @Override public String providerVersion() { return "v1"; }
@@ -262,8 +265,22 @@ class MediaMultimodalParentChildRestartPostgresIT {
             @Override public String processingRegion() { return "local"; }
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.failedFuture(
+                        new AssertionError("durable dispatch must use the typed attempt path"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts
+                    .ProviderSubmission> processAttempt(
+                    ProcessingContext context,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
                 effects.incrementAndGet();
-                return result;
+                if (!completes) return new CompletableFuture<>();
+                return CompletableFuture.completedFuture(
+                        new com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission(
+                                com.ghatana.media.runtime.MediaRuntimeContracts
+                                        .AttemptFinality.SUCCEEDED,
+                                "op-" + id, "receipt-" + id,
+                                Map.of("text", "grounded transcript"),
+                                "a".repeat(64), Instant.now()));
             }
             @Override public com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome cancel(
                     String tenantId, String principalId, String correlationId, String jobId) {
@@ -284,8 +301,21 @@ class MediaMultimodalParentChildRestartPostgresIT {
             @Override public String processingRegion() { return "local"; }
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.failedFuture(
+                        new AssertionError("durable dispatch must use the typed attempt path"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts
+                    .ProviderSubmission> processAttempt(
+                    ProcessingContext context,
+                    com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
                 effects.incrementAndGet();
-                return CompletableFuture.completedFuture(Map.of("detections", List.of()));
+                return CompletableFuture.completedFuture(
+                        new com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission(
+                                com.ghatana.media.runtime.MediaRuntimeContracts
+                                        .AttemptFinality.SUCCEEDED,
+                                "op-vision-done", "receipt-vision-done",
+                                Map.of("detections", List.of()),
+                                "a".repeat(64), Instant.now()));
             }
         };
     }
@@ -419,15 +449,65 @@ class MediaMultimodalParentChildRestartPostgresIT {
 
     private static void awaitJobState(String tenant, String requestId, String expected) throws Exception {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
+        String last = "MISSING";
         while (System.nanoTime() < deadline) {
-            if (expected.equals(jobState(tenant, requestId))) return;
+            last = jobState(tenant, requestId);
+            if (expected.equals(last)) return;
             Thread.sleep(50);
         }
-        throw new AssertionError("job " + requestId + " did not reach " + expected);
+        throw new AssertionError("job " + requestId + " did not reach " + expected
+                + "; last state=" + last + " allJobs=" + dumpJobs(tenant)
+                + " attempts=" + dumpAttempts(tenant));
+    }
+
+    private static String dumpAttempts(String tenant) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT job_id, state, observation_json, result_json FROM media_processing_attempts "
+                             + "WHERE tenant_id=?")) {
+            statement.setString(1, tenant);
+            try (var rows = statement.executeQuery()) {
+                var dump = new StringBuilder();
+                while (rows.next()) {
+                    String observation = String.valueOf(rows.getString(3));
+                    String result = String.valueOf(rows.getString(4));
+                    dump.append('[').append(rows.getString(1)).append(',')
+                            .append(rows.getString(2)).append(",obs=")
+                            .append(observation, 0, Math.min(observation.length(), 300))
+                            .append(",res=")
+                            .append(result, 0, Math.min(result.length(), 500))
+                            .append(']');
+                }
+                return dump.toString();
+            }
+        }
+    }
+
+    private static String dumpJobs(String tenant) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT request_id, job_type, status, failure_code FROM media_processing_jobs "
+                             + "WHERE tenant_id=? ORDER BY created_at")) {
+            statement.setString(1, tenant);
+            try (var rows = statement.executeQuery()) {
+                var dump = new StringBuilder();
+                while (rows.next()) {
+                    dump.append('[').append(rows.getString(1)).append(',')
+                            .append(rows.getString(2)).append(',')
+                            .append(rows.getString(3)).append(',')
+                            .append(rows.getString(4)).append(']');
+                }
+                return dump.toString();
+            }
+        }
     }
 
     private static void awaitParentTerminal(String tenant, String jobId) throws Exception {
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+        // The abandoned worker lease (jobTimeout + 30s) must expire before reconcileExpired
+        // can CAS the row; allow two lease windows plus a reconcile scheduler pass.
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(120);
         while (System.nanoTime() < deadline) {
             String state = jobStateById(tenant, jobId);
             if (Set.of("COMPLETED", "FAILED", "CANCELLED", "OUTCOME_UNKNOWN").contains(state)) return;

@@ -22,6 +22,7 @@ dependencies {
 
     // Real launcher + durable-provider wiring for launcher-level end-to-end tests
     testImplementation(project(":services:media:launcher"))
+    testImplementation(project(":services:media:modules:intelligence:multimodal-service"))
     testImplementation(project(":services:media:runtime-contracts"))
     testImplementation(project(":services:media:providers:aws-postgresql"))
 
