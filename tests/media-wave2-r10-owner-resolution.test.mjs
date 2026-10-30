@@ -71,7 +71,7 @@ test('current source owner dispositions never silently admit a provider or task'
   assert.equal(plan.latestOwnerResolution.protectedLedger.external, 6);
   assert.equal(plan.latestOwnerResolution.protectedLedger.change, 0);
   assert.equal(plan.latestOwnerResolution.currentReviewedSource,
-    'samujjwal/ghatana-media@9096f12ad0bbfecb2a11049746a014b1c9101b5c');
+    'samujjwal/ghatana-media@898604c16db4cc9edbf47f7216cb46363b39279d');
   const ownerDecisions = plan.latestOwnerResolution.decisions;
   assert.equal(ownerDecisions.length, 13);
   assert.equal(new Set(ownerDecisions.map((row) => row.id)).size, ownerDecisions.length);
@@ -185,7 +185,7 @@ test('single active 2026-10-29 plan preserves each of the 36 original R8 depende
   assert.equal(plan.currentCompletionExecution.taskRows, 36);
   assert.equal(plan.currentCompletionExecution.lastAcceptedLedger.changed, 0);
   assert.equal(plan.currentCompletionExecution.sourceReviewed,
-    '9096f12ad0bbfecb2a11049746a014b1c9101b5c');
+    '898604c16db4cc9edbf47f7216cb46363b39279d');
   const lines = markdown.split('\n').filter((line) =>
     /^\| (?:STT|TTS|VIS|MM|OBS)-\d{2} \|/u.test(line));
   const entries = lines.map((line) => {
@@ -237,7 +237,7 @@ test('current V027 and M1-M7 review preserves 5/5 reported host proof without cl
   assert.equal(plan.remainingTasks.every((row) => !row.taskAccepted && row.qualifiedResult === null),
     true);
   assert.match(plan.activeExecutionReadback.gateStates.G12.nextAction,
-    /Run W2-R02 genuine Vision child and STT/);
+    /Reuse existing M1–M7, V026\/V027 and canonical Vision adapter/);
   const doc = readFileSync(resolve(root,
     'docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md'), 'utf8');
   assert.match(doc, /## 8\. Current 2026-10-29 M7\/V027\/5-of-5 Postgres remaining-work lock/);
@@ -270,7 +270,7 @@ test('latest OBS-07/08 owner approvals and prior 64 plus 136 results never forge
       && row.taskAccepted === false && row.qualifiedResult === null;
   }));
   assert.match(plan.activeExecutionReadback.gateStates.G08.observedGap,
-    /quality SPI now implemented with NaN honest unknown/);
+    /Whisper observed engine profile \+ optional trusted quality reader/);
 });
 
 test('OBS quality and HTTP webhook source is wired yet remains nonqualifying without authentic evidence', () => {
@@ -295,4 +295,39 @@ test('OBS quality and HTTP webhook source is wired yet remains nonqualifying wit
   assert.match(current, /## 9\. Owner-approved OBS-07\/08 unblock/);
   assert.match(current, /review-only tiny candidate as a production-user SLA alert/);
   assert.equal(plan.currentCompletionExecution.latestOwnerApproval20261029.noChangeToR8Acceptance, true);
+});
+
+
+test('owner-reaffirmed engineering authorization and source reader preserve 36 original tasks', () => {
+  const approved = plan.currentCompletionExecution.ownerAuthorizationReaffirmed;
+  assert.equal(approved.asOf, '2026-10-29T20:19:00-07:00');
+  assert.equal(approved.sourceAtApproval,
+    '898604c16db4cc9edbf47f7216cb46363b39279d');
+  assert.equal(approved.decisions.length, 7);
+  assert.equal(new Set(approved.decisions.map((x) => x.id)).size, 7);
+  assert.equal(approved.blockerResolutions.length, 9);
+  assert.equal(new Set(approved.blockerResolutions.map((x) => x.id)).size, 9);
+  assert.ok(approved.blockerResolutions.every((x) => x.owner && x.next
+    && x.status && x.negativeAlternative));
+  assert.deepEqual(approved.reviewReadback.originalAcceptance,
+    { total: 58, previouslyVerified: 22, partial: 30, ownerExternal: 6, promotions: 0 });
+  assert.ok(plan.remainingTasks.every((x) =>
+    x.taskAccepted === false && x.qualifiedResult === null));
+  const provider = readFileSync(resolve(root,
+    'modules/speech/stt-service/src/main/java/com/ghatana/stt/provider/WhisperOnnxSttProvider.java'),
+  'utf8');
+  const tests = readFileSync(resolve(root,
+    'modules/speech/stt-service/src/test/java/com/ghatana/stt/provider/WhisperOnnxSttProviderTest.java'),
+  'utf8');
+  assert.match(provider, /interface QualityEvidenceReader/);
+  assert.match(provider, /matchingQualityObservation\(/);
+  assert.match(provider, /observedCapabilityProfile\(/);
+  assert.match(provider, /capabilityProfiles\(\)/);
+  assert.match(tests, /measuredQualityIsReadOnlyAndMustMatchTheExactSourceOwnedProviderAndModel/);
+  assert.match(tests, /observedModelProfileReflectsRealEngineStateWithoutClaimingWordTimingOrQualification/);
+  const doc = readFileSync(resolve(root,
+    'docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md'), 'utf8');
+  assert.match(doc, /## 10\. Owner authorization and zero-approval-stall completion protocol/);
+  assert.match(doc, /QUALITY-NUMERIC-ALERT/);
+  assert.match(doc, /REAL QUALIFICATION ROUTE SELECTED/);
 });
