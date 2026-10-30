@@ -1,5 +1,9 @@
 # Ghatana Media — Wave 2 remaining BUILD implementation (single active successor)
 
+
+> **Post-push R8 source qualification (2026-10-30):** Use the [terminal backend plan](MEDIA-BACKEND-TERMINAL-QUALIFICATION-2026-10-30.md) for **all 36 original unaccepted Wave 2 IDs**, actual source/model/rights/host and exact original proof. Pushed `main@f70e9b04` confirms prior reported Media code and real host results (OCI 14 mode tests, local alert delivery and GH-90000 9 development-image tests), but **does not automatically promote any original R8 row**. `10 in this document remains the sole Wave 2 task-acceptance/owner authority, preserving 22 prior verified/30 partial/6 external owner. Track B and production/release remain separate.
+
+
 **SINGLE ACTIVE EXECUTION — 2026-10-29 20:19 PDT:** Follow [Section 10 — owner authorization and zero-approval-stall protocol](#10-owner-authorization-and-zero-approval-stall-completion-protocol-2026-10-29-2019-pdt). Sections 1–9 preserve original R8 36-row crosswalk, earlier source reviews and valid requirements, but earlier source TODOs and OBS hookup assertions are superseded. All routine engineering work for the remaining tasks is approved; provider-quality source integration is **code-ready**, but real report, actual webhook/host c1/c16/c64, legal rights, quality and Ghatana #252/#254 remain evidence-gated. The last whole-row ledger remains **22/30/6** with no promotions by this update.
 
 

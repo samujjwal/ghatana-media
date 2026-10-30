@@ -90,7 +90,8 @@
     "test:wave2-reference-staging": "node --test tests/media-wave2-reference-staging.test.mjs",
     "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs",
     "test:backend-remaining-surfaces-plan": "node --test tests/media-backend-remaining-surfaces-plan.test.mjs",
-    "check:monitoring-rules": "bash infra/monitoring/tests/promtool-rules.sh"
+    "check:monitoring-rules": "bash infra/monitoring/tests/promtool-rules.sh",
+    "test:backend-terminal-qualification": "node --test tests/media-backend-terminal-qualification-plan.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",
