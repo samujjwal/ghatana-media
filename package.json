@@ -88,7 +88,8 @@
     "test:candidate-decision-crosswalk": "node --test tests/media-candidate-decision-crosswalk.test.mjs",
     "check:wave2-reference-sources": "node scripts/qualification/verify-wave2-evidence.mjs",
     "test:wave2-reference-staging": "node --test tests/media-wave2-reference-staging.test.mjs",
-    "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs"
+    "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs",
+    "test:backend-remaining-surfaces-plan": "node --test tests/media-backend-remaining-surfaces-plan.test.mjs"
   },
   "devDependencies": {
     "@ghatana/evidence-contracts": "0.1.0-rc.1",

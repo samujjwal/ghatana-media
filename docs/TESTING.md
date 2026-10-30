@@ -92,6 +92,14 @@ register their keys. A private signed packet that passes this tool still
 requires independent legal/runtime/quality decisions. Neither no-key
 negative tests nor candidate-source checks close a Wave 2 task.
 
+## Remaining backend physical surfaces — additive Wave 3 source check
+
+The [backend-only remaining physical surfaces plan](implementation/MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md) is a separate 88-task/15-surface implementation handoff with eight headless production outcomes; the [PDP source coverage index](implementation/MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json) enumerates all 19 remaining physical dispositions, 21 logical consumers, and 602 PDP capability memberships. Run `pnpm test:backend-remaining-surfaces-plan` for its **source/plan structural checks** only; these do not establish actual implementation readiness.
+
+For real code use targeted `./gradlew :services:media:modules:audio-streaming:test`, `...:modules:video-streaming:test`, `...:modules:infrastructure:persistence:test`, `...:modules:infrastructure:cache:test`, `...:adapters:ledger:test`, `...:adapters:data-cloud-media:test`, `...:adapters:agent-tools-media:test`, `...:adapters:ocr-compat:test`, and relevant Media common/integration test selectors only after checking current `settings.gradle.kts`. Rust/TypeScript packages must be tested under their own Cargo/pnpm workspace ownership. Do not rerun Wave 2 provider/model qualification for unchanged inputs.
+
+The nine GH-90000 image-dependent compose tests remain explicitly skipped until pinned service images exist; a skip is not a pass. Warn-only Checkstyle, Shared NO-SOURCE public-API verifier bug, gtool/PDP Track B, private-provider rights and legacy operational cutover are separate from nonblocking Media engineering. Do not start a second production DB, queue worker or outbox publisher while old runtime may still be active.
+
 ## Scope and intent
 
 The active Media test surface covers runtime contracts, artifact upload and
