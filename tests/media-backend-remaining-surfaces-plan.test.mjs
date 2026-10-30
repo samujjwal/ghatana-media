@@ -163,3 +163,73 @@ test('no Wave2, formal PDP or operational status is laundered into backend compl
   assert.match(index.recordKind,/NOT_PDP_MEANING_OR_LIFECYCLE_TASK_AUTHORITY/u);
   assert.match(plan,/Do not copy.+private Ghatana repos|public repository/u);
 });
+
+
+test('Wave 2 unfinished 36 task IDs, owner actions, statuses and preserved 22 are exact R8/R10 projections',()=>{
+  const r8 = JSON.parse(read('docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json'));
+  const r10 = JSON.parse(read('docs/implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json'));
+  const rows = r8.rows;
+  const r10Rows = new Map(r10.remainingTasks.map(row => [row.taskId,row]));
+  const continuation = index.wave2Continuation;
+  const table = [...plan.matchAll(/^\| \*\*((?:STT|TTS|VIS|MM|OBS)-\d{2})\*\* \| (PARTIAL|OWNER_EXTERNAL) \/ NOT_ACCEPTED \|/gmu)]
+    .map(match => ({id: match[1], status: match[2]}));
+  assert.equal(rows.length,36);
+  assert.equal(continuation.unfinishedOriginalTasks.length,36);
+  assert.equal(table.length,36);
+  assert.deepEqual(table,rows.map(row => ({id:row.id,status:row.currentStatus})));
+  assert.deepEqual(continuation.preservedVerifiedOriginalIds,r8.preservedVerifiedTaskIds);
+  assert.equal(r8.preservedVerifiedTaskIds.length,22);
+  assert.equal(r8.taskCount.total,58);
+  assert.deepEqual(continuation.lastAcceptedStatus,{
+    allOriginal:58,previouslyLocallyVerified:22,partial:30,ownerExternal:6,stillUnaccepted:36,
+    changeFromThisPlan:0,
+  });
+  for(let i=0;i<36;i++){
+    const expected=rows[i], mapped=r10Rows.get(expected.id), joined=continuation.unfinishedOriginalTasks[i];
+    assert.ok(mapped,expected.id+' absent from R10 owner map');
+    assert.equal(expected.taskAccepted,false);
+    assert.equal(mapped.taskAccepted,false);
+    assert.equal(joined.id,expected.id);
+    assert.equal(joined.originalR8RowIndex,i);
+    assert.equal(joined.lastRecordedStatus,expected.currentStatus);
+    assert.equal(joined.lastRecordedTaskAccepted,false);
+    assert.deepEqual(joined.originalDependencyIds,expected.dependencyIds);
+    assert.deepEqual(joined.r10GateIds,mapped.unblockingGateIds);
+    assert.equal(joined.accountableOwnerRole,mapped.executionOwnership.accountableMediaRole);
+    assert.equal(joined.lastOwnerNextAction,mapped.currentCompletionStep?.action
+      ||mapped.firstCodeAction||expected.firstUnblockingImplementation);
+    assert.equal(joined.independentAcceptanceAlreadyProven,false);
+    assert.equal(joined.noPromotionFromSourceOnly,true);
+    assert.ok(joined.originalWholeRowProofRef.includes('/rows/'+i+'/independentAcceptanceProof'));
+  }
+  assert.deepEqual(continuation.twelveExistingGateIds,
+    r10.implementationGates.map(g=>g.id));
+  assert.equal(new Set(continuation.twelveExistingGateIds).size,12);
+  assert.match(continuation.recordKind,/NOT_CANONICAL_TASK_OR_ACCEPTANCE_REGISTRY/u);
+});
+
+test('cross-wave acceptance edges are valid and do not convert negative coding into a global Wave 2 block',()=>{
+  const r8=JSON.parse(read('docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json'));
+  const ids=new Set([...r8.preservedVerifiedTaskIds,...r8.rows.map(row=>row.id)]);
+  assert.equal(ids.size,58);
+  const edges=index.wave2Continuation.crossWaveAcceptanceAndOwnerLockEdges;
+  assert.ok(edges.length>=16);
+  const signatures=new Set();
+  for(const edge of edges){
+    assert.ok(ids.has(edge.fromTaskId),'unknown original Wave 2 task '+edge.fromTaskId);
+    assert.ok(byId.has(edge.toTaskId),'unknown Wave 3/H task '+edge.toTaskId);
+    assert.ok(['CONTRACT_PARITY','FILE_OWNER_LOCK','REAL_EFFECT_PROOF'].includes(edge.type));
+    assert.equal(edge.doesNotBlockIndependentCoding,true,'must keep negative/contract tests unblocked');
+    assert.ok(edge.acceptanceCondition.length>=35,'missing integration condition');
+    const signature=edge.fromTaskId+' -> '+edge.toTaskId;
+    assert.ok(!signatures.has(signature),'duplicate cross-wave edge '+signature);
+    signatures.add(signature);
+  }
+  assert.equal(index.counts.combinedSelectedOutstandingWorkItems,132);
+  assert.equal(index.counts.wave2UnacceptedTaskCount,36);
+  assert.equal(index.counts.wave2PreservedVerifiedTaskCount,22);
+  assert.equal(index.counts.crossWaveCoordinationEdges,edges.length);
+  assert.match(plan,/Implementation selection count = 132 unfinished or not-yet-verified local work items/u);
+  assert.match(plan,/not a second writable task ledger/u);
+  assert.match(plan,/36 unaccepted task rows/u);
+});
