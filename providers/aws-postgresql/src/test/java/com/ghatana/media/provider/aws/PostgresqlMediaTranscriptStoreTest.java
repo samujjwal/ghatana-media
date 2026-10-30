@@ -142,6 +142,89 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void persistsMixedTimingTagsHonestlyAndSurvivesStoreRestart() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "e".repeat(64);
+            seed(state, "tenant-mix", "principal-a", "source-mix", "job-mix", "consent-mix", digest, false);
+
+            var sourceTicks = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-a", "first", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(0, 48_000, "src-clock", 48_000, 96_000));
+            var unqualified = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-b", "second", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .providerTimeUnqualified(0, 500, "milliseconds"));
+            var absent = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-c", "third", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .notSupplied());
+
+            // Mixed SOURCE_TICKS + PROVIDER_TIME_UNQUALIFIED + NOT_SUPPLIED must stay
+            // MIXED — never promoted to SOURCE_CLOCK_BOUND.
+            TranscriptDraft mixed = new TranscriptDraft("tenant-mix", "principal-a", "transcript-mix",
+                    "source-mix", "sha256:" + digest, digest, "job-mix",
+                    "profile-candidate", "provider-a", "model-a", "en-US", "milliseconds",
+                    "first second third", "consent-mix", "rights-candidate", "policy-candidate",
+                    "urn:media:purpose:transcription", "transcription",
+                    List.of(sourceTicks, unqualified, absent));
+            var mixedRevision = store.append(mixed);
+            assertThat(mixedRevision.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                            .TimingAvailability.MIXED);
+
+            // Two SOURCE_TICKS segments on *different* clock tuples cannot ground on one
+            // source clock; the honest aggregate is MIXED.
+            var otherClock = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-d", "other", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(0, 24_000, "other-clock", 24_000, 96_000));
+            TranscriptDraft divergent = new TranscriptDraft("tenant-mix", "principal-a", "transcript-divergent",
+                    "source-mix", "sha256:" + digest, digest, "job-mix",
+                    "profile-candidate", "provider-a", "model-a", "en-US", "milliseconds",
+                    "first other", "consent-mix", "rights-candidate", "policy-candidate",
+                    "urn:media:purpose:transcription", "transcription",
+                    List.of(sourceTicks, otherClock));
+            assertThat(store.append(divergent).draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                            .TimingAvailability.MIXED);
+
+            // A changed segment list under a new expected revision is a distinct revision,
+            // not an idempotent replay.
+            TranscriptDraft evolved = new TranscriptDraft(mixed.tenantId(), mixed.principalId(),
+                    mixed.transcriptId(), mixed.sourceArtifactId(), mixed.sourceVersion(),
+                    mixed.sourceSha256(), mixed.jobId(), mixed.profileId(), mixed.providerId(),
+                    mixed.modelId(), mixed.language(), mixed.timebase(), "first second third evolved",
+                    mixed.consentDecisionId(), mixed.rightsDecisionId(), mixed.policyVersion(),
+                    mixed.purposeRef(), mixed.processingPurpose(),
+                    List.of(sourceTicks, unqualified));
+            var evolvedRevision = store.append(evolved, mixedRevision.revision());
+            assertThat(evolvedRevision.revision()).isEqualTo(mixedRevision.revision() + 1);
+
+            // Store restart: a reopened store must read back the exact tagged union.
+            store.close();
+            var reopened = new PostgresqlMediaTranscriptStore();
+            try {
+                var readback = reopened.revisions("tenant-mix", "principal-a", "transcript-mix");
+                assertThat(readback).hasSize(2);
+                assertThat(readback.get(0).draft().segments())
+                        .containsExactly(sourceTicks, unqualified, absent);
+                assertThat(readback.get(0).draft().timingAvailability())
+                        .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts
+                                .TimingAvailability.MIXED);
+                assertThat(readback.get(1).draft().segments())
+                        .containsExactly(sourceTicks, unqualified);
+                // No cross-tenant visibility of the same transcript id.
+                assertThat(reopened.revisions("tenant-other", "principal-a", "transcript-mix")).isEmpty();
+            } finally {
+                reopened.close();
+            }
+        }
+    }
+
+    @Test
     void rejectsUnboundAndConsentMismatchedPurposesWithoutPersisting() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
