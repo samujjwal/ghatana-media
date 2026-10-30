@@ -73,7 +73,7 @@ public final class AudioVideoRunLedgerAdapter {
         long now = System.currentTimeMillis();
 
         InputSnapshot inputs = new InputSnapshot(
-            inputParams != null ? inputParams : Map.of(),
+            sanitizeLedgerParams(inputParams),
             null,
             Map.of(
                 "mediaType", mediaType,
@@ -133,7 +133,9 @@ public final class AudioVideoRunLedgerAdapter {
             attributes.put("provider", providerName);
         }
         if (providerJobId != null && !providerJobId.isBlank()) {
-            attributes.put("providerJobId", providerJobId);
+            // Provider job identifiers may embed tenant or account material —
+            // keep only a bounded deterministic fingerprint for correlation.
+            attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
         }
         if (outputArtifactId != null) {
             attributes.put("outputArtifactId", outputArtifactId);
@@ -175,6 +177,69 @@ public final class AudioVideoRunLedgerAdapter {
     /**
      * Maps Audio-Video processing job states to the canonical lifecycle state.
      */
+    private static final int MAX_LEDGER_KEY_CHARS = 64;
+    private static final int MAX_LEDGER_VALUE_CHARS = 256;
+    private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
+        "bitrate", "codec", "format", "language", "languageTag", "sampleRate",
+        "channels", "fps", "resolution", "width", "height", "durationMs",
+        "frameCount", "mimeType", "mediaType", "processingType", "classification",
+        "rightsRef", "purpose",
+        // Typed AV processing operation flags — bounded vocabulary, never secrets.
+        "extract-text", "detect-faces", "detect-objects", "detect-scenes",
+        "transcribe", "translate", "summarize", "redact", "targetLanguage",
+        "quality", "profile", "preset", "outputFormat", "outputMimeType",
+        "policyId", "policyAllowed", "policyReason",
+        "policyConstraints", "policyDecision", "policyDecisionReason",
+        "policyDecisionId", "policyCheckpointId", "policyTimestampMs", "allowed",
+        "reason", "constraints", "providerPolicyId", "providerPolicyDecision",
+        "providerPolicyReason", "providerPolicyEvaluatedAtMs");
+
+    /**
+     * LD-03: the serialized ledger keeps only a typed whitelist of bounded
+     * parameter keys. Arbitrary request parameters can carry source tokens,
+     * credential material, tenant content or provider internals — anything not
+     * whitelisted is dropped with a visible count so the drop is auditable
+     * rather than silent.
+     */
+    private static Map<String, String> sanitizeLedgerParams(Map<String, String> params) {
+        if (params == null || params.isEmpty()) {
+            return Map.of();
+        }
+        Map<String, String> clean = new java.util.LinkedHashMap<>();
+        int dropped = 0;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            if (key == null || key.length() > MAX_LEDGER_KEY_CHARS
+                    || !ALLOWED_PARAMETER_KEYS.contains(key)) {
+                dropped++;
+                continue;
+            }
+            String value = entry.getValue() == null ? "" : entry.getValue();
+            clean.put(key, value.length() > MAX_LEDGER_VALUE_CHARS
+                    ? value.substring(0, MAX_LEDGER_VALUE_CHARS) : value);
+        }
+        if (dropped > 0) {
+            clean.put("sanitizedParamsDropped", String.valueOf(dropped));
+        }
+        return Map.copyOf(clean);
+    }
+
+    /** Bounded deterministic reference for identifiers that must not be serialized raw. */
+    private static String ledgerFingerprint(String value) {
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder ref = new StringBuilder("sha256:");
+            for (int i = 0; i < 6; i++) {
+                ref.append(Character.forDigit((digest[i] >> 4) & 0xf, 16))
+                        .append(Character.forDigit(digest[i] & 0xf, 16));
+            }
+            return ref.toString();
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
+    }
+
     private static JobExecutionState mapProcessingJobState(String jobState) {
         return switch (jobState.toUpperCase(Locale.ENGLISH)) {
             // Queued-but-not-started and retry-pending are waiting states, not execution.
@@ -251,7 +316,8 @@ public final class AudioVideoRunLedgerAdapter {
         InputSnapshot inputs = new InputSnapshot(
             Map.of("mediaArtifactId", mediaArtifactId),
             null,
-            Map.of("provider", providerName, "providerJobId", providerJobId),
+            Map.of("provider", providerName,
+                   "providerJobIdRef", ledgerFingerprint(providerJobId)),
             "system",
             createdAtMs
         );
@@ -291,7 +357,7 @@ public final class AudioVideoRunLedgerAdapter {
 
         Map<String, String> attributes = new HashMap<>();
         attributes.put("provider", providerName);
-        attributes.put("providerJobId", providerJobId);
+        attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
         attributes.put("mediaArtifactId", mediaArtifactId);
         attributes.put("mediaType", providerMetadata != null
             ? providerMetadata.getOrDefault("mediaType", "UNKNOWN")
@@ -413,7 +479,8 @@ public final class AudioVideoRunLedgerAdapter {
         }
         Map<String, Number> metrics = new LinkedHashMap<>();
         metadata.forEach((key, value) -> {
-            if (key == null || value == null || value.isBlank()) {
+            if (key == null || key.length() > MAX_LEDGER_KEY_CHARS
+                    || value == null || value.isBlank()) {
                 return;
             }
             try {

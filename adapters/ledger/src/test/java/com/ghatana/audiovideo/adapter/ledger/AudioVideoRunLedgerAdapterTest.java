@@ -162,7 +162,8 @@ class AudioVideoRunLedgerAdapterTest {
 
         // THEN: Provider information preserved in attributes
         assertThat(ledger.attributes().get("provider")).isEqualTo("azure-tts");
-        assertThat(ledger.attributes().get("providerJobId")).isEqualTo("azure-job-999");
+        assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
+        assertThat(ledger.attributes()).doesNotContainKey("providerJobId");
         assertThat(ledger.attributes().get("mediaType")).isEqualTo("AUDIO");
         assertThat(ledger.attributes().get("processingType")).isEqualTo("TTS");
     }
@@ -462,5 +463,38 @@ class AudioVideoRunLedgerAdapterTest {
                 now - 100, now - 90, null, null, "whisper", "pj-7", "t", "c");
         assertThat(reconciling.state()).isEqualTo(JobExecutionState.RUNNING);
         assertThat(reconciling.outcome()).isNull();
+    }
+
+    @Test
+    @DisplayName("Serialized ledger drops non-whitelisted params and never serializes provider job ids raw")
+    void testLedgerDisclosureSanitization() {
+        long now = System.currentTimeMillis();
+        Map<String, String> params = new java.util.HashMap<>();
+        params.put("apiKey", "sk-live-secret-token");
+        params.put("sourceToken", "s3-signed-url-token");
+        params.put("tenantSecret", "do-not-leak");
+        params.put("bitrate", "5000k");
+        params.put("codec", "h264");
+        params.put("language", "en");
+        params.put("oversized", "x".repeat(300));
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-sec", "VIDEO", "TRANSCODING", "col", "src", params, "PROCESSING",
+                now, now, null, null, "aws-mediaconvert", "mco-tenant-secret-job-1", "t", "c");
+
+        // Whitelisted typed params survive; secrets are dropped with an audit marker.
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("bitrate", "5000k")
+                .containsEntry("codec", "h264")
+                .containsEntry("sanitizedParamsDropped", "4")
+                .doesNotContainKey("apiKey")
+                .doesNotContainKey("sourceToken")
+                .doesNotContainKey("tenantSecret")
+                .doesNotContainKey("oversized");
+        // The raw provider job id never serializes — only a bounded fingerprint.
+        String serialized = ledger.toString();
+        assertThat(serialized).doesNotContain("mco-tenant-secret-job-1",
+                "sk-live-secret-token", "s3-signed-url-token", "do-not-leak");
+        assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
     }
 }
