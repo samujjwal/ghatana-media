@@ -533,3 +533,11 @@ export const defaultConfigs: Record<ServiceType, ServiceClientConfig> = {
 };
 
 export { canonicalMediaHttpRoutes, legacyCompatibilityRoutes, mediaHttpRouteAuthority } from './canonical-routes';
+
+export {
+  MediaSceneTextAdmissionError, recognizeAuthorizedMediaSceneText,
+} from './authorized-scene-text.js';
+export type {
+  MediaSceneTextAccess, MediaSceneTextDecision, MediaSceneTextRecognizer,
+  MediaSceneTextSourceAuthority, AuthorizedMediaSceneTextObservation,
+} from './authorized-scene-text.js';
