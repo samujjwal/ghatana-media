@@ -538,6 +538,6 @@ export {
   MediaSceneTextAdmissionError, recognizeAuthorizedMediaSceneText,
 } from './authorized-scene-text.js';
 export type {
-  MediaSceneTextAccess, MediaSceneTextDecision, MediaSceneTextRecognizer,
+  MediaSceneTextAccess, MediaSceneTextDecision,
   MediaSceneTextSourceAuthority, AuthorizedMediaSceneTextObservation,
 } from './authorized-scene-text.js';
