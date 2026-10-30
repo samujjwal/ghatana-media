@@ -13,10 +13,10 @@
     "mediaBaseline": "53f9b355e4e9979c2f259c499ccd7269fb6e653f",
     "sharedCurrentAtReview": "607989541754097814a7c91611dea18ececaa970",
     "ghatanaCurrentAtReview": "a0df4bdf8282b27051bf625331651e92925fdc70",
-    "mediaLatestInspected": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
+    "mediaLatestInspected": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
     "sharedLatestInspected": "d15b2ce353839ee3bf666be7c0737aa7192994f5",
     "ghatanaLatestInspected": "875108953b069ba65803b8b99b713896bf9476f0",
-    "reviewScope": "Current GitHub source M1-M7 and V027 reviewed on 2026-10-29. Live PostgreSQL 3/3 + 2/2 verified by implementer report after V027, not independently rerun in this review; opt-in models/codec real modes remain unverified."
+    "reviewScope": "Remote main source W2-R01..R09 up to 9096f12a reviewed 2026-10-29, including actual `/metrics` and local Alertmanager route. Engineering owner committed quality observation SPI and webhook POST local test after baseline; native newest-cut tests NOT rerun."
   },
   "notASecondPdpOrAdmittedProvider": true,
   "technicalApprovals": [
@@ -1763,6 +1763,22 @@
         "lastWholeRowAcceptance": false,
         "sourceNotWholeRow": true,
         "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
+      },
+      "latestObsCut": {
+        "sourceReviewed": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
+        "workPackages": [
+          "OBS-Q01",
+          "OBS-Q02",
+          "OBS-N01",
+          "OBS-N02"
+        ],
+        "productionReadinessMetrics": "PRESENT",
+        "qualitySPI": "SOURCE_PRESENT",
+        "qualityMeasurement": "MISSING",
+        "localWebhook": "SOURCE_PRESENT_NOT_RUN",
+        "realNotification": "MISSING",
+        "originalWholeRowAccepted": false,
+        "owner": "Media STT quality, OBS, and OPS"
       }
     },
     {
@@ -1807,6 +1823,18 @@
         "lastWholeRowAcceptance": false,
         "sourceNotWholeRow": true,
         "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158"
+      },
+      "latestObsCut": {
+        "sourceReviewed": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
+        "workPackages": [
+          "OBS-C01",
+          "OBS-C02"
+        ],
+        "resourceHarness": "PRESENT_TEST_ONLY",
+        "realProviderLoad": "NOT_EXECUTED",
+        "host": "EXISTING_JDK27_HOST_APPROVED_NOT_INDEPENDENTLY_MEASURED",
+        "originalWholeRowAccepted": false,
+        "owner": "Media QA and modality/runtime owners"
       }
     }
   ],
@@ -1930,7 +1958,7 @@
     "currentOwnerRule": "All routine engineering work preapproved and executable; external-rights/actual-data gates remain genuine and scoped, never silently removed or treated as blanket development blockers.",
     "noAdditionalWorkPackageIds": true,
     "nextFullRowCandidate": "VIS-03",
-    "nextRealBusinessOutcome": "W2-R01 actual MM production runtime/authority bootstrap, W2-R02 qualified STT+Vision canonical child jobs, W2-R03 durable PostgreSQL parent/child restart; TTS-05 local negatives and OBS source parallel",
+    "nextRealBusinessOutcome": "OBS source poll + actual local Alertmanager webhook POST test; real source-backed model-quality report, first qualified STT+Vision MM parent durable output; 1/16/64 benchmark. Source-ready paths independent.",
     "gateStates": {
       "G01": {
         "implementationDisposition": "ENGINEERING_CODE_NOW",
@@ -1984,10 +2012,10 @@
       },
       "G08": {
         "implementationDisposition": "ENGINEERING_BENCHMARK_AFTER_REAL_MODEL",
-        "observedGap": "Live quality profile alert delivery and real four-modality capacity not demonstrated.",
-        "nextAction": "W2-R09 real Prometheus/Alertmanager receiver, model profile quality, c1/c16/c64.",
+        "observedGap": "Production /metrics→Prometheus readiness and local Alertmanager route implemented; prior 64+136 source test passes reported. Source-linked quality SPI now implemented with NaN honest unknown, and actual webhook POST test configured but not rerun. Real provider report, qualified numeric quality alert, actual owner notification and named-host c1/c16/c64 remain unverified.",
+        "nextAction": "OBS-Q01 provider source-backed quality report+capabilityProfiles, OBS-Q02 measured numeric regression/freshness rules, OBS-N01 run local HTTP POST firing/resolved test, OBS-N02 owner-operated HTTPS durable receipt, OBS-C01/C02 real 4-modal JDK27 c1/16/64 and fault tests. Keep OBS-07/08 unaccepted.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
+        "verificationClass": "SOURCE_INSPECTED_IMPLEMENTER_REPORTED_200_PRIOR_PASSES_NEW_SOURCE_NOT_HOST_QUALIFIED"
       },
       "G09": {
         "implementationDisposition": "GHATANA_OWNER_API_CODE_NOW",
@@ -2012,8 +2040,8 @@
       },
       "G12": {
         "implementationDisposition": "ENGINEERING_CODE_AFTER_G03_G05",
-        "observedGap": "M1-M7 durable MM descriptor/provider/executor/fanout/restart/source-clock source now implemented; standalone server unbound, provider not production-qualified and real child STT+Vision/MM result absent.",
-        "nextAction": "W2-R01/02/03/08 connect real runtime, qualified child providers and Postgres parent/child, then original MM whole-row proof.",
+        "observedGap": "M1-M7 source and W2-R01 standalone bootstrap, W2-R03 PostgreSQL MM parent/child tests, W2-R04 V027 tests and 9096f12a canonical Vision MediaProcessingProvider bridge now committed; real rights-qualified STT+Vision fused positive, full c1/16/64 and independent MM clock/quality still unverified.",
+        "nextAction": "Run W2-R02 genuine Vision child and STT on same authorized source/clock, then MM parent Postgres kill/restart receipt, measured clock offsets, quality/fault/load. Never treat fixture child result as real M7 positive.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
         "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       }
@@ -2032,7 +2060,7 @@
       },
       "originalCorpusState": "METADATA_ONLY_NOT_FROZEN"
     },
-    "currentReviewedSource": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
+    "currentReviewedSource": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
     "sourceAccess": "CONFIRMED_REMOTE_GITHUB_COMMITTED",
     "independentExecutionStatus": "NOT_RUN_IN_THIS_REVIEW",
     "goForward": "Implement and verify production source trust, broker hardening, FLEURS scoring, alternative STT quality, MM, OBS and platform owners; do not repeat merged-decoder, PNG, broker wiring, YOLOX BGR or espeak implementation."
@@ -2135,11 +2163,11 @@
       "external": 6,
       "change": 0
     },
-    "currentReviewedSource": "samujjwal/ghatana-media@4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
+    "currentReviewedSource": "samujjwal/ghatana-media@9096f12ad0bbfecb2a11049746a014b1c9101b5c",
     "sourcePushedLocally": "UNKNOWN_NOT_OBSERVED_GITHUB_REMOTE_ONLY",
     "pulses": "90 minutes implementation pulses, 4 hour full-row checkpoint; after 2 pulses without row completion fix first missing executable input instead of more planning",
     "latestSourceReview": "PUSHED_SEVEN_COMMITS_CONFIRMED",
-    "latestDecisionSummary": "Current W2-R01 through W2-R11 remain, M1-M6, V026/V027 implementation and reported Postgres 5/5 are source/focused-test completed; no whole-row promotion. Production MM bootstrap and real child jobs, tagged V027 value tests, voice negatives, OBS and Ghatana owners remain."
+    "latestDecisionSummary": "Engineering approval for OBS quality SPI, local webhook real POST smoke, first-party real HTTPS sink and JDK27 capacity testing. Real provider measured quality/threshold, external notification and 1/16/64 still require exact proof. Previous 64 focused +136 OBS tests reported passing, new source not rerun; no R8 promotions."
   },
   "latestPulseReview": {
     "reviewDate": "2026-10-28",
@@ -2353,7 +2381,7 @@
     "singleActivePlan": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md",
     "originalRequirements": "docs/implementation/MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md",
     "original36RowMatrix": "docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json",
-    "sourceReviewed": "4fa88ca9f70887f5e801af6d7d92c2a70aa5a158",
+    "sourceReviewed": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
     "status": "PLAN_APPROVED_IMPLEMENTATION_INCOMPLETE",
     "originalDenominator": {
       "total": 58,
@@ -2623,6 +2651,154 @@
         "V027 schema source",
         "STT Postgres 5/5 unchanged host suites"
       ]
+    },
+    "latestOwnerApproval20261029": {
+      "effectiveAt": "2026-10-29T18:12:00-07:00",
+      "sourceBaselineBeforeOwnerPatches": "9096f12ad0bbfecb2a11049746a014b1c9101b5c",
+      "oneActivePlan": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md#9-owner-approved-obs-0708-unblock-and-full-wave-2-remaining-task-authority--2026-10-29-1812-pdt",
+      "status": "ENGINEERING_APPROVED_WITH_AUTHENTIC_EXTERNAL_EVIDENCE_STILL_REQUIRED",
+      "noChangeToR8Acceptance": true,
+      "sourceCommits": [
+        "a2dcf83f6160fe4677a6faea6e1789600a13ac7b",
+        "6229da6239af4791802b8a8c216e85cd17632976",
+        "23d3a96bf0cfd867ad49a8219f2e5c4894736618",
+        "7da54b6032ab835ef1a4159936af4305de00e950",
+        "bcc004ef21637b9ea007b6b6df5fbec61db9c13b",
+        "030559be5cb4e15bbefabb43aa3597e08e9b219f",
+        "0848e0889066d31eb581bc1c6244030b8cd0fde8",
+        "2e526c1d3284d54b472e839896796310917905fd"
+      ],
+      "reportedTests": {
+        "focus": {
+          "launcher": 24,
+          "multimodal": 14,
+          "contracts": 20,
+          "vision": 6,
+          "total": 64,
+          "failures": 0,
+          "skipped": 0
+        },
+        "observability": {
+          "total": 136,
+          "failures": 0,
+          "skipped": 0
+        },
+        "totalReportedPassing": 200,
+        "reportedOnEarlierSourceCut": true,
+        "newSourceRetestedByThisReview": false,
+        "infrastructure": {
+          "kind": "REAL_PROMETHEUS_ALERTMANAGER_WITH_TEST_FIXTURE",
+          "receiver": "media-local-test",
+          "profileReadiness": "1/-1/1 SCRAPED",
+          "localAlertFiringRecovery": "IMPLEMENTER_REPORTED_PASS",
+          "realWebhookHttpPost": "SOURCE_IMPLEMENTED_PENDING_CURRENT_HOST_RUN",
+          "externalNotification": "NOT_VERIFIED",
+          "realModelQuality": "NO_AUTHENTIC_PROVIDER_MEASUREMENT_YET",
+          "qualityFreshnessWithoutEvidence": "NaN"
+        }
+      },
+      "ownerDecisions": [
+        {
+          "id": "OD-OBS-01",
+          "decision": "APPROVED",
+          "owner": "Media Runtime+OBS",
+          "action": "Additive source-owned measured quality SPI into existing runtime contracts, no new contract V2/policy authority; never convert telemetry to provider admission"
+        },
+        {
+          "id": "OD-OBS-02",
+          "decision": "APPROVED_REFERENCE_ONLY_WITH_TRUE_EVIDENCE",
+          "owner": "STT Evaluation",
+          "action": "Actual FLEURS report source SHA, model/revision, en/hi/ne WER+upper CI reverified before emitting; tiny remains failed and not production eligible"
+        },
+        {
+          "id": "OD-OBS-03",
+          "decision": "APPROVED_LOCAL_TEST_AND_FIRST_PARTY_OPS_OPTION",
+          "owner": "Media Observability+Ops",
+          "action": "Local HTTP webhook with actual firing/resolved receipts; for real OBS acceptance a secured owner-controlled HTTPS receiver with durable notification receipt suffices without third-party SaaS"
+        },
+        {
+          "id": "OD-OBS-04",
+          "decision": "APPROVED_NAMED_HOST_BOUNDED",
+          "owner": "Media QA",
+          "action": "On existing JDK27 development host execute actual model-capable 1/16/64 under CPU/RSS/native/pid/fd/time/disk abort; no synthetic 64 completions"
+        },
+        {
+          "id": "OD-OBS-05",
+          "decision": "CODE_OWNER_APPROVED",
+          "owner": "Ghatana DI/Data Cloud",
+          "action": "Publish #252 and #254 public authenticated APIs/source-free consumers independently; no parallel Media writer"
+        },
+        {
+          "id": "OD-OBS-06",
+          "decision": "REAL_AUTHORITY_NON_WAIVABLE",
+          "owner": "Actual rights holder and independent reviewer",
+          "action": "Authentic third-party voice/biometric/license/training corpus rights, independent model gold and reviewers cannot be asserted by engineering owner"
+        },
+        {
+          "id": "OD-OBS-07",
+          "decision": "TRACK_B_SEPARATE",
+          "owner": "Lifecycle/Deployment",
+          "action": "Do not conflate Build implementation with gtool/PDP closure, service image publication, M08 cutover, release"
+        }
+      ],
+      "workstreamExceptions": [
+        {
+          "code": "OBS_REAL_PROVIDER_QUALITY_FEED",
+          "owner": "Media STT provider + independent evaluation authority",
+          "engineeringState": "OPTIONAL_SPI_AND_PRODUCTION_POLLING_IMPLEMENTED",
+          "next": "Populate real provider capabilityProfiles and qualityObservation from SHA-bound measured report; NaN if absent/mismatched; no hardcoded WER"
+        },
+        {
+          "code": "OBS_NUMERIC_QUALITY_RULE",
+          "owner": "Media OBS",
+          "engineeringState": "NOT_IMPLEMENTED",
+          "next": "With actual provider-measured per-locale numeric quality metric and registered limits, add bounded quality/regression/freshness alerts, tests; preserve review-only vs qualified scope"
+        },
+        {
+          "code": "OBS_WEBHOOK_LOCAL_RECEIPT",
+          "owner": "Media QA/OPS",
+          "engineeringState": "SOURCE_IMPLEMENTED_HOST_TEST_NOT_RUN",
+          "next": "RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh on cached pinned images; assert POST firing and resolved counts"
+        },
+        {
+          "code": "OBS_REAL_NOTIFICATION",
+          "owner": "Media OPS",
+          "engineeringState": "OPERATIONAL_ENDPOINT_NOT_PROVISIONED",
+          "next": "Provision existing or owner-operated authenticated HTTPS receiver, durable receipt and real Alertmanager route; no SaaS account required"
+        },
+        {
+          "code": "OBS_C1_C16_C64",
+          "owner": "Media QA + actual modality owners",
+          "engineeringState": "HOST_MEASUREMENTS_NOT_EXECUTED",
+          "next": "Named JDK27 host, exact model/codec/gold rights/digest, actual 4 modality and OCI 1/16/64 p50/p95/p99, RTF/fps/CPU/RSS/fd/pid"
+        },
+        {
+          "code": "STT_TINY_UNQUALIFIED",
+          "owner": "Media STT Science",
+          "engineeringState": "MEASURED_REFERENCE_FAIL_REPORTED",
+          "next": "Reconcile source 380 clips vs 372 selected and 89 cap, lawful alternate model dev set then fresh blind holdout"
+        },
+        {
+          "code": "MEDIA_REAL_MM_STT_VISION",
+          "owner": "Media MM/Runtime",
+          "engineeringState": "IMPLEMENTATION_SOURCE_PRESENT_REAL_BUSINESS_EFFECT_UNVERIFIED",
+          "next": "Use W2-R01 and R02 canonical Vision provider code, test Postgres qualified child STT+Vision parent exact durability and real clock"
+        },
+        {
+          "code": "PLATFORM_API_DI_DC",
+          "owner": "Ghatana #252/#254",
+          "engineeringState": "OWNER_API_OPEN",
+          "next": "Authenticated source-free public OCR ROI and governed Data Cloud projection; no global Build freeze"
+        }
+      ],
+      "externalApprovalLimits": "Owner-level engineering decisions are sufficient to implement ordinary code and tests but cannot authenticate another party, grant legal license, provision a private notification sink or independently execute host benchmarks",
+      "lastAccepted": {
+        "total": 58,
+        "verified": 22,
+        "partial": 30,
+        "external": 6,
+        "changed": 0
+      }
     }
   }
 }
