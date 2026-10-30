@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "AT-01 audit: every declared agent-tool capability ID mapped to its exact implementation, contract and owner. An enabled:true YAML flag is a declaration, never authenticated execution authority.",
+  "declared": {
+    "av.speech-to-text": {"handler": "SpeechToTextToolHandler", "status": "SUPPORTED", "descriptor": "speech-to-text.yaml"},
+    "av.text-to-speech": {"handler": "TextToSpeechToolHandler", "status": "SUPPORTED", "descriptor": "text-to-speech.yaml"},
+    "av.vision-analysis": {"handler": "VisionAnalysisToolHandler", "status": "SUPPORTED", "descriptor": "vision-analysis.yaml"},
+    "av.multimodal-inference": {"handler": "MultimodalInferenceToolHandler", "status": "SUPPORTED", "descriptor": "multimodal-inference.yaml"},
+    "datacloud.media.artifacts": {"handler": null, "status": "DESCRIPTOR_ONLY_READ_MODEL", "descriptor": "audio-video-common.yaml", "note": "Data Cloud read-model descriptor, not an executable Media tool; no handler and no execution authority"}
+  },
+  "guards": {
+    "noDuplicateRegistry": "AudioVideoToolHandlerFactory is the single handler registry; capability YAMLs declare, the factory dispatches",
+    "enabledIsNotAuthority": "an enabled:true flag grants no execution authority — authorization runs through the Tools/Action Plane pipeline per request",
+    "unknownIdFailsClosed": "factory.create throws on any toolId outside the registry"
+  }
+}
