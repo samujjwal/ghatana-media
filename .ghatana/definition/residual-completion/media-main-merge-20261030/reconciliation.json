@@ -1,0 +1,1005 @@
+{
+  "authority": "LOCAL_ENGINEERING_VERIFICATION_NOT_PHASE_OR_RELEASE_ADMISSION",
+  "status": "VERIFIED_FOR_NON_FORCE_MAIN_PUBLICATION",
+  "sourceCommit": "2e9463265025ffe4db334e58fb4fba823bc342f5",
+  "projectionBranch": "codex/contract-definition-source-refresh-20261030",
+  "remoteMainPreimage": "10bdd0f5f7c94bd4917d372a7a0681c80f2f4446",
+  "preservedOriginalCommits": [
+    "76198069",
+    "c353df29",
+    "50a9c265",
+    "cc107731"
+  ],
+  "sourceFiles": [
+    {
+      "ref": ".ghatana/definition/surface-matrix.json",
+      "digest": "sha256:75e5b81a3eb882fdbf69517c3b52923a36673c754f274236f24441124bd03a54"
+    },
+    {
+      "ref": "audio-video-observability/src/main/java/com/ghatana/audiovideo/observability/MediaWorkflowMetrics.java",
+      "digest": "sha256:1988a3eee3bf00d56807f5e12a49623f35378d3467535e7272baf2927e5699e4"
+    },
+    {
+      "ref": "audio-video-observability/src/test/java/com/ghatana/audiovideo/observability/MediaWorkflowAlertRulesTest.java",
+      "digest": "sha256:1697e09d0b2f7655e9707373456ca0aca07a3da897062e5dc9803dda9b49579e"
+    },
+    {
+      "ref": "audio-video-observability/src/test/java/com/ghatana/audiovideo/observability/MediaWorkflowMetricsTest.java",
+      "digest": "sha256:24472163451c3e26973674147792d62f940b82886518d86615ed5d1ccbd09275"
+    },
+    {
+      "ref": "infra/monitoring/alerts/audio-video.yml",
+      "digest": "sha256:59c51e9417a20d7cae3e5eef71ebe5d22246179c08ccb05c30323e35d41d1dc3"
+    },
+    {
+      "ref": "infra/monitoring/tests/audio-video.rules.test.yml",
+      "digest": "sha256:9fb1387620f7fc40bddd6afa42704c806e0b92d82915b4237d92107abec46804"
+    },
+    {
+      "ref": "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java",
+      "digest": "sha256:5ce59eaefc5d9220e66e54a78b8188917c29a9387cf1f9b2a8c8819c8e273471"
+    },
+    {
+      "ref": "launcher/src/test/java/com/ghatana/media/launcher/MediaRuntimeProviderQualityMetricsTest.java",
+      "digest": "sha256:0d5e286524a53cf2a55d33c1123521da8ad72dcdca83f88cd10a517d690a458b"
+    },
+    {
+      "ref": "modules/audio-streaming/src/main/java/com/ghatana/audio/streaming/AudioStreamSession.java",
+      "digest": "sha256:c161f36d4d5ce6d54dcd545ba905102a75b1a088981d1fd9af69baf2fa759cfe"
+    },
+    {
+      "ref": "modules/audio-streaming/src/test/java/com/ghatana/audio/streaming/AudioStreamSessionFrameTest.java",
+      "digest": "sha256:70eb1a77a020a0c6a1ed57e7031ed27bc0dfd09349dc0655a25c46ad38bfa0c7"
+    },
+    {
+      "ref": "modules/infrastructure/cache/build.gradle.kts",
+      "digest": "sha256:4ee86a7684a73bf8de4ba557941af1c2d7d3eda1e125e8156284949d2c7edb2d"
+    },
+    {
+      "ref": "modules/infrastructure/cache/src/main/java/com/ghatana/audio/video/infrastructure/cache/AudioVideoCache.java",
+      "digest": "sha256:009c5bcd037010c1e1047178c3b1fe3ac1e5a11ce7573709d9ebc9ea479ab4d1"
+    },
+    {
+      "ref": "modules/infrastructure/cache/src/test/java/com/ghatana/audio/video/infrastructure/cache/AudioVideoCacheKeyRedactionTest.java",
+      "digest": "sha256:c5a1af8b67b8f4b89a944beab321abbdb072e2cca06cecaba673d371e4f6145e"
+    },
+    {
+      "ref": "modules/speech/stt-service/src/main/java/com/ghatana/stt/provider/FrozenHoldoutQualityEvidence.java",
+      "digest": "sha256:7fca01618ae4ae836927daa5dd0fb800b37b50906707b396e8fbc78565bd8f59"
+    },
+    {
+      "ref": "modules/speech/stt-service/src/main/java/com/ghatana/stt/provider/WhisperOnnxSttProvider.java",
+      "digest": "sha256:02d02bb638b5696d6719b0fb2411e95df9c0c2a043e9c6f731ef70a46c24a997"
+    },
+    {
+      "ref": "modules/speech/stt-service/src/test/java/com/ghatana/stt/provider/FrozenHoldoutQualityEvidenceTest.java",
+      "digest": "sha256:588d7389e5a4538f456ffdd7febcae3dc7bd19b5681d364597a408dc981b5949"
+    },
+    {
+      "ref": "modules/video-streaming/src/main/java/com/ghatana/video/streaming/VideoStreamSession.java",
+      "digest": "sha256:04cd7172d2ab458ce1b39cc2a698f82b7fb7af442da57f372da5f93e6c2ccca6"
+    },
+    {
+      "ref": "modules/video-streaming/src/test/java/com/ghatana/video/streaming/VideoStreamSessionFrameTest.java",
+      "digest": "sha256:fde8a47a8e9e4c5ec765e8aaa95177355f9041c140811d9b19464a0720c91f77"
+    },
+    {
+      "ref": "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaModalityContracts.java",
+      "digest": "sha256:4e93d4cf64dcd48b1e88ea59f163813f90219b0e65a0d50f18f210be6fdbfb96"
+    },
+    {
+      "ref": "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java",
+      "digest": "sha256:9c5a748457ce3dcf8528ee44eb96858a945caa9d368860e6aa8581d172cd268e"
+    }
+  ],
+  "matrixDigest": "sha256:75e5b81a3eb882fdbf69517c3b52923a36673c754f274236f24441124bd03a54",
+  "taskRegisterDigest": "sha256:d1f8c1d553156b22174e5933277fa7588c8cbaea018ed47dcda8bfb68fe62c02",
+  "semanticProjectionUnchanged": true,
+  "focusedTests": {
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "ref": "audio-video-observability/build/test-results/test/TEST-com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest.xml",
+        "digest": "sha256:9d6c35b7762bc74f7b84e08023466b43ea5942f67bec5ada1b045a1612672f4e",
+        "name": "com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "audio-video-observability/build/test-results/test/TEST-com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest.xml",
+        "digest": "sha256:554562aea699b1ef2803f8e076386a9672b33999cce7e2dde8d175571c52e223",
+        "name": "com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "modules/speech/stt-service/build/test-results/test/TEST-com.ghatana.stt.provider.WhisperOnnxSttProviderTest.xml",
+        "digest": "sha256:df1e13d3bbbeb0101609be0d24c2ba5a2dc24b331d988843de5dd86b1a7d8d16",
+        "name": "com.ghatana.stt.provider.WhisperOnnxSttProviderTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "modules/speech/stt-service/build/test-results/test/TEST-com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest.xml",
+        "digest": "sha256:780aea03f75a800b7c82a1f3201f95a0f36ee2bf98b5b489eb1607cc930881e6",
+        "name": "com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "runtime-contracts/build/test-results/test/TEST-com.ghatana.media.runtime.MediaModalityContractsTest.xml",
+        "digest": "sha256:c3140f94109795a5e5d92a4a818181730ae55c9df89f958370e0ce0efc62697e",
+        "name": "com.ghatana.media.runtime.MediaModalityContractsTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "launcher/build/test-results/test/TEST-com.ghatana.media.launcher.MediaRuntimeProviderQualityMetricsTest.xml",
+        "digest": "sha256:1c2337d35862eaf05dd7d0f9acdf738e98e4008a1b1760ff366709aeb352e378",
+        "name": "com.ghatana.media.launcher.MediaRuntimeProviderQualityMetricsTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "modules/audio-streaming/build/test-results/test/TEST-com.ghatana.audio.streaming.AudioStreamSessionFrameTest.xml",
+        "digest": "sha256:cc4c90ba9b1bf1268efe95e5ebb5031fdfa3f1250cd8f503c3d40efcb1e7e8f7",
+        "name": "com.ghatana.audio.streaming.AudioStreamSessionFrameTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "modules/video-streaming/build/test-results/test/TEST-com.ghatana.video.streaming.VideoStreamSessionFrameTest.xml",
+        "digest": "sha256:27be181c4c7e6329caae641ca4ae5328425ac83330f840ae80f338fbc123f1a1",
+        "name": "com.ghatana.video.streaming.VideoStreamSessionFrameTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "ref": "modules/infrastructure/cache/build/test-results/test/TEST-com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest.xml",
+        "digest": "sha256:677311f4ab0c93de437606a80220e70abe86adf878d8b11b89aef560cc8b1615",
+        "name": "com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "projectionNegativeCases": 15,
+  "selectedVerification": [
+    {
+      "caseId": "media-merge-final-obs-quality-executed",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.json",
+      "observationDigest": "sha256:147b5e1d53fd753deefccf55abb68eca0f683225fc265a247fd97a58156d56fa",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.log",
+      "outputDigest": "sha256:7fb0b226fa7fbd38dea27b5c0b5abf2f58ce3195b822da19a5cbf600d933329a",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=observability",
+          ":services:media:audio-video-observability:test",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-runtime-contracts",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.json",
+      "observationDigest": "sha256:51a6efb206e36efabf71910ad09a5c6ac21de05d7833fcd26fc6ce78798b04d9",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.log",
+      "outputDigest": "sha256:9025be0d71746188407088af013dec547bc4afa4471bff51531d1daefba2e8a2",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:runtime-contracts:test",
+          "--tests",
+          "com.ghatana.media.runtime.MediaModalityContractsTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-launcher-quality",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.json",
+      "observationDigest": "sha256:702927b2713811d18ed7178b072036bd15373db5a53d06cbdd153cbf95003258",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.log",
+      "outputDigest": "sha256:0bb20f4e6087ad1bd3b97b22f5007fce641d5a98e4c55c1cc7fedc46f0fa3441",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:launcher:test",
+          "--tests",
+          "com.ghatana.media.launcher.MediaRuntimeProviderQualityMetricsTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-audio-frames",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.json",
+      "observationDigest": "sha256:9b968e94fe8213ec34ef8f82f73720bbfc891734f78698738241373a299ba904",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.log",
+      "outputDigest": "sha256:640f4a6f29a5b7f8c0ef5d8f2613a52a7f7e4223cd4a129163e2869e5fa1490d",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:audio-streaming:test",
+          "--tests",
+          "com.ghatana.audio.streaming.AudioStreamSessionFrameTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-video-frames",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.json",
+      "observationDigest": "sha256:2a3560a68b06352b64cac54b7cb8d4f4049b4efee5cad1e954c927d1e9ca5e77",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.log",
+      "outputDigest": "sha256:9e5eb66fb45e1ddfcae95b7b6fbddcb735244923314cb1f707213a7d0df51b81",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:video-streaming:test",
+          "--tests",
+          "com.ghatana.video.streaming.VideoStreamSessionFrameTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-bounded-quality-read",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.json",
+      "observationDigest": "sha256:c96eb3fd11a78df94b40914a248c875b9c1f77577dfacfe2b2ae5fa871e972ab",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.log",
+      "outputDigest": "sha256:50d61f7920e16774cc984e7dfff0bddbc22a66d096ba21eb10543ae5b08d9f1b",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:modules:speech:stt-service:test",
+          "--tests",
+          "com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest",
+          "--tests",
+          "com.ghatana.stt.provider.WhisperOnnxSttProviderTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-cache-error-redaction-final",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.json",
+      "observationDigest": "sha256:67dae87a72b5546320bf1306d28170f6fedf4ac8a278cf38556738b0e820ffff",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.log",
+      "outputDigest": "sha256:0174551bc04207a68dca9a9ab30c8792fe35a6462aa9d78a64c80a90c533bfc8",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:infrastructure:cache:test",
+          "--tests",
+          "com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-matrix-postmerge-final",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.json",
+      "observationDigest": "sha256:8e06a5f571737b44b3ff55d53008165057424ef82bcb59e37551ba8df65317ff",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.log",
+      "outputDigest": "sha256:106317a1349d9c8cacb64092f43a1ceb2cef6c105569f6c1b2458f1758243b51",
+      "command": {
+        "executable": "python3",
+        "args": [
+          "/tmp/check-media-after-merge-final.py"
+        ],
+        "cwd": "."
+      }
+    }
+  ],
+  "retainedObservations": [
+    {
+      "caseId": "media-audio-frame-bounds",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-audio-frame-bounds-2026-10-30T14-32-46-039Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-audio-frame-bounds-2026-10-30T14-32-46-039Z.json",
+      "observationDigest": "sha256:0376562b16054985c9963b25e4b7ab0b2b0d72eae45ea1d50c61c0689ec7b871",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-audio-frame-bounds-2026-10-30T14-32-46-039Z.log",
+      "outputDigest": "sha256:8f799de1b47e0e418473fe59e97d20cb2c53fa11146a87b8a687b6888396f554",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:audio-streaming:test",
+          "--tests",
+          "com.ghatana.audio.streaming.AudioStreamSessionFrameTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-cache-key-redaction",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-cache-key-redaction-2026-10-30T14-33-21-205Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-cache-key-redaction-2026-10-30T14-33-21-205Z.json",
+      "observationDigest": "sha256:86bc3fe960adc3497a2d2a8e9236b18aff2c21c0e4caffe320390fa112cdafdf",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-cache-key-redaction-2026-10-30T14-33-21-205Z.log",
+      "outputDigest": "sha256:c391ff1e49436cde6841622abd6f83825974d13fe18aaa52c4ef63e7a4a06242",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:infrastructure:cache:test",
+          "--tests",
+          "com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-launcher-quality-telemetry",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-launcher-quality-telemetry-2026-10-30T14-32-22-345Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-launcher-quality-telemetry-2026-10-30T14-32-22-345Z.json",
+      "observationDigest": "sha256:38ba5431419e404688cb69786b1ddeacb08ac78fe19954206bcb7a41a5e16db6",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-launcher-quality-telemetry-2026-10-30T14-32-22-345Z.log",
+      "outputDigest": "sha256:147c8ea045391a33d09ce55b9ab5bdcc7e47518e1c13d534c9d0733278bd9ec9",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:launcher:test",
+          "--tests",
+          "com.ghatana.media.launcher.MediaRuntimeProviderQualityMetricsTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-matrix-native-refresh",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-matrix-native-refresh-2026-10-30T14-40-59-390Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-native-refresh-2026-10-30T14-40-59-390Z.json",
+      "observationDigest": "sha256:dff0716ba4985ee440bf39a725a1dcfad607ba612e9a9eaed98530b2be7e3a57",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-native-refresh-2026-10-30T14-40-59-390Z.log",
+      "outputDigest": "sha256:f0d015e5e3d010c5459e40cd475f64fb1e6b5adad5d34c057bf639dc7bec65ac",
+      "command": {
+        "executable": "python3",
+        "args": [
+          "/Users/samujjwal/Development/ghatana-media/scripts/contract-definition/generate.py",
+          "/Users/samujjwal/Development/ghatana-media",
+          "ghatana-media"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-matrix-postmerge-final",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.json",
+      "observationDigest": "sha256:8e06a5f571737b44b3ff55d53008165057424ef82bcb59e37551ba8df65317ff",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-final-2026-10-30T14-41-34-904Z.log",
+      "outputDigest": "sha256:106317a1349d9c8cacb64092f43a1ceb2cef6c105569f6c1b2458f1758243b51",
+      "command": {
+        "executable": "python3",
+        "args": [
+          "/tmp/check-media-after-merge-final.py"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-matrix-postmerge-validation",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-matrix-postmerge-validation-2026-10-30T14-41-11-114Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-validation-2026-10-30T14-41-11-114Z.json",
+      "observationDigest": "sha256:d1b2c47e2401a422bd5dc9d3fb1fee3303386391f476662e7633be96009db6a8",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-matrix-postmerge-validation-2026-10-30T14-41-11-114Z.log",
+      "outputDigest": "sha256:5a814a9b8e3a1f4ee78946cdcb1b0583a1ab1d59634c6cce44b889b894a74a1c",
+      "command": {
+        "executable": "python3",
+        "args": [
+          "/tmp/check-media-after-merge.py"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-bounded-quality-read",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.json",
+      "observationDigest": "sha256:c96eb3fd11a78df94b40914a248c875b9c1f77577dfacfe2b2ae5fa871e972ab",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-bounded-quality-read-2026-10-30T14-37-29-161Z.log",
+      "outputDigest": "sha256:50d61f7920e16774cc984e7dfff0bddbc22a66d096ba21eb10543ae5b08d9f1b",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:modules:speech:stt-service:test",
+          "--tests",
+          "com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest",
+          "--tests",
+          "com.ghatana.stt.provider.WhisperOnnxSttProviderTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-cache-error-redaction",
+      "result": "FAIL",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-cache-error-redaction-2026-10-30T14-36-31-807Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-2026-10-30T14-36-31-807Z.json",
+      "observationDigest": "sha256:fdca81395ae1564a289fb96687294eed37e768b907947d9bcb8805c3a1da509b",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-2026-10-30T14-36-31-807Z.log",
+      "outputDigest": "sha256:e516e2c58d604569960cfa835fb455cce17070fa9b460ffd6d0e6ae7651e4e3a",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:infrastructure:cache:test",
+          "--tests",
+          "com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-cache-error-redaction-final",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.json",
+      "observationDigest": "sha256:67dae87a72b5546320bf1306d28170f6fedf4ac8a278cf38556738b0e820ffff",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-cache-error-redaction-final-2026-10-30T14-38-45-867Z.log",
+      "outputDigest": "sha256:0174551bc04207a68dca9a9ab30c8792fe35a6462aa9d78a64c80a90c533bfc8",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:infrastructure:cache:test",
+          "--tests",
+          "com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-audio-frames",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.json",
+      "observationDigest": "sha256:9b968e94fe8213ec34ef8f82f73720bbfc891734f78698738241373a299ba904",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-audio-frames-2026-10-30T14-48-09-143Z.log",
+      "outputDigest": "sha256:640f4a6f29a5b7f8c0ef5d8f2613a52a7f7e4223cd4a129163e2869e5fa1490d",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:audio-streaming:test",
+          "--tests",
+          "com.ghatana.audio.streaming.AudioStreamSessionFrameTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-launcher-quality",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.json",
+      "observationDigest": "sha256:702927b2713811d18ed7178b072036bd15373db5a53d06cbdd153cbf95003258",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-launcher-quality-2026-10-30T14-47-01-057Z.log",
+      "outputDigest": "sha256:0bb20f4e6087ad1bd3b97b22f5007fce641d5a98e4c55c1cc7fedc46f0fa3441",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:launcher:test",
+          "--tests",
+          "com.ghatana.media.launcher.MediaRuntimeProviderQualityMetricsTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-obs-quality-executed",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.json",
+      "observationDigest": "sha256:147b5e1d53fd753deefccf55abb68eca0f683225fc265a247fd97a58156d56fa",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-executed-2026-10-30T14-45-46-669Z.log",
+      "outputDigest": "sha256:7fb0b226fa7fbd38dea27b5c0b5abf2f58ce3195b822da19a5cbf600d933329a",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=observability",
+          ":services:media:audio-video-observability:test",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-obs-quality-series",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-obs-quality-series-2026-10-30T14-45-21-808Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-series-2026-10-30T14-45-21-808Z.json",
+      "observationDigest": "sha256:3b68b7ab3b2356fff4382549f3b20f21cb3bf9acb9c768924fff8114b8fb006b",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-obs-quality-series-2026-10-30T14-45-21-808Z.log",
+      "outputDigest": "sha256:7d708a98f7c5d5da0766fd9447caa64655963d1634016cb07a2bb9cfb388c65b",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=observability",
+          ":services:media:audio-video-observability:test",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-runtime-contracts",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.json",
+      "observationDigest": "sha256:51a6efb206e36efabf71910ad09a5c6ac21de05d7833fcd26fc6ce78798b04d9",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.log",
+      "outputDigest": "sha256:9025be0d71746188407088af013dec547bc4afa4471bff51531d1daefba2e8a2",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:runtime-contracts:test",
+          "--tests",
+          "com.ghatana.media.runtime.MediaModalityContractsTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-final-video-frames",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.json",
+      "observationDigest": "sha256:2a3560a68b06352b64cac54b7cb8d4f4049b4efee5cad1e954c927d1e9ca5e77",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-final-video-frames-2026-10-30T14-48-37-477Z.log",
+      "outputDigest": "sha256:9e5eb66fb45e1ddfcae95b7b6fbddcb735244923314cb1f707213a7d0df51b81",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:video-streaming:test",
+          "--tests",
+          "com.ghatana.video.streaming.VideoStreamSessionFrameTest",
+          "--rerun-tasks",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-merge-material-drift-inspection",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-merge-material-drift-inspection-2026-10-30T14-35-26-949Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-material-drift-inspection-2026-10-30T14-35-26-949Z.json",
+      "observationDigest": "sha256:c4b8ded6d6844ac065e488a89207f76ca9cad508130ccef7bdbf730337214126",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-merge-material-drift-inspection-2026-10-30T14-35-26-949Z.log",
+      "outputDigest": "sha256:22cf14b5bb83905a47d3c49406d7729eee5ad515d30a5215d3af18e42a7ce2b5",
+      "command": {
+        "executable": "node",
+        "args": [
+          "--input-type=module",
+          "-e",
+          "import fs from \"node:fs\";import path from \"node:path\";import crypto from \"node:crypto\";import{sourceReferenceTarget}from\"./scripts/contract-definition/audit-validation.mjs\";const root=process.cwd(),ws=path.dirname(root),pin=JSON.parse(fs.readFileSync(\".ghatana/definition/development-baseline-pin.json\")),b=JSON.parse(fs.readFileSync(pin.baselineRef)),roots=Object.fromEntries(b.repositories.map(r=>[r.repositoryId,path.join(ws,r.repositoryId)])),hash=x=>\"sha256:\"+crypto.createHash(\"sha256\").update(x).digest(\"hex\");const drift=[];for(const r of b.repositories){for(const row of[r.matrix,r.taskRegister,...r.supportingMaterial,...r.inputs]){const p=sourceReferenceTarget(roots[r.repositoryId],row.ref,roots);const actual=p&&fs.existsSync(p)?hash(fs.readFileSync(p)):null;if(actual!==row.digest)drift.push({repository:r.repositoryId,ref:row.ref,expected:row.digest,actual});}}console.log(JSON.stringify({authority:\"READ_ONLY_MATERIAL_DRIFT_INSPECTION\",baseline:pin.baselineDigest,driftCount:drift.length,drift}));"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-obs-quality-series",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-obs-quality-series-2026-10-30T14-31-21-795Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-obs-quality-series-2026-10-30T14-31-21-795Z.json",
+      "observationDigest": "sha256:e3beeab4efee59ef8bac982343c517a4b8be64f7a6ffa58215b283c1f97525d3",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-obs-quality-series-2026-10-30T14-31-21-795Z.log",
+      "outputDigest": "sha256:c9f4ef92ec2e0f55c9ac0c908f03ca5725c4ab2ef0f36d20dce210b41f3a96a8",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=observability",
+          ":services:media:audio-video-observability:test",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowMetricsTest",
+          "--tests",
+          "com.ghatana.audiovideo.observability.MediaWorkflowAlertRulesTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-projection-readonly-20261030",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-projection-readonly-20261030-2026-10-30T14-32-44-280Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-projection-readonly-20261030-2026-10-30T14-32-44-280Z.json",
+      "observationDigest": "sha256:773869c852cc20de381f882e94aaa38fcdcd74ca0e18127e0f86bd55dae5f77e",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-projection-readonly-20261030-2026-10-30T14-32-44-280Z.log",
+      "outputDigest": "sha256:e8800fcebef4d019353aba1e11d3b3927bd5150405a9725dd977c70009bf6432",
+      "command": {
+        "executable": "python3",
+        "args": [
+          "/tmp/check-media-static-readonly.py"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-runtime-contracts-quality",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-runtime-contracts-quality-2026-10-30T14-32-05-477Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-runtime-contracts-quality-2026-10-30T14-32-05-477Z.json",
+      "observationDigest": "sha256:8626f132af9d4113bb4adfb10dd6f4ca30d59316be95a13f9809938618041109",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-runtime-contracts-quality-2026-10-30T14-32-05-477Z.log",
+      "outputDigest": "sha256:120d0b193e07cbe84287ed39965689e1241c244218c8bfb88f7bca56860b5e18",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:runtime-contracts:test",
+          "--tests",
+          "com.ghatana.media.runtime.MediaModalityContractsTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-stt-holdout-evidence",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-stt-holdout-evidence-2026-10-30T14-31-43-932Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-stt-holdout-evidence-2026-10-30T14-31-43-932Z.json",
+      "observationDigest": "sha256:ce3a3bf8bc147117dc410950ea8e989b539130650e1b81e39e8c8b2aee9ece5e",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-stt-holdout-evidence-2026-10-30T14-31-43-932Z.log",
+      "outputDigest": "sha256:7c045f7af4b30c86b7da6a6bfc85c6702f52f76c47063220e8ed45f7138c115a",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=stt",
+          ":services:media:modules:speech:stt-service:test",
+          "--tests",
+          "com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest",
+          "--tests",
+          "com.ghatana.stt.provider.WhisperOnnxSttProviderTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    },
+    {
+      "caseId": "media-video-frame-bounds",
+      "result": "PASS",
+      "observationOrigin": "ghatana-lifecycle",
+      "originalObservationRef": ".ghatana/definition/observations/media-video-frame-bounds-2026-10-30T14-33-05-242Z.json",
+      "observationRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-video-frame-bounds-2026-10-30T14-33-05-242Z.json",
+      "observationDigest": "sha256:1d5891a7a27d903f7aa7eeb896101aa12d01dc5c6f1d294b8ca3adfb6c47a914",
+      "outputRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/observations/media-video-frame-bounds-2026-10-30T14-33-05-242Z.log",
+      "outputDigest": "sha256:abd1cc5f23572c24a96c447e328a446a50d65a7db414ad1da37cd93b8e449d29",
+      "command": {
+        "executable": "pnpm",
+        "args": [
+          "--dir",
+          "/Users/samujjwal/Development/ghatana-media",
+          "exec",
+          "./gradlew",
+          "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+          "-Pghatana.media.compositeScope=FOCUSED",
+          "-Pghatana.media.focusedModules=launcher",
+          ":services:media:modules:video-streaming:test",
+          "--tests",
+          "com.ghatana.video.streaming.VideoStreamSessionFrameTest",
+          "--no-daemon",
+          "--max-workers=2",
+          "--console=plain"
+        ],
+        "cwd": "."
+      }
+    }
+  ],
+  "repairs": [
+    {
+      "issue": "Cache backend exceptions could expose raw keys in error logs",
+      "change": "Keep hashed key reference and exception class; omit throwable messages and stacks on five error paths. Preserve failures to callers."
+    },
+    {
+      "issue": "File growth could bypass a size probe before readAllBytes",
+      "change": "Bound the opened stream to the maximum size plus one detection byte and reject excess before parsing."
+    }
+  ],
+  "historicalFailureDisposition": "The first new cache regression failed compilation because its test logging dependency was missing. Test-only Log4j dependencies were added using the existing repository convention; the final regression passed. The original FAIL record is retained.",
+  "observationProvenance": "Bounded observer metadata belongs to its Lifecycle wrapper root. Media inputs are independently bound by sourceCommit and sourceFiles. JUnit counts and digests refer to actual selected Media module outputs.",
+  "unrelatedWork": "Original branch commits and task/status records are preserved; no reset, force push, history rewrite or unrelated source edit.",
+  "qualityBoundary": "Reference fixture tests do not establish production quality, rights or provider qualification. Existing default empty quality-reader composition is unchanged.",
+  "formalFreeze": "NOT_PERFORMED",
+  "release": "NOT_AUTHORIZED",
+  "publicationReadbackRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/publication-readback.json"
+}

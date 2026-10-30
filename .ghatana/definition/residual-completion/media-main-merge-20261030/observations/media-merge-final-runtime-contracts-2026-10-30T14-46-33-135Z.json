@@ -1,0 +1,104 @@
+{
+  "authority": "LOCAL_OBSERVATION_NOT_ADMITTED",
+  "caseId": "media-merge-final-runtime-contracts",
+  "selectedSurface": "ts-evidence-contracts",
+  "scopeLabel": "contract-definition-static",
+  "selectedProgram": null,
+  "selectedPhase": null,
+  "command": {
+    "executable": "pnpm",
+    "args": [
+      "--dir",
+      "/Users/samujjwal/Development/ghatana-media",
+      "exec",
+      "./gradlew",
+      "-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE",
+      "-Pghatana.media.compositeScope=FOCUSED",
+      "-Pghatana.media.focusedModules=stt",
+      ":services:media:runtime-contracts:test",
+      "--tests",
+      "com.ghatana.media.runtime.MediaModalityContractsTest",
+      "--rerun-tasks",
+      "--no-daemon",
+      "--max-workers=2",
+      "--console=plain"
+    ],
+    "cwd": "."
+  },
+  "startedAt": "2026-10-30T14:46:33.135Z",
+  "finishedAt": "2026-10-30T14:46:58.108Z",
+  "result": "PASS",
+  "exitCode": 0,
+  "signal": null,
+  "reason": null,
+  "sourceCommit": "357f9d02509f1e5e1e3d3bd641cad5446cf9308f",
+  "sourceFingerprints": [
+    {
+      "ref": "pnpm-lock.yaml",
+      "digest": "sha256:01471330d10134ba58378cc0ca5532d737b31553a061208ae90a0d5c3d5ab731"
+    },
+    {
+      "ref": "package.json",
+      "digest": "sha256:ba9ef5de8dde119f8531f62ce8864a4465942a59f121fbdf8c66467ebd77b36f"
+    },
+    {
+      "ref": "config/contract-governance/ghatana.closure.json",
+      "digest": "sha256:17a4caf45c5f9c22f0e644f20e1254c2eb4227c705f514e80ee1759c0abcb18b"
+    },
+    {
+      "ref": "config/closure/contract-applicability.json",
+      "digest": "sha256:6e717ac349d6bffb16e12aa70c45447f208f1b15a6456a661d52017c2c931f82"
+    },
+    {
+      "ref": "config/closure/consumer.json",
+      "digest": "sha256:8cf389e9d307f69c4596e4b92d2c5f232e0c6bc5eb991601359c939f39428fd9"
+    },
+    {
+      "ref": ".ghatana/definition/schema-inventory.json",
+      "digest": "sha256:d40fe90c0f130b4fe6bbfd5fb3c7de6ed44dd13c6fd9f1ed96bb4721cc0dc052"
+    },
+    {
+      "ref": ".ghatana/definition/surface-matrix.json",
+      "digest": "sha256:b72a42b1b21cec582d34ad9bfc9bc72b635941369469b8dce30cd30fa138537c"
+    },
+    {
+      "ref": "config/closure/contract-applicability-bindings.json",
+      "digest": "sha256:3487bf8fb86ee2b41e2913fdc1aca0dd671db0676cc1370c05fb99101af6b59e"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/package.json",
+      "digest": "sha256:ba109b727130420b290b4343a03da6aee306d281acc6c54e7f071e0a845794f4"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/README.md",
+      "digest": "sha256:d3fce36343f69c30463c66db8baa805a8d8dea510d3f77af08ae59addfa2d78c"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/CONSUMER_GUIDE.md",
+      "digest": "sha256:00c18e38ed5bb1b3753807b21cf63c41b48997f45e33e4e0be78f463f62ae6bb"
+    }
+  ],
+  "preRunWorktreeDiffDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v26.7.0",
+    "timezone": "America/Los_Angeles"
+  },
+  "runner": {
+    "ref": "scripts/contract-definition/observe.mjs",
+    "digest": "sha256:a30f5fbec22358820505fd6684a7f89745a07729860c1b24d854d11ffa585b01"
+  },
+  "resourceBounds": {
+    "timeoutMs": 600000,
+    "maxOutputBytes": 2097152
+  },
+  "output": {
+    "ref": ".ghatana/definition/observations/media-merge-final-runtime-contracts-2026-10-30T14-46-33-135Z.log",
+    "digest": "sha256:9025be0d71746188407088af013dec547bc4afa4471bff51531d1daefba2e8a2",
+    "bytes": 5812
+  },
+  "admission": "NOT_REQUESTED",
+  "release": "NOT_EVALUATED",
+  "staticIndex": "PRESERVED"
+}

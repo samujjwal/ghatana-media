@@ -1,0 +1,92 @@
+{
+  "authority": "LOCAL_OBSERVATION_NOT_ADMITTED",
+  "caseId": "media-main-merge-verification-record",
+  "selectedSurface": "ts-evidence-contracts",
+  "scopeLabel": "contract-definition-static",
+  "selectedProgram": null,
+  "selectedPhase": null,
+  "command": {
+    "executable": "python3",
+    "args": [
+      "-c",
+      "from pathlib import Path\nimport json, hashlib, subprocess, xml.etree.ElementTree as ET\nlc=Path('/Users/samujjwal/Development/ghatana-lifecycle')\nmedia=Path('/Users/samujjwal/Development/ghatana-media')\nout=media/'.ghatana/definition/residual-completion/media-main-merge-20261030'\nout.mkdir(parents=True,exist_ok=True)\nhash=lambda b:'sha256:'+hashlib.sha256(b).hexdigest()\ngit=lambda *a:subprocess.check_output(['git','-C',str(media),*a]).decode().strip()\nassert git('rev-parse','HEAD')=='2e9463265025ffe4db334e58fb4fba823bc342f5'\nselected=['media-merge-final-obs-quality-executed','media-merge-final-runtime-contracts','media-merge-final-launcher-quality','media-merge-final-audio-frames','media-merge-final-video-frames','media-merge-bounded-quality-read','media-merge-cache-error-redaction-final','media-matrix-postmerge-final']\nrecords=[]; chosen={}\nfor p in sorted((lc/'.ghatana/definition/observations').glob('media-*.json')):\n    d=json.loads(p.read_text())\n    if not d.get('startedAt','').startswith('2026-10-30T14:'): continue\n    log=lc/d['output']['ref']; raw=p.read_bytes(); lograw=log.read_bytes()\n    assert hash(lograw)==d['output']['digest'] and len(lograw)==d['output']['bytes']\n    destination=out/'observations'; destination.mkdir(exist_ok=True)\n    (destination/p.name).write_bytes(raw); (destination/log.name).write_bytes(lograw)\n    row={'caseId':d['caseId'],'result':d['result'],'observationOrigin':'ghatana-lifecycle','originalObservationRef':str(p.relative_to(lc)),'observationRef':str((destination/p.name).relative_to(media)),'observationDigest':hash(raw),'outputRef':str((destination/log.name).relative_to(media)),'outputDigest':hash(lograw),'command':d['command']}\n    records.append(row)\n    if d['caseId'] in selected:\n        assert d['result']=='PASS' and d['exitCode']==0 and d['staticIndex']=='PRESERVED'\n        assert d['caseId'] not in chosen\n        chosen[d['caseId']]=row\nassert set(chosen)==set(selected)\nnames=['MediaWorkflowMetricsTest','MediaWorkflowAlertRulesTest','FrozenHoldoutQualityEvidenceTest','WhisperOnnxSttProviderTest','MediaModalityContractsTest','MediaRuntimeProviderQualityMetricsTest','AudioStreamSessionFrameTest','VideoStreamSessionFrameTest','AudioVideoCacheKeyRedactionTest']\nsuites=[]\nfor directory in ['audio-video-observability','modules/speech/stt-service','runtime-contracts','launcher','modules/audio-streaming','modules/video-streaming','modules/infrastructure/cache']:\n    for p in (media/directory/'build/test-results/test').glob('TEST-*.xml'):\n        d=ET.parse(p).getroot()\n        if d.attrib['name'].split('.')[-1] not in names: continue\n        row={'ref':str(p.relative_to(media)),'digest':hash(p.read_bytes()),'name':d.attrib['name'],**{k:int(d.attrib.get(k,'0')) for k in ['tests','failures','errors','skipped']}}\n        assert row['failures']==row['errors']==row['skipped']==0\n        suites.append(row)\nassert len(suites)==9 and sum(x['tests'] for x in suites)==51\nmatrix=media/'.ghatana/definition/surface-matrix.json'\nassert hash(matrix.read_bytes())=='sha256:75e5b81a3eb882fdbf69517c3b52923a36673c754f274236f24441124bd03a54'\ntask=media/'.ghatana/definition/task-register.json'\nassert hash(task.read_bytes())=='sha256:d1f8c1d553156b22174e5933277fa7588c8cbaea018ed47dcda8bfb68fe62c02'\nchanged=git('diff','origin/main','--name-only').splitlines()\nfiles=[{'ref':p,'digest':hash((media/p).read_bytes())} for p in changed]\npreserved=['76198069','c353df29','50a9c265','cc107731']\nfor commit in preserved: subprocess.run(['git','-C',str(media),'merge-base','--is-ancestor',commit,'HEAD'],check=True)\nreport={'authority':'LOCAL_ENGINEERING_VERIFICATION_NOT_PHASE_OR_RELEASE_ADMISSION','status':'VERIFIED_FOR_NON_FORCE_MAIN_PUBLICATION','sourceCommit':git('rev-parse','HEAD'),'projectionBranch':'codex/contract-definition-source-refresh-20261030','remoteMainPreimage':'10bdd0f5f7c94bd4917d372a7a0681c80f2f4446','preservedOriginalCommits':preserved,'sourceFiles':files,'matrixDigest':hash(matrix.read_bytes()),'taskRegisterDigest':hash(task.read_bytes()),'semanticProjectionUnchanged':True,'focusedTests':{'passed':51,'failed':0,'skipped':0,'suites':suites},'projectionNegativeCases':15,'selectedVerification':[chosen[x] for x in selected],'retainedObservations':records,'repairs':[{'issue':'Cache backend exceptions could expose raw keys in error logs','change':'Keep hashed key reference and exception class; omit throwable messages and stacks on five error paths. Preserve failures to callers.'},{'issue':'File growth could bypass a size probe before readAllBytes','change':'Bound the opened stream to the maximum size plus one detection byte and reject excess before parsing.'}],'historicalFailureDisposition':'The first new cache regression failed compilation because its test logging dependency was missing. Test-only Log4j dependencies were added using the existing repository convention; the final regression passed. The original FAIL record is retained.','observationProvenance':'Bounded observer metadata belongs to its Lifecycle wrapper root. Media inputs are independently bound by sourceCommit and sourceFiles. JUnit counts and digests refer to actual selected Media module outputs.','unrelatedWork':'Original branch commits and task/status records are preserved; no reset, force push, history rewrite or unrelated source edit.','qualityBoundary':'Reference fixture tests do not establish production quality, rights or provider qualification. Existing default empty quality-reader composition is unchanged.','formalFreeze':'NOT_PERFORMED','release':'NOT_AUTHORIZED','publicationReadbackRef':str((out/'publication-readback.json').relative_to(media))}\n(out/'reconciliation.json').write_text(json.dumps(report,indent=2)+'\\n')\n(out/'README.md').write_text('# Media projection main reconciliation — 2026-10-30\\n\\nThe projection branch and its four original commits are preserved. Two narrow safety defects were repaired before integration. All 51 selected tests and 15 projection adverse cases passed. Surface semantics and task records are unchanged.\\n\\nSee reconciliation.json for exact source fingerprints, commands, JUnit digests, copied original observations, and the retained failed compile attempt. publication-readback.json records main publication separately. These are local engineering observations, not phase or release admission.\\n')\nprint(json.dumps({'status':'PASS','report':str((out/'reconciliation.json').relative_to(media)),'reportDigest':hash((out/'reconciliation.json').read_bytes()),'focusedTests':51,'projectionNegativeCases':15,'sourceFileCount':len(files),'retainedObservations':len(records)}))\n"
+    ],
+    "cwd": "."
+  },
+  "startedAt": "2026-10-30T14:50:16.662Z",
+  "finishedAt": "2026-10-30T14:50:16.901Z",
+  "result": "PASS",
+  "exitCode": 0,
+  "signal": null,
+  "reason": null,
+  "sourceCommit": "357f9d02509f1e5e1e3d3bd641cad5446cf9308f",
+  "sourceFingerprints": [
+    {
+      "ref": "pnpm-lock.yaml",
+      "digest": "sha256:01471330d10134ba58378cc0ca5532d737b31553a061208ae90a0d5c3d5ab731"
+    },
+    {
+      "ref": "package.json",
+      "digest": "sha256:ba9ef5de8dde119f8531f62ce8864a4465942a59f121fbdf8c66467ebd77b36f"
+    },
+    {
+      "ref": "config/contract-governance/ghatana.closure.json",
+      "digest": "sha256:17a4caf45c5f9c22f0e644f20e1254c2eb4227c705f514e80ee1759c0abcb18b"
+    },
+    {
+      "ref": "config/closure/contract-applicability.json",
+      "digest": "sha256:6e717ac349d6bffb16e12aa70c45447f208f1b15a6456a661d52017c2c931f82"
+    },
+    {
+      "ref": "config/closure/consumer.json",
+      "digest": "sha256:8cf389e9d307f69c4596e4b92d2c5f232e0c6bc5eb991601359c939f39428fd9"
+    },
+    {
+      "ref": ".ghatana/definition/schema-inventory.json",
+      "digest": "sha256:d40fe90c0f130b4fe6bbfd5fb3c7de6ed44dd13c6fd9f1ed96bb4721cc0dc052"
+    },
+    {
+      "ref": ".ghatana/definition/surface-matrix.json",
+      "digest": "sha256:b72a42b1b21cec582d34ad9bfc9bc72b635941369469b8dce30cd30fa138537c"
+    },
+    {
+      "ref": "config/closure/contract-applicability-bindings.json",
+      "digest": "sha256:3487bf8fb86ee2b41e2913fdc1aca0dd671db0676cc1370c05fb99101af6b59e"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/package.json",
+      "digest": "sha256:ba109b727130420b290b4343a03da6aee306d281acc6c54e7f071e0a845794f4"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/README.md",
+      "digest": "sha256:d3fce36343f69c30463c66db8baa805a8d8dea510d3f77af08ae59addfa2d78c"
+    },
+    {
+      "ref": "tools/evidence-generator-runtime/CONSUMER_GUIDE.md",
+      "digest": "sha256:00c18e38ed5bb1b3753807b21cf63c41b48997f45e33e4e0be78f463f62ae6bb"
+    }
+  ],
+  "preRunWorktreeDiffDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v26.7.0",
+    "timezone": "America/Los_Angeles"
+  },
+  "runner": {
+    "ref": "scripts/contract-definition/observe.mjs",
+    "digest": "sha256:a30f5fbec22358820505fd6684a7f89745a07729860c1b24d854d11ffa585b01"
+  },
+  "resourceBounds": {
+    "timeoutMs": 120000,
+    "maxOutputBytes": 2097152
+  },
+  "output": {
+    "ref": ".ghatana/definition/observations/media-main-merge-verification-record-2026-10-30T14-50-16-662Z.log",
+    "digest": "sha256:e54edc6a9a638df5492e5720f27e5c5149e2310bfdd7201e5f8f01e38c9692b4",
+    "bytes": 311
+  },
+  "admission": "NOT_REQUESTED",
+  "release": "NOT_EVALUATED",
+  "staticIndex": "PRESERVED"
+}
