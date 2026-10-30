@@ -30,6 +30,27 @@ public class AudioVideoCache<K, V> {
     }
     
     /**
+     * Bounded, redacted key reference for diagnostics. Cache keys can embed
+     * tenant, principal, artifact or transcript identity, so the raw key is
+     * never written to logs or metrics; a fixed-length SHA-256 prefix keeps
+     * entries correlatable without disclosing the key material.
+     */
+    static String keyReference(Object key) {
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(String.valueOf(key).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder ref = new StringBuilder("sha256:");
+            for (int i = 0; i < 6; i++) {
+                ref.append(Character.forDigit((digest[i] >> 4) & 0xf, 16))
+                        .append(Character.forDigit(digest[i] & 0xf, 16));
+            }
+            return ref.toString();
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
+    }
+
+    /**
      * Get value from cache
      */
     public AsyncOperation<Optional<V>> get(K key) {
@@ -37,11 +58,11 @@ public class AudioVideoCache<K, V> {
         
         return cachePort.get(key).whenComplete((opt, error) -> {
             if (error != null) {
-                LOG.error("Cache get error: namespace={}, key={}", namespace, key, error);
+                LOG.error("Cache get error: namespace={}, keyRef={}", namespace, keyReference(key), error);
             } else if (opt.isPresent()) {
-                LOG.trace("Cache hit: namespace={}, key={}", namespace, key);
+                LOG.trace("Cache hit: namespace={}, keyRef={}", namespace, keyReference(key));
             } else {
-                LOG.trace("Cache miss: namespace={}, key={}", namespace, key);
+                LOG.trace("Cache miss: namespace={}, keyRef={}", namespace, keyReference(key));
             }
         });
     }
@@ -86,7 +107,7 @@ public class AudioVideoCache<K, V> {
             });
         }).whenComplete((ignored, error) -> {
             if (error != null) {
-                LOG.error("Cache load error: namespace={}, key={}", namespace, key, error);
+                LOG.error("Cache load error: namespace={}, keyRef={}", namespace, keyReference(key), error);
             }
         });
     }
@@ -101,9 +122,10 @@ public class AudioVideoCache<K, V> {
                 && key instanceof String stringKey) {
             return service.invalidateAsync(stringKey).whenComplete((ignored, error) -> {
                 if (error == null) {
-                    LOG.debug("Cache invalidate: namespace={}, key={}", namespace, key);
+                    LOG.debug("Cache invalidate: namespace={}, keyRef={}", namespace, keyReference(key));
                 } else {
-                    LOG.error("Cache invalidate error: namespace={}, key={}", namespace, key, error);
+                    LOG.error("Cache invalidate error: namespace={}, keyRef={}", namespace,
+                            keyReference(key), error);
                 }
             });
         }
@@ -134,9 +156,11 @@ public class AudioVideoCache<K, V> {
     private AsyncOperation<Void> observePut(AsyncOperation<Void> operation, K key, Duration ttl) {
         return operation.whenComplete((ignored, error) -> {
             if (error == null) {
-                LOG.trace("Cache put: namespace={}, key={}, ttl={}s", namespace, key, ttl.getSeconds());
+                LOG.trace("Cache put: namespace={}, keyRef={}, ttl={}s",
+                        namespace, keyReference(key), ttl.getSeconds());
             } else {
-                LOG.error("Cache put error: namespace={}, key={}", namespace, key, error);
+                LOG.error("Cache put error: namespace={}, keyRef={}", namespace,
+                        keyReference(key), error);
             }
         });
     }
