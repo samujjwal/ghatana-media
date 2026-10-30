@@ -1,12 +1,20 @@
 /**
- * Media-owned source/rights admission around any optional scene-text recognizer.
- * No Data Cloud or Document Intelligence imports: Media can use its own
- * qualified Vision OCR provider, or a published DI v1 adapter when admitted.
+ * Media-owned scene/time and source/rights admission; Document Intelligence
+ * is the ONE Ghatana OCR execution authority (MDI-001).
  *
- * This boundary has no OCR inference implementation or default model. A
- * trusted source authority MUST be supplied for all real recognition effects.
+ * This helper accepts only the frozen DI v1 public client and constructs
+ * the Media-specific DI adapter after verifying source identity, consent,
+ * version and cropped-content digest. DI decides among its internal OCR
+ * provider adapters. No alternate Media OCR model/provider is dispatched.
+ * Media's other workflows do not depend on DI availability.
  */
-import type { SceneTextObservation, SceneTextSourceFrame } from './scene-text-adapter.js';
+import {
+  DocumentIntelligenceSceneTextAdapter,
+  type DocumentIntelligenceV1Client,
+  type SceneTextAdapterPolicy,
+  type SceneTextObservation,
+  type SceneTextSourceFrame,
+} from './scene-text-adapter.js';
 
 export interface MediaSceneTextAccess {
   readonly tenantId: string;
@@ -28,11 +36,6 @@ export interface MediaSceneTextSourceAuthority {
     sourceArtifactId: string; sourceVersion: string; frameId: string;
     originalFrameSha256: string;
   }>): Promise<MediaSceneTextDecision>;
-}
-
-export interface MediaSceneTextRecognizer {
-  recognizeFrame(operationId: string, frame: SceneTextSourceFrame,
-    signal?: AbortSignal): Promise<readonly SceneTextObservation[]>;
 }
 
 export type MediaSceneTextAdmissionCode =
@@ -74,17 +77,19 @@ function validObservation(row: SceneTextObservation, frame: SceneTextSourceFrame
     && b.x + b.width <= 1 && b.y + b.height <= 1;
 }
 
-/** The recognizer is a pure optional port: core Media does not import Data Cloud or DI. */
+/** Media always calls the admitted Document Intelligence v1 OCR authority. */
 export async function recognizeAuthorizedMediaSceneText(
   sourceAuthority: MediaSceneTextSourceAuthority,
-  recognizer: MediaSceneTextRecognizer,
+  diClient: DocumentIntelligenceV1Client,
+  diPolicy: SceneTextAdapterPolicy,
   operationId: string,
   frame: SceneTextSourceFrame,
   access: MediaSceneTextAccess,
   signal?: AbortSignal,
 ): Promise<readonly AuthorizedMediaSceneTextObservation[]> {
   if (!sourceAuthority || typeof sourceAuthority.verifyCurrentSource !== 'function'
-    || !recognizer || typeof recognizer.recognizeFrame !== 'function'
+    || !diClient || typeof diClient.providers !== 'function'
+    || typeof diClient.parse !== 'function' || !diPolicy
     || !validText(operationId) || !frame || !access
     || ![frame.sourceArtifactId,frame.sourceVersion,frame.frameId,frame.mediaType,
       access.tenantId,access.principalId,access.purposeRef].every(validText)
@@ -120,7 +125,10 @@ export async function recognizeAuthorizedMediaSceneText(
   if (current.originalFrameSha256 !== access.originalFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
   if (!validText(current.decisionRef)) reject('SOURCE_DENIED');
 
-  const results = await recognizer.recognizeFrame(operationId, frozenFrame, signal);
+  // DI's provider registry owns OCR engine selection. There is no alternate
+  // Media-level recognizer callback or parallel Media OCR execution path.
+  const di = new DocumentIntelligenceSceneTextAdapter(diClient, diPolicy);
+  const results = await di.recognizeFrame(operationId, frozenFrame, signal);
   if (signal?.aborted) reject('SOURCE_UNAVAILABLE');
   if (!Array.isArray(results) || results.length > 5000
       || !results.every(row=>validObservation(row, frozenFrame))) {
