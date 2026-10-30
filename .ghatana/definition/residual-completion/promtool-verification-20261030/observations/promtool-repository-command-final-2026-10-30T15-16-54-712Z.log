@@ -1,0 +1,19 @@
+
+> @ check:monitoring-rules /Users/samujjwal/Development/ghatana-media
+> bash infra/monitoring/tests/promtool-rules.sh
+
+promtool, version 3.15.1 (branch: HEAD, revision: bae3eced0a5369e050e83ea73bc381d7c4b1a719)
+  build user:       root@03bc6b0f3ef7
+  build date:       20261021-13:34:13
+  go version:       go1.27.3
+  platform:         linux/arm64
+  tags:             netgo,builtinassets
+Checking monitoring/prometheus/rules/media.yml
+  SUCCESS: 6 rules found
+
+Checking infra/monitoring/alerts/audio-video.yml
+  SUCCESS: 46 rules found
+
+  SUCCESS
+
+PASS: Prometheus rule files and alert scenarios validated with the pinned v3.15.1 promtool.

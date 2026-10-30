@@ -1,0 +1,145 @@
+{
+  "authority": "LOCAL_PROMETHEUS_RULE_VERIFICATION_NOT_RELEASE_OR_LIVE_ALERT_DELIVERY",
+  "status": "PASS",
+  "sourceBaseCommit": "c213d310a62e4dfa630786e5fae0313e9fb1258b",
+  "sourceFiles": [
+    {
+      "ref": "infra/monitoring/tests/promtool.sh",
+      "digest": "sha256:dab4195565b2b97760effc4fb8150f7d0271e66e167e3c91cea4a77d956988d3"
+    },
+    {
+      "ref": "infra/monitoring/tests/promtool-rules.sh",
+      "digest": "sha256:ce5ad65bb414c657fd5dd35721fa0824bc7cf73cb248b5e478c386398a18db18"
+    },
+    {
+      "ref": "package.json",
+      "digest": "sha256:6f8dfc4910b02dc7eba3649b4d82de73e1b6b663bdcd304958dee6ee0232d60b"
+    },
+    {
+      "ref": "docs/OPERATIONS.md",
+      "digest": "sha256:8672203f1beb197834ebcef300869a84cba897c5aa3d49f150d0c628e9a117bd"
+    },
+    {
+      "ref": "monitoring/prometheus/rules/media.yml",
+      "digest": "sha256:8fe61b8d7c83a5ea7a1a7f0f59716af6d68861c160ab4c596a88b97a7e58c14f"
+    },
+    {
+      "ref": "infra/monitoring/alerts/audio-video.yml",
+      "digest": "sha256:f479d8cc7ff5b36857a358faa48d7fb7ce262a7f21b53522345ef4af59c2a39e"
+    },
+    {
+      "ref": "infra/monitoring/tests/audio-video.rules.test.yml",
+      "digest": "sha256:9fb1387620f7fc40bddd6afa42704c806e0b92d82915b4237d92107abec46804"
+    }
+  ],
+  "promtoolVersion": "3.15.1",
+  "platform": "linux/arm64",
+  "dockerImage": "prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2",
+  "imageInstall": "REUSED_EXISTING_DIGEST_PINNED_IMAGE",
+  "userCommand": "/Users/samujjwal/.local/bin/promtool",
+  "repositoryCommand": "pnpm check:monitoring-rules",
+  "ruleFiles": 2,
+  "rulesChecked": 52,
+  "fixtureScenarios": 38,
+  "alertAssertions": 102,
+  "ruleExpressionsUnchanged": true,
+  "ruleFailures": 0,
+  "observations": [
+    {
+      "caseId": "promtool-alert-fixture-initial",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-alert-fixture-initial-2026-10-30T15-08-42-519Z.json",
+      "observationDigest": "sha256:4453fe835f7cab636a45d4dec0695eea38b3bf5d7687614fc80ddae37fc34b8a",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-alert-fixture-initial-2026-10-30T15-08-42-519Z.log",
+      "outputDigest": "sha256:8289a4919870ab5b28f5e90a86b4af3cdbd8c244516c02fca90d6e3f289a6711",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-all-rule-syntax",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-all-rule-syntax-2026-10-30T15-08-42-519Z.json",
+      "observationDigest": "sha256:a95675f3f2becedaaee13b9c44ed08f1d232261cd0620a44ad8b417db3e457fc",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-all-rule-syntax-2026-10-30T15-08-42-519Z.log",
+      "outputDigest": "sha256:58a54610c5bb2807c7fd8ed371626018939b0aae74d5990e55ab391c8700df7a",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-docker-version",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-docker-version-2026-10-30T15-07-41-680Z.json",
+      "observationDigest": "sha256:c99c80e7587e2e5db1d34965ffd72d73f16b021e23e931fb610a27701d2c7e40",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-docker-version-2026-10-30T15-07-41-680Z.log",
+      "outputDigest": "sha256:61a9cba7688769df8f2c9887330e8297e85a2168ceb29997222e89e9dd514cc4",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-installed-stdin",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-installed-stdin-2026-10-30T15-16-55-897Z.json",
+      "observationDigest": "sha256:8be8c1a7eefb3a34b5c6ad9379af8be19dadaddf55ac813eefecc5d09a4ed3e4",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-installed-stdin-2026-10-30T15-16-55-897Z.log",
+      "outputDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-installed-user-command",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-installed-user-command-2026-10-30T15-14-36-545Z.json",
+      "observationDigest": "sha256:e9491dfd1d2c36f757847734c3777b31c1c56c9b15903774866b29e1108af27a",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-installed-user-command-2026-10-30T15-14-36-545Z.log",
+      "outputDigest": "sha256:61a9cba7688769df8f2c9887330e8297e85a2168ceb29997222e89e9dd514cc4",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-repository-command",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-repository-command-2026-10-30T15-13-20-028Z.json",
+      "observationDigest": "sha256:43293281fb1e9faaea1bc190e6809d4d9f4332fe9f25a15ed497111750612af9",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-repository-command-2026-10-30T15-13-20-028Z.log",
+      "outputDigest": "sha256:047b8363f75edd20f2722561fac5b8073454c85d288ffaa71114c37f7afef1e2",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-repository-command-final",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-repository-command-final-2026-10-30T15-16-54-712Z.json",
+      "observationDigest": "sha256:ace63d50ce23da5d6a6cf7bdc65aa932f16d7122741739715c377c2e2abe31c0",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-repository-command-final-2026-10-30T15-16-54-712Z.log",
+      "outputDigest": "sha256:047b8363f75edd20f2722561fac5b8073454c85d288ffaa71114c37f7afef1e2",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-wrapper-shell-syntax",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-wrapper-shell-syntax-2026-10-30T15-21-48-006Z.json",
+      "observationDigest": "sha256:74a0d7116c5eb99290cbba2b69feee83c1a6bb77e0541d8cf8922dfebe9c0993",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-wrapper-shell-syntax-2026-10-30T15-21-48-006Z.log",
+      "outputDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "PASS"
+    },
+    {
+      "caseId": "promtool-isolated-publication-check",
+      "origin": "ghatana-lifecycle",
+      "observationRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-isolated-publication-check-2026-10-30T15-28-29-629Z.json",
+      "outputRef": ".ghatana/definition/residual-completion/promtool-verification-20261030/observations/promtool-isolated-publication-check-2026-10-30T15-28-29-629Z.log",
+      "result": "PASS",
+      "observationDigest": "sha256:c05847cdda3adcaeca361300553e872ef92f2be79fcad2e0ebba1cf7d34b3730",
+      "outputDigest": "sha256:1a588e15db11510af6202518b661caa2446a5c33355b2cc5fef175a7c527691e"
+    }
+  ],
+  "observationProvenance": "Original bounded observations are copied byte-for-byte from the Lifecycle wrapper. Its sourceCommit/sourceFingerprints identify the wrapper repository; sourceFiles above bind the exact Media working bytes tested.",
+  "priorLimitation": "The Promtool-not-run statement in the earlier Media merge report describes its original cutoff. This new native verification supersedes that limitation; the historical report is retained.",
+  "notRun": [
+    "Opt-in live exporter/Alertmanager delivery smoke: outside the requested offline rule-check scope."
+  ],
+  "unrelatedWorkPreserved": true,
+  "taskAndPhaseRecordsChanged": false,
+  "formalFreeze": "NOT_PERFORMED",
+  "release": "NOT_AUTHORIZED",
+  "publicationBaseCommit": "c213d310a62e4dfa630786e5fae0313e9fb1258b",
+  "publicationScope": "Five Promtool source/documentation changes and their verification record replayed in an isolated checkout of remote main. Concurrent Rust, schema-test, and ledger work remains in the original checkout.",
+  "capturedFromWorkingTreeBaseCommit": "a271fedc13fc657ec7df71c5a8e9988b5dea03ef",
+  "workingTreeProvenance": "The capture base identifies the original working tree parent, not committed source contents. sourceFiles binds the tested working bytes, including the uncommitted --interactive wrapper addition. publicationBaseCommit identifies the isolated replay parent.",
+  "publicationVerificationCaseId": "promtool-isolated-publication-check",
+  "publicationVerificationFinishedAt": "2026-10-30T15:28:39.624Z"
+}

@@ -134,25 +134,27 @@ Investigate or alert on:
 
 ### Wave 2 signal availability and no-data handling
 
-Validate the checked-in alert rules and readiness/workflow fixtures from the
-repository root with Prometheus `promtool` (v3.15.1):
-
-For a digest-pinned local Wave 2 run from the repository root, use:
+Validate both checked-in rule files and the alert scenarios from the repository
+root with one command:
 
 ```sh
-docker run --rm -v "$PWD:/workspace" -w /workspace \
-  --entrypoint /bin/promtool \
-  prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2 \
-  check rules infra/monitoring/alerts/audio-video.yml
-docker run --rm -v "$PWD:/workspace" -w /workspace \
-  --entrypoint /bin/promtool \
-  prom/prometheus@sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2 \
-  test rules infra/monitoring/tests/audio-video.rules.test.yml
+pnpm check:monitoring-rules
 ```
 
+This runs the digest-pinned Prometheus v3.15.1 `promtool` in a constrained,
+read-only Docker container. It pulls that exact image on first use, so no
+system-wide `promtool` installation is needed. Docker must already be available
+to the current user. To use the same wrapper directly, run
+`bash infra/monitoring/tests/promtool.sh --version`; it accepts the normal
+`promtool` arguments and only mounts the current directory read-only. For a
+user-local `promtool` command, install the self-contained wrapper without
+administrator access:
+
 ```sh
-promtool check rules monitoring/prometheus/rules/media.yml infra/monitoring/alerts/audio-video.yml
-promtool test rules infra/monitoring/tests/audio-video.rules.test.yml
+mkdir -p "$HOME/.local/bin"
+cp infra/monitoring/tests/promtool.sh "$HOME/.local/bin/promtool"
+chmod 0755 "$HOME/.local/bin/promtool"
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
 The rule test file evaluates local Prometheus expressions only; it does not
