@@ -1,0 +1,114 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Media dependency profile: DEV_SOURCE_COMPOSITE
+Including ghatana-shared composite build from: /Users/samujjwal/Development/ghatana-shared
+Kernel source omitted by the selected FOCUSED dependency allowlist
+Lifecycle source build omitted; Media has no direct Lifecycle project dependency
+> Task :build-logic:conventions:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :build-logic:conventions:compileKotlin UP-TO-DATE
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Task :build-logic:conventions:compileJava NO-SOURCE
+> Task :build-logic:conventions:pluginDescriptors UP-TO-DATE
+> Task :build-logic:conventions:processResources UP-TO-DATE
+> Task :build-logic:conventions:classes UP-TO-DATE
+> Task :build-logic:conventions:jar UP-TO-DATE
+
+> Configure project :platform:java:launcher-support
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Configure project :ghatana-shared:platform:contracts
+[DEVELOPMENT_COMPLETE] contracts is marked developmentComplete
+
+> Configure project :ghatana-shared:shared-services:auth-gateway
+[DEVELOPMENT_COMPLETE] auth-gateway is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-core
+[DEVELOPMENT_COMPLETE] agent-core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-runtime
+[DEVELOPMENT_COMPLETE] agent-runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:audit
+[DEVELOPMENT_COMPLETE] audit is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:cache
+[DEVELOPMENT_COMPLETE] cache is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:config
+[DEVELOPMENT_COMPLETE] config is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:core
+[DEVELOPMENT_COMPLETE] core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:database
+[DEVELOPMENT_COMPLETE] database is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:governance
+[DEVELOPMENT_COMPLETE] governance is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:grpc-client
+[DEVELOPMENT_COMPLETE] grpc-client is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:http
+[DEVELOPMENT_COMPLETE] http is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:messaging
+[DEVELOPMENT_COMPLETE] messaging is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:observability
+[DEVELOPMENT_COMPLETE] observability is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:platform-bom
+[DEVELOPMENT_COMPLETE] platform-bom is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:runtime
+[DEVELOPMENT_COMPLETE] runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:schema
+[DEVELOPMENT_COMPLETE] schema is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:security
+[DEVELOPMENT_COMPLETE] security is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing
+[DEVELOPMENT_COMPLETE] testing is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-activej
+[DEVELOPMENT_COMPLETE] testing-activej is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-integration
+[DEVELOPMENT_COMPLETE] testing-integration is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:workflow
+[DEVELOPMENT_COMPLETE] workflow is marked developmentComplete
+
+> Task :services:media:modules:video-streaming:compileJava UP-TO-DATE
+> Task :services:media:modules:video-streaming:processResources NO-SOURCE
+> Task :services:media:modules:video-streaming:classes UP-TO-DATE
+> Task :services:media:modules:video-streaming:processTestResources NO-SOURCE
+> Task :ghatana-shared:platform:java:testing:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:testing:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:testing:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:testing:jar UP-TO-DATE
+> Task :services:media:modules:video-streaming:compileTestJava UP-TO-DATE
+> Task :services:media:modules:video-streaming:testClasses UP-TO-DATE
+
+> Task :services:media:modules:video-streaming:test
+
+VideoStreamSessionFrameTest > legitimateFramesRoundTripAtBoundaries() PASSED
+
+VideoStreamSessionFrameTest > malformedFramesFailBeforeAnyPayloadAllocation() PASSED
+
+[Incubating] Problems report is available at: file:///Users/samujjwal/Development/ghatana-media/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 13s
+9 actionable tasks: 1 executed, 8 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html

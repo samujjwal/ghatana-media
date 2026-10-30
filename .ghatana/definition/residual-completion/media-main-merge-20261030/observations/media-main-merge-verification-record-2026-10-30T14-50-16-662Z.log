@@ -1,0 +1,1 @@
+{"status": "PASS", "report": ".ghatana/definition/residual-completion/media-main-merge-20261030/reconciliation.json", "reportDigest": "sha256:d82182ca26fa375b3578d3e678e0441968dc37d09c54a80855f3ca424536c1a7", "focusedTests": 51, "projectionNegativeCases": 15, "sourceFileCount": 20, "retainedObservations": 21}

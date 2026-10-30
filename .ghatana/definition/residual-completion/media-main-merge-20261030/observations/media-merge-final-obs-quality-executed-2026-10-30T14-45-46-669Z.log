@@ -1,0 +1,362 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Media dependency profile: DEV_SOURCE_COMPOSITE
+Including ghatana-shared composite build from: /Users/samujjwal/Development/ghatana-shared
+Kernel source omitted by the selected FOCUSED dependency allowlist
+Lifecycle source build omitted; Media has no direct Lifecycle project dependency
+> Task :build-logic:conventions:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:conventions:pluginDescriptors
+> Task :build-logic:conventions:processResources
+
+> Configure project :services:media:audio-video-observability
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Task :build-logic:conventions:compileKotlin
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+w: ⚠️ Inconsistent JVM Target Compatibility Between Java and Kotlin Tasks
+Inconsistent JVM-target compatibility detected for tasks 'compileJava' (27) and 'compileKotlin' (26).
+Solution: Consider using JVM Toolchain: https://kotl.in/gradle/jvm/toolchain
+Learn more about JVM-target validation: https://kotl.in/gradle/jvm/target-validation
+
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/IntentionalPublicApiPolicy.kt:82:17 Check for instance is always 'false'.
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/JmhBenchmarkConventionPlugin.kt:259:113 This class is not recommended for use in Kotlin. Use 'kotlin.Any' instead.
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/VerifyIntentionalPublicApiTask.kt:315:41 Unchecked cast of 'Any?' to 'Map<String, Any?>'.
+
+> Task :build-logic:conventions:compileJava NO-SOURCE
+> Task :build-logic:conventions:classes
+> Task :build-logic:conventions:jar
+
+> Configure project :ghatana-shared:platform:contracts
+[DEVELOPMENT_COMPLETE] contracts is marked developmentComplete
+
+> Configure project :ghatana-shared:shared-services:auth-gateway
+[DEVELOPMENT_COMPLETE] auth-gateway is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-core
+[DEVELOPMENT_COMPLETE] agent-core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-runtime
+[DEVELOPMENT_COMPLETE] agent-runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:audit
+[DEVELOPMENT_COMPLETE] audit is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:cache
+[DEVELOPMENT_COMPLETE] cache is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:config
+[DEVELOPMENT_COMPLETE] config is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:core
+[DEVELOPMENT_COMPLETE] core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:database
+[DEVELOPMENT_COMPLETE] database is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:governance
+[DEVELOPMENT_COMPLETE] governance is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:grpc-client
+[DEVELOPMENT_COMPLETE] grpc-client is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:http
+[DEVELOPMENT_COMPLETE] http is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:messaging
+[DEVELOPMENT_COMPLETE] messaging is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:observability
+[DEVELOPMENT_COMPLETE] observability is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:platform-bom
+[DEVELOPMENT_COMPLETE] platform-bom is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:runtime
+[DEVELOPMENT_COMPLETE] runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:schema
+[DEVELOPMENT_COMPLETE] schema is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:security
+[DEVELOPMENT_COMPLETE] security is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing
+[DEVELOPMENT_COMPLETE] testing is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-activej
+[DEVELOPMENT_COMPLETE] testing-activej is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-integration
+[DEVELOPMENT_COMPLETE] testing-integration is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:workflow
+[DEVELOPMENT_COMPLETE] workflow is marked developmentComplete
+
+> Task :services:media:audio-video-observability:processResources NO-SOURCE
+> Task :services:media:audio-video-observability:processTestResources NO-SOURCE
+> Task :services:media:libs:common:processResources
+> Task :services:media:libs:java:common:processResources NO-SOURCE
+
+> Task :ghatana-shared:platform:java:core:compileJava
+
+> Task :ghatana-shared:platform:contracts:protobufDummy UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:extractIncludeProto
+> Task :ghatana-shared:platform:contracts:extractProto
+> Task :ghatana-shared:platform:contracts:generateProto
+
+> Task :ghatana-shared:platform:contracts:compileJava
+
+> Task :ghatana-shared:platform:java:config:compileJava
+
+> Task :services:media:libs:java:common:compileJava
+
+> Task :services:media:libs:java:common:classes
+> Task :ghatana-shared:platform:java:observability:compileJava
+> Task :services:media:libs:java:common:jar
+
+> Task :ghatana-shared:platform:java:database:compileJava
+
+> Task :ghatana-shared:platform:java:schema:checkSchemaProductionDependencies
+> Task :ghatana-shared:platform:java:schema:compileJava
+
+> Task :ghatana-shared:platform:java:runtime:compileJava
+
+> Task :ghatana-shared:platform:java:security:compileJava
+
+> Task :ghatana-shared:platform:java:core:processResources
+> Task :ghatana-shared:platform:java:core:classes
+> Task :ghatana-shared:platform:java:core:jar
+> Task :ghatana-shared:platform:java:config:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:config:classes
+> Task :ghatana-shared:platform:java:config:jar
+> Task :ghatana-shared:platform:java:observability:processResources
+> Task :ghatana-shared:platform:java:observability:classes
+> Task :ghatana-shared:platform:java:observability:jar
+> Task :ghatana-shared:platform:java:security:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:security:classes
+> Task :ghatana-shared:platform:java:security:jar
+> Task :ghatana-shared:platform:java:runtime:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:runtime:classes
+> Task :ghatana-shared:platform:java:runtime:jar
+> Task :ghatana-shared:platform:java:database:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:database:classes
+> Task :ghatana-shared:platform:java:database:jar
+> Task :ghatana-shared:platform:contracts:processProtoResources
+> Task :ghatana-shared:platform:contracts:processResources
+> Task :ghatana-shared:platform:contracts:classes
+> Task :services:media:libs:common:compileJava
+> Task :ghatana-shared:platform:contracts:jar
+> Task :ghatana-shared:platform:java:schema:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:schema:classes
+> Task :ghatana-shared:platform:java:schema:jar
+> Task :services:media:audio-video-observability:compileJava
+> Task :services:media:audio-video-observability:classes
+> Task :services:media:audio-video-observability:compileTestJava
+> Task :services:media:audio-video-observability:testClasses
+> Task :services:media:libs:common:classes
+> Task :services:media:libs:common:jar
+
+> Task :services:media:audio-video-observability:test
+
+MediaWorkflowAlertRulesTest > readinessTelemetryAlertsRequireReachableTargetAndKeepUnknownDistinctFromUnavailable() PASSED
+
+MediaWorkflowAlertRulesTest > qualityAndSourceFreshnessRulesAreFixtureScopedAndRedacted() PASSED
+
+MediaWorkflowAlertRulesTest > checkedInPrometheusFixtureCoversReadinessFiringAndFalseAlarmCases() PASSED
+
+MediaWorkflowAlertRulesTest > modalityProviderAlertsHaveFixedLabelsAndDoNotFireForMissingOrNanSeries() PASSED
+
+MediaWorkflowAlertRulesTest > providerReadinessRuleFixturesOnlyFireForObservedZeroAndExposeNoIdentityLabels() PASSED
+
+MediaWorkflowAlertRulesTest > durableBacklogAlertsRequireACompleteStoreSnapshotAndUnavailableIsExplicit() PASSED
+
+MediaWorkflowAlertRulesTest > providerReadinessAlertsAreModalitySpecificAndQualityRemainsFixtureOnly() PASSED
+
+MediaWorkflowAlertRulesTest > definesAlertsForDurableWorkflowFailureSignalsWithoutIdentityLabels() PASSED
+
+MediaWorkflowAlertRulesTest > alertLabelsRemainFixedAndCannotContainRequestOrProviderIdentity() PASSED
+
+MediaWorkflowAlertRulesTest > perServiceRateAlertsRetainTheServiceLabelUsedByTheirAnnotations() PASSED
+
+MediaWorkflowMetricsTest > concurrentOutOfOrderProviderCompletionsKeepTheNewestObservationTuple() PASSED
+
+MediaWorkflowMetricsTest > rejectsOutOfOrderAndConflictingEqualTimeProviderObservationsWithoutRegressingGauges() PASSED
+
+MediaWorkflowMetricsTest > modalityBoundariesRecordMonotonicDurationsWithBoundedPhaseAndOutcomeTags() PASSED
+
+MediaWorkflowMetricsTest > distinguishesMeasuredOutboxLeaseZeroFromUnsupportedSource() PASSED
+
+MediaWorkflowMetricsTest > adversarialServiceLabelsCollapseToSingleBoundedVocabularyValue() PASSED
+
+MediaWorkflowMetricsTest > clampsNegativeBacklogsAndRejectsUnboundedServiceTags() PASSED
+
+MediaWorkflowMetricsTest > measuredQualitySeriesUsesBoundedVocabularyAndHonestAbsence() PASSED
+
+MediaWorkflowMetricsTest > distinguishesMeasuredZeroFromUnknownAndClearsStaleValuesWhenSourceUnavailable() PASSED
+
+MediaWorkflowMetricsTest > rejectsUnboundedProviderMetricIdentitiesAndFutureQualityReadings() PASSED
+
+MediaWorkflowMetricsTest > exportsProviderRevisionReadinessAndQualityFreshnessWithoutInventingQuality() PASSED
+
+MediaWorkflowMetricsTest > recordsBoundedWorkflowEventsStagesAndTenantAgnosticGauges() PASSED
+
+[Incubating] Problems report is available at: file:///Users/samujjwal/Development/ghatana-media/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 42s
+36 actionable tasks: 36 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html
+/Users/samujjwal/Development/ghatana-shared/platform/java/core/src/main/java/com/ghatana/core/lifecycle/TransitionMatrix.java:130: warning: [unchecked] Possible heap pollution from parameterized vararg type S
+        public Builder<S> validStates(S... states) {
+                                           ^
+  where S is a type-variable:
+    S extends Enum<S> declared in class Builder
+/Users/samujjwal/Development/ghatana-shared/platform/java/core/src/main/java/com/ghatana/core/lifecycle/TransitionMatrix.java:142: warning: [unchecked] Possible heap pollution from parameterized vararg type S
+        public Builder<S> terminalStates(S... states) {
+                                              ^
+  where S is a type-variable:
+    S extends Enum<S> declared in class Builder
+/Users/samujjwal/Development/ghatana-shared/platform/java/core/src/main/java/com/ghatana/core/lifecycle/TransitionMatrix.java:149: warning: [unchecked] Possible heap pollution from parameterized vararg type S
+        public Builder<S> initialStates(S... states) {
+                                             ^
+  where S is a type-variable:
+    S extends Enum<S> declared in class Builder
+/Users/samujjwal/Development/ghatana-shared/platform/java/core/src/main/java/com/ghatana/core/lifecycle/TransitionMatrix.java:156: warning: [unchecked] Possible heap pollution from parameterized vararg type S
+        public Builder<S> transition(S from, S... toStates) {
+                                                  ^
+  where S is a type-variable:
+    S extends Enum<S> declared in class Builder
+/Users/samujjwal/Development/ghatana-shared/platform/java/core/src/main/java/com/ghatana/core/exception/SafeErrorMetadata.java:185: warning: [unchecked] unchecked cast
+        return (T) metadata.get(requireValidKey(key));
+                               ^
+  required: T
+  found:    Object
+  where T is a type-variable:
+    T extends Object declared in method <T>get(String)
+5 warnings
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/SecurityClassificationAuditor.java:530: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                        if (parameter.has("name") && parameter.get("name").isTextual()) {
+                                                                          ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/SecurityClassificationAuditor.java:531: warning: [deprecation] asText() in JsonNode has been deprecated
+                            fields.add(parameter.get("name").asText());
+                                                            ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/SecurityClassificationAuditor.java:633: warning: [deprecation] asText() in JsonNode has been deprecated
+        return child != null && !child.isNull() ? child.asText() : defaultValue;
+                                                       ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:108: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                if (type.isTextual() && !VALID_TYPES.contains(type.asText())) {
+                        ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:108: warning: [deprecation] asText() in JsonNode has been deprecated
+                if (type.isTextual() && !VALID_TYPES.contains(type.asText())) {
+                                                                  ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:112: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                        if (!item.isTextual() || !VALID_TYPES.contains(item.asText())) {
+                                 ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:112: warning: [deprecation] asText() in JsonNode has been deprecated
+                        if (!item.isTextual() || !VALID_TYPES.contains(item.asText())) {
+                                                                           ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:116: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                } else if (!type.isTextual()) {
+                                ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:139: warning: [deprecation] asText() in JsonNode has been deprecated
+            SchemaRegistry registry = SchemaRegistry.withDefaultDialect(resolveSpecificationVersion(schema.path("$schema").asText()));
+                                                                                                                          ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:150: warning: [deprecation] asText(String) in JsonNode has been deprecated
+        String identifier = schema.path("$schema").asText("");
+                                                  ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:188: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                if (ref != null && !ref.isTextual()) {
+                                       ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:190: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                } else if (ref != null && ref.isTextual()) {
+                                             ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:197: warning: [deprecation] asText() in JsonNode has been deprecated
+                    validateRef(fileName, entry.getKey(), ref.asText(), localPointers, violations);
+                                                             ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:271: warning: [deprecation] asText() in JsonNode has been deprecated
+            if (node.has("type") && "object".equals(node.get("type").asText())) {
+                                                                    ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:328: warning: [deprecation] isTextual() in JsonNode has been deprecated
+                        if (field.getValue().isTextual()
+                                            ^
+/Users/samujjwal/Development/ghatana-shared/platform/contracts/src/main/java/com/ghatana/contracts/JsonSchemaSemanticValidator.java:329: warning: [deprecation] asText() in JsonNode has been deprecated
+                                && field.getValue().asText().length() > ContractConstants.MAX_PATH_LENGTH) {
+                                                   ^
+16 warnings
+/Users/samujjwal/Development/ghatana-media/libs/java/common/src/main/java/com/ghatana/media/service/http/SttHttpAdapter.java:67: warning: [deprecation] Locale(String) in Locale has been deprecated
+                        .language(new java.util.Locale(req.language))
+                                  ^
+1 warning
+/Users/samujjwal/Development/ghatana-shared/platform/java/database/src/main/java/com/ghatana/database/adapter/jpa/CustomPersistenceUnitInfo.java:197: warning: [removal] PersistenceUnitTransactionType in jakarta.persistence.spi has been deprecated and marked for removal
+    public PersistenceUnitTransactionType getTransactionType() {
+           ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/database/src/main/java/com/ghatana/database/adapter/jpa/CustomPersistenceUnitInfo.java:198: warning: [removal] PersistenceUnitTransactionType in jakarta.persistence.spi has been deprecated and marked for removal
+        return PersistenceUnitTransactionType.RESOURCE_LOCAL;
+               ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/database/src/main/java/com/ghatana/database/adapter/jpa/JpaConfig.java:344: warning: [removal] LOG_SESSION_METRICS in SessionEventSettings has been deprecated and marked for removal
+    properties.setProperty(AvailableSettings.LOG_SESSION_METRICS, "false");
+                                            ^
+3 warnings
+/Users/samujjwal/Development/ghatana-shared/platform/java/runtime/src/main/java/com/ghatana/runtime/schema/SchemaBootstrapper.java:325: warning: [deprecation] isTextual() in JsonNode has been deprecated
+        return (n != null && n.isTextual()) ? n.asText() : null;
+                              ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/runtime/src/main/java/com/ghatana/runtime/schema/SchemaBootstrapper.java:325: warning: [deprecation] asText() in JsonNode has been deprecated
+        return (n != null && n.isTextual()) ? n.asText() : null;
+                                               ^
+2 warnings
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/model/User.java:183: warning: [unchecked] unchecked cast
+        return (T) attributes.get(name);
+                                 ^
+  required: T
+  found:    Object
+  where T is a type-variable:
+    T extends Serializable declared in method <T>getAttribute(String)
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/adapter/nimbus/TokenIntrospector.java:174: warning: [deprecation] setContent(String) in HTTPResponse has been deprecated
+            response.setContent(new String(body, java.nio.charset.StandardCharsets.UTF_8));
+                    ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/model/AuthenticatedPrincipal.java:201: warning: [unchecked] unchecked cast
+        return (T) attributes.get(Objects.requireNonNull(name, "name must not be null"));
+                                 ^
+  required: T
+  found:    Object
+  where T is a type-variable:
+    T extends Serializable declared in method <T>getAttribute(String)
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/model/AuthenticatedPrincipal.java:212: warning: [unchecked] unchecked cast
+        return (T) attributes.getOrDefault(
+                                          ^
+  required: T
+  found:    Object
+  where T is a type-variable:
+    T extends Serializable declared in method <T>getAttributeOrDefault(String,T)
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/SessionState.java:235: warning: [unchecked] unchecked cast
+        return (T) snapshot(attributes.get(name), 0, new SnapshotBudget());
+                           ^
+  required: T
+  found:    Serializable
+  where T is a type-variable:
+    T extends Serializable declared in method <T>getAttribute(String)
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/RequestContext.java:295: warning: [unchecked] unchecked cast
+        return (T) attributes.get(name);
+                                 ^
+  required: T
+  found:    Serializable
+  where T is a type-variable:
+    T extends Serializable declared in method <T>getAttribute(String)
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/RedisSessionManager.java:40: warning: [deprecation] JedisPool in redis.clients.jedis has been deprecated
+    private final JedisPool jedisPool;
+                  ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/RedisSessionManager.java:48: warning: [deprecation] JedisPool in redis.clients.jedis has been deprecated
+    public RedisSessionManager(JedisPool jedisPool, ObjectMapper objectMapper, String keyPrefix,
+                               ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/RedisSessionManager.java:65: warning: [deprecation] JedisPool in redis.clients.jedis has been deprecated
+    RedisSessionManager(JedisPool pool, ObjectMapper mapper, String prefix, Duration ttl) {
+                        ^
+/Users/samujjwal/Development/ghatana-shared/platform/java/security/src/main/java/com/ghatana/security/session/RedisSessionManager.java:69: warning: [deprecation] JedisPool in redis.clients.jedis has been deprecated
+    RedisSessionManager(JedisPool pool, ObjectMapper mapper, String prefix, Duration ttl, SessionMetrics metrics) {
+                        ^
+10 warnings

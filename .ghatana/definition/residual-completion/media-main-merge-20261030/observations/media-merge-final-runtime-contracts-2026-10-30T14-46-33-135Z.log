@@ -1,0 +1,77 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Media dependency profile: DEV_SOURCE_COMPOSITE
+Including ghatana-shared composite build from: /Users/samujjwal/Development/ghatana-shared
+Kernel source omitted by the selected FOCUSED dependency allowlist
+Lifecycle source build omitted; Media has no direct Lifecycle project dependency
+> Task :build-logic:conventions:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :build-logic:conventions:pluginDescriptors
+> Task :build-logic:conventions:processResources
+
+> Configure project :services:media:audio-video-observability
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Task :build-logic:conventions:compileKotlin
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+w: ⚠️ Inconsistent JVM Target Compatibility Between Java and Kotlin Tasks
+Inconsistent JVM-target compatibility detected for tasks 'compileJava' (27) and 'compileKotlin' (26).
+Solution: Consider using JVM Toolchain: https://kotl.in/gradle/jvm/toolchain
+Learn more about JVM-target validation: https://kotl.in/gradle/jvm/target-validation
+
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/IntentionalPublicApiPolicy.kt:82:17 Check for instance is always 'false'.
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/JmhBenchmarkConventionPlugin.kt:259:113 This class is not recommended for use in Kotlin. Use 'kotlin.Any' instead.
+w: file:///Users/samujjwal/Development/ghatana-shared/build-logic/conventions/src/main/kotlin/com/ghatana/buildlogic/VerifyIntentionalPublicApiTask.kt:315:41 Unchecked cast of 'Any?' to 'Map<String, Any?>'.
+
+> Task :build-logic:conventions:compileJava NO-SOURCE
+> Task :build-logic:conventions:classes
+> Task :build-logic:conventions:jar
+> Task :services:media:runtime-contracts:compileJava
+> Task :services:media:runtime-contracts:processResources NO-SOURCE
+> Task :services:media:runtime-contracts:classes
+
+> Task :services:media:runtime-contracts:compileTestJava
+
+> Task :services:media:runtime-contracts:processTestResources NO-SOURCE
+> Task :services:media:runtime-contracts:testClasses
+
+> Task :services:media:runtime-contracts:test
+
+MediaModalityContractsTest > multimodalContextIsTypedBoundedAndPurposeLimited() PASSED
+
+MediaModalityContractsTest > biometricVisionOutputRequiresAuthorityOwnedEligibility() PASSED
+
+MediaModalityContractsTest > speechResultCarriesProviderModelProvenanceClassificationAndRetention() PASSED
+
+MediaModalityContractsTest > externalModalityResultRequiresMatchingActiveConsentAndRegion() PASSED
+
+MediaModalityContractsTest > resultShapeAndProviderIdentityAreBounded() PASSED
+
+MediaModalityContractsTest > eachDeclaredModalityRequiresItsGroundedPayloadShape() PASSED
+
+[Incubating] Problems report is available at: file:///Users/samujjwal/Development/ghatana-media/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 24s
+7 actionable tasks: 7 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html
+/Users/samujjwal/Development/ghatana-media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java:176: warning: [deprecation] evaluate(Request,MediaArtifact,Profile,boolean,boolean,boolean,boolean) in MediaSpeechToTextAdmission has been deprecated
+        var noStore = MediaSpeechToTextAdmission.evaluate(
+                                                ^
+/Users/samujjwal/Development/ghatana-media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java:179: warning: [deprecation] evaluate(Request,MediaArtifact,Profile,boolean,boolean,boolean,boolean) in MediaSpeechToTextAdmission has been deprecated
+        var noRights = MediaSpeechToTextAdmission.evaluate(
+                                                 ^
+/Users/samujjwal/Development/ghatana-media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java:182: warning: [deprecation] evaluate(Request,MediaArtifact,Profile,boolean,boolean,boolean,boolean) in MediaSpeechToTextAdmission has been deprecated
+        var noConsent = MediaSpeechToTextAdmission.evaluate(
+                                                  ^
+/Users/samujjwal/Development/ghatana-media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java:185: warning: [deprecation] evaluate(Request,MediaArtifact,Profile,boolean,boolean,boolean,boolean) in MediaSpeechToTextAdmission has been deprecated
+        var noClock = MediaSpeechToTextAdmission.evaluate(
+                                                ^
+/Users/samujjwal/Development/ghatana-media/runtime-contracts/src/test/java/com/ghatana/media/runtime/MediaSpeechToTextAdmissionTest.java:193: warning: [deprecation] evaluate(Request,MediaArtifact,Profile,boolean,boolean,boolean,boolean) in MediaSpeechToTextAdmission has been deprecated
+        var expired = MediaSpeechToTextAdmission.evaluate(
+                                                ^
+5 warnings

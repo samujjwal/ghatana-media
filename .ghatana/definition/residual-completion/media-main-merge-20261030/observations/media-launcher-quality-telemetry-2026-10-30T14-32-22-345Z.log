@@ -1,0 +1,262 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Media dependency profile: DEV_SOURCE_COMPOSITE
+Including ghatana-shared composite build from: /Users/samujjwal/Development/ghatana-shared
+Kernel source omitted by the selected FOCUSED dependency allowlist
+Lifecycle source build omitted; Media has no direct Lifecycle project dependency
+> Task :build-logic:conventions:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :build-logic:conventions:compileKotlin UP-TO-DATE
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Task :build-logic:conventions:compileJava NO-SOURCE
+> Task :build-logic:conventions:pluginDescriptors UP-TO-DATE
+> Task :build-logic:conventions:processResources UP-TO-DATE
+> Task :build-logic:conventions:classes UP-TO-DATE
+> Task :build-logic:conventions:jar UP-TO-DATE
+
+> Configure project :platform:java:launcher-support
+Kotlin does not yet support 27 JDK target, falling back to Kotlin JVM_26 JVM target
+
+> Configure project :ghatana-shared:platform:contracts
+[DEVELOPMENT_COMPLETE] contracts is marked developmentComplete
+
+> Configure project :ghatana-shared:shared-services:auth-gateway
+[DEVELOPMENT_COMPLETE] auth-gateway is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-core
+[DEVELOPMENT_COMPLETE] agent-core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:agent-runtime
+[DEVELOPMENT_COMPLETE] agent-runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:audit
+[DEVELOPMENT_COMPLETE] audit is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:cache
+[DEVELOPMENT_COMPLETE] cache is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:config
+[DEVELOPMENT_COMPLETE] config is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:core
+[DEVELOPMENT_COMPLETE] core is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:database
+[DEVELOPMENT_COMPLETE] database is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:governance
+[DEVELOPMENT_COMPLETE] governance is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:grpc-client
+[DEVELOPMENT_COMPLETE] grpc-client is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:http
+[DEVELOPMENT_COMPLETE] http is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:messaging
+[DEVELOPMENT_COMPLETE] messaging is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:observability
+[DEVELOPMENT_COMPLETE] observability is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:platform-bom
+[DEVELOPMENT_COMPLETE] platform-bom is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:runtime
+[DEVELOPMENT_COMPLETE] runtime is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:schema
+[DEVELOPMENT_COMPLETE] schema is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:security
+[DEVELOPMENT_COMPLETE] security is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing
+[DEVELOPMENT_COMPLETE] testing is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-activej
+[DEVELOPMENT_COMPLETE] testing-activej is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:testing-integration
+[DEVELOPMENT_COMPLETE] testing-integration is marked developmentComplete
+
+> Configure project :ghatana-shared:platform:java:workflow
+[DEVELOPMENT_COMPLETE] workflow is marked developmentComplete
+
+> Task :platform:java:launcher-support:processResources NO-SOURCE
+> Task :services:media:audio-video-observability:processResources NO-SOURCE
+> Task :services:media:runtime-contracts:compileJava UP-TO-DATE
+> Task :services:media:modules:audio-streaming:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:core:compileJava UP-TO-DATE
+> Task :services:media:modules:video-streaming:compileJava UP-TO-DATE
+> Task :services:media:runtime-contracts:processResources NO-SOURCE
+> Task :services:media:libs:common:processResources UP-TO-DATE
+> Task :services:media:libs:java:common:processResources NO-SOURCE
+> Task :services:media:modules:infrastructure:persistence:processResources UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:protobufDummy UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:protobufDummy UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:extractProto UP-TO-DATE
+> Task :ghatana-shared:platform:java:config:compileJava UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:processProtoResources UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:processResources UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:protobufDummy UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:extractProto UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:processProtoResources UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:processResources UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:extractProto UP-TO-DATE
+> Task :ghatana-shared:platform:java:observability:compileJava UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:protobufDummy UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:extractProto UP-TO-DATE
+> Task :services:media:launcher:processResources UP-TO-DATE
+> Task :services:media:launcher:processTestResources NO-SOURCE
+> Task :services:media:runtime-contracts:classes UP-TO-DATE
+> Task :services:media:runtime-contracts:jar UP-TO-DATE
+> Task :services:media:modules:audio-streaming:processResources NO-SOURCE
+> Task :services:media:modules:audio-streaming:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:database:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:schema:checkSchemaProductionDependencies
+> Task :ghatana-shared:platform:java:schema:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:runtime:compileJava UP-TO-DATE
+> Task :services:media:modules:audio-streaming:jar
+> Task :services:media:modules:video-streaming:processResources NO-SOURCE
+> Task :services:media:modules:video-streaming:classes UP-TO-DATE
+> Task :services:media:modules:video-streaming:jar
+> Task :ghatana-shared:platform:java:security:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:protobufDummy UP-TO-DATE
+> Task :services:media:providers:aws-postgresql:processResources UP-TO-DATE
+> Task :services:media:modules:infrastructure:cache:processResources NO-SOURCE
+> Task :services:media:modules:infrastructure:messaging:processResources NO-SOURCE
+> Task :services:media:modules:infrastructure:security:processResources NO-SOURCE
+> Task :services:media:modules:intelligence:multimodal-service:processProtoResources UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:processResources UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:processProtoResources UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:extractIncludeProto UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:extractProto UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:generateProto UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:http:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:messaging:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:governance:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:cache:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:security:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:http:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:core:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:java:governance:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:runtime:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:messaging:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:observability:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:java:schema:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:agent-runtime:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:java:audit:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:processProtoResources UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:processResources UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-core:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:database:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:config:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:audit:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-core:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-runtime:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:classes UP-TO-DATE
+> Task :ghatana-shared:platform:contracts:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-runtime:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-runtime:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:security:classes UP-TO-DATE
+> Task :platform:java:launcher-support:compileJava UP-TO-DATE
+> Task :platform:java:launcher-support:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:security:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:runtime:classes UP-TO-DATE
+> Task :platform:java:launcher-support:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:runtime:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:config:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:config:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:messaging:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:messaging:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:audit:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:audit:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:http:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:http:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-core:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:agent-core:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:database:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:database:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:observability:classes UP-TO-DATE
+> Task :services:media:libs:java:common:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:observability:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:core:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:core:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:governance:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:governance:jar UP-TO-DATE
+> Task :services:media:libs:common:compileJava UP-TO-DATE
+> Task :ghatana-shared:platform:java:cache:processResources NO-SOURCE
+> Task :ghatana-shared:platform:java:cache:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:cache:jar UP-TO-DATE
+> Task :ghatana-shared:platform:java:schema:classes UP-TO-DATE
+> Task :ghatana-shared:platform:java:schema:jar UP-TO-DATE
+> Task :services:media:audio-video-observability:compileJava UP-TO-DATE
+> Task :services:media:audio-video-observability:classes UP-TO-DATE
+> Task :services:media:audio-video-observability:jar UP-TO-DATE
+> Task :services:media:modules:infrastructure:persistence:compileJava UP-TO-DATE
+> Task :services:media:modules:infrastructure:cache:compileJava UP-TO-DATE
+> Task :services:media:modules:infrastructure:messaging:compileJava UP-TO-DATE
+> Task :services:media:modules:infrastructure:security:compileJava UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:extractIncludeProto UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:generateProto UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:extractIncludeProto UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:generateProto UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:compileJava UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:extractIncludeProto UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:generateProto UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:compileJava UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:compileJava UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:extractIncludeProto UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:generateProto UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:compileJava UP-TO-DATE
+> Task :services:media:launcher:compileJava
+> Task :services:media:launcher:classes
+> Task :services:media:launcher:compileTestJava UP-TO-DATE
+> Task :services:media:launcher:testClasses UP-TO-DATE
+> Task :services:media:libs:common:classes UP-TO-DATE
+> Task :services:media:libs:common:jar UP-TO-DATE
+> Task :services:media:providers:aws-postgresql:compileJava UP-TO-DATE
+> Task :services:media:providers:aws-postgresql:classes UP-TO-DATE
+> Task :services:media:providers:aws-postgresql:jar UP-TO-DATE
+> Task :services:media:libs:java:common:classes UP-TO-DATE
+> Task :services:media:libs:java:common:jar UP-TO-DATE
+> Task :services:media:modules:infrastructure:cache:classes UP-TO-DATE
+> Task :services:media:modules:infrastructure:cache:jar
+> Task :services:media:modules:infrastructure:messaging:classes UP-TO-DATE
+> Task :services:media:modules:infrastructure:messaging:jar UP-TO-DATE
+> Task :services:media:modules:infrastructure:persistence:classes UP-TO-DATE
+> Task :services:media:modules:infrastructure:persistence:jar UP-TO-DATE
+> Task :services:media:modules:infrastructure:security:classes UP-TO-DATE
+> Task :services:media:modules:infrastructure:security:jar UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:classes UP-TO-DATE
+> Task :services:media:modules:intelligence:multimodal-service:jar UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:classes UP-TO-DATE
+> Task :services:media:modules:speech:stt-service:jar UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:classes UP-TO-DATE
+> Task :services:media:modules:speech:tts-service:jar UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:classes UP-TO-DATE
+> Task :services:media:modules:vision:vision-service:jar UP-TO-DATE
+
+> Task :services:media:launcher:test
+
+MediaRuntimeProviderQualityMetricsTest > publishesSourceOwnedMeasuredQualityFreshnessWithoutQualifyingTheProvider() PASSED
+
+MediaRuntimeProviderQualityMetricsTest > missingAndMismatchedQualityRemainNanWhileReadinessMayBeHealthy() PASSED
+
+> Task :services:media:launcher:jacocoTestReport
+
+[Incubating] Problems report is available at: file:///Users/samujjwal/Development/ghatana-media/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.2/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 20s
+104 actionable tasks: 7 executed, 97 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html

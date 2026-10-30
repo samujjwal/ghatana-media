@@ -1001,5 +1001,12 @@
   "qualityBoundary": "Reference fixture tests do not establish production quality, rights or provider qualification. Existing default empty quality-reader composition is unchanged.",
   "formalFreeze": "NOT_PERFORMED",
   "release": "NOT_AUTHORIZED",
-  "publicationReadbackRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/publication-readback.json"
+  "publicationReadbackRef": ".ghatana/definition/residual-completion/media-main-merge-20261030/publication-readback.json",
+  "verificationScope": "Focused Java tests under DEV_SOURCE_COMPOSITE / FOCUSED settings; no full-suite, live provider or release qualification claim.",
+  "notRun": [
+    {
+      "command": "promtool check rules / promtool test rules",
+      "reason": "promtool is not installed on this host; the selected Java alert-rule contract tests passed."
+    }
+  ]
 }

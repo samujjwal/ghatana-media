@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "2e9463265025ffe4db334e58fb4fba823bc342f5",
+  "matrixSha256": "sha256:75e5b81a3eb882fdbf69517c3b52923a36673c754f274236f24441124bd03a54",
+  "taskRegisterSha256": "sha256:d1f8c1d553156b22174e5933277fa7588c8cbaea018ed47dcda8bfb68fe62c02",
+  "surfaceCount": 21,
+  "inventoryDispositionCount": 16,
+  "inventoryEntryCount": 37,
+  "manifestCandidateCount": 29,
+  "fingerprintRows": 2125,
+  "uniqueFingerprintPaths": 629,
+  "addedFingerprintPaths": [],
+  "removedFingerprintPaths": [],
+  "changedFingerprintPaths": [
+    {
+      "path": "modules/infrastructure/cache/build.gradle.kts",
+      "before": "5e2a950433dc8fecee77b5cc81bf9384a5b18b0886196cd556b0f63b456d4589",
+      "after": "4ee86a7684a73bf8de4ba557941af1c2d7d3eda1e125e8156284949d2c7edb2d"
+    },
+    {
+      "path": "modules/infrastructure/cache/src/main/java/com/ghatana/audio/video/infrastructure/cache/AudioVideoCache.java",
+      "before": "0295b15f3669b319f40f0a1be1fb871eccf357d67bd904571ed2bbfb238b311d",
+      "after": "009c5bcd037010c1e1047178c3b1fe3ac1e5a11ce7573709d9ebc9ea479ab4d1"
+    }
+  ],
+  "normalizedSemanticProjectionEqualToCc107731": true,
+  "matrixErrors": [],
+  "negativeCaseCount": 15,
+  "negativeCaseFailures": [],
+  "status": "PASS"
+}
