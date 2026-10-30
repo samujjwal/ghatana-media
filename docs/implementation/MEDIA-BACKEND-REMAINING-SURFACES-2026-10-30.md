@@ -368,3 +368,17 @@ For each task implementation handoff record: local task ID, exact source/PDP own
 **Track B, deployment and external qualifications** are independent. No PDP0–3 DEV_COMPLETE claim is asserted anew, no source-currentness receipt, signed model/codec/license approval, lifecycle phase/Kernel transition, Ghatana producer adoption, release, PR state, and no operational writer cutover are performed by this plan. The current [Wave2 execution owner](MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md) continues executing its original 36 unfinished R8 tasks and current source-rights/model/host/quality gates. Only disjoint-file Wave3 work starts in parallel.
 
 **Next exact engineering order:** As soon as existing owner checkout is clean, perform `AS-02` and `VS-02` negative frame parser tests and fixes; `IP-01` exact schema/JPA compatibility audit; `TY-01` and `JC-01` contract/transport currentness; `CA-02` private-cache-key redaction; `RS-02` bounded codec test. Re-run only changed-package tests; reserve W3D full integration for real integrated commits and authenticated sources. Every 90-minute pulse reports a code/test result, not a new plan.
+
+## 11. Source folders without their own registered physical identity
+
+The inspected Media Git tree includes **unregistered relative source directories**. The topology—not a directory name—defines the physical denominator. These files still need source ownership/consumer coverage, but may not be silently added as new PDP surfaces or mistakenly lost:
+
+| Source folder | Observed actual contents | Implementation disposition and owner |
+| --- | --- | --- |
+| `adapters/outbox/` | `AudioVideoOutboxStoreImpl.java` plus tests | Existing **C/S/A/J/E foundation messaging/outbox** adapter; reconcile with one canonical PostgreSQL/outbox publisher during LD/IP/IT consumer tests. No second active event bus or new leaf ID. |
+| `modules/common/` | `GrpcCorrelationInterceptors.java` and focused test, package under `com.ghatana.platform.observability` | JC/OBS/Shared boundary audit: prefer Shared-owned reusable tracing; Media code may keep a narrowly scoped compatibility adaptor only after proving public API use. Do not fork Shared instrumentation. |
+| `modules/audio-processing/`, `modules/video-processing/` | Only source tests in reviewed Git tree | Link those tests to existing Rust/codec/stream or Wave2 model owner as applicable; they are not deployed audio/video processing engines or independent implementation-ready surfaces. |
+| `modules/format-compatibility/`, `modules/session-management/` | Only source tests in reviewed Git tree | CT/IT contract and wire-session validation owners; ensure they run under actual Gradle test selection or classify as detached historical tests. Do not infer active production codec/session code from filenames. |
+
+**Unregistered code check:** W3's CT-01/IT-01 review must include these path families in source/compiled test inventory. If a code path truly implements an independently meaningful capability absent the registered topology, record a precise source-owner applicability/handoff request rather than silently inventing another physical leaf or ignoring its tests. An observed test file does not establish that it executed.
+
