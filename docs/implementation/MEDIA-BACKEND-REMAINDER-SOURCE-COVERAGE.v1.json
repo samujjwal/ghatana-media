@@ -6650,5 +6650,1346 @@
       }
     ],
     "truthRule": "Full original Wave2 acceptance never changes in this derived index. First obtain original R8 positive+negative+restart+rights+quality and update canonical owners; this is only executable selection, not a native PDP/gtool status, legal authorization, provider admission, or deployment approval."
+  },
+  "reportedEngineeringPulse": {
+    "recordKind": "OWNER_REPORTED_IMPLEMENTATION_HANDOFF_AND_REMOTE_RECONCILIATION_ONLY_NOT_ACCEPTANCE",
+    "date": "2026-10-30",
+    "observedConnectedGithubHead": "23938ad0b83ad7d9506245b5083393b4235bb455",
+    "observedGithubHeadSource": "GitHub-connected main ref, not user local checkout",
+    "userReportedCommitCount": 19,
+    "suppliedUniqueHashPrefixCount": 18,
+    "missingReportedCommitHashCount": 1,
+    "confirmedSuppliedHashPrefixesReachableOnConnectedGithubAtReview": 0,
+    "checkMethod": "GitHub REST commits/{shaPrefix} returned No commit found for each of 18 user-supplied prefixes; local checkout not available in assistant runtime",
+    "reportedLocalSourceClean": "USER_REPORTED_NOT_INDEPENDENTLY_CHECKED",
+    "description": "Do not reimplement any user-reported completed task before reconcile local/remote Git refs and exact affected tests; green reported focused tests do not imply entire physical/PDP or real-provider acceptance.",
+    "commitClaims": [
+      {
+        "claimedHashPrefix": "e5b9cc63",
+        "taskIds": [
+          "AS-05"
+        ],
+        "reportedChange": "guarded audio stream consent rechecks",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "40be165b",
+        "taskIds": [
+          "AS-06"
+        ],
+        "reportedChange": "17 stream intent matrix: 9 implemented, 3 delegated, 5 NOT_ADMITTED",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "03d491bb",
+        "taskIds": [
+          "VS-04"
+        ],
+        "reportedChange": "guarded video stream fencing, gaps and reconnect",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "18423dcc",
+        "taskIds": [
+          "VS-05"
+        ],
+        "reportedChange": "in-process video codec and sealed artifact",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "bba8e955",
+        "taskIds": [
+          "VS-06"
+        ],
+        "reportedChange": "privacy/redaction/retention guard",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "15f13b7d",
+        "taskIds": [
+          "SK-03",
+          "SK-05"
+        ],
+        "reportedChange": "MediaCanonicalClient real HTTP routes and http-core",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "1d09c38d",
+        "taskIds": [
+          "SK-04"
+        ],
+        "reportedChange": "unregistered and Explorer commands fail INVALID_INVOCATION",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "ca408751",
+        "taskIds": [
+          "SK-06"
+        ],
+        "reportedChange": "deterministic compileProductionPlan",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "1fc72e1a",
+        "taskIds": [
+          "SK-07"
+        ],
+        "reportedChange": "real HTTP SDK negative/unknown roundtrip",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "defd5d53",
+        "taskIds": [
+          "SK-08"
+        ],
+        "reportedChange": "ESM/CJS package exports and CLI types",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "e44dea02",
+        "taskIds": [
+          "DC-04",
+          "DC-05",
+          "DC-06"
+        ],
+        "reportedChange": "Data Cloud live source read and outbox candidate, ambiguous receipt UNKNOWN",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "f082efa5",
+        "taskIds": [
+          "OC-04"
+        ],
+        "reportedChange": "OCR retain-compat-shim migration guard",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "97a133ef",
+        "taskIds": [
+          "AT-05",
+          "AT-06"
+        ],
+        "reportedChange": "Media Tool execution binder idempotent unknown replay",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "cc4bcff3",
+        "taskIds": [
+          "H-02"
+        ],
+        "reportedChange": "deterministic production DAG compiler",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "2fcffa53",
+        "taskIds": [
+          "H-03"
+        ],
+        "reportedChange": "recorder orchestrator selective scene recapture",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "29eb3583",
+        "taskIds": [
+          "H-04",
+          "H-05",
+          "H-06"
+        ],
+        "reportedChange": "capture source contracts, animation spec and bounded simulation Newton fixture",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "64b1315f",
+        "taskIds": [
+          "H-07"
+        ],
+        "reportedChange": "sealed production run coordinator",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      },
+      {
+        "claimedHashPrefix": "f5864c0b",
+        "taskIds": [
+          "H-08"
+        ],
+        "reportedChange": "synthetic-only seven-scene J03 integration test",
+        "reportedCommitPresence": "NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW",
+        "testEvidence": "USER_REPORT_GREEN_COUNTS_NOT_INDEPENDENTLY_READ",
+        "claimDoesNotAuthorizeRuntimeOrRights": true
+      }
+    ],
+    "namedTaskIds": [
+      "AS-05",
+      "AS-06",
+      "VS-04",
+      "VS-05",
+      "VS-06",
+      "SK-03",
+      "SK-05",
+      "SK-04",
+      "SK-06",
+      "SK-07",
+      "SK-08",
+      "DC-04",
+      "DC-05",
+      "DC-06",
+      "OC-04",
+      "AT-05",
+      "AT-06",
+      "H-02",
+      "H-03",
+      "H-04",
+      "H-05",
+      "H-06",
+      "H-07",
+      "H-08"
+    ],
+    "perLocalTaskReadback": [
+      {
+        "taskId": "JC-01",
+        "dependencies": "—",
+        "plannedSourceTarget": "libs/common/src/main/java/.../GrpcTransportSecurityPolicy.java; AudioVideoGrpcServerBase.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "JC-02",
+        "dependencies": "JC-01",
+        "plannedSourceTarget": "libs/common/src/main/java/.../security/AudioVideoRequestContextInterceptor.java; JwtServerInterceptor.java; AudioVideoMethodRbacRegistry.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "JC-03",
+        "dependencies": "JC-01",
+        "plannedSourceTarget": "libs/common/src/main/java/.../resilience/TenantAwareRateLimitingInterceptor.java; RetryPolicy.java; model/FileSystemModelStore.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "JC-04",
+        "dependencies": "JC-01,JC-02,JC-03",
+        "plannedSourceTarget": "libs/common/src/test/java/.../GrpcTransportSecurityPolicyTest.java; common source Gradle project",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "MC-01",
+        "dependencies": "—",
+        "plannedSourceTarget": "libs/java/common/src/main/java/com/ghatana/media/AudioVideoLibrary.java; capability/MediaCapabilityInventory.java; service/AudioVideoServiceRegistry.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "MC-02",
+        "dependencies": "MC-01",
+        "plannedSourceTarget": "libs/java/common/common/AudioConverter.java; common/AudioMetadataExtractor.java; common/validation/MediaFormatValidator.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "MC-03",
+        "dependencies": "MC-01",
+        "plannedSourceTarget": "libs/java/common/common/pool/EnginePool.java; resilience/CircuitBreakerSttEngine.java; resilience/CircuitBreakerTtsEngine.java; resilience/CircuitBreakerVisionEngine.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "MC-04",
+        "dependencies": "MC-02,MC-03",
+        "plannedSourceTarget": "libs/java/common/stt/engine/onnx/*; tts/engine/onnx/*; vision/api/*; sync/AudioVideoSyncPipeline.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "MC-05",
+        "dependencies": "MC-01..MC-04",
+        "plannedSourceTarget": "libs/java/common/src/test/java/.../AudioVideoLibraryTest.java; SttEngineContractTest.java; VisionEngineContractTest.java; build.gradle.kts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-01",
+        "dependencies": "—",
+        "plannedSourceTarget": "libs/audio-video-types/src/contracts.ts; src/index.ts; src/index.d.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-02",
+        "dependencies": "TY-01",
+        "plannedSourceTarget": "libs/audio-video-types/src/contracts.ts; src/__tests__/types.contract.test.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-03",
+        "dependencies": "TY-01,TY-02",
+        "plannedSourceTarget": "libs/audio-video-types/src/contracts.ts; service/OpenAPI/proto adapter tests",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-04",
+        "dependencies": "TY-01",
+        "plannedSourceTarget": "libs/audio-video-types/src/index.ts; src/contracts.ts; sdk JSON value tests",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-05",
+        "dependencies": "TY-02,TY-04",
+        "plannedSourceTarget": "libs/audio-video-types/src/contracts.test.ts; src/__tests__/types.contract.test.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "TY-06",
+        "dependencies": "TY-03,TY-05",
+        "plannedSourceTarget": "libs/audio-video-types/package.json; tsconfig.build.json; src/index.d.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-01",
+        "dependencies": "—",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs; Cargo.toml",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-02",
+        "dependencies": "RS-01",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs decode_audio/load_audio_buffer",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-03",
+        "dependencies": "RS-02",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs Resampler::resample",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-04",
+        "dependencies": "RS-02",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs slice_audio_buffer; extract_waveform; mix_audio",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-05",
+        "dependencies": "RS-03,RS-04",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs write_wav; decode_audio; DSP test corpus",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-06",
+        "dependencies": "RS-03,RS-04",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml; parent Cargo.lock; Java bridge/consumer test harness",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "RS-07",
+        "dependencies": "RS-01..RS-06",
+        "plannedSourceTarget": "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs tests; benchmarks; cargo profiles",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-01",
+        "dependencies": "—",
+        "plannedSourceTarget": "modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql; entities/AudioFileEntity.java; TranscriptionEntity.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-02",
+        "dependencies": "IP-01",
+        "plannedSourceTarget": "modules/infrastructure/persistence/repository/JpaAudioFileRepository.java; repository/JpaTranscriptionRepository.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-03",
+        "dependencies": "IP-01,IP-02",
+        "plannedSourceTarget": "modules/infrastructure/persistence/service/AudioFileService.java; service/TranscriptionService.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-04",
+        "dependencies": "IP-02",
+        "plannedSourceTarget": "modules/infrastructure/persistence/repository/*; service/*; entity/*",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-05",
+        "dependencies": "IP-01,IP-04",
+        "plannedSourceTarget": "modules/infrastructure/persistence/src/main/resources/db/migration; repository/*",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-06",
+        "dependencies": "IP-03,IP-04,IP-05",
+        "plannedSourceTarget": "modules/infrastructure/persistence/src/test/java/.../integration/PersistenceIntegrationTest.java; repository tests",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IP-07",
+        "dependencies": "IP-01..IP-06",
+        "plannedSourceTarget": "modules/infrastructure/persistence/README.md; build.gradle.kts; consumer dependency graph",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CA-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "modules/infrastructure/cache/src/main/java/.../AudioVideoCache.java; TranscriptionCacheService.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CA-02",
+        "dependencies": "CA-01",
+        "plannedSourceTarget": "modules/infrastructure/cache/src/main/java/.../AudioVideoCache.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": {
+          "sourceCommit": "50a9c2656d23",
+          "kind": "CACHE_KEY_REDACTION_SOURCE_PATCH"
+        },
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CA-03",
+        "dependencies": "CA-01,CA-02",
+        "plannedSourceTarget": "modules/infrastructure/cache/src/main/java/.../TranscriptionCacheService.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CA-04",
+        "dependencies": "CA-02,CA-03",
+        "plannedSourceTarget": "modules/infrastructure/cache/src/main/java/.../AudioVideoCache.java; TranscriptionCacheService.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CA-05",
+        "dependencies": "CA-02..CA-04",
+        "plannedSourceTarget": "modules/infrastructure/cache/src/test/java/.../AudioVideoCacheTest.java; TranscriptionCacheIT.java; README.md",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "LD-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "adapters/ledger/src/main/java/.../AudioVideoRunLedgerAdapter.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "LD-02",
+        "dependencies": "LD-01",
+        "plannedSourceTarget": "adapters/ledger/src/main/java/.../AudioVideoRunLedgerAdapter.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "LD-03",
+        "dependencies": "LD-02",
+        "plannedSourceTarget": "adapters/ledger/src/main/java/.../AudioVideoRunLedgerAdapter.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "LD-04",
+        "dependencies": "LD-02,LD-03",
+        "plannedSourceTarget": "adapters/ledger/src/test/java/.../AudioVideoRunLedgerAdapterTest.java; Media job/outbox SPI fixture",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "LD-05",
+        "dependencies": "LD-01..LD-04",
+        "plannedSourceTarget": "adapters/ledger/build.gradle.kts; src/test; consumer compatibility guide",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "modules/audio-streaming/src/main/java/com/ghatana/audio/streaming/AudioStreamSession.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-02",
+        "dependencies": "AS-01",
+        "plannedSourceTarget": "modules/audio-streaming/src/main/java/.../AudioStreamSession.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": {
+          "sourceCommit": "c353df29f3f2",
+          "kind": "BOUNDED_FRAME_DECODE_SOURCE_PATCH"
+        },
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-03",
+        "dependencies": "AS-01,AS-02",
+        "plannedSourceTarget": "modules/audio-streaming/src/main/java/.../AudioStreamSession.java; MediaRuntime stream SPI adapter",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-04",
+        "dependencies": "AS-02,AS-03",
+        "plannedSourceTarget": "modules/audio-streaming/new bounded source-frame adapter under module; Rust audio codec/public bridge",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-05",
+        "dependencies": "AS-03,AS-04",
+        "plannedSourceTarget": "modules/audio-streaming/MediaRuntime stream provider SPI; module client adapter",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "e5b9cc63",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AS-06",
+        "dependencies": "AS-03..AS-05",
+        "plannedSourceTarget": "modules/audio-streaming/module adapter; provider/capability/manifest",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "40be165b",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "FIVE_TRANSPORT_AND_LEASE_INTENTS_NOT_ADMITTED"
+      },
+      {
+        "taskId": "AS-07",
+        "dependencies": "AS-02..AS-06",
+        "plannedSourceTarget": "modules/audio-streaming/src/test/java/.../RealTimeAudioTest.java; AudioStreamingPerformanceTierTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "REAL_TRANSPORT_RUNTIME_AND_PERFORMANCE_TARGET_UNAVAILABLE"
+      },
+      {
+        "taskId": "VS-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "modules/video-streaming/src/main/java/com/ghatana/video/streaming/VideoStreamSession.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "VS-02",
+        "dependencies": "VS-01",
+        "plannedSourceTarget": "modules/video-streaming/src/main/java/.../VideoStreamSession.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": {
+          "sourceCommit": "c353df29f3f2",
+          "kind": "BOUNDED_FRAME_DECODE_SOURCE_PATCH"
+        },
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "VS-03",
+        "dependencies": "VS-02",
+        "plannedSourceTarget": "modules/video-streaming/src/main/java/.../VideoStreamSession.java; media timebase adapter",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "VS-04",
+        "dependencies": "VS-01,VS-02,VS-03",
+        "plannedSourceTarget": "modules/video-streaming/MediaRuntime stream provider and capture adapter hooks",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "03d491bb",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "VS-05",
+        "dependencies": "VS-02,VS-04",
+        "plannedSourceTarget": "modules/video-streaming/video capture/transcode public provider adapter; no internal FFmpeg spawn from raw caller string",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "18423dcc",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "EXTERNAL_REAL_TRANSPORT_PROFILES_UNQUALIFIED"
+      },
+      {
+        "taskId": "VS-06",
+        "dependencies": "VS-04,VS-05",
+        "plannedSourceTarget": "modules/video-streaming/stream/session SPI; privacy and observability hooks",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "bba8e955",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "VS-07",
+        "dependencies": "VS-02..VS-06",
+        "plannedSourceTarget": "modules/video-streaming/src/test/java/.../VideoStreamingTest.java; VideoStreamingPerformanceTierTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "REAL_TRANSPORT_RUNTIME_AND_PERFORMANCE_TARGET_UNAVAILABLE"
+      },
+      {
+        "taskId": "DC-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "adapters/data-cloud-media/src/main/java/.../DataCloudMultimodalAdapter.java; DataCloudVisionAdapter.java; DataCloudSttAdapter.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "DC-02",
+        "dependencies": "DC-01",
+        "plannedSourceTarget": "adapters/data-cloud-media/src/main/java/.../MediaSemanticObservationProjector.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "DC-03",
+        "dependencies": "DC-01,DC-02",
+        "plannedSourceTarget": "adapters/data-cloud-media/src/main/java/.../DataCloudSttAdapter.java; DataCloudVisionAdapter.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "DC-04",
+        "dependencies": "DC-02,DC-03",
+        "plannedSourceTarget": "adapters/data-cloud-media/src/main/java/.../DataCloudMultimodalAdapter.java; MediaSemanticObservationProjector.java",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "e44dea02",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "GHATANA_DATA_CLOUD_PUBLIC_SOURCE_READBACK_AND_RECEIPT_EXTERNAL"
+      },
+      {
+        "taskId": "DC-05",
+        "dependencies": "DC-03,DC-04",
+        "plannedSourceTarget": "adapters/data-cloud-media/src/test/java/.../DataCloudMultimodalAdapterTest.java; MediaSemanticObservationProjectorTest.java; privacy log tests",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "e44dea02",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "GHATANA_DATA_CLOUD_PUBLIC_SOURCE_READBACK_AND_RECEIPT_EXTERNAL"
+      },
+      {
+        "taskId": "DC-06",
+        "dependencies": "DC-01..DC-05",
+        "plannedSourceTarget": "adapters/data-cloud-media/build.gradle.kts; README/runbook",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "e44dea02",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "GHATANA_DATA_CLOUD_PUBLIC_SOURCE_READBACK_AND_RECEIPT_EXTERNAL"
+      },
+      {
+        "taskId": "OC-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "adapters/ocr-compat/src/main/java/.../KernelOcrProviderAdapter.java; media.vision scene-text public consumer binding",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "OC-02",
+        "dependencies": "OC-01",
+        "plannedSourceTarget": "adapters/ocr-compat/src/main/java/.../KernelOcrProviderAdapter.java; facade service SPI",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "OC-03",
+        "dependencies": "OC-01,OC-02",
+        "plannedSourceTarget": "adapters/ocr-compat/src/test/java/.../KernelOcrProviderAdapterTest.java; Vision scene-text contract tests",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "OC-04",
+        "dependencies": "OC-01..OC-03",
+        "plannedSourceTarget": "adapters/ocr-compat/build.gradle.kts; service registration and retirement crosswalk",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "f082efa5",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "GHATANA_DI_252_PUBLIC_CLIENT_EXTERNAL"
+      },
+      {
+        "taskId": "AT-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/main/resources/capabilities/*.yaml; src/main/java/.../AudioVideoToolHandlerFactory.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AT-02",
+        "dependencies": "AT-01",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/main/java/.../AgentToolInput.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AT-03",
+        "dependencies": "AT-01,AT-02",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/main/java/.../SpeechToTextToolHandler.java; TextToSpeechToolHandler.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AT-04",
+        "dependencies": "AT-01,AT-02",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/main/java/.../VisionAnalysisToolHandler.java; MultimodalInferenceToolHandler.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AT-05",
+        "dependencies": "AT-02..AT-04",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/main/java/.../AudioVideoToolHandlerFactory.java; Java Agent Tool implementation",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "97a133ef",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "AT-06",
+        "dependencies": "AT-01..AT-05",
+        "plannedSourceTarget": "adapters/agent-tools-media/src/test/java/.../AudioVideoToolHandlersTest.java; AvAgentsTest.java; descriptors",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "97a133ef",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "libs/audio-video-client/src/operations.ts; src/canonical-routes.ts; contracts/openapi/media.yaml",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-02",
+        "dependencies": "SK-01,TY-02",
+        "plannedSourceTarget": "libs/audio-video-client/src/operations.ts; src/index.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-03",
+        "dependencies": "SK-01,SK-02",
+        "plannedSourceTarget": "libs/audio-video-client/src/operations.ts; src/canonical-routes.ts",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "15f13b7d",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-04",
+        "dependencies": "SK-02,SK-03",
+        "plannedSourceTarget": "libs/audio-video-client/src/cli.ts; .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "1d09c38d",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-05",
+        "dependencies": "SK-01,SK-03",
+        "plannedSourceTarget": "libs/audio-video-client/src/operations.ts; src/index.ts",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "15f13b7d",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-06",
+        "dependencies": "SK-03,SK-04,TY-04",
+        "plannedSourceTarget": "libs/audio-video-client/src/operations.ts; src/cli.ts; headless capture/ProductionSpec adapter",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "ca408751",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-07",
+        "dependencies": "SK-02..SK-06",
+        "plannedSourceTarget": "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts; operations.test.ts; cli.test.ts",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "1fc72e1a",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "SK-08",
+        "dependencies": "SK-01..SK-07",
+        "plannedSourceTarget": "libs/audio-video-client/package.json; src/index.ts; src/canonical-routes.ts; source-free install fixture",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "defd5d53",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CT-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "modules/integration-tests/src/test/java/.../MediaOpenApiContractConsumptionTest.java; MultimodalRpcMatrixIntegrationTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CT-02",
+        "dependencies": "CT-01",
+        "plannedSourceTarget": "modules/integration-tests/src/test/java/.../SttAuthenticatedIntegrationTest.java; TtsAuthenticatedIntegrationTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CT-03",
+        "dependencies": "CT-01",
+        "plannedSourceTarget": "modules/integration-tests/src/test/java/.../MediaPipelineIntegrationTest.java; AudioVideoAdvancedServicesIntegrationTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CT-04",
+        "dependencies": "CT-01,CT-02,CT-03",
+        "plannedSourceTarget": "modules/integration-tests/src/test/java/.../MultimodalContractTest.java; Integration service fixtures",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "CT-05",
+        "dependencies": "CT-01..CT-04",
+        "plannedSourceTarget": "modules/integration-tests/build.gradle.kts; src/test; JUnit XML aggregate",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-01",
+        "dependencies": "NONE",
+        "plannedSourceTarget": "integration-tests/src/test/java/com/ghatana/media/integration/MediaTestHarness.java; build.gradle.kts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-02",
+        "dependencies": "IT-01,IP-06,CA-05,LD-04",
+        "plannedSourceTarget": "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherEndToEndIT.java; MediaProviderJobLifecycleE2ETest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-03",
+        "dependencies": "IT-01,AS-07,VS-07,RS-07",
+        "plannedSourceTarget": "integration-tests/src/test/java/com/ghatana/audio/video/integration/EndToEndWorkflowTest.java; PerformanceIntegrationTest.java",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-04",
+        "dependencies": "IT-01,DC-05,AT-06,SK-07",
+        "plannedSourceTarget": "integration-tests/src/test/java/.../AudioVideoDataCloudAepAgentE2ETest.java; MediaProviderLifecycle.test.ts",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-05",
+        "dependencies": "IT-01,IT-02,IT-03",
+        "plannedSourceTarget": "integration-tests/src/test/java/com/ghatana/audio/video/integration/IntegrationImagesCondition.java; AudioVideoContainerBase.java; docker-compose.integration.yml",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "IT-06",
+        "dependencies": "IT-02..IT-05,CT-05",
+        "plannedSourceTarget": "integration-tests/src/test/java/com/ghatana/media/integration/*; docs/TESTING.md; resource/fixture profile",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-01",
+        "dependencies": "TY-04,TY-05",
+        "plannedSourceTarget": "`libs/audio-video-types/src/contracts.ts`; PDP-1 JSON Schema compiled validator",
+        "reportedCodeState": "USER_BROAD_COMPLETE_CLAIM_NO_PER_TASK_HASH_EVIDENCE",
+        "claimedCommitHashPrefix": null,
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-02",
+        "dependencies": "H-01,IP-04",
+        "plannedSourceTarget": "`runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaProductionSpecCompiler.java` (new) + existing `launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java` (serialized owner edit)",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "cc4bcff3",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-03",
+        "dependencies": "H-02,SK-06",
+        "plannedSourceTarget": "`libs/audio-video-client/src/recorder-orchestrator.ts` (new), `src/operations.ts`, `src/cli.ts`; `media.surface.recorder-orchestrator` logical consumer",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "2fcffa53",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-04",
+        "dependencies": "H-02,AS-05,VS-06",
+        "plannedSourceTarget": "`runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaCaptureSourceContracts.java` (new) and `libs/audio-video-client/src/capture-adapters.ts` (new); existing public device/product adapters only",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "29eb3583",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-05",
+        "dependencies": "H-01,RS-03",
+        "plannedSourceTarget": "`libs/java/common/src/main/java/com/ghatana/media/production/AnimationSpecCompiler.java` (new) + existing Media `launcher` job/provider SPI (owner lock)",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "29eb3583",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-06",
+        "dependencies": "H-01,RS-03",
+        "plannedSourceTarget": "`libs/java/common/src/main/java/com/ghatana/media/simulation/MediaDeterministicSimulator.java` (new), integrated through existing `launcher` job SPI; no physical-surface claim without registry authority",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "29eb3583",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-07",
+        "dependencies": "H-03,H-04,H-05,H-06",
+        "plannedSourceTarget": "`launcher/src/main/java/com/ghatana/media/launcher/MediaProductionRunCoordinator.java` (new), existing canonical job/attempt/outbox",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "64b1315f",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": null
+      },
+      {
+        "taskId": "H-08",
+        "dependencies": "H-03,H-07,IT-06",
+        "plannedSourceTarget": "`integration-tests/src/test/java/com/ghatana/media/integration/MediaPdp3BusinessRecordingIT.java` (new), `libs/audio-video-client`, PDP-3 `media.demo.j03.corrected-captions.v1`",
+        "reportedCodeState": "USER_REPORTED_IMPLEMENTED_TESTS_GREEN_HASH_NOT_REMOTE",
+        "claimedCommitHashPrefix": "f5864c0b",
+        "remoteSourcePatchObservation": null,
+        "reviewDisposition": "DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK",
+        "actualCodeAcceptance": "NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT",
+        "ownerProofGap": "SYNTHETIC_ONLY_CAPTURE_NOT_QUALIFIED_LIVE_PRODUCT_FILM"
+      }
+    ],
+    "reportedTaskCount": 24,
+    "otherWave3TaskCount": 72,
+    "sourceVisibleIndependentEarlierPatches": [
+      {
+        "taskId": "AS-02",
+        "sourceCommit": "c353df29f3f2",
+        "kind": "BOUNDED_FRAME_DECODE_SOURCE_PATCH",
+        "acceptance": "SOURCE_PRESENT_NOT_WHOLE_TASK_VERIFIED"
+      },
+      {
+        "taskId": "VS-02",
+        "sourceCommit": "c353df29f3f2",
+        "kind": "BOUNDED_FRAME_DECODE_SOURCE_PATCH",
+        "acceptance": "SOURCE_PRESENT_NOT_WHOLE_TASK_VERIFIED"
+      },
+      {
+        "taskId": "CA-02",
+        "sourceCommit": "50a9c2656d23",
+        "kind": "CACHE_KEY_REDACTION_SOURCE_PATCH",
+        "acceptance": "SOURCE_PRESENT_NOT_WHOLE_TASK_VERIFIED"
+      }
+    ],
+    "externalOwnerFacts": [
+      {
+        "id": "G09",
+        "issue": "samujjwal/ghatana#252",
+        "observedState": "OPEN",
+        "lastUpdated": "2026-10-29",
+        "meaning": "Published versioned DI ROI/rights source-free Media client not yet owner-confirmed"
+      },
+      {
+        "id": "G10",
+        "issue": "samujjwal/ghatana#254",
+        "observedState": "OPEN",
+        "lastUpdated": "2026-10-29",
+        "meaning": "Data Cloud/Action Plane/Event Plane authoritative source/readback and transport/semantic finality still owner-dependent"
+      }
+    ],
+    "nonClaims": [
+      "NOT_GTOOL_CLOSURE",
+      "NOT_PDP_DEV_COMPLETE",
+      "NOT_REAL_PROVIDER_QUALITY",
+      "NOT_TRUE_LIVE_BUSINESS_CAPTURE",
+      "NOT_PRODUCTION_CUTOVER",
+      "NOT_INDEPENDENT_GREEN_TEST_REEXECUTION"
+    ],
+    "sourcePolicy": "If current GitHub main changes, refresh this observation from true commit ancestry and affected test results; do not use it as a permanently pinned blocker or duplicate work ledger."
   }
 }

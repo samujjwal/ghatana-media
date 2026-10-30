@@ -481,3 +481,125 @@ The [source coverage JSON](MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json) incl
 
 **Resource budget and skip truth:** Use JDK27 Mac ARM64/Linux ARM64 scoped test selectors, real Postgres/S3 when durability matters, 1/16/64 **bounded** model workloads on a named host, and low-storage fixtures. Nine GH-90000 Compose tests remain reported SKIPPED without pinned source-qualified images; Checkstyle warn-only; Shared NO-SOURCE build-logic issue remains its owner repo; V009→V018 fixture lineage is not an operational cutover; no source-qualified alert delivery/voice/license/FLEURS proof may be invented. No repo-wide gtool stage/closure, deployment, release or PR claim.
 
+
+## 14. Current engineering residual readback after the reported 19-commit run (October 30, 2026)
+
+> **CURRENT CONTROLLING STATUS AND WORK SELECTION — this section supersedes stale W3 entry-point ordering, NOT the source and original acceptance requirements in §§1–13.** All requested feature development is to remain in `ghatana-media`. The user reports **all remaining local source tasks implemented and green, with 19 commits on `main` and a clean worktree**, while explicitly identifying unexecuted real FLEURS, live Data Cloud source readback, real OCI isolation, capacity, and AS-07/VS-07 performance-tier tests. This is a **reported engineering outcome**, not a formal R8/PDP/gtool/release acceptance claim.
+
+### 14.1 Source-state discrepancy, conservative decision and immediate correction
+
+At this review, the GitHub-connected `samujjwal/ghatana-media/main` resolves to **`23938ad0b83ad7d9506245b5083393b4235bb455`**. The user supplied **18 distinct abbreviated commit hashes** accompanying the 19-commit claim; all 18 individual commit lookups returned **"No commit found"** through the connected GitHub API. The **nineteenth hash was not supplied**. The reported new `GuardedAudioStreamSession`, `MediaCanonicalClient`, `MediaObservationPublicationCoordinator`, `MediaToolExecutionBinder`, `MediaProductionSpecCompiler`, headless production files and recording IT are also not yet visible in that connected Git tree. This **does not prove the user's local `main` is wrong or dirty**: the GitHub source inspected here may lag or the local commits may not have been pushed. It does mean **the assistant cannot independently confirm these 19 commits or green test runs**.
+
+**Disposition:** Preserve all user-reported code as **REPORTED_COMPLETED_PENDING_GIT_AND_TEST_READBACK**; **do not reimplement it**. First reconcile local/remote ancestry and the actual 19 commit IDs. Only after authentic Git ancestry, source files, test selections/output and any legal-provider constraints are checked may implementation/readiness statuses be promoted by their existing owner. Avoid destructive pulls, force pushes, stashing/discarding changes or asking for generic engineering approval. This readback is engineering coordination, **not a new source-current PDP/gtool receipt**.
+
+The pre-report remote already contains `c353df29` bounded audio/video `decodeFrame` patches (AS-02/VS-02) and `50a9c265`/later `2e946326` cache diagnostic/key privacy patches (CA-02), plus bounded provider quality metrics. **Do not repeat those changes** simply because older Wave 3 tasks still look incomplete in dated plans. Source presence alone does not certify full job/capability acceptance.
+
+### 14.2 All specifically reported changes: exact original task IDs, no work duplication
+
+| Reported hash prefix | Existing work IDs | Reported code/test behavior | Current independent source verification |
+| --- | --- | --- | --- |
+| `e5b9cc63` | AS-05 | guarded audio stream consent rechecks | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `40be165b` | AS-06 | 17 stream intent matrix: 9 implemented, 3 delegated, 5 NOT_ADMITTED | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `03d491bb` | VS-04 | guarded video stream fencing, gaps and reconnect | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `18423dcc` | VS-05 | in-process video codec and sealed artifact | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `bba8e955` | VS-06 | privacy/redaction/retention guard | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `15f13b7d` | SK-03, SK-05 | MediaCanonicalClient real HTTP routes and http-core | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `1d09c38d` | SK-04 | unregistered and Explorer commands fail INVALID_INVOCATION | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `ca408751` | SK-06 | deterministic compileProductionPlan | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `1fc72e1a` | SK-07 | real HTTP SDK negative/unknown roundtrip | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `defd5d53` | SK-08 | ESM/CJS package exports and CLI types | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `e44dea02` | DC-04, DC-05, DC-06 | Data Cloud live source read and outbox candidate, ambiguous receipt UNKNOWN | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `f082efa5` | OC-04 | OCR retain-compat-shim migration guard | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `97a133ef` | AT-05, AT-06 | Media Tool execution binder idempotent unknown replay | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `cc4bcff3` | H-02 | deterministic production DAG compiler | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `2fcffa53` | H-03 | recorder orchestrator selective scene recapture | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `29eb3583` | H-04, H-05, H-06 | capture source contracts, animation spec and bounded simulation Newton fixture | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `64b1315f` | H-07 | sealed production run coordinator | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+| `f5864c0b` | H-08 | synthetic-only seven-scene J03 integration test | USER_REPORTED, NOT_RETRIEVABLE_FROM_CONNECTED_MAIN |
+
+**Coverage of this handoff:** **18 supplied hash prefixes / 24 named existing task IDs**. The user also states all other work completed, but supplied no per-task hashes, test XML or current source evidence for the other **72** of the existing **96 Wave 3/H tasks**. Those 72 are **UNRECONCILED_FROM_THIS_REPORT**, **not automatically unimplemented**. Three of them already have visible earlier source patches as noted above. User-reported "green" may support local component correctness, but a qualified external effect, actual runtime readback, rights/source approval, model metrics, cross-transport performance and complete PDP intent coverage require their distinct original proof.
+
+| Scope | Prior W3/H total | Named implementation IDs in report | Other original IDs needing source/test readback | Specifically reported IDs |
+| --- | ---: | ---: | ---: | --- |
+| JC | 4 | 0 | 4 | — |
+| MC | 5 | 0 | 5 | — |
+| TY | 6 | 0 | 6 | — |
+| RS | 7 | 0 | 7 | — |
+| IP | 7 | 0 | 7 | — |
+| CA | 5 | 0 | 5 | — |
+| LD | 5 | 0 | 5 | — |
+| AS | 7 | 2 | 5 | AS-05, AS-06 |
+| VS | 7 | 3 | 4 | VS-04, VS-05, VS-06 |
+| DC | 6 | 3 | 3 | DC-04, DC-05, DC-06 |
+| OC | 4 | 1 | 3 | OC-04 |
+| AT | 6 | 2 | 4 | AT-05, AT-06 |
+| SK | 8 | 6 | 2 | SK-03, SK-04, SK-05, SK-06, SK-07, SK-08 |
+| CT | 5 | 0 | 5 | — |
+| IT | 6 | 0 | 6 | — |
+| H | 8 | 7 | 1 | H-02, H-03, H-04, H-05, H-06, H-07, H-08 |
+| **Total** | **96** | **24** | **72** | — |
+
+### 14.3 Remaining work is evidence- and effect-driven, not a repeat of 132 code tasks
+
+| Priority / original IDs | Accountable owner and exact work location | Executable action (do not start by rewriting reported code) | Completion oracle and permissible fallback |
+| --- | --- | --- | --- |
+| **P0 — Git ancestry and source readback; all 96 W3/H task IDs, 36 Wave 2 unfinished IDs** | Media source/implementation integrator; checkout `ghatana-media/main`, both read-only plan/index files, source and tests | Fetch current remote, compare local/remote HEAD and clean worktree, enumerate all actual local commits and 18 named hashes plus missing nineteenth, map touched files/test reports to 96 original W3/H IDs and 36 existing R8 IDs. Integrate without overwrite or force; skip already implemented work. | Exact tested source SHA and per-task `SOURCE_PRESENT/TESTED/UNRUN` classification. If local commits are not reachable remotely, **publication/ancestry reconciliation** is the sole first gap for reported code, not new implementation. |
+| **P0 — AS-07, VS-07; real transport and performance** | Media streaming/audio+video engineers; `modules/audio-streaming`, `modules/video-streaming`, existing Media stream runtime, transport profiles | Run original streaming perf-tier, reconnect, backpressure, keyframe/PTS, privacy, real codec/transport and c1/c16/c64 resource tests. AS-06 reports five `NOT_ADMITTED` stream leaves; VS-05 reports only `IN_PROCESS` transport. Do not call WebRTC/HLS/DASH/adaptive HTTP or lease-renew implemented from a matrix or helper. | Actual supported transport/frame/receipt, bounded RSS/queue/latency/loss and source clock, correct negative/revoked gaps. Unavailable real target ⇒ preserve `UNVERIFIED_REAL_TRANSPORT`, complete negative tests and escalate eligible transport owner; do **not** call full PDP stream leaf complete. |
+| **P0 — VIS-03 / R10 G06; real OCI codec isolation** | Media Vision/native host owner; `modules/vision/vision-service/video`, `scripts/qualification/run-wave2-vision-oci-checks.sh` | Use exact pinned, owner-authorized real FFmpeg/PNG native worker images on Mac Docker/Linux ARM64, prove kernel OOM/PID/cgroup/CPU/scratch/timeout, no network, readonly mounts, no escape or leaked processes. The stub/BMP fixture and Docker policy source are not the real native qualification. | Actual host/process/limits/exit and cleanup artifacts on selected runtime; absence of compliant pinned image/host ⇒ typed qualification unavailable, no VIS-03 whole-row promotion. |
+| **P0 — STT-10/12 / R10 G01/G07; FLEURS and model quality** | Media STT science/evaluation owner; `config/qualification/fleurs-asr-evaluation.v1.json`, Whisper eval scripts, provider verified-quality reader | Reconcile 380 reported clips vs previously frozen 372 selection and 89 token-capped empty predictions; verify lawful per-clip immutable source/gold/partition/model fingerprint. Run independent speaker-disjoint en/hi/ne holdout and WER/CER/CI at registered original thresholds. **Previously reported quantized tiny WER failed** (en .3996, hi 1.0938, ne 1.0448). No auto-promotion from metrics parser. | Actual source-linked, reproducible positive with passing original threshold or an explicit `REFERENCE_ONLY_FAILED_QUALITY`. Never lower thresholds, relabel unlicensed corpus or fabricate human consent. |
+| **P0 — OBS-07/08 / R10 G08; alert and capacity** | Media observability/QA owner; `audio-video-observability`, `infra/monitoring/tests/alert-delivery-smoke.sh` | Read actual approved, immutable quality report; verify per-locale numeric WER/CER freshness/CI and `NaN` on absence. Run pinned local Prometheus→Alertmanager **HTTP POST firing AND resolved**, then actual owner-operated HTTPS/durable ACK if needed. On named JDK27 host perform real provider sequential c1/c16/c64 with abort budgets. | Real source-linked metrics, 2-way webhook receipts and actual provider p50/p95/p99, RTF/fps, CPU/RSS/GPU/FD/PID/scratch; partial or skipped workloads remain incomplete, no phantom 64 successful jobs. |
+| **P1 — STT-03/04/05/06/07/08/09 and TTS-02/03/05/06/07/08/09/10/12** | Existing Wave 2 STT/TTS owners, Media services/providers/runtime rights and source SPI | Do **readback first** of code/test changes (including reported STT source rights and Piper integration), then finish original denied/revoked/fenced transcript version/caption, real waveform/phoneme/locale/voice/SSML/stream, restart/cancel and licensed audio proof. | Each original R8 row independently passes positive+negative/rights/restart/quality; unapproved voice cloning remains denied and no real speech is fabricated. Preserve 22 prior locally verified rows. |
+| **P1 — VIS-02/05/06/07/09/10/12, MM-02/03/05/06/08/09/10/12, R10 G05/G09/G10/G12** | Vision/MM Media owner and external Ghatana #252/#254 published client owners; `modules/vision`, `modules/intelligence/multimodal`, `adapters/data-cloud-media`, `adapters/ocr-compat` | Verify source-bound detector/frame PTS/mAP, rights-protected scene text, exact per-operation MM result and parent-child durable receipt/UNKNOWN after restart. Distinguish Media projection coordinator candidate from actual Ghatana Data Cloud readback; DI OCR and Data Cloud APIs are still open owner issues. | Actual lawful source/qualifier, two child result versions, ROI/text/scene time or exactly UNAVAILABLE, Ghatana owner receipt/source-free installed Media consumer; no in-process fake as remote finality. |
+| **P1 — DC-04/05/06, OC-04, AT-05/06, SK-03/04/05/06/07/08 and H-02..H-08 reported** | W3 Data Cloud/Tool/SDK/production owners and Media CI; exact files named in original task sections | Once reports become reachable, perform **targeted existing real/negative integration** for `http-core.ts`, Tool binder, identity/UNKNOWN, outbox dedup, ESM+CJS install, deterministic plan DAG and recorder/capture/animation/simulation fixture outcomes. No edits merely to inflate task count. | Reproducible source-free consumers, correct consent/rights, exact artifacts/versions, no silent replay. Reported H-08 is **synthetic seven-scene J-03**, not a real product recording or formal PDP-3 film. |
+| **P2 — all other 72 W3/H IDs (per-id readback)** | The 15 original package owners; task source paths and prerequisites in §§3–4 and `reportedEngineeringPulse.perLocalTaskReadback` | For each ID, locate current local commit/source file and actual test XML, compare its original acceptance; mark `VERIFIED_EXISTING`, `SOURCE_PRESENT_MORE_TEST_NEEDED`, `EXTERNAL_PROOF_PENDING` or `REAL_CODE_GAP`. **Implement only a proven real gap.** | Zero unclassified original IDs. No speculative missing implementation, duplicate library, new V2 schema or previously closed task rerun. |
+| **P2 — GH-90000 and cross-process composition** | Media CI/compose owner; `integration-tests` and image pipeline | Publish/use source-digest-pinned service images or supply admitted `AUDIO_VIDEO_STT_IMAGE`/`AUDIO_VIDEO_TTS_IMAGE`; run the nine previously skipped image-dependent cases with actual service weights/host and correct counts. | Selected tests PASS/FAIL/SKIP individually with trusted image/run receipt; do not count skips as passing production integration. |
+| **P3 — four UI/Explorer physical handoffs** | Media GUI and Explorer owners; §5 register | No backend work or fake "ready" status from this review. They still require separate editor/host/Explorer accessibility and product experience acceptance. | Explicit unchanged nonbackend owner/handoff, independent source gate and future tests; backend cannot close them. |
+| **Track B and operational — independent** | Lifecycle/Kernel/Tools and Media deployment owners | No native PDP closure, gtool transition, release, PR-status claim or live deployment cutover. Old `ghatana/services/media` writer and schema history require authentic operational one-writer/drain/rollback authority. Shared NO-SOURCE build bug remains Shared-owned, Checkstyle warning-only. | Never alter the 58 Wave2 original statuses or 29-surface PDP source states via prose. Prior V009→V018 fixture migration is not active legacy DB qualification. |
+
+**Rights/public platform check (reviewed GitHub issues):** [Ghatana DI #252](https://github.com/samujjwal/ghatana/issues/252) and [Ghatana Data/Action/Event Plane #254](https://github.com/samujjwal/ghatana/issues/254) both remain **OPEN** at their October 29 updates. Treat Media `MediaObservationPublicationCoordinator` code as potentially correct **source-side preparation**, not proof of real Data Cloud authorized `202→COMMITTED/UNKNOWN` consumer readback. No automatic reopen of the correctly fail-closed OCR compatibility shim.
+
+### 14.4 Exact implementation/test/readback commands — do not run the entire ecosystem repeatedly
+
+```bash
+# Reconcile local and connected remote source; NEVER force push or discard other work
+git fetch --no-tags origin main
+git status --porcelain=v1 -uall
+git rev-parse HEAD main origin/main
+git log --format='%H %ct %s' --reverse origin/main..main
+# For each of the 18 supplied prefixes plus the unnamed 19th: git show --stat <commit>
+# Compare actual test XML and per-commit changed source before marking work complete.
+
+# Cheap structural source/plan parity, not runtime proof
+pnpm test:backend-remaining-surfaces-plan
+pnpm test:backend-modality-wave2-plan
+pnpm test:wave2-r10-owner-resolution
+
+# Affected source-only tests (select modules actually modified after Git reconciliation)
+./gradlew :services:media:modules:audio-streaming:test :services:media:modules:video-streaming:test --no-daemon --max-workers=2
+./gradlew :services:media:modules:infrastructure:cache:test :services:media:modules:infrastructure:persistence:test --no-daemon --max-workers=2
+# SDK source-free consumer, exact current package scripts
+pnpm --filter @audio-video/client test
+
+# Separate real OCI/native test on qualified host with pinned codec images and no raw private data
+bash scripts/qualification/run-wave2-vision-oci-checks.sh real "${MEDIA_LINUX_CODECS_DIR}"
+# Actual opt-in Prometheus/Alertmanager delivery on host with pinned images
+RUN_MEDIA_ALERT_DELIVERY_TEST=1 bash infra/monitoring/tests/alert-delivery-smoke.sh
+
+# Other provider/real-hardware/corpus tests: use original Wave2 §10 selective commands
+# and preserved R8 per-row runnableBaseTestCommand only with actual lawful input.
+```
+
+If current `settings.gradle.kts` or pnpm package names differ at tested SHA, resolve against the project itself; only claim commands actually run. Do not assume source-tree presence equals a passed JUnit or source-free installed-consumer test. For real quality and performance, pin model+voice/corpus/rights SHA, source/clock/unit, Java/Rust/Node, hardware and isolation. Run c1→c16→c64 **bounded** with explicit stop budgets, not 64 unbounded providers.
+
+### 14.5 Terminal logical readiness and exact owner status semantics
+
+A task may be **CODE_PRESENT** or **FOCUSED_TESTS_GREEN_REPORTED** without being `LOGICALLY_BACKEND_DEV_COMPLETE`. In particular:
+- `AS-06` has 9 implemented, 3 delegated, **5 NOT_ADMITTED** PDP leaves (WebRTC/adaptive-HTTP/HLS/DASH/lease renew); these remain unimplemented/owner-dependent if required by source, even though its matrix logic is correct.
+- `VS-05` is only admitted `IN_PROCESS`; true external transport and the AS-07/VS-07 perf-tier tests are still separate.
+- `H-05` reports 3D rig/physics unavailability, and `H-06` proves a **bounded Newton analytical fixture**, not all scientific domain solvers. `H-08` is synthetic-only and cannot substitute for real product-host/capture/scientific or PDP-3 closure proof.
+- `DC-04/05/06` code may keep correct OUTCOME_UNKNOWN/one-logical-projection without a real Ghatana #254 public consumer; `OC-04` compatibility retirement must await Ghatana #252 public owner.
+- Original Wave 2 36 unaccepted rows and external voice/model/biometric/license, real OCI and real FLEURS baseline are **not waived** by user-reported green tests. Previously verified 22 original rows remain preserved.
+
+**Required status fields for every code owner pulse:** exact *original* ID, `repo@SHA` (remote and local if different), source/status `REPORTED_ONLY | SOURCE_PRESENT | TESTED | REAL_EFFECT_QUALIFIED | EXTERNAL_OWNER_REQUIRED`, original positive/negative/restart/rights/quality oracle, actual test discovered/pass/fail/skip and JUnit/CI report location, provider/model/asset/license/host identity when relevant, permitted effects/UNKNOWN and next first failing proof. Do not store secrets, private audio or model weights in public Git. No acceptance status in this review changes an original R8 row, PDP phase or gtool transition.
+
+**Current result of this review:** The owner report has been preserved without reopening its 24 specifically named task implementations; **all original 36 unfinished Wave 2 IDs and all 96 Wave3/H IDs remain accountably represented**. The real next move is **readback and selective external qualification**, not another broad source rewrite or a fresh 132-task plan.
