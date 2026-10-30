@@ -184,6 +184,19 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it.each([
+    ['record', 'scenario'],
+    ['upload', 'begin'],
+    ['job', 'submit'],
+    ['demo', 'run'],
+  ])('never exposes the unregistered %s %s command as real', async (noun, verb) => {
+    const result = await invoke([noun, verb, '--endpoint', 'http://127.0.0.1:1']);
+    expect(result.status).toBe(2);
+    expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
+    expect(result.stderr).not.toContain(token);
+    expect(result.stdout).toBe('');
+  });
+
   it('does not follow a redirect with the bearer credential attached', async () => {
     let redirectedRequests = 0;
     const destination = createServer((_request, response) => {
