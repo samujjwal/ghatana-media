@@ -1813,11 +1813,35 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 };
                 for (String modelRevision : profile.modelVersions()) {
                     try {
+                        // Only the owning provider can supply a measured, source-linked
+                        // observation for this exact model. Missing, stale or mismatched
+                        // quality stays NaN; provider readiness is never quality proof.
+                        java.time.Instant qualityObservedAt = null;
+                        try {
+                            var measured = provider.qualityObservation(profile.modality(), modelRevision);
+                            if (measured != null && measured.isPresent()) {
+                                var observation = measured.orElseThrow();
+                                if (!observation.providerId().equals(profile.providerId())
+                                        || !observation.providerVersion().equals(profile.providerVersion())
+                                        || observation.modality() != profile.modality()
+                                        || !observation.modelRevision().equals(modelRevision)
+                                        || observation.measuredAt().isAfter(profile.health().checkedAt())) {
+                                    throw new IllegalArgumentException(
+                                            "provider quality source does not match its observed profile");
+                                }
+                                qualityObservedAt = observation.measuredAt();
+                            }
+                        } catch (RuntimeException invalidQuality) {
+                            log.warn("Media provider quality unavailable provider={} modality={} cause={}",
+                                    safeValue(profile.providerId(), "unknown"),
+                                    profile.modality().name(), invalidQuality.getClass().getSimpleName());
+                        }
                         workflowMetrics.recordProviderProfile(modality,
                                 new MediaWorkflowMetrics.ProviderProfileObservation(
                                         profile.providerId(), profile.providerVersion(),
                                         profile.modality().name().toLowerCase(java.util.Locale.ROOT),
-                                        modelRevision, readiness, profile.health().checkedAt(), null));
+                                        modelRevision, readiness, profile.health().checkedAt(),
+                                        qualityObservedAt));
                     } catch (IllegalArgumentException invalidMetricIdentity) {
                         log.warn("Media provider profile omitted from metrics provider={} modality={} reason={}",
                                 safeValue(profile.providerId(), "unknown"), profile.modality().name(),
