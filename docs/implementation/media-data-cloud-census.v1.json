@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "DC-01 inventory: exact public Data Cloud read/write APIs consumed by Media adapters, existing projections and ownership. PDP-0 applies with zero mapped capability IDs — none is fabricated.",
+  "consumedPublicApis": {
+    "com.ghatana.datacloud.memory.media.MediaProcessorPort": {
+      "role": "SPI implemented by the three Media adapters so Data Cloud can request transcription/vision/multimodal work",
+      "operations": ["transcribeAudio", "analyzeVision", "indexMultimodal", "isAvailable", "getSupportedLanguages", "getSupportedAnalysisTypes", "getSupportedIndexTypes"]
+    },
+    "com.ghatana.datacloud.entity.media.Classification": {"role": "tenant classification ordering used by the projector floor check"},
+    "com.ghatana.datacloud.semantic.OperationalSemanticContext": {"role": "SemanticObject/Provenance/Reference/EffectivePeriod targets of the observation projection"}
+  },
+  "mediaSurfacesConsumed": {
+    "PersistentSttService": "DataCloudSttAdapter -> STT jobs",
+    "PersistentVisionService": "DataCloudVisionAdapter -> vision jobs",
+    "PersistentMultimodalService": "DataCloudMultimodalAdapter -> multimodal jobs",
+    "MediaDerivedObservation": "MediaSemanticObservationProjector input carrying tenant/source/version/classification/purpose/consent/redaction/provenance"
+  },
+  "projectionOwnership": {
+    "MediaSemanticObservationProjector.project": "emits an OperationalSemanticContext.SemanticObject with exact-source binding: same-tenant, exact artifact version, classification floor, required redaction evidence, provenance (source event, consent ref, artifact, source version, provider version, redaction policy) — projection validation is NOT source authentication",
+    "capabilityIds": {"mappedPdp0CapabilityIds": 0, "disposition": "NO_DIRECT_CAPABILITY — the adapters serve Data Cloud's SPI and consume its public entity/semantic types; no Data Cloud capability ID is claimed or fabricated"}
+  },
+  "guards": {
+    "noPrivateImports": "adapters may only import com.ghatana.datacloud.* public contracts and Media service surfaces — never private Data Cloud internals",
+    "noFabricatedCapability": "no capability ID is invented; the zero-mapped disposition is explicit",
+    "projectionIsNotAuth": "projector structural checks never substitute for source authentication or consent adjudication"
+  }
+}
