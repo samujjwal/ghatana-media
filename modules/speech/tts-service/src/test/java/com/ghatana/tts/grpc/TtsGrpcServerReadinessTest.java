@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -86,6 +87,7 @@ class TtsGrpcServerReadinessTest {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         ProductionTtsGrpcService service = new ProductionTtsGrpcService(
                 library, new SimpleMeterRegistry(), localFixtureAdmissionDecision());
+        clearInvocations(library);
         try {
             assertThat(service.isProviderReady()).isFalse();
             verify(library, never()).getTtsEngine();
@@ -111,6 +113,7 @@ class TtsGrpcServerReadinessTest {
         ProductionTtsGrpcService service = new ProductionTtsGrpcService(
                 library, new SimpleMeterRegistry(), localFixtureAdmissionDecision(),
                 "fixture-voice", "en-US", configuredButUnready);
+        clearInvocations(library);
         try {
             assertThat(service.isProviderReady()).isFalse();
             verify(library, never()).getTtsEngine();

@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -81,6 +82,7 @@ class MultimodalGrpcServerCompositionTest {
             long before = handledCount(scrape, method, "UNAVAILABLE");
             var stub = MultimodalServiceGrpc.newBlockingStub(channel)
                     .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders()));
+            clearInvocations(engine, platformAdapter, mediaRuntimePort);
             assertThatThrownBy(() -> stub.processMultimodal(MultimodalRequest.newBuilder()
                             .setAudioData(ByteString.copyFrom(new byte[] {1}))
                             .setOperationBinding(com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding

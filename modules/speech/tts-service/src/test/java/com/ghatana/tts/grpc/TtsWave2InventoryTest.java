@@ -78,7 +78,10 @@ class TtsWave2InventoryTest {
                 .contains("TTS streaming is NOT_ADMITTED: no provider has verified mono PCM S16LE framing");
         assertThat(grpc).contains("this(library, metrics, () -> false, () -> false);");
         assertThat(read("src/main/java/com/ghatana/tts/grpc/ProductionTtsGrpcService.java"))
-                .contains("super(library, metrics,", "bindConfiguredDefaultVoice", "matchesAdmittedProfile");
+                .contains("super(runtimeAdmission.library(), metrics,", "RuntimeAdmission.capture",
+                        "runtimeAdmission.allows(TtsProviderAdmission.Capability.SYNTHESIS)",
+                        "runtimeAdmission.allows(TtsProviderAdmission.Capability.PCM_STREAMING)",
+                        "bindConfiguredDefaultVoice", "matchesAdmittedProfile");
         assertThat(grpc).contains("profileAccessNotAdmitted(responseObserver)")
                 .contains("Voice loading is NOT_ADMITTED")
                 .contains("GetStatus is NOT_ADMITTED", "GetMetrics is NOT_ADMITTED")
