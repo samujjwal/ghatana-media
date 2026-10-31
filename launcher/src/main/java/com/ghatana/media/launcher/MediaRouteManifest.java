@@ -49,7 +49,10 @@ public final class MediaRouteManifest {
             new RouteEntry("POST", "/api/v1/streams/{sessionId}/connect", RouteCategory.APPLICATION, false, "Connect or reconnect stream"),
             new RouteEntry("POST", "/api/v1/streams/{sessionId}/frames/{sequence}", RouteCategory.APPLICATION, false, "Submit ordered stream frame"),
             new RouteEntry("POST", "/api/v1/streams/{sessionId}/close", RouteCategory.APPLICATION, false, "Close stream session"),
-            new RouteEntry("GET", "/api/v1/providers", RouteCategory.APPLICATION, false, "Read provider readiness"));
+            new RouteEntry("GET", "/api/v1/providers", RouteCategory.APPLICATION, false, "Read provider readiness"),
+            new RouteEntry("POST", "/api/v1/caption-versions", RouteCategory.APPLICATION, false, "Register immutable caption version"),
+            new RouteEntry("GET", "/api/v1/caption-versions", RouteCategory.APPLICATION, false, "List caption versions for a source version"),
+            new RouteEntry("GET", "/api/v1/caption-versions/{captionVersionId}", RouteCategory.APPLICATION, false, "Read one registered caption version"));
 
     public static List<RouteEntry> all() { return CANONICAL_ROUTES; }
     public static Set<String> allPaths() { return RouteManifestSupport.allPaths(CANONICAL_ROUTES); }
@@ -74,6 +77,8 @@ public final class MediaRouteManifest {
         if ("POST".equals(method) && path.matches("^/api/v1/streams/[^/]+/(?:connect|frames/[^/]+)$")) return "media:stream:write";
         if ("POST".equals(method) && path.matches("^/api/v1/streams/[^/]+/close$")) return "media:stream:close";
         if ("GET".equals(method) && "/api/v1/providers".equals(path)) return "media:provider:read";
+        if ("POST".equals(method) && "/api/v1/caption-versions".equals(path)) return "media:caption-version:write";
+        if ("GET".equals(method) && path.matches("^/api/v1/caption-versions(?:/[^/]+)?$")) return "media:caption-version:read";
         return null;
     }
 

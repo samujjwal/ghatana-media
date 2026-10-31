@@ -55,18 +55,26 @@ public final class MediaHttpHandler implements HttpHandler {
     private static final Pattern STREAM_FRAME_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/frames/(\\d+)$");
     private static final Pattern STREAM_CLOSE_PATH = Pattern.compile("^/api/v1/streams/([^/]+)/close$");
     private static final Pattern CONSENT_PATH = Pattern.compile("^/api/v1/consents/([^/]+)$");
+    private static final Pattern CAPTION_VERSION_PATH = Pattern.compile("^/api/v1/caption-versions/([^/]+)$");
 
     private final MediaRuntime runtime;
     private final MediaConsentAdministration consentAdministration;
+    private final MediaCaptionRuntime captions;
     private final ObjectMapper mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
 
     public MediaHttpHandler(MediaRuntime runtime) {
-        this(runtime, null);
+        this(runtime, null, null);
     }
 
     public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration) {
+        this(runtime, consentAdministration, null);
+    }
+
+    public MediaHttpHandler(MediaRuntime runtime, MediaConsentAdministration consentAdministration,
+                            MediaCaptionRuntime captions) {
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
+        this.captions = captions;
     }
 
     @Override
@@ -166,6 +174,18 @@ public final class MediaHttpHandler implements HttpHandler {
             if (stream.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
                 stream(exchange, tenantId, principalId, decode(stream.group(1))); return;
+            }
+            if ("/api/v1/caption-versions".equals(path)) {
+                if ("POST".equals(method)) registerCaptionVersion(exchange, tenantId, principalId);
+                else if ("GET".equals(method)) listCaptionVersions(exchange, tenantId, principalId);
+                else methodNotAllowed(exchange, "GET, POST");
+                return;
+            }
+            Matcher captionVersion = CAPTION_VERSION_PATH.matcher(path);
+            if (captionVersion.matches()) {
+                if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
+                readCaptionVersion(exchange, tenantId, principalId, decode(captionVersion.group(1)));
+                return;
             }
             if ("/api/v1/providers".equals(path)) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
@@ -424,6 +444,108 @@ public final class MediaHttpHandler implements HttpHandler {
                 session.metadata(), session.version(), session.acknowledgementRevision(), session.finality());
     }
 
+    private void registerCaptionVersion(
+            HttpExchange exchange, String tenantId, String principalId) throws IOException {
+        MediaCaptionRuntime captionRuntime = requireCaptionRuntime();
+        CaptionRegistrationBody body;
+        try {
+            body = mapper.readValue(
+                    boundedBody(exchange, runtime.config().maximumBodyBytes()), CaptionRegistrationBody.class);
+        } catch (Exception invalidBody) {
+            throw new IllegalArgumentException("Caption registration body is invalid", invalidBody);
+        }
+        com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest request;
+        try {
+            request = body.toRequest();
+        } catch (com.ghatana.media.runtime.MediaCaptionContracts.CaptionRegistrationException invalid) {
+            captionRejected(exchange, body.requestId(), null,
+                    new com.ghatana.media.runtime.MediaCaptionContracts.Rejected(
+                            body.requestId() == null ? "" : body.requestId(), null, invalid.error(), false));
+            return;
+        }
+        // A caller-supplied fingerprint must equal the authoritative server-side digest; a
+        // mismatch proves client/contract drift and fails closed before any durable effect.
+        if (body.requestFingerprint() != null
+                && !body.requestFingerprint().equals(
+                        com.ghatana.media.runtime.MediaCaptionContracts.fingerprint(
+                                tenantId, principalId, request))) {
+            error(exchange, 400, "INVALID_REQUEST", "Supplied requestFingerprint does not match the canonical digest",
+                    Map.of("error", "INVALID_REQUEST"));
+            return;
+        }
+        var result = captionRuntime.register(tenantId, principalId, request);
+        if (result instanceof com.ghatana.media.runtime.MediaCaptionContracts.Registered registered) {
+            json(exchange, 201, registered);
+        } else if (result instanceof com.ghatana.media.runtime.MediaCaptionContracts.Rejected rejected) {
+            captionRejected(exchange, rejected.requestId(), rejected.requestFingerprint(), rejected);
+        } else {
+            error(exchange, 503, "UNKNOWN_OUTCOME", "Caption registration outcome is uncertain; reconcile by requestId",
+                    Map.of("error", "UNKNOWN_OUTCOME", "retryable", true));
+        }
+    }
+
+    private void captionRejected(HttpExchange exchange, String requestId, String fingerprint,
+                                 com.ghatana.media.runtime.MediaCaptionContracts.Rejected rejected)
+            throws IOException {
+        int status = switch (rejected.error()) {
+            case INVALID_REQUEST -> 400;
+            case IDEMPOTENCY_CONFLICT, CAPTION_VERSION_CONFLICT, SOURCE_NOT_READY -> 409;
+            case ACCESS_DENIED, VERSION_REGISTRATION_NOT_ALLOWED -> 403;
+            case UNAVAILABLE, UNKNOWN_OUTCOME -> 503;
+            default -> 422;
+        };
+        error(exchange, status, rejected.error().name(),
+                "Caption version registration rejected", Map.of(
+                        "requestId", rejected.requestId() == null ? "" : rejected.requestId(),
+                        "requestFingerprint", rejected.requestFingerprint() == null
+                                ? "" : rejected.requestFingerprint(),
+                        "error", rejected.error().name(),
+                        "retryable", rejected.retryable()));
+    }
+
+    private void listCaptionVersions(
+            HttpExchange exchange, String tenantId, String principalId) throws IOException {
+        MediaCaptionRuntime captionRuntime = requireCaptionRuntime();
+        String sourceArtifactId = requiredQuery(exchange, "sourceArtifactId");
+        String sourceArtifactVersionId = requiredQuery(exchange, "sourceArtifactVersionId");
+        var versions = captionRuntime.versions(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId);
+        json(exchange, 200, Map.of("captionVersions", versions, "count", versions.size()));
+    }
+
+    private void readCaptionVersion(HttpExchange exchange, String tenantId, String principalId,
+                                    String captionVersionId) throws IOException {
+        MediaCaptionRuntime captionRuntime = requireCaptionRuntime();
+        var snapshot = captionRuntime.version(tenantId, principalId, captionVersionId);
+        if (snapshot.isEmpty()) {
+            error(exchange, 404, "CAPTION_VERSION_NOT_FOUND", "Caption version not found");
+            return;
+        }
+        json(exchange, 200, snapshot.orElseThrow());
+    }
+
+    private MediaCaptionRuntime requireCaptionRuntime() {
+        if (captions == null || !captions.ready()) {
+            throw new IllegalStateException("Media caption registration is not configured or ready");
+        }
+        return captions;
+    }
+
+    private static String requiredQuery(HttpExchange exchange, String name) {
+        String query = exchange.getRequestURI().getRawQuery();
+        String value = null;
+        if (query != null) {
+            for (String part : query.split("&")) {
+                String[] pair = part.split("=", 2);
+                if (pair.length == 2 && name.equals(decode(pair[0]))) {
+                    if (value != null) throw new IllegalArgumentException(name + " must be supplied once");
+                    value = decode(pair[1]);
+                }
+            }
+        }
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(name + " query parameter is required");
+        return value;
+    }
+
     private void providers(HttpExchange exchange) throws IOException {
         Map<String, Object> health = runtime.healthSnapshot();
         Map<String, Object> response = new java.util.LinkedHashMap<>();
@@ -632,6 +754,53 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private record StreamSessionRegistrationView(StreamSessionView session, String connectionToken) { }
+
+    /** HTTP body for media.operation.caption-version-write; converted into the validated contract request. */
+    private record CaptionRegistrationBody(
+            String requestId,
+            String requestFingerprint,
+            String sourceArtifactId,
+            String sourceArtifactVersionId,
+            String parentVersionKind,
+            String parentVersionId,
+            String sourceClockId,
+            long ticksPerSecond,
+            long sourceDurationTicks,
+            String languageDisposition,
+            String languageTag,
+            java.util.List<CaptionSegmentBody> captionSegments,
+            String purpose) {
+        com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest toRequest() {
+            java.util.List<com.ghatana.media.runtime.MediaCaptionContracts.CaptionSegment> segments =
+                    new java.util.ArrayList<>();
+            if (captionSegments != null) {
+                for (CaptionSegmentBody segment : captionSegments) {
+                    if (segment == null) throw new IllegalArgumentException("caption segment is required");
+                    segments.add(new com.ghatana.media.runtime.MediaCaptionContracts.CaptionSegment(
+                            segment.segmentId(), segment.text() == null ? "" : segment.text(),
+                            segment.startTick(), segment.endTick(),
+                            com.ghatana.media.runtime.MediaCaptionContracts.SegmentOrigin.valueOf(
+                                    segment.origin() == null ? "" : segment.origin()),
+                            segment.speakerLabel() == null ? java.util.Optional.empty()
+                                    : java.util.Optional.of(segment.speakerLabel())));
+                }
+            }
+            return new com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest(
+                    requestId, sourceArtifactId, sourceArtifactVersionId,
+                    com.ghatana.media.runtime.MediaCaptionContracts.ParentVersionKind.valueOf(
+                            parentVersionKind == null ? "" : parentVersionKind),
+                    parentVersionId, sourceClockId, ticksPerSecond, sourceDurationTicks,
+                    com.ghatana.media.runtime.MediaCaptionContracts.LanguageDisposition.valueOf(
+                            languageDisposition == null ? "" : languageDisposition),
+                    languageTag == null ? java.util.Optional.empty() : java.util.Optional.of(languageTag),
+                    segments,
+                    purpose == null ? java.util.Optional.empty() : java.util.Optional.of(purpose));
+        }
+    }
+
+    private record CaptionSegmentBody(
+            String segmentId, String text, long startTick, long endTick,
+            String origin, String speakerLabel) { }
 
     /** HTTP projection that omits credential hashes and internal provider-attempt identifiers. */
     private record StreamSessionView(

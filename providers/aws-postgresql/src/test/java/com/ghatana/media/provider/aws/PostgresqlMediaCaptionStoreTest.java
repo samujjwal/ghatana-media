@@ -123,6 +123,28 @@ class PostgresqlMediaCaptionStoreTest {
     }
 
     @Test
+    void snapshotReadbackReturnsImmutableSegmentsAndParentClockFacts() throws Exception {
+        try (Fixture f = openFixture()) {
+            RegistrationResult first = f.store().register("tenant-1", "principal-1", request("req-1"), ADMITTED, PARENT);
+            String versionId = ((Registered) first).captionVersionId();
+
+            var snapshot = f.store().version("tenant-1", "principal-1", versionId);
+            assertThat(snapshot).isPresent();
+            assertThat(snapshot.get().captionSegments()).isEqualTo(segments());
+            assertThat(snapshot.get().ticksPerSecond()).isEqualTo(90_000);
+            assertThat(snapshot.get().sourceClockId()).isEqualTo("clock.v1");
+            assertThat(f.store().version("tenant-2", "principal-1", versionId)).isEmpty();
+            assertThat(f.store().version("tenant-1", "principal-2", versionId)).isEmpty();
+
+            var clock = f.store().parentClock("tenant-1", "principal-1", versionId, "artifact-1", "src-v1");
+            assertThat(clock).isPresent();
+            assertThat(clock.get().ticksPerSecond()).isEqualTo(90_000);
+            assertThat(clock.get().sourceDurationTicks()).isEqualTo(9_000_000);
+            assertThat(f.store().parentClock("tenant-1", "principal-1", versionId, "artifact-1", "src-v2")).isEmpty();
+        }
+    }
+
+    @Test
     void fingerprintIsDeterministicAndPresenceSensitive() {
         RegistrationRequest base = request("req-1");
         String a = MediaCaptionContracts.fingerprint("t", "p", base);

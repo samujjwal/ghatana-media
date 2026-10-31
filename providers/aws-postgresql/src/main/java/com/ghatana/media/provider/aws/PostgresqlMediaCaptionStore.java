@@ -181,6 +181,68 @@ public final class PostgresqlMediaCaptionStore implements MediaCaptionStore {
         }
     }
 
+    @Override
+    public Optional<MediaCaptionContracts.CaptionVersionSnapshot> version(String tenantId,
+            String principalId, String captionVersionId) {
+        try (Connection connection = state.connection();
+             PreparedStatement select = connection.prepareStatement("""
+                SELECT request_id,request_fingerprint,registration_receipt_id,source_artifact_id,
+                       source_artifact_version_id,parent_version_kind,parent_version_id,source_clock_id,
+                       ticks_per_second,source_duration_ticks,language_disposition,language_tag_present,
+                       language_tag,purpose_present,purpose,segments_json,registered_at
+                FROM media_caption_registrations
+                WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
+                """)) {
+            select.setString(1, tenantId);
+            select.setString(2, principalId);
+            select.setString(3, captionVersionId);
+            try (ResultSet row = select.executeQuery()) {
+                if (!row.next()) return Optional.empty();
+                return Optional.of(new MediaCaptionContracts.CaptionVersionSnapshot(
+                        row.getString(1), row.getString(2), captionVersionId, row.getString(3),
+                        row.getString(4), row.getString(5),
+                        ParentVersionKind.valueOf(row.getString(6)), row.getString(7),
+                        row.getString(8), row.getLong(9), row.getLong(10),
+                        MediaCaptionContracts.LanguageDisposition.valueOf(row.getString(11)),
+                        row.getBoolean(12) ? Optional.ofNullable(row.getString(13)) : Optional.empty(),
+                        MediaCaptionContracts.parseSegmentsJson(row.getString(16)),
+                        row.getBoolean(14) ? Optional.ofNullable(row.getString(15)) : Optional.empty(),
+                        row.getLong(17)));
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("caption version readback failed", failure);
+        }
+    }
+
+    @Override
+    public Optional<ParentClockLookup.ParentFacts> parentClock(String tenantId, String principalId,
+            String captionVersionId, String sourceArtifactId, String sourceArtifactVersionId) {
+        try (Connection connection = state.connection();
+             PreparedStatement select = connection.prepareStatement("""
+                SELECT source_clock_id,ticks_per_second,source_duration_ticks
+                FROM media_caption_registrations
+                WHERE tenant_id=? AND principal_id=? AND caption_version_id=?
+                  AND source_artifact_id=? AND source_artifact_version_id=?
+                """)) {
+            select.setString(1, tenantId);
+            select.setString(2, principalId);
+            select.setString(3, captionVersionId);
+            select.setString(4, sourceArtifactId);
+            select.setString(5, sourceArtifactVersionId);
+            try (ResultSet row = select.executeQuery()) {
+                if (!row.next()) return Optional.empty();
+                return Optional.of(new ParentClockLookup.ParentFacts(
+                        row.getString(1), row.getLong(2), row.getLong(3)));
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("caption parent clock readback failed", failure);
+        }
+    }
+
+    @Override public boolean ready() { return !closed.get() && state.ready(); }
+
+    @Override public boolean productionEligible() { return !closed.get() && state.productionEligible(); }
+
     private static void bind(PreparedStatement s, String tenantId, String principalId,
                              RegistrationRequest r, String fingerprint, String versionId,
                              String receiptId, long now) throws SQLException {

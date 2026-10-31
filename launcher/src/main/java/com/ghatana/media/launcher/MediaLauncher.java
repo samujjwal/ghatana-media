@@ -30,13 +30,20 @@ public final class MediaLauncher {
         MediaRuntime runtime = MediaRuntime.compose(environment);
         MediaPrivacyMaintenanceRuntime privacyMaintenance = null;
         MediaConsentAdministrationRuntime consentAdministration = null;
+        MediaCaptionRuntime captions = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
+            captions = MediaCaptionRuntime.compose(environment);
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
+            MediaCaptionRuntime finalCaptions = captions;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalCaptions != null) {
+                    try { finalCaptions.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = cleanupFailure; }
+                }
                 if (finalConsentAdministration != null) {
                     try { finalConsentAdministration.close(); }
                     catch (RuntimeException cleanupFailure) { failure = cleanupFailure; }
@@ -56,17 +63,24 @@ public final class MediaLauncher {
                 if (failure != null) log.error("Media Runtime shutdown failed", failure);
             }, "media-runtime-shutdown"));
 
+            MediaCaptionRuntime captionRuntime = captions;
             MediaHttpHandler handler = new MediaHttpHandler(
                     runtime,
-                    consentAdministration == null ? null : consentAdministration.administration());
+                    consentAdministration == null ? null : consentAdministration.administration(),
+                    captionRuntime);
             log.info(
-                    "Starting Media Runtime HTTP service port={} profile={} providers={} privacyMaintenance={} consentAdministration={}",
+                    "Starting Media Runtime HTTP service port={} profile={} providers={} privacyMaintenance={} consentAdministration={} captionRuntime={}",
                     config.httpPort(), config.profile(), runtime.providerIds(),
                     privacyMaintenance == null ? "not-configured" : privacyMaintenance.maintenanceId(),
-                    consentAdministration == null ? "not-configured" : consentAdministration.administrationId());
+                    consentAdministration == null ? "not-configured" : consentAdministration.administrationId(),
+                    captions == null ? "not-configured" : "ready");
             ServiceLauncherSupport.startHttpService(
                     "Media", config.httpPort(), new MediaSecurityFilter(handler, config.profile()));
         } catch (RuntimeException failure) {
+            if (captions != null) {
+                try { captions.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (consentAdministration != null) {
                 try { consentAdministration.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }

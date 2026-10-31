@@ -27,7 +27,7 @@ class MediaRouteManifestTest {
         @Test
         @DisplayName("manifest has expected number of routes")
         void manifestHasExpectedRouteCount() {
-            assertThat(MediaRouteManifest.routeCount()).isEqualTo(27);
+            assertThat(MediaRouteManifest.routeCount()).isEqualTo(30);
         }
 
         @Test
@@ -60,7 +60,7 @@ class MediaRouteManifestTest {
             var manifest = MediaRouteManifest.toManifest();
             assertThat(manifest.get("service")).isEqualTo("media");
             assertThat(manifest.get("version")).isEqualTo("1.3.0");
-            assertThat(manifest.get("totalRoutes")).isEqualTo(27);
+            assertThat(manifest.get("totalRoutes")).isEqualTo(30);
             assertThat(manifest.get("routes")).isInstanceOf(java.util.List.class);
         }
 
@@ -75,7 +75,8 @@ class MediaRouteManifestTest {
                         .replace("{artifactId}", "artifact-a")
                         .replace("{jobId}", "job-a")
                         .replace("{sessionId}", "session-a")
-                        .replace("{sequence}", "0");
+                        .replace("{sequence}", "0")
+                        .replace("{captionVersionId}", "capv-a");
                 String permission = MediaRouteManifest.requiredPermission(route.method(), concretePath);
                 if (route.publicAccess()) {
                     assertThat(permission).as(route.method() + " " + route.path()).isNull();

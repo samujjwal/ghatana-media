@@ -155,6 +155,30 @@ public final class MediaCaptionContracts {
             implements RegistrationResult {
     }
 
+    /**
+     * Complete durable readback of one registered caption version: the {@link Registered}
+     * receipt fields plus the immutable clock tuple, language tag, purpose and segment
+     * payload. It supports the {@code EXACT_PAIR} selector of
+     * {@code media.operation.caption-version-read}; it never approves content or proves
+     * delivery.
+     */
+    public record CaptionVersionSnapshot(String requestId, String requestFingerprint,
+                                         String captionVersionId, String registrationReceiptId,
+                                         String sourceArtifactId, String sourceArtifactVersionId,
+                                         ParentVersionKind parentVersionKind, String parentVersionId,
+                                         String sourceClockId, long ticksPerSecond, long sourceDurationTicks,
+                                         LanguageDisposition languageDisposition, Optional<String> languageTag,
+                                         List<CaptionSegment> captionSegments, Optional<String> purpose,
+                                         long registeredAt) {
+        public CaptionVersionSnapshot {
+            Objects.requireNonNull(parentVersionKind, "parentVersionKind");
+            Objects.requireNonNull(languageDisposition, "languageDisposition");
+            languageTag = languageTag == null ? Optional.empty() : languageTag;
+            captionSegments = List.copyOf(Objects.requireNonNull(captionSegments, "captionSegments"));
+            purpose = purpose == null ? Optional.empty() : purpose;
+        }
+    }
+
     /** Trusted authority facts the durable store cannot fabricate. */
     public interface RegistrationAuthority {
         Decision check(AuthorityCheck check);
@@ -189,6 +213,33 @@ public final class MediaCaptionContracts {
         /** Principal-scoped readback of every registered version for one source artifact version. */
         List<Registered> versions(String tenantId, String principalId, String sourceArtifactId,
                                 String sourceArtifactVersionId);
+
+        /**
+         * Principal-scoped readback of one complete registered caption version, including its
+         * immutable segment payload. The default fails closed; implementations that cannot scope
+         * the read to tenant and principal must not return content.
+         */
+        default Optional<CaptionVersionSnapshot> version(String tenantId, String principalId,
+                                                         String captionVersionId) {
+            return Optional.empty();
+        }
+
+        /**
+         * Resolves the immutable source-clock tuple a registered caption version was bound to, but
+         * only when that version belongs to the same source artifact/version scope. This backs the
+         * {@link ParentVersionKind#CAPTION_VERSION} branch of {@link ParentClockLookup}; the default
+         * fails closed so an unsupporting store can never fabricate parent clock facts.
+         */
+        default Optional<ParentClockLookup.ParentFacts> parentClock(String tenantId, String principalId,
+                String captionVersionId, String sourceArtifactId, String sourceArtifactVersionId) {
+            return Optional.empty();
+        }
+
+        /** True only when the durable caption schema and storage connection are currently usable. */
+        default boolean ready() { return false; }
+
+        /** True when the store may serve production-grade registration; absence fails closed. */
+        default boolean productionEligible() { return false; }
     }
 
     /**
