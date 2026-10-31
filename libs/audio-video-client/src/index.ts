@@ -40,6 +40,19 @@ export type {
   SceneTextObservation,
   SceneTextSourceFrame,
 } from './scene-text-adapter.js';
+export { CaptionDraftError, CaptionDraftSession, timingAvailability } from './caption-draft.js';
+export type {
+  CaptionDraftEdit,
+  CaptionDraftErrorCode,
+  CaptionDraftScope,
+  CaptionDraftSnapshot,
+  CaptionSegment,
+  CaptionSegmentOrigin,
+  CaptionSegmentTiming,
+  ParentVersionKind,
+  SourceClockContext,
+  TimingAvailability,
+} from './caption-draft.js';
 
 /**
  * Configuration for service clients
