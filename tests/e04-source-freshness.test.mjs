@@ -70,9 +70,18 @@ test("E-04 retry-fixture source pin changes have bounded semantic review", () =>
     assert.ok(review, `${path} pin changes require a current semantic-diff record`);
     assert.notEqual(review.previousSha256, review.currentSha256);
     assert.ok(review.semanticDiff.length > 0);
+  }
+  for (const path of retrySourcePaths.slice(0, 2)) {
+    const sourcePin = pins.sources.find((source) => source.path === path);
+    const review = pins.reviewedSourceDeltas.find((delta) => delta.path === path && delta.currentSha256 === sourcePin?.sha256);
     assert.match(review.semanticDiff.join("\n"), /job-retry-ineligible/u);
     assert.match(review.acceptanceEffect, /No retry policy/u);
   }
+  const fixturesRetryDelta = pins.reviewedSourceDeltas.find((delta) =>
+    delta.path === "libs/media-experience-simulation/src/fixtures.ts"
+    && delta.semanticDiff.join("\n").includes("job-retry-ineligible"));
+  assert.ok(fixturesRetryDelta, "the fixtures retry-seed delta must remain reviewed and pinned in history");
+  assert.match(fixturesRetryDelta.acceptanceEffect, /No retry policy/u);
   const registryReview = pins.reviewedSourceDeltas.find(({ path }) => path === retrySourcePaths[0]);
   const indexReview = pins.reviewedSourceDeltas.find(({ path }) => path === retrySourcePaths[1]);
   const seedReview = pins.reviewedSourceDeltas.find(({ path }) => path === retrySourcePaths[2]);
@@ -88,8 +97,8 @@ test("E-04 retry-fixture source pin changes have bounded semantic review", () =>
   assert.match(registryDelta.semanticDiff.join("\n"), /no retry is dispatched/u);
   assert.match(registryDelta.acceptanceEffect, /No retry policy/u);
 
-  const seedCurrent = pins.sources.find(({ path }) => path === retrySourcePaths[2]);
-  const seedDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[2] && currentSha256 === seedCurrent.sha256);
+  const seedDelta = pins.reviewedSourceDeltas.find(({ path, semanticDiff }) => path === retrySourcePaths[2]
+    && semanticDiff.join("\n").includes("synthetic eligibility evidence is supplied test data"));
   const priorSeedDelta = pins.reviewedSourceDeltas.find(({ path, currentSha256 }) => path === retrySourcePaths[2] && currentSha256 === seedDelta.previousSha256);
   assert.ok(priorSeedDelta, "fixture source review preserves the previous pinned cut");
   assert.match(seedDelta.focusedVerification, /51\/51 Node tests passed/u);
