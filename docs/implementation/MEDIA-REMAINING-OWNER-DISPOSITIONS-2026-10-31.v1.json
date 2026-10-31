@@ -112,7 +112,8 @@
       "decision": "COMPOSE_DI_ONLY_SERVICE",
       "urgency": "P0",
       "how": "Explicit env/config source-bound composition with trusted Media SourceAuthority and DI policy, qualified provider, bounded DI endpoint + TLS/auth, no Media OCR model fallback; bound blocking provider call in worker pool away from gRPC event loop.",
-      "accept": "Real DI worker PNG/ROI text+boxes PTS over installed DI and real gRPC client; cross-tenant, bad frame/hash, cancel, timeout, DNS and DI outage no stale text."
+      "accept": "Real DI worker PNG/ROI text+boxes PTS over installed DI and real gRPC client; cross-tenant, bad frame/hash, cancel, timeout, DNS and DI outage no stale text.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/23"
     },
     {
       "key": "OCR-K01",
@@ -124,7 +125,8 @@
       "decision": "DI_OWNS_KERNEL_PROVIDER_ADAPTER",
       "urgency": "P0",
       "how": "Implement DI-owned Java Kernel ProductRuntimeFacets.OcrProvider/ ProductRuntimeProvider adapter in DI owning module; bind existing media.ocr compatibility capability ID to DI provider through Kernel registry without a second OCR engine; support extract, cancel, status, exact terminal and source version.",
-      "accept": "Packed Kernel source-free provider materialization and real image→text / outage / rights / cancellation conformance; zero Media registry owner."
+      "accept": "Packed Kernel source-free provider materialization and real image→text / outage / rights / cancellation conformance; zero Media registry owner.",
+      "trackedIssue": null
     },
     {
       "key": "OCR-D01",
@@ -137,7 +139,8 @@
       "decision": "PIN_PUBLIC_DI_CLIENT_AND_REAL_WORKER",
       "urgency": "P0",
       "how": "Resolve Shared @ghatana/document-extraction 0.1.0-SNAPSHOT peer release contract; qualify immutable client package and DI v1 provider catalog/parse/cancel; model rights+real quality separately. Existing named client adapters wrap DI only; do not misclassify them as local OCR execution.",
-      "accept": "Packed TS+Java consumer, Python strict contract, PNG+PDF independently labeled qualified OCR, invalid media/locale, provider outage and privacy tests."
+      "accept": "Packed TS+Java consumer, Python strict contract, PNG+PDF independently labeled qualified OCR, invalid media/locale, provider outage and privacy tests.",
+      "trackedIssue": null
     },
     {
       "key": "OCR-M03",
@@ -151,7 +154,8 @@
       "decision": "DELETE_REDUNDANT_MEDIA_OCR_AFTER_KERNEL_MIGRATION",
       "urgency": "P1",
       "how": "After DI-owned Kernel binding and live consumers qualify, remove OcrService, stale extractText shims, Media OcrProvider adapter, Gradle/settings/exports/manifests and retired topology candidate; preserve non-OCR geometry/tracking.",
-      "accept": "No production old OCR symbols, tests or registered provider; 56 surviving declared roster IDs with authoritative phase projection, public consumers pass."
+      "accept": "No production old OCR symbols, tests or registered provider; 56 surviving declared roster IDs with authoritative phase projection, public consumers pass.",
+      "trackedIssue": null
     },
     {
       "key": "TRACK-B",
@@ -167,7 +171,8 @@
       "decision": "IMPACT_SCOPED_PIN_AND_MATRIX_RECONCILIATION",
       "urgency": "P0",
       "how": "Re-evaluate reported 67 stale sourceShaSet pinned selectors against actual source/member digests; collect exact two current parity diagnostic IDs; owner-review every changed meaning, then generator-only refresh impacted pins. Extend active agent-tools/support and DataCloud/optional rows, preserve 54 unchanged and retire OCR row only after migration.",
-      "accept": "Current P0 actual status reconciled (present file IN_PROGRESS, P1-P3 DEV_COMPLETE), correct full selected 56-row roster after retirement, no hidden skipped/UNKNOWN cells, scoped source tests and parity oracles."
+      "accept": "Current P0 actual status reconciled (present file IN_PROGRESS, P1-P3 DEV_COMPLETE), correct full selected 56-row roster after retirement, no hidden skipped/UNKNOWN cells, scoped source tests and parity oracles.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/19"
     },
     {
       "key": "KCRIT",
@@ -179,7 +184,8 @@
       "decision": "OWNER_WORK_PLANNER_PER_SURFACE_PLAN_READY",
       "urgency": "P0",
       "how": "Evaluate actual canonical 50 packages/57 original plan task IDs and remaining 19 blockers for exact independently eligible Build surfaces; owner-supported revision/idempotency and genuine source fingerprint, not Media-owned stage engine.",
-      "accept": "Source-current KCRIT-PLAN-TASK-CLOSURE and KCRIT-PLAN-READY authentic owner readback/transition; N/A/UNKNOWN explicit."
+      "accept": "Source-current KCRIT-PLAN-TASK-CLOSURE and KCRIT-PLAN-READY authentic owner readback/transition; N/A/UNKNOWN explicit.",
+      "trackedIssue": null
     },
     {
       "key": "AP02-AP03",
@@ -193,7 +199,8 @@
       "decision": "PROVISION_REAL_TRUSTED_HOST_AND_NATIVE_PROOFS",
       "urgency": "P0",
       "how": "Complete trusted AP02 contract distribution, AP03 source snapshot selection+verifier and real host binding; correct independent physical-to-composition closure graph and source-to-case/observer/oracle binding, bounded native gtool first leaf and separate phases.",
-      "accept": "Authentic signer/verifier/receipt/currentness, revocation and source mutation negatives; never provision fake keys or advertise closure from source-only checks."
+      "accept": "Authentic signer/verifier/receipt/currentness, revocation and source mutation negatives; never provision fake keys or advertise closure from source-only checks.",
+      "trackedIssue": null
     },
     {
       "key": "STREAM-QUAL",
@@ -206,7 +213,8 @@
       "decision": "COMPLETE_REAL_STREAM_TRANSPORTS",
       "urgency": "P0",
       "how": "Finish previously unadmitted WebRTC, adaptive HTTP, HLS, DASH and lease renewal by existing public Media session authority; actual 1/16/64 performance, backpressure/ACK/VFR/rights/no double delivery.",
-      "accept": "Real end-to-end stream in tested host with recovery and exact original R8/W3 oracles."
+      "accept": "Real end-to-end stream in tested host with recovery and exact original R8/W3 oracles.",
+      "trackedIssue": null
     },
     {
       "key": "MODEL-QUAL",
@@ -220,7 +228,8 @@
       "decision": "REQUIRE_GENUINE_RIGHTS_AND_MEASURED_MODEL_QUALITY",
       "urgency": "P0",
       "how": "Use licensed pinned model & legal first-party or licensed gold for real STT/TTS/Vision/MM, source/voice/biometric restrictions, true WER/CER/mAP and audio sample/fidelity profiles. Cannot self-grant external rights.",
-      "accept": "R8 original whole-row independent quality/rights/recovery receipts; blocked modes remain unadmitted if no lawful input."
+      "accept": "R8 original whole-row independent quality/rights/recovery receipts; blocked modes remain unadmitted if no lawful input.",
+      "trackedIssue": null
     },
     {
       "key": "WRITER",
@@ -233,7 +242,8 @@
       "decision": "SINGLE_FENCED_WRITER_AND_FLYWAY_CUTOVER",
       "urgency": "P0",
       "how": "Review applied old Ghatana writer schema V001–V016, prepared Media conflicting V007–V009 and new V028; perform rehearsed snapshot migration, quiesce/fence old producers, one writer, rollback/forward-only schema evolution.",
-      "accept": "No two live writers, no conflicting Flyway histories or lost/duplicated leases, captions remain available after restart."
+      "accept": "No two live writers, no conflicting Flyway histories or lost/duplicated leases, captions remain available after restart.",
+      "trackedIssue": null
     },
     {
       "key": "WHOLE-PRODUCT",
@@ -247,7 +257,8 @@
       "decision": "NO_BACKEND_ONLY_TERMINAL_CLAIM",
       "urgency": "P0",
       "how": "Retain F00–F13, V01–V30, L01–L03, X01–X03; complete 47 real UI screens, 30 real journey terminals, two-pass per-edition recording, 30 HTTP/44 gRPC and SDK/CLI/agent/events parity with native closure separate.",
-      "accept": "30 live journeys + 47 real screens + original 36 R8 and 96 W3/H accepted, no new source-without-runtime success."
+      "accept": "30 live journeys + 47 real screens + original 36 R8 and 96 W3/H accepted, no new source-without-runtime success.",
+      "trackedIssue": null
     },
     {
       "key": "EXTERNAL-PLATFORM",
@@ -260,7 +271,8 @@
       "decision": "PUBLIC_CONTRACTS_OPTIONAL_DATA_CLOUD",
       "urgency": "P1",
       "how": "Prove Event Plane HTTP 201 append and distinct eventual consumption, Action Plane remote acknowledgement, Data Cloud authorized optional projection, 32 relevant AEP cases; owner source-free ABI.",
-      "accept": "Owner-qualified real restart/partition/outage/receipt and Media non-dependency on Data Cloud."
+      "accept": "Owner-qualified real restart/partition/outage/receipt and Media non-dependency on Data Cloud.",
+      "trackedIssue": null
     },
     {
       "key": "VIS-09-CAPABILITY-PROFILES",
@@ -272,7 +284,8 @@
       "decision": "EXPLICIT_VISION_PROFILE_WITH_SEPARATE_YOLO_AND_DI_ADMISSION",
       "urgency": "P0",
       "how": "Current VisionGrpcServer creates ProductionVisionGrpcService which requires admitted YOLO before port bind; new DI-only OCR must not inherit YOLO prerequisite silently. Choose source-approved explicit OCR_ONLY host profile with independent per-RPC readiness/dispatch, preserving existing FULL_VISION detector fail-before-bind contract and never using dummy detector. Qualify gRPC admission/status for each capability.",
-      "accept": "With DI qualified but YOLO absent, OCR_ONLY RecognizeSceneText proves real positive while detect/classify unavailable; FULL_VISION unchanged missing-YOLO fail startup; DI unavailable does not affect admitted non-OCR detection; no weak global health."
+      "accept": "With DI qualified but YOLO absent, OCR_ONLY RecognizeSceneText proves real positive while detect/classify unavailable; FULL_VISION unchanged missing-YOLO fail startup; DI unavailable does not affect admitted non-OCR detection; no weak global health.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/23"
     },
     {
       "key": "VIS-09-SOURCE-PIXEL-FENCE",
@@ -285,7 +298,8 @@
       "decision": "TRUSTED_FRAME_AND_ROI_PROVENANCE_BEFORE_DI",
       "urgency": "P0",
       "how": "Existing service checks caller crop self-hash and authority's original frame hash, but no authoritative re-derivation of actual ROI pixel bytes is present in this seam. Implement trusted frame-crop resolver under source-rights authority (or authenticated immutable crop receipt with content-bound ROI and source digest). Verify source version, true original frame bytes, PTS/timebase, ROI crop digest and owner policy before DI. Do not treat caller self-hash as provenance.",
-      "accept": "Malicious arbitrary crop with a valid self-hash cannot reach DI; exact source-digest, wrong ROI, frameId/PTS mismatch, tenant principal/purpose/revocation, late cancellation and true positive geometry tests."
+      "accept": "Malicious arbitrary crop with a valid self-hash cannot reach DI; exact source-digest, wrong ROI, frameId/PTS mismatch, tenant principal/purpose/revocation, late cancellation and true positive geometry tests.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/23"
     },
     {
       "key": "VIS-09-HTTP-RESOURCE-BOUNDARY",
@@ -296,7 +310,8 @@
       "decision": "QUALIFIED_ENDPOINT_AND_PREALLOCATION_BODY_LIMIT",
       "urgency": "P0",
       "how": "Current client uses HttpResponse.BodyHandlers.ofByteArray() and validates the 32MiB cap only after buffering. Replace with bounded streaming body subscriber / size-limited input, finite whole deadline, true cancel/reconcile, allowlisted host/TLS trust; use DI v1 unchanged. Production security is mTLS or owner-approved service gateway consistent with DI published authority; do not invent a new DI auth header.",
-      "accept": "Malicious >max response fails with bounded allocations; bad TLS/host/redirect/DNS, response spoof, unknown operation, timeout/cancel, workers under concurrency and no data leak. Real eligible DI worker parse returned."
+      "accept": "Malicious >max response fails with bounded allocations; bad TLS/host/redirect/DNS, response spoof, unknown operation, timeout/cancel, workers under concurrency and no data leak. Real eligible DI worker parse returned.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/23"
     },
     {
       "key": "BASELINE-TTS-READY",
@@ -307,7 +322,8 @@
       "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
       "urgency": "P1",
       "how": "Inspect provider health probe, readiness markReady/setNotServing, borrowed engine close, TtsRequestAuthorization.isReady gating and 100% fixture isolation. Do not change fail-closed readiness to make test green.",
-      "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset."
+      "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/24"
     },
     {
       "key": "BASELINE-TTS-INVENTORY",
@@ -318,7 +334,8 @@
       "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
       "urgency": "P1",
       "how": "Test requires text super(library, metrics, but ProductionTtsGrpcService source now calls super(runtimeAdmission.library(), metrics,. Replace source-literal assertion with structured or behavioral admission/constructor conformance; retain exact RPC/capability inventory and provider/rights deny cases. Additional failing assertions need JUnit readback.",
-      "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability."
+      "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/24"
     },
     {
       "key": "BASELINE-MM-GRPC",
@@ -329,7 +346,8 @@
       "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
       "urgency": "P1",
       "how": "Inspect fixture JWT system-property restoration, actual context authentication, global MetricsServerInterceptor counter isolation, freePort() bind race and child-error UNAVAILABLE/readiness after shutdown. Diagnose from exact XML; do not assert a root cause without it.",
-      "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions."
+      "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions.",
+      "trackedIssue": "https://github.com/samujjwal/ghatana-media/issues/24"
     }
   ],
   "physicalSurfaces": [
@@ -2818,6 +2836,108 @@
         "Measure/Learn/Evolve on observed metrics"
       ],
       "exit": "Delivery and Enhance claims only after real operation and independent approvals."
+    }
+  ],
+  "ownerExecutionIssues": {
+    "VIS-09-PROD": "https://github.com/samujjwal/ghatana-media/issues/23",
+    "BASELINE-TTS-READY": "https://github.com/samujjwal/ghatana-media/issues/24",
+    "BASELINE-TTS-INVENTORY": "https://github.com/samujjwal/ghatana-media/issues/24",
+    "BASELINE-MM-GRPC": "https://github.com/samujjwal/ghatana-media/issues/24",
+    "TRACK-B": "https://github.com/samujjwal/ghatana-media/issues/19",
+    "PARITY": "https://github.com/samujjwal/ghatana-media/issues/6",
+    "PLAN-KCRIT": "https://github.com/samujjwal/ghatana-media/issues/22",
+    "FIRST-NATIVE": "https://github.com/samujjwal/ghatana-media/issues/20",
+    "DI-OCR": "https://github.com/samujjwal/ghatana/issues/252",
+    "DATA-ACTION-EVENT": "https://github.com/samujjwal/ghatana/issues/254",
+    "MEDIA-AP02": "https://github.com/samujjwal/ghatana-lifecycle/issues/24",
+    "MEDIA-AP03": "https://github.com/samujjwal/ghatana-lifecycle/issues/25",
+    "LIFECYCLE-OWN-AP": "https://github.com/samujjwal/ghatana-lifecycle/issues/29"
+  },
+  "sourceOwnedIssueDisposition": [
+    {
+      "issue": "media#3",
+      "disposition": "HISTORICAL_COUNTS_RECHECK_PDP0_CURRENTNESS_AND_NATIVE_PROOF",
+      "action": "Do not recreate old 383-leaf/27-route/43-RPC counts; source PDP0 IN_PROGRESS, PDP1/2/3 recorded prior DEV_COMPLETE; current source impact and independent proof #4/#20."
+    },
+    {
+      "issue": "media#4",
+      "disposition": "INDEPENDENT_REVIEW_REQUIRED",
+      "action": "Actual qualified product/domain, accessibility, visual, simulation and rights reviewer outcomes with specific source/host/assistive-tech evidence; owner engineering approval not a reviewer signature."
+    },
+    {
+      "issue": "media#5",
+      "disposition": "FIRST_SLICE_REQUALIFY_CURRENT_IMPLEMENTATION",
+      "action": "Artifact/upload/job source/route/rights/attempt/UNKNOWN and installed client oracles; preserve completed parts, not blanket task COMPLETE."
+    },
+    {
+      "issue": "media#6",
+      "disposition": "REPORTED_TWO_PARITY_FINDINGS_TO_IDENTIFY",
+      "action": "Current pnpm contract parity output/IDs; fix exact operation semantics, no retired historical 3/51 phantom blocker."
+    },
+    {
+      "issue": "media#7",
+      "disposition": "REAL_L02_L03_CASE_ORACLES_NOT_ADMITTED",
+      "action": "Bind current native obligation roster/case/observer/independent receipt; historical 344 counts not current authority."
+    },
+    {
+      "issue": "media#8",
+      "disposition": "HISTORICAL_PDP_GAPS_SCOPE_IMPACT_RECHECK",
+      "action": "Do not treat 383 leaves or 260 old migration items as new current tasks; source-current P0 status and actual 30 journeys/130 steps + 30 HTTP/44 gRPC."
+    },
+    {
+      "issue": "media#19",
+      "disposition": "57_DECLARED_VS_54_MATRIX_SOURCE_DELTA",
+      "action": "2 rows add through generators, one OCR retire after DI replacement; exact native ClosureUnit owner graph not 57 units."
+    },
+    {
+      "issue": "media#20",
+      "disposition": "NATIVE_FIRST_LEAF_RECEIPT_PENDING",
+      "action": "After true AP02/AP03, independent case+oracle+Evidence Generator and native gtool receipt; not code-only source links."
+    },
+    {
+      "issue": "media#21",
+      "disposition": "LAST_GENERATED_SOURCE_JOINS_ZERO_OWNER_PLAN_REVIEW_PENDING",
+      "action": "No redo historic 17 P1 joins; current regen + original F00.T02 work plan owner acceptance."
+    },
+    {
+      "issue": "media#22",
+      "disposition": "KCRIT_PER_SURFACE_PENDING",
+      "action": "Approved code work; exact original 50-package/57-task Work Planner source-current KCRIT, not fake Plan Ready."
+    },
+    {
+      "issue": "media#23",
+      "disposition": "VIS09_CODE_OPEN",
+      "action": "Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker."
+    },
+    {
+      "issue": "media#24",
+      "disposition": "BASELINE_DEFECTS_OPEN_NOT_CAP_REGRESSION",
+      "action": "3 original TTS/MM classes with exact Gradle XML, no ignored tests; one stale textual constructor oracle confirmed."
+    },
+    {
+      "issue": "ghatana#252",
+      "disposition": "DI_PUBLIC_CLIENT_AND_KERNEL_OWNED_PROVIDER_PENDING",
+      "action": "Shared peer, DI worker/qualified model, DI-owned Kernel OcrProvider and source-free PNG/PDF consumers."
+    },
+    {
+      "issue": "ghatana#254",
+      "disposition": "DATA_ACTION_EVENT_PUBLIC_OWNER_ACCEPTANCE_PENDING",
+      "action": "Optional Data Cloud, EventPlane 201 append vs finality, ActionPlane remote receipt and 32 AEP case provenance."
+    },
+    {
+      "issue": "lifecycle#24",
+      "disposition": "MEDIA_AP02_GENUINE_HOST_REQUIRED",
+      "action": "Actual contract distribution owner, verifier and revocation; no local signature substitute."
+    },
+    {
+      "issue": "lifecycle#25",
+      "disposition": "MEDIA_AP03_GENUINE_SNAPSHOT_REQUIRED",
+      "action": "Exact post-TrackB membership/source epoch, trusted Planner verifier, no historical manifest."
+    },
+    {
+      "issue": "lifecycle#29",
+      "disposition": "LIFECYCLE_OWN_REPOSITORY_AP02_AP03_DISTINCT_FROM_MEDIA",
+      "action": "Lifecycle own source/governance host stage-nine authority, not a Media fixture; native proofs separately admitted."
     }
   ]
 }
