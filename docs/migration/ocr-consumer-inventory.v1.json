@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "media.ocr-consumer-inventory.v1",
+  "packet": "OCR-C01",
+  "authority": "docs/migration/decisions/MDI-001-document-intelligence-ownership.md",
+  "claimsBoundary": "Source/call-site observation only. DI_MIGRATED means the caller's source reaches OCR only through the Document Intelligence v1 public client; it does not prove an installed client, qualified provider, real OCR result or VIS-09/OC-04 acceptance.",
+  "dispositionVocabulary": [
+    "DI_MIGRATED",
+    "RETIRED",
+    "REQUIRES_WORK",
+    "NOT_OCR"
+  ],
+  "observedRevisions": {
+    "ghatana-media": "working tree (re-checked by scripts/check-media-ocr-consumer-inventory.mjs)",
+    "ghatana": "cb568c5f05",
+    "ghatana-kernel": "209921dea",
+    "ghatana-products": "25c24ba6d",
+    "gharbatai": "b64b02f2d4"
+  },
+  "mediaEntries": [
+    {
+      "id": "MEDIA-TS-SCENE-TEXT",
+      "paths": [
+        "libs/audio-video-client/src/authorized-scene-text.ts",
+        "libs/audio-video-client/src/scene-text-adapter.ts",
+        "libs/audio-video-client/src/index.ts"
+      ],
+      "symbols": [
+        "DocumentIntelligenceSceneTextAdapter",
+        "recognizeAuthorizedMediaSceneText"
+      ],
+      "role": "LIVE_CONSUMER",
+      "disposition": "DI_MIGRATED",
+      "packet": "OCR-M01",
+      "remaining": "Installed @ghatana/document-intelligence-client consumer and real DI worker integration (OCR-D01/X01, Ghatana #252)."
+    },
+    {
+      "id": "MEDIA-JAVA-VISION-GRPC-TEXT",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java"
+      ],
+      "symbols": [
+        "analyzeImage"
+      ],
+      "role": "LIVE_ENTRYPOINT_FAIL_CLOSED",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-M02",
+      "remaining": "VIS-09 frame/ROI/PTS text recognition must call DI v1 through a reviewed Java client; currently returns UNIMPLEMENTED for every analysis intent."
+    },
+    {
+      "id": "MEDIA-JAVA-OCR-SERVICE",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java"
+      ],
+      "symbols": [
+        "OcrService",
+        "OcrService.of",
+        "OcrService.extractText"
+      ],
+      "role": "LEGACY_SHIM_FAIL_CLOSED",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-M03",
+      "remaining": "Delete after OCR-K01 removes the Kernel media.ocr binding that KernelOcrProviderAdapter serves."
+    },
+    {
+      "id": "MEDIA-JAVA-VISION-EXTRACT-TEXT",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/vision/engine/VisionModelEngine.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/detection/VisionDetector.java"
+      ],
+      "symbols": [
+        "VisionModelEngine.extractText",
+        "VisionDetector.extractText",
+        "VisionCapability.OCR"
+      ],
+      "role": "LEGACY_SHIM_FAIL_CLOSED",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-M03",
+      "remaining": "No live caller; remove with OCR-M03 while keeping non-OCR detection/classification."
+    },
+    {
+      "id": "MEDIA-KERNEL-OCR-COMPAT",
+      "paths": [
+        "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java",
+        "adapters/ocr-compat/build.gradle.kts"
+      ],
+      "symbols": [
+        "KernelOcrProviderAdapter",
+        "ProductRuntimeFacets.OcrProvider"
+      ],
+      "role": "LEGACY_SHIM_FAIL_CLOSED",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-K01",
+      "remaining": "Kernel media.ocr facet must be provided by DI, not Media; then delete module and its topology row (roster RETIRE_UNDER_OCR_M03)."
+    },
+    {
+      "id": "MEDIA-PROVIDER-MANIFEST-KERNEL-OCR",
+      "paths": [
+        "config/provider-manifest.json",
+        "config/kernel-provider-dependency-requests.source.json",
+        "config/intentional-public-api.json"
+      ],
+      "symbols": [
+        "KERNEL-DEP-GHATANA-OCR-PROVIDER-001",
+        "media.ocr"
+      ],
+      "role": "REGISTRATION_NOT_AUTO_SELECTED",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-K01",
+      "remaining": "Remove the Media Kernel OCR provider dependency request/binding and the KernelOcrProviderAdapter public-API selector once Kernel binds media.ocr to DI; automaticSelectionEligible stays false meanwhile."
+    }
+  ],
+  "externalEntries": [
+    {
+      "id": "GHATANA-HISTORICAL-MEDIA-OCR",
+      "repository": "ghatana",
+      "paths": [
+        "services/media/modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java",
+        "services/media/modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java",
+        "services/media/modules/vision/vision-service/src/main/java/com/ghatana/vision/engine/VisionModelEngine.java"
+      ],
+      "role": "HISTORICAL_READ_ONLY",
+      "disposition": "REQUIRES_WORK",
+      "owner": "M08 deployment/data cutover",
+      "remaining": "Read-only for Media authors; retired only when the legacy binary stops being the active writer."
+    },
+    {
+      "id": "KERNEL-OCR-FACET",
+      "repository": "ghatana-kernel",
+      "paths": [
+        "platform-kernel/kernel-product-api/src/main/java/com/ghatana/kernel/product/api/capability/ProductRuntimeFacets.java",
+        "platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/ProductRuntimeFacetMaterializer.java"
+      ],
+      "symbols": [
+        "ProductRuntimeFacets.OcrProvider",
+        "media.ocr"
+      ],
+      "role": "PLATFORM_FACET",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-K01",
+      "owner": "ghatana-kernel",
+      "remaining": "Facet id media.ocr implies Media OCR ownership; bind the provider to DI (keep facet API compatible)."
+    },
+    {
+      "id": "AURA-VISUAL-OCR-CAPABILITY",
+      "repository": "ghatana-products",
+      "paths": [
+        "products/aura/contracts/providers.yaml"
+      ],
+      "symbols": [
+        "media.ocr"
+      ],
+      "role": "OPTIONAL_CONSUMER_DECLARATION",
+      "disposition": "REQUIRES_WORK",
+      "packet": "OCR-K01",
+      "owner": "aura product",
+      "remaining": "Optional logical capability; resolves to DI once the Kernel facet is DI-provided. No OCR execution code observed."
+    },
+    {
+      "id": "GHARBATAI-DOCUMENT-EXTRACTION",
+      "repository": "gharbatai",
+      "paths": [
+        "products/org/apps/api/src/modules/document-extraction/document-extraction.providers.ts"
+      ],
+      "symbols": [
+        "@ghatana/document-intelligence-client"
+      ],
+      "role": "LIVE_CONSUMER",
+      "disposition": "DI_MIGRATED",
+      "owner": "gharbatai",
+      "remaining": "ocr.paddle.* strings are DI provider catalog refs, not direct engine calls."
+    },
+    {
+      "id": "TUTORPUTOR-EXTRACT-TEXT-HELPERS",
+      "repository": "ghatana-products",
+      "paths": [
+        "products/tutorputor/services/tutorputor-platform/src/modules/content/semantic/chunk-service.ts",
+        "products/tutorputor/services/tutorputor-platform/src/modules/content/evaluation/automated-review-service.ts"
+      ],
+      "role": "HELPER_NAME_ONLY",
+      "disposition": "NOT_OCR",
+      "remaining": "extractText flattens JSON payload text; no image recognition."
+    },
+    {
+      "id": "YAPPC-ACCESSIBILITY-EXTRACT-TEXT",
+      "repository": "ghatana-yappc",
+      "paths": [
+        "frontend/web/src/utils/accessibility.ts"
+      ],
+      "role": "HELPER_NAME_ONLY",
+      "disposition": "NOT_OCR",
+      "remaining": "extractText flattens React children."
+    },
+    {
+      "id": "DATA-CLOUD-NO-OCR-CALLER",
+      "repository": "ghatana",
+      "paths": [
+        "services/data-cloud"
+      ],
+      "role": "NO_CALLER_OBSERVED",
+      "disposition": "NOT_OCR",
+      "remaining": "No OCR execution or OCR client import observed; Data Cloud stays optional downstream metadata only."
+    }
+  ]
+}

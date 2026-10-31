@@ -62,6 +62,11 @@ operations**; Media speech/video/recording/caption editing remain functional.
 A missing OCR provider yields typed `NOT_ADMITTED` or `UNAVAILABLE`,
 not fabricated text.
 
+| Fault mode | Required Media behavior |
+| --- | --- |
+| Data Cloud disabled/unreachable | Media jobs, versions and finality complete normally; projection publication reports `OUTCOME_UNKNOWN`/retry, never job failure or success. |
+| DI disabled/unreachable | Only OCR-dependent operations return `NOT_ADMITTED`/`UNAVAILABLE`; STT, TTS, non-OCR vision, video, recording and caption editing are unaffected. |
+
 ## Exact development migration sequence
 
 1. **DI provider inventory/contract.** Use `ghatana/services/document-intelligence`

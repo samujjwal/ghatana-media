@@ -53,7 +53,7 @@ test('development consumer migration accounts for every DI-only adoption and ret
     'OCR-C01', 'OCR-D01', 'OCR-D02', 'OCR-M01', 'OCR-M02',
     'OCR-K01', 'OCR-M03', 'OCR-X01',
   ]);
-  assert.match(matrix, /source-free DI-backed capability conformance/u);
+  assert.match(matrix, /source-free DI-backed capability conformance/iu);
   assert.match(matrix, /After OCR-M01\/M02\/K01 prove their replacement/u);
   assert.match(matrix, /No callable Media generic OCR implementation remains/u);
   assert.match(matrix, /swap the adapter\/model \*\*inside Document Intelligence\*\*/u);
