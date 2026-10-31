@@ -192,6 +192,27 @@
       "path": "/api/v1/providers",
       "operationId": "getMediaProviders",
       "visibility": "authenticated"
+    },
+    {
+      "id": "POST /api/v1/caption-versions",
+      "method": "POST",
+      "path": "/api/v1/caption-versions",
+      "operationId": "registerMediaCaptionVersion",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/caption-versions",
+      "method": "GET",
+      "path": "/api/v1/caption-versions",
+      "operationId": "listMediaCaptionVersions",
+      "visibility": "authenticated"
+    },
+    {
+      "id": "GET /api/v1/caption-versions/{captionVersionId}",
+      "method": "GET",
+      "path": "/api/v1/caption-versions/{captionVersionId}",
+      "operationId": "getMediaCaptionVersion",
+      "visibility": "authenticated"
     }
   ],
   "comparedContract": "contracts/openapi/media.yaml",
@@ -208,6 +229,6 @@
       "checkCommand": "./gradlew :services:media:launcher:checkCommittedRouteManifestCurrent --no-build-cache",
       "comparison": "byte-for-byte-json-tree"
     },
-    "fingerprint": "sha256:571a23331aadda71ef3991ed8455c0035ee0b7b0f0b9f5bff25a4ad373d2980d"
+    "fingerprint": "sha256:aef2012e5ecb55994473063ea432fe43b575b47010e9f67ff5ac83de5121bc68"
   }
 }

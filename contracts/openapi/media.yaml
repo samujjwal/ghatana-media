@@ -948,6 +948,125 @@ paths:
           requiredPermissions: [],
         }
       x-ghatana-governance: { requiresPolicy: false, requiresAudit: false }
+  /api/v1/caption-versions:
+    post:
+      tags: [CaptionVersions]
+      operationId: registerMediaCaptionVersion
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
+        ]
+      requestBody:
+        {
+          required: true,
+          content:
+            {
+              application/json:
+                {
+                  schema: { $ref: "#/components/schemas/CaptionRegistrationRequest" },
+                },
+            },
+        }
+      responses:
+        "201":
+          {
+            description: Registered immutable caption version receipt,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/CaptionVersionRegistered" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: POST /api/v1/caption-versions
+      x-ghatana-operationId: registerMediaCaptionVersion
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
+      x-ghatana-idempotency:
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|principalId|requestId
+    get:
+      tags: [CaptionVersions]
+      operationId: listMediaCaptionVersions
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
+          { $ref: "#/components/parameters/CaptionSourceArtifactId" },
+          { $ref: "#/components/parameters/CaptionSourceArtifactVersionId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Principal-scoped caption version receipts for one source version,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/CaptionVersionList" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/caption-versions
+      x-ghatana-operationId: listMediaCaptionVersions
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: true }
+  /api/v1/caption-versions/{captionVersionId}:
+    get:
+      tags: [CaptionVersions]
+      operationId: getMediaCaptionVersion
+      parameters:
+        [
+          { $ref: "#/components/parameters/TenantHeader" },
+          { $ref: "#/components/parameters/PrincipalHeader" },
+          { $ref: "#/components/parameters/CaptionVersionId" },
+        ]
+      responses:
+        "200":
+          {
+            description: Complete registered caption version including immutable segments,
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/CaptionVersionSnapshot" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+      x-ghatana-routeId: GET /api/v1/caption-versions/{captionVersionId}
+      x-ghatana-operationId: getMediaCaptionVersion
+      x-ghatana-security:
+        {
+          sensitivity: SENSITIVE,
+          requiredAccess: OPERATOR,
+          requiresAuth: true,
+          requiresTenant: true,
+          requiredPermissions: [],
+        }
+      x-ghatana-governance: { requiresPolicy: false, requiresAudit: true }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
@@ -1003,6 +1122,27 @@ components:
         required: true,
         schema: { type: string, minLength: 1 },
       }
+    CaptionVersionId:
+      {
+        name: captionVersionId,
+        in: path,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 255 },
+      }
+    CaptionSourceArtifactId:
+      {
+        name: sourceArtifactId,
+        in: query,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 256 },
+      }
+    CaptionSourceArtifactVersionId:
+      {
+        name: sourceArtifactVersionId,
+        in: query,
+        required: true,
+        schema: { type: string, minLength: 1, maxLength: 256 },
+      }
     SessionId:
       {
         name: sessionId,
@@ -1029,6 +1169,98 @@ components:
         minLength: 1
         maxLength: 255
   schemas:
+    CaptionRegistrationSegment:
+      type: object
+      additionalProperties: false
+      required: [segmentId, text, startTick, endTick, origin]
+      properties:
+        segmentId: { type: string, minLength: 1, maxLength: 256 }
+        text: { type: string }
+        startTick: { type: integer, minimum: 0, maximum: 9007199254740991 }
+        endTick: { type: integer, minimum: 0, maximum: 9007199254740991 }
+        origin: { type: string, enum: [RECOGNIZED, USER_EDITED] }
+        speakerLabel: { type: string, maxLength: 256 }
+    CaptionRegistrationRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - requestId
+        - sourceArtifactId
+        - sourceArtifactVersionId
+        - parentVersionKind
+        - parentVersionId
+        - sourceClockId
+        - ticksPerSecond
+        - sourceDurationTicks
+        - languageDisposition
+        - captionSegments
+      properties:
+        requestId: { type: string, pattern: '^[A-Za-z0-9._~-]{1,128}$' }
+        requestFingerprint:
+          {
+            type: string,
+            pattern: '^[0-9a-f]{64}$',
+            description: Optional caller-computed media.caption-registration-request.v1 digest; must equal the canonical server digest when supplied,
+          }
+        sourceArtifactId: { type: string, minLength: 1, maxLength: 256 }
+        sourceArtifactVersionId: { type: string, minLength: 1, maxLength: 256 }
+        parentVersionKind: { type: string, enum: [TRANSCRIPT_VERSION, CAPTION_VERSION] }
+        parentVersionId: { type: string, minLength: 1, maxLength: 256 }
+        sourceClockId: { type: string, minLength: 1, maxLength: 256 }
+        ticksPerSecond: { type: integer, minimum: 1, maximum: 9007199254740991 }
+        sourceDurationTicks: { type: integer, minimum: 0, maximum: 9007199254740991 }
+        languageDisposition: { type: string, enum: [NOT_SELECTED, DECLARED_BY_USER, UNCERTAIN] }
+        languageTag: { type: string, minLength: 1, maxLength: 64 }
+        captionSegments:
+          {
+            type: array,
+            minItems: 1,
+            maxItems: 4096,
+            items: { $ref: "#/components/schemas/CaptionRegistrationSegment" },
+          }
+        purpose: { type: string, minLength: 1, maxLength: 240 }
+    CaptionVersionRegistered:
+      type: object
+      additionalProperties: true
+      required: [requestId, requestFingerprint, captionVersionId, registrationReceiptId]
+      properties:
+        requestId: { type: string }
+        requestFingerprint: { type: string, pattern: '^[0-9a-f]{64}$' }
+        captionVersionId: { type: string }
+        registrationReceiptId: { type: string }
+        sourceArtifactId: { type: string }
+        sourceArtifactVersionId: { type: string }
+        parentVersionKind: { type: string, enum: [TRANSCRIPT_VERSION, CAPTION_VERSION] }
+        parentVersionId: { type: string }
+        languageDisposition: { type: string, enum: [NOT_SELECTED, DECLARED_BY_USER, UNCERTAIN] }
+        sourceClockId: { type: string }
+        registeredAt: { type: integer, minimum: 0 }
+    CaptionVersionSnapshot:
+      allOf:
+        - $ref: "#/components/schemas/CaptionVersionRegistered"
+        - type: object
+            additionalProperties: true
+            properties:
+              ticksPerSecond: { type: integer, minimum: 1 }
+              sourceDurationTicks: { type: integer, minimum: 0 }
+              languageTag: { type: string }
+              purpose: { type: string }
+              captionSegments:
+                {
+                  type: array,
+                  items: { $ref: "#/components/schemas/CaptionRegistrationSegment" },
+                }
+    CaptionVersionList:
+      type: object
+      additionalProperties: false
+      required: [captionVersions, count]
+      properties:
+        captionVersions:
+          {
+            type: array,
+            items: { $ref: "#/components/schemas/CaptionVersionRegistered" },
+          }
+        count: { type: integer, minimum: 0 }
     MediaProviderResponse:
       type: object
       additionalProperties: false

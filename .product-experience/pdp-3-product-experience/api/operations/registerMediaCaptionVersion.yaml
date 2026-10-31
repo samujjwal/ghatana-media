@@ -1,0 +1,55 @@
+schemaVersion: media.protocol-operation-contract.v1
+operationId: media.http.registerMediaCaptionVersion
+protocolIdentity:
+  protocol: HTTP
+  method: POST
+  path: /api/v1/caption-versions
+  operationId: registerMediaCaptionVersion
+sourceContract: contracts/openapi/media.yaml
+sourceContractDisposition: implementation-or-projection-observation; not-declared-canonical-wire-authority
+routeManifestObservation:
+  source: config/route-manifest.json
+  routeId: POST /api/v1/caption-versions
+  identityMatch: exact-method-path-operationId
+parameters:
+  refs:
+  - '#/components/parameters/TenantHeader'
+  - '#/components/parameters/PrincipalHeader'
+request:
+  schemaRefs:
+  - '#/components/schemas/CaptionRegistrationRequest'
+response:
+  responseRefsByStatus:
+    '400': '#/components/responses/Error'
+    '403': '#/components/responses/Error'
+    '409': '#/components/responses/Error'
+    '422': '#/components/responses/Error'
+    '503': '#/components/responses/Error'
+  schemaRefsByStatus:
+    '201':
+    - '#/components/schemas/CaptionVersionRegistered'
+    '400':
+    - '#/components/schemas/ErrorEnvelope'
+    '403':
+    - '#/components/schemas/ErrorEnvelope'
+    '409':
+    - '#/components/schemas/ErrorEnvelope'
+    '422':
+    - '#/components/schemas/ErrorEnvelope'
+    '503':
+    - '#/components/schemas/ErrorEnvelope'
+pdp1SemanticBinding:
+  logicalOperationRef: media.operation.caption-version-write
+  bindingStatus: unresolved-no-source-explicit-http-member-crosswalk
+  semanticAuthority: PDP-1 operation proposal is the intended semantic authority only after phase acceptance
+  ownerReview: pending
+contractStatus: proposal-only; owner-review-pending
+nonClaims:
+- authentication
+- idempotency
+- retry
+- cancellation
+- finality
+- state-effects
+- privacy
+- event-guarantees

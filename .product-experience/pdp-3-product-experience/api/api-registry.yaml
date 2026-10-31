@@ -4,9 +4,9 @@ source: contracts/openapi/media.yaml
 status: source-inventory; five-bounded-upload-artifact-definition-crosslinks; full-wire-semantics-runtime-admission-and-independent-review-open
 authorityDisposition: OpenAPI-and-runtime-route-manifest-provide-exact-observed-route-identities; bounded-PDP1-operation-slices-own-only-the-crosslinked-product-meaning; neither source-proves-production-host-qualification
 semanticAuthority: exact PDP-1 operation slices govern only the five individually crosslinked upload/artifact identities; other operation bindings remain unresolved
-sourceAlignment: all-27-OpenAPI-operationIds-exactly-match-route-manifest-method-path-operationId
+sourceAlignment: all-30-OpenAPI-operationIds-exactly-match-route-manifest-method-path-operationId
 boundedDefinitionBindingCount: 5
-unresolvedLogicalOperationBindings: 22
+unresolvedLogicalOperationBindings: 25
 operations:
   - id: media.http.getMediaHealth
     contractFile: operations/getMediaHealth.yaml
@@ -260,4 +260,31 @@ operations:
     parameters: []
     requestSchema: none
     responseStatuses: [200]
+    experienceBinding: pending-owner-review
+  - id: media.http.registerMediaCaptionVersion
+    contractFile: operations/registerMediaCaptionVersion.yaml
+    method: POST
+    path: "/api/v1/caption-versions"
+    operationId: registerMediaCaptionVersion
+    parameters: []
+    requestSchema: CaptionRegistrationRequest
+    responseStatuses: [201, 400, 403, 409, 422, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.listMediaCaptionVersions
+    contractFile: operations/listMediaCaptionVersions.yaml
+    method: GET
+    path: "/api/v1/caption-versions"
+    operationId: listMediaCaptionVersions
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 400, 403, 503]
+    experienceBinding: pending-owner-review
+  - id: media.http.getMediaCaptionVersion
+    contractFile: operations/getMediaCaptionVersion.yaml
+    method: GET
+    path: "/api/v1/caption-versions/{captionVersionId}"
+    operationId: getMediaCaptionVersion
+    parameters: []
+    requestSchema: none
+    responseStatuses: [200, 400, 403, 404, 503]
     experienceBinding: pending-owner-review
