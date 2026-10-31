@@ -229,7 +229,7 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
 
     private static Map<String, String> environment(String bucket) {
         Map<String, String> env = new HashMap<>();
-        env.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+        env.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         env.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl()); env.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
         env.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_TRANSCRIPT_DB_PASSWORD");
         env.put("MEDIA_TRANSCRIPT_DB_PASSWORD", POSTGRES.getPassword()); env.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");

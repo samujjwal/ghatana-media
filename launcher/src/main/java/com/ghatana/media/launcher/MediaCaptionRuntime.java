@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaCaptionContracts.CaptionVersionSnapshot;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaCaptionContracts.MediaCaptionStore;
 import com.ghatana.media.runtime.MediaCaptionContracts.Registered;
 import com.ghatana.media.runtime.MediaCaptionContracts.RegistrationRequest;
@@ -49,7 +50,7 @@ final class MediaCaptionRuntime implements AutoCloseable {
 
     static MediaCaptionRuntime compose(Map<String, String> environment) {
         java.util.Objects.requireNonNull(environment, "environment");
-        boolean productionLike = productionLike(environment.getOrDefault(
+        boolean productionLike = MediaDeploymentProfiles.productionLike(environment.getOrDefault(
                 "MEDIA_RUNTIME_ENVIRONMENT",
                 environment.getOrDefault("MEDIA_PROFILE", "local")));
 
@@ -184,15 +185,8 @@ final class MediaCaptionRuntime implements AutoCloseable {
         }
     }
 
-    private static boolean productionLike(String profile) {
-        return switch (canonical(profile)) {
-            case "prod", "production", "staging", "integration", "e2e" -> true;
-            default -> false;
-        };
-    }
-
     private static String canonical(String value) {
-        return value == null ? "" : value.trim().toLowerCase(java.util.Locale.ROOT);
+        return MediaDeploymentProfiles.canonical(value);
     }
 
     private static String canonicalOptional(String value) {

@@ -2,6 +2,7 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.TtsConfig;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.engine.onnx.PiperOnnxEngine;
@@ -871,9 +872,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
     }
 
     private static boolean isProductionLike(String profile) {
-        return profile.equalsIgnoreCase("production")
-                || profile.equalsIgnoreCase("staging")
-                || profile.equalsIgnoreCase("sovereign");
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 
     private static String firstNonBlank(

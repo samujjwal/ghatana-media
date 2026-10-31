@@ -29,6 +29,7 @@ const request = (overrides: Partial<CaptionRegistrationRequest> = {}): CaptionRe
 const transport = (result: unknown): CaptionVersionTransport => ({
   register: vi.fn(async () => result) as never,
   versions: vi.fn(async () => []),
+  version: vi.fn(async () => null),
 });
 
 const registered = (requestId: string) => ({
@@ -81,14 +82,88 @@ describe('caption-version-write HTTP transport binding', () => {
     expect(versions).toHaveLength(1);
     expect(versions[0].requestId).toBe('req-1');
   });
+
+  it('sends the supplied bearer credential and never lets identity hints substitute it', async () => {
+    const seen: Array<Record<string, string>> = [];
+    const fetchImpl = async (_url: string | URL, init?: RequestInit) => {
+      seen.push(init?.headers as Record<string, string>);
+      return new Response(JSON.stringify(registered('req-1')), { status: 201 });
+    };
+    const transport = httpCaptionVersionTransport({
+      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+      getAccessToken: async () => 'token-abc', fetchImpl: fetchImpl as typeof fetch,
+    });
+    await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
+    expect(seen[0].authorization).toBe('Bearer token-abc');
+    expect(seen[0]['x-principal-id']).toBe('p');
+  });
+
+  it('maps non-201 registration responses to typed outcomes without a detail body', async () => {
+    const statuses: Array<[number, string, boolean]> = [
+      [401, 'ACCESS_DENIED', false], [403, 'ACCESS_DENIED', false],
+      [400, 'INVALID_REQUEST', false], [503, 'UNAVAILABLE', true],
+    ];
+    for (const [status, error, retryable] of statuses) {
+      const transport = httpCaptionVersionTransport({
+        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        fetchImpl: (async () => new Response('{}', { status })) as typeof fetch,
+      });
+      const result = await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
+      expect(result).toMatchObject({ error, retryable, requestId: 'req-1' });
+    }
+  });
+
+  it('throws typed read errors instead of collapsing failures to an empty list', async () => {
+    for (const [status, code, retryable] of [
+      [401, 'UNAUTHENTICATED', false], [403, 'ACCESS_DENIED', false], [503, 'UNAVAILABLE', true],
+    ] as const) {
+      const transport = httpCaptionVersionTransport({
+        baseUrl: 'http://media.test', tenantId: 't', principalId: 'p',
+        fetchImpl: (async () => new Response('{}', { status })) as typeof fetch,
+      });
+      await expect(transport.versions('t', 'p', 'artifact-1', 'src-v1'))
+        .rejects.toMatchObject({ name: 'CaptionVersionReadError', code, retryable });
+    }
+  });
+
+  it('reads one caption version by exact id and maps 404 to null', async () => {
+    const snapshot = {
+      ...registered('req-1'), ticksPerSecond: 90_000, sourceDurationTicks: 9_000_000,
+      languageTag: 'en', captionSegments: [], registeredAt: 1,
+    };
+    const fetchImpl = async (url: string | URL) => {
+      if (String(url).endsWith('/capv-missing')) return new Response('{}', { status: 404 });
+      if (String(url).endsWith('/capv-1')) return new Response(JSON.stringify(snapshot), { status: 200 });
+      return new Response('{}', { status: 503 });
+    };
+    const transport = httpCaptionVersionTransport({
+      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+    });
+    const found = await transport.version('capv-1');
+    expect(found).toMatchObject({ captionVersionId: 'capv-1', requestId: 'req-1' });
+    expect(await transport.version('capv-missing')).toBeNull();
+    await expect(transport.version('capv-outage'))
+      .rejects.toMatchObject({ code: 'UNAVAILABLE', retryable: true });
+  });
+
+  it('rejects a readback snapshot that echoes the wrong caption version id', async () => {
+    const fetchImpl = async () => new Response(
+      JSON.stringify({ captionVersionId: 'capv-other', requestId: 'req-1' }), { status: 200 });
+    const transport = httpCaptionVersionTransport({
+      baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch,
+    });
+    await expect(transport.version('capv-1'))
+      .rejects.toMatchObject({ code: 'UNKNOWN_OUTCOME' });
+  });
 });
 
 describe('caption-version-write client (J-03)', () => {
   it('matches the shared Java/TS golden fingerprint vector', () => {
     const fixture = JSON.parse(readFileSync('../../test-fixtures/caption-registration-parity.v1.json', 'utf8'));
-    const golden = request({ requestId: 'req-parity-1', purpose: 'j03 demo' });
-    golden.captionSegments[0] = { segmentId: 'seg-1', text: 'Hello, "world"\nline2', startTick: 10, endTick: 900, origin: 'USER_EDITED' };
-    golden.captionSegments[1] = { segmentId: 'seg-2', text: 'unicode-अक्षर-😀', startTick: 900, endTick: 1800, origin: 'RECOGNIZED', speakerLabel: 'spk-1' };
+    const golden = request({ requestId: 'req-parity-1', purpose: 'j03 demo', captionSegments: [
+      { segmentId: 'seg-1', text: 'Hello, "world"\nline2', startTick: 10, endTick: 900, origin: 'USER_EDITED' },
+      { segmentId: 'seg-2', text: 'unicode-अक्षर-😀', startTick: 900, endTick: 1800, origin: 'RECOGNIZED', speakerLabel: 'spk-1' },
+    ] });
     expect(requestFingerprint(fixture.tenantId, fixture.principalId, golden)).toBe(fixture.expectedRequestFingerprint);
   });
 

@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.launcher.security.JwtAuthenticationVerifier;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.launcher.security.SecurityFilterSupport;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -46,7 +47,7 @@ public final class MediaSecurityFilter implements HttpHandler {
         this.support = new SecurityFilterSupport(
                 "MEDIA-SEC", "MEDIA_API_KEY", delegate, deploymentProfile, immutable, clock);
         this.jwtVerifier = JwtAuthenticationVerifier.fromEnvironment("MEDIA", immutable, clock);
-        this.productionLike = productionLike(deploymentProfile);
+        this.productionLike = MediaDeploymentProfiles.productionLike(deploymentProfile);
         this.bootstrapApiKeyEnabled = Boolean.parseBoolean(immutable.getOrDefault("MEDIA_BOOTSTRAP_API_KEYS_ENABLED", "false"));
         this.bootstrapApiKeyTenant = immutable.get("MEDIA_BOOTSTRAP_API_KEY_TENANT");
         this.bootstrapServiceId = immutable.get("MEDIA_BOOTSTRAP_API_KEY_SERVICE_ID");
@@ -123,11 +124,6 @@ public final class MediaSecurityFilter implements HttpHandler {
             SecurityFilterSupport.sendError(exchange, 403, "BOOTSTRAP_CREDENTIAL_FORBIDDEN", "Bootstrap credential is not authorized for this tenant"); return false;
         }
         replaceHint(exchange, "X-Principal-Id", bootstrapServiceId); return true;
-    }
-
-    private static boolean productionLike(String profile) {
-        String value = profile == null ? "local" : profile.toLowerCase(java.util.Locale.ROOT);
-        return Set.of("production", "staging", "sovereign").contains(value);
     }
 
     /**

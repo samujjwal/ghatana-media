@@ -476,6 +476,39 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void exactTranscriptVersionReadbackResolvesBoundRevisionAndFailsClosed() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "9".repeat(64);
+            String fingerprint = "b".repeat(64);
+            String versionRef = "urn:media:transcript-version:exact-v1";
+            seed(state, "tenant-exact", "principal-a", "source-exact", "job-exact", "consent-exact", digest, false);
+            seedSuccessfulAttempt(state, "tenant-exact", "principal-a", "source-exact", "job-exact",
+                    digest, fingerprint, 1, 23, versionRef, "exact words", "op-exact", "receipt-exact");
+            TranscriptDraft candidate = draft("tenant-exact", "principal-a", "transcript-exact", "source-exact",
+                    "job-exact", "consent-exact", digest, "exact words");
+            var bound = store.appendFromSuccessfulAttempt(candidate, 0, 1, 23, fingerprint, versionRef);
+
+            // The persisted version reference resolves its exact bound revision.
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", versionRef))
+                    .contains(bound);
+            // Scope failures, unknown references and aggregate ids all fail closed.
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-b", versionRef)).isEmpty();
+            assertThat(store.revisionByVersionRef("tenant-other", "principal-a", versionRef)).isEmpty();
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a",
+                    "urn:media:transcript-version:other")).isEmpty();
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", "transcript-exact")).isEmpty();
+
+            // An unbound legacy revision can never satisfy an exact-version lookup.
+            TranscriptDraft legacy = draft("tenant-exact", "principal-a", "transcript-legacy", "source-exact",
+                    "job-exact", "consent-exact", digest, "legacy words");
+            store.append(legacy, 0);
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", "transcript-legacy")).isEmpty();
+        }
+    }
+
+    @Test
     void requestSnapshotMustMatchGlossaryObservationAndLegacyUnknownFailsClosed() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store(); var state = fixture.state();
@@ -1075,7 +1108,7 @@ class PostgresqlMediaTranscriptStoreTest {
 
     private static Map<String,String> environment(String bucket) {
         Map<String,String> env = new HashMap<>();
-        env.put("MEDIA_RUNTIME_ENVIRONMENT","integration");
+        env.put("MEDIA_RUNTIME_ENVIRONMENT","test");
         env.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
         env.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
         env.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_TRANSCRIPT_DB_PASSWORD");

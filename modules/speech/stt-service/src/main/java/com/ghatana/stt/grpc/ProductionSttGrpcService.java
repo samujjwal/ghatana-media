@@ -3,6 +3,7 @@ package com.ghatana.stt.grpc;
 import com.ghatana.governance.PolicyEngine;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.config.SttConfig;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
 import com.ghatana.stt.core.grpc.proto.AdaptRequest;
@@ -550,9 +551,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
     }
 
     private static boolean productionLike(String profile) {
-        return profile.equalsIgnoreCase("production")
-                || profile.equalsIgnoreCase("staging")
-                || profile.equalsIgnoreCase("sovereign");
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 
     private static String firstNonBlank(

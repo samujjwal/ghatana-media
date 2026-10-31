@@ -3,6 +3,7 @@ package com.ghatana.media.provider.aws;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.ghatana.launcher.config.RuntimeSecretReference;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
@@ -297,8 +298,6 @@ final class MediaAwsPostgresqlRuntimeState {
     }
 
     private static boolean productionLike(String profile) {
-        return "production".equalsIgnoreCase(profile)
-                || "staging".equalsIgnoreCase(profile)
-                || "sovereign".equalsIgnoreCase(profile);
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 }

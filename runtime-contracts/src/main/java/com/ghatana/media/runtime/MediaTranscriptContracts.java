@@ -462,6 +462,20 @@ public final class MediaTranscriptContracts {
         }
 
         /**
+         * Exact immutable transcript-version readback scoped to tenant and principal: resolves the
+         * single persisted revision durably bound to {@code transcriptVersionRef} through its
+         * recorded provider-attempt lineage. This is the canonical transcript-version identity
+         * used as a caption-registration parent — never the transcript aggregate id and never an
+         * implicitly selected latest revision. The compatibility default fails closed; stores
+         * that cannot prove exact version ownership must return empty, including when the
+         * reference resolves to more than one persisted revision.
+         */
+        default java.util.Optional<TranscriptRevision> revisionByVersionRef(
+                String tenantId, String principalId, String transcriptVersionRef) {
+            return java.util.Optional.empty();
+        }
+
+        /**
          * Read exact persisted provider-attempt lineage for a principal-owned transcript revision.
          * Implementations must fail closed for another principal, tenant, or unknown revision.
          */

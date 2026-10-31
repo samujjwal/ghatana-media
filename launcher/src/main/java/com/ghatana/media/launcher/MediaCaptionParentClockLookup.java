@@ -8,7 +8,6 @@ import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -17,11 +16,13 @@ import java.util.Optional;
  * Media stores bound to the same tenant, principal and source artifact/version.
  *
  * <p>A {@code TRANSCRIPT_VERSION} parent resolves through the canonical transcript store's
- * principal-scoped readback: the latest revision's exact segment-timing union must aggregate
- * {@link TimingAvailability#SOURCE_CLOCK_BOUND} in the requested source scope, otherwise the
- * parent is not current/readable and resolves empty. A {@code CAPTION_VERSION} parent resolves
- * through the caption store's own immutable rows. Callers that cannot prove the parent tuple
- * get {@link Optional#empty()}, never an inferred clock.</p>
+ * exact immutable-version readback: {@code parentVersionId} is the persisted
+ * {@code transcriptVersionRef}, never the transcript aggregate id. The bound revision's exact
+ * segment-timing union must aggregate {@link TimingAvailability#SOURCE_CLOCK_BOUND} in the
+ * requested source scope, otherwise the parent is not current/readable and resolves empty. A
+ * {@code CAPTION_VERSION} parent resolves through the caption store's own immutable rows.
+ * Callers that cannot prove the parent tuple get {@link Optional#empty()}, never an inferred
+ * clock and never an implicitly selected latest revision.</p>
  */
 final class MediaCaptionParentClockLookup implements ParentClockLookup {
     private final String tenantId;
@@ -48,19 +49,17 @@ final class MediaCaptionParentClockLookup implements ParentClockLookup {
         };
     }
 
-    private Optional<ParentFacts> transcriptClock(String transcriptId,
+    private Optional<ParentFacts> transcriptClock(String transcriptVersionRef,
                                                   String sourceArtifactId, String sourceArtifactVersionId) {
         if (transcriptStore == null) return Optional.empty();
-        List<TranscriptRevision> revisions;
+        Optional<TranscriptRevision> versioned;
         try {
-            revisions = transcriptStore.revisions(tenantId, principalId, transcriptId);
+            versioned = transcriptStore.revisionByVersionRef(tenantId, principalId, transcriptVersionRef);
         } catch (UnsupportedOperationException unsupported) {
             return Optional.empty();
         }
-        if (revisions == null || revisions.isEmpty()) return Optional.empty();
-        TranscriptRevision latest = revisions.stream()
-                .max(java.util.Comparator.comparingInt(TranscriptRevision::revision)).orElseThrow();
-        var draft = latest.draft();
+        if (versioned.isEmpty()) return Optional.empty();
+        var draft = versioned.get().draft();
         if (!sourceArtifactId.equals(draft.sourceArtifactId())
                 || !sourceArtifactVersionId.equals(draft.sourceVersion())) {
             return Optional.empty();

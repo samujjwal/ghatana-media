@@ -119,18 +119,19 @@ class MediaCaptionRuntimeTest {
     }
 
     @Test
-    void transcriptParentClockRequiresSourceClockBoundLatestRevisionInScope() {
+    void transcriptParentClockRequiresExactBoundVersionInScope() {
         MediaTranscriptStore transcripts = new MediaTranscriptStore() {
             @Override public TranscriptRevision append(TranscriptDraft draft) { throw new UnsupportedOperationException(); }
             @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
-            @Override public List<TranscriptRevision> revisions(String t, String p, String i) {
-                if (!"transcript-1".equals(i)) return List.of();
-                var draft = new TranscriptDraft(t, p, i, "artifact-1", "sha256:" + "a".repeat(64), "a".repeat(64),
+            @Override public List<TranscriptRevision> revisions(String t, String p, String i) { return List.of(); }
+            @Override public Optional<TranscriptRevision> revisionByVersionRef(String t, String p, String ref) {
+                if (!"transcript:v1:exact".equals(ref)) return Optional.empty();
+                var draft = new TranscriptDraft(t, p, "transcript-1", "artifact-1", "sha256:" + "a".repeat(64), "a".repeat(64),
                         "job-1", "profile-1", "provider-1", "model-1", "en", "SOURCE_TICKS", "hello",
                         "consent-1", "rights-1", "policy-1", "purpose-1", "captions",
                         List.of(new TranscriptSegment("s1", "hello", "RECOGNIZED",
                                 TranscriptSegmentTiming.sourceTicks(10, 900, "clock.v1", 90_000, 9_000_000))));
-                return List.of(new TranscriptRevision(draft, 1, 0, "ADMITTED"));
+                return Optional.of(new TranscriptRevision(draft, 3, 0, "ADMITTED"));
             }
             @Override public boolean productionEligible() { return true; }
             @Override public boolean ready() { return true; }
@@ -138,14 +139,36 @@ class MediaCaptionRuntimeTest {
         };
         var lookup = new MediaCaptionParentClockLookup("tenant-1", "principal-1", transcripts,
                 new MediaCaptionRuntimeTest.FakeCaptionStore());
-        var facts = lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript-1",
+        var facts = lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
                 "artifact-1", "sha256:" + "a".repeat(64));
         assertThat(facts).isPresent();
         assertThat(facts.get().sourceClockId()).isEqualTo("clock.v1");
         assertThat(facts.get().ticksPerSecond()).isEqualTo(90_000);
+        // The transcript aggregate id is not a version identity and never resolves a parent.
         assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript-1",
+                "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
                 "artifact-1", "sha256:" + "b".repeat(64))).isEmpty();
-        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "missing",
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:other",
+                "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
+    }
+
+    @Test
+    void transcriptParentClockFailsClosedWhenStoreCannotProveExactVersion() {
+        MediaTranscriptStore transcripts = new MediaTranscriptStore() {
+            @Override public TranscriptRevision append(TranscriptDraft draft) { throw new UnsupportedOperationException(); }
+            @Override public List<TranscriptRevision> revisions(String t, String i) { return List.of(); }
+            @Override public boolean productionEligible() { return true; }
+            @Override public boolean ready() { return true; }
+            @Override public void close() { }
+        };
+        var lookup = new MediaCaptionParentClockLookup("tenant-1", "principal-1", transcripts,
+                new MediaCaptionRuntimeTest.FakeCaptionStore());
+        assertThat(lookup.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
+                "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
+        var noStore = new MediaCaptionParentClockLookup("tenant-1", "principal-1", null,
+                new MediaCaptionRuntimeTest.FakeCaptionStore());
+        assertThat(noStore.resolve(ParentVersionKind.TRANSCRIPT_VERSION, "transcript:v1:exact",
                 "artifact-1", "sha256:" + "a".repeat(64))).isEmpty();
     }
 

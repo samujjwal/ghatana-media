@@ -224,7 +224,7 @@ class PostgresqlMediaProcessingAttemptReadTest {
 
     private static Map<String, String> integrationEnvironment(String bucket) {
         Map<String, String> environment = new HashMap<>();
-        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         environment.put("MEDIA_POSTGRES_JDBC_URL", POSTGRES.getJdbcUrl());
         environment.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
         environment.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_ATTEMPT_READ_DB_PASSWORD");

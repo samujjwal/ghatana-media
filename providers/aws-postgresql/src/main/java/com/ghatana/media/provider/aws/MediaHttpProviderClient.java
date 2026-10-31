@@ -4,6 +4,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import com.ghatana.launcher.config.RuntimeSecretReference;
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 
 import java.io.IOException;
@@ -188,9 +189,6 @@ final class MediaHttpProviderClient {
     }
 
     private static boolean productionLike(String profile) {
-        String normalized = profile == null ? "" : profile.trim();
-        return "production".equalsIgnoreCase(normalized)
-                || "staging".equalsIgnoreCase(normalized)
-                || "sovereign".equalsIgnoreCase(normalized);
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 }

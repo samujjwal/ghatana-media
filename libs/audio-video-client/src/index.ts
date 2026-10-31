@@ -53,13 +53,23 @@ export type {
   SourceClockContext,
   TimingAvailability,
 } from './caption-draft.js';
-export { CaptionRegistrationError, httpCaptionVersionTransport, requestFingerprint, saveCaptionVersion } from './caption-version.js';
+export {
+  CaptionRegistrationError,
+  CaptionVersionReadError,
+  httpCaptionVersionTransport,
+  reconcileCaptionRegistration,
+  requestFingerprint,
+  saveCaptionVersion,
+} from './caption-version.js';
 export type {
+  CaptionReadErrorCode,
   CaptionRegistrationRequest,
   CaptionVersionRegistered,
   CaptionVersionRejected,
   CaptionVersionSegment,
+  CaptionVersionSnapshot,
   CaptionVersionTransport,
+  HttpCaptionTransportOptions,
   LanguageDisposition,
   RegistrationErrorCode,
   SegmentOrigin,

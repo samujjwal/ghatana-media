@@ -19,15 +19,18 @@ implementations in the launcher and durable provider modules.
 ## Profiles and configuration
 
 Supported profiles are local, dev, development, test, ci, staging, production,
-and sovereign, selected by MEDIA_RUNTIME_ENVIRONMENT or MEDIA_PROFILE. The
-default is local.
+prod, sovereign, integration, and e2e, selected by MEDIA_RUNTIME_ENVIRONMENT or
+MEDIA_PROFILE. The default is local. One canonical classifier marks staging,
+production, prod, sovereign, integration, and e2e as production-like
+(deployed); every component — launcher composition, security filter, durable
+provider state, provider clients, and gRPC transport policy — shares it.
 
 | Area | Configuration | Default or rule |
 | --- | --- | --- |
 | Enablement | MEDIA_RUNTIME_ENABLED | false; must be true to bind HTTP |
 | HTTP/body | MEDIA_HTTP_PORT, MEDIA_MAX_BODY_BYTES, MEDIA_MAX_CHUNK_BYTES | Port 8093; body 8 MiB max 32 MiB; chunk 4 MiB and no larger than body |
 | Artifact/job bounds | MEDIA_MAX_ARTIFACT_BYTES, MEDIA_JOB_TIMEOUT_MS, MEDIA_MAX_CONCURRENT_JOBS | Artifact 10 GiB max 1 TiB; job timeout 900000 ms max 24h; concurrency 64 max 10000 |
-| Store selection | MEDIA_ARTIFACT_STORE_ID, MEDIA_JOB_STORE_ID, MEDIA_STREAM_STORE_ID | Required durable store IDs in staging/production/sovereign |
+| Store selection | MEDIA_ARTIFACT_STORE_ID, MEDIA_JOB_STORE_ID, MEDIA_STREAM_STORE_ID | Required durable store IDs in production-like profiles (staging/production/prod/sovereign/integration/e2e) |
 | Local stores | MEDIA_LOCAL_STORES_ENABLED, MEDIA_LOCAL_PROVIDER_ENABLED, MEDIA_LOCAL_STORAGE_ROOT | Disabled by default; root build/media-runtime-local; local stores/providers are non-durable/non-production-eligible |
 | External provider | MEDIA_HTTP_PROVIDER_ENDPOINT, MEDIA_HTTP_PROVIDER_TIMEOUT_MS, MEDIA_HTTP_PROVIDER_PRIORITY, MEDIA_HTTP_PROVIDER_MAX_RESPONSE_BYTES, MEDIA_HTTP_PROVIDER_REGION, MEDIA_HTTP_PROVIDER_DATA_RETENTION, MEDIA_HTTP_PROVIDER_TOKEN_REFERENCE, MEDIA_HTTP_PROVIDER_JOB_TYPES | Endpoint blank means unconfigured; production requires HTTPS, token reference, region, and known retention; remote fallback is not safe for ambiguous timeouts |
 | Durable PostgreSQL | MEDIA_POSTGRES_JDBC_URL, MEDIA_POSTGRES_USER, MEDIA_POSTGRES_PASSWORD_REFERENCE, MEDIA_POSTGRES_DRIVER, MEDIA_POSTGRES_POOL_SIZE, MEDIA_POSTGRES_CONNECTION_TIMEOUT_MS | Typed password reference; pool default 16, connection timeout 10000 ms |
@@ -38,10 +41,11 @@ default is local.
 | Redaction | MEDIA_SEMANTIC_REDACTION_PROVIDER_ID | Required when a request demands semantic de-identification |
 | Auth | MEDIA_API_KEY, bootstrap API-key settings, MEDIA_JWT_HMAC_SECRET_REFERENCE, MEDIA_JWT_ISSUER, MEDIA_JWT_AUDIENCE | Business routes require tenant/principal identity and permission; use typed secret references |
 
-Staging, production, and sovereign profiles forbid local stores/providers and
-require selected durable stores, consent authority where external providers
-are used, and production-eligible providers. Never put secret values in a
-configuration file, command line, log, or incident ticket.
+Production-like profiles (staging, production, prod, sovereign, integration,
+and e2e) forbid local stores/providers and require selected durable stores,
+consent authority where external providers are used, and production-eligible
+providers. Never put secret values in a configuration file, command line, log,
+or incident ticket.
 
 ## Startup and shutdown
 

@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.multimodal.adapter;
 
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -99,7 +101,10 @@ public record SttGrpcTransportSecurity(
         DEVELOPMENT,
         STAGING,
         PRODUCTION,
-        SOVEREIGN;
+        PROD,
+        SOVEREIGN,
+        INTEGRATION,
+        E2E;
 
         static Profile parse(String value) {
             try {
@@ -107,13 +112,14 @@ public record SttGrpcTransportSecurity(
                         .toUpperCase(Locale.ROOT));
             } catch (IllegalArgumentException failure) {
                 throw new IllegalArgumentException(
-                        "MEDIA runtime profile must be local, test, development, staging, production, or sovereign",
+                        "MEDIA runtime profile must be local, test, development, staging, production, "
+                                + "prod, sovereign, integration, or e2e",
                         failure);
             }
         }
 
         boolean productionLike() {
-            return this == STAGING || this == PRODUCTION || this == SOVEREIGN;
+            return MediaDeploymentProfiles.productionLike(name());
         }
     }
 

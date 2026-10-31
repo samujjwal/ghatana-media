@@ -704,6 +704,41 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         throw new UnsupportedOperationException("Principal-scoped transcript readback is required");
     }
 
+    /**
+     * Resolves the one persisted revision durably bound to the exact transcript-version
+     * reference through its provider-attempt lineage. The reference is the canonical
+     * immutable-version identity: it never falls back to the aggregate's latest revision,
+     * and a reference bound to more than one revision cannot prove a single exact parent
+     * and resolves empty.
+     */
+    @Override
+    public java.util.Optional<TranscriptRevision> revisionByVersionRef(
+            String tenantId, String principalId, String transcriptVersionRef) {
+        ensureOpen();
+        requireNonBlank(tenantId, "tenantId");
+        requireNonBlank(principalId, "principalId");
+        requireNonBlank(transcriptVersionRef, "transcriptVersionRef");
+        List<TranscriptRevision> matches = new ArrayList<>();
+        try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
+                SELECT r.* FROM media_transcript_revisions r
+                JOIN media_transcript_attempt_bindings b
+                  ON b.tenant_id=r.tenant_id AND b.transcript_id=r.transcript_id
+                 AND b.transcript_revision=r.revision
+                WHERE b.tenant_id=? AND r.principal_id=? AND b.transcript_version_ref=?
+                ORDER BY r.transcript_id, r.revision
+                """)) {
+            query.setString(1, tenantId);
+            query.setString(2, principalId);
+            query.setString(3, transcriptVersionRef);
+            try (ResultSet rows = query.executeQuery()) {
+                while (rows.next()) matches.add(read(rows));
+            }
+        } catch (SQLException failure) {
+            throw dbFailure("read transcript revision by version reference", failure);
+        }
+        return matches.size() == 1 ? java.util.Optional.of(matches.getFirst()) : java.util.Optional.empty();
+    }
+
     private TranscriptRevision resolveConcurrentAppend(
             TranscriptDraft draft, int expectedLatestRevision, SQLException insertFailure) {
         try (Connection connection = state.connection()) {

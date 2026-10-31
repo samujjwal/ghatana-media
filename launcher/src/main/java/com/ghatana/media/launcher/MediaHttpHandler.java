@@ -525,7 +525,8 @@ public final class MediaHttpHandler implements HttpHandler {
 
     private MediaCaptionRuntime requireCaptionRuntime() {
         if (captions == null || !captions.ready()) {
-            throw new IllegalStateException("Media caption registration is not configured or ready");
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE, "caption-version");
         }
         return captions;
     }
@@ -596,7 +597,8 @@ public final class MediaHttpHandler implements HttpHandler {
 
     private MediaConsentAdministration requireConsentAdministration() {
         if (consentAdministration == null || !consentAdministration.ready()) {
-            throw new IllegalStateException("Media consent administration is not configured or ready");
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE, "consent-administration");
         }
         return consentAdministration;
     }

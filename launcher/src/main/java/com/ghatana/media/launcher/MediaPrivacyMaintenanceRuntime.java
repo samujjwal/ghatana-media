@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.ghatana.media.runtime.MediaPrivacyMaintenance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,9 +158,7 @@ final class MediaPrivacyMaintenanceRuntime implements AutoCloseable {
     }
 
     private static boolean productionLike(String profile) {
-        return "production".equalsIgnoreCase(profile)
-                || "staging".equalsIgnoreCase(profile)
-                || "sovereign".equalsIgnoreCase(profile);
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 
     private static String canonical(String value) {

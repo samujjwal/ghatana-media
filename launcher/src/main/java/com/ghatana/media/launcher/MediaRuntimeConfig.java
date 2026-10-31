@@ -1,5 +1,7 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaDeploymentProfiles;
+
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
@@ -30,7 +32,8 @@ public record MediaRuntimeConfig(
         int maximumConcurrentJobsPerTenant) {
 
     private static final Set<String> SUPPORTED_PROFILES = Set.of(
-            "local", "dev", "development", "test", "ci", "staging", "production", "sovereign");
+            "local", "dev", "development", "test", "ci", "staging", "production", "prod",
+            "sovereign", "integration", "e2e");
 
     public MediaRuntimeConfig {
         profile = required(profile, "profile").toLowerCase(java.util.Locale.ROOT);
@@ -109,11 +112,11 @@ public record MediaRuntimeConfig(
     }
 
     public boolean productionLike() {
-        return productionLike(profile);
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 
     private static boolean productionLike(String profile) {
-        return "production".equals(profile) || "staging".equals(profile) || "sovereign".equals(profile);
+        return MediaDeploymentProfiles.productionLike(profile);
     }
 
     private static boolean bool(Map<String, String> environment, String key, boolean fallback) {

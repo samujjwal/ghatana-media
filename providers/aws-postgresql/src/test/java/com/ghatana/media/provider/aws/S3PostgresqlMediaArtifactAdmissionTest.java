@@ -325,7 +325,7 @@ class S3PostgresqlMediaArtifactAdmissionTest {
                 .build()) {
             admin.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
             Map<String, String> environment = new LinkedHashMap<>();
-            environment.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+            environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
             environment.put("MEDIA_POSTGRES_JDBC_URL", "jdbc:h2:mem:media_artifact_"
                     + UUID.randomUUID().toString().replace("-", "")
                     + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");

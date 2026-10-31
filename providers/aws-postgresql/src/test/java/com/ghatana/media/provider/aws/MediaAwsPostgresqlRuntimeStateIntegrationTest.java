@@ -127,7 +127,7 @@ class MediaAwsPostgresqlRuntimeStateIntegrationTest {
                 .hasMessageContaining("requires PostgreSQL");
 
         Map<String, String> partial = new HashMap<>();
-        partial.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+        partial.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         partial.put("MEDIA_POSTGRES_JDBC_URL", "jdbc:h2:mem:media-partial");
         partial.put("MEDIA_POSTGRES_USER", "sa");
         partial.put("MEDIA_POSTGRES_DRIVER", "org.h2.Driver");
@@ -141,7 +141,7 @@ class MediaAwsPostgresqlRuntimeStateIntegrationTest {
 
     private static Map<String, String> integrationEnvironment(String bucket) {
         Map<String, String> environment = new HashMap<>();
-        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "integration");
+        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         environment.put("MEDIA_POSTGRES_JDBC_URL",
                 "jdbc:h2:mem:media-" + UUID.randomUUID()
                         + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false");
