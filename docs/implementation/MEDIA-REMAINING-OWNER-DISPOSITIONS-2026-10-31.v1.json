@@ -2926,8 +2926,9 @@
     },
     {
       "issue": "ghatana#252",
-      "disposition": "DI_PUBLIC_CLIENT_AND_KERNEL_OWNED_PROVIDER_PENDING",
-      "action": "Shared peer, DI worker/qualified model, DI-owned Kernel OcrProvider and source-free PNG/PDF consumers."
+      "disposition": "PUBLIC_CLIENT_VERIFIED",
+      "action": "Shared peer, DI worker/qualified model, DI-owned Kernel OcrProvider and source-free PNG/PDF consumers.",
+      "note": "@ghatana/document-intelligence-client at services/document-intelligence/clients/typescript implements protocol-v1: providers, parse with x-operation-generation, generation-fenced cancel, catalog capability revision."
     },
     {
       "issue": "ghatana#254",
@@ -2957,8 +2958,9 @@
     },
     {
       "issue": "shared#246",
-      "disposition": "PUBLIC_EXTRACTION_PACKAGE_RELEASE_PROFILE_PENDING",
-      "action": "Resolve 0.1.0-SNAPSHOT DI peer by owner-issued compatible immutable release or honest DEV_SOURCE_COMPOSITE profile, then source-free TS/Java DI/Media consumers."
+      "disposition": "INSTALLED_PEER_VERIFIED",
+      "action": "Resolve 0.1.0-SNAPSHOT DI peer by owner-issued compatible immutable release or honest DEV_SOURCE_COMPOSITE profile, then source-free TS/Java DI/Media consumers.",
+      "note": "@ghatana/document-extraction is installed in ghatana-shared platform/typescript/document-extraction with PDP-0..3 attestations, providers, parsed-document exports and conformance tests."
     }
   ],
   "changeLog": [
@@ -2976,6 +2978,21 @@
         "media f212cf6b legacy OCR shim retirement",
         "media 0613884a physical topology ocr-compat retirement (28 candidates)"
       ]
+    },
+    {
+      "date": "2026-10-31",
+      "entries": [
+        "10ac5afb uploadPart parity gap resolved via fetchRaw call-site parsing",
+        "9906bb13 e04 stale pin refreshed with reviewed delta (62/62 simulation tests)",
+        "shared#246 + ghatana#252 peer verification recorded"
+      ]
     }
-  ]
+  ],
+  "trackB": {
+    "parity": {
+      "sdkUploadPartGap": "RESOLVED (10ac5afb: fetchRaw wire calls now parsed)",
+      "pdp1SemanticBinding": "DEFERRED: 14 proposal operation records require complete semantic fields and detailed contracts covering all actionRefs; definition-only mode encodes the defer",
+      "stalePinRecount": "1 stale selector found and refreshed (9906bb13); previously reported 67 was historical"
+    }
+  }
 }
