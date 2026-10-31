@@ -141,6 +141,19 @@ class PostgresqlMediaCaptionStoreTest {
                 .isEqualTo(segments());
     }
 
+    @Test
+    void fingerprintMatchesSharedTypeScriptGoldenVector() {
+        // test-fixtures/caption-registration-parity.v1.json — same digest computed by caption-version.ts
+        List<CaptionSegment> segs = List.of(
+                CaptionSegment.of("seg-1", "Hello, \"world\"\nline2", 10, 900, SegmentOrigin.USER_EDITED),
+                new CaptionSegment("seg-2", "unicode-अक्षर-😀", 900, 1800, SegmentOrigin.RECOGNIZED, Optional.of("spk-1")));
+        RegistrationRequest golden = new RegistrationRequest("req-parity-1", "artifact-1", "src-v1",
+                ParentVersionKind.TRANSCRIPT_VERSION, "transcript-v1", "clock.v1", 90_000, 9_000_000,
+                LanguageDisposition.DECLARED_BY_USER, Optional.of("en"), segs, Optional.of("j03 demo"));
+        assertThat(MediaCaptionContracts.fingerprint("tenant-1", "principal-1", golden))
+                .isEqualTo("96c98af1bc04d7cff056e159cd77e387b0961b3b7a068882cbd0bd93b5307e18");
+    }
+
     private static List<CaptionSegment> segments() {
         return List.of(
                 CaptionSegment.of("seg-1", "hello world", 10, 900, SegmentOrigin.USER_EDITED),

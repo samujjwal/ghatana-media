@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "media.caption-registration-parity.v1",
+  "authority": "media.operation.caption-version-write requestFingerprintDefinition; golden digest computed identically by the Java (MediaCaptionContracts) and TypeScript (caption-version.ts) encoders on 2026-10-30. Change requires recomputing both.",
+  "tenantId": "tenant-1",
+  "principalId": "principal-1",
+  "request": {
+    "requestId": "req-parity-1",
+    "sourceArtifactId": "artifact-1",
+    "sourceArtifactVersionId": "src-v1",
+    "parentVersionKind": "TRANSCRIPT_VERSION",
+    "parentVersionId": "transcript-v1",
+    "sourceClockId": "clock.v1",
+    "ticksPerSecond": 90000,
+    "sourceDurationTicks": 9000000,
+    "languageDisposition": "DECLARED_BY_USER",
+    "languageTag": "en",
+    "captionSegments": [
+      { "segmentId": "seg-1", "text": "Hello, \"world\"\nline2", "startTick": 10, "endTick": 900, "origin": "USER_EDITED" },
+      { "segmentId": "seg-2", "text": "unicode-अक्षर-😀", "startTick": 900, "endTick": 1800, "origin": "RECOGNIZED", "speakerLabel": "spk-1" }
+    ],
+    "purpose": "j03 demo"
+  },
+  "expectedRequestFingerprint": "96c98af1bc04d7cff056e159cd77e387b0961b3b7a068882cbd0bd93b5307e18"
+}

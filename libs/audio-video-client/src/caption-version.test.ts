@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   requestFingerprint,
   saveCaptionVersion,
@@ -37,6 +38,14 @@ const registered = (requestId: string) => ({
 });
 
 describe('caption-version-write client (J-03)', () => {
+  it('matches the shared Java/TS golden fingerprint vector', () => {
+    const fixture = JSON.parse(readFileSync('../../test-fixtures/caption-registration-parity.v1.json', 'utf8'));
+    const golden = request({ requestId: 'req-parity-1', purpose: 'j03 demo' });
+    golden.captionSegments[0] = { segmentId: 'seg-1', text: 'Hello, "world"\nline2', startTick: 10, endTick: 900, origin: 'USER_EDITED' };
+    golden.captionSegments[1] = { segmentId: 'seg-2', text: 'unicode-अक्षर-😀', startTick: 900, endTick: 1800, origin: 'RECOGNIZED', speakerLabel: 'spk-1' };
+    expect(requestFingerprint(fixture.tenantId, fixture.principalId, golden)).toBe(fixture.expectedRequestFingerprint);
+  });
+
   it('computes a deterministic presence-sensitive fingerprint matching the spec tuple', () => {
     const a = requestFingerprint('t', 'p', request());
     expect(a).toMatch(/^[0-9a-f]{64}$/);
