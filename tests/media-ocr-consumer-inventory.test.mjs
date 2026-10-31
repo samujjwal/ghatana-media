@@ -11,7 +11,7 @@ const inventory = JSON.parse(fs.readFileSync(path.join(root, INVENTORY_PATH), 'u
 test('OCR-C01 inventory accounts for every current Media OCR signal', () => {
   assert.deepEqual(checkMediaOcrConsumerInventory({ root, inventory }), []);
   const migrated = inventory.mediaEntries.filter(entry => entry.disposition === 'DI_MIGRATED');
-  assert.deepEqual(migrated.map(entry => entry.id), ['MEDIA-TS-SCENE-TEXT']);
+  assert.deepEqual(migrated.map(entry => entry.id), ['MEDIA-TS-SCENE-TEXT', 'MEDIA-JAVA-SCENE-TEXT-DI']);
   assert(inventory.mediaEntries.every(entry => entry.disposition !== 'NOT_OCR'), 'Media OCR signals cannot be waved away as NOT_OCR');
 });
 

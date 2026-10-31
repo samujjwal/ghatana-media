@@ -49,7 +49,8 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.log4j.slf4j.impl)
 
-    // JSON processing
+    // JSON processing (Document Intelligence v1 wire client)
+    implementation(libs.jackson.databind)
 
     // Jackson annotations
     implementation(libs.jackson.annotations)

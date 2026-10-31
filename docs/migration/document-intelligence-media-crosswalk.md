@@ -93,6 +93,15 @@ consumer migration and deletion. The client package/version, real worker,
 provider qualifications and installed end-to-end tests still need proof
 under Ghatana #252; no new wire protocol version was introduced.
 
+OCR-M02 source seam: `modules/vision/vision-service/.../scenetext/` adds a
+`java.net.http` consumer of the frozen v1 API (`DocumentIntelligenceHttpClient`)
+and `SceneTextRecognitionService`, which verifies source rights, version and
+crop digest before any DI call, checks the DI catalog/provenance, maps crop
+boxes to source-frame coordinates with frame ID/PTS, and fences cancellation
+with the operation generation. Its tests use a local wire fixture, not a real
+worker; it is not yet exposed through a VIS-09 RPC. See
+`ocr-consumer-inventory.v1.json` for every remaining caller disposition.
+
 ## Executable development-stage consumer cutover (one DI OCR authority)
 
 These are *migration work packets*, not a second OCR contract, new PDP task

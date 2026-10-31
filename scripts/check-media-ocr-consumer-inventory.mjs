@@ -6,7 +6,7 @@ export const INVENTORY_PATH = 'docs/migration/ocr-consumer-inventory.v1.json';
 const SOURCE_ROOTS = ['adapters', 'apps', 'config', 'launcher', 'libs', 'modules', 'providers', 'runtime-contracts'];
 const SOURCE_EXTENSIONS = new Set(['.java', '.kt', '.kts', '.ts', '.tsx', '.mts', '.js', '.mjs', '.rs', '.py', '.proto', '.json', '.yaml', '.yml']);
 const SKIP_DIRS = new Set(['node_modules', 'build', 'dist', 'target', '.gradle', 'coverage', '.turbo']);
-const OCR_SIGNAL = /\bOcrService\b|\bKernelOcrProviderAdapter\b|\bOcrProvider\b|\bextractText\s*\(|\bVisionCapability\.OCR\b|\bpaddleocr\b|\bPaddleOCR\b|\btesseract\b|\bTesseract\b|\bDocumentIntelligenceSceneTextAdapter\b|"media\.ocr"/u;
+const OCR_SIGNAL = /\bOcrService\b|\bKernelOcrProviderAdapter\b|\bOcrProvider\b|\bextractText\s*\(|\bVisionCapability\.OCR\b|\bpaddleocr\b|\bPaddleOCR\b|\btesseract\b|\bTesseract\b|\bDocumentIntelligenceSceneTextAdapter\b|\bDocumentIntelligenceV1\b|"media\.ocr"/u;
 const TEST_PATH = /(^|\/)(src\/test|__tests__|test|tests)\/|\.(test|spec)\.[cm]?[jt]sx?$/u;
 const VOCABULARY = new Set(['DI_MIGRATED', 'RETIRED', 'REQUIRES_WORK', 'NOT_OCR']);
 

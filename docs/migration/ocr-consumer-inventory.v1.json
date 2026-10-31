@@ -34,6 +34,23 @@
       "remaining": "Installed @ghatana/document-intelligence-client consumer and real DI worker integration (OCR-D01/X01, Ghatana #252)."
     },
     {
+      "id": "MEDIA-JAVA-SCENE-TEXT-DI",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/SceneTextRecognitionService.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/DocumentIntelligenceHttpClient.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/DocumentIntelligenceV1.java"
+      ],
+      "symbols": [
+        "SceneTextRecognitionService",
+        "DocumentIntelligenceHttpClient",
+        "DocumentIntelligenceV1"
+      ],
+      "role": "CONSUMER_SEAM_NOT_EXPOSED",
+      "disposition": "DI_MIGRATED",
+      "packet": "OCR-M02",
+      "remaining": "Source-level DI-only frame/ROI/PTS consumer with protocol-fixture tests; not yet exposed through a public RPC and not verified against a real DI worker (VIS-09 open)."
+    },
+    {
       "id": "MEDIA-JAVA-VISION-GRPC-TEXT",
       "paths": [
         "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java"
@@ -44,7 +61,7 @@
       "role": "LIVE_ENTRYPOINT_FAIL_CLOSED",
       "disposition": "REQUIRES_WORK",
       "packet": "OCR-M02",
-      "remaining": "VIS-09 frame/ROI/PTS text recognition must call DI v1 through a reviewed Java client; currently returns UNIMPLEMENTED for every analysis intent."
+      "remaining": "Expose SceneTextRecognitionService through an owner-reviewed VIS-09 RPC contract (AnalyzeRequest has no frame/ROI/PTS/source fields); currently returns UNIMPLEMENTED for every analysis intent."
     },
     {
       "id": "MEDIA-JAVA-OCR-SERVICE",
