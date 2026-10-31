@@ -118,8 +118,17 @@ test('derives the receipt denominator from live phase sourceShaSet records and r
   assert.equal(readback.expectedCount, liveMaterialPinCount);
   assert.equal(readback.receiptCount, workPackages.materialSourceReceipt.count);
   assert.ok(Array.isArray(readback.staleSelectors));
-  assert.ok(readback.staleSelectors.length > 0, 'current worktree should expose its source receipt drift instead of treating the receipt as current');
   assert.ok(readback.staleSelectors.every(row => row.phase && row.selector && row.expectedSha256));
+  // The committed pin recount is current; prove the readback still flags any
+  // drifted or missing selector instead of treating a stale receipt as current.
+  const drifted = inspectMaterialSourceReceipt({
+    root,
+    phaseStatuses: livePhaseStatuses.map((status, index) => index === 0
+      ? { ...status, sourceShaSet: { ...status.sourceShaSet, 'synthetic/drifted-source': '0'.repeat(64) } }
+      : status),
+    receipt: workPackages.materialSourceReceipt
+  });
+  assert.ok(drifted.staleSelectors.length > 0, 'drifted selector must be reported, never silently current');
 });
 
 test('generates an F00.T01 read-only receipt with complete 54 × 4 accounting and source digests', () => {
