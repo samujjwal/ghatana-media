@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
+  httpCaptionVersionTransport,
   requestFingerprint,
   saveCaptionVersion,
   type CaptionRegistrationRequest,
@@ -35,6 +36,51 @@ const registered = (requestId: string) => ({
   registrationReceiptId: 'capreg-1', sourceArtifactId: 'artifact-1', sourceArtifactVersionId: 'src-v1',
   parentVersionKind: 'TRANSCRIPT_VERSION' as const, parentVersionId: 'transcript-v1',
   languageDisposition: 'DECLARED_BY_USER' as const, sourceClockId: 'clock.v1', registeredAt: 1,
+});
+
+describe('caption-version-write HTTP transport binding', () => {
+  const registered = (requestId: string) => ({
+    requestId, requestFingerprint: 'a'.repeat(64), captionVersionId: 'capv-1',
+    registrationReceiptId: 'capreg-1', sourceArtifactId: 'artifact-1',
+    sourceArtifactVersionId: 'src-v1', parentVersionKind: 'TRANSCRIPT_VERSION' as const,
+    parentVersionId: 'transcript-v1', languageDisposition: 'DECLARED_BY_USER' as const,
+    sourceClockId: 'clock.v1', registeredAt: 1,
+  });
+  const request = () => ({
+    requestId: 'req-1', sourceArtifactId: 'artifact-1', sourceArtifactVersionId: 'src-v1',
+    parentVersionKind: 'TRANSCRIPT_VERSION' as const, parentVersionId: 'transcript-v1',
+    sourceClockId: 'clock.v1', ticksPerSecond: 90_000, sourceDurationTicks: 9_000_000,
+    languageDisposition: 'DECLARED_BY_USER' as const, languageTag: 'en',
+    captionSegments: [{ segmentId: 'seg-1', text: 'hi', startTick: 10, endTick: 900, origin: 'USER_EDITED' as const }],
+  });
+
+  it('posts the registration to the canonical route and maps rejections', async () => {
+    const calls: Array<{ url: string; method: string; body?: unknown; headers: HeadersInit }> = [];
+    const fetchImpl = async (url: string | URL, init?: RequestInit) => {
+      calls.push({ url: String(url), method: init?.method ?? 'GET', body: init?.body ? JSON.parse(String(init.body)) : undefined, headers: init?.headers as HeadersInit });
+      if (calls.length === 1) {
+        return new Response(JSON.stringify(registered('req-1')), { status: 201 });
+      }
+      return new Response(JSON.stringify({ error: { details: { requestId: 'req-2', requestFingerprint: 'b'.repeat(64), error: 'IDEMPOTENCY_CONFLICT', retryable: false } } }), { status: 409 });
+    };
+    const transport = httpCaptionVersionTransport({ baseUrl: 'http://media.test/', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
+    const first = await transport.register({ ...request(), requestFingerprint: 'a'.repeat(64) });
+    expect(first).toMatchObject({ captionVersionId: 'capv-1' });
+    expect(calls[0].url).toBe('http://media.test/api/v1/caption-versions');
+    expect(calls[0].method).toBe('POST');
+    expect(calls[0].body).toMatchObject({ requestId: 'req-1', requestFingerprint: 'a'.repeat(64) });
+    const conflict = await transport.register({ ...request(), requestFingerprint: 'c'.repeat(64) });
+    expect(conflict).toMatchObject({ error: 'IDEMPOTENCY_CONFLICT', retryable: false });
+  });
+
+  it('lists caption versions scoped to the source artifact version', async () => {
+    const fetchImpl = async (url: string | URL) => new Response(
+      JSON.stringify({ captionVersions: [registered('req-1')], count: 1 }), { status: 200 });
+    const transport = httpCaptionVersionTransport({ baseUrl: 'http://media.test', tenantId: 't', principalId: 'p', fetchImpl: fetchImpl as typeof fetch });
+    const versions = await transport.versions('t', 'p', 'artifact-1', 'src-v1');
+    expect(versions).toHaveLength(1);
+    expect(versions[0].requestId).toBe('req-1');
+  });
 });
 
 describe('caption-version-write client (J-03)', () => {

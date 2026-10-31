@@ -161,6 +161,54 @@ function fail(code: RegistrationErrorCode, detail = ''): never {
  * transport. The caller retains requestId + fingerprint before dispatch; an
  * uncertain transport outcome must be reconciled with the same key first.
  */
+export interface HttpCaptionTransportOptions {
+  baseUrl: string;
+  tenantId: string;
+  principalId: string;
+  fetchImpl?: typeof fetch;
+}
+
+/**
+ * Binds the {@link CaptionVersionTransport} seam to the Media Runtime HTTP
+ * surface: POST /api/v1/caption-versions, GET /api/v1/caption-versions. The
+ * durable server remains the authority; transport errors surface as
+ * UNKNOWN_OUTCOME through {@link saveCaptionVersion}.
+ */
+export function httpCaptionVersionTransport(options: HttpCaptionTransportOptions): CaptionVersionTransport {
+  const base = options.baseUrl.replace(/\/+$/u, '');
+  const impl = options.fetchImpl ?? fetch;
+  const headers = () => ({
+    'content-type': 'application/json',
+    'x-tenant-id': options.tenantId,
+    'x-principal-id': options.principalId,
+  });
+  return {
+    async register(request) {
+      const response = await impl(`${base}/api/v1/caption-versions`, {
+        method: 'POST', headers: headers(), body: JSON.stringify(request),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 201) return body as CaptionVersionRegistered;
+      const detail = body?.error?.details ?? {};
+      return {
+        requestId: request.requestId,
+        requestFingerprint: typeof detail.requestFingerprint === 'string' && detail.requestFingerprint
+          ? detail.requestFingerprint : request.requestFingerprint,
+        error: (typeof detail.error === 'string' ? detail.error : 'UNKNOWN_OUTCOME') as RegistrationErrorCode,
+        retryable: detail.retryable === true || response.status === 503,
+      };
+    },
+    async versions(tenantId, principalId, sourceArtifactId, sourceArtifactVersionId) {
+      const response = await impl(
+        `${base}/api/v1/caption-versions?sourceArtifactId=${encodeURIComponent(sourceArtifactId)}&sourceArtifactVersionId=${encodeURIComponent(sourceArtifactVersionId)}`,
+        { method: 'GET', headers: headers() });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || !Array.isArray(body?.captionVersions)) return [];
+      return body.captionVersions as CaptionVersionRegistered[];
+    },
+  };
+}
+
 export async function saveCaptionVersion(
   transport: CaptionVersionTransport,
   tenantId: string,
