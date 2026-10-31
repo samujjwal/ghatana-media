@@ -18,11 +18,11 @@ test('current topology reconciles to 54 matrix-bound identities plus exactly the
   const result = reconcileMediaSurfaceRoster(load());
   assert.deepEqual(
     { physical: result.census.physical, compositions: result.census.compositions, logical: result.census.logical, total: result.census.total, matrixBound: result.census.matrixBound, matrixDelta: result.census.matrixDelta },
-    { physical: 29, compositions: 7, logical: 21, total: 57, matrixBound: 54, matrixDelta: 3 }
+    { physical: 28, compositions: 7, logical: 21, total: 56, matrixBound: 54, matrixDelta: 2 }
   );
   assert.deepEqual(result.delta.map(row => row.id).sort(), Object.keys(DECLARED_MATRIX_DELTA).sort());
   assert.equal(result.roster.find(row => row.id === 'media.surface.desktop-archive').lifecycleState, 'ARCHIVED');
-  assert.equal(result.roster.find(row => row.id === 'media.physical.adapters-ocr-compat').lifecycleState, 'RETIRING');
+  assert.equal(result.roster.some(row => row.id === 'media.physical.adapters-ocr-compat'), false);
   assert.equal(result.roster.find(row => row.id === 'media.composition.repository-root').lifecycleState, 'ROOT');
   assert(result.roster.filter(row => row.matrixDelta).every(row => row.matrixBound === false));
 });
@@ -41,7 +41,7 @@ test('rejects undeclared drift, stale declarations, ghosts, duplicates and incon
   assert.throws(() => reconcileMediaSurfaceRoster(undeclared), /undeclared topology identities/);
 
   const staleDeclaration = clone();
-  assert.throws(() => reconcileMediaSurfaceRoster({ ...staleDeclaration, declaredDelta: { ...DECLARED_MATRIX_DELTA, 'media.physical.gone': DECLARED_MATRIX_DELTA['media.physical.adapters-ocr-compat'] } }), /stale delta declarations/);
+  assert.throws(() => reconcileMediaSurfaceRoster({ ...staleDeclaration, declaredDelta: { ...DECLARED_MATRIX_DELTA, 'media.physical.gone': DECLARED_MATRIX_DELTA['media.physical.adapters-data-cloud-media'] } }), /stale delta declarations/);
 
   const ghost = clone();
   for (const { matrix } of ghost.matrices) matrix.surfaces.push({ surfaceId: 'media.physical.ghost' });
@@ -60,6 +60,6 @@ test('rejects undeclared drift, stale declarations, ghosts, duplicates and incon
   assert.throws(() => reconcileMediaSurfaceRoster(countDrift), /activeManifestCandidateCount/);
 
   const dispositionDrift = clone();
-  dispositionDrift.topology.manifestCandidates.find(row => row.surfaceId === 'media.physical.adapters-ocr-compat').disposition = 'PHYSICAL';
+  dispositionDrift.topology.manifestCandidates.find(row => row.surfaceId === 'media.physical.adapters-agent-tools-media').disposition = 'PHYSICAL';
   assert.throws(() => reconcileMediaSurfaceRoster(dispositionDrift), /differs from declared/);
 });

@@ -16,7 +16,7 @@ const backendGroups = new Map([
   ['IP', ['modules/infrastructure/persistence', 7]], ['CA', ['modules/infrastructure/cache', 5]],
   ['LD', ['adapters/ledger', 5]], ['AS', ['modules/audio-streaming', 7]],
   ['VS', ['modules/video-streaming', 7]], ['DC', ['adapters/data-cloud-media', 6]],
-  ['OC', ['adapters/ocr-compat', 4]], ['AT', ['adapters/agent-tools-media', 6]],
+  ['AT', ['adapters/agent-tools-media', 6]],
   ['SK', ['libs/audio-video-client', 8]], ['CT', ['modules/integration-tests', 5]],
   ['IT', ['integration-tests', 6]],
 ]);
@@ -40,27 +40,27 @@ function expandDependencies(value) {
   });
 }
 
-test('all 29 physical, 19 remaining and 21 logical consumers accounted without duplicate identities', () => {
-  assert.equal(topology.manifestCandidates.length,29);
+test('all 28 physical, 18 remaining and 21 logical consumers accounted without duplicate identities', () => {
+  assert.equal(topology.manifestCandidates.length,28);
   assert.equal(topology.consumerCrosswalk.length,21);
-  assert.equal(index.physicalSurfaces.length,29);
+  assert.equal(index.physicalSurfaces.length,28);
   assert.equal(index.logicalConsumers.length,21);
   assert.deepEqual(index.physicalSurfaces.map(x=>x.id),topology.manifestCandidates.map(x=>x.surfaceId));
   assert.deepEqual(index.logicalConsumers.map(x=>x.id),topology.consumerCrosswalk.map(x=>x.surfaceId));
   const categories = index.physicalSurfaces.reduce((a,x)=>(a[x.lane]=(a[x.lane]||0)+1,a),{});
   assert.deepEqual(categories,{
-    PREVIOUS_WAVES_NOT_REEVALUATED:10, W3_BACKEND_SCOPE:15, NONBACKEND_HANDOFF:4,
+    PREVIOUS_WAVES_NOT_REEVALUATED:10, W3_BACKEND_SCOPE:14, NONBACKEND_HANDOFF:4,
   });
-  assert.equal(index.counts.remainingPhysical,19);
-  assert.equal(index.counts.localBackendTasks,88);
+  assert.equal(index.counts.remainingPhysical,18);
+  assert.equal(index.counts.localBackendTasks,84);
   assert.equal(index.counts.additionalLogicalOutcomeTasks,8);
   assert.ok(plan.includes('## 5. Whole-remaining physical applicability and explicit non-backend handoff'));
 });
 
-test('88 named backend tasks and eight headless outcomes have exact nonduplicated IDs and concrete checks',()=>{
-  assert.equal(backendTasks.length,88);
+test('84 named backend tasks and eight headless outcomes have exact nonduplicated IDs and concrete checks',()=>{
+  assert.equal(backendTasks.length,84);
   assert.equal(logicalTasks.length,8);
-  assert.equal(byId.size,96);
+  assert.equal(byId.size,92);
   for(const [prefix,[path,count]] of backendGroups){
     const expected=Array.from({length:count},(_,i)=>prefix+'-'+String(i+1).padStart(2,'0'));
     const group=backendTasks.filter(x=>x.id.startsWith(prefix+'-'));
@@ -91,7 +91,7 @@ test('all local backend and headless dependencies resolve and form one acyclic g
     visiting.delete(id);visited.add(id);
   };
   for(const task of allTasks)dfs(task.id);
-  assert.equal(visited.size,96);
+  assert.equal(visited.size,92);
 });
 
 test('source-derived coverage rows exactly match remaining PDP-0 surface membership and selected owner tasks',()=>{
@@ -225,11 +225,11 @@ test('cross-wave acceptance edges are valid and do not convert negative coding i
     assert.ok(!signatures.has(signature),'duplicate cross-wave edge '+signature);
     signatures.add(signature);
   }
-  assert.equal(index.counts.combinedSelectedOutstandingWorkItems,132);
+  assert.equal(index.counts.combinedSelectedOutstandingWorkItems,128);
   assert.equal(index.counts.wave2UnacceptedTaskCount,36);
   assert.equal(index.counts.wave2PreservedVerifiedTaskCount,22);
   assert.equal(index.counts.crossWaveCoordinationEdges,edges.length);
-  assert.match(plan,/Implementation selection count = 132 unfinished or not-yet-verified local work items/u);
+  assert.match(plan,/Implementation selection count = 128 unfinished or not-yet-verified local work items/u);
   assert.match(plan,/not a second writable task ledger/u);
   assert.match(plan,/36 unaccepted task rows/u);
 });
@@ -250,23 +250,30 @@ test('reported green commit reconciliation is honest and preserves all original 
   assert.equal(report.reportedTaskCount,24);
   assert.equal(report.otherWave3TaskCount,72);
   assert.equal(report.perLocalTaskReadback.length,96);
-  const taskIds=new Set([...backendTasks,...logicalTasks].map(x=>x.id));
+  const completedRetired = new Set(index.completedRetiredLocalTasks.taskIds);
+  const taskIds=new Set([...backendTasks,...logicalTasks].map(x=>x.id).concat([...completedRetired]));
   for(const claim of report.commitClaims){
     assert.match(claim.claimedHashPrefix,/^[0-9a-f]{8}$/u);
     assert.equal(claim.reportedCommitPresence,'NOT_RETRIEVABLE_VIA_CONNECTED_GITHUB_MAIN_AS_OF_REVIEW');
     assert.ok(claim.reportedChange.length>=12);
     for(const taskId of claim.taskIds)assert.ok(taskIds.has(taskId),'invented reported task '+taskId);
   }
-  assert.deepEqual(report.perLocalTaskReadback.map(x=>x.taskId),
-    [...backendTasks,...logicalTasks].map(x=>x.id));
+  const expectedReadbackIds = [...backendTasks,...logicalTasks].map(x=>x.id);
+  expectedReadbackIds.splice(expectedReadbackIds.indexOf('AT-01'), 0, ...index.completedRetiredLocalTasks.taskIds);
+  assert.deepEqual(report.perLocalTaskReadback.map(x=>x.taskId), expectedReadbackIds);
   const reported=report.perLocalTaskReadback.filter(x=>x.claimedCommitHashPrefix);
   const notIndividuallyMapped=report.perLocalTaskReadback.filter(x=>!x.claimedCommitHashPrefix);
   assert.equal(reported.length,24);
   assert.equal(notIndividuallyMapped.length,72);
   for(const row of report.perLocalTaskReadback){
     assert.ok(taskIds.has(row.taskId));
-    assert.equal(row.actualCodeAcceptance,'NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT');
-    assert.equal(row.reviewDisposition,'DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK');
+    if (completedRetired.has(row.taskId)) {
+      assert.equal(row.actualCodeAcceptance,'EXECUTED_OCR_M03_MODULE_RETIREMENT');
+      assert.equal(row.reviewDisposition,'COMPLETED_RETIRED_SURFACE_DO_NOT_REIMPLEMENT');
+    } else {
+      assert.equal(row.actualCodeAcceptance,'NOT_REASSESSED_ON_CURRENT_USER_LOCAL_CHECKOUT');
+      assert.equal(row.reviewDisposition,'DO_NOT_REIMPLEMENT_BEFORE_SOURCE_AND_TEST_READBACK');
+    }
   }
   assert.ok(plan.includes('## 14. Current engineering residual readback'));
   assert.match(plan,/18 distinct abbreviated commit hashes/u);

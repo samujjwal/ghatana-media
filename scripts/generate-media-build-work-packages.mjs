@@ -38,7 +38,7 @@ const semanticBridge = buildSemanticSourceJoins({ root, traceRows: rows });
 const joins = semanticBridge.rows;
 const unresolvedBridgeRows = joins.filter(row => row.unresolvedSourceBlockers.length > 0);
 unique(rows.map(r => `${r.phase}:${r.kind}:${r.id}`), 'trace identities');
-if (rows.length !== 3189) errors.push(`expected 3189 trace rows, got ${rows.length}`);
+if (rows.length !== 3188) errors.push(`expected 3188 trace rows, got ${rows.length}`);
 const planText = read(planPath);
 const headers = [...planText.matchAll(/^### (M-BLD-([FVLX]\d{2})) — (.+)$/gm)];
 const packages = headers.map((m, i) => {

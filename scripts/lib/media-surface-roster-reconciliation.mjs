@@ -24,13 +24,19 @@ export const DECLARED_MATRIX_DELTA = {
     expectedTopologyDisposition: 'PHYSICAL',
     rationale: 'Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.',
     nextAction: 'Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit.'
-  },
+  }
+};
+
+/**
+ * Retired surface declarations: identities removed from topology together with
+ * their delta declarations. Retained as provenance only; never re-add to
+ * DECLARED_MATRIX_DELTA or the matrices.
+ */
+export const RETIRED_MATRIX_DELTA = {
   'media.physical.adapters-ocr-compat': {
-    disposition: 'RETIRE_UNDER_OCR_M03',
-    lifecycleState: 'RETIRING',
-    expectedTopologyDisposition: 'SUPPORT_ONLY',
-    rationale: 'Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.',
-    nextAction: 'Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together.'
+    disposition: 'RETIRED_UNDER_OCR_M03',
+    rationale: 'Legacy Kernel OCR compatibility adapter deleted as an actual Build migration to the DI-owned Kernel DiOcrProvider (kernel#99); module, topology manifest candidate and this declaration were removed together per the declared next action.',
+    removedInCommits: ['f212cf6b', '0613884a']
   }
 };
 

@@ -143,8 +143,12 @@ function assertKnown(values, known, label) {
 function topLevelBlocks(source) {
   const blocks = [];
   let current = [];
+  // Item records may be nested; split at the shallowest `- id:` indent actually present.
+  const indents = [...source.matchAll(/^(\s*)- id: /gmu)].map((match) => match[1].length);
+  const itemIndent = indents.length ? Math.min(...indents) : 0;
+  const itemPattern = new RegExp(`^ {${itemIndent}}- id: `, "u");
   for (const line of source.split(/\r?\n/u)) {
-    if (/^- id: /u.test(line)) {
+    if (itemPattern.test(line)) {
       if (current.length) blocks.push(current.join("\n"));
       current = [line];
     } else if (current.length) {
@@ -263,7 +267,7 @@ const campaignExtensionPath = join(productRoot, "pdp-0-product-truth/campaign-ex
 const campaignExtensionSource = read(campaignExtensionPath);
 const journeyCatalogSource = read(join(productRoot, "pdp-0-product-truth/journey-catalog.yaml"));
 const coverageSource = read(join(productRoot, "vision-requirements-coverage.yaml"));
-const requirementIds = new Set(idsFrom(requirementSource, /^- id: (MEDIA-REQ-[A-Z0-9-]+)[ \t]*$/gmu));
+const requirementIds = new Set(idsFrom(requirementSource, /^  - id: (MEDIA-REQ-[A-Z0-9-]+)[ \t]*$/gmu));
 const capabilityRequirementRefs = collectMatches([capabilitySection], /^\s*- (MEDIA-REQ-[A-Z0-9-]+)$/gmu);
 let parsedLeafReview;
 try { parsedLeafReview = parseYaml(leafReviewSource); }
@@ -494,10 +498,10 @@ else {
     ...composites.map((row) => row.surfaceId),
     ...consumers.map((row) => row.surfaceId),
   ]);
-  if (physicalCandidates.length !== 26 || composites.length !== 7 || consumers.length !== 21
-      || registrySurfaces.length !== 21 || allSurfaceIds.size !== 54
+  if (physicalCandidates.length !== 28 || composites.length !== 7 || consumers.length !== 21
+      || registrySurfaces.length !== 21 || allSurfaceIds.size !== 56
       || registrySurfaces.some((row) => !logicalIds.has(row.surfaceId))) {
-    fail("AUD-SPEC-020 surface crosswalk must preserve the exact 54-identity PDP-0 denominator (26 physical, 7 composite, 21 logical)");
+    fail("AUD-SPEC-020 surface crosswalk must preserve the exact 56-identity current denominator (28 physical, 7 composite, 21 logical)");
   }
   const mappingRows = surfaceRegistry.channelSurfaceProposals?.mappings ?? [];
   const mappingsByChannel = new Map(mappingRows.map((row) => [row.channelRef, row.candidateSurfaceRefs ?? []]));
@@ -777,7 +781,7 @@ if (screenCoreComplete !== 47) fail(`PDP-3 screen structural shape count is ${sc
 // unresolved until their owning authorities provide them.
 const requirementCapabilitiesById = new Map();
 for (const block of requirementBlocks) {
-  const id = block.match(/^- id: (MEDIA-REQ-[A-Z0-9-]+)$/mu)?.[1];
+  const id = block.match(/^\s*- id: (MEDIA-REQ-[A-Z0-9-]+)$/mu)?.[1];
   if (!id) continue;
   const section = block.match(/^\s*capabilityIds:\s*\n((?:\s+- [^\n]+\n?)*)/mu)?.[1] ?? "";
   for (const capability of section.matchAll(/\b(media\.[A-Za-z0-9._-]+)\b/gu)) {
@@ -788,7 +792,7 @@ for (const block of requirementBlocks) {
 }
 const registeredActionCapabilities = new Map();
 for (const block of topLevelBlocks(actionSource.split(/^actions:\s*$/mu)[1] ?? "")) {
-  const id = block.match(/^- id: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
+  const id = block.match(/^\s*- id: (media\.action\.[A-Za-z0-9._-]+)$/mu)?.[1];
   if (!id) continue;
   registeredActionCapabilities.set(id, parseReferenceList(block, "capabilityRefs", `${id} in Action Registry`, 2));
 }

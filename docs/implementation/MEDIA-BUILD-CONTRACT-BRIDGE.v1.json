@@ -9,7 +9,7 @@
     ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
     ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
     ".product-experience/pdp-1-domain-data/handoff-contracts.yaml": "04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08",
-    ".product-experience/pdp-1-domain-data/operations.yaml": "77cb12c8cc73ee1e4193eeaa05690f0aadd7169c5251ead523db848d3954006d",
+    ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b",
     ".product-experience/pdp-1-domain-data/states.yaml": "46875b1c2dbc7eb68d89eb76be5c20c999d4665c83f41f7c219a17e5c36f9ebc",
     ".product-experience/pdp-1-domain-data/transition-guard-contracts.yaml": "7e578b5c80430d203b08be5d17821551ae1cebfdd4e475e6e61d7329fd474b53",
     ".product-experience/pdp-1-domain-data/transitions.yaml": "176c10ad3e87ef33b64d61b540e044000b38298613c42a9d04e053ab83a8142a",
@@ -28,8 +28,8 @@
     ".product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml": "439016ffe0962889992fb0f2c4b9d0be9082d2d52b6c0e251a0bea2d76b2544a",
     ".product-experience/pdp-3-product-experience/journey-registry.yaml": "45fad668f42010258596be4729938b75c6f344d785080f5bb3aff5cbbfe39cb4",
     ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
-    ".product-experience/surfaces/media-physical-topology.v1.json": "8a801f6f43fd2a2ea58449ecc05af845cb0add7d04d1e23549b7af9df00e2473",
-    "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "7cf0bebc05896bc961af275939316e55b0955b859c6ae2f233a153feef81e0a2",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
+    "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "6504f053c20d1398ccf853e93a4e9a2b10d1e0904c554e2ee746e5c0414d2450",
     "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "e6519405c7207e67468d0ea889c5f15c74e64dfa1337e317b60e3ca52adbcdbd",
     "docs/implementation/pdp-0-phase-dev-status.json": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
     "docs/implementation/pdp-1-phase-dev-status.json": "2f6bf005ba16bbeda814705f1c4290fde32949f90aaed15dcd13941030d8f42b",
@@ -37,7 +37,7 @@
     "docs/implementation/pdp-3-phase-dev-status.json": "244f6495ddbf90d19c8bce6fa664ebf4e20643c3a019d332f089e62ca2b81a5f"
   },
   "census": {
-    "identityCount": 3189,
+    "identityCount": 3188,
     "edgeCount": 8668,
     "populations": {
       "PDP-0.capability-intent": 469,
@@ -76,7 +76,7 @@
       "PDP-3.journey": 30,
       "PDP-3.journey-step-purpose": 130,
       "PDP-3.journey-channel-edge": 61,
-      "TOPOLOGY.physical": 29,
+      "TOPOLOGY.physical": 28,
       "TOPOLOGY.REPOSITORY_ROOT": 1,
       "TOPOLOGY.SEMANTIC_COMPOSITION": 6,
       "TOPOLOGY.consumer": 21,
@@ -163415,43 +163415,12 @@
       }
     },
     {
-      "id": "TOPOLOGY:physical:media.physical.adapters-ocr-compat",
-      "phase": "TOPOLOGY",
-      "kind": "physical",
-      "identity": "media.physical.adapters-ocr-compat",
-      "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/3"
-      ],
-      "ownerAssignments": [
-        {
-          "packageId": "M-BLD-V05",
-          "ownerRole": "vision and media analysis owner.",
-          "ownerRoleStatus": "SOURCE_DECLARED",
-          "status": "ASSIGNED_UNVERIFIED",
-          "sourceRef": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#M-BLD-V05"
-        }
-      ],
-      "joins": {},
-      "unresolvedSourceSlots": [],
-      "unresolvedSourceBlockers": [],
-      "codeSymbol": {
-        "status": "UNBOUND",
-        "value": null
-      },
-      "evidence": {
-        "status": "PLANNING_RECEIPT_ONLY",
-        "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/3"
-        ]
-      }
-    },
-    {
       "id": "TOPOLOGY:physical:media.physical.apps-media-experience-explorer",
       "phase": "TOPOLOGY",
       "kind": "physical",
       "identity": "media.physical.apps-media-experience-explorer",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/4"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/3"
       ],
       "ownerAssignments": [
         {
@@ -163472,7 +163441,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/4"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/3"
         ]
       }
     },
@@ -163482,7 +163451,7 @@
       "kind": "physical",
       "identity": "media.physical.audio-video-observability",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/5"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/4"
       ],
       "ownerAssignments": [
         {
@@ -163503,7 +163472,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/5"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/4"
         ]
       }
     },
@@ -163513,7 +163482,7 @@
       "kind": "physical",
       "identity": "media.physical.integration-tests",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/6"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/5"
       ],
       "ownerAssignments": [
         {
@@ -163534,7 +163503,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/6"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/5"
         ]
       }
     },
@@ -163544,7 +163513,7 @@
       "kind": "physical",
       "identity": "media.physical.launcher",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/7"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/6"
       ],
       "ownerAssignments": [
         {
@@ -163565,7 +163534,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/7"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/6"
         ]
       }
     },
@@ -163575,7 +163544,7 @@
       "kind": "physical",
       "identity": "media.physical.libs-audio-video-client",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/8"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/7"
       ],
       "ownerAssignments": [
         {
@@ -163596,7 +163565,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/8"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/7"
         ]
       }
     },
@@ -163606,7 +163575,7 @@
       "kind": "physical",
       "identity": "media.physical.libs-audio-video-types",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/9"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/8"
       ],
       "ownerAssignments": [
         {
@@ -163627,7 +163596,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/9"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/8"
         ]
       }
     },
@@ -163637,7 +163606,7 @@
       "kind": "physical",
       "identity": "media.physical.libs-audio-video-ui",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/10"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/9"
       ],
       "ownerAssignments": [
         {
@@ -163658,7 +163627,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/10"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/9"
         ]
       }
     },
@@ -163667,6 +163636,37 @@
       "phase": "TOPOLOGY",
       "kind": "physical",
       "identity": "media.physical.libs-common",
+      "sourceRecordSelectors": [
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/10"
+      ],
+      "ownerAssignments": [
+        {
+          "packageId": "M-BLD-F02",
+          "ownerRole": "Media build tooling owner.",
+          "ownerRoleStatus": "SOURCE_DECLARED",
+          "status": "ASSIGNED_UNVERIFIED",
+          "sourceRef": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#M-BLD-F02"
+        }
+      ],
+      "joins": {},
+      "unresolvedSourceSlots": [],
+      "unresolvedSourceBlockers": [],
+      "codeSymbol": {
+        "status": "UNBOUND",
+        "value": null
+      },
+      "evidence": {
+        "status": "PLANNING_RECEIPT_ONLY",
+        "refs": [
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/10"
+        ]
+      }
+    },
+    {
+      "id": "TOPOLOGY:physical:media.physical.libs-java-common",
+      "phase": "TOPOLOGY",
+      "kind": "physical",
+      "identity": "media.physical.libs-java-common",
       "sourceRecordSelectors": [
         ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/11"
       ],
@@ -163694,43 +163694,12 @@
       }
     },
     {
-      "id": "TOPOLOGY:physical:media.physical.libs-java-common",
-      "phase": "TOPOLOGY",
-      "kind": "physical",
-      "identity": "media.physical.libs-java-common",
-      "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/12"
-      ],
-      "ownerAssignments": [
-        {
-          "packageId": "M-BLD-F02",
-          "ownerRole": "Media build tooling owner.",
-          "ownerRoleStatus": "SOURCE_DECLARED",
-          "status": "ASSIGNED_UNVERIFIED",
-          "sourceRef": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md#M-BLD-F02"
-        }
-      ],
-      "joins": {},
-      "unresolvedSourceSlots": [],
-      "unresolvedSourceBlockers": [],
-      "codeSymbol": {
-        "status": "UNBOUND",
-        "value": null
-      },
-      "evidence": {
-        "status": "PLANNING_RECEIPT_ONLY",
-        "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/12"
-        ]
-      }
-    },
-    {
       "id": "TOPOLOGY:physical:media.physical.libs-media-experience-simulation",
       "phase": "TOPOLOGY",
       "kind": "physical",
       "identity": "media.physical.libs-media-experience-simulation",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/13"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/12"
       ],
       "ownerAssignments": [
         {
@@ -163751,7 +163720,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/13"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/12"
         ]
       }
     },
@@ -163761,7 +163730,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-audio-streaming",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/14"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/13"
       ],
       "ownerAssignments": [
         {
@@ -163782,7 +163751,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/14"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/13"
         ]
       }
     },
@@ -163792,7 +163761,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-infrastructure-cache",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/15"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/14"
       ],
       "ownerAssignments": [
         {
@@ -163813,7 +163782,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/15"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/14"
         ]
       }
     },
@@ -163823,7 +163792,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-infrastructure-messaging",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/16"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/15"
       ],
       "ownerAssignments": [
         {
@@ -163844,7 +163813,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/16"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/15"
         ]
       }
     },
@@ -163854,7 +163823,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-infrastructure-persistence",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/17"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/16"
       ],
       "ownerAssignments": [
         {
@@ -163875,7 +163844,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/17"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/16"
         ]
       }
     },
@@ -163885,7 +163854,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-infrastructure-security",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/18"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/17"
       ],
       "ownerAssignments": [
         {
@@ -163906,7 +163875,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/18"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/17"
         ]
       }
     },
@@ -163916,7 +163885,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-integration-tests",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/19"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/18"
       ],
       "ownerAssignments": [
         {
@@ -163937,7 +163906,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/19"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/18"
         ]
       }
     },
@@ -163947,7 +163916,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/20"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/19"
       ],
       "ownerAssignments": [
         {
@@ -163968,7 +163937,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/20"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/19"
         ]
       }
     },
@@ -163978,7 +163947,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-intelligence-multimodal-service",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/21"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/20"
       ],
       "ownerAssignments": [
         {
@@ -163999,7 +163968,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/21"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/20"
         ]
       }
     },
@@ -164009,7 +163978,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/22"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/21"
       ],
       "ownerAssignments": [
         {
@@ -164030,7 +163999,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/22"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/21"
         ]
       }
     },
@@ -164040,7 +164009,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-speech-stt-service",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/23"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/22"
       ],
       "ownerAssignments": [
         {
@@ -164061,7 +164030,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/23"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/22"
         ]
       }
     },
@@ -164071,7 +164040,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-speech-tts-service",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/24"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/23"
       ],
       "ownerAssignments": [
         {
@@ -164092,7 +164061,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/24"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/23"
         ]
       }
     },
@@ -164102,7 +164071,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-video-streaming",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/25"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/24"
       ],
       "ownerAssignments": [
         {
@@ -164123,7 +164092,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/25"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/24"
         ]
       }
     },
@@ -164133,7 +164102,7 @@
       "kind": "physical",
       "identity": "media.physical.modules-vision-vision-service",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/26"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/25"
       ],
       "ownerAssignments": [
         {
@@ -164154,7 +164123,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/26"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/25"
         ]
       }
     },
@@ -164164,7 +164133,7 @@
       "kind": "physical",
       "identity": "media.physical.providers-aws-postgresql",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/27"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/26"
       ],
       "ownerAssignments": [
         {
@@ -164185,7 +164154,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/27"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/26"
         ]
       }
     },
@@ -164195,7 +164164,7 @@
       "kind": "physical",
       "identity": "media.physical.runtime-contracts",
       "sourceRecordSelectors": [
-        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/28"
+        ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/27"
       ],
       "ownerAssignments": [
         {
@@ -164216,7 +164185,7 @@
       "evidence": {
         "status": "PLANNING_RECEIPT_ONLY",
         "refs": [
-          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/28"
+          ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/27"
         ]
       }
     },

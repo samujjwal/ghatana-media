@@ -705,6 +705,7 @@ records:
                 logicalConsumerSurfaceRefs:
                   - media.surface.integrations
                 physicalSurfaceRefs:
+                  - media.physical.adapters-data-cloud-media
                   - media.physical.adapters-ledger
                   - media.physical.providers-aws-postgresql
                   - media.physical.modules-infrastructure-persistence
@@ -712,6 +713,7 @@ records:
                   - media.physical.modules-infrastructure-cache
                   - media.physical.modules-infrastructure-messaging
                 compositeSurfaceRefs:
+                  - media.composition.repository-root
                   - media.composition.ingestion-and-versioned-artifacts
                   - media.composition.governed-job-execution
                   - media.composition.creation-composition-and-delivery
@@ -736,7 +738,7 @@ records:
                   - media.surface.agent-tools
                 physicalSurfaceRefs:
                   - media.physical.runtime-contracts
-                  - media.physical.libs-common
+                  - media.physical.adapters-agent-tools-media
                 compositeSurfaceRefs:
                   - media.composition.repository-root
                   - media.composition.ingestion-and-versioned-artifacts

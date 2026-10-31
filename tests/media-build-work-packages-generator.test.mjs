@@ -27,9 +27,9 @@ test('Build work package projection is deterministic and source-pinned', () => {
   assert.equal(digest(), first);
   assert.match(run('--check'), /PASS/);
   const projection = JSON.parse(fs.readFileSync(path, 'utf8'));
-  assert.equal(projection.census.traceIdentityCount, 3189);
+  assert.equal(projection.census.traceIdentityCount, 3188);
   assert.equal(projection.packages.length, 50);
-  assert.deepEqual(projection.census.surfaces, { physical: 29, compositions: 7, logical: 21, total: 57 });
+  assert.deepEqual(projection.census.surfaces, { physical: 28, compositions: 7, logical: 21, total: 56 });
   assert.equal(projection.tasks.filter(x => x.id.startsWith('M-BLD-F00.T')).length, 3);
   assert.equal(projection.tasks.filter(x => x.id.startsWith('M-BLD-L01.T')).length, 5);
   assert.equal(projection.tasks.filter(x => x.id.startsWith('M-BLD-V03.T')).length, 2);
@@ -91,14 +91,13 @@ test('Build work package projection is deterministic and source-pinned', () => {
   ]);
   assert(taskById.get('M-BLD-L01.T05').expectedResult.includes('full recorder'));
   assert.equal(projection.census.matrixRows.length, 4);
-  assert.equal(projection.surfaces.length, 57);
+  assert.equal(projection.surfaces.length, 56);
   const matrixBound = projection.surfaces.filter(row => !row.matrixDelta);
   const delta = projection.surfaces.filter(row => row.matrixDelta);
   assert.equal(matrixBound.length, 54);
   assert.deepEqual(delta.map(row => [row.id, row.matrixDelta.disposition]), [
     ['media.physical.adapters-agent-tools-media', 'MATRIX_EXTENSION_REQUIRED'],
-    ['media.physical.adapters-data-cloud-media', 'MATRIX_EXTENSION_REQUIRED'],
-    ['media.physical.adapters-ocr-compat', 'RETIRE_UNDER_OCR_M03']
+    ['media.physical.adapters-data-cloud-media', 'MATRIX_EXTENSION_REQUIRED']
   ]);
   assert(delta.every(row => Object.values(row.applicability).every(phase => phase.sourceCurrent === false && phase.developmentStatus === row.matrixDelta.disposition && phase.blockerIds.length === 1)));
   const logicalSurfaces = projection.surfaces.filter(row => row.type === 'logical');
@@ -112,7 +111,7 @@ test('Build work package projection is deterministic and source-pinned', () => {
   assert(Object.values(archivedSurface.applicability).every(phase => phase.developmentStatus === 'NOT_ACTIVE_ARCHIVED'));
   assert.deepEqual(projection.surfaces, sourceSurfaceRecords());
   const f00t03 = projection.tasks.find(task => task.id === 'M-BLD-F00.T03');
-  assert.equal(f00t03.joinedSourceIdentities.length, 57);
+  assert.equal(f00t03.joinedSourceIdentities.length, 56);
   assert.deepEqual(f00t03.joinedSourceIdentities, projection.surfaces.map(({ id, type, topologySelector, registryApplicability, topologyBinding, applicability }) => ({ id, type, topologySelector, registryApplicability, topologyBinding, applicability })));
   const receipt = projection.materialSourceReceipt;
   const staleRecords = receipt.records.filter(record => record.status !== 'CURRENT');
@@ -202,7 +201,7 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   const joinsByIdentity = new Map(sourceBridge.rows.map(x => [`${x.phase}:${x.kind}:${x.identity}`, x.joins]));
   const permittedNA = new Set(original.trace.filter(x => x.primaryPackageId === 'N/A').map(x => `${x.phase}:${x.kind}:${x.identity}`));
   const expected = {
-    traceIdentityKeys: ids, traceCount: 3189, packageIds: original.packages.map(x => x.id),
+    traceIdentityKeys: ids, traceCount: 3188, packageIds: original.packages.map(x => x.id),
     packageDependencies: Object.fromEntries(original.packages.map(pkg => [pkg.id, pkg.dependencies])),
     wipPolicy: original.wipPolicy,
     validNAIdentities: permittedNA, joinsByIdentity,
@@ -257,7 +256,7 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   rejected(x => { x.surfaces.find(row => row.id === 'media.surface.desktop-archive').registryApplicability.disposition = 'APPLICABLE'; }); // archived applicability cannot be overwritten
   rejected(x => { x.surfaces.find(row => row.id === 'media.surface.web').applicability['PDP-2'].sourceCurrent = false; }); // stale per-surface phase source cannot be hidden
   rejected(x => { delete x.surfaces.find(row => row.id === 'media.surface.production-studio').applicability['PDP-3'].rationale; }); // applicability rationale is source-owned
-  rejected(x => { x.surfaces.pop(); }); // full 57-surface topology denominator is mandatory
+  rejected(x => { x.surfaces.pop(); }); // full 56-surface topology denominator is mandatory
   rejected(x => { const row = x.surfaces.find(r => r.id === 'media.physical.adapters-data-cloud-media'); row.applicability['PDP-0'].sourceCurrent = true; delete row.matrixDelta; }); // matrix delta cannot be promoted to current phase status
   assert.notDeepEqual(validateBuildWorkPackageProjection(original, { ...expected, surfaceCounts: { ...expected.surfaceCounts, total: 53 } }), []); // missing surface census
 });

@@ -3,23 +3,22 @@
   "authority": "Generated Track A roster reconciliation; not PDP status, Lifecycle admission, or closure authority.",
   "claimsBoundary": "Matrix-bound rows keep their existing source-owned phase status. Delta rows have no phase status until their owning matrix generators are extended; no N/A, DEV_COMPLETE or receipt is inferred here.",
   "sourcePins": {
-    ".product-experience/surfaces/media-physical-topology.v1.json": "8a801f6f43fd2a2ea58449ecc05af845cb0add7d04d1e23549b7af9df00e2473",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
     "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
     "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "542e6058b3148646aad42e44716bedaa1371849cabba167e39b7f5cc1ab7126c",
     "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480",
     "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
   },
   "census": {
-    "physical": 29,
+    "physical": 28,
     "compositions": 7,
     "logical": 21,
-    "total": 57,
+    "total": 56,
     "matrixBound": 54,
-    "matrixDelta": 3,
+    "matrixDelta": 2,
     "byLifecycleState": {
       "ACTIVE": 39,
       "ARCHIVED": 1,
-      "RETIRING": 1,
       "ROOT": 1,
       "SUBSUMED": 2,
       "SUPPORT": 13
@@ -97,14 +96,6 @@
       "expectedTopologyDisposition": "PHYSICAL",
       "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
       "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
-    },
-    {
-      "id": "media.physical.adapters-ocr-compat",
-      "disposition": "RETIRE_UNDER_OCR_M03",
-      "lifecycleState": "RETIRING",
-      "expectedTopologyDisposition": "SUPPORT_ONLY",
-      "rationale": "Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.",
-      "nextAction": "Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together."
     }
   ],
   "roster": [
@@ -141,19 +132,6 @@
       "topologyDisposition": "SUPPORT_ONLY",
       "lifecycleState": "SUPPORT",
       "matrixBound": true
-    },
-    {
-      "id": "media.physical.adapters-ocr-compat",
-      "type": "physical",
-      "sourcePath": "adapters/ocr-compat",
-      "topologyDisposition": "SUPPORT_ONLY",
-      "lifecycleState": "RETIRING",
-      "matrixBound": false,
-      "matrixDelta": {
-        "disposition": "RETIRE_UNDER_OCR_M03",
-        "rationale": "Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.",
-        "nextAction": "Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together."
-      }
     },
     {
       "id": "media.physical.apps-media-experience-explorer",

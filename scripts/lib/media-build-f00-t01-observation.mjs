@@ -42,11 +42,11 @@ function topologyIdentities(root, topology) {
   const physicalIds = topology.manifestCandidates?.map(row => row.surfaceId);
   const compositionIds = topology.compositions?.map(row => row.surfaceId);
   const logicalIds = topology.consumerCrosswalk?.map(row => row.surfaceId);
-  ensure(Array.isArray(physicalIds) && topology.activeManifestCandidateCount === 29 && physicalIds.length === 29, 'topology must contain exactly 29 active physical candidates');
+  ensure(Array.isArray(physicalIds) && topology.activeManifestCandidateCount === 28 && physicalIds.length === 28, 'topology must contain exactly 28 active physical candidates');
   ensure(Array.isArray(compositionIds) && compositionIds.length === 7, 'topology must contain exactly 7 compositions including its root');
   ensure(Array.isArray(logicalIds) && logicalIds.length === 21, 'topology must contain exactly 21 logical consumers');
   const topologyIds = [...physicalIds, ...compositionIds, ...logicalIds];
-  ensure(topologyIds.every(id => typeof id === 'string' && id.length > 0) && new Set(topologyIds).size === 57, 'topology identities must be 57 unique nonempty IDs');
+  ensure(topologyIds.every(id => typeof id === 'string' && id.length > 0) && new Set(topologyIds).size === 56, 'topology identities must be 56 unique nonempty IDs');
   const reconciliation = reconcileMediaSurfaceRoster({ topology, matrices: MATRIX_PATHS.map(matrixPath => ({ path: matrixPath, matrix: json(root, matrixPath) })) });
   const ids = reconciliation.matrixBoundIds;
   ensure(ids.length === 54, 'reconciled matrix-bound identities must be exactly 54');
@@ -172,13 +172,13 @@ function validateSourceInputs(root, workPackages, expectedIds, topologyIds) {
   const materialPinCanonicalSha256 = sha256(JSON.stringify(reduced));
   const fullPinProjectionSha256 = sha256(JSON.stringify(records));
 
-  ensure(workPackages.census?.surfaces?.total === 57 && workPackages.census.surfaces.physical === 29 && workPackages.census.surfaces.compositions === 7 && workPackages.census.surfaces.logical === 21, 'work-package census differs from 29/7/21 = 57');
+  ensure(workPackages.census?.surfaces?.total === 56 && workPackages.census.surfaces.physical === 28 && workPackages.census.surfaces.compositions === 7 && workPackages.census.surfaces.logical === 21, 'work-package census differs from 28/7/21 = 56');
   ensure(Array.isArray(workPackages.surfaces), 'work-package surface projection is missing');
   const workPackageIds = workPackages.surfaces.map(surface => surface.id);
   exactKeys(workPackageIds, topologyIds, 'generated work-package surface IDs');
   exactKeys(workPackages.surfaces.filter(surface => !surface.matrixDelta).map(surface => surface.id), expectedIds, 'generated matrix-bound work-package surface IDs');
   const typeCounts = workPackages.surfaces.reduce((counts, surface) => ({ ...counts, [surface.type]: (counts[surface.type] ?? 0) + 1 }), {});
-  ensure(typeCounts.physical === 29 && typeCounts.composition === 7 && typeCounts.logical === 21, 'generated work-package surface types differ from 29/7/21');
+  ensure(typeCounts.physical === 28 && typeCounts.composition === 7 && typeCounts.logical === 21, 'generated work-package surface types differ from 28/7/21');
 
   const sourcePins = Object.entries(workPackages.sourcePins ?? {}).sort(([a], [b]) => a.localeCompare(b));
   ensure(sourcePins.length > 0, 'generated work-package source pin map is empty');

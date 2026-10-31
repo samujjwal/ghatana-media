@@ -1239,17 +1239,17 @@ components:
       allOf:
         - $ref: "#/components/schemas/CaptionVersionRegistered"
         - type: object
-            additionalProperties: true
-            properties:
-              ticksPerSecond: { type: integer, minimum: 1 }
-              sourceDurationTicks: { type: integer, minimum: 0 }
-              languageTag: { type: string }
-              purpose: { type: string }
-              captionSegments:
-                {
-                  type: array,
-                  items: { $ref: "#/components/schemas/CaptionRegistrationSegment" },
-                }
+          additionalProperties: true
+          properties:
+            ticksPerSecond: { type: integer, minimum: 1 }
+            sourceDurationTicks: { type: integer, minimum: 0 }
+            languageTag: { type: string }
+            purpose: { type: string }
+            captionSegments:
+              {
+                type: array,
+                items: { $ref: "#/components/schemas/CaptionRegistrationSegment" },
+              }
     CaptionVersionList:
       type: object
       additionalProperties: false

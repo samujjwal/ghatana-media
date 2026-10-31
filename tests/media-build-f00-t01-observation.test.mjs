@@ -129,8 +129,8 @@ test('generates an F00.T01 read-only receipt with complete 54 × 4 accounting an
     assert.equal(artifact.recordedAt, '2026-10-23T06:15:00Z');
     assert.deepEqual(artifact.campaign.campaignDenominator, {
       surfaceIdentities: 54,
-      topologySurfaceIdentities: 57,
-      physicalLeaves: 29,
+      topologySurfaceIdentities: 56,
+      physicalLeaves: 28,
       compositionsIncludingRoot: 7,
       logicalConsumers: 21,
       phaseSurfaceCells: 216

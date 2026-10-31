@@ -16561,6 +16561,11 @@ coordinatorDefinitionExtensionApplicability:
               media.channel.web; the source audit's exact owner proposal and registered channel map select no
               media.channel.web invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.recipe.specification.compile from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.recorder-orchestrator, its designated PDP-0 physical source media.physical.libs-audio-video-client, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.recipe.specification.compile from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to
@@ -16899,6 +16904,11 @@ coordinatorDefinitionExtensionApplicability:
               the source audit's exact owner proposal and registered channel map select no media.channel.web
               invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.project.scene.patch-merge from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.recorder-orchestrator, its designated PDP-0 physical source media.physical.libs-audio-video-client, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.project.scene.patch-merge from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to
@@ -17233,6 +17243,11 @@ coordinatorDefinitionExtensionApplicability:
               media.channel.sdk; the source audit's exact owner proposal and registered channel map select no
               media.channel.sdk invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.quality.audio.content-similarity.assess from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.production-studio, its designated PDP-0 physical source media.physical.libs-audio-video-ui, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.quality.audio.content-similarity.assess from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to
@@ -17579,6 +17594,11 @@ coordinatorDefinitionExtensionApplicability:
               media.channel.sdk; the source audit's exact owner proposal and registered channel map select no
               media.channel.sdk invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.generate.video.preset.manage from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.production-studio, its designated PDP-0 physical source media.physical.libs-audio-video-ui, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.generate.video.preset.manage from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to
@@ -17914,6 +17934,11 @@ coordinatorDefinitionExtensionApplicability:
               media.channel.sdk; the source audit's exact owner proposal and registered channel map select no
               media.channel.sdk invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.generate.video.shot-condition from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.production-studio, its designated PDP-0 physical source media.physical.libs-audio-video-ui, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.generate.video.shot-condition from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to
@@ -18251,6 +18276,11 @@ coordinatorDefinitionExtensionApplicability:
               source audit's exact owner proposal and registered channel map select no media.channel.web
               invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.job.schedule.manage from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.recorder-orchestrator, its designated PDP-0 physical source media.physical.libs-audio-video-client, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.job.schedule.manage from media.physical.apps-media-experience-explorer:
               this exact feature is scoped to media.surface.recorder-orchestrator, its designated PDP-0 physical
@@ -18581,6 +18611,11 @@ coordinatorDefinitionExtensionApplicability:
               media.channel.sdk; the source audit's exact owner proposal and registered channel map select no
               media.channel.sdk invocation path for this feature.
         excludedSurfaceRefs:
+          - surfaceRef: media.physical.adapters-data-cloud-media
+            rationale: "PXD-207 excludes media.master.audio.creative-effect.apply from media.physical.adapters-data-cloud-media: this exact
+              feature is scoped to media.surface.production-studio, its designated PDP-0 physical source media.physical.libs-audio-video-ui, and the three declared recursive aggregate surfaces; this
+              identity is outside that source-backed feature owner path. The surface topology identifies
+              physical identity but no exact owner capability path for this feature here."
           - surfaceRef: media.physical.apps-media-experience-explorer
             rationale: "PXD-207 excludes media.master.audio.creative-effect.apply from
               media.physical.apps-media-experience-explorer: this exact feature is scoped to

@@ -256960,6 +256960,14 @@ capabilityOperationContracts:
           sourceType: optional-versioned-project-revision
           cardinality: ZERO_OR_ONE
           required: false
+        - slotId: input5
+          sourceType: versioned-target-production-specification-schema
+          cardinality: ZERO_OR_ONE
+          required: false
+        - slotId: input6
+          sourceType: versioned-schema-migration-transformation
+          cardinality: ZERO_OR_ONE
+          required: false
       parameterSchema:
         type: object
         additionalProperties: false
@@ -256969,13 +256977,28 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: normalized-semantic-graph-and-reviewable-project-plan-candidate
           requiredOnSuccess: true
+        - artifactType: reviewable-version-bound-schema-migration-candidate-and-semantic-diff
+          requiredOnSuccess: false
       semanticOutcomeContract: Prepare a normalized semantic graph and reviewable
         project-plan candidate from the exact versioned declarative
         specification, schema, compiler-contract version, and optional exact
         project revision. Bind a stable semantic fingerprint to those exact
         inputs and preserve each declared deterministic or generative step kind.
         This is local candidate preparation only; it creates no project
-        revision, job, external effect, or published output.
+        revision, job, external effect, or published output. For a
+        schema-migration request, prepare a reviewable, version-bound
+        migration candidate and semantic diff only when the exact source
+        production specification and schema, requested target schema, and
+        explicitly declared supported transformation are supplied together;
+        a partial target/transformation pair is UNKNOWN and produces no
+        migration candidate. If the transformation is unsupported, lossy,
+        ambiguous, or unknown, return an explicit UNKNOWN/UNSUPPORTED result
+        and no migration candidate; never infer or silently substitute a
+        transformation. Candidate preparation preserves the original
+        specification, binds the candidate to every source, target, and
+        transformation identity/version, and does not apply the migration,
+        mutate a project, submit a job, publish content, or cause an external
+        effect.
       executionAdmission: NOT_ADMITTED
       ownerApproval: NOT_CLAIMED
       independentAcceptance: NOT_CLAIMED

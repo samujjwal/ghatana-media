@@ -7,7 +7,7 @@ const clone = () => structuredClone(expected);
 const rejects = candidate => assert.notDeepEqual(validateMediaBuildContractBridge(candidate, expected), []);
 
 test('contract bridge preserves source identity and all source-declared edge joins', () => {
-  assert.equal(expected.census.identityCount, 3189);
+  assert.equal(expected.census.identityCount, 3188);
   assert.equal(expected.identities.length, expected.census.identityCount);
   assert.equal(expected.edges.length, expected.census.edgeCount);
   assert.equal(expected.status, 'SOURCE_RELATIONS_CURRENT');
