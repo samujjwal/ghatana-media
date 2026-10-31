@@ -311,6 +311,32 @@ Only if the **actual native workflow** returns a result requiring adoption, call
 | Media #6 and source Track B | Capture current parity diagnostics, retire actual semantic conflicts, impacted PDP0/1/2/3 generator additions and source-currentness/reviewer work. |
 | Rights/data/operator owners | Real licensed models/voices/biometric/source assets, third-party and independent reviewers, qualified hardware, protected trust/private credentials. No engineering shortcut; owner input is an exact external prerequisite, not discretionary unapproved code work. |
 
+## 11A. All currently open Media issues — owner disposition and canonical next proof
+
+The table is a **current issue coordination view**, not a new task registry. Historical dated issue bodies and older denominators are not automatically current source facts. Keep a necessary issue OPEN until original owner effects/independent review are verified; close/retire only after source-current acceptance.
+
+| Open issue | Owner disposition, exact next work |
+| --- | --- |
+| `media#3` | **HISTORICAL_COUNTS_RECHECK_PDP0_CURRENTNESS_AND_NATIVE_PROOF** — Do not recreate old 383-leaf/27-route/43-RPC counts; source PDP0 IN_PROGRESS, PDP1/2/3 recorded prior DEV_COMPLETE; current source impact and independent proof #4/#20. |
+| `media#4` | **INDEPENDENT_REVIEW_REQUIRED** — Actual qualified product/domain, accessibility, visual, simulation and rights reviewer outcomes with specific source/host/assistive-tech evidence; owner engineering approval not a reviewer signature. |
+| `media#5` | **FIRST_SLICE_REQUALIFY_CURRENT_IMPLEMENTATION** — Artifact/upload/job source/route/rights/attempt/UNKNOWN and installed client oracles; preserve completed parts, not blanket task COMPLETE. |
+| `media#6` | **REPORTED_TWO_PARITY_FINDINGS_TO_IDENTIFY** — Current pnpm contract parity output/IDs; fix exact operation semantics, no retired historical 3/51 phantom blocker. |
+| `media#7` | **REAL_L02_L03_CASE_ORACLES_NOT_ADMITTED** — Bind current native obligation roster/case/observer/independent receipt; historical 344 counts not current authority. |
+| `media#8` | **HISTORICAL_PDP_GAPS_SCOPE_IMPACT_RECHECK** — Do not treat 383 leaves or 260 old migration items as new current tasks; source-current P0 status and actual 30 journeys/130 steps + 30 HTTP/44 gRPC. |
+| `media#19` | **57_DECLARED_VS_54_MATRIX_SOURCE_DELTA** — 2 rows add through generators, one OCR retire after DI replacement; exact native ClosureUnit owner graph not 57 units. |
+| `media#20` | **NATIVE_FIRST_LEAF_RECEIPT_PENDING** — After true AP02/AP03, independent case+oracle+Evidence Generator and native gtool receipt; not code-only source links. |
+| `media#21` | **LAST_GENERATED_SOURCE_JOINS_ZERO_OWNER_PLAN_REVIEW_PENDING** — No redo historic 17 P1 joins; current regen + original F00.T02 work plan owner acceptance. |
+| `media#22` | **KCRIT_PER_SURFACE_PENDING** — Approved code work; exact original 50-package/57-task Work Planner source-current KCRIT, not fake Plan Ready. |
+| `media#23` | **VIS09_CODE_OPEN** — Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker. |
+| `media#24` | **BASELINE_DEFECTS_OPEN_NOT_CAP_REGRESSION** — 3 original TTS/MM classes with exact Gradle XML, no ignored tests; one stale textual constructor oracle confirmed. |
+| `ghatana#252` | **DI_PUBLIC_CLIENT_AND_KERNEL_OWNED_PROVIDER_PENDING** — Shared peer, DI worker/qualified model, DI-owned Kernel OcrProvider and source-free PNG/PDF consumers. |
+| `ghatana#254` | **DATA_ACTION_EVENT_PUBLIC_OWNER_ACCEPTANCE_PENDING** — Optional Data Cloud, EventPlane 201 append vs finality, ActionPlane remote receipt and 32 AEP case provenance. |
+| `lifecycle#24` | **MEDIA_AP02_GENUINE_HOST_REQUIRED** — Actual contract distribution owner, verifier and revocation; no local signature substitute. |
+| `lifecycle#25` | **MEDIA_AP03_GENUINE_SNAPSHOT_REQUIRED** — Exact post-TrackB membership/source epoch, trusted Planner verifier, no historical manifest. |
+| `lifecycle#29` | **LIFECYCLE_OWN_REPOSITORY_AP02_AP03_DISTINCT_FROM_MEDIA** — Lifecycle own source/governance host stage-nine authority, not a Media fixture; native proofs separately admitted. |
+
+**Decision:** the recently completed CAP engineering is no longer an open corrective lane; preserve existing source/test evidence and return to it only for a proven source-impact regression. Media [#23](https://github.com/samujjwal/ghatana-media/issues/23) and [#24](https://github.com/samujjwal/ghatana-media/issues/24) are executable ownership issues linked to the original VIS/TTS/MM requirements—not new PDP/F/V/L/X task identities. Lifecycle's separate own-repo R12 AP-02/AP-03 issue [#29](https://github.com/samujjwal/ghatana-lifecycle/issues/29) does not replace Media protected-source issues #24/#25 in Lifecycle.
+
 ## 12. Dependency order and parallel assignments — no global execution pause
 
 **Batch 0 / immediate P0, independent owners:**
@@ -321,7 +347,7 @@ Only if the **actual native workflow** returns a result requiring adoption, call
 - Lifecycle trusted operator: AP02 and AP03 real host provisioning concurrently; Media closure owner maps selected leaf cases.
 - Media runtime database owner: reuse passing V029 host migration fixture; rehearse *actual deployed* old/new applied history/one-writer fencing (no production cutover).
 
-**Batch 1 / baseline defects and prereq-complete leaf development:** first fix TtsWave2InventoryTest obsolete source literal and both TTS readiness/Multimodal composition actual JUnit defects on clean main (no skips), while independent  F00–F13 applicable current tasks; V01/V02/V20/V03 first genuine corrected-captions end-to-end; DI real Media frame + document consumer; OCR-K01 provider materialization; record first paired source/demo and true real product film when outcome actually exists. Current 30 HTTP/44 RPC and client abi stable for affected routes. Do not gate ready non-OCR work on DI external model rights.
+**Batch 1 / baseline defects and prereq-complete leaf development:** first fix TtsWave2InventoryTest obsolete source literal and both TTS readiness/Multimodal composition actual JUnit defects on clean main (no skips). Independently proceed with F00–F13 applicable current tasks and V01/V02/V20/V03 first genuine corrected-captions end-to-end; DI real Media frame + document consumer; OCR-K01 provider materialization; record first paired source/demo and true real product film when outcome actually exists. Current 30 HTTP/44 RPC and client abi stable for affected routes. Do not gate ready non-OCR work on DI external model rights.
 
 **Batch 2 / independent full verticals:** V04–V30 by modality and shared code owner; audio/video streams transport; model and voice qualification; animation/render/simulation actual solver/quality; GUI 47 screens, Recorder L01, Studio L02, Player L03, agents and products. Assign original 36 R8 plus 96 W3/H tasks to their true owner surfaces; no double count, no blanket reruns.
 
