@@ -2986,13 +2986,20 @@
         "9906bb13 e04 stale pin refreshed with reviewed delta (62/62 simulation tests)",
         "shared#246 + ghatana#252 peer verification recorded"
       ]
+    },
+    {
+      "date": "2026-10-31",
+      "entries": [
+        "PDP-1 semantic binding resolved: 14/14 operation records complete, parity PASS",
+        "post-acceptance stale-review guard added to parity checker"
+      ]
     }
   ],
   "trackB": {
     "parity": {
       "sdkUploadPartGap": "RESOLVED (10ac5afb: fetchRaw wire calls now parsed)",
-      "pdp1SemanticBinding": "DEFERRED: 14 proposal operation records require complete semantic fields and detailed contracts covering all actionRefs; definition-only mode encodes the defer",
-      "stalePinRecount": "1 stale selector found and refreshed (9906bb13); previously reported 67 was historical"
+      "pdp1SemanticBinding": "RESOLVED (6ec48f6d + surgical correction): all 14 operation records carry complete semantics and covered actionRefs; semantic binding REVIEW_REQUIRED pending owner review",
+      "stalePinRecount": "1 stale selector found and refreshed (9906bb13)"
     }
   }
 }
