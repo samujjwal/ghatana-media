@@ -4,6 +4,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import yaml from 'yaml';
 import { pdp0PhaseScopedSourcePins } from '../report-media-pdp-readiness.mjs';
+import { MATRIX_PATHS, reconcileMediaSurfaceRoster } from './media-surface-roster-reconciliation.mjs';
 
 export const F00_T01_SCHEMA = 'media.build-f00-t01-source-material-topology-observation.v1';
 export const F00_T01_RECORD_KIND = 'SOURCE_ONLY_F00_T01_RECONCILIATION_NOT_BUILD_ADMISSION_OR_PDP_CLOSURE';
@@ -37,16 +38,19 @@ const exactKeys = (actual, expected, label) => {
 };
 const ensure = (condition, message) => { if (!condition) fail(message); };
 
-function topologyIdentities(topology) {
+function topologyIdentities(root, topology) {
   const physicalIds = topology.manifestCandidates?.map(row => row.surfaceId);
   const compositionIds = topology.compositions?.map(row => row.surfaceId);
   const logicalIds = topology.consumerCrosswalk?.map(row => row.surfaceId);
-  ensure(Array.isArray(physicalIds) && topology.activeManifestCandidateCount === 26 && physicalIds.length === 26, 'topology must contain exactly 26 active physical candidates');
+  ensure(Array.isArray(physicalIds) && topology.activeManifestCandidateCount === 29 && physicalIds.length === 29, 'topology must contain exactly 29 active physical candidates');
   ensure(Array.isArray(compositionIds) && compositionIds.length === 7, 'topology must contain exactly 7 compositions including its root');
   ensure(Array.isArray(logicalIds) && logicalIds.length === 21, 'topology must contain exactly 21 logical consumers');
-  const ids = [...physicalIds, ...compositionIds, ...logicalIds];
-  ensure(ids.every(id => typeof id === 'string' && id.length > 0) && new Set(ids).size === 54, 'topology identities must be 54 unique nonempty IDs');
-  return { ids, physicalIds, compositionIds, logicalIds };
+  const topologyIds = [...physicalIds, ...compositionIds, ...logicalIds];
+  ensure(topologyIds.every(id => typeof id === 'string' && id.length > 0) && new Set(topologyIds).size === 57, 'topology identities must be 57 unique nonempty IDs');
+  const reconciliation = reconcileMediaSurfaceRoster({ topology, matrices: MATRIX_PATHS.map(matrixPath => ({ path: matrixPath, matrix: json(root, matrixPath) })) });
+  const ids = reconciliation.matrixBoundIds;
+  ensure(ids.length === 54, 'reconciled matrix-bound identities must be exactly 54');
+  return { ids, topologyIds, physicalIds, compositionIds, logicalIds, matrixDeltaIds: reconciliation.delta.map(row => row.id) };
 }
 
 function validateG0(status) {
@@ -155,7 +159,7 @@ export function inspectMaterialSourceReceipt({ root, phaseStatuses, receipt, pdp
   return { expectedCount, receiptCount: receipt.count ?? null, recordCount: records.length, staleSelectors };
 }
 
-function validateSourceInputs(root, workPackages, expectedIds) {
+function validateSourceInputs(root, workPackages, expectedIds, topologyIds) {
   ensure(workPackages.schemaVersion === 'media.build-work-packages.v1', 'current generated build work-package projection has an unsupported schema');
   const sourceStatusRecords = paths.phaseStatus.map(({ path: relativePath }) => json(root, relativePath));
   const receiptReadback = inspectMaterialSourceReceipt({ root, phaseStatuses: sourceStatusRecords, receipt: workPackages.materialSourceReceipt });
@@ -168,12 +172,13 @@ function validateSourceInputs(root, workPackages, expectedIds) {
   const materialPinCanonicalSha256 = sha256(JSON.stringify(reduced));
   const fullPinProjectionSha256 = sha256(JSON.stringify(records));
 
-  ensure(workPackages.census?.surfaces?.total === 54 && workPackages.census.surfaces.physical === 26 && workPackages.census.surfaces.compositions === 7 && workPackages.census.surfaces.logical === 21, 'work-package census differs from 26/7/21 = 54');
+  ensure(workPackages.census?.surfaces?.total === 57 && workPackages.census.surfaces.physical === 29 && workPackages.census.surfaces.compositions === 7 && workPackages.census.surfaces.logical === 21, 'work-package census differs from 29/7/21 = 57');
   ensure(Array.isArray(workPackages.surfaces), 'work-package surface projection is missing');
   const workPackageIds = workPackages.surfaces.map(surface => surface.id);
-  exactKeys(workPackageIds, expectedIds, 'generated work-package surface IDs');
+  exactKeys(workPackageIds, topologyIds, 'generated work-package surface IDs');
+  exactKeys(workPackages.surfaces.filter(surface => !surface.matrixDelta).map(surface => surface.id), expectedIds, 'generated matrix-bound work-package surface IDs');
   const typeCounts = workPackages.surfaces.reduce((counts, surface) => ({ ...counts, [surface.type]: (counts[surface.type] ?? 0) + 1 }), {});
-  ensure(typeCounts.physical === 26 && typeCounts.composition === 7 && typeCounts.logical === 21, 'generated work-package surface types differ from 26/7/21');
+  ensure(typeCounts.physical === 29 && typeCounts.composition === 7 && typeCounts.logical === 21, 'generated work-package surface types differ from 29/7/21');
 
   const sourcePins = Object.entries(workPackages.sourcePins ?? {}).sort(([a], [b]) => a.localeCompare(b));
   ensure(sourcePins.length > 0, 'generated work-package source pin map is empty');
@@ -202,13 +207,13 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
   const g0Rows = validateG0(g0Status);
 
   const topology = json(root, paths.topology);
-  const topologySet = topologyIdentities(topology);
+  const topologySet = topologyIdentities(root, topology);
   const expectedIds = topologySet.ids;
   const registry = yaml.parse(read(root, paths.registry));
   const registryIds = registry.surfaces?.map(surface => surface.surfaceId) ?? [];
   exactKeys(registryIds, topologySet.logicalIds, 'logical topology/registry identity set');
   const workPackages = json(root, paths.workPackages);
-  const inputProof = validateSourceInputs(root, workPackages, expectedIds);
+  const inputProof = validateSourceInputs(root, workPackages, expectedIds, topologySet.topologyIds);
   const expectedG0Keys = expectedIds.flatMap(subjectId => PHASES.map(phase => `${subjectId}\u0000${phase}`));
   exactKeys(g0Rows.rowKeys, expectedG0Keys, 'G0 subject/phase cell set');
   exactKeys(g0Rows.progressionIds, expectedIds, 'G0 progression subject IDs');
@@ -265,7 +270,8 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
       exactSubstage: 'KDEV-STAGE-PLAN-IMPLEMENTATION',
       selectedTaskId: 'M-BLD-F00.T01',
       campaignDenominator: {
-        surfaceIdentities: 54,
+        surfaceIdentities: expectedIds.length,
+        topologySurfaceIdentities: topologySet.topologyIds.length,
         physicalLeaves: topologySet.physicalIds.length,
         compositionsIncludingRoot: topologySet.compositionIds.length,
         logicalConsumers: topologySet.logicalIds.length,
@@ -275,7 +281,7 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
     reconciliation: {
       status: 'SOURCE_INPUTS_RECONCILED_WITH_CURRENT_G0_SOURCE_READBACK',
       claims: [
-        'The exact topology identity set reconciles across physical manifest candidates, compositions including the root, logical consumers, the surface registry, generated work-package projection, all four Media phase matrices, and the supplied G0 status rows.',
+        'The exact topology identity set (54 matrix-bound plus the declared roster-reconciliation delta) reconciles across physical manifest candidates, compositions including the root, logical consumers, the surface registry, generated work-package projection, all four Media phase matrices, and the supplied G0 status rows.',
         `All ${currentStatus.count} material source selectors in the generated work-package receipt are CURRENT and reconcile to their emitted expected/current digests; no stale or unsupported material selector is present.`,
         'All four phase matrices contain 54 unique source-current rows with known-zero phase-local task inventories; the supplied G0 readback reports COMPLETE and CURRENT for each of 216 subject/phase rows.',
         'The supplied G0 status is a source-development readback only. This observation does not assert method-level aggregate completion beyond the fields present in that input.'
@@ -286,8 +292,10 @@ export function buildF00T01Observation({ root = process.cwd(), g0StatusPath, now
         physicalManifestCandidates: topologySet.physicalIds.length,
         semanticCompositionsIncludingRoot: topologySet.compositionIds.length,
         logicalConsumers: topologySet.logicalIds.length,
-        identityCount: expectedIds.length,
-        uniqueIdentityCount: new Set(expectedIds).size,
+        identityCount: topologySet.topologyIds.length,
+        matrixBoundIdentityCount: expectedIds.length,
+        uniqueIdentityCount: new Set(topologySet.topologyIds).size,
+        matrixDeltaIds: topologySet.matrixDeltaIds,
         surfaceRegistryPath: paths.registry,
         surfaceRegistrySha256: registrySha256
       },

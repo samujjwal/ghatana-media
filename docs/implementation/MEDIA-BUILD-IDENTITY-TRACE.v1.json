@@ -76,7 +76,7 @@
     "journeys": 30,
     "steps": 130,
     "edges": 61,
-    "surfaces": 54,
+    "surfaces": 57,
     "componentValueTypes": 122,
     "semanticTokenAliases": 9,
     "sharedPublicCssVariables": 24,
@@ -84,7 +84,25 @@
     "compositionRules": 43,
     "machineInterfaceInvariants": 12
   },
-  "sourceEnumerationDiscrepancies": [],
+  "sourceEnumerationDiscrepancies": [
+    {
+      "id": "TOPOLOGY-MATRIX-DELTA-2026-10-30",
+      "expected": {
+        "surfaces": 54,
+        "physical": 26
+      },
+      "observed": {
+        "surfaces": 57,
+        "physical": 29
+      },
+      "identities": [
+        "media.physical.adapters-agent-tools-media",
+        "media.physical.adapters-data-cloud-media",
+        "media.physical.adapters-ocr-compat"
+      ],
+      "disposition": "Impacted three-row trace extension; phase status for these rows is governed by docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json (two MATRIX_EXTENSION_REQUIRED, ocr-compat RETIRE_UNDER_OCR_M03). The 54 unchanged rows are not reopened."
+    }
+  ],
   "duplicateRows": [],
   "rules": [
     "Every row has exactly one provisional implementation owner; this is sequencing, not proof of existing code.",
@@ -93,7 +111,7 @@
     "Physical support-only and archived consumer applicability remains explicit; no product runtime admission inferred.",
     "An actual semantic defect returns to earliest PDP; unavailable provider/test/host stays an owned Build/external blocker."
   ],
-  "rowCount": 3186,
+  "rowCount": 3189,
   "populations": {
     "PDP-0.capability-intent": 469,
     "PDP-0.requirement-group": 38,
@@ -131,7 +149,7 @@
     "PDP-3.journey": 30,
     "PDP-3.journey-step-purpose": 130,
     "PDP-3.journey-channel-edge": 61,
-    "TOPOLOGY.physical": 26,
+    "TOPOLOGY.physical": 29,
     "TOPOLOGY.REPOSITORY_ROOT": 1,
     "TOPOLOGY.SEMANTIC_COMPOSITION": 6,
     "TOPOLOGY.consumer": 21,
@@ -29196,6 +29214,51 @@
         "PDP-1": "APPLICABLE",
         "PDP-2": "HEADLESS_CONTRACT",
         "PDP-3": "CONSUMER_CONTRACT"
+      }
+    },
+    {
+      "phase": "TOPOLOGY",
+      "kind": "physical",
+      "id": "media.physical.adapters-agent-tools-media",
+      "primaryPackageId": "M-BLD-V25",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourcePath": "adapters/agent-tools-media",
+      "disposition": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      }
+    },
+    {
+      "phase": "TOPOLOGY",
+      "kind": "physical",
+      "id": "media.physical.adapters-data-cloud-media",
+      "primaryPackageId": "M-BLD-F07",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourcePath": "adapters/data-cloud-media",
+      "disposition": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      }
+    },
+    {
+      "phase": "TOPOLOGY",
+      "kind": "physical",
+      "id": "media.physical.adapters-ocr-compat",
+      "primaryPackageId": "M-BLD-V05",
+      "planningStatus": "ASSIGNED_UNVERIFIED",
+      "sourcePath": "adapters/ocr-compat",
+      "disposition": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
       }
     },
     {

@@ -10,11 +10,9 @@ const fixedTime = new Date('2026-10-23T06:15:00.000Z');
 const livePhaseStatuses = [0, 1, 2, 3].map(index => JSON.parse(fs.readFileSync(path.join(root, `docs/implementation/pdp-${index}-phase-dev-status.json`), 'utf8')));
 const liveMaterialPinCount = livePhaseStatuses.reduce((sum, status) => sum + Object.keys(status.sourceShaSet ?? {}).length, 0);
 const topology = JSON.parse(fs.readFileSync(path.join(root, '.product-experience/surfaces/media-physical-topology.v1.json'), 'utf8'));
-const subjectIds = [
-  ...topology.manifestCandidates.map(row => row.surfaceId),
-  ...topology.compositions.map(row => row.surfaceId),
-  ...topology.consumerCrosswalk.map(row => row.surfaceId)
-];
+const reconciliation = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json'), 'utf8'));
+const subjectIds = reconciliation.matrixBoundIds;
+assert.equal(topology.manifestCandidates.length + topology.compositions.length + topology.consumerCrosswalk.length, subjectIds.length + reconciliation.delta.length);
 const matrixRows = new Map(['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'].map((phase, index) => {
   const matrixPath = `docs/implementation/verification/pdp-38/pdp${index}-surface-phase-status-matrix.json`;
   const matrix = JSON.parse(fs.readFileSync(path.join(root, matrixPath), 'utf8'));
@@ -131,7 +129,8 @@ test('generates an F00.T01 read-only receipt with complete 54 × 4 accounting an
     assert.equal(artifact.recordedAt, '2026-10-23T06:15:00Z');
     assert.deepEqual(artifact.campaign.campaignDenominator, {
       surfaceIdentities: 54,
-      physicalLeaves: 26,
+      topologySurfaceIdentities: 57,
+      physicalLeaves: 29,
       compositionsIncludingRoot: 7,
       logicalConsumers: 21,
       phaseSurfaceCells: 216

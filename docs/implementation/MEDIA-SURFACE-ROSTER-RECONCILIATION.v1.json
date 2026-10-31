@@ -1,0 +1,583 @@
+{
+  "schemaVersion": "media.surface-roster-reconciliation.v1",
+  "authority": "Generated Track A roster reconciliation; not PDP status, Lifecycle admission, or closure authority.",
+  "claimsBoundary": "Matrix-bound rows keep their existing source-owned phase status. Delta rows have no phase status until their owning matrix generators are extended; no N/A, DEV_COMPLETE or receipt is inferred here.",
+  "sourcePins": {
+    ".product-experience/surfaces/media-physical-topology.v1.json": "8a801f6f43fd2a2ea58449ecc05af845cb0add7d04d1e23549b7af9df00e2473",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "542e6058b3148646aad42e44716bedaa1371849cabba167e39b7f5cc1ab7126c",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480",
+    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
+  },
+  "census": {
+    "physical": 29,
+    "compositions": 7,
+    "logical": 21,
+    "total": 57,
+    "matrixBound": 54,
+    "matrixDelta": 3,
+    "byLifecycleState": {
+      "ACTIVE": 39,
+      "ARCHIVED": 1,
+      "RETIRING": 1,
+      "ROOT": 1,
+      "SUBSUMED": 2,
+      "SUPPORT": 13
+    }
+  },
+  "matrixBoundIds": [
+    "media.physical.adapters-ledger",
+    "media.physical.apps-media-experience-explorer",
+    "media.physical.audio-video-observability",
+    "media.physical.integration-tests",
+    "media.physical.launcher",
+    "media.physical.libs-audio-video-client",
+    "media.physical.libs-audio-video-types",
+    "media.physical.libs-audio-video-ui",
+    "media.physical.libs-common",
+    "media.physical.libs-java-common",
+    "media.physical.libs-media-experience-simulation",
+    "media.physical.modules-audio-streaming",
+    "media.physical.modules-infrastructure-cache",
+    "media.physical.modules-infrastructure-messaging",
+    "media.physical.modules-infrastructure-persistence",
+    "media.physical.modules-infrastructure-security",
+    "media.physical.modules-integration-tests",
+    "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+    "media.physical.modules-intelligence-multimodal-service",
+    "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+    "media.physical.modules-speech-stt-service",
+    "media.physical.modules-speech-tts-service",
+    "media.physical.modules-video-streaming",
+    "media.physical.modules-vision-vision-service",
+    "media.physical.providers-aws-postgresql",
+    "media.physical.runtime-contracts",
+    "media.composition.repository-root",
+    "media.composition.ingestion-and-versioned-artifacts",
+    "media.composition.governed-job-execution",
+    "media.composition.speech-and-caption-workflows",
+    "media.composition.vision-and-multimodal-analysis",
+    "media.composition.creation-composition-and-delivery",
+    "media.composition.client-and-machine-interfaces",
+    "media.surface.web",
+    "media.surface.embedded",
+    "media.surface.public-http",
+    "media.surface.service-grpc",
+    "media.surface.grpc.stt",
+    "media.surface.grpc.tts",
+    "media.surface.grpc.vision",
+    "media.surface.grpc.multimodal",
+    "media.surface.sdk",
+    "media.surface.cli",
+    "media.surface.agent-tools",
+    "media.surface.events",
+    "media.surface.integrations",
+    "media.surface.types-library",
+    "media.surface.ui-library",
+    "media.surface.explorer",
+    "media.surface.desktop-archive",
+    "media.surface.recorder-orchestrator",
+    "media.surface.capture-adapters",
+    "media.surface.production-studio",
+    "media.surface.interactive-demo-player"
+  ],
+  "delta": [
+    {
+      "id": "media.physical.adapters-agent-tools-media",
+      "disposition": "MATRIX_EXTENSION_REQUIRED",
+      "lifecycleState": "SUPPORT",
+      "expectedTopologyDisposition": "SUPPORT_ONLY",
+      "rationale": "Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.",
+      "nextAction": "Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows."
+    },
+    {
+      "id": "media.physical.adapters-data-cloud-media",
+      "disposition": "MATRIX_EXTENSION_REQUIRED",
+      "lifecycleState": "ACTIVE",
+      "expectedTopologyDisposition": "PHYSICAL",
+      "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
+      "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
+    },
+    {
+      "id": "media.physical.adapters-ocr-compat",
+      "disposition": "RETIRE_UNDER_OCR_M03",
+      "lifecycleState": "RETIRING",
+      "expectedTopologyDisposition": "SUPPORT_ONLY",
+      "rationale": "Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.",
+      "nextAction": "Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together."
+    }
+  ],
+  "roster": [
+    {
+      "id": "media.physical.adapters-agent-tools-media",
+      "type": "physical",
+      "sourcePath": "adapters/agent-tools-media",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": false,
+      "matrixDelta": {
+        "disposition": "MATRIX_EXTENSION_REQUIRED",
+        "rationale": "Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.",
+        "nextAction": "Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows."
+      }
+    },
+    {
+      "id": "media.physical.adapters-data-cloud-media",
+      "type": "physical",
+      "sourcePath": "adapters/data-cloud-media",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": false,
+      "matrixDelta": {
+        "disposition": "MATRIX_EXTENSION_REQUIRED",
+        "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
+        "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
+      }
+    },
+    {
+      "id": "media.physical.adapters-ledger",
+      "type": "physical",
+      "sourcePath": "adapters/ledger",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.adapters-ocr-compat",
+      "type": "physical",
+      "sourcePath": "adapters/ocr-compat",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "RETIRING",
+      "matrixBound": false,
+      "matrixDelta": {
+        "disposition": "RETIRE_UNDER_OCR_M03",
+        "rationale": "Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.",
+        "nextAction": "Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together."
+      }
+    },
+    {
+      "id": "media.physical.apps-media-experience-explorer",
+      "type": "physical",
+      "sourcePath": "apps/media-experience-explorer",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.audio-video-observability",
+      "type": "physical",
+      "sourcePath": "audio-video-observability",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.integration-tests",
+      "type": "physical",
+      "sourcePath": "integration-tests",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.launcher",
+      "type": "physical",
+      "sourcePath": "launcher",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-audio-video-client",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-client",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-audio-video-types",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-types",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-audio-video-ui",
+      "type": "physical",
+      "sourcePath": "libs/audio-video-ui",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-common",
+      "type": "physical",
+      "sourcePath": "libs/common",
+      "topologyDisposition": "SUBSUMED",
+      "lifecycleState": "SUBSUMED",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-java-common",
+      "type": "physical",
+      "sourcePath": "libs/java/common",
+      "topologyDisposition": "SUBSUMED",
+      "lifecycleState": "SUBSUMED",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.libs-media-experience-simulation",
+      "type": "physical",
+      "sourcePath": "libs/media-experience-simulation",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-audio-streaming",
+      "type": "physical",
+      "sourcePath": "modules/audio-streaming",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-infrastructure-cache",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/cache",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-infrastructure-messaging",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/messaging",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-infrastructure-persistence",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/persistence",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-infrastructure-security",
+      "type": "physical",
+      "sourcePath": "modules/infrastructure/security",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-integration-tests",
+      "type": "physical",
+      "sourcePath": "modules/integration-tests",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-intelligence-multimodal-service",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/multimodal-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "type": "physical",
+      "sourcePath": "modules/intelligence/speech/libs/speech-audio-rust",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-speech-stt-service",
+      "type": "physical",
+      "sourcePath": "modules/speech/stt-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-speech-tts-service",
+      "type": "physical",
+      "sourcePath": "modules/speech/tts-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-video-streaming",
+      "type": "physical",
+      "sourcePath": "modules/video-streaming",
+      "topologyDisposition": "SUPPORT_ONLY",
+      "lifecycleState": "SUPPORT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.modules-vision-vision-service",
+      "type": "physical",
+      "sourcePath": "modules/vision/vision-service",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.providers-aws-postgresql",
+      "type": "physical",
+      "sourcePath": "providers/aws-postgresql",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.physical.runtime-contracts",
+      "type": "physical",
+      "sourcePath": "runtime-contracts",
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.repository-root",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "REPOSITORY_ROOT",
+      "lifecycleState": "ROOT",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.ingestion-and-versioned-artifacts",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.governed-job-execution",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.speech-and-caption-workflows",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.vision-and-multimodal-analysis",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.creation-composition-and-delivery",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.composition.client-and-machine-interfaces",
+      "type": "composition",
+      "sourcePath": null,
+      "topologyDisposition": "SEMANTIC_COMPOSITION",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.web",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.embedded",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.public-http",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.service-grpc",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.grpc.stt",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.grpc.tts",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.grpc.vision",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.grpc.multimodal",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.sdk",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.cli",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.agent-tools",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.events",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.integrations",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.types-library",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.ui-library",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.explorer",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "PHYSICAL",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.desktop-archive",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "ARCHIVED",
+      "lifecycleState": "ARCHIVED",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.recorder-orchestrator",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.capture-adapters",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "CONTRACT_ONLY",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.production-studio",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    },
+    {
+      "id": "media.surface.interactive-demo-player",
+      "type": "logical",
+      "sourcePath": null,
+      "topologyDisposition": "HOST_DEPENDENT",
+      "lifecycleState": "ACTIVE",
+      "matrixBound": true
+    }
+  ]
+}

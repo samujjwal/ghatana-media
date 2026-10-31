@@ -7,11 +7,11 @@ const clone = () => structuredClone(expected);
 const rejects = candidate => assert.notDeepEqual(validateMediaBuildContractBridge(candidate, expected), []);
 
 test('contract bridge preserves source identity and all source-declared edge joins', () => {
-  assert.equal(expected.census.identityCount, 3186);
+  assert.equal(expected.census.identityCount, 3189);
   assert.equal(expected.identities.length, expected.census.identityCount);
   assert.equal(expected.edges.length, expected.census.edgeCount);
   assert.equal(expected.status, 'SOURCE_RELATIONS_CURRENT');
-  assert.equal(expected.census.edgeCount, 8667);
+  assert.equal(expected.census.edgeCount, 8668);
   assert(expected.identities.some(row => row.kind === 'definitionExtensionOperationMappings'));
   assert(expected.identities.every(row => row.ownerAssignments.length === 1));
   assert(expected.identities.every(row => row.ownerAssignments.every(owner => owner.packageId === 'N/A' || owner.ownerRoleStatus === (owner.ownerRole ? 'SOURCE_DECLARED' : 'UNRESOLVED_IN_SOURCE_PLAN'))));

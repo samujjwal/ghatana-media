@@ -3,6 +3,9 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "generate:product-definition-manifest": "node scripts/generate-media-product-manifest.mjs",
+    "generate:surface-roster": "node scripts/reconcile-media-surface-roster.mjs",
+    "check:surface-roster": "node scripts/reconcile-media-surface-roster.mjs --check",
+    "test:surface-roster": "node --test tests/media-surface-roster-reconciliation.test.mjs",
     "generate:build-work-packages": "node scripts/generate-media-build-work-packages.mjs",
     "check:build-work-packages": "node scripts/generate-media-build-work-packages.mjs --check",
     "test:build-work-packages": "node --test tests/media-build-work-packages-generator.test.mjs",

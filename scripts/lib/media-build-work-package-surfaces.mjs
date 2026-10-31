@@ -1,3 +1,5 @@
+import { ROSTER_RECONCILIATION_PATH, reconcileMediaSurfaceRoster } from './media-surface-roster-reconciliation.mjs';
+
 const phaseIds = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
 
 const requireText = (value, label) => {
@@ -9,9 +11,31 @@ function selector(path, fragment) {
   return `${path}#${fragment}`;
 }
 
+function matrixDeltaApplicability({ row, id, phase, delta, topologySelector }) {
+  const proposed = row.phaseApplicability?.[phase];
+  if (!proposed || typeof proposed !== 'object') throw new Error(`${id}: topology lacks ${phase} applicability proposal`);
+  const authorityRefs = Array.isArray(proposed.authorityRefs) ? proposed.authorityRefs : proposed.authorityRef ? [proposed.authorityRef] : [];
+  if (authorityRefs.length === 0) throw new Error(`${id}: topology ${phase} applicability lacks an authority selector`);
+  return {
+    disposition: requireText(proposed.disposition, `${id} ${phase} topology applicability disposition`),
+    rationale: requireText(proposed.rationale, `${id} ${phase} topology applicability rationale`),
+    authorityRefs,
+    sourceSelector: `${topologySelector}/phaseApplicability/${phase}`,
+    sourceCurrent: false,
+    developmentStatus: delta.disposition,
+    remainingPhaseLocalTaskIds: delta.disposition === 'MATRIX_EXTENSION_REQUIRED' ? [`${id}:${phase}:MATRIX_EXTENSION`] : [],
+    blockerIds: [`${ROSTER_RECONCILIATION_PATH}#/delta/@id=${id}`],
+    blockerOwner: 'media-product-definition',
+    acceptanceCriterion: 'Topology proposal only; no phase status exists until the owning phase matrix generator carries this identity.',
+    nextLegalAction: delta.nextAction
+  };
+}
+
 /**
- * Build the 54-surface handoff from topology, explicit logical-consumer
- * registry dispositions, and the four source-pinned phase matrices.
+ * Build the surface handoff from topology, explicit logical-consumer registry
+ * dispositions, and the four source-pinned phase matrices. Topology identities
+ * not yet present in the frozen matrices must be declared in the roster
+ * reconciliation; they are carried with source-unknown phase status.
  */
 export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matrices }) {
   const topologyRows = [
@@ -19,9 +43,11 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
     ...(topology?.compositions ?? []).map(row => ({ row, type: 'composition', fragment: 'compositions' })),
     ...(topology?.consumerCrosswalk ?? []).map(row => ({ row, type: 'logical', fragment: 'consumerCrosswalk' }))
   ];
-  const topologyIds = topologyRows.map(({ row }) => row.surfaceId);
-  if (topologyIds.length !== 54 || new Set(topologyIds).size !== topologyIds.length || topologyIds.some(id => !id)) {
-    throw new Error(`expected 54 unique topology surface identities, got ${topologyIds.length}`);
+  const reconciliation = reconcileMediaSurfaceRoster({ topology, matrices });
+  const matrixBoundIds = reconciliation.matrixBoundIds;
+  const deltaById = new Map(reconciliation.delta.map(row => [row.id, row]));
+  if (matrixBoundIds.length !== 54) {
+    throw new Error(`expected 54 matrix-bound topology surface identities, got ${matrixBoundIds.length}`);
   }
 
   const logicalIds = new Set(topologyRows.filter(item => item.type === 'logical').map(item => item.row.surfaceId));
@@ -41,7 +67,7 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
     if (!phaseIds.includes(phase) || matrixByPhase.has(phase)) throw new Error(`phase matrix is duplicate or unknown: ${phase ?? '<missing>'}`);
     const rows = entry.matrix.surfaces ?? [];
     const ids = rows.map(row => row.surfaceId);
-    if (ids.length !== 54 || new Set(ids).size !== 54 || topologyIds.some(id => !ids.includes(id))) {
+    if (ids.length !== 54 || new Set(ids).size !== 54 || matrixBoundIds.some(id => !ids.includes(id))) {
       throw new Error(`${entry.path}: surface membership differs from the 54-identity topology`);
     }
     matrixByPhase.set(phase, { path: entry.path, byId: new Map(rows.map(row => [row.surfaceId, row])) });
@@ -73,7 +99,9 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
       };
     }
 
+    const delta = deltaById.get(id);
     const applicability = Object.fromEntries(phaseIds.map(phase => {
+      if (delta) return [phase, matrixDeltaApplicability({ row, id, phase, delta, topologySelector })];
       const matrix = matrixByPhase.get(phase);
       const sourceRow = matrix.byId.get(id);
       const decision = sourceRow?.applicability;
@@ -108,6 +136,7 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
       registryApplicability,
       topologyBinding,
       applicability,
+      ...(delta ? { matrixDelta: { disposition: delta.disposition, lifecycleState: delta.lifecycleState, nextAction: delta.nextAction } } : {}),
       ...(type === 'composition' ? { compositionKind: row.kind } : {})
     };
   });
