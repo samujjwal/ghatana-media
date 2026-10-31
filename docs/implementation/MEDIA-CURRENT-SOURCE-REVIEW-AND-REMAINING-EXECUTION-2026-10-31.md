@@ -330,6 +330,8 @@ The table is a **current issue coordination view**, not a new task registry. His
 | `media#23` | **VIS09_CODE_OPEN** — Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker. |
 | `media#24` | **BASELINE_DEFECTS_OPEN_NOT_CAP_REGRESSION** — 3 original TTS/MM classes with exact Gradle XML, no ignored tests; one stale textual constructor oracle confirmed. |
 | `ghatana#252` | **DI_PUBLIC_CLIENT_AND_KERNEL_OWNED_PROVIDER_PENDING** — Shared peer, DI worker/qualified model, DI-owned Kernel OcrProvider and source-free PNG/PDF consumers. |
+| `kernel#99` | **DI_OWNED_KERNEL_OCR_PROVIDER_AND_SOURCE_FREE_ABI_PENDING** — Kernel's historical `media.ocr` ID must resolve actual DI-owned `OcrProvider` with real cancellation/status/rights and installed Java consumer proof, not Media compatibility |
+| `shared#246` | **PUBLIC_EXTRACTION_PACKAGE_RELEASE_PROFILE_PENDING** — Replace incompatible/unproven `0.1.0-SNAPSHOT` peer with owner-selected stable public package and installed DI/Media consumer or explicit truthful dev-only profile |
 | `ghatana#254` | **DATA_ACTION_EVENT_PUBLIC_OWNER_ACCEPTANCE_PENDING** — Optional Data Cloud, EventPlane 201 append vs finality, ActionPlane remote receipt and 32 AEP case provenance. |
 | `lifecycle#24` | **MEDIA_AP02_GENUINE_HOST_REQUIRED** — Actual contract distribution owner, verifier and revocation; no local signature substitute. |
 | `lifecycle#25` | **MEDIA_AP03_GENUINE_SNAPSHOT_REQUIRED** — Exact post-TrackB membership/source epoch, trusted Planner verifier, no historical manifest. |
