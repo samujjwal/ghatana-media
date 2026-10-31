@@ -61,7 +61,7 @@
       "boundary": "Validates all ten repaired fields against the exact format, pattern, and length bounds, including accepted/rejected boundary examples; no runtime or phase acceptance claim."
     }
   },
-  "currentSourceSha256": "ed73dd6e196f3d6d182ed480bb8450fd084d31195fb2d768154ed9003ba5d576",
+  "currentSourceSha256": "34e321b769bfdee1b49727acf1095e36e0e20808c3920674c17eb68df288843a",
   "historicalCuts": [
     {
       "decisionRef": ".product-experience/decision-log.md#PXD-094",

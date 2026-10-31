@@ -787,30 +787,67 @@ operations:
       - verify
       - attach
     domainIntent: accept-bounded-bytes-verify-integrity-and-format-then-reference-exact-available-version
-    consumerActor: artifact contributor or authorized media workflow principal
-    authority: media runtime admission plus Shared source-rights policy; provider never self-authorizes
-    context: tenant, principal, purpose and exact source version are required on every ingest request
-    preconditions: bounded upload contract holds; bytes are integrity-checked before any artifact reference is minted
-    inputSemantics: bounded binary payload plus metadata; content digest is computed by the runtime, never trusted from the caller
-    effect: creates an immutable artifact version reference after integrity and format verification
+    consumerActor:
+      proposal: artifact-contributor-or-authorized-media-workflow
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      executionAndIdentityAuthority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      principal: null
+      purpose: null
+      source-version: null
+      and request-context bindings require source/owner reconciliation: null
+    preconditions:
+      status: observed-proposals-only; bounded-upload and policy preconditions require
+        canonical operation binding
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        interface
+    effect:
+      proposal: accept-bounded-bytes-verify-integrity-and-format-then-reference-exact-available-version
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.artifact
         - media.domain.artifact-version
         - media.domain.upload-session
       exactBindings: unresolved
-    transition: upload session OPEN to RECEIVED to VERIFIED to ARTIFACT_AVAILABLE or QUARANTINED
-    events: artifact.upload.received then artifact.version.verified or artifact.intake.quarantined
-    risk: byte spoofing, oversize payloads, format forgery and replayed upload sessions
-    reversibility: unverified bytes are quarantined and deletable; verified versions are immutable
-    commitFinality: upload receipt is not artifact availability; only verified digests mint versions
-    downstreamEffects: artifact-version rows and processing eligibility; nothing downstream of unverified bytes
-    failure: typed intake failures; oversize, digest mismatch, malformed format, cross-tenant, expired session
-    partialSuccess: per-chunk acknowledgement does not establish artifact availability
-    unknownOutcome: unknown ingest outcomes are preserved without blind replay; caller must inspect session state
-    retry: idempotent by idempotency key and zero-based chunk ordering; safe to resubmit missing chunks only
-    idempotency: begin append and complete are idempotent under the caller-supplied key and upload id
-    recovery: resume the open session, recompute digests, and reverify before any resubmission
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      verification: null
+      artifact: null
+      and job machines remain distinct: null
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      quarantine: null
+      retention: null
+      and deletion are not equated: null
+    commitFinality:
+      proposal: upload-receipt-is-not-artifact-availability;
+        unknown-and-quarantine-dispositions-remain-distinct
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        availability
+    unknownOutcome:
+      proposal: preserve-unknown-without-blind-replay
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - HTTP
@@ -858,30 +895,58 @@ operations:
       - cancel
       - retry
     domainIntent: one-logical-job-with-distinct-fenced-attempts-and-explicit-finality
-    consumerActor: media workflow principal that owns the submitted job
-    authority: runtime job admission plus per-job source-rights recheck before dispatch
-    context: tenant, principal, purpose, source versions and request fingerprint bind the job
-    preconditions: source authorization admitted; request fingerprint matches submitted payload
-    inputSemantics: job submission carries operation kind, source refs, bounded parameters and idempotency key
-    effect: mints a durable job row; execution outcomes attach as immutable terminal evidence
+    consumerActor:
+      proposal: authorized-job-requester-or-status-consumer
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      executionAndIdentityAuthority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      principal: null
+      correlation: null
+    preconditions:
+      status: proposal-in-state-models; canonical guards and per-interface bindings
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    effect:
+      proposal: one-logical-job-with-distinct-fenced-attempts-and-explicit-finality
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.processing-job
         - media.domain.job-attempt
         - media.domain.job-lease
       exactBindings: unresolved
-    transition: SUBMITTED to RUNNING to SUCCEEDED, FAILED, CANCELLED or OUTCOME_UNKNOWN
-    events: job.submitted, job.started, job.terminal with exact status and evidence ref
-    risk: double dispatch, stale cancellation fencing, phantom success after crash
-    reversibility: cancellation wins over late results; terminal states are append-only
-    commitFinality: only durable terminal evidence closes a job; in-flight state is never claimed
-    downstreamEffects: terminal evidence, artifact-version lineage, audit and outbox entries
-    failure: typed job failures; NOT_ADMITTED, stale version, provider outage, timeout, cancellation race
-    partialSuccess: attempt-level failures leave the job non-terminal and inspectable
-    unknownOutcome: OUTCOME_UNKNOWN is first-class and requires reconciliation, not assumed failure
-    retry: retries revalidate source rights and fingerprint; no blind re-dispatch
-    idempotency: submission deduplicates on idempotency key plus request fingerprint
-    recovery: inspect job state, reconcile unknown outcomes, then resubmit only under fresh authorization
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    commitFinality:
+      proposal: accepted-is-not-completed; cancellation-request-is-not-confirmation
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        acceptance
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    partialSuccess:
+      proposal: preserve-explicit-partial-success-if-authorized-state-model-confirms
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      proposal: uncertain-dispatch-remains-unknown; no-blind-replay
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        transition contract
+    idempotency:
+      status: route-specific-observations-only;
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - HTTP
@@ -932,30 +997,63 @@ operations:
       response-creates-or-returns-one-stable-Job-reference;
       recognition-is-asynchronous-and-is-not-synchronous-success
     domainIntent: asynchronously-execute-recognition-and-produce-source-linked-transcript-with-explicit-time-and-uncertainty
-    consumerActor: media workflow that owns the source audio artifact
-    authority: STT provider admission plus source rights; the engine never self-admits
-    context: tenant, principal, purpose, exact source version and transcript store readiness
-    preconditions: admitted STT provider, verified source, ready transcript version store
-    inputSemantics: audio artifact reference plus language hint; provider receives only authorized source bytes
-    effect: produces transcript segments and a versioned transcript row bound to the source version
+    consumerActor:
+      proposal: transcription-requester-and-transcript-reviewer
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      executionAndIdentityAuthority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      consent purpose: null
+      locale: null
+      and timebase bindings require review: null
+    preconditions:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      source availability: null
+      and admitted-capability guards are not accepted here: null
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    effect:
+      proposal: derive-source-linked-transcript-with-explicit-time-and-uncertainty
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.artifact-version
         - media.domain.processing-job
         - media.domain.transcription
       exactBindings: unresolved
-    transition: audio source to provider execution to transcript version minted
-    events: transcription.completed or transcription.failed with provider provenance
-    risk: unqualified provider, cross-tenant source, fabricated transcript rows
-    reversibility: bad outputs are discarded; source artifacts are never mutated
-    commitFinality: transcript is durable only at versioned row insert, not at provider ack
-    downstreamEffects: transcript version row, lineage to source version, downstream caption edit surfaces
-    failure: typed failures; provider NOT_ADMITTED, outage, timeout, malformed output, store conflict
-    partialSuccess: partial provider output is discarded; no partial transcript is minted
-    unknownOutcome: unknown provider outcome reconciles via job state, never assumed success
-    retry: retries re-run the full admitted path under the same job identity
-    idempotency: transcript version insert is deduplicated on source version plus job identity
-    recovery: reconcile job, re-admit source rights, resubmit under fresh evidence
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      privacy: null
+      and content-integrity review required: null
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        mutation
+    commitFinality:
+      proposal: provider-transcription-is-not-reviewed-or-approved-caption-version
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      timing: null
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      proposal: preserve-unknown
+      status: no-retry-or-result-equivalence-inferred
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      proposal: inspect-existing-job-and-source-linked-result-before-resubmit
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - STTService.Transcribe
@@ -996,12 +1094,243 @@ operations:
     family:
       - submit-transcription-request
     domainIntent: submit-one-transcription-request-for-one-exact-source-version-and-create-or-return-one-stable-job-reference
-    consumerActor: media workflow principal submitting a transcription request
-    authority: runtime STT admission, source rights and transcript-store eligibility
-    context: tenant, principal, purpose, exact artifact version, consent and clock evidence
-    preconditions: STT request admitted end-to-end including consent and authorization decision
-    inputSemantics: artifact ref, expected version, language and bounded request parameters
-    effect: creates an admitted transcription job bound to source and rights evidence
+    consumerActor:
+      permittedActorRefs:
+        - media.creator
+        - media.editor
+      authoritySource: current-trusted-principal-and-delegation
+      bindingStatus: action-derived-owner-definition; deployed-identity-binding-unqualified
+    authority:
+      semanticOwner: media
+      trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      currentRightsConsentAndPurposePolicy: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+      deployedAuthorityBindings: unqualified
+    context:
+      trustedIdentityFields:
+        - tenantId
+        - principalId
+      optionalDelegationContext: delegationRef
+      callerCannotSupplyOrOverrideTrustedIdentity: true
+      requestKeyScope:
+        - tenantId
+        - principalId
+        - operationId
+        - requestId
+      submitAndReplayAuthority: recheck-current-identity-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-at-each-effect-boundary
+      reconciliationReadAuthority: current-authorized-read-of-the-same-tenant-principal-scoped-request-receipt-and-retained-snapshot;
+        no-provider-dispatch-or-new-effect
+      receiptReadDenial: return-scope-safe-UNKNOWN_OUTCOME-without-disclosing-global-absence-or-cross-principal-receipt
+    preconditions:
+      SUBMIT_OR_REPLAY:
+        - trusted-tenant-principal-and-any-delegation-are-authenticated-and-current
+        - exact-source-artifact-and-immutable-version-are-currently-readable-and-available-to-this-scope
+        - current-rights-decision-verifies-declared-audio-transcription-use;
+          caller-assertion-alone-is-not-authority
+        - current-consent-is-active-for-tenant-principal-purpose-region-and-validity-when-required
+        - declared-purpose-retention-policy-and-processing-location-are-explicit-and-currently-permitted
+        - selected-profile-identity-version-and-configuration-digest-are-explicit-and-qualified-for-this-source-purpose-location-and-language-intent
+        - explicit-language-intent-is-validated-against-the-selected-qualified-profile;
+          no-default-or-inferred-language-support
+        - EXPLICIT-language-intent-languageHint-if-supplied-must-match-the-exact-languageTag;
+          AUTO_REQUESTED-forbids-languageHint;
+          no-default-or-inferred-language-support
+        - source-classification-egress-provider-retention-license-resource-budget-and-required-audit-intent-pass-current-policy
+      RECONCILE:
+        - trusted-tenant-principal-and-any-supplied-delegation-are-current
+        - current-policy-authorizes-reading-this-exact-request-receipt-and-retained-snapshot-in-this-principal-scope
+        - host-retained-original-submit-snapshot-and-fingerprint-are-present-and-canonical
+        - no-provider-dispatch-or-effect-is-authorized-by-this-selector
+    inputSemantics:
+      source: media.action.request-transcription
+      selectorField: requestMode
+      selectorValues:
+        - SUBMIT_OR_REPLAY
+        - RECONCILE
+      commonRequiredFields:
+        - requestMode
+      commonAllowedFields:
+        - requestMode
+      submitRequiredFields:
+        - requestId
+        - sourceArtifactId
+        - sourceArtifactVersionId
+        - languageIntent
+        - profileId
+        - profileVersion
+        - profileConfigurationDigest
+        - timestamps
+        - speakerDiarization
+        - purposeRef
+        - rightsEvidenceRefs
+      submitAllowedFields:
+        - requestMode
+        - requestId
+        - sourceArtifactId
+        - sourceArtifactVersionId
+        - languageIntent
+        - profileId
+        - profileVersion
+        - profileConfigurationDigest
+        - timestamps
+        - speakerDiarization
+        - purposeRef
+        - rightsEvidenceRefs
+        - consentRef
+        - retentionPolicyRef
+        - policyDecisionRef
+        - languageHint
+        - customGlossaryRef
+        - fillerRetakeCandidates
+      reconcileRequiredFields:
+        - requestId
+        - requestFingerprint
+      reconcileAllowedFields:
+        - requestMode
+        - requestId
+        - requestFingerprint
+      branchFieldRule: exactly-the-allowedFields-for-selected-requestMode;
+        reject-unknown-branch-mixed-caller-identity-or-ignored-fields-before-any-effect
+      submitReplayRule: SUBMIT_OR_REPLAY-requires-the-entire-submitRequiredFields-set;
+        it-never-replays-a-subset-or-reconstructs-omitted-values
+      immutableSource: sourceArtifactId-and-sourceArtifactVersionId-resolve-to-one-exact-immutable-audio-artifact-version-and-authoritative-content-digest;
+        no-latest-alias-or-mutable-source-selector
+      languageIntent:
+        requiredFields:
+          - mode
+        modes:
+          - EXPLICIT
+          - AUTO_REQUESTED
+        EXPLICIT:
+          requiredFields:
+            - mode
+            - languageTag
+          allowedFields:
+            - mode
+            - languageTag
+          rule: exact-user-declared-language-tag; validate-profile-support-before-dispatch
+        AUTO_REQUESTED:
+          requiredFields:
+            - mode
+          allowedFields:
+            - mode
+          rule: explicit-user-request-for-profile-language-detection;
+            detection-support-must-be-qualified-and-is-not-inferred
+      languageHint:
+        optional: true
+        format: BCP-47
+        EXPLICIT: if-present-must-exactly-equal-languageIntent.languageTag
+        AUTO_REQUESTED: forbidden
+        effect: redundant-confirmation-only;
+          does-not-change-language-intent-or-fingerprint
+      scalarNullability:
+        optionalDelegationRef: absent-is-canonical-null;
+          if-present-must-be-a-nonempty-trusted-delegation-reference
+        consentRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-current-authoritative-policy-says-consent-is-not-required
+        retentionPolicyRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-current-authoritative-policy-resolves-no-retention-policy
+        policyDecisionRef: optional-exact-reference-locator;
+          omission-resolves-only-from-current-trusted-owner-context;
+          canonical-null-only-when-no-separate-policy-decision-reference-exists
+        requiredNonemptyStrings:
+          - requestId
+          - sourceArtifactId
+          - sourceArtifactVersionId
+          - profileId
+          - profileVersion
+          - purposeRef
+        nonnullDigestFields:
+          - profileConfigurationDigest
+          - authoritativeSourceContentDigest
+        rightsEvidenceRefs: nonempty-exact-reference-array-resolved-to-current-authoritative-rights-decisions;
+          preserve-array-order-and-membership; caller-assertion-is-not-evidence
+        consentRetentionAndPolicyReferences: caller-provided-values-are-exact-locators-only;
+          current-authoritative-owner-resolution-controls-effective-values-and-explicit-null;
+          caller-cannot-assert-consent-retention-or-policy-authority
+        processingLocation: never-caller-asserted;
+          resolve-only-from-current-trusted-policy-and-qualified-profile-context
+        reconcileRequestFingerprint: required-nonnull-lowercase-64-hex-SHA256
+        noOtherNulls: reject-null-for-required-fields-and-any-unlisted-nullable-field;
+          no-defaulting-or-ignored-payload-fields
+      profileIdentity: exact-profileId-profileVersion-and-profileConfigurationDigest-are-required;
+        qualification-and-permitted-parameter-values-must-be-current-authoritative-profile-evidence
+      authorityReferences: purposeRef-and-rightsEvidenceRefs-are-exact-input-references-only;
+        consentRef-retentionPolicyRef-and-policyDecisionRef-are-optional-exact-locators;
+        all-references-require-current-authoritative-owner-resolution-and-are-not-self-grants
+      purposeAndLocation: purposeRef-is-an-exact-typed-purpose-reference;
+        processingLocation-is-resolved-only-from-current-trusted-policy-and-qualified-profile-context
+      requestFingerprint:
+        version: media.transcription-submission-fingerprint.v4
+        supersedes: media.transcription-submission-fingerprint.v3
+        algorithm: SHA-256
+        encoding: compact-UTF-8-JSON-array-no-whitespace-in-this-exact-field-order-with-JSON-string-escaping-and-explicit-null-or-value-presence
+        fields:
+          - tenantId
+          - principalId
+          - delegationRef
+          - operationId
+          - requestId
+          - sourceArtifactId
+          - sourceArtifactVersionId
+          - authoritativeSourceContentDigest
+          - languageIntent
+          - profileId
+          - profileVersion
+          - profileConfigurationDigest
+          - timestamps
+          - speakerDiarization
+          - customGlossaryRef
+          - fillerRetakeCandidates
+          - purposeRef
+          - rightsEvidenceRefs
+          - consentRef
+          - retentionPolicyRef
+          - policyDecisionRef
+          - resolvedProcessingLocation
+        languageIntentEncoding:
+          EXPLICIT:
+            - EXPLICIT
+            - exact-languageTag
+          AUTO_REQUESTED:
+            - AUTO_REQUESTED
+          rule: fixed-ordered-tuples-never-an-unordered-object
+        optionalFieldEncoding:
+          customGlossaryRef:
+            whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+            whenPresent: exact-validated-immutable-versioned-reference
+            callerSuppliedNull: reject-before-hashing
+          fillerRetakeCandidates:
+            whenAbsent: encode-host-only-null-sentinel-in-the-ordered-array
+            whenPresent: exact-JSON-boolean-without-coercion; preserve-explicit-false
+            callerSuppliedNull: reject-before-hashing
+            behaviorDefault: false-applies-only-to-effective-behavior;
+              never-rewrite-the-retained-request-snapshot-or-fingerprint
+        scalarEncoding: fixed-string-or-host-only-absence-null-sentinel-types-only;
+          rightsEvidenceRefs-is-an-ordered-array-of-exact-validated-references;
+          timestamps-is-one-of-none-segment-word-phoneme;
+          speakerDiarization-is-a-JSON-boolean-without-coercion;
+          customGlossaryRef-is-an-exact-immutable-versioned-reference-when-present;
+          omission-uses-host-only-null-sentinel; caller-null-rejected;
+          fillerRetakeCandidates-is-a-JSON-boolean-without-coercion-when-present;
+          omission-uses-host-only-null-sentinel; explicit-false-is-preserved;
+          profileConfigurationDigest-and-authoritativeSourceContentDigest-are-lowercase-64-hex-SHA256;
+          invalid-types-or-digests-reject-before-hashing
+        normalization: validate-types-and-enums-first;
+          preserve-exact-validated-string-values-and-optional-presence;
+          no-trimming-case-folding-default-insertion-or-map-order-dependence
+        digestField: requestFingerprint;
+          lowercase-64-hex-SHA256-of-the-canonical-compact-array-bytes
+      submitSnapshot: before-first-dispatch-the-host-canonically-validates-and-retains-the-complete-immutable-submit-field-snapshot-including-current-owner-resolutions-for-optional-consent-retention-policy-and-processing-location-and-computed-fingerprint-for-this-key;
+        the-caller-retains-the-same-snapshot-for-reconciliation-after-lost-response;
+        never-depend-on-a-server-returned-fingerprint-the-caller-may-not-have-received
+      reconciliation: RECONCILE-is-a-read-only-selector-on-this-existing-operation;
+        require-current-scoped-receipt-read-authority-and-the-retained-original-submit-snapshot;
+        recompute-fingerprint-from-that-exact-snapshot-in-the-same-trusted-scope-and-compare;
+        missing-expired-or-unavailable-snapshot-or-receipt-remains-UNKNOWN_OUTCOME
+    effect: SUBMIT_OR_REPLAY-atomically-records-one-logical-request-and-stable-submission-receipt-before-provider-dispatch-may-begin;
+      worker-execution-is-asynchronous-and-outside-this-command
     outputSemantics:
       acknowledgedOutcome: REQUEST_ACKNOWLEDGED
       acknowledgedFields:
@@ -1064,7 +1393,16 @@ operations:
     version: exact-immutable-source-artifact-version-and-content-digest-are-fingerprint-bound;
       jobId-is-a-logical-job-identity-not-an-attempt-or-state
     transport: action-and-local-fixture-observations-do-not-qualify-HTTP-SDK-gRPC-Agent-Tool-or-production-runtime-bindings
-    idempotency: fingerprint plus key deduplicates submissions exactly-once
+    idempotency:
+      scope:
+        - tenantId
+        - principalId
+        - operationId
+        - requestId
+      sameKeySameFingerprint: after-current-authority-recheck-return-the-original-logical-jobId-and-submissionReceiptId-with-SAME_REQUEST_REPLAY;
+        do-not-create-another-logical-request
+      sameKeyDifferentFingerprint: return-IDEMPOTENCY_CONFLICT-without-overwriting-or-dispatching
+      replayNeverBypasses: current-authentication-delegation-rights-consent-purpose-region-retention-location-profile-license-budget-and-audit-policy
     cancellation: cancellation-and-observation-belong-to-existing-job-lifecycle;
       request-cancellation-does-not-confirm-stop-or-reverse-a-submission-receipt
     affectedObjects:
@@ -1072,17 +1410,30 @@ operations:
         - media.domain.artifact-version
         - media.domain.processing-job
       receiptIdentity: operation-local-stable-submission-receipt; no-new-domain-object
-    transition: request admitted to job submitted; no provider call precedes admission
-    events: transcription.job.submitted with request fingerprint and evidence refs
-    risk: submission without rights, stale source, replayed request fingerprint
-    reversibility: a rejected submission creates no job and no provider effect
-    commitFinality: only the durable job row commits; admission alone mints nothing
-    downstreamEffects: job row, audit entry and outbox record before dispatch
-    failure: typed denials; consent missing, rights denied, stale version, store unready
-    partialSuccess: no partial submission exists; admission is all-or-nothing
-    unknownOutcome: ambiguous store outcomes leave no admitted job and must be re-read
-    retry: safe resubmission under the same idempotency key with identical fingerprint
-    recovery: re-read decision state, fix denied inputs, resubmit with a fresh fingerprint
+    transition:
+      transitionRefs: []
+      applicability: submission-records-a-logical-request-receipt-only;
+        no-job-state-or-attempt-transition-is-accepted-by-this-definition
+    events:
+      status: producer-trigger-payload-ordering-and-delivery-unbound
+    risk: current-rights-consent-purpose-location-retention-profile-and-provider-retention-qualification-are-effect-boundary-gates;
+      unavailable-authority-fails-closed-before-dispatch
+    reversibility: SUBMIT_OR_REPLAY-once-dispatch-may-have-begun-no-reversal-or-no-effect-claim;
+      only-authoritative-atomic-pre-dispatch-rejection-proves-no-effect-for-the-current-attempt;
+      RECONCILE-is-read-only-and-cannot-reverse-or-change-prior-effects
+    commitFinality: stable-submission-receipt-identifies-the-logical-request-only;
+      no-job-state-or-recognition-finality
+    downstreamEffects: provider-dispatch-and-any-transcript-output-are-separate-asynchronous-effects-with-independent-policy-and-result-validation
+    failure: preserve-typed-definitive-rejection-conflict-unavailable-and-unknown-outcomes;
+      never-map-uncertain-dispatch-to-failed-or-retryable
+    partialSuccess: no-provider-or-transcript-partial-success-is-claimed-by-request-acknowledgment
+    unknownOutcome: RECONCILE-same-requestId-and-full-requestFingerprint-in-same-trusted-scope;
+      retain-UNKNOWN-when-evidence-is-missing-expired-or-nonterminal
+    retry: no-automatic-submit-replay-after-unknown;
+      only-same-key-exact-fingerprint-replay-after-reconciliation-and-current-policy;
+      worker-retry-is-a-new-fenced-attempt-under-job-lifecycle
+    recovery: reconcile-original-request-receipt-before-any-repeat;
+      never-mint-new-requestId-to-escape-unknown-or-conflict
     evidenceAudit:
       observedRefs:
         - STTService.Transcribe
@@ -1615,12 +1966,45 @@ operations:
     family:
       - inspect-transcript-version
     domainIntent: inspect-one-exact-immutable-source-linked-transcript-version-and-its-supplied-uncertainty
-    consumerActor: media workflow principal reviewing an exact transcript version
-    authority: same source-rights authority as write; reads never widen scope
-    context: tenant, principal, transcript version ref and source authorization evidence
-    preconditions: transcript version exists and caller scope matches its source
-    inputSemantics: exact transcriptVersionRef lookup; no enumeration without scope
-    effect: returns the immutable transcript version bytes and metadata
+    consumerActor:
+      permittedActorRefs:
+        - media.creator
+        - media.editor
+        - media.reviewer
+      authoritySource: current-trusted-principal-and-policy-decision
+      bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified
+    authority:
+      semanticOwner: media
+      trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      currentTranscriptReadPolicyOwner: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+      deployedProviderBindings: unqualified
+    context:
+      trustedIdentityFields:
+        - tenantId
+        - principalId
+      exactSelector: transcriptVersionId
+      sourceIdentityResolvedFromVersion:
+        - sourceArtifactId
+        - sourceArtifactVersionId
+      currentPolicy: read-authority-for-this-exact-transcript-version-and-linked-source-in-caller-scope
+    preconditions:
+      - trusted-current-tenant-and-principal-from-host
+      - one-exact-transcriptVersionId-selector
+      - immutable-transcript-version-and-exact-source-artifact-version-resolve-in-caller-scope
+      - current-read-authority-for-transcript-and-linked-source
+      - authoritative-source-link-integrity-checked-before-reporting-the-version
+    inputSemantics:
+      requiredFields:
+        - transcriptVersionId
+      trustedHostFields:
+        - tenantId
+        - principalId
+      selector: one-exact-opaque-transcriptVersionId-only;
+        no-jobId-transcriptArtifactId-sourceArtifactId-latest-alias-or-global-list
+      authorization: caller-supplied-tenant-or-principal-is-never-authority;
+        actor-role-labels-do-not-grant-access
+    effect: read-one-exact-immutable-transcript-version-and-available-source-context;
+      no-mutation-correction-approval-or-publication
     outputSemantics:
       requiredFields:
         - transcriptVersionId
@@ -1688,7 +2072,7 @@ operations:
       inspection-does-not-correct-approve-register-a-caption-version-or-publish
     version: transcriptVersionId-is-an-opaque-immutable-version-identity-not-the-legacy-transcription-UUID-transcriptArtifactId-or-content-digest
     transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
-    idempotency: reads are naturally idempotent
+    idempotency: read-only-observation; no-transport-retry-guarantee-inferred
     cancellation: caller-may-stop-waiting-for-this-read-only-observation;
       no-server-side-version-effect-is-cancelled;
       a-later-read-requires-fresh-current-authorization
@@ -1700,17 +2084,28 @@ operations:
       legacyObservations:
         - media.domain.transcription
       byteMutation: none
-    transition: read-only; no state transition
-    events: audit access records only
-    risk: cross-tenant reads, stale version guessing, enumeration attacks
-    reversibility: not applicable; read-only
-    commitFinality: the version is immutable; reads never mutate
-    downstreamEffects: typed read surfaces for review and caption workflows
-    failure: typed read errors; not found, version mismatch, denied scope
-    partialSuccess: not applicable
-    unknownOutcome: absent version returns typed not-found, never fabricated content
-    retry: safe to re-read; no side effects
-    recovery: re-issue the lookup with the same version ref
+    transition:
+      applicability: no-domain-transition
+      effect: read-only
+      transitionRefs: []
+    events:
+      status: no-event-binding-established
+    risk: caller-scope-confidentiality-source-identity-integrity-and-unqualified-provider-observations-must-remain-explicit
+    reversibility: read-only
+    commitFinality: no-mutation-or-review-decision-finality
+    downstreamEffects:
+      status: no-version-mutation-or-caption-approval-proposed
+    failure: inaccessible-or-absent-exact-version-is-scope-safe-not-found;
+      contradictory-authoritative-source-link-is-SOURCE_IDENTITY_MISMATCH;
+      unavailable-reader-is-UNAVAILABLE
+    partialSuccess: return-available-version-fields-with-explicit-per-field-availability;
+      unavailable-or-unsupplied-values-are-not-inferred
+    unknownOutcome: read-timeout-or-failure-is-UNAVAILABLE;
+      it-does-not-imply-version-absence-or-a-write-effect
+    retry: explicit-read-reobservation-only-after-fresh-current-authorization;
+      no-mutation-is-replayed
+    recovery: re-read-the-same-exact-transcriptVersionId-under-current-authority;
+      do-not-substitute-a-job-result-or-latest-transcript
     evidenceAudit:
       observedRefs:
         - media.action.review-transcript
@@ -1753,15 +2148,85 @@ operations:
       - edit-caption-text
       - align-caption-timing
     domainIntent: atomically-update-one-session-local-caption-draft-from-an-exact-immutable-source-and-typed-parent
-    consumerActor: caption editor principal working on a draft
-    authority: caption workflow rights bound to the source artifact and tenant
-    context: tenant, principal, draft identity and source version
-    preconditions: draft workspace exists; caller scope admitted
-    inputSemantics: draft text, timing alignment and bounded edit operations
+    consumerActor:
+      permittedActorRefs:
+        - media.creator
+        - media.editor
+      authoritySource: current-trusted-principal-and-policy-decision
+      bindingStatus: action-identities-source-observed; deployed-identity-binding-unqualified
+    authority:
+      semanticOwner: media
+      trustedIdentityAndDelegationOwner: .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
+      currentSourceReadAndDerivedEditPolicyOwner: .product-experience/pdp-0-product-truth/policy-authority-model.yaml#productPolicy
+      deployedBindings: unqualified
+    context:
+      trustedIdentityFields:
+        - tenantId
+        - principalId
+      exactSourceFields:
+        - sourceArtifactId
+        - sourceArtifactVersionId
+      exactParentFields:
+        - parentVersionKind
+        - parentVersionId
+      draftFields:
+        - draftId
+        - expectedDraftRevision
+      currentPolicy: source-read-and-derived-content-edit-authority-for-the-exact-source-and-parent-in-caller-scope
+    preconditions:
+      - trusted-current-tenant-and-principal-from-host
+      - exact-source-artifact-version-and-typed-transcript-or-caption-parent-resolve-in-caller-scope
+      - current-source-read-and-derived-content-edit-policy-allows-operation
+      - draft-source-and-parent-match-request
+      - expectedDraftRevision-matches-current-session-local-draft
+      - target-segment-exists-in-current-draft
+    inputSemantics:
+      requiredFields:
+        - draftId
+        - expectedDraftRevision
+        - sourceArtifactId
+        - sourceArtifactVersionId
+        - parentVersionKind
+        - parentVersionId
+        - editKind
+        - segmentId
+        - edit
+      trustedHostFields:
+        - tenantId
+        - principalId
+      parentVersionKindValues:
+        - TRANSCRIPT_VERSION
+        - CAPTION_VERSION
+      expectedDraftRevision: nonnegative-safe-integer;
+        compare-exactly-before-applying; next-draftRevision-increments-by-one
+      editKindValues:
+        - TEXT_CORRECTION
+        - TIMING_ALIGNMENT
+      editBranches:
+        TEXT_CORRECTION:
+          requiredFields:
+            - text
+          allowedFields:
+            - text
+          rule: change-only-the-target-segment-text-and-mark-it-USER_EDITED;
+            preserve-segment-identity-order-other-segment-origins-language-and-uncertainty;
+            timing-may-remain-explicitly-unavailable
+        TIMING_ALIGNMENT:
+          requiredFields:
+            - startTick
+            - endTick
+          allowedFields:
+            - startTick
+            - endTick
+          rule: change-only-the-target-segment-half-open-source-tick-range-and-mark-user-edited;
+            require-explicit-user-values-and-authoritative-clock-metadata-for-this-exact-source-version
+      selector: exactly-one-existing-draftId-with-expectedDraftRevision;
+        no-global-draft-or-parent-list
     sourceClockRequirement: timing-alignment-requires-authoritative-sourceClockId-positive-safe-integer-ticksPerSecond-and-nonnegative-safe-integer-sourceDurationTicks-for-the-exact-sourceArtifactVersion;
       0-<=-startTick-<-endTick-<=-sourceDurationTicks;
       no-unit-conversion-estimation-or-clock-inference
-    effect: mutates draft state only; no versioned caption is minted from a draft
+    effect: validate-entire-edit-before-atomic-session-local-draft-revision-advance;
+      immutable-source-and-parent-are-never-modified
     draftSnapshotDefinition:
       valueKind: session-local-caption-draft-snapshot;
         not-a-new-domain-object-or-durable-record
@@ -1907,7 +2372,9 @@ operations:
       explicit-rebase-creates-a-distinct-draftId-at-revision-zero-and-does-not-reuse-the-old-revision-identity
     transport: no-remote-command-or-durable-storage-binding-is-established;
       local-simulation-and-SubmitCorrection-provider-interface-are-not-equivalent-to-this-operation
-    idempotency: edits carry revision tokens; replays are rejected
+    idempotency: expectedDraftRevision-is-a-compare-and-swap-precondition;
+      after-uncertain-local-result-inspect-the-same-draft-before-applying-any-edit-again;
+      never-blindly-reapply-or-increment-again
     cancellation: cancellation-stops-waiting-only;
       a-local-edit-already-applied-is-not-undone-by-cancelling-the-wait
     affectedObjects:
@@ -1916,17 +2383,29 @@ operations:
         - media.domain.caption-version
         - media.domain.artifact-version
       sessionLocalValue: caption-draft-snapshot; no-new-canonical-persisted-object
-    transition: draft edits accumulate until explicit save-as-version
-    events: draft.updated entries for audit
-    risk: edit loss, conflicting concurrent edits, premature version minting
-    reversibility: draft edits are reversible until minted; versions are not
-    commitFinality: drafts are working state; finality only at version write
-    downstreamEffects: nothing durable until save-caption-version
-    failure: typed edit conflicts, scope denial, malformed timing
-    partialSuccess: individual edit operations fail atomically
-    unknownOutcome: draft state is always inspectable, never assumed
-    retry: edit operations retry safely under optimistic concurrency
-    recovery: reload draft state and re-apply edits at current revision
+    transition:
+      applicability: no-domain-transition
+      effect: session-local-draft-revision-only
+      transitionRefs: []
+    events:
+      status: no-event-binding-established
+    risk: stale-source-or-parent-overwrite-and-unqualified-timebase-must-fail-closed
+    reversibility: explicit-undo-or-discard-may-revert-only-the-session-local-draft-to-a-retained-prior-snapshot;
+      never-reverses-or-deletes-parent-source-or-registered-version
+    commitFinality: no-commit; draft-update-is-not-caption-version-registration
+    downstreamEffects:
+      status: no-source-mutation-registration-approval-delivery-or-publication
+    failure: validation-or-policy-failure-is-atomic-and-preserves-the-prior-draft-snapshot;
+      stale-parent-requires-explicit-rebase-and-current-policy-recheck
+    partialSuccess: none; each-edit-revision-is-atomic
+    unknownOutcome: local-process-or-adapter-unavailability-does-not-establish-the-new-draft-revision;
+      inspect-the-same-session-local-draft-or-recover-the-caller-retained-snapshot-before-an-explicit-edit;
+      no-remote-effect-or-automatic-replay-is-implied
+    retry: reobserve-draftId-and-revision-first;
+      submit-again-only-as-a-new-explicit-edit-against-the-observed-revision-after-policy-recheck
+    recovery: preserve-the-exact-source-parent-and-user-edit;
+      on-source-or-parent-staleness-rebase-explicitly-and-revalidate;
+      do-not-silently-overwrite-or-reinterpret-timing
     evidenceAudit:
       observedRefs:
         - media.action.correct-caption
@@ -2193,16 +2672,96 @@ operations:
     family:
       - save-caption-version
     domainIntent: register-a-new-immutable-caption-artifact-version-with-exact-parent-and-operation-provenance
-    consumerActor: caption editor principal minting a caption version
-    authority: caption rights plus source-artifact rights; version rows are content-addressed
-    context: tenant, principal, draft revision, source version and caption language
-    preconditions: draft revision matches; source rights admitted for the bound artifact
+    consumerActor:
+      permittedActorRefs:
+        - media.creator
+        - media.editor
+      authoritySource: current-trusted-principal-and-policy-decision
+      bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified
+    authority:
+      semanticOwner: media
+      identity-and-delegation: Shared-or-identity-owner-contract
+      current-project-and-derived-version-policy: Media
+      rights-and-retention-mechanics: respective-policy-and-storage-owners; deployed-bindings-unqualified
+    context:
+      trustedIdentityFields:
+        - tenantId
+        - principalId
+      sourceIdentityFields:
+        - sourceArtifactId
+        - sourceArtifactVersionId
+      parentIdentityFields:
+        - parentVersionKind
+        - parentVersionId
+      policyInputs:
+        - currentDerivedVersionAuthority
+        - currentRightsAndRetentionDecision
+    preconditions:
+      - current-principal-and-tenant-from-trusted-host
+      - current-source-read-and-derived-version-registration-authority
+      - source-artifact-version-and-its-clock-metadata-are-authoritatively-resolved-and-available-in-caller-scope
+      - exact-parent-version-is-current-for-the-draft-and-matches-the-same-tenant-source-artifact-source-version-and-source-clock
+      - consent-rights-and-retention-policy-rechecked-at-registration-boundary
+      - nonempty-caption-segment-list
+      - each-segment-has-valid-source-tick-range
+      - language-tag-and-language-disposition-preserved-without-confidence-inference
     canonicalParentRequirement: TRANSCRIPT_VERSION-requires-authoritative-canonical-transcript-version-identity-with-sourceArtifactId-sourceArtifactVersionId-sourceClockId-and-ticksPerSecond;
       legacy-media.domain.transcription-UUID-and-synthetic-fixture-parentVersionId-are-not-equivalent;
       missing-or-unavailable-canonical-parent-metadata-blocks-registration;
       CAPTION_VERSION-parent-requires-current-exact-captionVersionId-in-same-source-scope
-    inputSemantics: finalized caption content, timing and language
-    effect: mints an immutable caption version row bound to source version and draft provenance
+    inputSemantics:
+      requiredFields:
+        - sourceArtifactId
+        - sourceArtifactVersionId
+        - parentVersionKind
+        - parentVersionId
+        - sourceClockId
+        - ticksPerSecond
+        - sourceDurationTicks
+        - languageDisposition
+        - captionSegments
+        - requestId
+      optionalFields:
+        - languageTag
+        - purpose
+      trustedHostFields:
+        - tenantId
+        - principalId
+      parentVersionKindValues:
+        - TRANSCRIPT_VERSION
+        - CAPTION_VERSION
+      segmentFields:
+        - segmentId
+        - text
+        - startTick
+        - endTick
+        - origin
+      optionalSegmentFields:
+        - speakerLabel
+      segmentOriginValues:
+        - RECOGNIZED
+        - USER_EDITED
+      languageDispositionValues:
+        - NOT_SELECTED
+        - DECLARED_BY_USER
+        - UNCERTAIN
+      purpose: optional-display-label;
+        if-present-trimmed-before-fingerprint-and-storage-and-limited-to-240-Unicode-scalar-values-as-a-Media-owner-bound-consistent-with-the-synthetic-CLI-fixture-limit;
+        omission-and-present-empty-after-trimming-are-invalid-distinct-input-states;
+        never-an-approval-or-authority-token
+      ticks: ticksPerSecond-is-a-positive-safe-integer;
+        sourceDurationTicks,startTick,and-endTick-are-nonnegative-safe-integer-values-with-endTick>startTick-and-endTick<=sourceDurationTicks;
+        require-authoritative-clockId-and-ticksPerSecond-for-the-exact-sourceArtifactVersion;
+        preserve-source-clock-ticks-exactly;
+        no-rescaling-or-wall-clock-conversion;
+        these-structural-rules-do-not-qualify-scientific-alignment-accuracy
+      segmentSequence: preserve-submitted-order;
+        segmentIds-unique-within-this-version; preserve-text-and-origin-exactly;
+        no-automatic-text-normalization-or-timing-sort
+      requestId: required-1-to-128-ASCII-character-opaque-key-matching-A-Za-z0-9-dot-underscore-tilde-hyphen;
+        scoped-by-tenantId-and-principalId
+    effect: append-one-new-immutable-caption-version-linked-to-the-exact-source-and-typed-parent;
+      never-mutate-source-transcript-or-existing-caption-versions
     outputSemantics:
       successFields:
         - requestId
@@ -2244,7 +2803,12 @@ operations:
     version: captionVersionId-is-an-opaque-stable-identity-scoped-to-tenant-and-exact-source-artifact-version;
       two-versions-with-identical-bytes-or-text-remain-distinct-identities
     transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
-    idempotency: version rows dedupe on content digest plus draft revision
+    idempotency: fingerprint-is-deterministically-computed-from-the-validated-request-before-dispatch-and-covers-tenantId-principalId,sourceArtifactId,sourceArtifactVersionId,typed-parent,sourceClockId,ticksPerSecond,sourceDurationTicks,language-field-presence-and-values,ordered-segment-fields-and-values,origin,purpose-presence-and-normalized-value;
+      preserve-optional-field-presence-and-all-text-and-timing-values-exactly;
+      key-scope-tenantId-principalId-requestId;
+      same-key-same-fingerprint-returns-original-captionVersionId-and-registrationReceiptId-without-a-second-version;
+      same-key-different-fingerprint-is-IDEMPOTENCY_CONFLICT;
+      retain-receipt-for-caption-version-lifetime
     requestFingerprintDefinition:
       versionTag: media.caption-registration-request.v1
       algorithm: SHA-256
@@ -2304,17 +2868,34 @@ operations:
         - media.domain.artifact-version
         - media.domain.transcription
       byteMutation: none
-    transition: draft state to immutable caption version
-    events: caption.version.saved with version ref and provenance
-    risk: revision races, content drift between draft and version, rightless minting
-    reversibility: versions are immutable; corrections mint a new version
-    commitFinality: durable only at versioned row insert under CAS
-    downstreamEffects: version lineage, review surfaces, downstream export and journey steps
-    failure: CAS conflict, denied scope, malformed caption payload
-    partialSuccess: no partial version is ever written
-    unknownOutcome: write outcome is read back, never assumed
-    retry: resubmit with same draft revision; conflicts surface typed CAS errors
-    recovery: reload draft and version state, then mint a new version
+    transition:
+      applicability: not-a-domain-state-transition
+      registration: append-only-caption-version-record
+      transitionRefs: []
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      provenance: null
+      rights: null
+      and commit risks require review: null
+    reversibility: committed-version-is-immutable; later-correction-creates-a-new-version
+    commitFinality: registrationReceiptId-is-the-durable-caption-registration-receipt-only;
+      no-review-approval-delivery-or-publication
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure: preserve-draft; classify-definitive-denial-conflict-and-unknown-separately
+    partialSuccess: no-success-without-atomic-version-and-receipt-commit;
+      if-commit-boundary-may-have-been-crossed-return-UNKNOWN_OUTCOME
+    unknownOutcome: reconcile-before-any-command-replay-using-the-same-tenant-principal-requestId-and-caller-computed-identical-full-requestFingerprint;
+      return-the-original-receipt-if-present;
+      scoped-absence-expiry-or-unavailability-never-proves-no-commit;
+      only-authoritative-durable-terminal-rejection-or-no-effect-receipt-that-excludes-in-flight-or-future-commit-may-establish-DEFINITIVE_NO_COMMIT;
+      otherwise-remain-UNKNOWN_OUTCOME
+    retry: only-after-reconciliation-proves-DEFINITIVE_NO_COMMIT-may-an-explicit-attempt-reuse-the-same-key-and-fingerprint-after-fresh-policy-checks;
+      never-automatic-retry-or-new-key-after-ambiguous-registration
+    recovery: preserve-draft-and-parent;
+      resolve-original-request-receipt-before-any-new-registration
     evidenceAudit:
       observedRefs:
         - media.action.save-caption-version
@@ -2667,12 +3248,62 @@ operations:
     family:
       - compare-caption-versions
     domainIntent: read-only-exact-caption-version-comparison-or-same-scope-registration-receipt-observation
-    consumerActor: caption workflow principal comparing or reviewing versions
-    authority: same caption rights as write; reads never widen scope
-    context: tenant, principal, caption version ref or pair for comparison
-    preconditions: versions exist and caller scope admitted
-    inputSemantics: exact version refs; diff between two versions
-    effect: returns immutable caption version content or a computed diff
+    consumerActor:
+      permittedActorRefs:
+        - media.creator
+        - media.editor
+        - media.reviewer
+      authoritySource: current-trusted-principal-and-policy-decision
+      bindingStatus: action-identity-source-observed; deployed-identity-binding-unqualified
+    authority:
+      semanticOwner: media
+      trustedIdentityAndDelegationOwner: Shared-or-identity-owner-contract
+      currentCaptionVersionReadPolicyOwner: Media
+      deployedProviderBindings: unqualified
+    context:
+      trustedIdentityFields:
+        - tenantId
+        - principalId
+      selectorIdentityFields:
+        EXACT_PAIR:
+          - leftCaptionVersionId
+          - rightCaptionVersionId
+        REGISTRATION_REQUEST:
+          - requestId
+          - requestFingerprint
+      requiredPolicyBySelector:
+        EXACT_PAIR: currentReadAuthorityForBoth
+        REGISTRATION_REQUEST: currentReadAuthorityForOriginalRequestScope
+    preconditions:
+      - current-trusted-principal-and-tenant
+      - selector-is-exactly-one-defined-branch
+      - current-source-scoped-read-authority
+      - EXACT_PAIR-resolves-both-distinct-captionVersionIds-and-authoritative-parent-source-clock-metadata-in-caller-scope
+      - REGISTRATION_REQUEST-is-bound-to-original-tenant-principal-requestId-and-full-requestFingerprint
+      - exact-source-artifact-version-and-clock-checked-before-claiming-a-comparable-diff
+    inputSemantics:
+      selectorKindValues:
+        - EXACT_PAIR
+        - REGISTRATION_REQUEST
+      trustedHostFields:
+        - tenantId
+        - principalId
+      selectorBranches:
+        EXACT_PAIR:
+          requiredFields:
+            - leftCaptionVersionId
+            - rightCaptionVersionId
+          rule: distinct-exact-captionVersionIds-only; no-global-list-or-latest-alias
+        REGISTRATION_REQUEST:
+          requiredFields:
+            - requestId
+            - requestFingerprint
+          requestId: same-bounded-opaque-key-domain-as-caption-version-write
+          requestFingerprint: full-original-canonical-request-fingerprint
+          scope: original-trusted-tenant-and-principal
+          rule: receipt-observation-only; no-write-or-replay
+    effect: read-only-exact-pair-comparison-or-same-scope-original-registration-receipt-observation;
+      neither-version-is-mutated-or-selected-as-winner
     outputSemantics:
       EXACT_PAIR:
         requiredFields:
@@ -2819,7 +3450,7 @@ operations:
       REGISTRATION_REQUEST-preserves-original-requestId-and-full-requestFingerprint-with-original-immutable-version-only-if-registration-is-proven;
       IDs-are-not-text-digests-or-latest-version-aliases
     transport: unresolved; no HTTP, SDK, CLI, or gRPC binding is accepted here
-    idempotency: naturally idempotent
+    idempotency: read-only-proposal; no transport guarantee inferred
     cancellation: caller-may-stop-waiting-for-this-read-only-observation;
       no-registration-is-cancelled-or-reversed-by-this-read;
       write-after-dispatch-uncertainty-remains-UNKNOWN_OUTCOME-under-the-write-contract
@@ -2829,17 +3460,31 @@ operations:
       referencedObjects:
         - media.domain.artifact-version
       byteMutation: none
-    transition: read-only; no state transition
-    events: audit access records only
-    risk: cross-tenant version reads, guessing version refs
-    reversibility: not applicable; read-only
-    commitFinality: versions are immutable; reads never mutate
-    downstreamEffects: review and comparison surfaces
-    failure: typed errors; version not found, denied scope
-    partialSuccess: not applicable
-    unknownOutcome: absent versions return typed not-found
-    retry: safe re-read
-    recovery: re-issue the exact version lookup
+    transition:
+      applicability: no-domain-transition
+      effect: read-only
+      transitionRefs: []
+    events:
+      status: no-event-binding-established
+    risk: protect-current-tenant-principal-read-scope;
+      do-not-compare-different-source-artifact-versions-or-clocks-as-if-equivalent
+    reversibility: read-only
+    commitFinality: comparison-does-not-merge-select-a-winning-version-or-approve-caption-content
+    downstreamEffects:
+      status: no-version-mutation-proposed
+    failure: inaccessible-version-is-scope-safe-not-found;
+      source-or-clock-mismatch-is-CAPTION_VERSIONS_NOT_COMPARABLE;
+      preserve-explicit-incomplete-fields
+    partialSuccess: field-level-comparison-completeness-is-reported;
+      unavailable-fields-are-not-equal-fields
+    unknownOutcome: REGISTRATION_REQUEST-with-absent-expired-or-unavailable-receipt-evidence-is-UNKNOWN_OUTCOME;
+      it-never-authorizes-blind-replay-or-a-new-request-key;
+      ordinary-pair-read-timeout-is-UNAVAILABLE;
+      no-mutation-or-write-finality-is-implied
+    retry: bounded-read-reobservation-only-under-current-authority
+    recovery: EXACT_PAIR-revalidates-both-exact-version-identities-and-current-read-authority-and-discloses-source-mismatch-without-diffing-as-comparable;
+      REGISTRATION_REQUEST-reobserves-only-original-trusted-tenant-principal-requestId-and-full-requestFingerprint-under-current-read-authority-for-original-request-scope;
+      missing-or-unavailable-proof-preserves-UNKNOWN_OUTCOME-and-never-authorizes-replay
     evidenceAudit:
       observedRefs:
         - media.action.compare-caption-versions
@@ -2915,12 +3560,26 @@ operations:
       - stream-synthesis
       - voice-list-and-profile
     domainIntent: produce-audio-from-text-under-explicit-voice-purpose-and-rights
-    consumerActor: media workflow principal requesting speech synthesis
-    authority: TTS provider admission plus voice rights and source text rights
-    context: tenant, principal, purpose, voice profile and text provenance
-    preconditions: admitted TTS provider and voice, verified source text, ready store
-    inputSemantics: bounded text plus voice reference; never raw arbitrary text to an unadmitted engine
-    effect: produces synthesized audio artifact bound to voice and text provenance
+    consumerActor:
+      proposal: authorized-synthesis-requester
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      voice-rights-and-execution-authority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      principal: null
+      purpose: null
+      voice identity: null
+    preconditions:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      consent: null
+      and input admission guards require owner review: null
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    effect:
+      proposal: produce-audio-from-text-under-explicit-voice-purpose-and-rights
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.processing-job
@@ -2928,18 +3587,34 @@ operations:
       unresolvedObjectConcepts:
         - voice-profile
       exactBindings: unresolved
-    transition: text source to provider synthesis to audio artifact minted
-    events: synthesis.completed or synthesis.failed with provider and voice provenance
-    risk: unlicensed voice, unadmitted provider, fabricated audio rows
-    reversibility: bad outputs are discarded; sources are never mutated
-    commitFinality: audio is durable only at artifact row insert under verified digest
-    downstreamEffects: audio artifact version, lineage, review surfaces
-    failure: typed failures; provider NOT_ADMITTED, voice denied, outage, malformed output
-    partialSuccess: partial audio is discarded; no partial artifact
-    unknownOutcome: unknown synthesis outcome reconciles via job state
-    retry: retries re-run admission under the same job identity
-    idempotency: audio artifact dedupes on text digest, voice and job identity
-    recovery: reconcile job, re-admit voice and provider, resubmit
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        review
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        reversible
+    commitFinality:
+      proposal: generated-audio-does-not-establish-voice-authority-or-publication-approval
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      proposal: preserve-unknown
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - TTSService.Synthesize
@@ -2982,12 +3657,39 @@ operations:
       - classify
       - video-frame-analysis
     domainIntent: return-scoped-observations-with-source-region-time-and-method-context-when-available
-    consumerActor: media workflow principal requesting vision analysis
-    authority: vision provider admission plus source-frame rights; DI owns OCR execution
-    context: tenant, principal, purpose, exact source frame version and ROI
-    preconditions: admitted detector or DI binding plus trusted source-derived pixels
-    inputSemantics: frame identity, ROI and media type; pixels are re-derived by the trusted resolver
-    effect: produces detections, classifications or scene text with provider provenance
+    consumerActor:
+      proposal: authorized-vision-analysis-requester
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      executionAndIdentityAuthority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: exact immutable source version required; unavailable temporal or spatial
+        scope remains UNKNOWN
+      timebase: exact source clock and rational position required when supplied;
+        legacy opaque range is never converted
+      region: explicit region and coordinate context required when supplied; no
+        coordinate convention inferred
+      purpose: null
+      provenanceDisclosure: method/provider/model fields are source-reported only;
+        absent source disclosure remains NOT_REPORTED or UNKNOWN
+    preconditions:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      consent: null
+    inputSemantics:
+      status: typed-request-fields-defined; exact legacy service RPC mapping remains
+      requestScopeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.analysis-request
+      immutableSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/inputPayloadSchemas/@id=media.typed-input.image-or-video-artifact
+      legacyTimeRangeBoundary: Opaque legacy timeRange remains uninterpreted; absent
+        structured scope selectors produce UNKNOWN and never synthesize
+        frame/PTS/region values.
+    effect:
+      proposal: return-scoped-observations-with-source-region-time-and-method-context-when-available
+      status: source-scoped-inline-result-schema-defined;
+      resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.typed-visual-analysis-result-with-applicability-and-uncertainty
+      observationValueDisposition: NONPERSISTENT_INLINE_RESULT_VALUE; no observation
+        domain-object identity, lifecycle, event, durable evidence, or
+        job/result join is asserted.
     affectedObjects:
       proposalRefs:
         - media.domain.artifact-version
@@ -3000,18 +3702,36 @@ operations:
           tenantId/artifactId/versionId and requested dimensionRef
         - result temporalScope/spatialScope and provenanceDisclosure explicitly
           preserve UNKNOWN or NOT_REPORTED
-    transition: source frame to provider analysis to typed observations
-    events: analysis.completed or analysis.failed with provider provenance
-    risk: forged crops, unadmitted provider, cross-tenant frames
-    reversibility: bad outputs are discarded; frames are never mutated
-    commitFinality: observations are durable only at typed result rows
-    downstreamEffects: observation rows, lineage to source frame version
-    failure: typed failures; NOT_ADMITTED, frame mismatch, DI outage, malformed response
-    partialSuccess: partial observations are discarded, never minted
-    unknownOutcome: unknown analysis outcome reconciles via job state
-    retry: retries re-run admission and pixel derivation under the same job identity
-    idempotency: result rows dedupe on source frame version plus job identity
-    recovery: reconcile job, re-admit rights, re-derive pixels, resubmit
+    transition:
+      status: not-applicable-to-nonpersistent-inline-result; job lifecycle remains
+        independent and no job-to-observation join is defined
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      interpretation: null
+      and downstream-use risks require review: null
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    commitFinality:
+      proposal: observation-is-not-ground-truth;
+        confidence-or-empty-result-is-not-proof-of-absence
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    partialSuccess:
+      status: typed PARTIAL disposition is available per inline source observation;
+    unknownOutcome:
+      proposal: preserve-unknown
+      status: not-equivalent-to-no-observation
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - VisionService.DetectObjects
@@ -3061,12 +3781,35 @@ operations:
       Inventory five observed legacy RPCs whose names suggest multimodal analysis.
       Canonical Media behavior is defined by individual capability operations;
       this family has no shared request, result, persistence, or finality contract.
-    consumerActor: media workflow principal requesting multimodal analysis
-    authority: multimodal provider admission plus every contributing source-rights decision
-    context: tenant, principal, purpose and exact versions of all input artifacts
-    preconditions: each modality source admitted; multimodal provider qualified
-    inputSemantics: typed modality inputs with per-source provenance
-    effect: produces fused analysis observations with per-modality provenance
+    consumerActor:
+      canonicalAuthority: each selected capability operation's verified actor and workspace context
+      legacyPayloadIdentity: untrusted; tenant_id, artifact_id, job_id, correlation_id,
+        consent_status, and retention_policy fields do not establish identity, authority,
+        consent, source version, or idempotency
+    authority:
+      semanticOwner: media
+      executionAndModelAuthority: no model or provider is selected by this legacy family;
+        admission is evaluated for the exact target capability operation
+    context:
+      sourceIdentity: canonical invocations require an authorized immutable artifact version
+      request: one exact capability operation and its typed request
+      purpose: the purpose and rights context required by that capability operation
+      modalityAndTime: only values explicitly bound by the target operation's typed inputs;
+        absent alignment or source scope stays UNKNOWN
+    preconditions:
+      canonicalRule: apply the selected PDP-0 capability bounds and PDP-1 job.submit
+        identity, typed-input, purpose, rights, and admission validators
+      legacyWireDisposition: the five observed RPC payloads do not satisfy the canonical
+        source-version and typed-request contract; they are not admitted as direct bindings
+    inputSemantics:
+      status: individual capability operations own product request semantics; exact legacy
+        method differences are recorded under legacyGrpcCandidateReconciliation below
+      canonicalSubmissionRef: media.operation.job.submit.v1
+      canonicalTargetsRef: '#capabilityOperationContracts/records'
+    effect:
+      semantics: return only the typed candidate result declared by the selected capability operation
+      status: no aggregate multimodal result is defined by this family
+      canonicalOutputsRef: '#capabilityOperationContracts/outputPayloadSchemas'
     affectedObjects:
       proposalRefs:
         - media.domain.artifact-version
@@ -3074,18 +3817,41 @@ operations:
       canonicalBinding: exact source artifact version, job identity, and typed candidate output
         are owned by the selected capability operation and job.submit contract
       aggregateObservationIdentity: NOT_DEFINED
-    transition: sources to provider fusion to typed observations
-    events: multimodal.completed or multimodal.failed with provenance
-    risk: mixed-rights sources, unadmitted fusion provider, fabricated fusion rows
-    reversibility: bad outputs discarded; sources never mutated
-    commitFinality: observations durable only at typed result rows under all-source admission
-    downstreamEffects: observation rows and per-source lineage
-    failure: typed failures; any-source denial, provider outage, malformed fusion output
-    partialSuccess: no partial fusion output is minted
-    unknownOutcome: unknown outcome reconciles via job state
-    retry: retries re-run all-source admission under the same job identity
-    idempotency: results dedupe on the input source-version tuple plus job identity
-    recovery: reconcile job, re-admit every source, resubmit
+    transition:
+      canonicalRule: use the selected capability operation's job lifecycle and exact result binding
+      legacyRule: no job/result join or durable result identity is inferred from an RPC payload
+    events:
+      canonicalRule: only explicitly declared job lifecycle events apply
+      legacyRule: CrossModalEvent is nested response data, not an event publication or lifecycle trigger
+    risk:
+      canonicalRule: inherit the selected PDP-0 capability's rights, consent, privacy,
+        uncertainty, and interpretation bounds
+      legacyRule: no identity, sentiment, emotion, or cross-modal claim is promoted to fact
+    reversibility:
+      canonicalRule: follow the selected capability operation's artifact and job lifecycle;
+        this family creates no additional mutation or durable object
+    commitFinality:
+      canonicalRule: a returned analysis remains the selected capability's reviewable candidate;
+        it is not ground truth, a publication, or a registration receipt
+    downstreamEffects:
+      status: none; no downstream decision, publication, or delivery effect is inferred
+    failure:
+      canonicalRule: use the selected capability operation's explicit rejected, failed,
+        unavailable, and unknown outcomes; do not collapse them into an empty result
+    partialSuccess:
+      canonicalRule: partiality is represented per selected capability result and source observation;
+        this family does not combine partial outputs across modalities
+    unknownOutcome:
+      status: preserve UNKNOWN; an empty or missing legacy response does not prove absence,
+        rejection, or successful completion
+    retry:
+      status: no retry-safety guarantee is inferred for a legacy RPC
+    idempotency:
+      status: only the canonical job.submit request identity rules apply; legacy correlation_id
+        is not an idempotency key
+    recovery:
+      status: inspect the canonical job and exact result identity before any new submission;
+        do not blindly repeat a legacy call after UNKNOWN
     evidenceAudit:
       observedRefs:
         - MultimodalService.ProcessMultimodal
@@ -3393,30 +4159,63 @@ operations:
       - submit-frame
       - close
     domainIntent: manage-bounded-stream-session-with-sequence-and-explicit-close-finality
-    consumerActor: media client principal opening a processing stream
-    authority: stream admission plus per-frame source rights and provider qualification
-    context: tenant, principal, purpose and negotiated session parameters
-    preconditions: stream admission admitted; heartbeat and bounds negotiated
-    inputSemantics: bounded frames with per-frame identity and timestamps
-    effect: runs processing on admitted frames and emits typed stream observations
+    consumerActor:
+      proposal: authorized-stream-session-initiator
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      session-transport-and-identity-authority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      principal: null
+      source: null
+      sequence: null
+    preconditions:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    effect:
+      proposal: manage-bounded-stream-session-with-sequence-and-explicit-close-finality
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.stream-session
         - media.domain.stream-frame
         - media.domain.processing-job
       exactBindings: unresolved
-    transition: OPEN to STREAMING to CLOSED or TIMED_OUT with evidence
-    events: stream.opened, stream.frame.observed, stream.closed
-    risk: unbounded sessions, forged frame identity, leaked state after close
-    reversibility: sessions close explicitly; no state survives close
-    commitFinality: observations durable only per-frame at typed rows
-    downstreamEffects: per-frame observation rows and session evidence
-    failure: typed failures; session denied, frame rights denied, timeout, transport failure
-    partialSuccess: per-frame failures are typed and do not abort the session
-    unknownOutcome: stream state is always inspectable via session id
-    retry: frames retry under session-bounded sequence numbers
-    idempotency: frames dedupe on session plus sequence identity
-    recovery: reconnect with the same session id or open a fresh admitted session
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      job: null
+      and transport states distinct: null
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      detach: null
+      and close are not equated: null
+    commitFinality:
+      proposal: disconnect-or-detach-does-not-imply-session-close-or-job-cancel
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      frame: null
+      and stream RPC failure modes remain distinct: null
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      proposal: preserve-unknown-sequence-or-close-result
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        reconnect/retry
     evidenceAudit:
       observedRefs:
         - HTTP stream routes
@@ -3457,29 +4256,63 @@ operations:
       - inspect
       - revoke
     domainIntent: record-and-enforce-purpose-scoped-consent-with-currentness
-    consumerActor: media principal granting or revoking consent
-    authority: consent authority; consent decisions are evidence, not flags
-    context: tenant, principal, consent scope and revocation clock
-    preconditions: identity established by trusted ingress before any decision write
-    inputSemantics: grant or revoke with bounded scope and purpose
-    effect: mints or revokes a durable consent decision with evidence ref
+    consumerActor:
+      proposal: consent-subject-or-authorized-consent-administrator
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      consent-decision-and-identity-authority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      purpose: null
+      region: null
+      source: null
+      and effective-time bindings require review: null
+    preconditions:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        cross-bound
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        distinct
+    effect:
+      proposal: record-and-enforce-purpose-scoped-consent-with-currentness
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs:
         - media.domain.consent-record
         - media.domain.rights-decision
       exactBindings: unresolved
-    transition: no-consent to GRANTED or GRANTED to REVOKED
-    events: consent.granted or consent.revoked with decision ref
-    risk: self-granted rights, stale consent replayed after revocation
-    reversibility: grants are revocable; revocations are terminal for the decision
-    commitFinality: durable only at decision row insert; in-flight is not consent
-    downstreamEffects: downstream operations re-evaluate consent on every dispatch
-    failure: typed failures; scope invalid, revoked, absent identity
-    partialSuccess: not applicable; decisions are atomic
-    unknownOutcome: absent consent is denial, never assumed grant
-    retry: decision writes retry under idempotency keys
-    idempotency: decisions dedupe on scope plus subject plus revision
-    recovery: re-read the consent decision and re-issue
+    transition:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        authority review
+    events:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    reversibility:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      not erasure or reversal: null
+    commitFinality:
+      proposal: revocation-blocks-future-eligible-effects;
+        prior-effects-need-separate-disposition
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        contract
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      proposal: fail-closed-for-new-protected-effects-when-current-authority-unknown
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    recovery:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        effects
     evidenceAudit:
       observedRefs:
         - HTTP consent routes
@@ -3521,29 +4354,57 @@ operations:
       - metrics
       - provider-list
     domainIntent: time-scoped-operational-observation-without-implying-product-capability-or-qualification
-    consumerActor: media operators and orchestrators probing service health
-    authority: health checks report observed readiness only; they never authorize work
-    context: no tenant scope; bounded non-sensitive status
-    preconditions: service composed; provider admission state readable
-    inputSemantics: health, liveness, readiness and capability queries
-    effect: returns observed readiness and admitted capability status
+    consumerActor:
+      proposal: operational-health-consumer
+      bindingStatus: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    authority:
+      semanticOwner: media
+      platform-probe-and-provider-authority: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    context:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+      sampling time: null
+      and provider context not unified: null
+    preconditions:
+      status: source-specific; readiness/health probes may have distinct prerequisites
+    inputSemantics:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    effect:
+      proposal: time-scoped-operational-observation-without-implying-product-capability-or-qualification
+      status: proposed-not-accepted
     affectedObjects:
       proposalRefs: []
       unresolvedObjectConcepts:
         - provider-capability
       exactBindings: unresolved
-    transition: read-only; no state transition
-    events: none
-    risk: false readiness claims leaking unadmitted providers
-    reversibility: not applicable; read-only
-    commitFinality: status is a point-in-time observation, never a promise
-    downstreamEffects: orchestrator gating only; no product state changes
-    failure: unavailable readiness reports NOT_SERVING, never degraded-and-claimed
-    partialSuccess: not applicable
-    unknownOutcome: unknown readiness reports not-ready, never guessed
-    retry: safe re-read
-    idempotency: naturally idempotent
-    recovery: re-issue the probe
+    transition:
+      status: not-a-product-transition-unless-owner-defines-one
+    events:
+      status: no-event-binding-established
+    risk:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+        review
+    reversibility:
+      status: observation-only-proposal; no state mutation presumed
+    commitFinality:
+      proposal: availability-observation-is-time-scoped;
+        not-capability-or-runtime-guarantee
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    downstreamEffects:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    failure:
+      status: source-specific; probe failure is not normalized to product
+        unavailability
+    partialSuccess:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    unknownOutcome:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    retry:
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
+    idempotency:
+      status: read-only-observation-proposed; no shared contract inferred
+    recovery:
+      proposal: repeat-time-scoped-observation-or-inspect-source-specific-details
+      status: owner-authored development binding; concrete semantics fixed by this record's operation contract
     evidenceAudit:
       observedRefs:
         - OpenAPI health and provider routes

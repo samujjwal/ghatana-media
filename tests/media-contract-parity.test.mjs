@@ -795,7 +795,7 @@ test("definition-only mode still fails exact RPC/source identity, typed schema, 
 
   const malformedOperations = input.pdp1Operations
     .replace("scopeStatus: proposal-only;", "scopeStatus: approved;")
-    .replace("consumerActor: artifact contributor or authorized media workflow principal", "consumerActor: unresolved");
+    .replace(/    consumerActor:[^\n]*/, "    consumerActor: unresolved");
   const malformedReview = JSON.parse(input.operationCurrentSourceReview);
   malformedReview.currentSourceSha256 = createHash("sha256").update(malformedOperations).digest("hex");
   const malformedStatus = analyzeContractParity({
@@ -864,9 +864,11 @@ test("definition-only mode still fails exact RPC/source identity, typed schema, 
       "agent-tool-runtime-and-shared-admission",
     ]);
   }
-  for (const result of [staleOperationPin, staleWirePin, malformedStatus]) {
+  for (const result of [staleOperationPin, staleWirePin]) {
     assert.deepEqual(result.deferredFindings.map(({ id }) => id), [
       "agent-tool-runtime-and-shared-admission",
-    ]);
+    ], "the independent agent-tool deferment still applies when only the operations review pin is stale");
   }
+  assert.deepEqual(malformedStatus.deferredFindings.map(({ id }) => id), [],
+    "an approved scopeStatus with an unresolved record cannot be deferred");
 });
