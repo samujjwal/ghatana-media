@@ -125,7 +125,7 @@
       "decision": "DI_OWNS_KERNEL_PROVIDER_ADAPTER",
       "urgency": "P0",
       "how": "Implement DI-owned Java Kernel ProductRuntimeFacets.OcrProvider/ ProductRuntimeProvider adapter in DI owning module; bind existing media.ocr compatibility capability ID to DI provider through Kernel registry without a second OCR engine; support extract, cancel, status, exact terminal and source version.",
-      "accept": "Packed Kernel source-free provider materialization and real image→text / outage / rights / cancellation conformance; zero Media registry owner.",
+      "accept": "Packed Kernel source-free provider materialization and real image\u2192text / outage / rights / cancellation conformance; zero Media registry owner.",
       "trackedIssue": null
     },
     {
@@ -241,7 +241,7 @@
       ],
       "decision": "SINGLE_FENCED_WRITER_AND_FLYWAY_CUTOVER",
       "urgency": "P0",
-      "how": "Review applied old Ghatana writer schema V001–V016, prepared Media conflicting V007–V009 and new V028; perform rehearsed snapshot migration, quiesce/fence old producers, one writer, rollback/forward-only schema evolution.",
+      "how": "Review applied old Ghatana writer schema V001\u2013V016, prepared Media conflicting V007\u2013V009 and new V028; perform rehearsed snapshot migration, quiesce/fence old producers, one writer, rollback/forward-only schema evolution.",
       "accept": "No two live writers, no conflicting Flyway histories or lost/duplicated leases, captions remain available after restart.",
       "trackedIssue": null
     },
@@ -256,7 +256,7 @@
       ],
       "decision": "NO_BACKEND_ONLY_TERMINAL_CLAIM",
       "urgency": "P0",
-      "how": "Retain F00–F13, V01–V30, L01–L03, X01–X03; complete 47 real UI screens, 30 real journey terminals, two-pass per-edition recording, 30 HTTP/44 gRPC and SDK/CLI/agent/events parity with native closure separate.",
+      "how": "Retain F00\u2013F13, V01\u2013V30, L01\u2013L03, X01\u2013X03; complete 47 real UI screens, 30 real journey terminals, two-pass per-edition recording, 30 HTTP/44 gRPC and SDK/CLI/agent/events parity with native closure separate.",
       "accept": "30 live journeys + 47 real screens + original 36 R8 and 96 W3/H accepted, no new source-without-runtime success.",
       "trackedIssue": null
     },
@@ -654,7 +654,7 @@
       "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
       "work": [
         "Reconcile previous Postgres/OCI/Compose tests with current source and public ABI",
-        "Exercise rights-version upload→job→transcript/caption→outbox→SDK/GUI and DI real text",
+        "Exercise rights-version upload\u2192job\u2192transcript/caption\u2192outbox\u2192SDK/GUI and DI real text",
         "Real positive/negative/restart, full R8, failed-before-commit and unknown-after-commit"
       ],
       "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
@@ -1558,7 +1558,7 @@
       "existingEngineeringTaskIds": [],
       "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
       "work": [
-        "Reconcile old canonical Flyway V001–V016 vs prepared mirror V007–V009, plus current V028 captions, using actual applied DB histories",
+        "Reconcile old canonical Flyway V001\u2013V016 vs prepared mirror V007\u2013V009, plus current V028 captions, using actual applied DB histories",
         "Fenced one-writer forward migrations/rollback checks, ServiceLoader caption/transcript stores, RLS/tenant data proof",
         "Real Postgres Testcontainers + restored snapshot + no dual writer/duplicate receipts/erasure"
       ],
@@ -2730,7 +2730,9 @@
           "fix source or test only if semantic contract determines correctness",
           "prove absent voice authority stays NOT_SERVING; authorized model health toggles; engine borrowed ownership"
         ],
-        "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset."
+        "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset.",
+        "state": "REPAIRED_HOST_GREEN",
+        "evidence": "commit 3d91bcff; tts-service + multimodal-service suites pass on host"
       },
       {
         "key": "BASELINE-TTS-INVENTORY",
@@ -2744,7 +2746,9 @@
           "verify original RPC descriptor fields and WAVE2-RPC-CAPABILITY-MATRIX counts/rows",
           "run focused test and negative malformed/removed handler inventory fixtures"
         ],
-        "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability."
+        "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability.",
+        "state": "REPAIRED_HOST_GREEN",
+        "evidence": "commit 3d91bcff; tts-service + multimodal-service suites pass on host"
       },
       {
         "key": "BASELINE-MM-GRPC",
@@ -2759,7 +2763,9 @@
           "preserve exact child call count 1, no replay, UNAVAILABLE, NOT_SERVING and auth negatives",
           "run source-free multimodal consumer and memory/leak controls"
         ],
-        "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions."
+        "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions.",
+        "state": "REPAIRED_HOST_GREEN",
+        "evidence": "commit 3d91bcff; tts-service + multimodal-service suites pass on host"
       }
     ]
   },
@@ -2908,13 +2914,15 @@
     },
     {
       "issue": "media#23",
-      "disposition": "VIS09_CODE_OPEN",
-      "action": "Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker."
+      "disposition": "VIS09_CODE_IMPLEMENTED_PENDING_REAL_DI_WORKER",
+      "action": "Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker.",
+      "note": "Commit c9aee4d4: bounded DI transport (receipt-time 32MiB cap, owner host allowlist+TLS, finite concurrency, no redirects), trusted frame-crop resolver under source authority (caller crops never reach DI), OCR_ONLY profile with FULL_VISION preserved, bounded worker dispatch. Remaining: real installed DI worker, lawful image/gold qualification, installed source-free consumers."
     },
     {
       "issue": "media#24",
-      "disposition": "BASELINE_DEFECTS_OPEN_NOT_CAP_REGRESSION",
-      "action": "3 original TTS/MM classes with exact Gradle XML, no ignored tests; one stale textual constructor oracle confirmed."
+      "disposition": "BASELINE_DEFECTS_REPAIRED",
+      "action": "3 original TTS/MM classes with exact Gradle XML, no ignored tests; one stale textual constructor oracle confirmed.",
+      "note": "Commit 3d91bcff: TtsWave2InventoryTest literal repaired to the RuntimeAdmission wiring, TTS readiness verify scoped past the one-time composition probe, MM composition verify scoped past health/readiness probes. All module suites green on host; no invariant weakened."
     },
     {
       "issue": "ghatana#252",
@@ -2950,6 +2958,15 @@
       "issue": "shared#246",
       "disposition": "PUBLIC_EXTRACTION_PACKAGE_RELEASE_PROFILE_PENDING",
       "action": "Resolve 0.1.0-SNAPSHOT DI peer by owner-issued compatible immutable release or honest DEV_SOURCE_COMPOSITE profile, then source-free TS/Java DI/Media consumers."
+    }
+  ],
+  "changeLog": [
+    {
+      "date": "2026-10-31",
+      "entries": [
+        "commit 3d91bcff baseline test repairs (media#24)",
+        "commit c9aee4d4 VIS-09 production binding media side (media#23)"
+      ]
     }
   ]
 }
