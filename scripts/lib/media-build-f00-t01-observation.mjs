@@ -167,6 +167,7 @@ function validateSourceInputs(root, workPackages, expectedIds, topologyIds) {
     `work-package material source receipt count/records ${receiptReadback.receiptCount ?? 'UNKNOWN'}/${receiptReadback.recordCount ?? 'UNKNOWN'} differ from live phase sourceShaSet count ${receiptReadback.expectedCount}`);
   ensure(receiptReadback.staleSelectors.length === 0,
     `material receipt is stale or mismatched at ${receiptReadback.staleSelectors.length} selectors: ${receiptReadback.staleSelectors.slice(0, 20).map(row => `${row.phase}:${row.selector}`).join('; ')}`);
+  const records = workPackages.materialSourceReceipt?.records ?? [];
   const reduced = records.map(({ phase, selector, expectedSha256, currentSha256, status }) => ({ phase, selector, expectedSha256, currentSha256, status }))
     .sort((a, b) => a.phase.localeCompare(b.phase) || a.selector.localeCompare(b.selector));
   const materialPinCanonicalSha256 = sha256(JSON.stringify(reduced));
