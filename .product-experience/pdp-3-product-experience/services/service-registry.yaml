@@ -116,8 +116,9 @@ services:
   - id: media.service.OcrService
     implementation: com.ghatana.audio.video.vision.ocr.OcrService
     source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java
+    sourceStatus: REMOVED
     owner: pending-owner-review
-    qualification: not-inferred
+    qualification: retired-superseded-by-document-intelligence
   - id: media.service.FacialRecognitionService
     implementation: com.ghatana.audio.video.vision.recognition.FacialRecognitionService
     source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/recognition/FacialRecognitionService.java

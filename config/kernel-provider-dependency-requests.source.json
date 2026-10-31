@@ -2,9 +2,9 @@
   "schemaVersion": "ghatana.runtime-provider-dependency-requests.source.v1",
   "authorityId": "media-vision-provider-dependencies",
   "owner": {
-    "repo": "ghatana",
-    "serviceId": "media",
-    "module": "adapters/ocr-compat"
+    "repo": "ghatana-kernel",
+    "serviceId": "kernel-product-runtime",
+    "module": "platform-kernel/kernel-product-runtime"
   },
   "requests": [
     {
@@ -12,16 +12,27 @@
       "capabilityId": "media.ocr",
       "providerSpi": "OcrProvider",
       "owner": {
-        "repo": "ghatana",
-        "serviceId": "media",
-        "module": "adapters/ocr-compat"
+        "repo": "ghatana-kernel",
+        "serviceId": "kernel-product-runtime",
+        "module": "platform-kernel/kernel-product-runtime"
       },
       "sourceRefs": [
-        {"path": "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java", "role": "provider-adapter"},
-        {"path": "adapters/ocr-compat/src/test/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapterTest.java", "role": "provider-conformance-tests"}
+        {
+          "path": "platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/DiOcrProvider.java",
+          "role": "provider-adapter"
+        },
+        {
+          "path": "platform-kernel/kernel-product-runtime/src/test/java/com/ghatana/kernel/product/runtime/DiOcrProviderTest.java",
+          "role": "provider-conformance-tests"
+        }
       ],
-      "closureUnits": {"providerConformance": "ghatana.runtime-provider.media.ocr::provider-conformance", "kernelMaterialization": "ghatana.runtime-provider.media.ocr::kernel-materialization", "consumerConformance": "ghatana.runtime-provider.media.ocr::consumer-conformance"},
-      "environmentPrerequisites": []
+      "closureUnits": {
+        "providerConformance": "ghatana.runtime-provider.media.ocr::provider-conformance",
+        "kernelMaterialization": "ghatana.runtime-provider.media.ocr::kernel-materialization",
+        "consumerConformance": "ghatana.runtime-provider.media.ocr::consumer-conformance"
+      },
+      "environmentPrerequisites": [],
+      "note": "DI-owned provider: adapters/ocr-compat retired; the Document Intelligence worker v1 binding now lives in ghatana-kernel platform-kernel/kernel-product-runtime."
     }
   ]
 }

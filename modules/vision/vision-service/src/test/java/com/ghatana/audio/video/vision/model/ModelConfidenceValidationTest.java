@@ -1,6 +1,5 @@
 package com.ghatana.audio.video.vision.model;
 
-import com.ghatana.audio.video.vision.ocr.OcrService;
 import com.ghatana.audio.video.vision.scene.SceneUnderstandingService;
 import org.junit.jupiter.api.Test;
 
@@ -37,23 +36,11 @@ class ModelConfidenceValidationTest {
     }
 
     @Test
-    void ocrTextRegionRejectsNonFiniteConfidence() {
-        OcrService.BoundingBox textBox = new OcrService.BoundingBox(0, 0, 1, 1);
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new OcrService.TextRegion("text", textBox, Double.NaN, 0));
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new OcrService.TextRegion("text", textBox, Double.NEGATIVE_INFINITY, 0));
-    }
-
-    @Test
     void acceptsFiniteConfidenceAtInclusiveBounds() {
         for (double boundary : new double[] {0.0, 1.0}) {
             assertThatCode(() -> new ClassificationCandidate("object", boundary)).doesNotThrowAnyException();
             assertThatCode(() -> new DetectedFace(BOX, boundary)).doesNotThrowAnyException();
             assertThatCode(() -> new SceneUnderstandingService.SceneLabel("indoor", boundary))
-                    .doesNotThrowAnyException();
-            OcrService.BoundingBox textBox = new OcrService.BoundingBox(0, 0, 1, 1);
-            assertThatCode(() -> new OcrService.TextRegion("text", textBox, boundary, 0))
                     .doesNotThrowAnyException();
         }
     }

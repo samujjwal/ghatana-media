@@ -29,23 +29,33 @@ classifications:
       provider identity, consent, provenance, confidence, and recovery are
       represented by the canonical operation and evidence contracts.
   - id: media.ocr.local-service
-    target: LEGACY_COMPATIBILITY
+    target: RETIRED
     source: modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java
-    classification: LEGACY_COMPATIBILITY
+    sourceStatus: REMOVED
+    classification: RETIRED
     semanticAuthority: false
-    allowedUse: existing-adapter-compatibility-only; no new Media semantic authority
-    implementationStatus: LEGACY_COMPATIBILITY
-    qualificationStatus: PENDING_EXTERNAL_DI
-    migration: retain current runtime behavior until the public DI client is published and consumer-verified; then migrate and requalify
+    allowedUse: none; removed as an actual Build migration to Document Intelligence
+    implementationStatus: RETIRED
+    qualificationStatus: SUPERSEDED_BY_DI
+    migration: >-
+      completed: Media OCR requests run through the DI v1 client
+      (DocumentIntelligenceHttpClient + SceneTextRecognitionService); the
+      Kernel media.ocr provider is DI-owned DiOcrProvider in ghatana-kernel
+      platform-kernel/kernel-product-runtime. Requalification runs against the
+      installed DI worker, never replayed legacy evidence.
   - id: media.ocr.kernel-adapter
-    target: INCORRECT_IMPLEMENTATION
+    target: RETIRED
     source: adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java
-    classification: INCORRECT_IMPLEMENTATION
+    sourceStatus: REMOVED
+    classification: RETIRED
     semanticAuthority: false
-    allowedUse: preserve existing adapter behavior pending a published DI client; do not admit as generic OCR ownership
-    implementationStatus: LEGACY_COMPATIBILITY
-    qualificationStatus: PENDING_EXTERNAL_DI
-    migration: replace only after the public DI client is published and consumer-verified; re-run provider conformance without replaying prior evidence
+    allowedUse: none; module adapters/ocr-compat deleted
+    implementationStatus: RETIRED
+    qualificationStatus: SUPERSEDED_BY_DI
+    migration: >-
+      completed: kernel#99 DiOcrProvider owns ProductRuntimeFacets.OcrProvider
+      over DI worker v1; the legacy Kernel adapter is deleted and no consumer
+      may reintroduce a Media-owned generic OCR engine.
   - id: media.ocr.vision-model-engine
     target: LEGACY_COMPATIBILITY
     source: modules/vision/vision-service/src/main/java/com/ghatana/vision/engine/VisionModelEngine.java

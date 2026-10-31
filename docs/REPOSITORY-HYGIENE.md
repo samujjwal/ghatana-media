@@ -30,7 +30,7 @@ The dependency inventory explicitly lists the four `installDist` output prerequi
 
 ## Document Intelligence compatibility boundary
 
-The source-only Vision `OcrService` and `KernelOcrProviderAdapter` are retained **legacy compatibility** classes, not a Media-owned generic OCR engine. Their JavaDocs and Gradle dependency comments now reflect Document Intelligence ownership. Stub-based structural tests do not establish 95% OCR accuracy, model rights, public client publication or production suitability. Existing `.product-experience/pdp-0-product-truth/ocr-ownership.yaml` specifically requires retaining compatibility until the external public client can be integrated and verified. Remove or replace those classes only as an actual Build migration, not by deleting them as apparently orphaned code.
+The source-only Vision `OcrService` and `KernelOcrProviderAdapter` were **retired as an actual Build migration** once the public DI v1 client (`DocumentIntelligenceHttpClient`) and the DI-owned Kernel provider (`DiOcrProvider`, kernel#99, ghatana-kernel `platform-kernel/kernel-product-runtime`) existed. The classes and the `adapters/ocr-compat` module are deleted; `ocr-ownership.yaml` records the retirement dispositions. No Media-owned generic OCR engine may be reintroduced — scene text flows through Document Intelligence only.
 
 ## Retired root deployments and monitoring
 

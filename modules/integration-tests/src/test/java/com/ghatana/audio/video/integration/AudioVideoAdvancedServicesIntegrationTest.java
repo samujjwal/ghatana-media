@@ -2,7 +2,6 @@ package com.ghatana.audio.video.integration;
 
 import com.ghatana.stt.diarization.SpeakerDiarizationService;
 import com.ghatana.tts.ssml.SsmlProcessor;
-import com.ghatana.audio.video.vision.ocr.OcrService;
 import com.ghatana.audio.video.vision.recognition.FacialRecognitionService;
 import com.ghatana.audio.video.vision.scene.SceneUnderstandingService;
 import org.junit.jupiter.api.DisplayName;
@@ -148,17 +147,11 @@ class AudioVideoAdvancedServicesIntegrationTest {
         }
 
         @Test
-        @DisplayName("OCR and biometric recognition fail closed before provider and audit effects")
-        void visionIntegration_ocrAndFace_notAdmittedWithoutAuthorities() {
+        @DisplayName("biometric recognition fails closed before provider and audit effects")
+        void visionIntegration_face_notAdmittedWithoutAuthorities() {
             byte[] imageBytes = new byte[256];
-            AtomicInteger ocrProviderCalls = new AtomicInteger();
             AtomicInteger biometricProviderCalls = new AtomicInteger();
             AtomicInteger biometricAuditCalls = new AtomicInteger();
-
-            OcrService ocrService = OcrService.of(bytes -> {
-                ocrProviderCalls.incrementAndGet();
-                return List.of(new OcrService.TextRegion("Meeting Agenda", new OcrService.BoundingBox(0, 0, 1, 0.1), 0.96, 0));
-            });
 
             FacialRecognitionService faceService = FacialRecognitionService.of(
                     bytes -> {
@@ -167,13 +160,9 @@ class AudioVideoAdvancedServicesIntegrationTest {
                                 new FacialRecognitionService.BoundingBox(0, 0.1, 0.3, 0.3), 0.95, new float[]{0.8f}));
                     }, 0.85, 0.5, true, event -> biometricAuditCalls.incrementAndGet());
 
-            assertThatThrownBy(() -> ocrService.extractText(imageBytes))
-                    .isInstanceOf(OcrService.NotAdmittedException.class)
-                    .hasMessageContaining("NOT_ADMITTED: Document Intelligence public API adapter is unavailable");
             assertThatThrownBy(() -> faceService.detect(imageBytes))
                     .isInstanceOf(FacialRecognitionService.NotAdmittedException.class)
                     .hasMessageContaining("NOT_ADMITTED: trusted biometric rights authority is unavailable");
-            assertThat(ocrProviderCalls).hasValue(0);
             assertThat(biometricProviderCalls).hasValue(0);
             assertThat(biometricAuditCalls).hasValue(0);
         }
