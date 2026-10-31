@@ -24,7 +24,7 @@ const parseYaml = requireTools('yaml').parse;
 const surfaceRegistry = parseYaml(fs.readFileSync(path.join(root, '.product-experience/surface-registry.yaml'), 'utf8'));
 
 test('Discovery execution plan retains physical/composite/consumer denominators without double counting', () => {
-  assert.equal(topology.manifestCandidates.length, 26);
+  assert.equal(topology.manifestCandidates.length, 28);
   assert.equal(topology.compositions.filter(c => c.kind === 'SEMANTIC_COMPOSITION').length, 6);
   assert.equal(topology.compositions.filter(c => c.kind === 'REPOSITORY_ROOT').length, 1);
   assert.equal(topology.consumerCrosswalk.length, 21);
@@ -38,9 +38,9 @@ test('Discovery execution plan retains physical/composite/consumer denominators 
     ...topology.compositions.map(x => x.surfaceId),
     ...historicalConsumerIds,
   ];
-  assert.equal(new Set(ids).size, 50);
+  assert.equal(new Set(ids).size, 52);
   assert.equal(matrix.cells.length, ids.length * phases.length);
-  assert.equal(new Set(matrix.cells.map(x => x.cellId)).size, 200);
+  assert.equal(new Set(matrix.cells.map(x => x.cellId)).size, 208);
   assert.deepEqual(new Set(matrix.cells.map(x => x.surfaceId)), new Set(ids));
   for (const id of ids) {
     assert.deepEqual(matrix.cells.filter(x => x.surfaceId === id).map(x => x.phase), phases);
@@ -89,7 +89,7 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(observation.physicalCompositeConsumerCells.length, 50);
   assert.ok(observation.physicalCompositeConsumerCells.every(cell => cell.sourceCurrentness === 'CURRENT'));
   const p0Cells = matrix.cells.filter(cell => cell.phase === 'PDP-0');
-  assert.equal(p0Cells.length, 50);
+  assert.equal(p0Cells.length, 52);
   assert.equal(p0R13Attempt.phaseDisposition.pdp0Exit, 'FAIL_SOURCE_CURRENTNESS');
   assert.equal(p0R14Attempt.phaseDisposition.pdp0Exit, 'FAIL_SOURCE_CURRENTNESS');
   assert.equal(p0R14Attempt.physicalCompositeConsumerCells.length, 50);
@@ -121,7 +121,7 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(p1Exit.phaseExit.exactCutOwnerAcceptance, 'NOT_RECORDED');
   assert.equal(matrix.currentCut.pdp1PhaseExit, 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json');
   const p1Cells = matrix.cells.filter(cell => cell.phase === 'PDP-1');
-  assert.equal(p1Cells.length, 50);
+  assert.equal(p1Cells.length, 52);
   assert.ok(p1Cells.every(cell => cell.currentnessAtReview === 'R30_PASS_50_OF_50_CELLS_329_PATHS_ZERO_BLOCKERS_DEV_COMPLETE_EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
     && cell.latestTechnicalSourceCurrentness === 'R30_SOURCE_CURRENTNESS_PASS_50_OF_50_CELLS_329_PATHS; ZERO_BLOCKERS'
     && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === true
@@ -143,7 +143,7 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.equal(p2Impact.sourceDeltas[0].observedSha256, 'sha256:e7c3f762eb95d3ea6e5111fe24266406010de05abb20f05b6e310f2b9a80bd4c');
   assert.equal(matrix.currentCut.pdp2R16ProjectionImpactRef, 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json');
   const p2Cells = matrix.cells.filter(cell => cell.phase === 'PDP-2');
-  assert.equal(p2Cells.length, 50);
+  assert.equal(p2Cells.length, 52);
   assert.ok(p2Cells.every(cell => cell.currentnessAtReview === 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; DEV_COMPLETE_ZERO_OUTSTANDING_MEANING; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
     && cell.latestTechnicalSourceCurrentness === 'R19_PASS_CURRENT_AGAINST_PDP1_R30; 50_OF_50_CELLS_405_PATHS; EXACT_CUT_OWNER_ACCEPTANCE_NOT_RECORDED'
     && cell.historicalPhaseExitPublished === true && cell.currentPhaseExitPublished === true
@@ -151,7 +151,7 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
     && cell.remainingTaskIds.length === 0));
 
   const p3Cells = matrix.cells.filter(cell => cell.phase === 'PDP-3');
-  assert.equal(p3Cells.length, 50);
+  assert.equal(p3Cells.length, 52);
   assert.ok(p3Cells.every(cell => cell.currentnessAtReview === 'NOT_ESTABLISHED_R6_CAPTURE_PENDING_SOURCE_GAPS_REMAIN'
     && cell.currentPhaseExitPublished === false && cell.status === 'PDP3_NOT_ESTABLISHED_MDC30_ACTIVE_R6_CAPTURE_PENDING_SOURCE_GAP_RESOLUTION'
     && cell.preR6HistoricalRemainingTaskIds.length > 0
@@ -218,7 +218,7 @@ test('Discovery plan retains predecessor exits and marks PDP-3 R6 source-gap cap
   assert.match(matrix.nextLegalAction, /live edge registry contains 43 source-bound definition-only edges and 18 incomplete across 10 journeys/u);
   assert.match(matrix.nextLegalAction, /J21 rights-approval exclusion and blocked status/u);
   const pdp0Cells = matrix.cells.filter(cell => cell.phase === 'PDP-0');
-  assert.equal(pdp0Cells.length, 50);
+  assert.equal(pdp0Cells.length, 52);
   assert.ok(pdp0Cells.every(cell => /exact successor material fingerprint and generated current manifest/u.test(cell.acceptWhen)));
   assert.ok(pdp0Cells.every(cell => /exact source-bound R12-successor impact record/u.test(cell.acceptWhen)));
   assert.ok(pdp0Cells.every(cell => !/146-path|four-path owner-approved/u.test(cell.acceptWhen)));
@@ -338,7 +338,7 @@ test('PDP-3 physical and composite cells cite their exact topology applicability
   }));
 
   const cells = matrix.cells.filter(cell => cell.phase === 'PDP-3' && cell.surfaceKind !== 'CONSUMER_BINDING');
-  assert.equal(cells.length, 33);
+  assert.equal(cells.length, 35);
   for (const cell of cells) {
     const source = topologyById.get(cell.surfaceId);
     assert.ok(source, `missing topology source for ${cell.cellId}`);
@@ -431,7 +431,7 @@ test('PDP-2 cells bind exact surface owners and applicability to topology and co
     topologyRef: `.product-experience/surfaces/media-physical-topology.v1.json#/consumerCrosswalk/${index}`,
   }]));
   const cells = matrix.cells.filter(cell => cell.phase === 'PDP-2');
-  assert.equal(cells.length, 50);
+  assert.equal(cells.length, 52);
   for (const cell of cells) {
     const physical = physicalById.get(cell.surfaceId);
     const composition = compositionById.get(cell.surfaceId);

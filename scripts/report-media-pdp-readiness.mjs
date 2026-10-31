@@ -513,8 +513,8 @@ export function buildReadiness({audit, residual, verification = {}, mainSha, fin
 
 /** Development-only PDP-0 summary. This deliberately carries no acceptance or lifecycle vocabulary. */
 export function buildPdp0DevStatus({mainSha, sourceShaSet, verification = {}, definitionCriterionReviews = {}, sourceInventory, exportedHandoffIds = [], approvedMediaDecisions = [], outstandingMeaningIds = []}) {
-  const expectedSurfaceDenominator = {physicalManifestCandidates:26, compositions:7, logicalConsumers:21,
-    registrySurfaces:21, archivedConsumers:1, activeLogicalConsumers:20, activeLogicalScopesResolved:20, denominator:54};
+  const expectedSurfaceDenominator = {physicalManifestCandidates:28, compositions:7, logicalConsumers:21,
+    registrySurfaces:21, archivedConsumers:1, activeLogicalConsumers:20, activeLogicalScopesResolved:20, denominator:56};
   const expectedSourceRecordCount = {
     capabilityLeafAdjudications:462, requirementGroups:38, intents:19, journeys:30,
     profileBoundCapabilityLeaves:462, qualityDimensions:6, qualityMetricDefinitions:16,

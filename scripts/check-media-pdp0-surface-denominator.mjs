@@ -635,9 +635,9 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
       || source?.ownerApproval !== 'NOT_CLAIMED' || source?.independentAcceptance !== 'NOT_CLAIMED'
       || source?.executionAdmission !== 'NOT_ADMITTED'
       || source?.denominator?.capabilityDefinitionExtensions !== 7 || source?.denominator?.historicalOwnerAdjudications !== 462
-      || source?.denominator?.channels !== 11 || source?.denominator?.totalSurfaceIdentities !== 54
-      || surfaces.length !== 54 || new Set(surfaceIds).size !== 54 || channels.length !== 11 || new Set(channels).size !== 11) {
-    findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_AUTHORITY', owner: 'PDP-0', message: 'PXD-207 applicability must preserve 7/462/11/54 denominators and keep owner acceptance, independent acceptance, and execution admission unclaimed.' });
+      || source?.denominator?.channels !== 11 || source?.denominator?.totalSurfaceIdentities !== 56
+      || surfaces.length !== 56 || new Set(surfaceIds).size !== 56 || channels.length !== 11 || new Set(channels).size !== 11) {
+    findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_AUTHORITY', owner: 'PDP-0', message: 'PXD-207 applicability must preserve 7/462/11/56 denominators and keep owner acceptance, independent acceptance, and execution admission unclaimed.' });
   }
   if (records.length !== 7 || JSON.stringify(recordIds) !== JSON.stringify(extensions) || new Set(recordIds).size !== 7) {
     findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_DENOMINATOR', owner: 'PDP-0', message: 'PXD-207 must decide each of the seven current definition extensions exactly once.' });
@@ -784,8 +784,8 @@ export function projectPdp0DefinitionExtensionApplicability(registry, topology, 
   const dispositionKinds = ['OWNER_DECIDED_APPLICABLE', 'DERIVED_AGGREGATE_OWNER_DECISION', 'NOT_APPLICABLE_OWNER_DECISION', 'NOT_APPLICABLE_SUPPORT', 'NOT_APPLICABLE_ARCHIVED'];
   const counts = Object.fromEntries(dispositionKinds.map((kind) => [kind, cellRows.filter((row) => row.disposition === kind).length]));
   const surfaceCounts = Object.fromEntries(dispositionKinds.map((kind) => [kind, surfaceRows.filter((row) => row.disposition === kind).length]));
-  if (JSON.stringify(counts) !== JSON.stringify({ OWNER_DECIDED_APPLICABLE: 14, DERIVED_AGGREGATE_OWNER_DECISION: 21, NOT_APPLICABLE_OWNER_DECISION: 3430, NOT_APPLICABLE_SUPPORT: 616, NOT_APPLICABLE_ARCHIVED: 77 })) {
-    findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_PARTITION', owner: 'PDP-0', message: `PXD-207 must partition all 4,158 cells exactly (actual ${JSON.stringify(counts)}).` });
+  if (JSON.stringify(counts) !== JSON.stringify({ OWNER_DECIDED_APPLICABLE: 14, DERIVED_AGGREGATE_OWNER_DECISION: 21, NOT_APPLICABLE_OWNER_DECISION: 3507, NOT_APPLICABLE_SUPPORT: 693, NOT_APPLICABLE_ARCHIVED: 77 })) {
+    findings.push({ code: 'PDP0_EXTENSION_APPLICABILITY_PARTITION', owner: 'PDP-0', message: `PXD-207 must partition all 4,312 cells exactly (actual ${JSON.stringify(counts)}).` });
   }
   return { ok: findings.length === 0, status: 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE', channelCount: channels.length, surfaceCellCount: surfaceRows.length, counts, surfaceCounts,
     versionDisposition: { currentVersionExtensionCount: currentVersionExtensionIds.size, currentVersionExtensionCapabilityIds: [...currentVersionExtensionIds].sort(),

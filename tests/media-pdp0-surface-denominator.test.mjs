@@ -11,44 +11,44 @@ test('PDP-0 denominator recomputes exact source populations and validates curren
   const result = validatePdp0SurfaceDenominator(registry, topology);
   assert.equal(result.ok, true);
   assert.deepEqual(result.stats, {
-      physicalManifestCandidates: 26,
+      physicalManifestCandidates: 28,
       compositions: 7,
       logicalConsumers: 21,
       registrySurfaces: 21,
       archivedConsumers: 1,
       activeLogicalConsumers: 20,
       activeLogicalScopesResolved: 20,
-      applicablePhysicalPdp0: 15,
-      notApplicableSupportPhysicalPdp0: 8,
+      applicablePhysicalPdp0: 16,
+      notApplicableSupportPhysicalPdp0: 9,
       noImplementationAdmittedPhysicalPdp0: 3,
-      denominator: 54,
+      denominator: 56,
   });
   assert.deepEqual(result.findings, []);
   assert.equal(result.consumerScopes.length, 20);
 });
 
-test('keeps seven PXD-207 extensions outside the 462 owner denominator and resolves all 11 × 54 applicability cells', () => {
+test('keeps seven PXD-207 extensions outside the 462 owner denominator and resolves all 11 × 56 applicability cells', () => {
   const { registry, topology, authority } = cloneSources();
   const result = validatePdp0SurfaceDenominator(registry, topology, authority);
   const applicability = result.proposalApplicability;
   assert.equal(authority.capabilities.capabilities.length, 469);
   assert.equal(authority.capabilityLeafReview.ownerCapabilityLeafAdjudication.records.length, 462);
   assert.equal(authority.campaignExtensions.currentDefinitionPopulation.records.length, 7);
-  assert.equal(applicability.records.length, 7 * 11 * 54);
-  assert.equal(applicability.surfaceCellCount, 7 * 54);
+  assert.equal(applicability.records.length, 7 * 11 * 56);
+  assert.equal(applicability.surfaceCellCount, 7 * 56);
   assert.equal(applicability.channelCount, 11);
   assert.deepEqual(applicability.surfaceCounts, {
     OWNER_DECIDED_APPLICABLE: 14,
     DERIVED_AGGREGATE_OWNER_DECISION: 21,
-    NOT_APPLICABLE_OWNER_DECISION: 280,
-    NOT_APPLICABLE_SUPPORT: 56,
+    NOT_APPLICABLE_OWNER_DECISION: 287,
+    NOT_APPLICABLE_SUPPORT: 63,
     NOT_APPLICABLE_ARCHIVED: 7,
   });
   assert.deepEqual(applicability.counts, {
     OWNER_DECIDED_APPLICABLE: 14,
     DERIVED_AGGREGATE_OWNER_DECISION: 21,
-    NOT_APPLICABLE_OWNER_DECISION: 3430,
-    NOT_APPLICABLE_SUPPORT: 616,
+    NOT_APPLICABLE_OWNER_DECISION: 3507,
+    NOT_APPLICABLE_SUPPORT: 693,
     NOT_APPLICABLE_ARCHIVED: 77,
   });
   assert.equal(applicability.status, 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE');

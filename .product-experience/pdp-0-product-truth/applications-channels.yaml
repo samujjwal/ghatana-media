@@ -16462,10 +16462,10 @@ coordinatorDefinitionExtensionApplicability:
     capabilityDefinitionExtensions: 7
     historicalOwnerAdjudications: 462
     channels: 11
-    physicalSurfaces: 26
+    physicalSurfaces: 28
     compositions: 7
     logicalConsumers: 21
-    totalSurfaceIdentities: 54
+    totalSurfaceIdentities: 56
   dispositionRule:
     directApplicability: OWNER_DECIDED_APPLICABLE only for the exact candidate channel, designated logical source
       owner, and one exact PDP-0 physical source named in each feature decision.

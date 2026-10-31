@@ -102,9 +102,13 @@
      "authorityRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
      "capabilityFamilyIds": [],
      "capabilityIntentIds": [],
-     "requirementIds": [],
+     "requirementIds": [
+      "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "MEDIA-REQ-CAP-VISION",
+      "MEDIA-REQ-CAP-MULTIMODAL"
+     ],
      "intentIds": [],
-     "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics."
+     "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics. The adapter delegates MediaProcessorPort transcription, vision, and multimodal operations to the Media-owned modality services, so its PDP-0 scope binds the exact delegated requirements it fronts: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, and MEDIA-REQ-CAP-MULTIMODAL."
     },
     "PDP-1": {
      "disposition": "REFERENCED_ONLY",

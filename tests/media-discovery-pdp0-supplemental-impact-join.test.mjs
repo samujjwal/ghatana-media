@@ -21,8 +21,8 @@ function technical(extraDelta = true, supplementalDigest = supplement.sourceDelt
   return {
     materialSourceSetFingerprint: fingerprint,
     campaign: { observedHead: 'fixture', branch: 'main' },
-    denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 },
-    physicalCompositeConsumerCells: Array.from({ length: 50 }, (_, i) => ({ cellId: `surface-${i}:PDP-0`, sourceCurrentness: 'CURRENT', applicability: { disposition: 'APPLICABLE', rationale: 'fixture' } })),
+    denominators: { physicalCandidates: 28, semanticCompositions: 6, repositoryRoots: 1, consumers: 21, totalCells: 56 },
+    physicalCompositeConsumerCells: Array.from({ length: 56 }, (_, i) => ({ cellId: `surface-${i}:PDP-0`, sourceCurrentness: 'CURRENT', applicability: { disposition: 'APPLICABLE', rationale: 'fixture' } })),
     unclassifiedHistoricalPdp0PinChanges: [], externalOwnerContracts: { totalFiles: 30, digestMatches: 30, digestMismatches: [] },
     authority: { changedMeaningIds: [] }, sourceContentDigests: digests,
     phaseDisposition: { historicalDefinitionStatus: 'DEV_COMPLETE', historicalOutstandingMeaningIds: [], currentSourceCurrentness: 'PASS', sourceCurrent: true },
@@ -80,7 +80,12 @@ test('PDP-0 PXD-164 R10 successor disposition binds exactly the decision-log del
     ...r10Currentness,
     sourceContentDigests: currentDigests,
     materialPathDenominator: { uniquePaths: 146, sharedPaths: 111, cellSpecificPaths: 35 },
-    physicalCompositeConsumerCells: r10Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+    physicalCompositeConsumerCells: [
+      ...r10Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+      ...Array.from({ length: 6 }, (_, i) => ({ cellId: `added-surface-${i}:PDP-0`, sourceCurrentness: 'CURRENT', blockers: [],
+        applicability: { disposition: 'APPLICABLE', rationale: 'added surface under the reviewed 56-cell topology' } })),
+    ],
+    denominators: { physicalCandidates: 28, semanticCompositions: 6, repositoryRoots: 1, consumers: 21, totalCells: 56 },
     historicalPdp0PinDriftClassifications: r10Currentness.historicalPdp0PinDriftClassifications.map((entry) => ({
       ...entry,
       ...(typeof entry.predecessorSha256 === 'string' && typeof entry.observedSha256 === 'string'
@@ -369,7 +374,12 @@ test('PDP-0 successor impact accepts only the authorized R8 test transition and 
     ...r8Currentness,
     sourceContentDigests: currentDigests,
     materialPathDenominator: { uniquePaths: 146, sharedPaths: 111, cellSpecificPaths: 35 },
-    physicalCompositeConsumerCells: r8Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+    physicalCompositeConsumerCells: [
+      ...r8Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+      ...Array.from({ length: 6 }, (_, i) => ({ cellId: `added-surface-${i}:PDP-0`, sourceCurrentness: 'CURRENT', blockers: [],
+        applicability: { disposition: 'APPLICABLE', rationale: 'added surface under the reviewed 56-cell topology' } })),
+    ],
+    denominators: { physicalCandidates: 28, semanticCompositions: 6, repositoryRoots: 1, consumers: 21, totalCells: 56 },
   };
   const classification = classifyPdp0SuccessorImpact(pinComparisons, record, impactPath, technicalCurrentness);
   assert.equal(classification?.classification, 'INTERNAL_PDP0_SUCCESSOR_IMPACT_DISPOSITION');
