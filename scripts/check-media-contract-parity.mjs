@@ -804,6 +804,11 @@ export function analyzeContractParity(input, { mode = "strict" } = {}) {
   const semanticUnresolved = !operationAcceptance.complete;
   const retiredFindings = retiredSdkRetryFindings(input.sdkSourceFiles);
   if (semanticUnresolved) gaps.push(`semantic binding unresolved: PDP-1 operations remain ${operationStatus}; structural identities are not accepted mappings`);
+  // Source-currentness survives acceptance: a completed operation inventory whose source or wire
+  // file drifted past its pinned current-source review is a stale-review finding, never silently absorbed.
+  if (!semanticUnresolved && input.operationCurrentSourceReview && !exactOperationSourceReview(input)) {
+    gaps.push("semantic binding review stale: PDP-1 operations or wire source changed after pinned current-source review");
+  }
   if (!input.pdp1Operations.includes("bindingStatus:")) gaps.push("semantic binding unresolved: PDP-1 binding status is absent");
   if (mode === "definition-only") {
     const toolFinding = gaps.find((gap) => gap === `Agent Tool structural inventory found ${toolIds.length} tools; operation bindings and complete input/result contract parity remain pending`);
