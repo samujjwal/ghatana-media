@@ -559,13 +559,13 @@ test('stable changed cell paths stay unknown despite caller-supplied authorizati
 test('PDP-0 resolver binds the current topology and registry inventory without losing applicability details', () => {
   const resolved = resolveMediaPdp0Cells(process.cwd(), dimensions);
   assert.deepEqual(resolved.denominator, {
-    physicalCandidates: 26,
+    physicalCandidates: 28,
     semanticCompositions: 6,
     repositoryRoots: 1,
     consumers: 21,
-    totalCells: 54,
+    totalCells: 56,
   });
-  assert.equal(new Set(resolved.cells.map((cell) => cell.cellId)).size, 54);
+  assert.equal(new Set(resolved.cells.map((cell) => cell.cellId)).size, 56);
   assert.equal(resolved.cells.every((cell) => cell.phase === 'PDP-0' && cell.paths.includes(resolved.basis.ownerDecision)), true);
 
   const byId = new Map(resolved.cells.map((cell) => [cell.surfaceId, cell]));
@@ -582,6 +582,8 @@ test('PDP-0 resolver binds the current topology and registry inventory without l
   assert.ok(resolved.cells.every((cell) => cell.paths.length > 0 && cell.applicability?.rationale));
   assert.ok(resolved.cells.every((cell) => cell.meaningRefs && cell.mappings));
   assert.equal(byId.get('media.physical.adapters-ledger').applicability.disposition, 'NOT_APPLICABLE_SUPPORT');
+  assert.equal(byId.get('media.physical.adapters-agent-tools-media').applicability.disposition, 'NOT_APPLICABLE_SUPPORT');
+  assert.equal(byId.get('media.physical.adapters-data-cloud-media').applicability.disposition, 'APPLICABLE');
 
   const voiceUi = byId.get('media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react');
   assert.deepEqual(voiceUi.applicability.capabilityIntentIds, ['media.speech.synthesis.text-to-speech']);
@@ -592,10 +594,10 @@ test('PDP-0 resolver binds the current topology and registry inventory without l
   assert.equal(agentTools.mappings.bindingState, 'CONTRACT_ONLY');
   assert.equal(agentTools.mappings.handlerSourceObservation.classification, 'LEGACY_SUBSUMED_NOT_ADMITTED');
   assert.equal(agentTools.mappings.handlerSourceObservation.operationAssociation, 'media.physical.runtime-contracts');
-  assert.deepEqual(agentTools.mappings.physicalRefs, ['media.physical.runtime-contracts', 'media.physical.libs-common']);
+  assert.deepEqual(agentTools.mappings.physicalRefs, ['media.physical.runtime-contracts', 'media.physical.adapters-agent-tools-media']);
   assert.ok(agentTools.paths.includes('.product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml'));
   assert.equal(agentTools.paths.some((sourcePath) => sourcePath === agentTools.mappings.handlerSourceObservation.sourcePath), false);
-  assert.equal(agentTools.paths.filter((sourcePath) => sourcePath.startsWith(`${agentTools.mappings.handlerSourceObservation.sourcePath}/`)).length, 6);
+  assert.equal(agentTools.paths.filter((sourcePath) => sourcePath.startsWith(`${agentTools.mappings.handlerSourceObservation.sourcePath}/`)).length, 7);
   for (const cell of resolved.cells.filter((entry) => entry.cellType === 'CONSUMER')) {
     for (const physicalId of cell.mappings.physicalRefs) {
       assert.ok(byId.get(physicalId).mappings.consumerSurfaceRefs.includes(cell.surfaceId));

@@ -222,6 +222,119 @@
   ],
   "surfaces": [
     {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-11",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-10",
+        "PBI-13"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-05",
+        "PBI-06"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-04"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "kind": "REPOSITORY_ROOT",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-00",
+        "PBI-15"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-07",
+        "PBI-08"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childSurfaceRefs": [],
+      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "plannedBuildPackageIds": [
+        "PBI-09"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "SUPPORT_ONLY",
+      "owner": "media-platform",
+      "sourcePath": "adapters/agent-tools-media",
+      "consumerRefs": [
+        "media.surface.agent-tools"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "kind": "PHYSICAL_CANDIDATE",
+      "physicalDisposition": "PHYSICAL",
+      "owner": "media-platform",
+      "sourcePath": "adapters/data-cloud-media",
+      "consumerRefs": [
+        "media.surface.integrations"
+      ],
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
       "surfaceId": "media.physical.adapters-ledger",
       "kind": "PHYSICAL_CANDIDATE",
       "physicalDisposition": "SUPPORT_ONLY",
@@ -632,101 +745,58 @@
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.composition.repository-root",
-      "kind": "REPOSITORY_ROOT",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-00",
-        "PBI-15"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-04"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.governed-job-execution",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-05",
-        "PBI-06"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.speech-and-caption-workflows",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-07",
-        "PBI-08"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.vision-and-multimodal-analysis",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-09"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.creation-composition-and-delivery",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-10",
-        "PBI-13"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.composition.client-and-machine-interfaces",
-      "kind": "SEMANTIC_COMPOSITION",
-      "childSurfaceRefs": [],
-      "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "plannedBuildPackageIds": [
-        "PBI-02",
-        "PBI-11",
-        "PBI-12"
-      ],
-      "pdp3R6Currentness": "UNKNOWN",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.surface.web",
+      "surfaceId": "media.surface.agent-tools",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
-        "media.physical.libs-audio-video-ui"
+        "media.physical.runtime-contracts",
+        "media.physical.libs-common"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.capture-adapters",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.runtime-contracts"
+      ],
+      "hostDisposition": "CONTRACT_ONLY",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
       ],
       "hostDisposition": "HOST_DEPENDENT",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
-        "PBI-11"
+        "PBI-12"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [],
+      "hostDisposition": "ARCHIVED",
+      "applicability": "NOT_APPLICABLE_ARCHIVED",
+      "plannedBuildPackageIds": [],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "ARCHIVED_NA"
     },
     {
       "surfaceId": "media.surface.embedded",
@@ -743,35 +813,46 @@
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.surface.public-http",
+      "surfaceId": "media.surface.events",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
-        "media.physical.launcher",
+        "media.physical.modules-infrastructure-messaging",
         "media.physical.runtime-contracts"
       ],
-      "hostDisposition": "HOST_DEPENDENT",
+      "hostDisposition": "CONTRACT_ONLY",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
-        "PBI-02",
+        "PBI-06",
         "PBI-12"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.surface.service-grpc",
+      "surfaceId": "media.surface.explorer",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
-        "media.physical.runtime-contracts",
-        "media.physical.modules-speech-stt-service",
-        "media.physical.modules-speech-tts-service",
-        "media.physical.modules-vision-vision-service",
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "hostDisposition": "PHYSICAL",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
         "media.physical.modules-intelligence-multimodal-service"
       ],
       "hostDisposition": "CONTRACT_ONLY",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
-        "PBI-02",
+        "PBI-09",
         "PBI-12"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
@@ -823,15 +904,79 @@
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.surface.grpc.multimodal",
+      "surfaceId": "media.surface.integrations",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
-        "media.physical.modules-intelligence-multimodal-service"
+        "media.physical.adapters-ledger",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging"
       ],
-      "hostDisposition": "CONTRACT_ONLY",
+      "hostDisposition": "HOST_DEPENDENT",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
-        "PBI-09",
+        "PBI-12",
+        "PBI-15"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-11"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
+        "PBI-02",
+        "PBI-12"
+      ],
+      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
+      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "kind": "CONSUMER_CROSSWALK",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "hostDisposition": "HOST_DEPENDENT",
+      "applicability": "APPLICABLE_CONSUMER_BINDING",
+      "plannedBuildPackageIds": [
         "PBI-12"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
@@ -854,67 +999,20 @@
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.surface.cli",
-      "kind": "CONSUMER_CROSSWALK",
-      "physicalRefs": [
-        "media.physical.libs-audio-video-client",
-        "media.physical.libs-media-experience-simulation"
-      ],
-      "hostDisposition": "HOST_DEPENDENT",
-      "applicability": "APPLICABLE_CONSUMER_BINDING",
-      "plannedBuildPackageIds": [
-        "PBI-12"
-      ],
-      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.surface.agent-tools",
+      "surfaceId": "media.surface.service-grpc",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
         "media.physical.runtime-contracts",
-        "media.physical.libs-common"
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service"
       ],
       "hostDisposition": "CONTRACT_ONLY",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
+        "PBI-02",
         "PBI-12"
-      ],
-      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.surface.events",
-      "kind": "CONSUMER_CROSSWALK",
-      "physicalRefs": [
-        "media.physical.modules-infrastructure-messaging",
-        "media.physical.runtime-contracts"
-      ],
-      "hostDisposition": "CONTRACT_ONLY",
-      "applicability": "APPLICABLE_CONSUMER_BINDING",
-      "plannedBuildPackageIds": [
-        "PBI-06",
-        "PBI-12"
-      ],
-      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
-      "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.surface.integrations",
-      "kind": "CONSUMER_CROSSWALK",
-      "physicalRefs": [
-        "media.physical.adapters-ledger",
-        "media.physical.providers-aws-postgresql",
-        "media.physical.modules-infrastructure-persistence",
-        "media.physical.modules-infrastructure-security",
-        "media.physical.modules-infrastructure-cache",
-        "media.physical.modules-infrastructure-messaging"
-      ],
-      "hostDisposition": "HOST_DEPENDENT",
-      "applicability": "APPLICABLE_CONSUMER_BINDING",
-      "plannedBuildPackageIds": [
-        "PBI-12",
-        "PBI-15"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
@@ -949,29 +1047,18 @@
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
     },
     {
-      "surfaceId": "media.surface.explorer",
+      "surfaceId": "media.surface.web",
       "kind": "CONSUMER_CROSSWALK",
       "physicalRefs": [
-        "media.physical.apps-media-experience-explorer",
-        "media.physical.libs-media-experience-simulation"
+        "media.physical.libs-audio-video-ui"
       ],
-      "hostDisposition": "PHYSICAL",
+      "hostDisposition": "HOST_DEPENDENT",
       "applicability": "APPLICABLE_CONSUMER_BINDING",
       "plannedBuildPackageIds": [
         "PBI-11"
       ],
       "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
       "implementationClaim": "NOT_EVALUATED_ON_CURRENT_CUT"
-    },
-    {
-      "surfaceId": "media.surface.desktop-archive",
-      "kind": "CONSUMER_CROSSWALK",
-      "physicalRefs": [],
-      "hostDisposition": "ARCHIVED",
-      "applicability": "NOT_APPLICABLE_ARCHIVED",
-      "plannedBuildPackageIds": [],
-      "pdp3R6Currentness": "UNKNOWN_AGGREGATE",
-      "implementationClaim": "ARCHIVED_NA"
     }
   ],
   "journeys": [
@@ -1826,7 +1913,7 @@
     "delivery": "NOT_AUTHORIZED"
   },
   "coverageAssertions": {
-    "uniqueSurfaceIds": 50,
+    "uniqueSurfaceIds": 56,
     "uniqueJourneyIds": 30,
     "uniqueHistoricalTaskIds": 47,
     "allRequiredPlannedPackageIdsKnown": true,

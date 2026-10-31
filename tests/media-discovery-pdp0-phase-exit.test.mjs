@@ -46,7 +46,7 @@ const owner = {
 };
 
 function technical() {
-  const cells = Array.from({ length: 50 }, (_, index) => ({
+  const cells = Array.from({ length: 56 }, (_, index) => ({
     cellId: `surface-${index}:PDP-0`,
     surfaceId: `surface-${index}`,
     cellType: 'PHYSICAL_CANDIDATE',
@@ -60,7 +60,7 @@ function technical() {
   return {
     materialSourceSetFingerprint: fingerprint,
     campaign: { observedHead: 'abc123', branch: 'main' },
-    denominators: { physicalCandidates: 26, semanticCompositions: 6, repositoryRoots: 1, consumers: 17, totalCells: 50 },
+    denominators: { physicalCandidates: 28, semanticCompositions: 6, repositoryRoots: 1, consumers: 21, totalCells: 56 },
     physicalCompositeConsumerCells: cells,
     unclassifiedHistoricalPdp0PinChanges: [],
     externalOwnerContracts: { totalFiles: 30, digestMatches: 30, digestMismatches: [] },
@@ -168,7 +168,7 @@ test('PDP-0 phase exit passes only when the source cut, delegated owner input, s
   });
   assert.equal(exit.phaseExit.status, 'PASS');
   assert.equal(exit.phaseExit.nextLegalAction, 'ADVANCE_TO_PDP1_MDC10');
-  assert.equal(exit.sourceCurrentness.cells.length, 50);
+  assert.equal(exit.sourceCurrentness.cells.length, 56);
   assert.equal(exit.delegatedOwnerAcceptance.humanIndependentSignatureProvided, false);
 });
 
@@ -381,7 +381,12 @@ test('PDP-0 R10 phase exit joins exactly the authorized R8 test transition witho
   const technicalCurrentness = {
     ...r8Currentness,
     materialPathDenominator: { uniquePaths: 146, sharedPaths: 111, cellSpecificPaths: 35 },
-    physicalCompositeConsumerCells: r8Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+    physicalCompositeConsumerCells: [
+      ...r8Currentness.physicalCompositeConsumerCells.map((cell) => ({ ...cell, sourceCurrentness: 'CURRENT', blockers: [] })),
+      ...Array.from({ length: 6 }, (_, index) => ({ cellId: `added-surface-${index}:PDP-0`, sourceCurrentness: 'CURRENT', blockers: [],
+        applicability: { disposition: 'APPLICABLE', rationale: 'added surface under the reviewed 56-cell topology' } })),
+    ],
+    denominators: { physicalCandidates: 28, semanticCompositions: 6, repositoryRoots: 1, consumers: 21, totalCells: 56 },
     sourceContentDigests: currentDigests,
     historicalPdp0PinDriftClassifications: r8Currentness.historicalPdp0PinDriftClassifications,
     unclassifiedHistoricalPdp0PinChanges: [],

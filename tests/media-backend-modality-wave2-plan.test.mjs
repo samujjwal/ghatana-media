@@ -157,14 +157,14 @@ test('all 99 source-declared surface-intent memberships have one mapped owner ta
   }
 });
 
-test('43 exact registered gRPC methods each map to implementation task and remain provisional', () => {
+test('44 exact registered gRPC methods each map to implementation task and remain provisional', () => {
   const actual = [...plan.matchAll(/^\| `(media\.grpc\.[\w.]+)` \| ([^|]+) \| ([^|]+) \|/gmu)]
     .map(m => ({ id: m[1], owner: m[2].trim(), check: m[3].trim() }));
   const expected = [...grpcRegistry.matchAll(/^\s*- id: (media\.grpc\.[\w.]+)$/gmu)]
     .map(m => m[1]);
-  assert.equal(actual.length, 43);
+  assert.equal(actual.length, 44);
   assert.deepEqual(actual.map(x => x.id).sort(), expected.sort());
-  assert.equal(new Set(actual.map(x => x.id)).size, 43);
+  assert.equal(new Set(actual.map(x => x.id)).size, 44);
   for (const item of actual) {
     for (const owner of item.owner.split('+')) {
       assert.ok(taskIds.has(owner.trim()), item.id + ' has missing implementation owner ' + owner);

@@ -28,7 +28,7 @@ test('future Build blueprint has a finite DAG but grants no current Build or Del
   }
 });
 
-test('all 50 physical, composition, and consumer identities match canonical topology', () => {
+test('all 56 physical, composition, and consumer identities match canonical topology', () => {
   const topology = json('.product-experience/surfaces/media-physical-topology.v1.json');
   const expected = [
     ...topology.manifestCandidates.map((x) => x.surfaceId),
@@ -36,7 +36,7 @@ test('all 50 physical, composition, and consumer identities match canonical topo
     ...topology.consumerCrosswalk.map((x) => x.surfaceId),
   ].sort();
   const observed = map.surfaces.map((x) => x.surfaceId).sort();
-  assert.equal(expected.length, 50);
+  assert.equal(expected.length, 56);
   assert.deepEqual(observed, expected);
   const packages = new Set(map.buildPackages.map((x) => x.id));
   for (const surface of map.surfaces) {
@@ -52,9 +52,9 @@ test('all 50 physical, composition, and consumer identities match canonical topo
       }
     }
   }
-  assert.equal(topology.manifestCandidates.length, 26);
+  assert.equal(topology.manifestCandidates.length, 28);
   assert.equal(topology.compositions.length, 7);
-  assert.equal(topology.consumerCrosswalk.length, 17);
+  assert.equal(topology.consumerCrosswalk.length, 21);
 });
 
 test('all 30 journey IDs and exact names are preserved from the PDP-3 journey registry', () => {

@@ -118,7 +118,7 @@
     ".product-experience/pdp-3-product-experience/screen-registry.yaml": "b49380a9bdedaee554a21a07b4eb26bd6891d16c784fb2ccbfb7c3bc09f1d438",
     ".product-experience/source-manifest.yaml": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-    ".product-experience/surfaces/media-physical-topology.v1.json": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
     "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json": "6504f053c20d1398ccf853e93a4e9a2b10d1e0904c554e2ee746e5c0414d2450",
     "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md": "e6519405c7207e67468d0ea889c5f15c74e64dfa1337e317b60e3ca52adbcdbd",
     "docs/implementation/pdp-0-phase-dev-status.json": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
@@ -1331,7 +1331,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -1577,7 +1577,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -1786,7 +1786,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -2023,7 +2023,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -16444,7 +16444,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -16680,7 +16680,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -16877,7 +16877,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -17113,7 +17113,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -17333,7 +17333,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -17570,7 +17570,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -26066,7 +26066,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -26303,7 +26303,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -26813,7 +26813,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -27050,7 +27050,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -27236,7 +27236,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -27473,7 +27473,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -29254,7 +29254,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -29493,7 +29493,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -39285,7 +39285,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -39523,7 +39523,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -39745,7 +39745,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -39984,7 +39984,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -40189,7 +40189,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -40433,7 +40433,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -40637,7 +40637,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -40880,7 +40880,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -42624,7 +42624,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -42865,7 +42865,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -45133,7 +45133,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -45372,7 +45372,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -48089,7 +48089,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -48328,7 +48328,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -53062,7 +53062,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -53301,7 +53301,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -54858,7 +54858,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -55097,7 +55097,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -59150,7 +59150,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -59388,7 +59388,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -61798,7 +61798,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -62037,7 +62037,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -64416,7 +64416,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -64655,7 +64655,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -70988,7 +70988,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -71225,7 +71225,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -71779,7 +71779,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -72017,7 +72017,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -76457,7 +76457,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -76694,7 +76694,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -77397,7 +77397,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -77635,7 +77635,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -80837,7 +80837,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -81074,7 +81074,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -82659,7 +82659,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -82897,7 +82897,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -84444,7 +84444,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -84682,7 +84682,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -86153,7 +86153,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -86391,7 +86391,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -91128,7 +91128,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -91367,7 +91367,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -95602,7 +95602,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -95840,7 +95840,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -97888,7 +97888,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -98128,7 +98128,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -99089,7 +99089,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -99328,7 +99328,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -103073,7 +103073,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -103312,7 +103312,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -104309,7 +104309,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -104548,7 +104548,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -105553,7 +105553,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -105792,7 +105792,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -106376,7 +106376,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -106616,7 +106616,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -108096,7 +108096,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -108335,7 +108335,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -109085,7 +109085,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -109324,7 +109324,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -111332,7 +111332,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -111570,7 +111570,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -113436,7 +113436,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -113675,7 +113675,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -114732,7 +114732,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -114972,7 +114972,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -115185,7 +115185,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -115428,7 +115428,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -115659,7 +115659,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -115900,7 +115900,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -116141,7 +116141,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -116410,7 +116410,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -116595,7 +116595,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -116831,7 +116831,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -117028,7 +117028,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -117264,7 +117264,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -117316,7 +117316,7 @@
       "id": "M-BLD-F00.T01",
       "packageId": "M-BLD-F00",
       "title": "Source material pin and topology census",
-      "status": "PLANNING_RECEIPT_ONLY",
+      "status": "STALE_BLOCKED",
       "priority": "PLAN_ORDERED",
       "packageDependencyScope": "FULL_PACKAGE",
       "outcome": "Compare all four PDP status sourceShaSet records to current bytes/projections, verify all four 54-row matrices, and census 29 physical, 7 composite/root, and 21 logical topology identities (54 matrix-bound plus the declared roster-reconciliation delta).",
@@ -117353,8 +117353,8 @@
           "phase": "PDP-0",
           "selector": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
           "expectedSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
-          "currentSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
-          "status": "CURRENT"
+          "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -117577,8 +117577,8 @@
           "phase": "PDP-0",
           "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
           "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "status": "CURRENT"
+          "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -118004,8 +118004,8 @@
           "phase": "PDP-0",
           "selector": "scripts/check-media-pdp0-surface-denominator.mjs",
           "expectedSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
-          "currentSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
-          "status": "CURRENT"
+          "currentSha256": "510d556add248113de7b7e05d0f60b72bc68ffcfdbae1529b03c4f94bc834ee6",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -118466,8 +118466,8 @@
           "phase": "PDP-0",
           "selector": "tests/media-pdp0-surface-denominator.test.mjs",
           "expectedSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
-          "currentSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
-          "status": "CURRENT"
+          "currentSha256": "ecc702be147615a4992be18c42643172d7cac2ecda3989a66f4000c7dcc8b00e",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -118970,8 +118970,8 @@
           "phase": "PDP-1",
           "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
           "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "status": "CURRENT"
+          "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-1",
@@ -120076,8 +120076,8 @@
           "phase": "PDP-2",
           "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
           "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-          "status": "CURRENT"
+          "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-2",
@@ -120636,8 +120636,8 @@
           "phase": "PDP-2",
           "selector": "scripts/report-media-pdp-readiness.mjs",
           "expectedSha256": "37e1f7ef2854a221e99816e95ce074c038c7f4380a995e3041f2fe6ae2df85a2",
-          "currentSha256": "37e1f7ef2854a221e99816e95ce074c038c7f4380a995e3041f2fe6ae2df85a2",
-          "status": "CURRENT"
+          "currentSha256": "b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-2",
@@ -123554,7 +123554,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -124066,7 +124066,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -227399,7 +227399,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -227638,7 +227638,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -227796,7 +227796,7 @@
           "applicability": {
             "PDP-0": {
               "disposition": "APPLICABLE",
-              "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics.",
+              "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics. The adapter delegates MediaProcessorPort transcription, vision, and multimodal operations to the Media-owned modality services, so its PDP-0 scope binds the exact delegated requirements it fronts: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, and MEDIA-REQ-CAP-MULTIMODAL.",
               "authorityRefs": [
                 ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
               ],
@@ -232256,7 +232256,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -232496,7 +232496,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -236200,7 +236200,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -236437,7 +236437,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -240333,7 +240333,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -240570,7 +240570,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -244466,7 +244466,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -244702,7 +244702,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -248598,7 +248598,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -248836,7 +248836,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -250098,7 +250098,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -250341,7 +250341,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -253524,7 +253524,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -253764,7 +253764,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -255107,7 +255107,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -255348,7 +255348,7 @@
           },
           {
             "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-            "sha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8"
+            "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
           },
           {
             "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
@@ -255588,7 +255588,7 @@
       "applicability": {
         "PDP-0": {
           "disposition": "APPLICABLE",
-          "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics.",
+          "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics. The adapter delegates MediaProcessorPort transcription, vision, and multimodal operations to the Media-owned modality services, so its PDP-0 scope binds the exact delegated requirements it fronts: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, and MEDIA-REQ-CAP-MULTIMODAL.",
           "authorityRefs": [
             ".product-experience/pdp-0-product-truth/dependency-contracts.yaml"
           ],
@@ -382218,9 +382218,9 @@
     "status": "SOURCE_RELATIONS_CURRENT"
   },
   "materialSourceReceipt": {
-    "status": "CURRENT",
+    "status": "STALE_BLOCKED",
     "count": 872,
-    "staleCount": 0,
+    "staleCount": 7,
     "records": [
       {
         "phase": "PDP-0",
@@ -382254,8 +382254,8 @@
         "phase": "PDP-0",
         "selector": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
         "expectedSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
-        "currentSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
-        "status": "CURRENT"
+        "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -382478,8 +382478,8 @@
         "phase": "PDP-0",
         "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
         "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "status": "CURRENT"
+        "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -382905,8 +382905,8 @@
         "phase": "PDP-0",
         "selector": "scripts/check-media-pdp0-surface-denominator.mjs",
         "expectedSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
-        "currentSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
-        "status": "CURRENT"
+        "currentSha256": "510d556add248113de7b7e05d0f60b72bc68ffcfdbae1529b03c4f94bc834ee6",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -383367,8 +383367,8 @@
         "phase": "PDP-0",
         "selector": "tests/media-pdp0-surface-denominator.test.mjs",
         "expectedSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
-        "currentSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
-        "status": "CURRENT"
+        "currentSha256": "ecc702be147615a4992be18c42643172d7cac2ecda3989a66f4000c7dcc8b00e",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -383871,8 +383871,8 @@
         "phase": "PDP-1",
         "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
         "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "status": "CURRENT"
+        "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-1",
@@ -384977,8 +384977,8 @@
         "phase": "PDP-2",
         "selector": ".product-experience/surfaces/media-physical-topology.v1.json",
         "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "currentSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "status": "CURRENT"
+        "currentSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-2",
@@ -385537,8 +385537,8 @@
         "phase": "PDP-2",
         "selector": "scripts/report-media-pdp-readiness.mjs",
         "expectedSha256": "37e1f7ef2854a221e99816e95ce074c038c7f4380a995e3041f2fe6ae2df85a2",
-        "currentSha256": "37e1f7ef2854a221e99816e95ce074c038c7f4380a995e3041f2fe6ae2df85a2",
-        "status": "CURRENT"
+        "currentSha256": "b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-2",

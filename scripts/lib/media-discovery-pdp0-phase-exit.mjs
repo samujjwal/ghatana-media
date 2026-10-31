@@ -491,9 +491,10 @@ function validatePdp0SuccessorImpactDisposition(record, technicalCurrentness, hi
       && entry.recordedDigest === delta.predecessor
       && entry.currentDigest === delta.observed));
   if (successorChanges.length !== expectedDeltas.length) blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_AUTHORIZED_DELTA_MISSING`);
+  const successorCellCount = technicalCurrentness?.physicalCompositeConsumerCells?.length;
   if (historicalPdp0Exit?.phase !== 'PDP-0' || historicalPdp0Exit?.phaseExit?.status !== 'PASS'
       || historicalPdp0Exit?.sourceCurrentness?.cells?.length !== 50
-      || technicalCurrentness?.physicalCompositeConsumerCells?.length !== 50
+      || (successorCellCount !== 50 && successorCellCount !== currentPdp0Scope().totalCells)
       || technicalCurrentness?.physicalCompositeConsumerCells?.some((cell) => cell.sourceCurrentness !== 'CURRENT')) {
     blockers.push(`PDP0_${predecessorLabel}_SUCCESSOR_PREDECESSOR_OR_TOPOLOGY_INVALID`);
   }

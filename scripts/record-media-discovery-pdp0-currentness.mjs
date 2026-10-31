@@ -48,6 +48,10 @@ const pdp0CurrentnessTestPredecessorSnapshot = 'docs/implementation/observations
 const pdp0CurrentnessTestPredecessorSha256 = 'sha256:c9a8dbf034fababa21cacf5d38319c03a1cf7ac242f3140b6982899706288143';
 const pdp0CurrentnessRecorderPredecessorSnapshot = 'docs/implementation/observations/record-media-discovery-pdp0-currentness-predecessor-snapshot-2026-10-23.mjs';
 const pdp0CurrentnessRecorderPredecessorSha256 = 'sha256:652e8d774e2f89478f52be114df6ab969ced82c60b70ccfb330891a084ad4780';
+const pdp0PhaseExitPredecessorSnapshot = 'docs/implementation/observations/media-discovery-pdp0-phase-exit-predecessor-snapshot-2026-10-31.mjs';
+const pdp0PhaseExitPredecessorSha256 = 'sha256:55439f769adecc8b7068e6689d326efdfa6f05d635be46c6132a16530cd335b7';
+const pdp0PhaseExitTestPredecessorSnapshot = 'docs/implementation/observations/media-discovery-pdp0-phase-exit-test-predecessor-snapshot-2026-10-31.mjs';
+const pdp0PhaseExitTestPredecessorSha256 = 'sha256:16e13ebc0e3537eb40573d4f6616c887b3c16524eda0cf44ffcabf11c5045eed';
 const lifecycleExplorerCampaignCheck = 'node scripts/generate-lifecycle-explorer-pack.mjs && node scripts/checks/check-explorer-campaign-conformance.mjs';
 const pdp0R11SuccessorSupportPaths = [
   'scripts/record-media-discovery-pdp0-currentness.mjs',
@@ -71,6 +75,8 @@ export function mediaPdp0R12SuccessorSupportFileHashes() {
     const historicalSnapshots = {
       'tests/media-discovery-currentness.test.mjs': [pdp0CurrentnessTestPredecessorSnapshot, pdp0CurrentnessTestPredecessorSha256],
       'scripts/record-media-discovery-pdp0-currentness.mjs': [pdp0CurrentnessRecorderPredecessorSnapshot, pdp0CurrentnessRecorderPredecessorSha256],
+      'scripts/lib/media-discovery-pdp0-phase-exit.mjs': [pdp0PhaseExitPredecessorSnapshot, pdp0PhaseExitPredecessorSha256],
+      'tests/media-discovery-pdp0-phase-exit.test.mjs': [pdp0PhaseExitTestPredecessorSnapshot, pdp0PhaseExitTestPredecessorSha256],
     };
     if (historicalSnapshots[relativePath]) {
       const [snapshotPath, expectedSha256] = historicalSnapshots[relativePath];
@@ -414,6 +420,54 @@ export function classifyAdditionalPdp0SourceImpact(pinComparisons, record, recor
     ownerAcceptance: record.ownerAcceptance,
     independentReview: record.independentReview,
   };
+}
+
+const preservedPdp0CellSignature = (predecessorCell, currentCell) => currentCell
+  && currentCell.surfaceId === predecessorCell.surfaceId
+  && currentCell.cellType === predecessorCell.cellType
+  && isDeepStrictEqual(currentCell.applicability, predecessorCell.applicability)
+  && currentCell.ownerGraphFingerprint === predecessorCell.ownerGraphFingerprint
+  && currentCell.physicalCatalogFingerprint === predecessorCell.physicalCatalogFingerprint
+  && currentCell.providerRegistryFingerprint === predecessorCell.providerRegistryFingerprint;
+
+const wellFormedAddedPdp0Cell = (cell) => typeof cell?.cellId === 'string' && cell.cellId.trim().length > 0
+  && cell.sourceCurrentness === 'CURRENT'
+  && (cell.blockers?.length ?? 0) === 0
+  && typeof cell.applicability?.disposition === 'string' && cell.applicability.disposition.trim().length > 0
+  && typeof cell.applicability?.rationale === 'string' && cell.applicability.rationale.trim().length > 0;
+
+function livePdp0CellDenominators() {
+  const { denominator } = resolveMediaPdp0Cells(root);
+  return {
+    physicalCandidates: denominator.physicalCandidates,
+    semanticCompositions: denominator.semanticCompositions,
+    repositoryRoots: denominator.repositoryRoots,
+    consumers: denominator.consumers,
+    totalCells: denominator.totalCells,
+  };
+}
+
+/**
+ * A successor-impact currentness capture is bound to the live surface scope:
+ * every historical predecessor cell must be preserved byte-identically and each
+ * added live-scope cell must be a well-formed CURRENT cell with an applicability
+ * disposition and rationale. The recorded denominators must equal the resolved
+ * live scope. Predecessor cuts keep their historical 50-cell pin; only the fresh
+ * capture side follows the expanded topology.
+ */
+function pdp0SuccessorCurrentTopologyPreserved(priorCells, currentCells, currentDenominators, historicalTotalCells = 50) {
+  const prior = priorCells ?? [];
+  const current = currentCells ?? [];
+  const liveScope = livePdp0CellDenominators();
+  const priorIds = new Set(prior.map((cell) => cell.cellId));
+  const added = current.filter((cell) => !priorIds.has(cell.cellId));
+  return prior.length === historicalTotalCells
+    && current.length === liveScope.totalCells
+    && new Set(current.map((cell) => cell.cellId)).size === current.length
+    && added.length === liveScope.totalCells - historicalTotalCells
+    && added.every(wellFormedAddedPdp0Cell)
+    && prior.every((cell) => preservedPdp0CellSignature(cell, current.find((candidate) => candidate.cellId === cell.cellId)))
+    && isDeepStrictEqual(currentDenominators, liveScope);
 }
 
 export function classifyPdp0SuccessorImpact(pinComparisons, record, recordPath, technicalCurrentness) {
@@ -1033,19 +1087,7 @@ function classifyPdp0Pxd164SuccessorImpact(pinComparisons, record, recordPath, t
   const sourcePin = comparisons.find((pin) => pin.path === sourcePath);
   const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
   const priorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
-  const cellIds = (cells) => cells.map((cell) => cell.cellId).sort();
-  const topologyUnchanged = priorCells.length === 50 && currentCells.length === 50
-    && JSON.stringify(cellIds(priorCells)) === JSON.stringify(cellIds(currentCells))
-    && priorCells.every((cell) => {
-      const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
-      return current
-        && current.surfaceId === cell.surfaceId
-        && current.cellType === cell.cellType
-        && isDeepStrictEqual(current.applicability, cell.applicability)
-        && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
-        && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
-        && current.providerRegistryFingerprint === cell.providerRegistryFingerprint;
-    });
+  const topologyPreserved = pdp0SuccessorCurrentTopologyPreserved(priorCells, currentCells, technicalCurrentness?.denominators);
   const p1ImpactDigest = hashBytes(p1ImpactBytes);
   const delta = record?.sourceDeltas?.[0];
   const predecessorCut = record?.predecessorCut;
@@ -1119,14 +1161,13 @@ function classifyPdp0Pxd164SuccessorImpact(pinComparisons, record, recordPath, t
     && priorCurrentness?.materialSourceSetFingerprint === materialFingerprint
     && priorCurrentness?.denominators?.totalCells === 50
     && priorExit?.sourceCurrentness?.cells?.length === 50
-    && JSON.stringify(technicalCurrentness?.denominators) === JSON.stringify(expectedTopology)
     && technicalCurrentness?.materialSourceSetFingerprint
     && technicalCurrentness?.materialPathDenominator?.uniquePaths === 146
     && technicalCurrentness?.lifecycleSourceCurrentness?.continuity === 'CONTINUOUS'
     && technicalCurrentness?.lifecycleSourceCurrentness?.consistencyStable === true
     && technicalCurrentness?.lifecycleSourceCurrentness?.zeroWorkEligibleAtCapture === true
     && currentCells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
-    && topologyUnchanged
+    && topologyPreserved
     && comparisons.length === 146
     && comparisons.every((pin) => Object.hasOwn(priorPins, pin.path) && pin.recordedDigest === priorPins[pin.path])
     && changed.length === 1
@@ -1185,19 +1226,7 @@ export function classifyPdp0R8SuccessorImpact(pinComparisons, record, recordPath
     && sortedComparisons.every((pin) => Object.hasOwn(priorPins, pin.path) && pin.recordedDigest === priorPins[pin.path]);
   const predecessorCells = priorCurrentness?.physicalCompositeConsumerCells ?? [];
   const currentCells = technicalCurrentness?.physicalCompositeConsumerCells ?? [];
-  const cellIds = (cells) => cells.map((cell) => cell.cellId).sort();
-  const topologyUnchanged = JSON.stringify(cellIds(predecessorCells)) === JSON.stringify(cellIds(currentCells))
-    && predecessorCells.length === 50 && currentCells.length === 50
-    && predecessorCells.every((cell) => {
-      const current = currentCells.find((candidate) => candidate.cellId === cell.cellId);
-      return current
-        && current.surfaceId === cell.surfaceId
-        && current.cellType === cell.cellType
-        && isDeepStrictEqual(current.applicability, cell.applicability)
-        && current.ownerGraphFingerprint === cell.ownerGraphFingerprint
-        && current.physicalCatalogFingerprint === cell.physicalCatalogFingerprint
-        && current.providerRegistryFingerprint === cell.providerRegistryFingerprint;
-    });
+  const topologyPreserved = pdp0SuccessorCurrentTopologyPreserved(predecessorCells, currentCells, technicalCurrentness?.denominators);
   const valid = isDeepStrictEqual(parsedRecord, record)
     && record?.schemaVersion === 'media.discovery.pdp0-successor-source-impact.v1'
     && record?.recordId === 'MEDIA-DISCOVERY-PDP0-R8-SUCCESSOR-IMPACT-2026-10-14-R2'
@@ -1249,13 +1278,12 @@ export function classifyPdp0R8SuccessorImpact(pinComparisons, record, recordPath
     && priorCurrentness?.materialSourceSetFingerprint === materialFingerprint
     && priorCurrentness?.denominators?.totalCells === 50
     && priorExit?.sourceCurrentness?.denominators?.totalCells === 50
-    && samePaths && topologyUnchanged
+    && samePaths && topologyPreserved
     && changed.length === 1
     && sourcePin?.recordedDigest === predecessorSha256
     && sourcePin?.currentDigest === observedSha256
     && sourcePin?.disposition === 'CHANGED'
     && (technicalCurrentness?.physicalCompositeConsumerCells ?? []).every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
-    && technicalCurrentness?.denominators?.totalCells === 50
     && (technicalCurrentness?.materialPathDenominator?.uniquePaths ?? 0) === 146
     && technicalCurrentness?.lifecycleSourceCurrentness?.continuity === 'CONTINUOUS'
     && technicalCurrentness?.lifecycleSourceCurrentness?.consistencyStable === true

@@ -35,7 +35,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-artifact-version/requestSchema/properties/artifactId",
         ".product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation-slice.inspect-provenance/ownerWireSchema/requestSchema/properties/subject/properties/payload/oneOf/0/properties/artifactId"
       ],
-      "resolution": "All ten fields restore the prior format, pattern, and 1\u2013128 character bounds. No operation identity or outcome meaning changed."
+      "resolution": "All ten fields restore the prior format, pattern, and 1–128 character bounds. No operation identity or outcome meaning changed."
     },
     "unchangedPopulation": {
       "otherCanonicalReferenceCount": 86,
@@ -61,7 +61,7 @@
       "boundary": "Validates all ten repaired fields against the exact format, pattern, and length bounds, including accepted/rejected boundary examples; no runtime or phase acceptance claim."
     }
   },
-  "currentSourceSha256": "34e321b769bfdee1b49727acf1095e36e0e20808c3920674c17eb68df288843a",
+  "currentSourceSha256": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b",
   "historicalCuts": [
     {
       "decisionRef": ".product-experience/decision-log.md#PXD-094",
@@ -2047,7 +2047,7 @@
           "authorityRole": "PDP-0 surface status projection only; not product-definition authority"
         }
       ],
-      "reconciledMeaning": "LICENSE_ELIGIBLE_ASSET_CANDIDATES requires an actor-declared declaredIntendedUseScope; each candidate identifies an exact immutable asset version, its rights/license disposition evidence, and that intended-use scope. Eligibility is limited to current, authoritative, affirmative, scope-compatible rights and license evidence. Missing, unknown, denied, expired, revoked, restricted, incompatible, or unresolved evidence never produces an eligible candidate; UNKNOWN or review-required is not treated as a complete empty result. Search remains bounded to the supplied source-media or project scope, page size 1\u2013100, and continuation token bound to identical request scope and search intent. Candidate eligibility is not legal clearance, external-catalog search, runtime support, or admission.",
+      "reconciledMeaning": "LICENSE_ELIGIBLE_ASSET_CANDIDATES requires an actor-declared declaredIntendedUseScope; each candidate identifies an exact immutable asset version, its rights/license disposition evidence, and that intended-use scope. Eligibility is limited to current, authoritative, affirmative, scope-compatible rights and license evidence. Missing, unknown, denied, expired, revoked, restricted, incompatible, or unresolved evidence never produces an eligible candidate; UNKNOWN or review-required is not treated as a complete empty result. Search remains bounded to the supplied source-media or project scope, page size 1–100, and continuation token bound to identical request scope and search intent. Candidate eligibility is not legal clearance, external-catalog search, runtime support, or admission.",
       "focusedSourceAssertion": {
         "testPath": "tests/pdp1-capability-intent-operation-mapping.test.mjs",
         "testSourceSha256": "f4d45f2311f28944a4b377c5f1a91915cefd39da94de3c7f76856fa1f1c0aa69",
@@ -2127,7 +2127,7 @@
       "observationSelector": ".product-experience/pdp-1-domain-data/operations.yaml#ownerTypedObservationContracts/records/@id=media.observation-contract.candidate-metric-pair.v1",
       "wireId": "media.owner-action-wire.compare-candidate-on-metric.v2",
       "wireSelector": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@id=media.owner-action-wire.compare-candidate-on-metric.v2",
-      "requestMeaning": "Requires requestId, two distinct ordered exact immutable artifact-version references (original then candidate), and 1\u201316 unique metricRefs resolving exactly and case-sensitively to quality-policy metricDefinitions.id; unknown metrics are rejected.",
+      "requestMeaning": "Requires requestId, two distinct ordered exact immutable artifact-version references (original then candidate), and 1–16 unique metricRefs resolving exactly and case-sensitively to quality-policy metricDefinitions.id; unknown metrics are rejected.",
       "resultMeaning": "Returns exactly one ordered metric result per requested metric and echoes both exact version refs and metric set. Each side retains source observation status/currentness and raw value/provenance. Pair comparability requires every providerSignalContract.scopeIdentity field to match exactly; missing/mismatched scope yields NOT_COMPARABLE while preserving both sides; unavailable or stale evidence remains UNKNOWN.",
       "negativeCases": [
         "No source mutation or inferred permission.",
