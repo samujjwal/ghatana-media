@@ -33,12 +33,12 @@ for (const p of protos) {
 grpc.sort((a, b) => a.rpc.localeCompare(b.rpc));
 
 test('TY-03: HTTP route surface has not drifted (27 ops)', () => {
-  assert.equal(http.length, 27);
+  assert.equal(http.length, 30);
   assert.deepEqual(http, committed.http.operations);
 });
 
-test('TY-03: gRPC RPC surface has not drifted (43 RPCs)', () => {
-  assert.equal(grpc.length, 43);
+test('TY-03: gRPC RPC surface has not drifted (44 RPCs)', () => {
+  assert.equal(grpc.length, 44);
   assert.deepEqual(grpc, committed.grpc.rpcs);
 });
 

@@ -3,7 +3,7 @@
   "semantics": "OBSERVED_PROJECTION_NOT_SOURCE",
   "note": "fields/routes/RPCs are wire projections; absent PDP binding = UNBOUND, never admitted",
   "http": {
-    "count": 27,
+    "count": 30,
     "operations": [
       {
         "operationId": "appendMediaChunk",
@@ -45,6 +45,12 @@
         "operationId": "getMediaArtifact",
         "method": "GET",
         "path": "/api/v1/artifacts/{artifactId}",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "getMediaCaptionVersion",
+        "method": "GET",
+        "path": "/api/v1/caption-versions/{captionVersionId}",
         "visibility": "authenticated"
       },
       {
@@ -132,6 +138,12 @@
         "visibility": "authenticated"
       },
       {
+        "operationId": "listMediaCaptionVersions",
+        "method": "GET",
+        "path": "/api/v1/caption-versions",
+        "visibility": "authenticated"
+      },
+      {
         "operationId": "listMediaConsents",
         "method": "GET",
         "path": "/api/v1/consents",
@@ -147,6 +159,12 @@
         "operationId": "openMediaStream",
         "method": "POST",
         "path": "/api/v1/streams",
+        "visibility": "authenticated"
+      },
+      {
+        "operationId": "registerMediaCaptionVersion",
+        "method": "POST",
+        "path": "/api/v1/caption-versions",
         "visibility": "authenticated"
       },
       {
@@ -170,7 +188,7 @@
     ]
   },
   "grpc": {
-    "count": 43,
+    "count": 44,
     "rpcs": [
       {
         "service": "stt_service.proto",
@@ -363,6 +381,12 @@
         "rpc": "ProcessVideo",
         "request": "VideoFrameRequest",
         "response": "VideoFrameResponse"
+      },
+      {
+        "service": "vision_service.proto",
+        "rpc": "RecognizeSceneText",
+        "request": "SceneTextRecognizeRequest",
+        "response": "SceneTextRecognizeResponse"
       },
       {
         "service": "tts_service.proto",
@@ -869,6 +893,69 @@
       "detected_text",
       "faces",
       "scene_description"
+    ],
+    "SceneTextRoi": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "SceneTextRecognizeRequest": [
+      "cropped_bytes",
+      "cropped_frame_sha256",
+      "frame_height",
+      "frame_id",
+      "frame_width",
+      "language_hint",
+      "media_type",
+      "operation_id",
+      "original_frame_sha256",
+      "pts_us",
+      "purpose_ref",
+      "roi",
+      "source_artifact_id",
+      "source_version"
+    ],
+    "SceneTextBox": [
+      "height",
+      "width",
+      "x",
+      "y"
+    ],
+    "SceneTextObservation": [
+      "block_id",
+      "confidence",
+      "crop_box",
+      "frame_box",
+      "language_tag",
+      "line_id",
+      "text",
+      "wire_ordinal"
+    ],
+    "SceneTextProvenance": [
+      "model_ref",
+      "model_version",
+      "provider_ref",
+      "provider_version"
+    ],
+    "SceneTextRecognized": [
+      "frame_id",
+      "observations",
+      "operation_id",
+      "provenance",
+      "pts_us",
+      "rights_decision_ref",
+      "source_artifact_id",
+      "source_version"
+    ],
+    "SceneTextRejected": [
+      "code",
+      "retryable",
+      "worker_code"
+    ],
+    "SceneTextRecognizeResponse": [
+      "recognized",
+      "rejected"
     ],
     "FaceDetection": [
       "bounding_box",
