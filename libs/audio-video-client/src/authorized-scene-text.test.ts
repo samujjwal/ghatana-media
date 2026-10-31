@@ -33,7 +33,7 @@ const frame: SceneTextSourceFrame = {
 };
 const originalSha = 'a'.repeat(64);
 async function croppedDigest() {
-  const hash = await crypto.subtle.digest('SHA-256', frame.bytes);
+  const hash = await crypto.subtle.digest('SHA-256', new Uint8Array(frame.bytes).buffer);
   return Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join('');
 }
 const admission = async (): Promise<MediaSceneTextAccess> => ({
@@ -174,6 +174,57 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
       authorized(), null as unknown as DocumentIntelligenceV1Client,
       policy, 'op-1', frame, await admission()))
       .rejects.toMatchObject({ code: 'INVALID_SOURCE' });
+  });
+
+  it('binds the exact tenant/principal/purpose to source authority and denies a foreign tenant before DI', async () => {
+    const di = diClient();
+    const tenantScoped = {
+      verifyCurrentSource: vi.fn(async (request: { tenantId: string }) => (request.tenantId === 'tenant-owner'
+        ? { status: 'ADMITTED' as const, sourceVersion: 'v3', originalFrameSha256: originalSha, decisionRef: 'decision-1' }
+        : { status: 'DENIED' as const })),
+    };
+    await expect(recognizeAuthorizedMediaSceneText(
+      tenantScoped, di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({ code: 'SOURCE_DENIED' });
+    expect(tenantScoped.verifyCurrentSource).toHaveBeenCalledWith(expect.objectContaining({
+      tenantId: 'tenant-1', principalId: 'principal-1', purposeRef: 'caption',
+      sourceArtifactId: 'artifact-1', sourceVersion: 'v3', frameId: 'frame-7',
+    }));
+    expect(di.providers).not.toHaveBeenCalled();
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('cancellation before DI produces no DI call and no text', async () => {
+    const di = diClient();
+    const controller = new AbortController();
+    controller.abort();
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission(), controller.signal))
+      .rejects.toMatchObject({ code: 'SOURCE_UNAVAILABLE' });
+    expect(di.providers).not.toHaveBeenCalled();
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('late cancellation discards a DI result instead of returning text', async () => {
+    const controller = new AbortController();
+    const di = diClient();
+    di.parse.mockImplementationOnce(async () => {
+      controller.abort();
+      return parsed;
+    });
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission(), controller.signal))
+      .rejects.toMatchObject({ code: 'SOURCE_UNAVAILABLE' });
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
+  it('DI outage surfaces as a failure with zero OCR text and no Media fallback', async () => {
+    const di = diClient();
+    di.providers.mockRejectedValueOnce(new TypeError('fetch failed: ECONNREFUSED'));
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission()))
+      .rejects.toThrow(/ECONNREFUSED/);
+    expect(di.parse).not.toHaveBeenCalled();
   });
 
   it('does not execute unadmitted DI engines', async () => {
