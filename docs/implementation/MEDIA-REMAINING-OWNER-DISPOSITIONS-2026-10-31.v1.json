@@ -2851,7 +2851,9 @@
     "DATA-ACTION-EVENT": "https://github.com/samujjwal/ghatana/issues/254",
     "MEDIA-AP02": "https://github.com/samujjwal/ghatana-lifecycle/issues/24",
     "MEDIA-AP03": "https://github.com/samujjwal/ghatana-lifecycle/issues/25",
-    "LIFECYCLE-OWN-AP": "https://github.com/samujjwal/ghatana-lifecycle/issues/29"
+    "LIFECYCLE-OWN-AP": "https://github.com/samujjwal/ghatana-lifecycle/issues/29",
+    "KERNEL-OCR-K01": "https://github.com/samujjwal/ghatana-kernel/issues/99",
+    "SHARED-EXTRACTION-PEER": "https://github.com/samujjwal/ghatana-shared/issues/246"
   },
   "sourceOwnedIssueDisposition": [
     {
@@ -2938,6 +2940,16 @@
       "issue": "lifecycle#29",
       "disposition": "LIFECYCLE_OWN_REPOSITORY_AP02_AP03_DISTINCT_FROM_MEDIA",
       "action": "Lifecycle own source/governance host stage-nine authority, not a Media fixture; native proofs separately admitted."
+    },
+    {
+      "issue": "kernel#99",
+      "disposition": "DI_OWNED_KERNEL_OCR_PROVIDER_AND_SOURCE_FREE_ABI_PENDING",
+      "action": "Existing Kernel media.ocr compatibility ID binds DI-owned real OcrProvider, no alternate Media engine; actual cancellation/status/source rights and installed consumer positive."
+    },
+    {
+      "issue": "shared#246",
+      "disposition": "PUBLIC_EXTRACTION_PACKAGE_RELEASE_PROFILE_PENDING",
+      "action": "Resolve 0.1.0-SNAPSHOT DI peer by owner-issued compatible immutable release or honest DEV_SOURCE_COMPOSITE profile, then source-free TS/Java DI/Media consumers."
     }
   ]
 }
