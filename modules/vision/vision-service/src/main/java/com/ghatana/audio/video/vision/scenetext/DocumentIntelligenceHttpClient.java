@@ -6,6 +6,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -17,12 +18,14 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
 
 /**
@@ -47,16 +50,80 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
     private final ObjectMapper mapper = JsonMapper.builder().build();
     private final Duration catalogTimeout;
     private final long maxUploadBytes;
+    private final Semaphore inFlight;
 
-    public DocumentIntelligenceHttpClient(URI baseUri, HttpClient http, Duration catalogTimeout, long maxUploadBytes) {
+    /**
+     * Owner-pinned endpoint policy. The base URI's host must be explicitly allowlisted,
+     * TLS is mandatory when {@code requireTls} is set, and plaintext is otherwise limited to
+     * loopback or explicitly permitted hosts. No redirect is ever followed.
+     */
+    public record EndpointPolicy(Set<String> allowedHosts, boolean requireTls,
+                                 Set<String> plaintextPermittedHosts) {
+        public EndpointPolicy {
+            allowedHosts = Set.copyOf(Objects.requireNonNull(allowedHosts, "allowedHosts"));
+            plaintextPermittedHosts = Set.copyOf(
+                    Objects.requireNonNull(plaintextPermittedHosts, "plaintextPermittedHosts"));
+            if (allowedHosts.isEmpty()) {
+                throw new IllegalArgumentException("at least one DI endpoint host must be allowlisted");
+            }
+        }
+
+        public static EndpointPolicy loopback(String host) {
+            return new EndpointPolicy(Set.of(host), false, Set.of());
+        }
+
+        private void verify(URI baseUri) {
+            String host = baseUri.getHost();
+            if (host == null || host.isBlank() || baseUri.getUserInfo() != null
+                    || baseUri.getFragment() != null) {
+                throw new IllegalArgumentException("DI base URI must be an absolute host URI without credentials or fragment");
+            }
+            String normalizedHost = host.toLowerCase(java.util.Locale.ROOT);
+            if (!allowedHosts.contains(normalizedHost)) {
+                throw new IllegalArgumentException("DI endpoint host is not in the owner allowlist");
+            }
+            String scheme = baseUri.getScheme();
+            boolean tls = "https".equalsIgnoreCase(scheme);
+            if (!tls && !"http".equalsIgnoreCase(scheme)) {
+                throw new IllegalArgumentException("DI base URI must be http(s)");
+            }
+            if (requireTls && !tls) {
+                throw new IllegalArgumentException("DI endpoint requires TLS in this profile");
+            }
+            if (!tls && !isLoopback(normalizedHost) && !plaintextPermittedHosts.contains(normalizedHost)) {
+                throw new IllegalArgumentException("plaintext DI endpoint is not permitted for this host");
+            }
+        }
+
+        private static boolean isLoopback(String host) {
+            return "localhost".equals(host) || "127.0.0.1".equals(host) || "::1".equals(host)
+                    || "[::1]".equals(host);
+        }
+    }
+
+    public DocumentIntelligenceHttpClient(URI baseUri, HttpClient http, Duration catalogTimeout,
+                                          long maxUploadBytes, EndpointPolicy endpointPolicy,
+                                          int maxConcurrentRequests) {
         String base = baseUri.toString();
         this.baseUri = URI.create(base.endsWith("/") ? base.substring(0, base.length() - 1) : base);
-        if (!"http".equals(this.baseUri.getScheme()) && !"https".equals(this.baseUri.getScheme())) {
-            throw new IllegalArgumentException("DI base URI must be http(s)");
+        Objects.requireNonNull(endpointPolicy, "endpointPolicy").verify(this.baseUri);
+        Objects.requireNonNull(http, "http");
+        if (http.followRedirects() != HttpClient.Redirect.NEVER) {
+            throw new IllegalArgumentException("DI client must never follow redirects");
+        }
+        if (catalogTimeout == null || catalogTimeout.isNegative() || catalogTimeout.isZero()) {
+            throw new IllegalArgumentException("DI catalog timeout must be a positive bounded duration");
+        }
+        if (maxUploadBytes < 1 || maxUploadBytes > MAX_RESPONSE_BYTES) {
+            throw new IllegalArgumentException("DI upload bound must be between 1 byte and 32 MiB");
+        }
+        if (maxConcurrentRequests < 1 || maxConcurrentRequests > 256) {
+            throw new IllegalArgumentException("DI concurrency bound must be between 1 and 256");
         }
         this.http = http;
         this.catalogTimeout = catalogTimeout;
         this.maxUploadBytes = maxUploadBytes;
+        this.inFlight = new Semaphore(maxConcurrentRequests, true);
     }
 
     @Override
@@ -120,7 +187,17 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
     private JsonNode send(HttpRequest request, Cancellation cancellation, String operationId, String generation)
             throws DocumentIntelligenceException {
         if (cancellation.isCancelled()) throw DocumentIntelligenceException.of(Kind.CANCELLED);
-        CompletableFuture<HttpResponse<byte[]>> pending = http.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray());
+        if (!inFlight.tryAcquire()) throw DocumentIntelligenceException.of(Kind.UNAVAILABLE);
+        try {
+            return sendBounded(request, cancellation, operationId, generation);
+        } finally {
+            inFlight.release();
+        }
+    }
+
+    private JsonNode sendBounded(HttpRequest request, Cancellation cancellation, String operationId, String generation)
+            throws DocumentIntelligenceException {
+        CompletableFuture<HttpResponse<byte[]>> pending = http.sendAsync(request, boundedResponseBody());
         Runnable unregister = cancellation.onCancel(() -> pending.cancel(true));
         HttpResponse<byte[]> response;
         try {
@@ -134,6 +211,9 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
                 if (generation != null) cancel(operationId, generation);
                 throw DocumentIntelligenceException.of(Kind.CANCELLED);
             }
+            if (responseTooLarge(failure.getCause())) {
+                throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
+            }
             throw DocumentIntelligenceException.of(failure.getCause() instanceof java.net.http.HttpTimeoutException
                     ? Kind.TIMEOUT : Kind.UNAVAILABLE);
         } finally {
@@ -144,7 +224,7 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
             throw DocumentIntelligenceException.of(Kind.CANCELLED);
         }
         byte[] raw = response.body();
-        if (raw == null || raw.length > MAX_RESPONSE_BYTES) throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
+        if (raw == null) throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
         JsonNode body;
         try {
             body = mapper.readTree(raw);
@@ -154,6 +234,45 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
         if (response.statusCode() / 100 != 2) throw workerError(body);
         if (body == null || !body.isObject()) throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
         return body;
+    }
+
+    /**
+     * Response body bounded during receipt: an oversized declared Content-Length fails before
+     * any body byte is buffered, and the stream is read only up to the cap plus one byte, so a
+     * malicious peer can never force an allocation larger than the configured ceiling.
+     */
+    private HttpResponse.BodyHandler<byte[]> boundedResponseBody() {
+        return responseInfo -> {
+            long declared = responseInfo.headers().firstValueAsLong("Content-Length").orElse(-1L);
+            if (declared > MAX_RESPONSE_BYTES) throw new ResponseTooLargeException();
+            return HttpResponse.BodySubscribers.mapping(
+                    HttpResponse.BodySubscribers.ofInputStream(), this::readBoundedBody);
+        };
+    }
+
+    private byte[] readBoundedBody(InputStream input) {
+        try (InputStream body = input) {
+            byte[] bytes = body.readNBytes(MAX_RESPONSE_BYTES + 1);
+            if (bytes.length > MAX_RESPONSE_BYTES) throw new ResponseTooLargeException();
+            return bytes;
+        } catch (ResponseTooLargeException tooLarge) {
+            throw tooLarge;
+        } catch (Exception failure) {
+            throw new RuntimeException("Unable to read bounded DI response", failure);
+        }
+    }
+
+    private static boolean responseTooLarge(Throwable failure) {
+        for (Throwable current = failure; current != null; current = current.getCause()) {
+            if (current instanceof ResponseTooLargeException) return true;
+        }
+        return false;
+    }
+
+    private static final class ResponseTooLargeException extends RuntimeException {
+        private ResponseTooLargeException() {
+            super("DI response exceeds the bounded receipt limit");
+        }
     }
 
     private static DocumentIntelligenceException workerError(JsonNode body) {

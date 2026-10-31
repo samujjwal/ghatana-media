@@ -351,7 +351,7 @@ class VisionGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("Vision capability census maps exactly 22 intents to the ten proto RPCs")
+    @DisplayName("Vision capability census maps exactly 22 intents to the eleven proto RPCs")
     void visionCapabilityCensusMatchesPdpIdsRpcContractsAndProviderQualification() {
         Map<String, Set<String>> expectedRpcBindings = Map.ofEntries(
                 Map.entry("media.vision.scene-text.region.track", Set.of("AnalyzeVideoFile", "ProcessVideo")),
@@ -415,7 +415,8 @@ class VisionGrpcServiceTest {
         assertThat(VisionServiceGrpc.getServiceDescriptor().getMethods())
                 .extracting("bareMethodName")
                 .containsExactlyInAnyOrder(
-                        "DetectObjects", "AnalyzeImage", "ClassifyImage", "AnalyzeVideoFile", "ProcessVideo",
+                        "DetectObjects", "AnalyzeImage", "ClassifyImage", "RecognizeSceneText",
+                        "AnalyzeVideoFile", "ProcessVideo",
                         "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck");
     }
 

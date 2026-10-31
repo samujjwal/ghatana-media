@@ -151,7 +151,8 @@ class SceneTextRecognitionServiceTest {
 
     @Test
     void absentDiIsNotAdmittedWithoutAnyMediaFallback() {
-        SceneTextRecognitionService service = new SceneTextRecognitionService(Optional.empty(), admitted(), POLICY);
+        SceneTextRecognitionService service = new SceneTextRecognitionService(
+                Optional.empty(), admitted(), POLICY, Optional.of(trustedResolver()));
         assertRejected(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()), Code.DI_NOT_CONFIGURED);
     }
 
@@ -259,6 +260,69 @@ class SceneTextRecognitionServiceTest {
         assertThat(calls).isEmpty();
     }
 
+    @Test
+    void callerCropBytesNeverReachDiOnlyResolverPixelsDo() {
+        FrameRequest forged = new FrameRequest("op-1", "tenant-1", "principal-1", "caption", "artifact-1",
+                "v3", "frame-7", 4_000_000L, 1600, 800, new Roi(400, 200, 800, 400), "image/png",
+                new byte[] {0x55, 0x55}, ORIGINAL_SHA, sha(new byte[] {0x55, 0x55}), Optional.of("en"));
+        Outcome outcome = service(admitted()).recognize(forged, Cancellation.none());
+        assertThat(outcome).isInstanceOf(Recognized.class);
+        String body = new String(parseBody.get(), StandardCharsets.ISO_8859_1);
+        assertThat(body).contains(new String(CROP, StandardCharsets.ISO_8859_1));
+        assertThat(body).doesNotContain(new String(new byte[] {0x55, 0x55}, StandardCharsets.ISO_8859_1));
+    }
+
+    @Test
+    void absentCropDeclarationStillRecognizesThroughResolver() {
+        FrameRequest noCrop = new FrameRequest("op-1", "tenant-1", "principal-1", "caption", "artifact-1",
+                "v3", "frame-7", 4_000_000L, 1600, 800, new Roi(400, 200, 800, 400), "image/png",
+                null, ORIGINAL_SHA, null, Optional.of("en"));
+        assertThat(service(admitted()).recognize(noCrop, Cancellation.none())).isInstanceOf(Recognized.class);
+    }
+
+    @Test
+    void resolverClaimingForeignFrameDigestIsRejectedBeforeDi() {
+        SceneTextRecognitionService service = new SceneTextRecognitionService(
+                Optional.of(httpClient()), admitted(), POLICY,
+                Optional.of(request -> new SceneTextRecognitionService.ResolvedCrop(
+                        CROP, "image/png", "b".repeat(64), 4_000_000L, 1600, 800)));
+        assertRejected(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()),
+                Code.SOURCE_FRAME_MISMATCH);
+        assertThat(calls).doesNotContain("parse");
+    }
+
+    @Test
+    void resolverFrameIdentityMismatchIsRejectedBeforeDi() {
+        SceneTextRecognitionService service = new SceneTextRecognitionService(
+                Optional.of(httpClient()), admitted(), POLICY,
+                Optional.of(request -> new SceneTextRecognitionService.ResolvedCrop(
+                        CROP, "image/png", ORIGINAL_SHA, 9_999_999L, request.frameWidth(), request.frameHeight())));
+        assertRejected(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()),
+                Code.SOURCE_FRAME_MISMATCH);
+        assertThat(calls).doesNotContain("parse");
+    }
+
+    @Test
+    void refusedAndAbsentResolverFailClosedWithoutDi() {
+        SceneTextRecognitionService denied = new SceneTextRecognitionService(
+                Optional.of(httpClient()), admitted(), POLICY,
+                Optional.of(request -> new SceneTextRecognitionService.CropRefused(
+                        SceneTextRecognitionService.SourceStatus.NOT_ADMITTED)));
+        assertRejected(denied.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()), Code.SOURCE_DENIED);
+        SceneTextRecognitionService noResolver = new SceneTextRecognitionService(
+                Optional.of(httpClient()), admitted(), POLICY);
+        assertRejected(noResolver.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()),
+                Code.CROP_RESOLVER_NOT_CONFIGURED);
+        assertThat(calls).doesNotContain("parse");
+    }
+
+    private DocumentIntelligenceHttpClient httpClient() {
+        return new DocumentIntelligenceHttpClient(
+                URI.create("http://127.0.0.1:" + server.getAddress().getPort()),
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build(), Duration.ofSeconds(3), 1024 * 1024,
+                DocumentIntelligenceHttpClient.EndpointPolicy.loopback("127.0.0.1"), 4);
+    }
+
     private Outcome recognize() {
         return service(admitted()).recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none());
     }
@@ -266,8 +330,16 @@ class SceneTextRecognitionServiceTest {
     private SceneTextRecognitionService service(SourceAuthority authority) {
         DocumentIntelligenceHttpClient client = new DocumentIntelligenceHttpClient(
                 URI.create("http://127.0.0.1:" + server.getAddress().getPort()),
-                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build(), Duration.ofSeconds(3), 1024 * 1024);
-        return new SceneTextRecognitionService(Optional.of(client), authority, POLICY);
+                HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build(), Duration.ofSeconds(3), 1024 * 1024,
+                DocumentIntelligenceHttpClient.EndpointPolicy.loopback("127.0.0.1"), 4);
+        return new SceneTextRecognitionService(Optional.of(client), authority, POLICY,
+                Optional.of(trustedResolver()));
+    }
+
+    /** Trusted-resolver fixture: re-derives CROP for the admitted frame identity. */
+    private static SceneTextRecognitionService.FrameCropResolver trustedResolver() {
+        return request -> new SceneTextRecognitionService.ResolvedCrop(
+                CROP, "image/png", ORIGINAL_SHA, request.ptsUs(), request.frameWidth(), request.frameHeight());
     }
 
     private static SourceAuthority admitted() {

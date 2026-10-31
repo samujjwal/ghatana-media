@@ -43,14 +43,22 @@ public final class SceneTextRecognitionService {
     private final Optional<DocumentIntelligenceV1> documentIntelligence;
     private final SourceAuthority sourceAuthority;
     private final Policy policy;
+    private final Optional<FrameCropResolver> cropResolver;
     private final SecureRandom random = new SecureRandom();
     private final Set<String> inFlight = ConcurrentHashMap.newKeySet();
 
     public SceneTextRecognitionService(Optional<DocumentIntelligenceV1> documentIntelligence,
                                        SourceAuthority sourceAuthority, Policy policy) {
+        this(documentIntelligence, sourceAuthority, policy, Optional.empty());
+    }
+
+    public SceneTextRecognitionService(Optional<DocumentIntelligenceV1> documentIntelligence,
+                                       SourceAuthority sourceAuthority, Policy policy,
+                                       Optional<FrameCropResolver> cropResolver) {
         this.documentIntelligence = Objects.requireNonNull(documentIntelligence, "documentIntelligence");
         this.sourceAuthority = Objects.requireNonNull(sourceAuthority, "sourceAuthority");
         this.policy = Objects.requireNonNull(policy, "policy");
+        this.cropResolver = Objects.requireNonNull(cropResolver, "cropResolver");
     }
 
     /** Trusted source-rights seam; caller-supplied consent strings are not an input. */
@@ -58,6 +66,42 @@ public final class SceneTextRecognitionService {
     public interface SourceAuthority {
         Decision verify(SourceCheck check);
     }
+
+    /**
+     * Trusted frame-crop seam. Only invoked after the source authority admits the exact
+     * source version and principal. The resolver must re-derive the ROI pixels from the true
+     * original frame bytes itself; caller-supplied crops are never forwarded to DI.
+     */
+    @FunctionalInterface
+    public interface FrameCropResolver {
+        CropOutcome resolve(CropRequest request);
+    }
+
+    /** Exact admitted frame identity handed to the trusted resolver. */
+    public record CropRequest(String tenantId, String principalId, String purposeRef,
+                              String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
+                              int frameWidth, int frameHeight, Roi roi, String mediaType) { }
+
+    public sealed interface CropOutcome permits ResolvedCrop, CropRefused { }
+
+    /**
+     * Pixels the resolver derived from the true original frame. {@code originalFrameSha256},
+     * {@code ptsUs} and the frame dimensions describe the actual source frame the resolver
+     * decoded; the service rejects any claim that differs from the admitted request.
+     */
+    public record ResolvedCrop(byte[] pixels, String mediaType, String originalFrameSha256,
+                               long ptsUs, int frameWidth, int frameHeight) implements CropOutcome {
+        public ResolvedCrop {
+            pixels = pixels == null ? null : pixels.clone();
+        }
+
+        @Override
+        public byte[] pixels() {
+            return pixels == null ? null : pixels.clone();
+        }
+    }
+
+    public record CropRefused(SourceStatus status) implements CropOutcome { }
 
     public record SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
                               String sourceVersion, String frameId, String originalFrameSha256) { }
@@ -90,6 +134,12 @@ public final class SceneTextRecognitionService {
     /** Region of interest in source-frame pixels. */
     public record Roi(int x, int y, int width, int height) { }
 
+    /**
+     * Caller request. {@code croppedBytes} and {@code croppedFrameSha256} are non-authoritative
+     * caller declarations kept for wire compatibility: they are sanity-checked only and are
+     * never sent to Document Intelligence. The pixels reaching DI always come from the trusted
+     * {@link FrameCropResolver}.
+     */
     public record FrameRequest(String operationId, String tenantId, String principalId, String purposeRef,
                                String sourceArtifactId, String sourceVersion, String frameId, long ptsUs,
                                int frameWidth, int frameHeight, Roi roi, String mediaType, byte[] croppedBytes,
@@ -110,7 +160,8 @@ public final class SceneTextRecognitionService {
 
     public enum Code {
         INVALID_REQUEST, DUPLICATE_IN_FLIGHT, SOURCE_DIGEST_MISMATCH, SOURCE_DENIED, SOURCE_UNAVAILABLE,
-        SOURCE_VERSION_MISMATCH, MEDIA_TYPE_NOT_ADMITTED, LANGUAGE_NOT_ADMITTED, DI_NOT_CONFIGURED, DI_UNAVAILABLE,
+        SOURCE_VERSION_MISMATCH, SOURCE_FRAME_MISMATCH, CROP_RESOLVER_NOT_CONFIGURED,
+        MEDIA_TYPE_NOT_ADMITTED, LANGUAGE_NOT_ADMITTED, DI_NOT_CONFIGURED, DI_UNAVAILABLE,
         CLIENT_PROTOCOL_MISMATCH, WORKER_VERSION_NOT_ADMITTED, PROVIDER_NOT_ADMITTED, PROVIDER_VERSION_MISMATCH,
         MODEL_IDENTITY_MISSING, MODEL_VERSION_MISMATCH, RESPONSE_INVALID, PAGE_SCOPE_UNSUPPORTED,
         RESULT_CONFIDENCE_MISSING, PROVIDER_FAILED, CANCELLED
@@ -136,21 +187,23 @@ public final class SceneTextRecognitionService {
     public Outcome recognize(FrameRequest request, Cancellation cancellation) {
         Objects.requireNonNull(cancellation, "cancellation");
         if (!valid(request)) return Rejected.of(Code.INVALID_REQUEST);
-        byte[] crop = request.croppedBytes();
-        if (!sha256(crop).equals(request.croppedFrameSha256())) return Rejected.of(Code.SOURCE_DIGEST_MISMATCH);
+        byte[] declaredCrop = request.croppedBytes();
+        if (declaredCrop != null && !sha256(declaredCrop).equals(request.croppedFrameSha256())) {
+            return Rejected.of(Code.SOURCE_DIGEST_MISMATCH);
+        }
         if (!policy.acceptedMediaTypes().contains(request.mediaType())) return Rejected.of(Code.MEDIA_TYPE_NOT_ADMITTED);
         if (request.languageHint().isPresent() && !policy.acceptedLanguages().contains(request.languageHint().get())) {
             return Rejected.of(Code.LANGUAGE_NOT_ADMITTED);
         }
         if (!inFlight.add(request.tenantId() + '\u0000' + request.operationId())) return Rejected.of(Code.DUPLICATE_IN_FLIGHT);
         try {
-            return recognizeAdmitted(request, crop, cancellation);
+            return recognizeAdmitted(request, cancellation);
         } finally {
             inFlight.remove(request.tenantId() + '\u0000' + request.operationId());
         }
     }
 
-    private Outcome recognizeAdmitted(FrameRequest request, byte[] crop, Cancellation cancellation) {
+    private Outcome recognizeAdmitted(FrameRequest request, Cancellation cancellation) {
         if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
         Decision decision = sourceAuthority.verify(new SourceCheck(request.tenantId(), request.principalId(),
                 request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
@@ -162,6 +215,26 @@ public final class SceneTextRecognitionService {
         if (!request.sourceVersion().equals(decision.sourceVersion())) return Rejected.of(Code.SOURCE_VERSION_MISMATCH);
         if (!request.originalFrameSha256().equals(decision.originalFrameSha256())) return Rejected.of(Code.SOURCE_DIGEST_MISMATCH);
         if (decision.decisionRef() == null || !IDENTITY.matcher(decision.decisionRef()).matches()) return Rejected.of(Code.SOURCE_DENIED);
+        CropOutcome cropOutcome = resolveTrustedCrop(request);
+        if (cropOutcome == null) return Rejected.of(Code.CROP_RESOLVER_NOT_CONFIGURED);
+        if (cropOutcome instanceof CropRefused refused) return refusedOutcome(refused);
+        ResolvedCrop resolved = (ResolvedCrop) cropOutcome;
+        if (resolved.pixels() == null || resolved.pixels().length == 0 || resolved.pixels().length > MAX_CROP_BYTES
+                || resolved.mediaType() == null || resolved.originalFrameSha256() == null) {
+            return Rejected.of(Code.SOURCE_UNAVAILABLE);
+        }
+        if (!resolved.originalFrameSha256().equals(decision.originalFrameSha256())
+                || !SHA256.matcher(resolved.originalFrameSha256()).matches()) {
+            return Rejected.of(Code.SOURCE_FRAME_MISMATCH);
+        }
+        if (resolved.ptsUs() != request.ptsUs() || resolved.frameWidth() != request.frameWidth()
+                || resolved.frameHeight() != request.frameHeight()) {
+            return Rejected.of(Code.SOURCE_FRAME_MISMATCH);
+        }
+        if (!resolved.mediaType().equals(request.mediaType())
+                || !policy.acceptedMediaTypes().contains(resolved.mediaType())) {
+            return Rejected.of(Code.MEDIA_TYPE_NOT_ADMITTED);
+        }
         if (documentIntelligence.isEmpty()) return Rejected.of(Code.DI_NOT_CONFIGURED);
         DocumentIntelligenceV1 di = documentIntelligence.get();
         String generation = HexFormat.of().formatHex(randomBytes());
@@ -170,8 +243,8 @@ public final class SceneTextRecognitionService {
             Code catalogProblem = checkCatalog(catalog, request);
             if (catalogProblem != null) return Rejected.of(catalogProblem);
             ParsedDocument parsed = di.parse(new DocumentIntelligenceV1.ParseRequest(request.operationId(), generation,
-                    policy.providerRef(), request.mediaType(), request.languageHint(), policy.timeoutMs(),
-                    policy.workerLimits(), crop), cancellation);
+                    policy.providerRef(), resolved.mediaType(), request.languageHint(), policy.timeoutMs(),
+                    policy.workerLimits(), resolved.pixels()), cancellation);
             if (cancellation.isCancelled()) {
                 di.cancel(request.operationId(), generation);
                 return Rejected.of(Code.CANCELLED);
@@ -188,30 +261,27 @@ public final class SceneTextRecognitionService {
         }
     }
 
-    private Code checkCatalog(ProviderCatalog catalog, FrameRequest request) {
-        if (catalog == null || !DocumentIntelligenceV1.PROTOCOL_VERSION.equals(catalog.protocolVersion())) {
-            return Code.CLIENT_PROTOCOL_MISMATCH;
+    /**
+     * Authoritative crop derivation under the source-rights decision. Caller crop bytes are
+     * never an input: the resolver re-derives pixels from the true original frame and the
+     * admitted frame identity is what its output is compared against.
+     */
+    private CropOutcome resolveTrustedCrop(FrameRequest request) {
+        if (cropResolver.isEmpty()) return null;
+        CropOutcome outcome;
+        try {
+            outcome = cropResolver.get().resolve(new CropRequest(request.tenantId(), request.principalId(),
+                    request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
+                    request.ptsUs(), request.frameWidth(), request.frameHeight(), request.roi(), request.mediaType()));
+        } catch (RuntimeException failure) {
+            return new CropRefused(SourceStatus.UNAVAILABLE);
         }
-        if (!DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION.equals(catalog.workerCapabilityVersion())) {
-            return Code.WORKER_VERSION_NOT_ADMITTED;
-        }
-        Optional<ProviderEntry> provider = catalog.providers().stream()
-                .filter(entry -> entry.providerRef().equals(policy.providerRef())).findFirst();
-        if (provider.isEmpty() || !"ACCEPTED".equals(provider.get().promotionStatus())
-                || !provider.get().loaded() || !provider.get().ready()) {
-            return Code.PROVIDER_NOT_ADMITTED;
-        }
-        ProviderEntry entry = provider.get();
-        if (!entry.providerVersion().equals(policy.providerVersion())) return Code.PROVIDER_VERSION_MISMATCH;
-        if (entry.modelRef().isEmpty() || entry.modelVersion().isEmpty()) return Code.MODEL_IDENTITY_MISSING;
-        if (!entry.modelRef().get().equals(policy.modelRef()) || !entry.modelVersion().get().equals(policy.modelVersion())) {
-            return Code.MODEL_VERSION_MISMATCH;
-        }
-        if (!entry.mediaTypes().contains(request.mediaType())) return Code.MEDIA_TYPE_NOT_ADMITTED;
-        if (request.languageHint().isPresent() && !entry.supportedLanguages().contains(request.languageHint().get())) {
-            return Code.LANGUAGE_NOT_ADMITTED;
-        }
-        return null;
+        return outcome == null ? new CropRefused(SourceStatus.UNAVAILABLE) : outcome;
+    }
+
+    private static Outcome refusedOutcome(CropRefused refused) {
+        return refused.status() == SourceStatus.UNAVAILABLE
+                ? Rejected.of(Code.SOURCE_UNAVAILABLE) : Rejected.of(Code.SOURCE_DENIED);
     }
 
     private Outcome map(FrameRequest request, Decision decision, ParsedDocument parsed) {
@@ -260,14 +330,69 @@ public final class SceneTextRecognitionService {
             if (value == null || !IDENTITY.matcher(value).matches()) return false;
         }
         Roi roi = request.roi();
-        byte[] crop = request.croppedBytes();
+        byte[] declaredCrop = request.croppedBytes();
+        boolean cropConsistent = (declaredCrop == null) == (request.croppedFrameSha256() == null)
+                && (declaredCrop == null
+                    || (declaredCrop.length > 0 && declaredCrop.length <= MAX_CROP_BYTES
+                        && SHA256.matcher(request.croppedFrameSha256()).matches()));
         return request.ptsUs() >= 0 && request.frameWidth() > 0 && request.frameHeight() > 0 && roi != null
                 && roi.x() >= 0 && roi.y() >= 0 && roi.width() > 0 && roi.height() > 0
                 && (long) roi.x() + roi.width() <= request.frameWidth() && (long) roi.y() + roi.height() <= request.frameHeight()
-                && request.mediaType() != null && crop != null && crop.length > 0 && crop.length <= MAX_CROP_BYTES
+                && request.mediaType() != null && cropConsistent
                 && request.originalFrameSha256() != null && SHA256.matcher(request.originalFrameSha256()).matches()
-                && request.croppedFrameSha256() != null && SHA256.matcher(request.croppedFrameSha256()).matches()
                 && request.languageHint().map(hint -> IDENTITY.matcher(hint).matches()).orElse(true);
+    }
+
+    /**
+     * Truthful DI admission probe for health and startup composition: the configured provider
+     * is currently admitted only when the live catalog matches the owner-pinned provider and
+     * model identity. Any transport or catalog failure reports not-admitted.
+     */
+    public boolean providerCurrentlyAdmitted() {
+        if (documentIntelligence.isEmpty()) return false;
+        try {
+            ProviderCatalog catalog = documentIntelligence.get().providers(Cancellation.none());
+            String mediaType = policy.acceptedMediaTypes().stream().findFirst().orElse(null);
+            return catalog != null && mediaType != null && checkCatalogFor(catalog, mediaType) == null;
+        } catch (RuntimeException | DocumentIntelligenceException unavailable) {
+            return false;
+        }
+    }
+
+    private Code checkCatalog(ProviderCatalog catalog, FrameRequest request) {
+        Code providerProblem = checkCatalogFor(catalog, request.mediaType());
+        if (providerProblem != null) return providerProblem;
+        if (request.languageHint().isPresent()) {
+            Optional<ProviderEntry> provider = catalog.providers().stream()
+                    .filter(entry -> entry.providerRef().equals(policy.providerRef())).findFirst();
+            if (provider.isEmpty() || !provider.get().supportedLanguages().contains(request.languageHint().get())) {
+                return Code.LANGUAGE_NOT_ADMITTED;
+            }
+        }
+        return null;
+    }
+
+    private Code checkCatalogFor(ProviderCatalog catalog, String mediaType) {
+        if (catalog == null || !DocumentIntelligenceV1.PROTOCOL_VERSION.equals(catalog.protocolVersion())) {
+            return Code.CLIENT_PROTOCOL_MISMATCH;
+        }
+        if (!DocumentIntelligenceV1.WORKER_CAPABILITY_VERSION.equals(catalog.workerCapabilityVersion())) {
+            return Code.WORKER_VERSION_NOT_ADMITTED;
+        }
+        Optional<ProviderEntry> provider = catalog.providers().stream()
+                .filter(entry -> entry.providerRef().equals(policy.providerRef())).findFirst();
+        if (provider.isEmpty() || !"ACCEPTED".equals(provider.get().promotionStatus())
+                || !provider.get().loaded() || !provider.get().ready()) {
+            return Code.PROVIDER_NOT_ADMITTED;
+        }
+        ProviderEntry entry = provider.get();
+        if (!entry.providerVersion().equals(policy.providerVersion())) return Code.PROVIDER_VERSION_MISMATCH;
+        if (entry.modelRef().isEmpty() || entry.modelVersion().isEmpty()) return Code.MODEL_IDENTITY_MISSING;
+        if (!entry.modelRef().get().equals(policy.modelRef()) || !entry.modelVersion().get().equals(policy.modelVersion())) {
+            return Code.MODEL_VERSION_MISMATCH;
+        }
+        if (!entry.mediaTypes().contains(mediaType)) return Code.MEDIA_TYPE_NOT_ADMITTED;
+        return null;
     }
 
     private byte[] randomBytes() {

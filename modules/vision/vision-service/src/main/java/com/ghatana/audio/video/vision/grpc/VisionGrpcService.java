@@ -81,6 +81,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private volatile String degradationReason = null;
     /** DI-only scene-text consumer (VIS-09); null keeps the RPC fail-closed. */
     private volatile com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService sceneTextService;
+    /** Bounded worker pool for the blocking DI call; direct execution unless production binds one. */
+    private volatile java.util.concurrent.Executor sceneTextExecutor = Runnable::run;
 
     /** Package-private constructor for tests that inject an in-memory {@link VisionDetector}. */
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor) {
@@ -127,6 +129,14 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         this.sceneTextService = service;
     }
 
+    /** Production seam: scene-text work runs on a bounded worker pool, off the gRPC executor. */
+    void bindSceneTextService(
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService service,
+            java.util.concurrent.Executor sceneTextExecutor) {
+        this.sceneTextExecutor = Objects.requireNonNull(sceneTextExecutor, "sceneTextExecutor");
+        this.sceneTextService = service;
+    }
+
     private VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
                       MediaProcessingMetrics metrics, @Nullable AuditService auditService,
                       ModelRegistry modelRegistry, MeterRegistry providerMetrics,
@@ -165,18 +175,20 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         this(composition.detector(), composition.frameExtractor(), metrics, auditService,
                 new FileSystemModelStore(), providerMetrics,
                 new AudioVideoTracingService(GlobalOpenTelemetry.getTracer("ghatana-media-vision")), false);
-        ModelMetadata defaultModel = ModelMetadata.builder()
-                .modelId(composition.profile().modelId())
-                .name(composition.profile().modelId())
-                .type(ModelMetadata.ModelType.VISION)
-                .version(composition.profile().version())
-                .sizeBytes(composition.profile().sizeBytes())
-                .loaded(true)
-                .build();
-        try {
-            modelRegistry.register(defaultModel);
-        } catch (ModelRegistry.ModelRegistryException ignored) {
-            // Registry is process-local and may already contain this model during test reuse.
+        if (composition.profile() != null) {
+            ModelMetadata defaultModel = ModelMetadata.builder()
+                    .modelId(composition.profile().modelId())
+                    .name(composition.profile().modelId())
+                    .type(ModelMetadata.ModelType.VISION)
+                    .version(composition.profile().version())
+                    .sizeBytes(composition.profile().sizeBytes())
+                    .loaded(true)
+                    .build();
+            try {
+                modelRegistry.register(defaultModel);
+            } catch (ModelRegistry.ModelRegistryException ignored) {
+                // Registry is process-local and may already contain this model during test reuse.
+            }
         }
     }
 
@@ -517,10 +529,30 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 request.getLanguageHint().isBlank()
                         ? Optional.empty() : Optional.of(request.getLanguageHint()));
         var cancellation = new com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation();
+        var observerRef = responseObserver;
         if (responseObserver instanceof ServerCallStreamObserver<SceneTextRecognizeResponse> call) {
             call.setOnCancelHandler(cancellation::cancel);
         }
-        var outcome = service.recognize(frameRequest, cancellation);
+        java.util.concurrent.CompletableFuture
+                .<com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Outcome>supplyAsync(
+                        () -> service.recognize(frameRequest, cancellation), sceneTextExecutor)
+                .whenComplete((outcome, failure) -> {
+                    if (failure != null) {
+                        mediaMetrics.recordFailed("vision.scene-text");
+                        recordResponseFailure(observerRef, io.grpc.Status.UNAVAILABLE
+                                .withDescription("Scene text recognition worker failed")
+                                .asRuntimeException());
+                        return;
+                    }
+                    completeSceneText(frameRequest, outcome, observerRef);
+                });
+        }
+    }
+
+    private void completeSceneText(
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest frameRequest,
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Outcome outcome,
+            StreamObserver<SceneTextRecognizeResponse> responseObserver) {
         if (outcome instanceof com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Recognized recognized) {
             var provenance = SceneTextProvenance.newBuilder()
                     .setProviderRef(recognized.provenance().providerRef())
@@ -559,7 +591,6 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     .build());
         }
         responseObserver.onCompleted();
-        }
     }
 
     private static SceneTextBox box(
