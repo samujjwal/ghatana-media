@@ -61,7 +61,7 @@
       "role": "LIVE_ENTRYPOINT_FAIL_CLOSED",
       "disposition": "REQUIRES_WORK",
       "packet": "OCR-M02",
-      "remaining": "Expose SceneTextRecognitionService through an owner-reviewed VIS-09 RPC contract (AnalyzeRequest has no frame/ROI/PTS/source fields); currently returns UNIMPLEMENTED for every analysis intent."
+      "remaining": "RecognizeSceneText RPC now dispatches to SceneTextRecognitionService with exact source/frame/ROI/PTS fields and fails closed without a composed DI binding; real DI worker qualification and owner review remain open (VIS-09)."
     },
     {
       "id": "MEDIA-JAVA-OCR-SERVICE",

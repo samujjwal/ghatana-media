@@ -79,6 +79,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private final AudioVideoTracingService tracingService;
     private volatile boolean degraded = false;
     private volatile String degradationReason = null;
+    /** DI-only scene-text consumer (VIS-09); null keeps the RPC fail-closed. */
+    private volatile com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService sceneTextService;
 
     /** Package-private constructor for tests that inject an in-memory {@link VisionDetector}. */
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor) {
@@ -117,6 +119,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                       AudioVideoTracingService tracingService) {
         this(detector, frameExtractor, metrics, auditService, modelRegistry, providerMetrics,
                 tracingService, true);
+    }
+
+    /** Composition/test seam: installs the DI-bound scene-text consumer for the VIS-09 RPC. */
+    void bindSceneTextService(
+            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService service) {
+        this.sceneTextService = service;
     }
 
     private VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
@@ -469,6 +477,97 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .withDescription("Image scene analysis is not admitted; object detections do not establish scene semantics")
                 .asRuntimeException());
         }
+    }
+
+    // ── VIS-09: recognizeSceneText ────────────────────────────────────────────
+
+    @Override
+    public void recognizeSceneText(SceneTextRecognizeRequest request,
+                                   StreamObserver<SceneTextRecognizeResponse> responseObserver) {
+        TracedResponse<SceneTextRecognizeResponse> traced =
+                genericTracedResponse("recognizeSceneText", responseObserver);
+        responseObserver = traced.observer;
+        try (Scope scope = tracingService.createScope(traced.span)) {
+        mediaMetrics.recordStarted("vision.scene-text");
+        String tenantId = resolveTenantId();
+        if (!tenantContextAvailable(tenantId)) {
+            mediaMetrics.recordFailed("vision.scene-text");
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
+                    .withDescription("Missing tenant context")
+                    .asRuntimeException());
+            return;
+        }
+        var service = sceneTextService;
+        if (service == null) {
+            mediaMetrics.recordFailed("vision.scene-text");
+            recordResponseFailure(responseObserver, io.grpc.Status.UNAVAILABLE
+                    .withDescription("Scene text recognition is not composed; Document Intelligence is the only OCR provider")
+                    .asRuntimeException());
+            return;
+        }
+        var frameRequest = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest(
+                request.getOperationId(), tenantId, resolveUserId(), request.getPurposeRef(),
+                request.getSourceArtifactId(), request.getSourceVersion(), request.getFrameId(),
+                request.getPtsUs(), request.getFrameWidth(), request.getFrameHeight(),
+                new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi(
+                        request.getRoi().getX(), request.getRoi().getY(),
+                        request.getRoi().getWidth(), request.getRoi().getHeight()),
+                request.getMediaType(), request.getCroppedBytes().toByteArray(),
+                request.getOriginalFrameSha256(), request.getCroppedFrameSha256(),
+                request.getLanguageHint().isBlank()
+                        ? Optional.empty() : Optional.of(request.getLanguageHint()));
+        var cancellation = new com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation();
+        if (responseObserver instanceof ServerCallStreamObserver<SceneTextRecognizeResponse> call) {
+            call.setOnCancelHandler(cancellation::cancel);
+        }
+        var outcome = service.recognize(frameRequest, cancellation);
+        if (outcome instanceof com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Recognized recognized) {
+            var provenance = SceneTextProvenance.newBuilder()
+                    .setProviderRef(recognized.provenance().providerRef())
+                    .setProviderVersion(recognized.provenance().providerVersion())
+                    .setModelRef(recognized.provenance().modelRef().orElse(""))
+                    .setModelVersion(recognized.provenance().modelVersion().orElse(""))
+                    .build();
+            var body = SceneTextRecognized.newBuilder()
+                    .setOperationId(recognized.operationId())
+                    .setSourceArtifactId(recognized.sourceArtifactId())
+                    .setSourceVersion(recognized.sourceVersion())
+                    .setFrameId(recognized.frameId())
+                    .setPtsUs(recognized.ptsUs())
+                    .setRightsDecisionRef(recognized.rightsDecisionRef())
+                    .setProvenance(provenance);
+            for (var observation : recognized.observations()) {
+                body.addObservations(SceneTextObservation.newBuilder()
+                        .setText(observation.text())
+                        .setConfidence(observation.confidence())
+                        .setCropBox(box(observation.cropBox()))
+                        .setFrameBox(box(observation.frameBox()))
+                        .setBlockId(observation.blockId() == null ? "" : observation.blockId())
+                        .setLineId(observation.lineId() == null ? "" : observation.lineId())
+                        .setWireOrdinal(observation.wireOrdinal())
+                        .setLanguageTag(observation.languageTag().orElse("")));
+            }
+            responseObserver.onNext(SceneTextRecognizeResponse.newBuilder()
+                    .setRecognized(body).build());
+        } else {
+            var rejected = (com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Rejected) outcome;
+            responseObserver.onNext(SceneTextRecognizeResponse.newBuilder()
+                    .setRejected(SceneTextRejected.newBuilder()
+                            .setCode(rejected.code().name())
+                            .setRetryable(rejected.retryable())
+                            .setWorkerCode(rejected.workerCode().orElse("")))
+                    .build());
+        }
+        responseObserver.onCompleted();
+        }
+    }
+
+    private static SceneTextBox box(
+            com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Box value) {
+        return SceneTextBox.newBuilder()
+                .setX(value.x()).setY(value.y())
+                .setWidth(value.width()).setHeight(value.height())
+                .build();
     }
 
     // ── AV-003.5: classifyImage ────────────────────────────────────────────

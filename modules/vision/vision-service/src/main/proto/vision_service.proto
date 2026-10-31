@@ -16,6 +16,11 @@ service VisionService {
   // Classify image into categories (top-K labels + confidence)
   rpc ClassifyImage(ClassifyRequest) returns (ClassifyResponse);
 
+  // VIS-09: recognize text in one source frame ROI via the Document Intelligence
+  // v1 gateway. Source version, frame identity, PTS, ROI and digests are required;
+  // OCR execution is never performed by Media.
+  rpc RecognizeSceneText(SceneTextRecognizeRequest) returns (SceneTextRecognizeResponse);
+
   // Analyze a complete video file (FFmpeg frame extraction + YOLOv8 detection)
   rpc AnalyzeVideoFile(VideoFileRequest) returns (VideoFileResponse);
   
@@ -96,6 +101,83 @@ message AnalyzeResponse {
   repeated string detected_text = 2;
   repeated FaceDetection faces = 3;
   map<string, string> metadata = 4;
+}
+
+// ── RecognizeSceneText (VIS-09, DI-only OCR consumer) ──────────────────────
+
+message SceneTextRoi {
+  uint32 x = 1;
+  uint32 y = 2;
+  uint32 width = 3;
+  uint32 height = 4;
+}
+
+// Tenant and principal come from the authenticated gRPC identity, never from
+// these fields; every identity, version and digest is exact and required.
+message SceneTextRecognizeRequest {
+  string operation_id = 1;
+  string purpose_ref = 2;
+  string source_artifact_id = 3;
+  string source_version = 4;
+  string frame_id = 5;
+  int64 pts_us = 6;
+  uint32 frame_width = 7;
+  uint32 frame_height = 8;
+  SceneTextRoi roi = 9;
+  string media_type = 10;
+  bytes cropped_bytes = 11;
+  string original_frame_sha256 = 12;
+  string cropped_frame_sha256 = 13;
+  string language_hint = 14;
+}
+
+message SceneTextBox {
+  double x = 1;
+  double y = 2;
+  double width = 3;
+  double height = 4;
+}
+
+message SceneTextObservation {
+  string text = 1;
+  double confidence = 2;
+  SceneTextBox crop_box = 3;
+  SceneTextBox frame_box = 4;
+  string block_id = 5;
+  string line_id = 6;
+  uint32 wire_ordinal = 7;
+  string language_tag = 8;
+}
+
+message SceneTextProvenance {
+  string provider_ref = 1;
+  string provider_version = 2;
+  string model_ref = 3;
+  string model_version = 4;
+}
+
+message SceneTextRecognized {
+  string operation_id = 1;
+  string source_artifact_id = 2;
+  string source_version = 3;
+  string frame_id = 4;
+  int64 pts_us = 5;
+  string rights_decision_ref = 6;
+  SceneTextProvenance provenance = 7;
+  repeated SceneTextObservation observations = 8;
+}
+
+message SceneTextRejected {
+  string code = 1;
+  bool retryable = 2;
+  string worker_code = 3;
+}
+
+message SceneTextRecognizeResponse {
+  oneof outcome {
+    SceneTextRecognized recognized = 1;
+    SceneTextRejected rejected = 2;
+  }
 }
 
 message FaceDetection {

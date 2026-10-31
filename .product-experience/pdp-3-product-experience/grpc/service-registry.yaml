@@ -396,6 +396,17 @@ rpcs:
     clientStreaming: false
     serverStreaming: false
     experienceBinding: pending-owner-review
+  - id: media.grpc.VisionService.RecognizeSceneText
+    contractFile: operations/VisionService.RecognizeSceneText.yaml
+    service: VisionService
+    method: RecognizeSceneText
+    package: com.ghatana.audio.video.vision.grpc
+    source: modules/vision/vision-service/src/main/proto/vision_service.proto
+    request: SceneTextRecognizeRequest
+    response: SceneTextRecognizeResponse
+    clientStreaming: false
+    serverStreaming: false
+    experienceBinding: pending-owner-review
   - id: media.grpc.VisionService.ClassifyImage
     contractFile: operations/VisionService.ClassifyImage.yaml
     service: VisionService
