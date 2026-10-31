@@ -524,6 +524,7 @@ export function parseSdkHttpCalls(source, sourceName = "SDK source") {
   for (const match of code.matchAll(/\.request\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*(["'`])([^"'`]+)\2/g)) add(match[1], match[3]);
   for (const match of code.matchAll(/\.submit\(\s*(["'`])([^"'`]+)\1/g)) add("POST", match[2]);
   for (const match of code.matchAll(/\.fetchImpl\(\s*(["'`])([^"'`]+)\1\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) add(match[3], match[2]);
+  for (const match of code.matchAll(/\.fetchRaw\(\s*(["'`])([^"'`]+)\1\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) add(match[3], match[2]);
   for (const match of code.matchAll(/\.callService(?:<[^\n(]+>)?\(\s*\{([\s\S]*?)^\s*\}\s*\)/gm)) {
     const method = match[1].match(/\bmethod:\s*['"](GET|POST|PUT|PATCH|DELETE)['"]/i)?.[1];
     const path = match[1].match(/\bpath:\s*(['"])([^'"]+)\1/)?.[2];
