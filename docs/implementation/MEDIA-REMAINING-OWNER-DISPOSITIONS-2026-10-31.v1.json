@@ -1,0 +1,2540 @@
+{
+  "schemaVersion": "media.derived-owner-remaining-work-execution.v1",
+  "recordKind": "SOURCE_REVIEW_DERIVED_EXECUTION_DISPOSITIONS_NOT_PDP_MEANING_TASK_AUTHORITY_OR_NATIVE_PROOF",
+  "reviewDate": "2026-10-31",
+  "sources": {
+    "repositories": {
+      "ghatana-media": "c859395ced88287c63457ca909ce08c845800dd0",
+      "ghatana": "0381dc64c211ebf55bf4bfa5826a4aaec1a71357",
+      "ghatana-kernel": "209921dea4f13c756deaa0a945580df4587ffbf3",
+      "ghatana-shared": "13548bf7e73f8868eeba3626a763aa2cd82bddf4",
+      "ghatana-lifecycle": "87a3c76ccb9d3dfa874656c2f971115e8bfe6ada"
+    },
+    "physical": ".product-experience/surfaces/media-physical-topology.v1.json",
+    "roster": "docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json",
+    "backend": "docs/implementation/MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json",
+    "taskAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+    "method": "ghatana-lifecycle/tools/documentation-model/presets/methods/ghatana-product-development.v3.yaml"
+  },
+  "claimsBoundary": "GitHub source-only audit; no new test execution, external authorization, model/license qualification, owner trusted-host proof, Build KCRIT, release or native receipt.",
+  "census": {
+    "physical": 29,
+    "logical": 21,
+    "compositions": 7,
+    "totalDeclared": 57,
+    "previousMatrixBound": 54,
+    "deltaBeforeRetirement": 3,
+    "deltaAddRows": 2,
+    "deltaRetireRows": 1,
+    "expectedAfterCutover": 56,
+    "expectedAfterCutoverPhysical": 28,
+    "originalWave2All": 58,
+    "originalWave2PreviouslyVerified": 22,
+    "originalWave2Unaccepted": 36,
+    "w3HRows": 96,
+    "existingBuildPackageCount": 50,
+    "existingBuildPlanTaskCount": 57,
+    "sourcePinCountRecorded": 872,
+    "staleSourcePinCountReportedNotIndependentlyRecomputed": 67,
+    "httpRoutes": 30,
+    "grpcRpcs": 44,
+    "journeys": 30,
+    "guiScreens": 47
+  },
+  "sourceStatusObservation": {
+    "pdp0": {
+      "sourceStatus": "IN_PROGRESS",
+      "criteriaPassReported": true,
+      "skippedP003": 29,
+      "meaningIdsRemaining": 0
+    },
+    "pdp1": "DEV_COMPLETE_RECORDED_NOT_CURRENTLY_ADMITTED",
+    "pdp2": "DEV_COMPLETE_RECORDED_NOT_CURRENTLY_ADMITTED",
+    "pdp3": "DEV_COMPLETE_RECORDED_NOT_CURRENTLY_ADMITTED",
+    "nativePhaseReceipts": "NOT_VERIFIED_CURRENT",
+    "kcritPlanReady": "NOT_VERIFIED_CURRENT"
+  },
+  "ownerAuthorization": {
+    "decision": "AUTHORIZE_ALL_ROUTINE_CROSS_REPOSITORY_IMPLEMENTATION_SOURCE_REPAIRS_TESTS_STRUCTURED_GTOOL_PLANNING_AND_DEPENDENCY_SCOPED_TRANSITIONS",
+    "alreadyDelegatedSource": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+    "noRepeatApprovalFor": [
+      "correctness fixes",
+      "security and protocol hardening",
+      "matrix generator impact-scoped updates",
+      "DI-owned Kernel provider",
+      "Media OCR retirement after proven replacement",
+      "reversible development DB migration dry-runs",
+      "source-bound testing",
+      "owner-executable gtool method and proof setup"
+    ],
+    "neverSelfGrant": [
+      "third-party model/media redistribution/license",
+      "human voice/biometric consent",
+      "protected signer keys/verifier/operator enrollment",
+      "independent scientific/visual/security signoff",
+      "irreversible production DB cutover",
+      "production rollout/release acceptance"
+    ],
+    "rules": [
+      "no fake N/A, provider success, source pin or owner receipt",
+      "keep one canonical task source and exact IDs",
+      "author source changes only in owning repo",
+      "reuse verified unaffected work",
+      "gtool owner-selected change only; no local stage writer",
+      "publish exact real errors and blocked prerequisites"
+    ]
+  },
+  "criticalFindings": [
+    {
+      "key": "CAP-01",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "libs/audio-video-client/src/caption-version.ts",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java"
+      ],
+      "decision": "ADD_AUTHENTICATED_CONSUMER_TRANSPORT",
+      "urgency": "P0",
+      "how": "Reuse validated token/identity supplier and route permissions; never trust client X-Principal; add exact read by ID plus request/fingerprint reconciliation. Distinguish 401/403/409/503/UNKNOWN from true zero results.",
+      "accept": "Production-like real server JWT pass; wrong/expired JWT, cross-tenant, uncertain 201/timeout and exact replay/readback tests."
+    },
+    {
+      "key": "CAP-02",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionRuntime.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
+      ],
+      "decision": "UNIFY_PROFILES_AND_CAPABILITY_READINESS",
+      "urgency": "P0",
+      "how": "One shared runtime profile classification incl sovereign/integration/e2e; prevent silent downgrade, specify per-capability degradation vs global fail-stop, map absent caption to typed 503 rather than state-conflict 409.",
+      "accept": "Startup matrix local/integration/e2e/staging/production/sovereign, ambiguous ServiceLoader and missing transcript store; unrelated job still safe."
+    },
+    {
+      "key": "CAP-03",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaCaptionStore.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionParentClockLookup.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaCaptionContracts.java"
+      ],
+      "decision": "COMPLETE_CAPTION_BUSINESS_AUTHORITY",
+      "urgency": "P0",
+      "how": "Guard version reads with current rights or explicit retained audit policy, enforce parent immutable same clock across all SOURCE_CLOCK_BOUND segments, no ambiguous transcript provider selection. Add indexed exact requestId/fingerprint readback and atomic rights/revocation fencing per actual policy.",
+      "accept": "Postgres real rights revoke/write/read, transcript-clock mismatch, concurrent idempotency, committed-before-timeout replay, no duplicate versions."
+    },
+    {
+      "key": "VIS-09-PROD",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/ProductionVisionGrpcService.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/DocumentIntelligenceHttpClient.java"
+      ],
+      "decision": "COMPOSE_DI_ONLY_SERVICE",
+      "urgency": "P0",
+      "how": "Explicit env/config source-bound composition with trusted Media SourceAuthority and DI policy, qualified provider, bounded DI endpoint + TLS/auth, no Media OCR model fallback; bound blocking provider call in worker pool away from gRPC event loop.",
+      "accept": "Real DI worker PNG/ROI text+boxes PTS over installed DI and real gRPC client; cross-tenant, bad frame/hash, cancel, timeout, DNS and DI outage no stale text."
+    },
+    {
+      "key": "OCR-K01",
+      "ownerRepository": "ghatana",
+      "paths": [
+        "services/document-intelligence/",
+        "services/document-intelligence/clients/typescript/package.json"
+      ],
+      "decision": "DI_OWNS_KERNEL_PROVIDER_ADAPTER",
+      "urgency": "P0",
+      "how": "Implement DI-owned Java Kernel ProductRuntimeFacets.OcrProvider/ ProductRuntimeProvider adapter in DI owning module; bind existing media.ocr compatibility capability ID to DI provider through Kernel registry without a second OCR engine; support extract, cancel, status, exact terminal and source version.",
+      "accept": "Packed Kernel source-free provider materialization and real image→text / outage / rights / cancellation conformance; zero Media registry owner."
+    },
+    {
+      "key": "OCR-D01",
+      "ownerRepository": "ghatana",
+      "paths": [
+        "services/document-intelligence/clients/typescript/package.json",
+        "services/document-intelligence/src/document_intelligence/",
+        "services/document-intelligence/profiles/"
+      ],
+      "decision": "PIN_PUBLIC_DI_CLIENT_AND_REAL_WORKER",
+      "urgency": "P0",
+      "how": "Resolve Shared @ghatana/document-extraction 0.1.0-SNAPSHOT peer release contract; qualify immutable client package and DI v1 provider catalog/parse/cancel; model rights+real quality separately. Existing named client adapters wrap DI only; do not misclassify them as local OCR execution.",
+      "accept": "Packed TS+Java consumer, Python strict contract, PNG+PDF independently labeled qualified OCR, invalid media/locale, provider outage and privacy tests."
+    },
+    {
+      "key": "OCR-M03",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "adapters/ocr-compat/",
+        "modules/vision/vision-service/",
+        "config/provider-manifest.json",
+        "config/kernel-provider-dependency-requests.source.json"
+      ],
+      "decision": "DELETE_REDUNDANT_MEDIA_OCR_AFTER_KERNEL_MIGRATION",
+      "urgency": "P1",
+      "how": "After DI-owned Kernel binding and live consumers qualify, remove OcrService, stale extractText shims, Media OcrProvider adapter, Gradle/settings/exports/manifests and retired topology candidate; preserve non-OCR geometry/tracking.",
+      "accept": "No production old OCR symbols, tests or registered provider; 56 surviving declared roster IDs with authoritative phase projection, public consumers pass."
+    },
+    {
+      "key": "TRACK-B",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "docs/implementation/pdp-0-phase-dev-status.json",
+        "docs/implementation/verification/pdp-38/",
+        "scripts/generate-media-pdp0-surface-phase-status-matrix.mjs",
+        "scripts/generate-media-pdp1-surface-phase-status-matrix.mjs",
+        "scripts/generate-media-pdp2-surface-phase-status-matrix.mjs",
+        "scripts/generate-media-pdp3-surface-phase-status-matrix.mjs"
+      ],
+      "decision": "IMPACT_SCOPED_PIN_AND_MATRIX_RECONCILIATION",
+      "urgency": "P0",
+      "how": "Re-evaluate reported 67 stale sourceShaSet pinned selectors against actual source/member digests; collect exact two current parity diagnostic IDs; owner-review every changed meaning, then generator-only refresh impacted pins. Extend active agent-tools/support and DataCloud/optional rows, preserve 54 unchanged and retire OCR row only after migration.",
+      "accept": "Current P0 actual status reconciled (present file IN_PROGRESS, P1-P3 DEV_COMPLETE), correct full selected 56-row roster after retirement, no hidden skipped/UNKNOWN cells, scoped source tests and parity oracles."
+    },
+    {
+      "key": "KCRIT",
+      "ownerRepository": "ghatana-kernel",
+      "paths": [
+        "platform-kernel/",
+        "docs/spec-driven-development/"
+      ],
+      "decision": "OWNER_WORK_PLANNER_PER_SURFACE_PLAN_READY",
+      "urgency": "P0",
+      "how": "Evaluate actual canonical 50 packages/57 original plan task IDs and remaining 19 blockers for exact independently eligible Build surfaces; owner-supported revision/idempotency and genuine source fingerprint, not Media-owned stage engine.",
+      "accept": "Source-current KCRIT-PLAN-TASK-CLOSURE and KCRIT-PLAN-READY authentic owner readback/transition; N/A/UNKNOWN explicit."
+    },
+    {
+      "key": "AP02-AP03",
+      "ownerRepository": "ghatana-lifecycle",
+      "paths": [
+        "libs/evidence-contracts/",
+        "tools/verification-planner/",
+        "tools/gtool/",
+        "docs/engineering/MEDIA_GTOOL_PHASE_MANAGEMENT_RUNBOOK.md"
+      ],
+      "decision": "PROVISION_REAL_TRUSTED_HOST_AND_NATIVE_PROOFS",
+      "urgency": "P0",
+      "how": "Complete trusted AP02 contract distribution, AP03 source snapshot selection+verifier and real host binding; correct independent physical-to-composition closure graph and source-to-case/observer/oracle binding, bounded native gtool first leaf and separate phases.",
+      "accept": "Authentic signer/verifier/receipt/currentness, revocation and source mutation negatives; never provision fake keys or advertise closure from source-only checks."
+    },
+    {
+      "key": "STREAM-QUAL",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/audio-streaming/",
+        "modules/video-streaming/",
+        "launcher/"
+      ],
+      "decision": "COMPLETE_REAL_STREAM_TRANSPORTS",
+      "urgency": "P0",
+      "how": "Finish previously unadmitted WebRTC, adaptive HTTP, HLS, DASH and lease renewal by existing public Media session authority; actual 1/16/64 performance, backpressure/ACK/VFR/rights/no double delivery.",
+      "accept": "Real end-to-end stream in tested host with recovery and exact original R8/W3 oracles."
+    },
+    {
+      "key": "MODEL-QUAL",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/speech/",
+        "modules/vision/",
+        "modules/intelligence/multimodal-service/",
+        "docs/qualification/"
+      ],
+      "decision": "REQUIRE_GENUINE_RIGHTS_AND_MEASURED_MODEL_QUALITY",
+      "urgency": "P0",
+      "how": "Use licensed pinned model & legal first-party or licensed gold for real STT/TTS/Vision/MM, source/voice/biometric restrictions, true WER/CER/mAP and audio sample/fidelity profiles. Cannot self-grant external rights.",
+      "accept": "R8 original whole-row independent quality/rights/recovery receipts; blocked modes remain unadmitted if no lawful input."
+    },
+    {
+      "key": "WRITER",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "providers/aws-postgresql/",
+        "launcher/",
+        "migration/"
+      ],
+      "decision": "SINGLE_FENCED_WRITER_AND_FLYWAY_CUTOVER",
+      "urgency": "P0",
+      "how": "Review applied old Ghatana writer schema V001–V016, prepared Media conflicting V007–V009 and new V028; perform rehearsed snapshot migration, quiesce/fence old producers, one writer, rollback/forward-only schema evolution.",
+      "accept": "No two live writers, no conflicting Flyway histories or lost/duplicated leases, captions remain available after restart."
+    },
+    {
+      "key": "WHOLE-PRODUCT",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
+        "apps/media-experience-explorer/",
+        "libs/audio-video-ui/",
+        "libs/audio-video-client/"
+      ],
+      "decision": "NO_BACKEND_ONLY_TERMINAL_CLAIM",
+      "urgency": "P0",
+      "how": "Retain F00–F13, V01–V30, L01–L03, X01–X03; complete 47 real UI screens, 30 real journey terminals, two-pass per-edition recording, 30 HTTP/44 gRPC and SDK/CLI/agent/events parity with native closure separate.",
+      "accept": "30 live journeys + 47 real screens + original 36 R8 and 96 W3/H accepted, no new source-without-runtime success."
+    },
+    {
+      "key": "EXTERNAL-PLATFORM",
+      "ownerRepository": "ghatana",
+      "paths": [
+        "services/data-cloud/",
+        "services/action-plane/",
+        "services/event-plane/"
+      ],
+      "decision": "PUBLIC_CONTRACTS_OPTIONAL_DATA_CLOUD",
+      "urgency": "P1",
+      "how": "Prove Event Plane HTTP 201 append and distinct eventual consumption, Action Plane remote acknowledgement, Data Cloud authorized optional projection, 32 relevant AEP cases; owner source-free ABI.",
+      "accept": "Owner-qualified real restart/partition/outage/receipt and Media non-dependency on Data Cloud."
+    }
+  ],
+  "physicalSurfaces": [
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "sourcePath": "adapters/agent-tools-media",
+      "manifestPath": "adapters/agent-tools-media/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "AT-01",
+        "AT-02",
+        "AT-03",
+        "AT-04",
+        "AT-05",
+        "AT-06"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Audit four declared handler IDs and their source operation/agent permissions",
+        "Route real job dispatch and readback through existing Tools/Action Plane owner contracts; enforce budget/idempotency/rights",
+        "Installed Agent consumer positive/deny/timeout/restart/UNKNOWN tests; no fifth fabricated handler"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": {
+        "id": "media.physical.adapters-agent-tools-media",
+        "disposition": "MATRIX_EXTENSION_REQUIRED",
+        "lifecycleState": "SUPPORT",
+        "expectedTopologyDisposition": "SUPPORT_ONLY",
+        "rationale": "Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.",
+        "nextAction": "Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows."
+      }
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "sourcePath": "adapters/data-cloud-media",
+      "manifestPath": "adapters/data-cloud-media/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "DC-01",
+        "DC-02",
+        "DC-03",
+        "DC-04",
+        "DC-05",
+        "DC-06"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Extend PDP matrix for active optional Data Cloud adapter and specify owner semantics",
+        "Implement redacted version-immutable projections through public Data Cloud interface with outbox/dedupe",
+        "Prove source Media succeeds when Data Cloud unavailable and does not await metadata finality"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": {
+        "id": "media.physical.adapters-data-cloud-media",
+        "disposition": "MATRIX_EXTENSION_REQUIRED",
+        "lifecycleState": "ACTIVE",
+        "expectedTopologyDisposition": "PHYSICAL",
+        "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
+        "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
+      }
+    },
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "sourcePath": "adapters/ledger",
+      "manifestPath": "adapters/ledger/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "LD-01",
+        "LD-02",
+        "LD-03",
+        "LD-04",
+        "LD-05"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Compare ledger with canonical job/version/outbox and retain only unique semantic projection",
+        "Bind bounded redacted request/attempt/receipt identities and idempotent replay",
+        "Duplicate, lost ACK, wrong tenant, no source payload logging"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.adapters-ocr-compat",
+      "sourcePath": "adapters/ocr-compat",
+      "manifestPath": "adapters/ocr-compat/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "OC-01",
+        "OC-02",
+        "OC-03",
+        "OC-04"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "After DI Kernel provider registration, delete Module, OcrService and stale extractText engines/registrations",
+        "Remove Media media.ocr dependency request, manifest and generator references; update source topology and phase disposition",
+        "Zero source-free caller of old adapter; all DI and Kernel packed consumers green; no second engine"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": {
+        "id": "media.physical.adapters-ocr-compat",
+        "disposition": "RETIRE_UNDER_OCR_M03",
+        "lifecycleState": "RETIRING",
+        "expectedTopologyDisposition": "SUPPORT_ONLY",
+        "rationale": "Legacy Kernel OCR compatibility adapter. MDI-001 makes Document Intelligence the only OCR executor; OCR-M03 deletes this module after consumers migrate. It must not be added to the PDP matrices as a durable surface.",
+        "nextAction": "Complete OCR-M01/M02/K01, delete adapters/ocr-compat (OCR-M03), then remove its topology manifest candidate and this declaration together."
+      }
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "sourcePath": "apps/media-experience-explorer",
+      "manifestPath": "apps/media-experience-explorer/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "GUI_TOOLING_CONSUMER",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Source-current 47 screens/30 journeys with deterministic curated fixtures, no backend",
+        "Capture edition-specific narrated/captioned source-bound demos and negative journeys",
+        "Headless visual/a11y/CSP and scenario replay; mock evidence never satisfies live outcome"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "sourcePath": "audio-video-observability",
+      "manifestPath": "audio-video-observability/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Retain production runtime provider quality/freshness capacity gauges and truth labels",
+        "Add measured alert firing/resolved to authorized operator/receiver and per-source quality invalidation",
+        "No green for NaN/unknown data; low-cardinality, privacy-safe, fault and lifecycle tests"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "sourcePath": "integration-tests",
+      "manifestPath": "integration-tests/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "IT-01",
+        "IT-02",
+        "IT-03",
+        "IT-04",
+        "IT-05",
+        "IT-06"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Reconcile previous Postgres/OCI/Compose tests with current source and public ABI",
+        "Exercise rights-version upload→job→transcript/caption→outbox→SDK/GUI and DI real text",
+        "Real positive/negative/restart, full R8, failed-before-commit and unknown-after-commit"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "sourcePath": "launcher",
+      "manifestPath": "launcher/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Preserve MediaRuntime single-writer; register and gate caption dependency per capability",
+        "Unify deployment profile semantics with MediaSecurityFilter; source-owned manifest 30 route registration and typed unavailable codes",
+        "Real authenticated HTTP startup, 30 methods/routes, rights denial, unavailable caption not misreported as 409"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "sourcePath": "libs/audio-video-client",
+      "manifestPath": "libs/audio-video-client/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "SK-01",
+        "SK-02",
+        "SK-03",
+        "SK-04",
+        "SK-05",
+        "SK-06",
+        "SK-07",
+        "SK-08"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Implement credential supplier/token-aware caption transport matching MediaSecurityFilter; no user-spoofed identity",
+        "Add typed GET caption version and exact requestId/fingerprint UNKNOWN reconciliation with no empty-on-error",
+        "Packed installed SDK positive and wrong JWT/tenant, 401/403/409/503, outage, retry and API parity"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "sourcePath": "libs/audio-video-types",
+      "manifestPath": "libs/audio-video-types/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "TY-01",
+        "TY-02",
+        "TY-03",
+        "TY-04",
+        "TY-05",
+        "TY-06"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Reconcile source-intended domain operations/HTTP30/gRPC44 with current canonical DTO and strict validators",
+        "Preserve version/PTS/safe-int and language/rights semantics; typed production/scene/caption contracts",
+        "Java/TS/JSON golden + malformed/overflow/unknown-field and source-free ABI"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "sourcePath": "libs/audio-video-ui",
+      "manifestPath": "libs/audio-video-ui/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "GUI_LIBRARY",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Create admitted production host wiring, not reuse Explorer runtime as host",
+        "Bind source screen actions (caption save/EXACT_PAIR compare, jobs, rights, stream, render, version) to real SDK",
+        "47 actual screens and negative/recovery/keyboard/reflow/screen-reader tests"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "sourcePath": "libs/common",
+      "manifestPath": "libs/common/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUBSUMED",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "JC-01",
+        "JC-02",
+        "JC-03",
+        "JC-04"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Audit transport/gRPC/security peer identity and Shared public ABI",
+        "Bound TLS, retries/deadlines, principal propagation and concurrency; eliminate duplicate primitives",
+        "mTLS/authorization/denial/backpressure + installed consumer conformance"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "sourcePath": "libs/java/common",
+      "manifestPath": "libs/java/common/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUBSUMED",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "MC-01",
+        "MC-02",
+        "MC-03",
+        "MC-04",
+        "MC-05"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Retain proven decoder/resampler/FFI; enforce checked samples/clocks/codec buffers",
+        "Reuse only bounded native provider SPIs for STT/TTS/Vision/render with lifecycle controls",
+        "Resource/overflow/decoder fuzz, deterministic DSP golden and measured throughput"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "sourcePath": "libs/media-experience-simulation",
+      "manifestPath": "libs/media-experience-simulation/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Use curated static source PDP3 fixture runner, never claim physics or production",
+        "Backfill required next-edition cases, narrator tracks and source-scoped recapture",
+        "Per-journey negative/replay golden; independent simulation solver acceptance elsewhere"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "sourcePath": "modules/audio-streaming",
+      "manifestPath": "modules/audio-streaming/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "AS-01",
+        "AS-02",
+        "AS-03",
+        "AS-04",
+        "AS-05",
+        "AS-06",
+        "AS-07"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Implement five missing stream capabilities via typed supported public SPI and existing Media session store",
+        "Real ACK/backpressure/lease renew/revocation, WebRTC and adaptive HTTP/HLS/DASH with source timing",
+        "Host 1/16/64 concurrent audio streams and real frame/codec/gap/reconnect/cancel proof"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "sourcePath": "modules/infrastructure/cache",
+      "manifestPath": "modules/infrastructure/cache/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "CA-01",
+        "CA-02",
+        "CA-03",
+        "CA-04",
+        "CA-05"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Keep cache as non-authoritative projection, bound TTL/keys/size",
+        "Always recheck current source/consent/tenant on cache hit, invalidate on revocation",
+        "Cache stale/collision/Redis outage and bounded memory/secret logging"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "sourcePath": "modules/infrastructure/messaging",
+      "manifestPath": "modules/infrastructure/messaging/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Event Plane public append must accept exact 201 not infer completed from transport",
+        "Durable outbox leases/replay/epoch/fencing and optional external absence handling",
+        "Real lost ACK/duplicate/timeout and no double completion"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "sourcePath": "modules/infrastructure/persistence",
+      "manifestPath": "modules/infrastructure/persistence/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "IP-01",
+        "IP-02",
+        "IP-03",
+        "IP-04",
+        "IP-05",
+        "IP-06",
+        "IP-07"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Canonicalize JPA/adapter read/write authority to Postgres provider, no split DAL",
+        "Tenant/version fencing, bounded executor, transcript/caption CAS and migration contract",
+        "Real DB startup, schema history, race/restart/revoke/erasure and no unsafe dual writer"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "sourcePath": "modules/infrastructure/security",
+      "manifestPath": "modules/infrastructure/security/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Reuse Shared auth/rights/current-source verifier and protect all Media entrypoints",
+        "Enforce source version, tenant, consent, purpose/biometric before provider, each retry and read",
+        "JWT delegated identity/permission boundaries, TTL/revoke across restart, disabled provider fail-closed"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "sourcePath": "modules/integration-tests",
+      "manifestPath": "modules/integration-tests/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NOT_APPLICABLE_SUPPORT",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "TOOLING_OR_SUPPORT"
+      },
+      "existingEngineeringTaskIds": [
+        "CT-01",
+        "CT-02",
+        "CT-03",
+        "CT-04",
+        "CT-05"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Prove 30 HTTP/44 gRPC against current manifests and Java/TS client; reconcile two parity findings",
+        "Source-free test suite for real multimodal/DI/stream/caption, event/agent and negative cases",
+        "No N/A based on name only; exact counts/EXIT; JUnit XML with real effects"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "sourcePath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react",
+      "manifestPath": "modules/intelligence/ai-voice/libs/ai-voice-ui-react/package.json",
+      "buildSystem": "pnpm-workspace",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "GUI_LIBRARY_HOST_DEPENDENT",
+        "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Real host voice selection using qualified provider catalog, user consent and preview",
+        "Accessible negative/revoked/unknown states and voice-specific job outcome",
+        "No fake human voice output or unqualified clones; interaction/keyboard/a11y tests"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "sourcePath": "modules/intelligence/multimodal-service",
+      "manifestPath": "modules/intelligence/multimodal-service/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Bind real child STT/Vision/DI where required and per-child authority/clock",
+        "Persist parent causal source and independent UNKNOWN/finality; Data Cloud non-blocking",
+        "Real content grounding, labeled offsets, restart/revoke and independent child receipts"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "sourcePath": "modules/intelligence/speech/libs/speech-audio-rust",
+      "manifestPath": "modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml",
+      "buildSystem": "cargo",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "RS-01",
+        "RS-02",
+        "RS-03",
+        "RS-04",
+        "RS-05",
+        "RS-06",
+        "RS-07"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Preserve Blackman windowed-sinc and rational offsets; no regression reimplementation",
+        "Qualify public FFI and exact decoder/clocks for 1/16/64 real streaming",
+        "Rust focused tests, no-panic/overflow, real platform measurements"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "sourcePath": "modules/speech/stt-service",
+      "manifestPath": "modules/speech/stt-service/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Real lawful model/audio pinned WER/CER en/hi/ne; source version and voice consent",
+        "Streaming frame/word/phoneme timing/diarization, durable version/outbox and crash reconciliation",
+        "Original R8 STT whole-row oracles and true source-audio corpus"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "sourcePath": "modules/speech/tts-service",
+      "manifestPath": "modules/speech/tts-service/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Real qualified permitted voice/ONNX + phonemizer, test sound bytes/locale/control A/B",
+        "Voice revocation/clone guards, streaming audio/cancel/CAS/UNKNOWN",
+        "Original R8 TTS whole-row; 1/16/64 metrics/real audio and no fake consent"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "sourcePath": "modules/video-streaming",
+      "manifestPath": "modules/video-streaming/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "SUPPORT_ONLY",
+      "phaseApplicability": {
+        "PDP-0": "NO_IMPLEMENTATION_ADMITTED",
+        "PDP-1": "REFERENCED_ONLY",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [
+        "VS-01",
+        "VS-02",
+        "VS-03",
+        "VS-04",
+        "VS-05",
+        "VS-06",
+        "VS-07"
+      ],
+      "sourceCorpus": "MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md",
+      "work": [
+        "Real PTS/VFR/ROI codec and session lease/ACK/reconnect to MediaRuntime",
+        "Typed actual WebRTC/HLS/DASH/adaptive capabilities, revocation/cancel",
+        "1/16/64 host measured source-clock/dupe/restart and negative cases"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "sourcePath": "modules/vision/vision-service",
+      "manifestPath": "modules/vision/vision-service/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Compose production SceneTextRecognitionService from trusted Media source/right, DI v1 HttpClient, owner-selected provider policy",
+        "Constrain DI endpoint and outbound auth, worker quality/cancellation/resource/ROI and real VIS-09 RPC end-to-end",
+        "Live qualified ROI/frame/PTS text and non-OCR Vision unaffected by DI outage; full R8 native/mAP"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "sourcePath": "providers/aws-postgresql",
+      "manifestPath": "providers/aws-postgresql/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "NOT_APPLICABLE",
+        "PDP-3": "HOST_DEPENDENT_EXPERIENCE"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Reconcile old canonical Flyway V001–V016 vs prepared mirror V007–V009, plus current V028 captions, using actual applied DB histories",
+        "Fenced one-writer forward migrations/rollback checks, ServiceLoader caption/transcript stores, RLS/tenant data proof",
+        "Real Postgres Testcontainers + restored snapshot + no dual writer/duplicate receipts/erasure"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "sourcePath": "runtime-contracts",
+      "manifestPath": "runtime-contracts/build.gradle.kts",
+      "buildSystem": "gradle",
+      "kind": "PHYSICAL",
+      "phaseApplicability": {
+        "PDP-0": "APPLICABLE",
+        "PDP-1": "APPLICABLE",
+        "PDP-2": "HEADLESS_CONTRACT",
+        "PDP-3": "CONSUMER_CONTRACT"
+      },
+      "existingEngineeringTaskIds": [],
+      "sourceCorpus": "MEDIA-BUILD-IMPLEMENTATION-PLAN.md / R8",
+      "work": [
+        "Current Java caption store and source-rights ports require exact typed 30 HTTP/44 gRPC schema parity",
+        "Define exact read/version/UNKNOWN/revoke/cancel/identity and no unauthorized default",
+        "Cross-language fingerprint golden + public ABI/type consistency"
+      ],
+      "verify": "Source-current changed-unit focused tests + original R8/W3/H positive, negative, restart, rights and source-free consumer oracles, no fake N/A.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
+      "notes": null
+    }
+  ],
+  "logicalSurfaces": [
+    {
+      "surfaceId": "media.surface.web",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "work": "Real authenticated production host, 47 screens, source screen actions and finality",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "work": "Sandboxed origin/auth/player and exact simulated-vs-real label and a11y",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts"
+      ],
+      "work": "30 HTTP operations, JWT permission mapping, error/result parity, real positive",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "work": "44 RPCs, mTLS/JWT identity, quota/cancel/timeout, generated source-free client",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.modules-speech-stt-service"
+      ],
+      "work": "True STT voice/audio stream, finality, gold, negative cases",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.modules-speech-tts-service"
+      ],
+      "work": "True TTS audio stream and licensed voice rights, negative cases",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.modules-vision-vision-service"
+      ],
+      "work": "Real Vision geometry and DI-only OCR VIS09, real DI binding",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.modules-intelligence-multimodal-service"
+      ],
+      "work": "True STT/Vision child receipts and fused source result",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "bindingState": "PHYSICAL",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-types"
+      ],
+      "work": "Installed TS public client, authenticated caption and DI transport, no empty-on-error",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "work": "Source-bound real artifact/job/recorder operations with deterministic JSON and error semantics",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.runtime-contracts",
+        "media.physical.adapters-agent-tools-media"
+      ],
+      "work": "Four exact handlers with Tools/Action Plane policy and no fake admission",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.runtime-contracts"
+      ],
+      "work": "Event Plane outbox, 201 append, durable consumer true finality",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.adapters-data-cloud-media",
+        "media.physical.adapters-ledger",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.providers-aws-postgresql"
+      ],
+      "work": "DI/Kernel/DataCloud/AEP/Agents/Shared source-free public boundary and outage isolation",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "bindingState": "PHYSICAL",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-types"
+      ],
+      "work": "Strict published validators and Java/TS/JSON contract parity",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+      ],
+      "work": "Packaged accessible Studio/caption/player/voice components in real host",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "bindingState": "PHYSICAL",
+      "physicalRefs": [
+        "media.physical.apps-media-experience-explorer",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "work": "PDP3 curated static data, narration/caption demo and negative/a11y cases",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "bindingState": "ARCHIVED",
+      "physicalRefs": [],
+      "work": "Keep NOT_ACTIVE_ARCHIVED and historical receipt; no fabricated deployable",
+      "stageTargets": [
+        "owner-backed archived applicability/readback"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-media-experience-simulation"
+      ],
+      "work": "Automated source-driven deterministic capture, selective recapture, narration and provenance",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.capture-adapters",
+      "bindingState": "CONTRACT_ONLY",
+      "physicalRefs": [
+        "media.physical.runtime-contracts"
+      ],
+      "work": "Qualified desktop/mobile/browser/terminal/API/gRPC/camera/media capture with rights and clocks",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "work": "Professional GUI timeline/caption/animation/edit/render/undo and real backend effects",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "bindingState": "HOST_DEPENDENT",
+      "physicalRefs": [
+        "media.physical.libs-audio-video-ui"
+      ],
+      "work": "Sandboxed branching player, captions, a11y, evidence-mode/real truth labels",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+    }
+  ],
+  "compositions": [
+    {
+      "surfaceId": "media.composition.repository-root",
+      "kind": "REPOSITORY_ROOT",
+      "childIds": [
+        "media.composition.client-and-machine-interfaces",
+        "media.composition.creation-composition-and-delivery",
+        "media.composition.governed-job-execution",
+        "media.composition.ingestion-and-versioned-artifacts",
+        "media.composition.speech-and-caption-workflows",
+        "media.composition.vision-and-multimodal-analysis",
+        "media.physical.adapters-agent-tools-media",
+        "media.physical.adapters-data-cloud-media",
+        "media.physical.adapters-ocr-compat",
+        "media.physical.audio-video-observability",
+        "media.physical.integration-tests",
+        "media.physical.libs-common",
+        "media.physical.libs-java-common",
+        "media.physical.libs-media-experience-simulation",
+        "media.physical.modules-integration-tests",
+        "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react"
+      ],
+      "directObligationIds": [],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.runtime-contracts",
+        "media.physical.launcher",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-cache",
+        "media.physical.providers-aws-postgresql",
+        "media.physical.adapters-ledger"
+      ],
+      "directObligationIds": [
+        "media.composition.ingestion-and-versioned-artifacts.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.runtime-contracts",
+        "media.physical.launcher",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-security",
+        "media.physical.modules-infrastructure-cache"
+      ],
+      "directObligationIds": [
+        "media.composition.governed-job-execution.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-audio-streaming",
+        "media.physical.modules-intelligence-speech-libs-speech-audio-rust"
+      ],
+      "directObligationIds": [
+        "media.composition.speech-and-caption-workflows.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service",
+        "media.physical.modules-video-streaming",
+        "media.physical.runtime-contracts"
+      ],
+      "directObligationIds": [
+        "media.composition.vision-and-multimodal-analysis.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.launcher",
+        "media.physical.runtime-contracts",
+        "media.physical.modules-infrastructure-persistence",
+        "media.physical.modules-infrastructure-messaging",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-ui"
+      ],
+      "directObligationIds": [
+        "media.composition.creation-composition-and-delivery.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    },
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "kind": "SEMANTIC_COMPOSITION",
+      "childIds": [
+        "media.physical.runtime-contracts",
+        "media.physical.libs-audio-video-types",
+        "media.physical.libs-audio-video-client",
+        "media.physical.libs-audio-video-ui",
+        "media.physical.modules-speech-stt-service",
+        "media.physical.modules-speech-tts-service",
+        "media.physical.modules-vision-vision-service",
+        "media.physical.modules-intelligence-multimodal-service",
+        "media.physical.apps-media-experience-explorer"
+      ],
+      "directObligationIds": [
+        "media.composition.client-and-machine-interfaces.direct-integration"
+      ],
+      "work": "Independently prove cross-child meaning/oracles, exact dependency status and scoped receipts without copying child tests or assuming root status.",
+      "stageTargets": [
+        "pdp-0-product-truth",
+        "pdp-1-canonical-domain-data",
+        "pdp-2-design-language-interface-system",
+        "pdp-3-complete-product-experience",
+        "build-plan-implementation",
+        "build-implement",
+        "build-verify",
+        "build-development-complete",
+        "deliver-release",
+        "deliver-deliver",
+        "deliver-operate",
+        "enhance-measure-outcomes",
+        "enhance-learn",
+        "enhance-evolve"
+      ],
+      "acceptanceState": "UNVERIFIED"
+    }
+  ],
+  "verticalJourneys": [
+    {
+      "journeyId": "J-01",
+      "buildPackageId": "M-BLD-V01",
+      "title": "First use, authentication, context, and project creation",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-02",
+      "buildPackageId": "M-BLD-V02",
+      "title": "Upload/import, inspect, and produce a usable artifact",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-03",
+      "buildPackageId": "M-BLD-V03",
+      "title": "Audio/video transcription through corrected captions",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-04",
+      "buildPackageId": "M-BLD-V04",
+      "title": "Authorized text-to-speech to approved audio",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-05",
+      "buildPackageId": "M-BLD-V05",
+      "title": "Image/video analysis, geometry, and tracks",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-06",
+      "buildPackageId": "M-BLD-V06",
+      "title": "Multimodal or document consumer request to grounded typed result",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-07",
+      "buildPackageId": "M-BLD-V07",
+      "title": "Noisy/clipped interview cleanup with preservation and comparison",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-08",
+      "buildPackageId": "M-BLD-V08",
+      "title": "Low-quality video repair with measured comparison",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-09",
+      "buildPackageId": "M-BLD-V09",
+      "title": "Prompt/brief to storyboard, composition, render, review, and delivery",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-10",
+      "buildPackageId": "M-BLD-V10",
+      "title": "Controlled generation with references and continuity review",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-11",
+      "buildPackageId": "M-BLD-V11",
+      "title": "Region mask/tracking edit with comparison and undo",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-12",
+      "buildPackageId": "M-BLD-V12",
+      "title": "Deterministic 2D/vector/procedural animation",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-13",
+      "buildPackageId": "M-BLD-V13",
+      "title": "3D character, rig, path, or control animation",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-14",
+      "buildPackageId": "M-BLD-V14",
+      "title": "Explore a domain simulation and its measurements",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-15",
+      "buildPackageId": "M-BLD-V15",
+      "title": "Simulation/procedural passes with protected semantic validation",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-16",
+      "buildPackageId": "M-BLD-V16",
+      "title": "Existing-video translation/dubbing and voice/timing review",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-17",
+      "buildPackageId": "M-BLD-V17",
+      "title": "Music, effects, Foley, stems, mix, and mastering",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-18",
+      "buildPackageId": "M-BLD-V18",
+      "title": "Compose clips, captions, exact graphics, color, and audio master",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-19",
+      "buildPackageId": "M-BLD-V19",
+      "title": "Review media quality and improve it within declared limits",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-20",
+      "buildPackageId": "M-BLD-V20",
+      "title": "Observe a long-running job and check its outcome",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-21",
+      "buildPackageId": "M-BLD-V21",
+      "title": "Review/comment/approve exact version and re-review changed material",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-22",
+      "buildPackageId": "M-BLD-V22",
+      "title": "Export/download/publish with destination acknowledgement",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-23",
+      "buildPackageId": "M-BLD-V23",
+      "title": "Private/local workflow while disconnected and reconnect",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-24",
+      "buildPackageId": "M-BLD-V24",
+      "title": "CLI batch/JSON plan through verified outputs",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-25",
+      "buildPackageId": "M-BLD-V25",
+      "title": "Agent or product integration with bounded delegated Media action",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-26",
+      "buildPackageId": "M-BLD-V26",
+      "title": "Delete/revoke/retention/hold and visible lifecycle",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-27",
+      "buildPackageId": "M-BLD-V27",
+      "title": "Continue safely when processing is unavailable",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-28",
+      "buildPackageId": "M-BLD-V28",
+      "title": "Spatial/360/interactive/synthetic-data export to declared consumer",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-29",
+      "buildPackageId": "M-BLD-V29",
+      "title": "Live session loss, consent change, and bounded recovery",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    },
+    {
+      "journeyId": "J-30",
+      "buildPackageId": "M-BLD-V30",
+      "title": "Check which processing options are eligible",
+      "work": "Actual authorized, version-bound business terminal + negative/retry/recovery and channel/UI parity; PDP3 Explorer narrated static scenario per admitted edition + separate real product film/semantic comparison.",
+      "status": "NOT_REQUALIFIED"
+    }
+  ],
+  "verificationHierarchy": [
+    "source and semantic currentness",
+    "compile + unit negatives",
+    "real owner store and service integration",
+    "source-free installed contract ABI",
+    "real model/rights/performance and recovery",
+    "independent owner terminal/oracle acceptance",
+    "gtool phase native receipts",
+    "Build/Deliver/Enhance actual owner transitions"
+  ]
+}
