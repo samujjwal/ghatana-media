@@ -2916,7 +2916,7 @@
       "issue": "media#23",
       "disposition": "VIS09_CODE_IMPLEMENTED_PENDING_REAL_DI_WORKER",
       "action": "Source crop/rights, DI only, YOLO-independent explicit OCR_ONLY profile and bounded HTTP, real worker.",
-      "note": "Commit c9aee4d4: bounded DI transport (receipt-time 32MiB cap, owner host allowlist+TLS, finite concurrency, no redirects), trusted frame-crop resolver under source authority (caller crops never reach DI), OCR_ONLY profile with FULL_VISION preserved, bounded worker dispatch. Remaining: real installed DI worker, lawful image/gold qualification, installed source-free consumers."
+      "note": "Commit c9aee4d4: bounded DI transport (receipt-time 32MiB cap, owner host allowlist+TLS, finite concurrency, no redirects), trusted frame-crop resolver under source authority (caller crops never reach DI), OCR_ONLY profile with FULL_VISION preserved, bounded worker dispatch. Remaining: real installed DI worker, lawful image/gold qualification, installed source-free consumers. OCR shims retired (media f212cf6b): OcrService + adapters/ocr-compat removed as Build migration; topology now 28 active candidates (0613884a)."
     },
     {
       "issue": "media#24",
@@ -2951,8 +2951,9 @@
     },
     {
       "issue": "kernel#99",
-      "disposition": "DI_OWNED_KERNEL_OCR_PROVIDER_AND_SOURCE_FREE_ABI_PENDING",
-      "action": "Existing Kernel media.ocr compatibility ID binds DI-owned real OcrProvider, no alternate Media engine; actual cancellation/status/source rights and installed consumer positive."
+      "disposition": "DI_OCR_PROVIDER_IMPLEMENTED_PENDING_REAL_WORKER",
+      "action": "Existing Kernel media.ocr compatibility ID binds DI-owned real OcrProvider, no alternate Media engine; actual cancellation/status/source rights and installed consumer positive.",
+      "note": "ghatana-kernel commit f30264795: DiOcrProvider implements ProductRuntimeFacets.OcrProvider + ProductRuntimeProvider over DI v1 (extract/status/cancel, truthful terminal registry, bounded transport + endpoint policy). Wire-fixture tests pass; qualified worker pending."
     },
     {
       "issue": "shared#246",
@@ -2966,6 +2967,14 @@
       "entries": [
         "commit 3d91bcff baseline test repairs (media#24)",
         "commit c9aee4d4 VIS-09 production binding media side (media#23)"
+      ]
+    },
+    {
+      "date": "2026-10-31",
+      "entries": [
+        "ghatana-kernel f30264795 DiOcrProvider (kernel#99)",
+        "media f212cf6b legacy OCR shim retirement",
+        "media 0613884a physical topology ocr-compat retirement (28 candidates)"
       ]
     }
   ]
