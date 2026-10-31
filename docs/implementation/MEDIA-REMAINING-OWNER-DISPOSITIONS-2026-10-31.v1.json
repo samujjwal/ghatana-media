@@ -1,14 +1,14 @@
 {
   "schemaVersion": "media.derived-owner-remaining-work-execution.v1",
   "recordKind": "SOURCE_REVIEW_DERIVED_EXECUTION_DISPOSITIONS_NOT_PDP_MEANING_TASK_AUTHORITY_OR_NATIVE_PROOF",
-  "reviewDate": "2026-10-31",
+  "reviewDate": "2026-10-31 (CAP terminal update)",
   "sources": {
     "repositories": {
-      "ghatana-media": "c859395ced88287c63457ca909ce08c845800dd0",
+      "ghatana-media": "07b3df1978068d0873e7ff75f5cd3ee18c9ace58",
       "ghatana": "0381dc64c211ebf55bf4bfa5826a4aaec1a71357",
       "ghatana-kernel": "209921dea4f13c756deaa0a945580df4587ffbf3",
       "ghatana-shared": "13548bf7e73f8868eeba3626a763aa2cd82bddf4",
-      "ghatana-lifecycle": "87a3c76ccb9d3dfa874656c2f971115e8bfe6ada"
+      "ghatana-lifecycle": "ac9e707c66338dd1a357ee055c12949cc2de5326"
     },
     "physical": ".product-experience/surfaces/media-physical-topology.v1.json",
     "roster": "docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json",
@@ -16,7 +16,7 @@
     "taskAuthority": "docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md",
     "method": "ghatana-lifecycle/tools/documentation-model/presets/methods/ghatana-product-development.v3.yaml"
   },
-  "claimsBoundary": "GitHub source-only audit; no new test execution, external authorization, model/license qualification, owner trusted-host proof, Build KCRIT, release or native receipt.",
+  "claimsBoundary": "GitHub current-source audit plus implementer-provided local host test reports. CAP-01/02/03 source commits confirmed; host tests reported PASS but not rerun by this assistant. No automatic R8/W3 whole-row acceptance, gtool method transition, native receipt, DI provider qualification, external rights or release.",
   "census": {
     "physical": 29,
     "logical": 21,
@@ -39,7 +39,13 @@
     "httpRoutes": 30,
     "grpcRpcs": 44,
     "journeys": 30,
-    "guiScreens": 47
+    "guiScreens": 47,
+    "completedReviewFindingCount": 3,
+    "activeReviewFindingsBeforeNew": 12,
+    "pdp0SourceStatusAsRead": "IN_PROGRESS",
+    "recordedPdp0To3SourcePinCount": 872,
+    "recheckStalePinsAfterCAP": true,
+    "mediaMainAtCompletion": "07b3df1978068d0873e7ff75f5cd3ee18c9ace58"
   },
   "sourceStatusObservation": {
     "pdp0": {
@@ -82,47 +88,19 @@
       "reuse verified unaffected work",
       "gtool owner-selected change only; no local stage writer",
       "publish exact real errors and blocked prerequisites"
-    ]
+    ],
+    "decisionsCurrent": {
+      "CAP": "ACCEPT_ENGINEERING_HOST_TEST_OBSERVATION_AND_REUSE_UNCHANGED_EVIDENCE_ONLY",
+      "OCR": "KEEP_ONLY_DI_OCR_AUTHORITY; DI_OWNS_KERNEL_OCR_PROVIDER; PROVE_BEFORE_REMOVE_MEDIA_COMPAT",
+      "Vision": "APPROVE_EXPLICIT_DI_ONLY_HOST_PROFILE_AND_PER_RPC_ADMISSION; PRESERVE_DETECTOR_FAIL_CLOSED",
+      "TTS_MM": "APPROVE_BASELINE_REPAIR_WITH_REAL_CURRENT_TESTS; NO_SKIP_AND_NO_WEAKEN_DENIAL",
+      "TrackB": "APPROVE_SCOPED_GENERATOR_REPAIRS_AND_STALE_SELECTOR_OWNER_REVIEW; NEVER_BLIND_REPIN",
+      "Lifecycle": "APPROVE_IMPLEMENTER_HOST_SETUP; PROTECTED_AUTHORITY_REQUIRES_REAL_REGISTERED_OWNER",
+      "Provider": "APPROVE_FIRST_PARTY_OR_LICENSED_TEST_DATA_AND_MODELS; NO_RIGHTS_INFERENCE",
+      "Deployment": "APPROVE_FENCED_DEV_MIGRATION_REHEARSALS; PRODUCTION_CUTOVER_REQUIRES_REAL_EFFECT_GRANT"
+    }
   },
   "criticalFindings": [
-    {
-      "key": "CAP-01",
-      "ownerRepository": "ghatana-media",
-      "paths": [
-        "libs/audio-video-client/src/caption-version.ts",
-        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java"
-      ],
-      "decision": "ADD_AUTHENTICATED_CONSUMER_TRANSPORT",
-      "urgency": "P0",
-      "how": "Reuse validated token/identity supplier and route permissions; never trust client X-Principal; add exact read by ID plus request/fingerprint reconciliation. Distinguish 401/403/409/503/UNKNOWN from true zero results.",
-      "accept": "Production-like real server JWT pass; wrong/expired JWT, cross-tenant, uncertain 201/timeout and exact replay/readback tests."
-    },
-    {
-      "key": "CAP-02",
-      "ownerRepository": "ghatana-media",
-      "paths": [
-        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionRuntime.java",
-        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java",
-        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
-      ],
-      "decision": "UNIFY_PROFILES_AND_CAPABILITY_READINESS",
-      "urgency": "P0",
-      "how": "One shared runtime profile classification incl sovereign/integration/e2e; prevent silent downgrade, specify per-capability degradation vs global fail-stop, map absent caption to typed 503 rather than state-conflict 409.",
-      "accept": "Startup matrix local/integration/e2e/staging/production/sovereign, ambiguous ServiceLoader and missing transcript store; unrelated job still safe."
-    },
-    {
-      "key": "CAP-03",
-      "ownerRepository": "ghatana-media",
-      "paths": [
-        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaCaptionStore.java",
-        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionParentClockLookup.java",
-        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaCaptionContracts.java"
-      ],
-      "decision": "COMPLETE_CAPTION_BUSINESS_AUTHORITY",
-      "urgency": "P0",
-      "how": "Guard version reads with current rights or explicit retained audit policy, enforce parent immutable same clock across all SOURCE_CLOCK_BOUND segments, no ambiguous transcript provider selection. Add indexed exact requestId/fingerprint readback and atomic rights/revocation fencing per actual policy.",
-      "accept": "Postgres real rights revoke/write/read, transcript-clock mismatch, concurrent idempotency, committed-before-timeout replay, no duplicate versions."
-    },
     {
       "key": "VIS-09-PROD",
       "ownerRepository": "ghatana-media",
@@ -283,6 +261,75 @@
       "urgency": "P1",
       "how": "Prove Event Plane HTTP 201 append and distinct eventual consumption, Action Plane remote acknowledgement, Data Cloud authorized optional projection, 32 relevant AEP cases; owner source-free ABI.",
       "accept": "Owner-qualified real restart/partition/outage/receipt and Media non-dependency on Data Cloud."
+    },
+    {
+      "key": "VIS-09-CAPABILITY-PROFILES",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcServer.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/ProductionVisionGrpcService.java"
+      ],
+      "decision": "EXPLICIT_VISION_PROFILE_WITH_SEPARATE_YOLO_AND_DI_ADMISSION",
+      "urgency": "P0",
+      "how": "Current VisionGrpcServer creates ProductionVisionGrpcService which requires admitted YOLO before port bind; new DI-only OCR must not inherit YOLO prerequisite silently. Choose source-approved explicit OCR_ONLY host profile with independent per-RPC readiness/dispatch, preserving existing FULL_VISION detector fail-before-bind contract and never using dummy detector. Qualify gRPC admission/status for each capability.",
+      "accept": "With DI qualified but YOLO absent, OCR_ONLY RecognizeSceneText proves real positive while detect/classify unavailable; FULL_VISION unchanged missing-YOLO fail startup; DI unavailable does not affect admitted non-OCR detection; no weak global health."
+    },
+    {
+      "key": "VIS-09-SOURCE-PIXEL-FENCE",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/SceneTextRecognitionService.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/grpc/VisionGrpcService.java",
+        "modules/infrastructure/security/"
+      ],
+      "decision": "TRUSTED_FRAME_AND_ROI_PROVENANCE_BEFORE_DI",
+      "urgency": "P0",
+      "how": "Existing service checks caller crop self-hash and authority's original frame hash, but no authoritative re-derivation of actual ROI pixel bytes is present in this seam. Implement trusted frame-crop resolver under source-rights authority (or authenticated immutable crop receipt with content-bound ROI and source digest). Verify source version, true original frame bytes, PTS/timebase, ROI crop digest and owner policy before DI. Do not treat caller self-hash as provenance.",
+      "accept": "Malicious arbitrary crop with a valid self-hash cannot reach DI; exact source-digest, wrong ROI, frameId/PTS mismatch, tenant principal/purpose/revocation, late cancellation and true positive geometry tests."
+    },
+    {
+      "key": "VIS-09-HTTP-RESOURCE-BOUNDARY",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext/DocumentIntelligenceHttpClient.java"
+      ],
+      "decision": "QUALIFIED_ENDPOINT_AND_PREALLOCATION_BODY_LIMIT",
+      "urgency": "P0",
+      "how": "Current client uses HttpResponse.BodyHandlers.ofByteArray() and validates the 32MiB cap only after buffering. Replace with bounded streaming body subscriber / size-limited input, finite whole deadline, true cancel/reconcile, allowlisted host/TLS trust; use DI v1 unchanged. Production security is mTLS or owner-approved service gateway consistent with DI published authority; do not invent a new DI auth header.",
+      "accept": "Malicious >max response fails with bounded allocations; bad TLS/host/redirect/DNS, response spoof, unknown operation, timeout/cancel, workers under concurrency and no data leak. Real eligible DI worker parse returned."
+    },
+    {
+      "key": "BASELINE-TTS-READY",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServerReadinessTest.java"
+      ],
+      "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
+      "urgency": "P1",
+      "how": "Inspect provider health probe, readiness markReady/setNotServing, borrowed engine close, TtsRequestAuthorization.isReady gating and 100% fixture isolation. Do not change fail-closed readiness to make test green.",
+      "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset."
+    },
+    {
+      "key": "BASELINE-TTS-INVENTORY",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsWave2InventoryTest.java"
+      ],
+      "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
+      "urgency": "P1",
+      "how": "Test requires text super(library, metrics, but ProductionTtsGrpcService source now calls super(runtimeAdmission.library(), metrics,. Replace source-literal assertion with structured or behavioral admission/constructor conformance; retain exact RPC/capability inventory and provider/rights deny cases. Additional failing assertions need JUnit readback.",
+      "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability."
+    },
+    {
+      "key": "BASELINE-MM-GRPC",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServerCompositionTest.java"
+      ],
+      "decision": "FIX_PREEXISTING_BASELINE_NOT_CAP_REGRESSION",
+      "urgency": "P1",
+      "how": "Inspect fixture JWT system-property restoration, actual context authentication, global MetricsServerInterceptor counter isolation, freePort() bind race and child-error UNAVAILABLE/readiness after shutdown. Diagnose from exact XML; do not assert a root cause without it.",
+      "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions."
     }
   ],
   "physicalSurfaces": [
@@ -648,8 +695,15 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK_FOR_NON_CAP_WORK",
+      "notes": null,
+      "verifiedEngineeringSubfeatures": [
+        "CAP-01",
+        "CAP-02",
+        "CAP-03"
+      ],
+      "componentStatus": "CAP_SUBFEATURE_HOST_VERIFIED_REPORTED_NOT_COMPLETE_SURFACE",
+      "remainingScopeAfterCAP": "CAP transport/auth/profiles verified on host; remaining original launcher F01/F06/F09 and actual live J01-J03 integrations/other effects."
     },
     {
       "surfaceId": "media.physical.libs-audio-video-client",
@@ -1249,8 +1303,11 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "acceptanceState": "BASELINE_TESTS_FAIL_ON_UNMODIFIED_MAIN_PER_HOST",
+      "notes": null,
+      "knownBaselineDefects": [
+        "BASELINE-MM-GRPC"
+      ]
     },
     {
       "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
@@ -1374,8 +1431,12 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "acceptanceState": "BASELINE_TESTS_FAIL_ON_UNMODIFIED_MAIN_PER_HOST",
+      "notes": null,
+      "knownBaselineDefects": [
+        "BASELINE-TTS-READY",
+        "BASELINE-TTS-INVENTORY"
+      ]
     },
     {
       "surfaceId": "media.physical.modules-video-streaming",
@@ -1461,7 +1522,8 @@
         "enhance-evolve"
       ],
       "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "notes": null,
+      "nextSelectedWork": "VIS-09-PROD + explicit YOLO/DI capability profile + trusted source ROI crop + bounded DI response transport; real worker and rights required for full acceptance."
     },
     {
       "surfaceId": "media.physical.providers-aws-postgresql",
@@ -1499,8 +1561,13 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK_FOR_NON_CAP_WORK",
+      "notes": null,
+      "verifiedEngineeringSubfeatures": [
+        "CAP-03"
+      ],
+      "componentStatus": "CAP_SUBFEATURE_HOST_VERIFIED_REPORTED_NOT_COMPLETE_SURFACE",
+      "remainingScopeAfterCAP": "V029 exact transcript version lookup/forward migrations and 111+ reported tests; actual legacy single-writer cutover, full original R8/W3, live host and release unverified."
     },
     {
       "surfaceId": "media.physical.runtime-contracts",
@@ -1538,8 +1605,14 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK",
-      "notes": null
+      "acceptanceState": "REQUIRES_CURRENT_OWNER_READBACK_FOR_NON_CAP_WORK",
+      "notes": null,
+      "verifiedEngineeringSubfeatures": [
+        "CAP-02",
+        "CAP-03"
+      ],
+      "componentStatus": "CAP_SUBFEATURE_HOST_VERIFIED_REPORTED_NOT_COMPLETE_SURFACE",
+      "remainingScopeAfterCAP": "MediaDeploymentProfiles and exact immutable transcript read contract green reported; full 30/44 API/compat and source currentness still need original-oracle proof."
     }
   ],
   "logicalSurfaces": [
@@ -1721,7 +1794,8 @@
         "enhance-learn",
         "enhance-evolve"
       ],
-      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED"
+      "acceptanceState": "NOT_INDEPENDENTLY_VERIFIED",
+      "nextSelectedWork": "Source-approved per-capability DI/YOLO admission with real RecognizeSceneText; proto exists, runtime composition and provider qualification missing."
     },
     {
       "surfaceId": "media.surface.grpc.multimodal",
@@ -2536,5 +2610,214 @@
     "independent owner terminal/oracle acceptance",
     "gtool phase native receipts",
     "Build/Deliver/Enhance actual owner transitions"
+  ],
+  "completedEngineeringFindings": [
+    {
+      "key": "CAP-01",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "libs/audio-video-client/src/caption-version.ts",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java"
+      ],
+      "decision": "ADD_AUTHENTICATED_CONSUMER_TRANSPORT",
+      "urgency": "P0",
+      "how": "Reuse validated token/identity supplier and route permissions; never trust client X-Principal; add exact read by ID plus request/fingerprint reconciliation. Distinguish 401/403/409/503/UNKNOWN from true zero results.",
+      "accept": "Production-like real server JWT pass; wrong/expired JWT, cross-tenant, uncertain 201/timeout and exact replay/readback tests.",
+      "status": "HOST_VERIFIED_REPORTED_AND_MAIN_SOURCE_CONFIRMED",
+      "completionCommits": [
+        "a5be0f60",
+        "07b3df19"
+      ],
+      "verificationReportSource": "User host evidence: providers/aws-postgresql 111+ tests green incl V029 exact-version and migration lineage; launcher/runtime-contracts green; client 12/12 caption tests and tsc clean; no new regression versus unchanged main.",
+      "scopeBoundary": "Component CAP engineering only. No product-wide Build Development Complete, R8/W3 task promotion, production admission or native closure.",
+      "nextAction": "Reuse tests by source/host fingerprint. Include CAP in V01/V02/V20/V03 live outcome; do not reimplement."
+    },
+    {
+      "key": "CAP-02",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionRuntime.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaSecurityFilter.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java"
+      ],
+      "decision": "UNIFY_PROFILES_AND_CAPABILITY_READINESS",
+      "urgency": "P0",
+      "how": "One shared runtime profile classification incl sovereign/integration/e2e; prevent silent downgrade, specify per-capability degradation vs global fail-stop, map absent caption to typed 503 rather than state-conflict 409.",
+      "accept": "Startup matrix local/integration/e2e/staging/production/sovereign, ambiguous ServiceLoader and missing transcript store; unrelated job still safe.",
+      "status": "HOST_VERIFIED_REPORTED_AND_MAIN_SOURCE_CONFIRMED",
+      "completionCommits": [
+        "a5be0f60",
+        "07b3df19"
+      ],
+      "verificationReportSource": "User host evidence: providers/aws-postgresql 111+ tests green incl V029 exact-version and migration lineage; launcher/runtime-contracts green; client 12/12 caption tests and tsc clean; no new regression versus unchanged main.",
+      "scopeBoundary": "Component CAP engineering only. No product-wide Build Development Complete, R8/W3 task promotion, production admission or native closure.",
+      "nextAction": "Reuse tests by source/host fingerprint. Include CAP in V01/V02/V20/V03 live outcome; do not reimplement."
+    },
+    {
+      "key": "CAP-03",
+      "ownerRepository": "ghatana-media",
+      "paths": [
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaCaptionStore.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaCaptionParentClockLookup.java",
+        "runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaCaptionContracts.java"
+      ],
+      "decision": "COMPLETE_CAPTION_BUSINESS_AUTHORITY",
+      "urgency": "P0",
+      "how": "Guard version reads with current rights or explicit retained audit policy, enforce parent immutable same clock across all SOURCE_CLOCK_BOUND segments, no ambiguous transcript provider selection. Add indexed exact requestId/fingerprint readback and atomic rights/revocation fencing per actual policy.",
+      "accept": "Postgres real rights revoke/write/read, transcript-clock mismatch, concurrent idempotency, committed-before-timeout replay, no duplicate versions.",
+      "status": "HOST_VERIFIED_REPORTED_AND_MAIN_SOURCE_CONFIRMED",
+      "completionCommits": [
+        "a5be0f60",
+        "07b3df19"
+      ],
+      "verificationReportSource": "User host evidence: providers/aws-postgresql 111+ tests green incl V029 exact-version and migration lineage; launcher/runtime-contracts green; client 12/12 caption tests and tsc clean; no new regression versus unchanged main.",
+      "scopeBoundary": "Component CAP engineering only. No product-wide Build Development Complete, R8/W3 task promotion, production admission or native closure.",
+      "nextAction": "Reuse tests by source/host fingerprint. Include CAP in V01/V02/V20/V03 live outcome; do not reimplement."
+    }
+  ],
+  "engineeringAcceptance": {
+    "cap": {
+      "scope": "CAP-01/02/03",
+      "status": "ENGINEERING_HOST_VERIFIED_REPORTED",
+      "sourceObserved": true,
+      "sourceCommits": [
+        "a5be0f60",
+        "07b3df19"
+      ],
+      "checks": [
+        "PostgreSQL provider suite 111+ tests PASS incl V029 exact transcriptVersionRef and Flyway V001-V009 -> V010-V029",
+        "Launcher + runtime-contracts suites PASS incl MediaDeploymentProfilesTest and rewritten caption parent negatives",
+        "TypeScript caption 12/12 PASS; tsc --noEmit PASS",
+        "STT/TTS/MM compile; three baseline failing suites reproduce on unmodified main"
+      ],
+      "notClaimed": [
+        "all original R8 rows accepted",
+        "all source pins CURRENT",
+        "native lifecycle closure",
+        "production deployment",
+        "live end-to-end J03 terminal"
+      ]
+    },
+    "baselineDefects": [
+      {
+        "key": "BASELINE-TTS-READY",
+        "surfaceId": "media.physical.modules-speech-tts-service",
+        "test": "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsGrpcServerReadinessTest.java",
+        "status": "REPRODUCES_ON_UNMODIFIED_MAIN_PER_HOST; EXACT_FAILING_ASSERTION_NOT_AVAILABLE",
+        "analysis": "Inspect provider health probe, readiness markReady/setNotServing, borrowed engine close, TtsRequestAuthorization.isReady gating and 100% fixture isolation. Do not change fail-closed readiness to make test green.",
+        "steps": [
+          "capture exact JUnit XML test method/stack",
+          "rerun test class in isolation with fixed locale/env",
+          "inspect TtsGrpcServer.createReadinessLifecycle and ProductionTtsGrpcService.isProviderReady",
+          "fix source or test only if semantic contract determines correctness",
+          "prove absent voice authority stays NOT_SERVING; authorized model health toggles; engine borrowed ownership"
+        ],
+        "accept": "Full class and selected adjacent readiness tests pass on clean main with no ignored tests or weakened security, plus source-current R8 subset."
+      },
+      {
+        "key": "BASELINE-TTS-INVENTORY",
+        "surfaceId": "media.physical.modules-speech-tts-service",
+        "test": "modules/speech/tts-service/src/test/java/com/ghatana/tts/grpc/TtsWave2InventoryTest.java",
+        "status": "REPRODUCES_ON_UNMODIFIED_MAIN; ONE_LITERAL_ASSERTION_MISMATCH_CONFIRMED_BY_SOURCE",
+        "analysis": "Test requires text super(library, metrics, but ProductionTtsGrpcService source now calls super(runtimeAdmission.library(), metrics,. Replace source-literal assertion with structured or behavioral admission/constructor conformance; retain exact RPC/capability inventory and provider/rights deny cases. Additional failing assertions need JUnit readback.",
+        "steps": [
+          "capture exact method/first failure",
+          "replace fragile constructor-text check with compilation/behavior injection and explicit admission proof",
+          "verify original RPC descriptor fields and WAVE2-RPC-CAPABILITY-MATRIX counts/rows",
+          "run focused test and negative malformed/removed handler inventory fixtures"
+        ],
+        "accept": "Actual public ABI/schema and source currentness pass with genuine denial; no string-only false failure, no waived capability."
+      },
+      {
+        "key": "BASELINE-MM-GRPC",
+        "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+        "test": "modules/intelligence/multimodal-service/src/test/java/com/ghatana/audio/video/multimodal/grpc/MultimodalGrpcServerCompositionTest.java",
+        "status": "REPRODUCES_ON_UNMODIFIED_MAIN_PER_HOST; EXACT_FAILING_ASSERTION_NOT_AVAILABLE",
+        "analysis": "Inspect fixture JWT system-property restoration, actual context authentication, global MetricsServerInterceptor counter isolation, freePort() bind race and child-error UNAVAILABLE/readiness after shutdown. Diagnose from exact XML; do not assert a root cause without it.",
+        "steps": [
+          "collect XML and fail-by-method in isolated JVM, and once with neighboring suites",
+          "use bounded server port reservation/random ephemeral support rather than TOCTOU freePort if verified cause",
+          "reset/test-scope meters instead of global expectations if verified cause",
+          "preserve exact child call count 1, no replay, UNAVAILABLE, NOT_SERVING and auth negatives",
+          "run source-free multimodal consumer and memory/leak controls"
+        ],
+        "accept": "Class + relevant modality integration PASS on unchanged source scope with provider still fail-closed; no global singleton leakage or green from disabled assertions."
+      }
+    ]
+  },
+  "parallelExecution": [
+    {
+      "batch": "P0-A",
+      "owners": [
+        "Media Vision",
+        "Ghatana DI",
+        "Kernel+Shared",
+        "Media source TrackB",
+        "Lifecycle protected host"
+      ],
+      "steps": [
+        "VIS-09-PROD and 3 verified source findings",
+        "DI client peer/source-free packaging and DI-owned Kernel OcrProvider",
+        "PDP0 in-progress and pin/currentness revalidation",
+        "AP02/AP03 actual host trust"
+      ],
+      "exit": "All ready code/test outcomes accepted per selected owner, no false global closure."
+    },
+    {
+      "batch": "P0-B",
+      "owners": [
+        "Media TTS/MM baseline",
+        "Media runtime",
+        "Media UX"
+      ],
+      "steps": [
+        "Fix exact original 3 baseline test classes",
+        "Single-writer Flyway V001-V029 + actual existing host history rehearsal",
+        "Begin first real J01-J02-J20-J03 backed by CAP success"
+      ],
+      "exit": "Prior test failures retired with original semantics, real caption job terminal and source-free client."
+    },
+    {
+      "batch": "P1-C",
+      "owners": [
+        "Media all original F/V/L/X",
+        "Ghatana external platform",
+        "Media qualification"
+      ],
+      "steps": [
+        "Finish 36 R8 and 96 W3/H original rows",
+        "Five missing streams and real TTS/STT/Vision/MM models",
+        "30 journeys, 47 UI, recorder/studio/player, 30 HTTP/44 gRPC parity"
+      ],
+      "exit": "Actual real positive+negative+recovery and source-free installed consumer for all applicable required units."
+    },
+    {
+      "batch": "P1-D",
+      "owners": [
+        "Lifecycle",
+        "Media source",
+        "Kernel Work Planner"
+      ],
+      "steps": [
+        "Real first PDP0 leaf native receipt and phase-specific proof",
+        "KCRIT Plan Ready and Build Development Complete per eligible surface",
+        "Compositions/root direct invariants; no child proof duplication"
+      ],
+      "exit": "Native/Work Planner authentic owner readbacks, no hidden UNKNOWN."
+    },
+    {
+      "batch": "P2-E",
+      "owners": [
+        "Release owner",
+        "Runtime operator",
+        "Enhance owner"
+      ],
+      "steps": [
+        "Authorized release/Deliver/Operate",
+        "Actual model/voice/host rights, security and rollback",
+        "Measure/Learn/Evolve on observed metrics"
+      ],
+      "exit": "Delivery and Enhance claims only after real operation and independent approvals."
+    }
   ]
 }
