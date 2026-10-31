@@ -45,7 +45,7 @@ export function validateTopology(topology, root = repo) {
   const candidates = topology.manifestCandidates ?? [];
   const byId = new Map(candidates.map((candidate) => [candidate.surfaceId, candidate]));
   if (topology.schemaVersion !== 'media.physical-topology.v1') fail('schemaVersion must be media.physical-topology.v1');
-  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 29) fail('active manifest candidate count must include every authored FULL-scope build manifest (29 total)');
+  if (candidates.length !== topology.activeManifestCandidateCount || candidates.length !== 28) fail('active manifest candidate count must include every authored FULL-scope build manifest (28 total)');
   if (new Set(candidates.map((candidate) => candidate.sourcePath)).size !== candidates.length) fail('physical source paths must be unique');
   if (new Set(candidates.map((candidate) => candidate.surfaceId)).size !== candidates.length) fail('physical identities must be unique');
   const dispositions = new Set(['PHYSICAL', 'SUBSUMED', 'SUPPORT_ONLY', 'ARCHIVED', 'EXTERNAL']);
