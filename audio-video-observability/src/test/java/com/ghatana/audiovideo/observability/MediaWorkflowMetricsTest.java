@@ -381,4 +381,48 @@ class MediaWorkflowMetricsTest {
                         new MediaWorkflowMetrics.ProviderQualitySeriesSample(
                                 "eng", "wer", 0.2, now, "reference_only")))).isFalse();
     }
+
+    @Test
+    void qualityRefreshRejectsConflictingEqualTimeAndFutureMeasurements() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-10-29T12:00:00Z");
+        var measured = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.5, now, "reference_only");
+        var conflicting = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.1, now, "reference_only");
+        var future = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                "eng", "wer", 0.2, now.plusSeconds(2), "reference_only");
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, java.util.List.of(measured))).isTrue();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, java.util.List.of(measured))).isTrue();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, java.util.List.of(conflicting))).isFalse();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now.plusSeconds(1), java.util.List.of(future))).isFalse();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.5);
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now.plusSeconds(3), java.util.List.of())).isTrue();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isNaN();
+    }
+
+    @Test
+    void emptyQualityRefreshGroupsAndMetricIdentitiesAreBounded() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-10-29T12:00:00Z");
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "tenant/private", "v1", "model", now, java.util.List.of())).isFalse();
+        for (int i = 0; i < 64; i++) {
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    "provider-" + i, "v1", "model", now, java.util.List.of())).isTrue();
+        }
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider-overflow", "v1", "model", now, java.util.List.of())).isFalse();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider-0", "v1", "model", now.plusSeconds(1), java.util.List.of())).isTrue();
+    }
 }

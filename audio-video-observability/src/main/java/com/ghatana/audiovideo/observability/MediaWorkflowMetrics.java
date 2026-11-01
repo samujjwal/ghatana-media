@@ -179,6 +179,9 @@ public final class MediaWorkflowMetrics {
                                       String modelRevision, String locale, String metric,
                                       String scope) {}
 
+    private record ProviderQualityRefresh(Instant checkedAt,
+            Map<ProviderQualityKey, ProviderQualitySeriesSample> samples) {}
+
     private static final int MAX_PROVIDER_PROFILES = 64;
     private static final int MAX_PROVIDER_QUALITY_SERIES = 1024;
     private static final int MAX_QUALITY_SAMPLES_PER_MODEL = 32;
@@ -197,7 +200,7 @@ public final class MediaWorkflowMetrics {
     private final Object providerProfileLock = new Object();
     private final ConcurrentMap<ProviderQualityKey, AtomicReference<Double>> providerQualitySeries =
             new ConcurrentHashMap<>();
-    private final ConcurrentMap<ProviderQualityGroupKey, Instant> providerQualityCheckedAt =
+    private final ConcurrentMap<ProviderQualityGroupKey, ProviderQualityRefresh> providerQualityRefreshes =
             new ConcurrentHashMap<>();
     private final Object providerQualityLock = new Object();
     private final Map<Event, Counter> eventCounters = new EnumMap<>(Event.class);
@@ -397,7 +400,9 @@ public final class MediaWorkflowMetrics {
      * Replace the measured-quality series for one provider model revision with the
      * latest verified report rows. Series present in an earlier refresh but absent
      * now are set to NaN — stale evidence never leaves a phantom measured value.
-     * A refresh older than the recorded check time is rejected. The registry keeps
+     * Older refreshes and conflicting equal-time refreshes are rejected; exact
+     * equal-time duplicates are idempotent. The registry keeps at most
+     * {@value MAX_PROVIDER_PROFILES} provider model groups and
      * at most {@value MAX_PROVIDER_QUALITY_SERIES} quality series; label values are
      * restricted to the fixed locale/metric/scope vocabulary.
      *
@@ -412,6 +417,13 @@ public final class MediaWorkflowMetrics {
                 || modelRevision == null || checkedAt == null) {
             return false;
         }
+        try {
+            metricIdentity(providerId, "providerId");
+            metricIdentity(providerVersion, "providerVersion");
+            metricIdentity(modelRevision, "modelRevision");
+        } catch (IllegalArgumentException invalidIdentity) {
+            return false;
+        }
         java.util.List<ProviderQualitySeriesSample> rows =
                 samples == null ? java.util.List.of() : samples;
         if (rows.size() > MAX_QUALITY_SAMPLES_PER_MODEL) {
@@ -422,24 +434,36 @@ public final class MediaWorkflowMetrics {
         ProviderQualityGroupKey group = new ProviderQualityGroupKey(
                 modality, providerId, providerVersion, modelRevision);
         synchronized (providerQualityLock) {
-            Instant last = providerQualityCheckedAt.get(group);
-            if (last != null && checkedAt.isBefore(last)) {
+            ProviderQualityRefresh previous = providerQualityRefreshes.get(group);
+            if (previous != null && checkedAt.isBefore(previous.checkedAt())) {
                 registry.counter("media.provider.quality.series.rejected",
                         "service", safeService, "contract_version", CONTRACT_VERSION).increment();
                 return false;
             }
-            java.util.Set<ProviderQualityKey> desired = new java.util.HashSet<>();
+            java.util.Map<ProviderQualityKey, ProviderQualitySeriesSample> desired = new java.util.HashMap<>();
             for (ProviderQualitySeriesSample sample : rows) {
-                if (sample == null || !desired.add(new ProviderQualityKey(modality, providerId,
+                if (sample == null || sample.measuredAt().isAfter(checkedAt)
+                        || desired.putIfAbsent(new ProviderQualityKey(modality, providerId,
                         providerVersion, modelRevision, sample.locale(), sample.metric(),
-                        sample.scope()))) {
+                        sample.scope()), sample) != null) {
                     registry.counter("media.provider.quality.series.rejected",
                             "service", safeService, "contract_version", CONTRACT_VERSION)
                             .increment();
                     return false;
                 }
             }
-            long additional = desired.stream()
+            if (previous != null && checkedAt.equals(previous.checkedAt())) {
+                if (previous.samples().equals(desired)) return true;
+                registry.counter("media.provider.quality.series.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            if (previous == null && providerQualityRefreshes.size() >= MAX_PROVIDER_PROFILES) {
+                registry.counter("media.provider.quality.series.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            long additional = desired.keySet().stream()
                     .filter(key -> !providerQualitySeries.containsKey(key)).count();
             if (providerQualitySeries.size() + additional > MAX_PROVIDER_QUALITY_SERIES) {
                 registry.counter("media.provider.quality.series.rejected",
@@ -451,7 +475,7 @@ public final class MediaWorkflowMetrics {
                 ProviderQualityKey key = entry.getKey();
                 if (key.modality() == modality && key.providerId().equals(providerId)
                         && key.providerVersion().equals(providerVersion)
-                        && key.modelRevision().equals(modelRevision) && !desired.contains(key)) {
+                        && key.modelRevision().equals(modelRevision) && !desired.containsKey(key)) {
                     entry.getValue().set(Double.NaN);
                 }
             }
@@ -463,7 +487,7 @@ public final class MediaWorkflowMetrics {
                         this::registerQualityGauge);
                 value.set(sample.value());
             }
-            providerQualityCheckedAt.put(group, checkedAt);
+            providerQualityRefreshes.put(group, new ProviderQualityRefresh(checkedAt, Map.copyOf(desired)));
             return true;
         }
     }
