@@ -99,6 +99,7 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   if (requireFrozen) assert(manifest.status === 'FROZEN', 'manifest is not frozen; refusing to score');
   const ids = new Set();
   const sourceRows = new Set();
+  const audioDigests = new Set();
   const speakersByPartition = { training: new Set(), holdout: new Set() };
   const counts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
   const holdoutCounts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
@@ -125,6 +126,9 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
     assert(Number.isInteger(clip.sizeBytes) && clip.sizeBytes > 0, `sizeBytes required for ${clip.clipId}`);
     totalBytes += clip.sizeBytes;
     assert(SHA256.test(clip.audioSha256 ?? ''), `audioSha256 required for ${clip.clipId}`);
+    const audioDigest = clip.audioSha256.toLowerCase();
+    assert(!audioDigests.has(audioDigest), `duplicate audioSha256 for ${clip.clipId}`);
+    audioDigests.add(audioDigest);
     assert(clip.sourceRevision === manifest.dataset.sourceRevision, `source revision mismatch for ${clip.clipId}`);
     assert(clip.license === 'CC-BY-4.0', `clip license required for ${clip.clipId}`);
     assert(typeof clip.attribution === 'string' && clip.attribution.trim().length > 0, `attribution required for ${clip.clipId}`);

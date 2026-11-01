@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { evaluate, scoreLocale, validateManifest } from '../scripts/qualification/evaluate-fleurs-asr.mjs';
 
 const revision = '70bb2e84b976b7e960aa89f1c648e09c59f894dd';
-const sha = 'a'.repeat(64);
 
 function clip(locale, id, partition, speakerId) {
   return {
@@ -17,7 +17,7 @@ function clip(locale, id, partition, speakerId) {
     transcript: 'Reference phrase',
     durationSeconds: 2.5,
     sizeBytes: 12000,
-    audioSha256: sha,
+    audioSha256: createHash('sha256').update(`${locale}:${id}`).digest('hex'),
     sourceRevision: revision,
     license: 'CC-BY-4.0',
     attribution: 'Google FLEURS, CC-BY-4.0; source row attribution pending review',
@@ -78,6 +78,13 @@ test('frozen pack enforces clip evidence, caps, and speaker-disjoint partitions'
   assert.equal(validateManifest(manifest, { requireFrozen: true }).clipCount, 6);
   manifest.selection.clips[1].speakerId = manifest.selection.clips[0].speakerId;
   assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /overlaps training and holdout/);
+});
+
+test('rejects identical audio across distinct source rows and partitions, including uppercase digests', () => {
+  const manifest = frozenManifest();
+  manifest.selection.clips[1].audioSha256 = manifest.selection.clips[0].audioSha256.toUpperCase();
+  assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /duplicate audioSha256/);
+  assert.throws(() => evaluate(manifest, []), /duplicate audioSha256/);
 });
 
 test('WER and CER scoring plumbing uses aggregate edit counts and requires exact holdout predictions', () => {
