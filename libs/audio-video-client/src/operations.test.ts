@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import { inspect } from "node:util";
 import {
   MediaClientError,
   MediaOperationAmbiguousError,
+  MediaUploadProgressCallbackError,
   MediaOperationNotAdmittedError,
   createMediaOperationClient,
   type CanonicalMediaUploadSessionObservation,
@@ -274,8 +276,9 @@ describe("MediaOperationClient", () => {
     }))) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
-    await expect(client.uploadPart(uploadSession(), 0, new Blob(["x"])))
-      .rejects.toThrow(/classification is outside the runtime enum/u);
+    const failure = await client.uploadPart(uploadSession(), 0, new Blob(["x"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toHaveProperty("cause", expect.objectContaining({ message: expect.stringMatching(/classification is outside the runtime enum/u) }));
   });
 
   it("reads the exact upload-session DTO from the tenant- and principal-scoped canonical route", async () => {
@@ -427,7 +430,96 @@ describe("MediaOperationClient", () => {
       const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(mutated)) as unknown as typeof fetch;
       const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
         defaultHeaders: { "X-Principal-Id": "principal-1" } });
-      await expect(client.uploadPart(uploadSession(), 0, new Blob(["abc"]))).rejects.toThrow(/unchanged session/u);
+      const failure = await client.uploadPart(uploadSession(), 0, new Blob(["abc"])).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
+    }
+  });
+
+  it("treats server errors and unbound success acknowledgements as ambiguous, preserving explicit client errors", async () => {
+    const errorEnvelope = {
+      error: { code: "UPLOAD_REJECTED", message: "Upload rejected", retryable: false, evidenceRefs: [], actionRefs: [] },
+      meta: { requestId: "request-1", correlationId: "correlation-1", timestamp, apiVersion: "1.0.0" },
+    };
+    for (const response of [
+      jsonResponse(errorEnvelope, 408),
+      jsonResponse(errorEnvelope, 429),
+      jsonResponse(errorEnvelope, 503),
+      new Response("not-json", { status: 200, headers: { "Content-Type": "application/json" } }),
+      jsonResponse(uploadSession({ bytesReceived: 2, nextChunkIndex: 1 })),
+    ]) {
+      const fetchImpl = vi.fn(async (): Promise<Response> => response) as unknown as typeof fetch;
+      const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" } });
+      const failure = await client.uploadPart(uploadSession(), 0, new Blob(["abc"])).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    }
+
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(errorEnvelope, 403)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    await expect(client.uploadPart(uploadSession(), 0, new Blob(["abc"]))).rejects.toMatchObject({
+      name: "MediaClientError", statusCode: 403, detail: expect.objectContaining({ code: "UPLOAD_REJECTED" }),
+    });
+  });
+
+  it("keeps header-provider and progress-callback failures distinguishable from dispatch ambiguity", async () => {
+    const beforeDispatchFetch = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ bytesReceived: 3, nextChunkIndex: 1 }))) as unknown as typeof fetch;
+    const headerFailure = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1",
+      fetchImpl: beforeDispatchFetch, getAccessToken: () => { throw new Error("credential provider unavailable"); },
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    await expect(headerFailure.uploadPart(uploadSession(), 0, new Blob(["abc"])))
+      .rejects.toThrow("credential provider unavailable");
+    expect(beforeDispatchFetch).not.toHaveBeenCalled();
+
+    const acknowledged = uploadSession({ bytesReceived: 3, nextChunkIndex: 1, metadata: { privateNote: "user-private" } });
+    const requestSession = uploadSession({ metadata: { privateNote: "user-private" } });
+    const afterDispatchFetch = vi.fn(async (): Promise<Response> => jsonResponse(acknowledged)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl: afterDispatchFetch,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    const controller = new AbortController();
+    const callbackFailure = await client.uploadPart(requestSession, 0, new Blob(["abc"]), {
+      signal: controller.signal,
+      onProgress: ({ percentage }) => {
+        if (percentage === 100) {
+          controller.abort();
+          throw new Error("progress listener failed: bearer-secret");
+        }
+      },
+    }).catch((error: unknown) => error);
+    expect(callbackFailure).toBeInstanceOf(MediaUploadProgressCallbackError);
+    expect((callbackFailure as MediaUploadProgressCallbackError).confirmedSession)
+      .toEqual(acknowledged);
+    const standardLogRepresentations = [String(callbackFailure), JSON.stringify(callbackFailure), inspect(callbackFailure)].join("\n");
+    expect(standardLogRepresentations).not.toContain("source.wav");
+    expect(standardLogRepresentations).not.toContain("user-private");
+    expect(standardLogRepresentations).not.toContain("bearer-secret");
+    expect((callbackFailure as Error & { cause?: unknown }).cause).toBeUndefined();
+    expect(Object.keys(callbackFailure as object)).not.toContain("confirmedSession");
+    expect(afterDispatchFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("cleans up timeout and abort linkage when the initial progress callback throws", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+      const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        requestTimeoutMs: 10_000, defaultHeaders: { "X-Principal-Id": "principal-1" } });
+      const controller = new AbortController();
+      const addListener = vi.spyOn(controller.signal, "addEventListener");
+      const removeListener = vi.spyOn(controller.signal, "removeEventListener");
+      await expect(client.uploadPart(uploadSession(), 0, new Blob(["abc"]), {
+        signal: controller.signal,
+        onProgress: () => { throw new Error("initial progress listener failed"); },
+      })).rejects.toThrow("initial progress listener failed");
+      expect(fetchImpl).not.toHaveBeenCalled();
+      expect(vi.getTimerCount()).toBe(0);
+      expect(addListener).toHaveBeenCalledWith("abort", expect.any(Function), { once: true });
+      expect(removeListener).toHaveBeenCalledWith("abort", addListener.mock.calls[0]?.[1]);
+    } finally {
+      vi.useRealTimers();
     }
   });
 
@@ -435,7 +527,26 @@ describe("MediaOperationClient", () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => { throw new TypeError("connection lost after send"); }) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
-    await expect(client.uploadPart(uploadSession(), 0, new Blob(["abc"]))).rejects.toThrow("connection lost after send");
+    const failure = await client.uploadPart(uploadSession(), 0, new Blob(["abc"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports an aborted chunk dispatch as ambiguous so callers reconcile before retrying", async () => {
+    const fetchImpl = vi.fn((_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => new Promise((_, reject) => {
+      if (init?.signal?.aborted) reject(init.signal.reason);
+      else init?.signal?.addEventListener("abort", () => reject(init.signal?.reason), { once: true });
+    })) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    const controller = new AbortController();
+    const pending = client.uploadPart(uploadSession(), 0, new Blob(["abc"]), { signal: controller.signal });
+    await Promise.resolve();
+    controller.abort(new DOMException("caller cancelled", "AbortError"));
+    const failure = await pending.catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 

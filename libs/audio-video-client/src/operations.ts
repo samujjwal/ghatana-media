@@ -81,6 +81,22 @@ export interface CanonicalMediaUploadSessionObservation {
   readonly metadata: Readonly<Record<string, unknown>>;
 }
 
+/** A progress observer failed after the server confirmed the append. */
+export class MediaUploadProgressCallbackError extends Error {
+  public readonly confirmedSession!: CanonicalMediaUploadSessionObservation;
+
+  public constructor(confirmedSession: CanonicalMediaUploadSessionObservation) {
+    super("Upload progress callback failed after the chunk was confirmed.");
+    this.name = "MediaUploadProgressCallbackError";
+    Object.defineProperty(this, "confirmedSession", {
+      value: confirmedSession,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    });
+  }
+}
+
 export interface OperationWaitOptions {
   readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
@@ -500,23 +516,53 @@ export class MediaOperationClient {
       () => controller.abort(new DOMException("Upload timed out", "TimeoutError")),
       this.transport.requestTimeoutMs,
     );
-    options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
+    const path = `/api/v1/artifacts/uploads/${encodeURIComponent(current.uploadId)}/chunks/${chunkIndex}`;
     try {
+      // Keep observer failures inside the cleanup scope, but this initial
+      // notification occurs before dispatch and therefore has no effect to reconcile.
+      options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
       const headers = await this.transport.headers({ "Content-Type": "application/octet-stream" });
-      const response = await this.transport.fetchRaw(
-        `${this.transport.baseUrl}/api/v1/artifacts/uploads/${encodeURIComponent(current.uploadId)}/chunks/${chunkIndex}`,
-        { method: "PUT", headers, body: data },
-        controller.signal,
-      );
-      if (!response.ok) throw await this.transport.errorFromResponse(response);
-      const updated = parseCanonicalMediaUploadSession(await response.json());
-      this.assertUploadScope(updated, principalId);
-      if (!uploadImmutableFieldsMatch(updated, current) || updated.status !== "OPEN"
-        || updated.nextChunkIndex !== chunkIndex + 1
-        || updated.bytesReceived !== current.bytesReceived + data.size) {
-        throw new TypeError("Canonical Media upload response does not confirm the submitted chunk against the unchanged session.");
+      // Once fetch is entered, a timeout or caller abort cannot prove whether
+      // the server committed this chunk. The caller must reconcile the durable
+      // upload session before attempting another mutation.
+      let response: Response;
+      try {
+        response = await this.transport.fetchRaw(
+          `${this.transport.baseUrl}${path}`,
+          { method: "PUT", headers, body: data },
+          controller.signal,
+        );
+      } catch (failure) {
+        throw new MediaOperationAmbiguousError(path, failure);
       }
-      options.onProgress?.({ uploadedBytes: data.size, totalBytes: data.size, percentage: 100 });
+      if (!response.ok) {
+        const error = await this.transport.errorFromResponse(response);
+        if (response.status === 408 || response.status === 429 || response.status >= 500) {
+          throw new MediaOperationAmbiguousError(path, error);
+        }
+        throw error;
+      }
+      let updated: CanonicalMediaUploadSessionObservation;
+      try {
+        updated = parseCanonicalMediaUploadSession(await response.json());
+        this.assertUploadScope(updated, principalId);
+        if (!uploadImmutableFieldsMatch(updated, current) || updated.status !== "OPEN"
+          || updated.nextChunkIndex !== chunkIndex + 1
+          || updated.bytesReceived !== current.bytesReceived + data.size) {
+          throw new TypeError("Canonical Media upload response does not confirm the submitted chunk against the unchanged session.");
+        }
+      } catch (failure) {
+        // A successful HTTP status without a receipt bound to this exact append
+        // cannot establish whether the server committed the chunk.
+        throw new MediaOperationAmbiguousError(path, failure);
+      }
+      try {
+        options.onProgress?.({ uploadedBytes: data.size, totalBytes: data.size, percentage: 100 });
+      } catch {
+        // The callback exception may contain secrets or user content. Preserve
+        // the confirmed result without retaining or rendering that exception.
+        throw new MediaUploadProgressCallbackError(updated);
+      }
       return updated;
     } finally {
       clearTimeout(timeout);

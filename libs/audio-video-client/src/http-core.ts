@@ -37,15 +37,14 @@ export class MediaClientError extends Error {
 }
 
 /**
- * A submit effect aborted after the request may have been dispatched — the
- * server-side outcome is OUTCOME_UNKNOWN, never a clean failure. Callers must
- * not retry blindly or report the job as failed; reconciliation reads the
- * durable job state instead.
+ * A mutation was dispatched but no authoritative acknowledgement confirmed its
+ * outcome. The result is OUTCOME_UNKNOWN, never a clean failure. Callers must
+ * not retry blindly; reconcile the durable operation state before proceeding.
  */
 export class MediaOperationAmbiguousError extends Error {
   public readonly path: string;
   public constructor(path: string, cause: unknown) {
-    super(`Media operation outcome is unknown after dispatch abort on ${path}`);
+    super(`Media operation outcome is unconfirmed after dispatch on ${path}`);
     this.name = "MediaOperationAmbiguousError";
     this.path = path;
     this.cause = cause;
