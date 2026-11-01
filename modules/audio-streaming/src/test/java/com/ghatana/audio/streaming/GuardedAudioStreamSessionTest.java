@@ -79,6 +79,103 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("provider dispatch requires the exact delivered frame and rejects replay")
+    void dispatchRequiresDeliveredSnapshotAndRejectsReplay() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        AtomicInteger providerEffects = new AtomicInteger();
+        AudioStreamSession.DecodedFrame source = new AudioStreamSession.DecodedFrame(
+                0, 0L, new byte[]{0x1});
+
+        assertThatThrownBy(() -> session.dispatchToProvider(source,
+                f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(providerEffects.get()).isZero();
+
+        assertThat(session.submitFrame(source)).isEqualTo(Disposition.DELIVERED);
+        source.payload()[0] = 0x2;
+        assertThatThrownBy(() -> session.dispatchToProvider(source,
+                f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(providerEffects.get()).isZero();
+
+        AudioStreamSession.DecodedFrame admitted = new AudioStreamSession.DecodedFrame(
+                0, 0L, new byte[]{0x1});
+        session.dispatchToProvider(admitted, f -> {
+            source.payload()[0] = 0x3;
+            assertThat(f.payload()).containsExactly((byte) 0x1);
+            providerEffects.incrementAndGet();
+        });
+        assertThat(providerEffects.get()).isEqualTo(1);
+        assertThatThrownBy(() -> session.dispatchToProvider(admitted,
+                f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already dispatched");
+        assertThat(providerEffects.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("missing or oversized payload is rejected before the ACK advances")
+    void malformedPayloadDoesNotAdvanceAck() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        AudioStreamSession.DecodedFrame noPayload = new AudioStreamSession.DecodedFrame(
+                0, 0L, null);
+        AudioStreamSession.DecodedFrame oversized = new AudioStreamSession.DecodedFrame(
+                0, 0L, new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1]);
+
+        assertThatThrownBy(() -> session.submitFrame(noPayload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThatThrownBy(() -> session.submitFrame(oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThat(session.nextAck()).isEqualTo(-1);
+        assertThat(session.submitFrame(frame(0))).isEqualTo(Disposition.DELIVERED);
+    }
+
+    @Test
+    @DisplayName("held audio payload is snapshotted and bounded dispatch applies backpressure")
+    void heldPayloadSnapshotAndDispatchCapacity() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        assertThat(session.submitFrame(frame(0))).isEqualTo(Disposition.DELIVERED);
+        AudioStreamSession.DecodedFrame held = new AudioStreamSession.DecodedFrame(
+                2, 40L, new byte[]{0x4});
+        assertThat(session.submitFrame(held)).isEqualTo(Disposition.HELD);
+        held.payload()[0] = 0x7;
+        assertThat(session.submitFrame(frame(1))).isEqualTo(Disposition.DELIVERED);
+        AudioStreamSession.DecodedFrame released = session.takeDelivered();
+        assertThat(released.sequenceNumber()).isEqualTo(2);
+        assertThat(released.payload()).containsExactly((byte) 0x4);
+        session.dispatchToProvider(released, f -> { });
+
+        GuardedAudioStreamSession saturated = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        for (int seq = 0; seq < 256; seq++) {
+            assertThat(saturated.submitFrame(frame(seq))).isEqualTo(Disposition.DELIVERED);
+        }
+        assertThat(saturated.submitFrame(frame(0))).isEqualTo(Disposition.DUPLICATE);
+        assertThat(saturated.submitFrame(frame(258))).isEqualTo(Disposition.HELD);
+        assertThat(saturated.submitFrame(frame(256))).isEqualTo(Disposition.OVERFLOW);
+        assertThat(saturated.nextAck()).isEqualTo(255);
+        saturated.dispatchToProvider(frame(0), f -> { });
+        assertThat(saturated.submitFrame(frame(256))).isEqualTo(Disposition.DELIVERED);
+        assertThat(saturated.nextAck()).isEqualTo(256);
+        assertThat(saturated.submitFrame(frame(257))).isEqualTo(Disposition.OVERFLOW);
+        saturated.dispatchToProvider(frame(1), f -> { });
+        assertThat(saturated.submitFrame(frame(257))).isEqualTo(Disposition.DELIVERED);
+        assertThatThrownBy(saturated::takeDelivered)
+                .isInstanceOf(GuardedAudioStreamSession.ProviderDispatchCapacityException.class);
+        assertThat(saturated.pendingCount()).isEqualTo(1);
+        saturated.dispatchToProvider(frame(2), f -> { });
+        assertThat(saturated.takeDelivered().sequenceNumber()).isEqualTo(258);
+        assertThat(saturated.nextAck()).isEqualTo(258);
+    }
+
+    @Test
     @DisplayName("detach is resumable and distinct from terminal server cancel")
     void detachVsCancel() {
         GuardedAudioStreamSession session =
@@ -92,9 +189,17 @@ class GuardedAudioStreamSessionTest {
         session.reconnect(1);
         assertThat(session.attachment()).isEqualTo(Attachment.ATTACHED);
         assertThat(session.submitFrame(frame(1))).isEqualTo(Disposition.DELIVERED);
+        assertThat(session.submitFrame(frame(3))).isEqualTo(Disposition.HELD);
+        assertThat(session.pendingCount()).isEqualTo(1);
 
         session.cancel();
         assertThat(session.attachment()).isEqualTo(Attachment.CANCELLED);
+        assertThat(session.pendingCount()).isZero();
+        AtomicInteger providerEffects = new AtomicInteger();
+        assertThatThrownBy(() -> session.dispatchToProvider(frame(1),
+                f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(providerEffects.get()).isZero();
         assertThatThrownBy(() -> session.reconnect(2))
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> session.submitFrame(frame(2)))

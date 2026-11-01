@@ -1,5 +1,10 @@
 package com.ghatana.audio.streaming;
 
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
@@ -18,12 +23,19 @@ import java.util.Objects;
  * newer session generation — replaying an older generation is denied, never
  * silently merged.
  *
+ * <p>This in-memory state machine is not thread-safe. Its owner must serialize
+ * transitions on one event loop or per-session executor. Cancellation clears
+ * local pending frames and blocks later transitions; it does not interrupt an
+ * in-flight provider call, persist across restart, or prove provider finality.
+ *
  * @doc.type class
  * @doc.purpose Consent-gated frame/reconnect/dispatch lifecycle for one stream
  * @doc.layer product
  * @doc.pattern Guarded Session
  */
 public final class GuardedAudioStreamSession {
+
+    private static final int MAX_PROVIDER_CANDIDATES = 256;
 
     /** Transport attachment state; orthogonal to consent. */
     public enum Attachment {
@@ -49,6 +61,13 @@ public final class GuardedAudioStreamSession {
         }
     }
 
+    /** Backpressure raised when a held deliverable frame cannot be retained for dispatch yet. */
+    public static final class ProviderDispatchCapacityException extends RuntimeException {
+        ProviderDispatchCapacityException() {
+            super("audio stream provider candidate capacity is full; dispatch a candidate before draining held frames");
+        }
+    }
+
     /** External provider effect sink; invoked only under admitted consent. */
     @FunctionalInterface
     public interface ProviderSink {
@@ -58,6 +77,8 @@ public final class GuardedAudioStreamSession {
     private final StreamFrameReconciler.SessionIdentity identity;
     private final StreamConsentGate.Source consent;
     private final StreamFrameReconciler reconciler;
+    /** Bounded digests bind provider dispatch to exact frames delivered in this process. */
+    private final LinkedHashMap<Integer, byte[]> providerCandidates = new LinkedHashMap<>();
     private Attachment attachment;
     private long generation;
 
@@ -87,33 +108,69 @@ public final class GuardedAudioStreamSession {
                 identity, consent, StreamFrameReconciler.open(identity), 0L);
     }
 
-    /** Offers one frame; requires ATTACHED plus currently admitted consent. */
+    /**
+     * Offers one frame under current consent. OVERFLOW applies backpressure
+     * without advancing the ACK when a delivered frame cannot be retained for
+     * its later provider-dispatch check.
+     */
     public StreamFrameReconciler.Disposition submitFrame(
             AudioStreamSession.DecodedFrame frame) {
         requireAttached("frame submit");
         requireConsent("frame submit");
-        return reconciler.offer(frame);
-    }
-
-    /** Held-frame release after a gap closes; same guard as submit. */
-    public AudioStreamSession.DecodedFrame takeDelivered() {
-        requireAttached("frame delivery");
-        requireConsent("frame delivery");
-        return reconciler.takeDelivered();
+        AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
+        if (snapshot.sequenceNumber() >= 0
+                && snapshot.sequenceNumber() < Integer.MAX_VALUE
+                && snapshot.sequenceNumber() == reconciler.nextExpected()
+                && providerCandidates.size() >= MAX_PROVIDER_CANDIDATES) {
+            return StreamFrameReconciler.Disposition.OVERFLOW;
+        }
+        StreamFrameReconciler.Disposition disposition = reconciler.offer(snapshot);
+        if (disposition == StreamFrameReconciler.Disposition.DELIVERED) {
+            rememberProviderCandidate(snapshot);
+        }
+        return disposition;
     }
 
     /**
-     * Dispatches one delivered frame to an external provider sink. Consent is
-     * re-evaluated at the point of dispatch — a revocation between frame
-     * submit and dispatch prevents the external effect entirely.
+     * Held-frame release after a gap closes; same guard as submit. If the
+     * next held frame cannot be retained for provider dispatch, this throws
+     * and leaves it pending for retry after capacity is released.
+     */
+    public AudioStreamSession.DecodedFrame takeDelivered() {
+        requireAttached("frame delivery");
+        requireConsent("frame delivery");
+        AudioStreamSession.DecodedFrame pending = reconciler.peekDelivered();
+        if (pending != null && providerCandidates.size() >= MAX_PROVIDER_CANDIDATES) {
+            throw new ProviderDispatchCapacityException();
+        }
+        AudioStreamSession.DecodedFrame frame = reconciler.takeDelivered();
+        if (frame != null) {
+            frame = snapshotFrame(frame);
+            rememberProviderCandidate(frame);
+        }
+        return frame;
+    }
+
+    /**
+     * Dispatches one exact frame delivered by this in-memory reconciler.
+     * Consent is re-evaluated at dispatch, the candidate is consumed before
+     * the sink call to prevent blind local replay, and a sink exception leaves
+     * the provider outcome unknown. This is not provider-side exactly-once or
+     * finality evidence.
      */
     public void dispatchToProvider(
             AudioStreamSession.DecodedFrame frame, ProviderSink sink) {
-        Objects.requireNonNull(frame, "frame");
         Objects.requireNonNull(sink, "sink");
         requireAttached("provider dispatch");
         requireConsent("provider dispatch");
-        sink.accept(frame);
+        AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
+        byte[] admittedDigest = providerCandidates.get(snapshot.sequenceNumber());
+        if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
+            throw new IllegalArgumentException(
+                    "audio frame was not delivered by this session or was already dispatched");
+        }
+        providerCandidates.remove(snapshot.sequenceNumber());
+        sink.accept(snapshot);
     }
 
     /** Client transport detach — the session stays resumable. */
@@ -150,6 +207,8 @@ public final class GuardedAudioStreamSession {
      * dispatch is possible — distinct from a reversible client detach.
      */
     public void cancel() {
+        reconciler.discardPending();
+        providerCandidates.clear();
         attachment = Attachment.CANCELLED;
     }
 
@@ -199,6 +258,35 @@ public final class GuardedAudioStreamSession {
                         identity.purposeRef(), generation));
         if (!StreamConsentGate.permits(decision)) {
             throw new ConsentDeniedException(transition, decision);
+        }
+    }
+
+    private void rememberProviderCandidate(AudioStreamSession.DecodedFrame frame) {
+        providerCandidates.put(frame.sequenceNumber(), frameDigest(frame));
+    }
+
+    private static AudioStreamSession.DecodedFrame snapshotFrame(
+            AudioStreamSession.DecodedFrame frame) {
+        Objects.requireNonNull(frame, "frame");
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length > AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("audio stream frame payload is outside the bounded size");
+        }
+        return new AudioStreamSession.DecodedFrame(
+                frame.sequenceNumber(), frame.timestampMillis(), payload.clone());
+    }
+
+    private static byte[] frameDigest(AudioStreamSession.DecodedFrame frame) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(ByteBuffer.allocate(Integer.BYTES + Long.BYTES)
+                    .putInt(frame.sequenceNumber())
+                    .putLong(frame.timestampMillis())
+                    .array());
+            digest.update(frame.payload());
+            return digest.digest();
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
         }
     }
 }

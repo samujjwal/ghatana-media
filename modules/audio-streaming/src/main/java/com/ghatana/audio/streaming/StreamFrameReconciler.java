@@ -143,6 +143,17 @@ public final class StreamFrameReconciler {
         return pending.pollFirstEntry().getValue();
     }
 
+    /** Read-only view of the next held frame eligible for release. */
+    AudioStreamSession.DecodedFrame peekDelivered() {
+        Map.Entry<Integer, AudioStreamSession.DecodedFrame> head = pending.firstEntry();
+        return head != null && head.getKey() == nextExpected ? head.getValue() : null;
+    }
+
+    /** Drops held frame payloads when the owning guarded session is cancelled. */
+    void discardPending() {
+        pending.clear();
+    }
+
     /** The sequence the next ACK acknowledges — the last contiguous delivered. */
     public int nextAck() {
         return nextExpected - 1;
