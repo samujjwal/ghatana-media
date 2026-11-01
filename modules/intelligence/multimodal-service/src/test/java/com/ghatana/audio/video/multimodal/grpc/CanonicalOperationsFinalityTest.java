@@ -54,6 +54,28 @@ class CanonicalOperationsFinalityTest {
                 });
     }
 
+    @Test
+    void cancelledChildCannotBeFusedAsSuccessfulParentOutput() {
+        CanonicalOperationOutcome outcome = completed(List.of(child(
+                JobType.SPEECH_TO_TEXT, JobStatus.CANCELLED, Map.of("text", "untrusted"))));
+
+        assertThatThrownBy(() -> CanonicalOperations.toMultimodalResult(outcome, true, false))
+                .isInstanceOfSatisfying(CanonicalOperationFailedException.class, failure -> {
+                    assertThat(failure.jobId()).isEqualTo("job-mm-1");
+                    assertThat(failure.status()).isEqualTo(JobStatus.CANCELLED);
+                });
+    }
+
+    @Test
+    void aSingleSuccessfulChildCannotCompleteARequestedTwoModalityFamily() {
+        CanonicalOperationOutcome outcome = completed(List.of(child(
+                JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "grounded words"))));
+
+        assertThatThrownBy(() -> CanonicalOperations.toMultimodalResult(outcome, true, true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("missing the declared VISION child");
+    }
+
     private static CanonicalOperationOutcome completed(List<Map<String, Object>> observations) {
         return CanonicalOperationOutcome.completed(
                 "job-mm-1", Map.of("observations", observations));

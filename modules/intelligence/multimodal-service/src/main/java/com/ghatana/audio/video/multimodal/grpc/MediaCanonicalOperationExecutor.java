@@ -165,8 +165,8 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             throw new CanonicalOperationUnknownException(submitted.jobId());
         }
         if (outcome.status() == JobStatus.FAILED || outcome.status() == JobStatus.CANCELLED) {
-            return operation.fuse(CanonicalOperationOutcome.failed(
-                    submitted.jobId(), outcome.failureCode()));
+            return operation.fuse(new CanonicalOperationOutcome(
+                    submitted.jobId(), outcome.status(), Map.of(), outcome.failureCode()));
         }
         return operation.fuse(
                 CanonicalOperationOutcome.completed(submitted.jobId(), outcome.result()));

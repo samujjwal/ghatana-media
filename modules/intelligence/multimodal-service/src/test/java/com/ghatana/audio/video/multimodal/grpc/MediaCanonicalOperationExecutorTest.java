@@ -107,6 +107,29 @@ class MediaCanonicalOperationExecutorTest {
     }
 
     @Test
+    void cancelledParentRemainsCancelledThroughFusion() {
+        var port = new FixturePort().withSource(Map.of())
+                .thenStatuses(JobStatus.CANCELLED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<Object> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null,
+                outcome -> {
+                    assertThat(outcome.status()).isEqualTo(JobStatus.CANCELLED);
+                    return CanonicalOperations.toVideoAudioResult(outcome);
+                });
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                .isInstanceOf(CanonicalOperationFailedException.class)
+                .satisfies(error -> {
+                    var failure = (CanonicalOperationFailedException) error;
+                    assertThat(failure.jobId()).isEqualTo("job-1");
+                    assertThat(failure.status()).isEqualTo(JobStatus.CANCELLED);
+                });
+    }
+
+    @Test
     void postSubmitReadbackFailureThrowsUnknownCarryingJobId() {
         var port = new FixturePort().withSource(Map.of());
         port.jobFailure = new IllegalStateException("readback lost");
