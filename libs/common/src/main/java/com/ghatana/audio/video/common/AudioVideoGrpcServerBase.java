@@ -5,12 +5,24 @@ import com.ghatana.audio.video.common.health.ServerReadinessLifecycle;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.EdECKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
@@ -36,13 +48,18 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
 
     private final String serviceName;
     private final int port;
-    private final Server server;
+    private final BindableService serviceImpl;
+    private final List<io.grpc.ServerInterceptor> interceptors;
+    private final OptionalInt maxInboundMessageSize;
+    private volatile Server server;
     private final HealthMetricsServer healthServer;
     private final ServerReadinessLifecycle readinessLifecycle;
     private final Runnable readinessMetricRegistration;
     private final AutoCloseable serviceResource;
-    private final TransportSecurity transportSecurity;
+    private volatile TransportSecurity transportSecurity;
+    private final AtomicBoolean shutdownHookRegistered = new AtomicBoolean();
     private final AtomicBoolean closed = new AtomicBoolean();
+    private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean serviceResourceClosed = new AtomicBoolean();
     private final AtomicBoolean readinessResourceClosed = new AtomicBoolean();
 
@@ -117,29 +134,20 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         this.transportSecurity = java.util.Objects.requireNonNull(
                 transportSecurity, "transportSecurity must not be null");
         this.transportSecurity.verify();
+        this.serviceImpl = serviceImpl;
+        this.interceptors = List.copyOf(interceptors);
+        this.maxInboundMessageSize = maxInboundMessageSize;
         this.serviceResource = serviceImpl instanceof AutoCloseable closeable ? closeable : null;
         this.readinessLifecycle = readinessLifecycle;
 
-        ServerBuilder<?> builder = ServerBuilder.forPort(port);
-        maxInboundMessageSize.ifPresent(builder::maxInboundMessageSize);
-        interceptors.forEach(builder::intercept);
-        if (transportSecurity.tlsEnabled()) {
-            builder.useTransportSecurity(
-                    transportSecurity.certificateChain().toFile(),
-                    transportSecurity.privateKey().toFile());
-        }
-        builder.addService(serviceImpl);
-        if (readinessLifecycle != null && readinessLifecycle != serviceImpl) {
-            builder.addService(readinessLifecycle);
-        }
-        this.server = builder.build();
+        this.server = buildServer(port, transportSecurity);
         this.healthServer = new HealthMetricsServer(this.serviceName, this::isReady);
         this.readinessMetricRegistration =
                 com.ghatana.audio.video.common.observability.MetricsServerInterceptor.getInstance()
                         .registerServiceReadiness(this.serviceName, this::isReady);
     }
 
-    public final void start() throws IOException {
+    public final synchronized void start() throws IOException {
         if (closed.get()) {
             throw new IllegalStateException(serviceName + " server is closed");
         }
@@ -149,7 +157,9 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             if (readinessLifecycle != null) {
                 readinessLifecycle.markReady();
             }
+            started.set(true);
         } catch (IOException | RuntimeException exception) {
+            started.set(false);
             setNotServing();
             closed.set(true);
             server.shutdownNow();
@@ -171,10 +181,92 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         LOG.info("{} started on port {} transportSecurity={}",
                 serviceName, port, transportSecurity.tlsEnabled() ? "TLS" : "PLAINTEXT");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            LOG.info("Shutdown hook triggered for {}", serviceName);
-            close();
-        }, serviceName + "-shutdown-hook"));
+        if (shutdownHookRegistered.compareAndSet(false, true)) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOG.info("Shutdown hook triggered for {}", serviceName);
+                close();
+            }, serviceName + "-shutdown-hook"));
+        }
+    }
+
+    /**
+     * Replaces the TLS identity by stopping and rebuilding this listener on its configured port.
+     * The candidate pair is validated before traffic is interrupted. A failed rebind leaves this
+     * server closed and NOT_SERVING; it never falls back to plaintext or the old identity.
+     */
+    public final synchronized void rotateTls(TransportSecurity replacement) throws IOException {
+        java.util.Objects.requireNonNull(replacement, "replacement must not be null");
+        if (!replacement.tlsEnabled()) {
+            throw new IllegalArgumentException("TLS rotation requires TLS transport security");
+        }
+        replacement.verify();
+        if (closed.get()) throw new IllegalStateException(serviceName + " server is closed");
+        Server previous = server;
+        if (!started.get()) {
+            throw new IllegalStateException(serviceName + " server is not started");
+        }
+        int boundPort = previous.getPort();
+        // Build first so malformed/incomplete certificate material is rejected before traffic is
+        // interrupted. ServerBuilder.build() does not bind the configured port.
+        Server next = buildServer(boundPort, replacement);
+        setNotServing();
+        previous.shutdown();
+        try {
+            try {
+                if (!previous.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                    previous.shutdownNow();
+                    previous.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted while stopping " + serviceName + " for TLS rotation",
+                        interrupted);
+            }
+            try {
+                next.start();
+            } catch (IOException | RuntimeException failure) {
+                next.shutdownNow();
+                throw failure;
+            }
+            server = next;
+            transportSecurity = replacement;
+            if (readinessLifecycle != null) readinessLifecycle.markReady();
+            started.set(true);
+            LOG.info("{} TLS identity rotated on port {}", serviceName, boundPort);
+        } catch (IOException | RuntimeException failure) {
+            next.shutdownNow();
+            closed.set(true);
+            started.set(false);
+            server = previous;
+            previous.shutdownNow();
+            setNotServing();
+            try {
+                healthServer.close();
+            } finally {
+                try {
+                    closeReadinessResource();
+                } finally {
+                    try {
+                        closeServiceResource();
+                    } finally {
+                        closeReadinessMetricRegistration();
+                    }
+                }
+            }
+            throw failure;
+        }
+    }
+
+    private Server buildServer(int bindPort, TransportSecurity security) {
+        ServerBuilder<?> builder = ServerBuilder.forPort(bindPort);
+        maxInboundMessageSize.ifPresent(builder::maxInboundMessageSize);
+        interceptors.forEach(builder::intercept);
+        if (security.tlsEnabled()) {
+            builder.useTransportSecurity(security.certificateChain().toFile(), security.privateKey().toFile());
+        }
+        builder.addService(serviceImpl);
+        if (readinessLifecycle != null && readinessLifecycle != serviceImpl) builder.addService(readinessLifecycle);
+        return builder.build();
     }
 
     public final void startAndAwaitShutdown() throws IOException, InterruptedException {
@@ -183,16 +275,27 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     }
 
     public final void blockUntilShutdown() throws InterruptedException {
-        server.awaitTermination();
+        while (true) {
+            Server current = server;
+            current.awaitTermination();
+            synchronized (this) {
+                // Rotation terminates the old generation before publishing the replacement. Since
+                // rotation and close hold this monitor, this check cannot mistake that gap for a
+                // final server shutdown.
+                if (closed.get() || server == current) return;
+            }
+        }
     }
 
     @Override
-    public final void close() {
+    public final synchronized void close() {
         if (!closed.compareAndSet(false, true)) {
             closeServiceResource();
             closeReadinessMetricRegistration();
             return;
         }
+
+        started.set(false);
 
         setNotServing();
 
@@ -266,7 +369,7 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     }
 
     public final int getPort() {
-        return port;
+        return started.get() ? server.getPort() : port;
     }
 
     public final boolean isShutdown() {
@@ -314,6 +417,106 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
             if (!tlsEnabled) return;
             verifyFile(certificateChain, "gRPC TLS certificate chain");
             verifyFile(privateKey, "gRPC TLS private key");
+            SslContext preflightContext = null;
+            try {
+                preflightContext = GrpcSslContexts.forServer(
+                        certificateChain.toFile(), privateKey.toFile()).build();
+                verifyCertificateAndKeyMatch(certificateChain, privateKey);
+            } catch (Exception failure) {
+                throw new IllegalArgumentException("gRPC TLS certificate chain and private key are invalid or mismatched",
+                        failure);
+            } finally {
+                // OpenSSL SslContext instances own native state; safeRelease is a no-op for JDK
+                // contexts that do not implement Netty's ReferenceCounted contract.
+                if (preflightContext != null) ReferenceCountUtil.safeRelease(preflightContext);
+            }
+        }
+
+        private static void verifyCertificateAndKeyMatch(Path certificateChain, Path privateKey)
+                throws Exception {
+            java.util.Collection<? extends java.security.cert.Certificate> certificates;
+            try (var input = Files.newInputStream(certificateChain)) {
+                certificates = CertificateFactory.getInstance("X.509").generateCertificates(input);
+            }
+            if (certificates.isEmpty() || !(certificates.iterator().next() instanceof X509Certificate leaf)) {
+                throw new IllegalArgumentException("certificate chain has no X.509 leaf certificate");
+            }
+            leaf.checkValidity();
+
+            String pem = Files.readString(privateKey, StandardCharsets.US_ASCII);
+            String begin = "-----BEGIN PRIVATE KEY-----";
+            String end = "-----END PRIVATE KEY-----";
+            if (pem.contains("-----BEGIN RSA PRIVATE KEY-----")) {
+                begin = "-----BEGIN RSA PRIVATE KEY-----";
+                end = "-----END RSA PRIVATE KEY-----";
+            }
+            int start = pem.indexOf(begin);
+            int finish = pem.indexOf(end);
+            if (start < 0 || finish <= start) {
+                throw new IllegalArgumentException("private key must be an unencrypted PKCS#8 or RSA PKCS#1 PEM key");
+            }
+            byte[] keyBytes = Base64.getMimeDecoder().decode(
+                    pem.substring(start + begin.length(), finish));
+            if (begin.contains("RSA PRIVATE KEY")) keyBytes = wrapRsaPkcs1(keyBytes);
+            String keyAlgorithm = leaf.getPublicKey().getAlgorithm();
+            PrivateKey key = KeyFactory.getInstance(keyAlgorithm).generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
+            String signatureAlgorithm = leaf.getPublicKey() instanceof EdECKey edKey
+                    ? edKey.getParams().getName()
+                    : switch (keyAlgorithm) {
+                case "RSA" -> "SHA256withRSA";
+                case "EC" -> "SHA256withECDSA";
+                case "DSA" -> "SHA256withDSA";
+                case "Ed25519", "Ed448" -> keyAlgorithm;
+                default -> throw new IllegalArgumentException("unsupported TLS private-key algorithm: " + keyAlgorithm);
+            };
+            byte[] challenge = "media-grpc-tls-pair-check".getBytes(StandardCharsets.US_ASCII);
+            Signature signer = Signature.getInstance(signatureAlgorithm);
+            signer.initSign(key);
+            signer.update(challenge);
+            byte[] signed = signer.sign();
+            signer.initVerify(leaf.getPublicKey());
+            signer.update(challenge);
+            if (!signer.verify(signed)) {
+                throw new IllegalArgumentException("private key does not match certificate leaf");
+            }
+        }
+
+        private static byte[] wrapRsaPkcs1(byte[] pkcs1) {
+            byte[] rsaEncryptionOid = new byte[] {0x06, 0x09, 0x2a, (byte) 0x86, 0x48,
+                    (byte) 0x86, (byte) 0xf7, 0x0d, 0x01, 0x01, 0x01};
+            byte[] nullValue = new byte[] {0x05, 0x00};
+            byte[] algorithm = der(0x30, concat(rsaEncryptionOid, nullValue));
+            byte[] version = new byte[] {0x02, 0x01, 0x00};
+            byte[] key = der(0x04, pkcs1);
+            return der(0x30, concat(version, algorithm, key));
+        }
+
+        private static byte[] der(int tag, byte[] value) {
+            byte[] length;
+            if (value.length < 128) {
+                length = new byte[] {(byte) value.length};
+            } else {
+                int count = 0;
+                for (int remaining = value.length; remaining > 0; remaining >>>= 8) count++;
+                length = new byte[count + 1];
+                length[0] = (byte) (0x80 | count);
+                for (int index = count; index > 0; index--) {
+                    length[index] = (byte) (value.length >>> (8 * (count - index)));
+                }
+            }
+            return concat(new byte[] {(byte) tag}, length, value);
+        }
+
+        private static byte[] concat(byte[]... values) {
+            int length = 0;
+            for (byte[] value : values) length += value.length;
+            byte[] result = new byte[length];
+            int offset = 0;
+            for (byte[] value : values) {
+                System.arraycopy(value, 0, result, offset, value.length);
+                offset += value.length;
+            }
+            return result;
         }
 
         private static Path normalizedPath(Path value, String field) {

@@ -19,10 +19,20 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.ServerSocket;
+import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.TrustManagerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -164,6 +174,57 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void tlsRotationRebindsWithNewCertificateWithoutClosingService() throws Exception {
+        Path certA = tlsFixture("rotation-a-cert.pem");
+        Path keyA = tlsFixture("rotation-a-key.pem");
+        Path certB = tlsFixture("rotation-b-cert.pem");
+        Path keyB = tlsFixture("rotation-b-key.pem");
+        CloseableNoOpService service = new CloseableNoOpService();
+        TestServer server = new TestServer(0, service,
+                AudioVideoGrpcServerBase.TransportSecurity.tls(certA, keyA));
+        server.start();
+        int port = server.getPort();
+        CountDownLatch awaiterEntered = new CountDownLatch(1);
+        Thread awaiter = new Thread(() -> {
+            awaiterEntered.countDown();
+            try {
+                server.blockUntilShutdown();
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        awaiter.start();
+
+        try {
+            assertThat(awaiterEntered.await(3, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            awaitThreadBlocked(awaiter, 3_000);
+            X509Certificate before = peerCertificate(port, certA);
+            assertThatThrownBy(() -> server.rotateTls(
+                    AudioVideoGrpcServerBase.TransportSecurity.tls(certA, keyB)))
+                    .isInstanceOf(RuntimeException.class);
+            assertThat(peerCertificate(port, certA).getSerialNumber()).isEqualTo(before.getSerialNumber());
+            assertThat(server.isShutdown()).isFalse();
+            assertThat(service.closeCount()).isZero();
+
+            server.rotateTls(AudioVideoGrpcServerBase.TransportSecurity.tls(certB, keyB));
+            X509Certificate after = peerCertificate(port, certB);
+
+            assertThat(after.getSerialNumber()).isNotEqualTo(before.getSerialNumber());
+            assertThatThrownBy(() -> peerCertificate(port, certA))
+                    .isInstanceOf(SSLHandshakeException.class);
+            assertThat(server.isShutdown()).isFalse();
+            assertThat(service.closeCount()).isZero();
+            awaiter.join(150);
+            assertThat(awaiter.isAlive()).isTrue();
+        } finally {
+            server.close();
+            awaiter.join(3_000);
+        }
+        assertThat(awaiter.isAlive()).isFalse();
+        assertThat(service.closeCount()).isEqualTo(1);
+    }
+
+    @Test
     void configuredInboundLimitRejectsOversizedTransportMessageBeforeServiceDispatch() throws Exception {
         AtomicInteger dispatches = new AtomicInteger();
         BindableService service = payloadService(dispatches);
@@ -199,6 +260,14 @@ class AudioVideoGrpcServerBaseTest {
                 BindableService service,
                 TransportSecurity transportSecurity) {
             super("test-service", port, service, List.of(), transportSecurity);
+        }
+
+        private TestServer(
+                int port,
+                BindableService service,
+                TransportSecurity transportSecurity,
+                ServerReadinessLifecycle readiness) {
+            super("test-service", port, service, List.of(), transportSecurity, readiness);
         }
 
         private TestServer(int port, BindableService service, ServerReadinessLifecycle readiness) {
@@ -260,6 +329,44 @@ class AudioVideoGrpcServerBaseTest {
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         }
+    }
+
+    private static Path tlsFixture(String name) throws Exception {
+        return Path.of(AudioVideoGrpcServerBaseTest.class.getResource("/tls/" + name).toURI());
+    }
+
+    private static X509Certificate peerCertificate(int port, Path trustedCertificate) throws Exception {
+        X509Certificate trusted;
+        try (var input = Files.newInputStream(trustedCertificate)) {
+            trusted = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(input);
+        }
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(null);
+        trustStore.setCertificateEntry("server", trusted);
+        TrustManagerFactory trustManagers = TrustManagerFactory.getInstance(
+                TrustManagerFactory.getDefaultAlgorithm());
+        trustManagers.init(trustStore);
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, trustManagers.getTrustManagers(), null);
+        try (SSLSocket socket = (SSLSocket) context.getSocketFactory().createSocket()) {
+            socket.connect(new InetSocketAddress("127.0.0.1", port), 3_000);
+            socket.setSoTimeout(3_000);
+            socket.startHandshake();
+            return (X509Certificate) socket.getSession().getPeerCertificates()[0];
+        }
+    }
+
+    private static void awaitThreadBlocked(Thread thread, long timeoutMillis) throws InterruptedException {
+        long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+        while (thread.isAlive()
+                && thread.getState() != Thread.State.WAITING
+                && thread.getState() != Thread.State.TIMED_WAITING
+                && System.nanoTime() < deadline) {
+            Thread.sleep(1);
+        }
+        assertThat(thread.getState())
+                .as("blockUntilShutdown waiter should be waiting on the old server generation")
+                .isIn(Thread.State.WAITING, Thread.State.TIMED_WAITING);
     }
 
     private static final class CloseableNoOpService

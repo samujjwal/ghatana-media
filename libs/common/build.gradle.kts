@@ -22,6 +22,7 @@ dependencies {
     // gRPC interceptor API
     api(libs.grpc.stub)
     api(libs.grpc.protobuf)
+    implementation(libs.grpc.netty.shaded)
     api(libs.protobuf.java)
     implementation(libs.opentelemetry.api)
     implementation("com.ghatana.platform:security:$sharedVersion")
