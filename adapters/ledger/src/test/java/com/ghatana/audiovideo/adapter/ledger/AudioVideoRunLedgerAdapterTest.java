@@ -536,6 +536,69 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
+    @DisplayName("Exhaustively maps canonical Media job states and rejects unresolved or attempt-only states")
+    void testCanonicalMediaJobStateMappingMatrix() {
+        record MappingCase(String mediaState, JobExecutionState ledgerState, ExecutionOutcome ledgerOutcome) { }
+
+        // These nine values are MediaLifecycleProjection.LogicalJobStatus. RunLedger has no
+        // UNKNOWN/RECONCILING state, so those two are tested as rejection cases below.
+        List<MappingCase> representable = List.of(
+                new MappingCase("QUEUED", JobExecutionState.PENDING, null),
+                new MappingCase("RUNNING", JobExecutionState.RUNNING, null),
+                new MappingCase("RETRY_PENDING", JobExecutionState.PENDING, null),
+                new MappingCase("COMPLETED", JobExecutionState.COMPLETED, ExecutionOutcome.SUCCEEDED),
+                new MappingCase("PARTIALLY_SUCCEEDED", JobExecutionState.COMPLETED, ExecutionOutcome.DEGRADED),
+                new MappingCase("FAILED", JobExecutionState.COMPLETED, ExecutionOutcome.FAILED),
+                new MappingCase("CANCELLED", JobExecutionState.CANCELLED, ExecutionOutcome.CANCELLED));
+        long now = System.currentTimeMillis();
+
+        for (MappingCase testCase : representable) {
+            RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-" + testCase.mediaState(), "AUDIO", "STT", "collection", "source",
+                    Map.of(), testCase.mediaState(), now, 0, null, null,
+                    null, null, "trace", "correlation");
+            assertThat(ledger.state()).as(testCase.mediaState()).isEqualTo(testCase.ledgerState());
+            assertThat(ledger.outcome()).as(testCase.mediaState()).isEqualTo(testCase.ledgerOutcome());
+        }
+
+        // Legacy submission/processing phase labels retain only the equivalent coarse state.
+        RunLedger submitted = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "matrix-SUBMITTED", "AUDIO", "STT", "collection", "source",
+                Map.of(), "SUBMITTED", now, 0, null, null,
+                null, null, "trace", "correlation");
+        assertThat(submitted.state()).isEqualTo(JobExecutionState.PENDING);
+        assertThat(submitted.outcome()).isNull();
+        for (String activePhase : List.of("TRANSCODING", "PROCESSING", "STORING")) {
+            RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-" + activePhase, "AUDIO", "STT", "collection", "source",
+                    Map.of(), activePhase, now, 0, null, null,
+                    null, null, "trace", "correlation");
+            assertThat(ledger.state()).as(activePhase).isEqualTo(JobExecutionState.RUNNING);
+            assertThat(ledger.outcome()).as(activePhase).isNull();
+        }
+
+        // The remaining canonical job states and attempt-only states have no lossless
+        // RunLedger state. They must not become RUNNING or a terminal success/failure.
+        for (String unrepresentable : List.of(
+                "OUTCOME_UNKNOWN", "RECONCILING", "CLAIMED", "DISPATCH_INTENT_RECORDED",
+                "DISPATCHED", "CANCEL_REQUESTED", "CANCEL_CONFIRMED", "SUPERSEDED")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-" + unrepresentable, "AUDIO", "STT", "collection", "source",
+                    Map.of(), unrepresentable, now, 0, null, null,
+                    null, null, "trace", "correlation"))
+                .as(unrepresentable)
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "matrix-unknown", "AUDIO", "STT", "collection", "source",
+                Map.of(), "UNRECOGNIZED_STATE", now, 0, null, null,
+                null, null, "trace", "correlation"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("unmapped Media processing job state");
+    }
+
+    @Test
     @DisplayName("Serialized ledger drops non-whitelisted params and never serializes provider job ids raw")
     void testLedgerDisclosureSanitization() {
         long now = System.currentTimeMillis();
