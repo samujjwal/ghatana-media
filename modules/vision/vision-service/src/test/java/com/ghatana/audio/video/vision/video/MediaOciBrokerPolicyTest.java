@@ -3,6 +3,7 @@ package com.ghatana.audio.video.vision.video;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -144,5 +145,19 @@ class MediaOciBrokerPolicyTest {
         assertThatThrownBy(() -> MediaOciBrokerDaemon.parseOomKilledState(0, "", false))
                 .isInstanceOf(java.io.IOException.class)
                 .hasMessageContaining("invalid worker OOM state");
+    }
+
+    @Test
+    void processOutputCaptureBoundsLongUnbrokenDiagnosticAndDrainsThePipe() throws Exception {
+        int captureLimit = 64;
+        ByteArrayInputStream output = new ByteArrayInputStream("x".repeat(64 * 1024)
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        StringBuffer captured = new StringBuffer();
+
+        MediaOciBrokerDaemon.drainBoundedOutput(output, captured, captureLimit);
+
+        assertThat(captured).hasSize(captureLimit);
+        assertThat(captured.toString()).isEqualTo("x".repeat(captureLimit));
+        assertThat(output.read()).isEqualTo(-1);
     }
 }

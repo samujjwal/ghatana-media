@@ -1,7 +1,7 @@
 package com.ghatana.audio.video.vision.video;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.UnixDomainSocketAddress;
@@ -56,6 +56,7 @@ public final class MediaOciBrokerDaemon {
     private static final int MAX_REQUEST_BYTES = 64 * 1024;
     private static final Duration READ_DEADLINE = Duration.ofSeconds(10);
     private static final int OUTPUT_TAIL = 8192;
+    private static final int MAX_CAPTURED_OUTPUT_CHARS = 1_000_000;
 
     private MediaOciBrokerDaemon() { }
 
@@ -242,14 +243,10 @@ public final class MediaOciBrokerDaemon {
 
     private static CommandResult run(List<String> command, Duration timeout) throws IOException {
         Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-        StringBuilder captured = new StringBuilder();
+        StringBuffer captured = new StringBuffer();
         Thread drain = new Thread(() -> {
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null && captured.length() < 1_000_000) {
-                    captured.append(line).append('\n');
-                }
+            try {
+                drainBoundedOutput(process.getInputStream(), captured, MAX_CAPTURED_OUTPUT_CHARS);
             } catch (IOException ignored) { }
         });
         drain.setDaemon(true);
@@ -265,6 +262,21 @@ public final class MediaOciBrokerDaemon {
             Thread.currentThread().interrupt();
             process.destroyForcibly();
             return new CommandResult(-1, captured.toString(), true);
+        }
+    }
+
+    static void drainBoundedOutput(InputStream input, StringBuffer captured, int maximumChars)
+            throws IOException {
+        if (input == null || captured == null || maximumChars < 0) {
+            throw new IllegalArgumentException("Process output capture arguments are invalid");
+        }
+        try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+            char[] buffer = new char[8192];
+            int read;
+            while ((read = reader.read(buffer)) != -1) {
+                int remaining = maximumChars - captured.length();
+                if (remaining > 0) captured.append(buffer, 0, Math.min(read, remaining));
+            }
         }
     }
 
