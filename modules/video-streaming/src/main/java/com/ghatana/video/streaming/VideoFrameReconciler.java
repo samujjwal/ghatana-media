@@ -4,16 +4,15 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 /**
- * Ordered video-frame reconciliation preserving source presentation
- * timestamps, keyframe dependencies and discontinuity markers.
+ * Ordered video-frame reconciliation preserving keyframe dependencies and
+ * source-time uncertainty.
  *
- * <p>VS-03: the wire timestamp is the source presentation time — it is
- * preserved verbatim and never substituted by wall-clock time. A
- * non-keyframe frame depends on the most recent keyframe in its GOP, so
+ * <p>The wire's {@code timestampMillis} has no declared clock and is never
+ * promoted to source PTS. A frame depends on the most recent keyframe in its GOP, so
  * losing a keyframe means dependent frames can be held but not rendered
- * until the next keyframe arrives. Backwards or non-monotonic
- * timestamps mark a discontinuity (VFR, scene cut or timestamp jump) as
- * uncertainty — never an error, never smoothed over.
+ * until the next keyframe arrives. Source-time mapping is not admitted by the
+ * session contract. Every source timestamp therefore remains UNKNOWN; the
+ * wire millisecond field is never promoted to source PTS.
  *
  * <p>Pending out-of-order frames are bounded by both {@link #MAX_PENDING}
  * and {@link #MAX_PENDING_BYTES} total payload bytes.
@@ -28,7 +27,6 @@ public final class VideoFrameReconciler {
     private static final int MAX_PENDING = 256;
     /** Total retained reorder payload is capped at one maximum video frame. */
     private static final long MAX_PENDING_BYTES = VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES;
-    private static final long MAX_FORWARD_PTS_JUMP_MS = 30_000L;
 
     /** What the reconciler decided about one offered frame. */
     public enum Disposition {
@@ -47,7 +45,7 @@ public final class VideoFrameReconciler {
             VideoStreamSession.DecodedFrame frame,
             /** true when a keyframe exists at-or-before this frame in its GOP. */
             boolean decodable,
-            /** non-null when the source PTS jumped backwards or beyond the forward bound. */
+            /** Source-time disposition; currently always SOURCE_TIME_MAPPING_NOT_ADMITTED. */
             String discontinuity) {
     }
 
@@ -68,27 +66,26 @@ public final class VideoFrameReconciler {
     private int nextExpected;
     private long pendingBytes;
     private int lastKeyFrameSequence = -1;
-    private int lastDeliveredSequence = -1;
-    private long lastDeliveredPts = Long.MIN_VALUE;
-    private String lastDeliveredDiscontinuity;
 
     private VideoFrameReconciler(SessionIdentity identity, int lastAckedSequence,
-            int lastKeyFrameSequence, long lastDeliveredPts) {
+            int lastKeyFrameSequence) {
         this.identity = identity;
         this.nextExpected = lastAckedSequence + 1;
         this.lastKeyFrameSequence = lastKeyFrameSequence;
-        this.lastDeliveredSequence = lastAckedSequence;
-        this.lastDeliveredPts = lastDeliveredPts;
+        // Legacy resume metadata contains only an unqualified long. It cannot
+        // safely restore a source clock position.
     }
 
     /** Opens a fresh video session; the first delivered frame should be a keyframe. */
     public static VideoFrameReconciler open(SessionIdentity identity) {
-        return new VideoFrameReconciler(identity, -1, -1, Long.MIN_VALUE);
+        return new VideoFrameReconciler(identity, -1, -1);
     }
 
     /**
      * Resumes after process loss at the durable ACK/keyframe position. A
      * different tenant or an older revision is denied — never silently merged.
+     * The legacy unqualified {@code lastDeliveredPts} argument is ignored; the
+     * session contract has no source clock/origin/version binding to restore.
      */
     public static VideoFrameReconciler resume(
             SessionIdentity identity, SessionIdentity durable,
@@ -118,7 +115,7 @@ public final class VideoFrameReconciler {
             throw new IllegalArgumentException("resume keyframe sequence must be at or before the last ACK");
         }
         return new VideoFrameReconciler(identity, lastAckedSequence,
-                lastKeyFrameSequence, lastDeliveredPts);
+                lastKeyFrameSequence);
     }
 
     /** Offers one decoded frame; returns its disposition. */
@@ -136,7 +133,6 @@ public final class VideoFrameReconciler {
             return Disposition.DUPLICATE;
         }
         if (sequence == nextExpected) {
-            rememberDelivery(frame);
             nextExpected = sequence + 1;
             if (frame.keyFrame()) {
                 lastKeyFrameSequence = sequence;
@@ -162,37 +158,10 @@ public final class VideoFrameReconciler {
      * decodable (a keyframe anchors its GOP) and any timestamp discontinuity.
      */
     public Delivery deliveryOf(VideoStreamSession.DecodedFrame frame) {
+        Objects.requireNonNull(frame, "frame");
         boolean decodable = frame.keyFrame()
                 || (lastKeyFrameSequence >= 0 && lastKeyFrameSequence <= frame.sequenceNumber());
-        String discontinuity = frame.sequenceNumber() == lastDeliveredSequence
-                ? lastDeliveredDiscontinuity
-                : discontinuityFrom(lastDeliveredPts, frame.timestampMillis());
-        return new Delivery(frame, decodable, discontinuity);
-    }
-
-    /** Records uncertainty against the previous source PTS before advancing the cursor. */
-    private void rememberDelivery(VideoStreamSession.DecodedFrame frame) {
-        lastDeliveredDiscontinuity = discontinuityFrom(lastDeliveredPts, frame.timestampMillis());
-        lastDeliveredSequence = frame.sequenceNumber();
-        lastDeliveredPts = frame.timestampMillis();
-    }
-
-    private static String discontinuityFrom(long previousPts, long currentPts) {
-        if (previousPts == Long.MIN_VALUE) {
-            return null;
-        }
-        if (currentPts < previousPts) {
-            return "PTS_BACKWARDS";
-        }
-        return exceedsForwardJumpBound(previousPts, currentPts) ? "PTS_JUMP" : null;
-    }
-
-    /** Compares non-negative distance without overflowing when source clocks span the long range. */
-    private static boolean exceedsForwardJumpBound(long previousPts, long currentPts) {
-        // The caller has already established currentPts >= previousPts. If adding
-        // the threshold would overflow, no representable current PTS can exceed it.
-        return previousPts <= Long.MAX_VALUE - MAX_FORWARD_PTS_JUMP_MS
-                && currentPts > previousPts + MAX_FORWARD_PTS_JUMP_MS;
+        return new Delivery(frame, decodable, "SOURCE_TIME_MAPPING_NOT_ADMITTED");
     }
 
     /** A held frame released once its gap closes; re-check for further releases. */
@@ -204,7 +173,6 @@ public final class VideoFrameReconciler {
         var frame = pending.pollFirstEntry().getValue();
         pendingBytes -= frame.payload().length;
         nextExpected = head.getKey() + 1;
-        rememberDelivery(frame);
         if (frame.keyFrame()) {
             lastKeyFrameSequence = frame.sequenceNumber();
         }
@@ -231,9 +199,9 @@ public final class VideoFrameReconciler {
         return lastKeyFrameSequence;
     }
 
-    /** Last delivered source presentation timestamp (preserved verbatim, not wall clock). */
+    /** Legacy accessor: unqualified session state cannot restore source PTS. */
     public long lastDeliveredPts() {
-        return lastDeliveredPts;
+        return Long.MIN_VALUE;
     }
 
     public int pendingCount() {

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** VS-03: source PTS preserved, keyframe deps honored, discontinuities marked, never wall clock. */
+/** VS-03: source time remains unknown until the session has authoritative source binding. */
 @DisplayName("VideoFrameReconciler")
 class VideoFrameReconcilerTest {
 
@@ -31,73 +31,36 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
-    @DisplayName("source presentation timestamps are preserved verbatim, not wall clock")
-    void sourcePtsPreservedVerbatim() {
+    @DisplayName("wire VFR, discontinuity, and wall-time-like values remain unknown")
+    void unboundSourceTimesRemainUnknown() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
-        rec.offer(frame(0, true, 4_999_999_999L));
-        assertThat(rec.deliveryOf(frame(1, false, 5_000_000_082L)).discontinuity()).isNull();
-        rec.offer(frame(1, false, 5_000_000_082L));
-        assertThat(rec.lastDeliveredPts()).isEqualTo(5_000_000_082L);
-        // The stored PTS is the source presentation value — a wall-clock
-        // timestamp would be the test's own Instant.now(), not 5e9.
+        rec.offer(frame(0, true, 1_700_000_000_000L));
+        assertThat(rec.deliveryOf(frame(1, false, 1_700_000_000_040L)).discontinuity())
+                .isEqualTo("SOURCE_TIME_MAPPING_NOT_ADMITTED");
+        rec.offer(frame(1, false, 1_700_000_000_040L));
+        assertThat(rec.deliveryOf(frame(2, true, -500L)).discontinuity())
+                .isEqualTo("SOURCE_TIME_MAPPING_NOT_ADMITTED");
+        rec.offer(frame(2, true, -500L));
+        assertThat(rec.deliveryOf(frame(3, false, Long.MAX_VALUE)).discontinuity())
+                .isEqualTo("SOURCE_TIME_MAPPING_NOT_ADMITTED");
+        rec.offer(frame(3, false, Long.MAX_VALUE));
+        assertThat(rec.lastDeliveredPts()).isEqualTo(Long.MIN_VALUE);
+        assertThat(rec.nextAck()).isEqualTo(3);
     }
 
     @Test
-    @DisplayName("backwards and jumped PTS mark a discontinuity, never an error")
-    void discontinuityMarkedNotErrored() {
+    @DisplayName("reordered delivery preserves frame order while source time remains unknown")
+    void reorderedDeliveryKeepsTimeUnknown() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
         rec.offer(frame(0, true, 10_000));
-        // VFR forward jump beyond the 30s bound → PTS_JUMP (evaluated against
-        // the cursor before the frame is offered).
-        assertThat(rec.deliveryOf(frame(1, false, 50_000)).discontinuity())
-                .isEqualTo("PTS_JUMP");
-        rec.offer(frame(1, false, 50_000));
-        assertThat(rec.deliveryOf(frame(1, false, 50_000)).discontinuity())
-                .isEqualTo("PTS_JUMP");
-        // Scene cut rewinds PTS → PTS_BACKWARDS, still delivered.
-        assertThat(rec.deliveryOf(frame(2, true, 0)).discontinuity())
-                .isEqualTo("PTS_BACKWARDS");
-        rec.offer(frame(2, true, 0));
-        assertThat(rec.deliveryOf(frame(2, true, 0)).discontinuity())
-                .isEqualTo("PTS_BACKWARDS");
-        assertThat(rec.nextAck()).isEqualTo(2); // uncertainty never blocks delivery
-    }
-
-    @Test
-    @DisplayName("reordered frame readback retains PTS discontinuity from the previous delivered frame")
-    void reorderedDeliveryRetainsDiscontinuity() {
-        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
-        VideoStreamSession.DecodedFrame first = frame(0, true, 10_000);
         VideoStreamSession.DecodedFrame held = frame(2, false, 5_000);
-        rec.offer(first);
         assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
         assertThat(rec.offer(frame(1, false, 20_000))).isEqualTo(Disposition.DELIVERED);
 
         VideoStreamSession.DecodedFrame released = rec.takeDelivered();
         assertThat(released.sequenceNumber()).isEqualTo(2);
-        assertThat(rec.deliveryOf(released).discontinuity()).isEqualTo("PTS_BACKWARDS");
-        assertThat(rec.lastDeliveredPts()).isEqualTo(5_000);
-    }
-
-    @Test
-    @DisplayName("PTS jump detection does not overflow across extreme source clock values")
-    void extremePtsDistanceDoesNotWrap() {
-        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
-        // Long.MIN_VALUE is the no-PTS sentinel, so use the adjacent value
-        // to exercise a near-full-range source clock distance.
-        rec.offer(frame(0, true, Long.MIN_VALUE + 1));
-
-        assertThat(rec.deliveryOf(frame(1, false, Long.MAX_VALUE)).discontinuity())
-                .isEqualTo("PTS_JUMP");
-        assertThat(rec.deliveryOf(frame(1, false, Long.MIN_VALUE + 30_001)).discontinuity())
-                .isNull();
-        assertThat(rec.deliveryOf(frame(1, false, Long.MAX_VALUE - 30_000)).discontinuity())
-                .isEqualTo("PTS_JUMP");
-
-        VideoFrameReconciler nearMaximum = VideoFrameReconciler.open(identity("t1"));
-        nearMaximum.offer(frame(0, true, Long.MAX_VALUE - 1));
-        assertThat(nearMaximum.deliveryOf(frame(1, false, Long.MAX_VALUE)).discontinuity())
-                .isNull();
+        assertThat(rec.deliveryOf(released).discontinuity()).isEqualTo("SOURCE_TIME_MAPPING_NOT_ADMITTED");
+        assertThat(rec.lastDeliveredPts()).isEqualTo(Long.MIN_VALUE);
     }
 
     @Test
@@ -131,7 +94,7 @@ class VideoFrameReconcilerTest {
                 durable, durable, 41, 40, 9000);
         assertThat(rec.nextExpected()).isEqualTo(42);
         assertThat(rec.lastKeyFrameSequence()).isEqualTo(40);
-        assertThat(rec.lastDeliveredPts()).isEqualTo(9000);
+        assertThat(rec.lastDeliveredPts()).isEqualTo(Long.MIN_VALUE);
         assertThat(rec.offer(frame(40, false, 8950))).isEqualTo(Disposition.DUPLICATE);
         assertThatThrownBy(() -> VideoFrameReconciler.resume(
                 identity("t2"), durable, 41, 40, 9000))
@@ -221,7 +184,7 @@ class VideoFrameReconcilerTest {
         VideoFrameReconciler valid = VideoFrameReconciler.resume(durable, durable, 3, 2, 99);
         assertThat(valid.nextExpected()).isEqualTo(4);
         assertThat(valid.lastKeyFrameSequence()).isEqualTo(2);
-        assertThat(valid.lastDeliveredPts()).isEqualTo(99);
+        assertThat(valid.lastDeliveredPts()).isEqualTo(Long.MIN_VALUE);
     }
 
     @Test
