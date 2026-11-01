@@ -54585,7 +54585,7 @@
         "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
         "docs/implementation/observations/media-discovery-pdp2-mdc20-design-drift-2026-10-13-r1.json": "sha256:004209dbda627f38e5c7bf8d8b9897b7cfb4da98f582bf6774713930a026660c",
         "docs/implementation/pdp-1-phase-dev-status.json": "sha256:d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
-        "docs/implementation/pdp-2-phase-dev-status.json": "sha256:2fa8efb1b688820183cf79d0c21a74e25515289e3365744f658ce38e8390ffb8",
+        "docs/implementation/pdp-2-phase-dev-status.json": "sha256:65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
         "libs/audio-video-ui/src/components/MediaComponentFamilies.tsx": "sha256:12deb81df4b49ba3b4b3b3b2cf67a9f14f72cf811ba40e9a3238c9d7c505bb25",
         "libs/audio-video-ui/src/components/MediaComponentInputSchemas.ts": "sha256:615f7868347083e29f2baa9539845a9d6ab29d11293b81097d5fc13d832d98c0",

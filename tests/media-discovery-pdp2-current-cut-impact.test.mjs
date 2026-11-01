@@ -521,9 +521,9 @@ function v3R25Fixture({ mutateRecord, mutatePredecessor, mutateCurrent, mutateAc
   const r13 = structuredClone(read(r13Path));
   const r25 = read(r25Path);
   const transitions = [
-    ['.product-experience/decision-log.md', 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c', 'sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc', 'PDP1_PXD164_SEMANTIC_REPAIR_NO_ADDITIONAL_PDP2_MEANING', '.product-experience/decision-log.md#PXD-164'],
-    ['.product-experience/interface-parity/current-source-review.json', 'sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd', 'sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06', 'PDP1_INTERFACE_SOURCE_REVIEW_REFRESH', '.product-experience/interface-parity/current-source-review.json'],
-    [semanticReviewPath, 'sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6', 'sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9', 'PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH', semanticReviewPath],
+    ['.product-experience/decision-log.md', 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c', 'sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298', 'PDP1_PXD164_SEMANTIC_REPAIR_NO_ADDITIONAL_PDP2_MEANING', '.product-experience/decision-log.md#PXD-164'],
+    ['.product-experience/interface-parity/current-source-review.json', 'sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd', 'sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6', 'PDP1_INTERFACE_SOURCE_REVIEW_REFRESH', '.product-experience/interface-parity/current-source-review.json'],
+    [semanticReviewPath, 'sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6', 'sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d', 'PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH', semanticReviewPath],
   ].map(([sourcePath, predecessorSha256, observedSha256, classification, sourceSelector]) => ({
     path: sourcePath, predecessorSha256, observedSha256, classification, sourceSelector, phase: 'PDP-2',
     meaningChange: 'NO_ADDITIONAL_PDP2_MEANING', meaningIdsChanged: [], requiresFreshCurrentness: true,
@@ -649,7 +649,7 @@ test('historical PDP-2 R16 receipt preserves the R25 R9→R13 impact chain and s
   const guard = pdp3StatusGuardSupplement(read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r2.json'), currentDigests);
   assert.equal(guard.valid, true);
   assert.equal(guard.r9IntermediateSha256, 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573');
-  assert.equal(guard.r13PredecessorSha256, 'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f');
+  assert.equal(guard.r13PredecessorSha256, 'sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e');
   const badReporterTerminal = { ...currentDigests, [reporterPath]: 'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573' };
   assert.equal(pdp3StatusGuardSupplement(read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r2.json'), badReporterTerminal).valid, false);
 

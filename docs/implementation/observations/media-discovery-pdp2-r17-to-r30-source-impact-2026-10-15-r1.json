@@ -45,7 +45,7 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-    "receiptSha256": "sha256:2953afe865129746bfece73f65918434bf69d39869d1608c5f90e7391fb45405",
+    "receiptSha256": "sha256:3b42a5eb0171198fe52577dd75fe3476b005920db0c5c94d95e6489beacc475a",
     "sourceFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
     "materialPathCount": 405,
     "cellCount": 50,

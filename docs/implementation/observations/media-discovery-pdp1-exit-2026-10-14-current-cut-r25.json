@@ -3752,9 +3752,9 @@
       "tests/pdp1-transition-guard-definition-evaluator.test.mjs"
     ],
     "sourceContentDigests": {
-      ".product-experience/decision-log.md": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
+      ".product-experience/decision-log.md": "sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
       ".product-experience/interface-parity/README.md": "sha256:367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
-      ".product-experience/interface-parity/current-source-review.json": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
+      ".product-experience/interface-parity/current-source-review.json": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
       ".product-experience/interface-parity/operation-parity.yaml": "sha256:24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
       ".product-experience/interface-parity/typed-contract-bindings.json": "sha256:402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
       ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "sha256:b46a686882a662cac9c0422b5cc1c762bb308f59046dd8f78d1b915622ccfad6",
@@ -3790,7 +3790,7 @@
       "package.json": "sha256:f7440ab36701992ff7c00fe253b1b3319289468548b13d5f40e2293357fd6d41",
       "pnpm-lock.yaml": "sha256:6f0e50a3cbda9651dd1b3d59555e46f616f0d259c9a9c24ec5f8e976e680e57c",
       "scripts/check-media-contract-parity.mjs": "sha256:426885485ac10b7f06fb714b53f5190395ffac00b9ff2dfeef0e7a64a3669359",
-      "scripts/report-media-pdp-readiness.mjs": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
+      "scripts/report-media-pdp-readiness.mjs": "sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e",
       "tests/media-contract-parity-definition-only-cli.test.mjs": "sha256:fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
       "tests/media-contract-parity.test.mjs": "sha256:526a1feb926330d708daf3069be3146d59356971511cc0e4954b7a82852a9fe2",
       "tests/media-pdp-p1-dev-status.test.mjs": "sha256:c5660bd1dabfc2b29ab4247289d1c7264c8ce340490119f9daefc3ed12b6480f",
