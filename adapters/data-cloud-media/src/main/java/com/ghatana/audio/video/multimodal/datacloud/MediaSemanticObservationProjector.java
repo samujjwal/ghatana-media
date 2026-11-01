@@ -1,9 +1,12 @@
 package com.ghatana.audio.video.multimodal.datacloud;
 
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.ghatana.datacloud.entity.media.Classification;
 import com.ghatana.datacloud.semantic.OperationalSemanticContext;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -75,11 +78,22 @@ public final class MediaSemanticObservationProjector {
                 Optional.empty(),
                 observation.recordedAt());
         ResourceId id = new ResourceId("media", "derived-observation", observation.observationId());
-        Fact fact = new Fact(
+        List<Fact> facts = new ArrayList<>();
+        facts.add(new Fact(
                 observation.observationType(),
                 new TextValue(observation.redactedValue()),
                 effective,
-                provenance);
+                provenance));
+        observation.sourceTimestamp().filter(SourceMediaTimestamp::isKnown).ifPresent(timestamp -> {
+            facts.add(new Fact("source-pts", new NumberValue(BigDecimal.valueOf(timestamp.pts()), Optional.of("ticks")),
+                    effective, provenance));
+            facts.add(new Fact("source-timebase-numerator",
+                    new NumberValue(BigDecimal.valueOf(timestamp.timeBaseNumerator()), Optional.empty()),
+                    effective, provenance));
+            facts.add(new Fact("source-timebase-denominator",
+                    new NumberValue(BigDecimal.valueOf(timestamp.timeBaseDenominator()), Optional.empty()),
+                    effective, provenance));
+        });
         Governance governance = new Governance(
                 List.of(observation.ownerId()),
                 List.of(observation.stewardId()),
@@ -100,7 +114,7 @@ public final class MediaSemanticObservationProjector {
                 new SemanticType("media", "derived-observation", "1.0.0"),
                 1,
                 effective,
-                List.of(fact),
+                facts,
                 governance,
                 trust,
                 List.of(new DerivedSignal(
@@ -178,7 +192,25 @@ public final class MediaSemanticObservationProjector {
             String residency,
             Optional<String> retentionPolicyRef,
             int qualityScore,
-            String trustGrade) {
+            String trustGrade,
+            Optional<SourceMediaTimestamp> sourceTimestamp) {
+        /** Backward-compatible constructor for observations without source-media timing. */
+        public MediaDerivedObservation(
+                String tenantId, String sourceTenantId, String artifactId,
+                String requestedArtifactVersionId, String sourceArtifactVersionId,
+                String observationId, String observationType, String redactedValue,
+                Instant observedAt, Instant recordedAt, String sourceSystem, String sourceEventId,
+                String providerId, String providerVersion, String redactionDecisionRef,
+                String consentOwnerService, String consentRef, String ownerId, String stewardId,
+                String sourceClassification, String classification, List<String> permittedPurposes,
+                String residency, Optional<String> retentionPolicyRef, int qualityScore, String trustGrade) {
+            this(tenantId, sourceTenantId, artifactId, requestedArtifactVersionId, sourceArtifactVersionId,
+                    observationId, observationType, redactedValue, observedAt, recordedAt, sourceSystem,
+                    sourceEventId, providerId, providerVersion, redactionDecisionRef, consentOwnerService,
+                    consentRef, ownerId, stewardId, sourceClassification, classification, permittedPurposes,
+                    residency, retentionPolicyRef, qualityScore, trustGrade, Optional.empty());
+        }
+
         public MediaDerivedObservation {
             observedAt = Objects.requireNonNull(observedAt, "observedAt");
             recordedAt = Objects.requireNonNull(recordedAt, "recordedAt");
@@ -214,6 +246,7 @@ public final class MediaSemanticObservationProjector {
             retentionPolicyRef = retentionPolicyRef == null ? Optional.empty() : retentionPolicyRef;
             retentionPolicyRef = retentionPolicyRef.map(value -> requireText(value, "retentionPolicyRef"));
             trustGrade = requireToken(trustGrade, "trustGrade");
+            sourceTimestamp = sourceTimestamp == null ? Optional.empty() : sourceTimestamp;
         }
     }
 

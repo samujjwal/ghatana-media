@@ -1,10 +1,12 @@
 package com.ghatana.audio.video.multimodal.datacloud;
 
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjector.MediaDerivedObservation;
 import com.ghatana.datacloud.semantic.OperationalSemanticContext;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -150,6 +152,39 @@ class MediaSemanticObservationProjectorTest {
                 .isEqualTo(OBSERVED_AT);
     }
 
+    @Test
+    void projectsExactKnownSourcePtsAndRationalTimebaseAsTypedMetadata() {
+        ObservationBuilder builder = new ObservationBuilder();
+        builder.sourceTimestamp = Optional.of(SourceMediaTimestamp.fromPts("9007199254740993", "1/90000"));
+
+        var projected = new MediaSemanticObservationProjector().project(builder.build());
+
+        assertThat(projected.facts()).filteredOn(fact -> fact.name().startsWith("source-"))
+                .extracting(OperationalSemanticContext.Fact::name)
+                .containsExactly("source-pts", "source-timebase-denominator", "source-timebase-numerator");
+        assertThat(projected.facts()).filteredOn(fact -> fact.name().equals("source-pts"))
+                .singleElement().satisfies(fact -> {
+                    assertThat(fact.value()).isEqualTo(new OperationalSemanticContext.NumberValue(
+                            new BigDecimal("9007199254740993"), Optional.of("ticks")));
+                    assertThat(fact.effectivePeriod().validFrom()).isEqualTo(OBSERVED_AT);
+                });
+        assertThat(projected.facts()).filteredOn(fact -> fact.name().startsWith("source-timebase-"))
+                .extracting(fact -> ((OperationalSemanticContext.NumberValue) fact.value()).value())
+                .containsExactly(new BigDecimal("90000"), BigDecimal.ONE);
+    }
+
+    @Test
+    void unknownSourceTimestampDoesNotCreateSyntheticPtsFacts() {
+        ObservationBuilder builder = new ObservationBuilder();
+        builder.sourceTimestamp = Optional.of(SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"));
+
+        var projected = new MediaSemanticObservationProjector().project(builder.build());
+
+        assertThat(projected.facts()).extracting(OperationalSemanticContext.Fact::name)
+                .containsExactly("scene-label");
+        assertThat(projected.effectivePeriod().validFrom()).isEqualTo(OBSERVED_AT);
+    }
+
     private static void assertCandidateRejected(Consumer<ObservationBuilder> mutation, String message) {
         ObservationBuilder builder = new ObservationBuilder();
         mutation.accept(builder);
@@ -199,13 +234,14 @@ class MediaSemanticObservationProjectorTest {
         private Optional<String> retentionPolicyRef = Optional.of("retention-media-30d");
         private int qualityScore = 91;
         private String trustGrade = "verified";
+        private Optional<SourceMediaTimestamp> sourceTimestamp = Optional.empty();
 
         private MediaDerivedObservation build() {
             return new MediaDerivedObservation(tenantId, sourceTenantId, artifactId, requestedArtifactVersionId,
                     sourceArtifactVersionId, observationId, observationType, redactedValue, observedAt, recordedAt,
                     sourceSystem, sourceEventId, providerId, providerVersion, redactionDecisionRef,
                     consentOwnerService, consentRef, ownerId, stewardId, sourceClassification, classification,
-                    permittedPurposes, residency, retentionPolicyRef, qualityScore, trustGrade);
+                    permittedPurposes, residency, retentionPolicyRef, qualityScore, trustGrade, sourceTimestamp);
         }
     }
 }
