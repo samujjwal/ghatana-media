@@ -1,14 +1,62 @@
 package com.ghatana.audio.video.common;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import io.grpc.Channel;
+import io.grpc.ClientInterceptors;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.ClientCalls;
+import io.grpc.stub.MetadataUtils;
+import io.grpc.stub.ServerCalls;
+import io.grpc.stub.StreamObserver;
+import io.grpc.protobuf.ProtoUtils;
+import com.google.protobuf.StringValue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Proves one fail-closed TLS policy is shared by every standalone Media gRPC service. */
 class GrpcTransportSecurityPolicyTest {
+
+    private static final String TEST_JWT_SECRET = "jc04-in-process-transport-secret-0123456789";
+    private static final List<ProviderMethod> PROVIDERS = List.of(
+            new ProviderMethod("com.ghatana.audio.video.stt.grpc.STTService", "Transcribe"),
+            new ProviderMethod("com.ghatana.audio.video.tts.grpc.TTSService", "Synthesize"),
+            new ProviderMethod("com.ghatana.audio.video.vision.grpc.VisionService", "AnalyzeImage"),
+            new ProviderMethod("com.ghatana.audio.video.multimodal.grpc.MultimodalService", "ProcessMultimodal"));
+    private String previousJwtSecret;
+
+    @BeforeEach
+    void rememberJwtSecretProperty() {
+        previousJwtSecret = System.getProperty("AV_JWT_SECRET");
+    }
+
+    @AfterEach
+    void clearJwtSecretProperty() {
+        if (previousJwtSecret == null) {
+            System.clearProperty("AV_JWT_SECRET");
+        } else {
+            System.setProperty("AV_JWT_SECRET", previousJwtSecret);
+        }
+    }
 
     @Test
     void localWithoutTlsMaterialUsesPlaintext() {
@@ -147,4 +195,91 @@ class GrpcTransportSecurityPolicyTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("servicePrefix");
     }
+
+    @Test
+    void sharedInterceptorChainProtectsAllFourCurrentProviderMethodsInProcess() throws Exception {
+        System.setProperty("AV_JWT_SECRET", TEST_JWT_SECRET);
+        String token = signedUserToken();
+
+        for (ProviderMethod provider : PROVIDERS) {
+            AtomicInteger backendEffects = new AtomicInteger();
+            MethodDescriptor<StringValue, StringValue> method = method(provider);
+            var service = io.grpc.ServerServiceDefinition.builder(provider.serviceName())
+                    .addMethod(method, ServerCalls.asyncUnaryCall(
+                            (StringValue request, StreamObserver<StringValue> response) -> {
+                                backendEffects.incrementAndGet();
+                                response.onNext(StringValue.of("accepted"));
+                                response.onCompleted();
+                            }))
+                    .build();
+            String serverName = InProcessServerBuilder.generateName();
+            var serverBuilder = InProcessServerBuilder.forName(serverName).directExecutor().addService(service);
+            GrpcInterceptorChain.build().forEach(serverBuilder::intercept);
+            Server server = serverBuilder.build().start();
+            ManagedChannel transport = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+            try {
+                assertThat(call(transport, method, bearer(token, "tenant-a")))
+                        .as("authorized %s/%s call", provider.serviceName(), provider.methodName())
+                        .isEqualTo(StringValue.of("accepted"));
+                assertThat(backendEffects).hasValue(1);
+
+                assertThatThrownBy(() -> call(transport, method, bearer(token, "tenant-b")))
+                        .as("cross-tenant %s/%s call", provider.serviceName(), provider.methodName())
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED);
+                assertThat(backendEffects).as("denied request must not reach %s", provider.serviceName())
+                        .hasValue(1);
+
+                assertThatThrownBy(() -> call(transport, method, new Metadata()))
+                        .as("unauthenticated %s/%s call", provider.serviceName(), provider.methodName())
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.UNAUTHENTICATED);
+                assertThat(backendEffects).as("unauthenticated request must not reach %s", provider.serviceName())
+                        .hasValue(1);
+            } finally {
+                transport.shutdownNow();
+                server.shutdownNow();
+            }
+        }
+    }
+
+    private static StringValue call(
+            Channel transport, MethodDescriptor<StringValue, StringValue> method, Metadata headers) {
+        Channel authenticated = ClientInterceptors.intercept(
+                transport, MetadataUtils.newAttachHeadersInterceptor(headers));
+        return ClientCalls.blockingUnaryCall(authenticated, method, io.grpc.CallOptions.DEFAULT,
+                StringValue.of("request"));
+    }
+
+    private static Metadata bearer(String token, String tenant) {
+        Metadata metadata = new Metadata();
+        metadata.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + token);
+        metadata.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), tenant);
+        return metadata;
+    }
+
+    private static String signedUserToken() throws Exception {
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), new JWTClaimsSet.Builder()
+                .subject("jc04-test-user")
+                .claim("tenantId", "tenant-a")
+                .claim("roles", List.of("av:user"))
+                .expirationTime(new Date(System.currentTimeMillis() + 60_000))
+                .build());
+        jwt.sign(new MACSigner(TEST_JWT_SECRET));
+        return jwt.serialize();
+    }
+
+    private static MethodDescriptor<StringValue, StringValue> method(ProviderMethod provider) {
+        return MethodDescriptor.<StringValue, StringValue>newBuilder()
+                .setType(MethodDescriptor.MethodType.UNARY)
+                .setFullMethodName(MethodDescriptor.generateFullMethodName(
+                        provider.serviceName(), provider.methodName()))
+                .setRequestMarshaller(ProtoUtils.marshaller(StringValue.getDefaultInstance()))
+                .setResponseMarshaller(ProtoUtils.marshaller(StringValue.getDefaultInstance()))
+                .build();
+    }
+
+    private record ProviderMethod(String serviceName, String methodName) { }
 }
