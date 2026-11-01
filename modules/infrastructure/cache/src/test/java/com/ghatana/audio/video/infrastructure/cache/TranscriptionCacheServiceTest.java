@@ -179,6 +179,22 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void cacheWriteFailureDoesNotHideCurrentSourceResult() {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
+        when(cachePort.put(eq(key), any(), any(Duration.class)))
+                .thenReturn(AsyncOperation.failure(new IllegalStateException("cache unavailable")));
+
+        TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(source))));
+
+        assertThat(result).isSameAs(source);
+        verify(cachePort).put(eq(key), any(), any(Duration.class));
+        verify(cachePort, never()).get(any());
+    }
+
+    @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());
@@ -519,7 +535,7 @@ class TranscriptionCacheServiceTest {
             await(isolatedService.cacheTranscriptionByAudioFileId(tenant, audioId, entity));
             await(isolatedService.invalidateTranscription(tenant, transcriptId));
 
-            assertThat(logs.output()).contains("scopeRef=sha256:")
+            assertThat(logs.output()).contains("scopeRef=hmac256:")
                     .doesNotContain(tenant, transcriptId.toString(), audioId.toString());
         }
     }

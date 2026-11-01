@@ -141,7 +141,7 @@ public class TranscriptionCacheService {
             TranscriptionEntity entity = source.get();
             try {
                 String json = serializeBounded(entity);
-                return cache.put(key, json).map(ignored -> entity);
+                return writeOptimizationEntry(key, json, entity);
             } catch (Exception serializationFailure) {
                 if (isOversizedSerializationFailure(serializationFailure)) {
                     LOG.warn("Oversized source transcription; skipping cache write");
@@ -151,6 +151,30 @@ public class TranscriptionCacheService {
                 return AsyncOperation.success(entity);
             }
         });
+    }
+
+    /**
+     * Cache persistence is an optimization on this read-through path. The already
+     * resolved source result remains authoritative if the cache is unavailable.
+     */
+    private AsyncOperation<TranscriptionEntity> writeOptimizationEntry(
+            String key, String json, TranscriptionEntity source) {
+        java.util.concurrent.CompletableFuture<TranscriptionEntity> result =
+                new java.util.concurrent.CompletableFuture<>();
+        try {
+            cache.put(key, json).whenComplete((ignored, cacheFailure) -> {
+                if (cacheFailure != null) {
+                    LOG.warn("Transcription cache write failed; returning current source value: causeType={}",
+                            cacheFailure.getClass().getSimpleName());
+                }
+                result.complete(source);
+            });
+        } catch (RuntimeException cacheFailure) {
+            LOG.warn("Transcription cache write failed; returning current source value: causeType={}",
+                    cacheFailure.getClass().getSimpleName());
+            result.complete(source);
+        }
+        return AsyncOperation.from(result);
     }
 
     /**
