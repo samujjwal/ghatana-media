@@ -264,7 +264,11 @@ public class TranscriptionJobConsumer {
 
     private void dispatchEnvelope(EventEnvelope<?> envelope) {
         try {
-            processingExecutor.submit(() -> processMessageOrThrow(envelope)).get();
+            processingExecutor.submit(() -> {
+                String payload = payloadText(envelope);
+                validateEnvelope(envelope, payload);
+                processMessageOrThrow(envelope.id(), payload);
+            }).get();
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Consumer message processing interrupted", interrupted);
@@ -276,8 +280,31 @@ public class TranscriptionJobConsumer {
         }
     }
 
-    private void processMessageOrThrow(EventEnvelope<?> envelope) {
-        AsyncOperation<Void> operation = processMessage(envelope.id(), payloadText(envelope));
+    /** Reject envelopes whose routing identity disagrees with the serialized job. */
+    private void validateEnvelope(EventEnvelope<?> envelope, String payload) {
+        Objects.requireNonNull(envelope, "envelope cannot be null");
+        if (!"media.transcription.job.submitted".equals(envelope.eventType())) {
+            throw new IllegalArgumentException("Unexpected transcription event type");
+        }
+        if (!"media".equals(envelope.sourceService())) {
+            throw new IllegalArgumentException("Unexpected transcription event source");
+        }
+
+        TranscriptionJobProducer.TranscriptionJobMessage job = parseJob(payload);
+        if (job.jobId() == null || !job.jobId().toString().equals(envelope.id())) {
+            throw new IllegalArgumentException("Envelope event ID does not match transcription job ID");
+        }
+        if (job.tenantId() == null || job.tenantId().isBlank()
+                || !job.tenantId().equals(envelope.tenantId())) {
+            throw new IllegalArgumentException("Envelope tenant does not match transcription job tenant");
+        }
+        if (job.artifactId() == null) {
+            throw new IllegalArgumentException("Transcription job artifact ID is required");
+        }
+    }
+
+    private void processMessageOrThrow(String eventId, String payload) {
+        AsyncOperation<Void> operation = processMessage(eventId, payload);
         CompletableFuture<Void> completion = new CompletableFuture<>();
         operation.whenComplete((value, error) -> {
             if (error == null) {
