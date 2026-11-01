@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,5 +116,105 @@ class RunLedgerProjectionTest {
         assertThat(retried.disposition()).isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
         assertThat(retried.store()).isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
         assertThat(written).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Concurrent updates for one run serialize compare, store, and latest-truth update")
+    void concurrentUpdatesCannotBothPassAgainstTheSamePreviousTruth() throws Exception {
+        CountDownLatch firstStoreEntered = new CountDownLatch(1);
+        CountDownLatch releaseFirstStore = new CountDownLatch(1);
+        CountDownLatch secondCallStarted = new CountDownLatch(1);
+        CountDownLatch secondCallFinished = new CountDownLatch(1);
+        List<RunLedger> written = new CopyOnWriteArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            written.add(record);
+            if (record.createdAtMs() == 100) {
+                firstStoreEntered.countDown();
+                if (!releaseFirstStore.await(5, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("test did not release first store call");
+                }
+            }
+        });
+
+        var executor = Executors.newFixedThreadPool(2);
+        try {
+            var first = ledger("same-run", JobExecutionState.RUNNING, null, 1, 100, 0);
+            var newer = ledger("same-run", JobExecutionState.RUNNING, null, 1, 200, 0);
+            var firstResult = executor.submit(() -> projection.project(first));
+            assertThat(firstStoreEntered.await(5, TimeUnit.SECONDS)).isTrue();
+
+            var secondResult = executor.submit(() -> {
+                secondCallStarted.countDown();
+                try {
+                    return projection.project(newer);
+                } finally {
+                    secondCallFinished.countDown();
+                }
+            });
+            assertThat(secondCallStarted.await(5, TimeUnit.SECONDS)).isTrue();
+            // The second same-run update must wait until the first store ACK is
+            // reflected in the latest-truth guard before evaluating freshness.
+            assertThat(secondCallFinished.await(100, TimeUnit.MILLISECONDS)).isFalse();
+
+            releaseFirstStore.countDown();
+            assertThat(firstResult.get(5, TimeUnit.SECONDS).store())
+                    .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+            assertThat(secondResult.get(5, TimeUnit.SECONDS).disposition())
+                    .isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+            assertThat(written).containsExactly(first, newer);
+        } finally {
+            releaseFirstStore.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("Concurrent stale update is rejected after newer truth is acknowledged")
+    void concurrentStaleUpdateCannotReachStoreAfterNewerAck() throws Exception {
+        CountDownLatch newerStoreEntered = new CountDownLatch(1);
+        CountDownLatch releaseNewerStore = new CountDownLatch(1);
+        CountDownLatch staleCallStarted = new CountDownLatch(1);
+        CountDownLatch staleCallFinished = new CountDownLatch(1);
+        List<RunLedger> written = new CopyOnWriteArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            written.add(record);
+            if (record.createdAtMs() == 200) {
+                newerStoreEntered.countDown();
+                if (!releaseNewerStore.await(5, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("test did not release newer store call");
+                }
+            }
+        });
+
+        var executor = Executors.newFixedThreadPool(2);
+        try {
+            var newer = ledger("same-run-stale-race", JobExecutionState.RUNNING, null, 1, 200, 0);
+            var stale = ledger("same-run-stale-race", JobExecutionState.RUNNING, null, 1, 100, 0);
+            var newerResult = executor.submit(() -> projection.project(newer));
+            assertThat(newerStoreEntered.await(5, TimeUnit.SECONDS)).isTrue();
+
+            var staleResult = executor.submit(() -> {
+                staleCallStarted.countDown();
+                try {
+                    return projection.project(stale);
+                } finally {
+                    staleCallFinished.countDown();
+                }
+            });
+            assertThat(staleCallStarted.await(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(staleCallFinished.await(100, TimeUnit.MILLISECONDS)).isFalse();
+
+            releaseNewerStore.countDown();
+            assertThat(newerResult.get(5, TimeUnit.SECONDS).store())
+                    .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+            assertThat(staleResult.get(5, TimeUnit.SECONDS).disposition())
+                    .isEqualTo(RunLedgerProjection.Disposition.STALE);
+            assertThat(staleResult.get(5, TimeUnit.SECONDS).store())
+                    .isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+            assertThat(written).containsExactly(newer);
+        } finally {
+            releaseNewerStore.countDown();
+            executor.shutdownNow();
+        }
     }
 }

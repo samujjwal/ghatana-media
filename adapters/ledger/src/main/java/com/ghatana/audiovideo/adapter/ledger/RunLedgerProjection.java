@@ -25,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class RunLedgerProjection {
 
+    // A fixed set keeps synchronization memory bounded while ensuring a run's
+    // compare/store/update sequence is indivisible within this process.
+    private static final int LOCK_STRIPE_COUNT = 64;
+
     /** What the projection decided about an incoming record. */
     public enum Disposition {
         /** Newer truth — forwarded to the store. */
@@ -55,9 +59,13 @@ public final class RunLedgerProjection {
 
     private final LedgerStore store;
     private final Map<String, RunLedger> latestByRunId = new ConcurrentHashMap<>();
+    private final Object[] runLocks = new Object[LOCK_STRIPE_COUNT];
 
     public RunLedgerProjection(LedgerStore store) {
         this.store = Objects.requireNonNull(store, "store must not be null");
+        for (int i = 0; i < runLocks.length; i++) {
+            runLocks[i] = new Object();
+        }
     }
 
     /**
@@ -68,17 +76,20 @@ public final class RunLedgerProjection {
      */
     public ProjectionResult project(RunLedger incoming) {
         Objects.requireNonNull(incoming, "incoming must not be null");
-        Disposition disposition = disposition(latestByRunId.get(incoming.runId()), incoming);
-        if (disposition != Disposition.PROJECTED) {
-            return new ProjectionResult(disposition, StoreResult.NOT_ATTEMPTED);
+        Object runLock = runLocks[Math.floorMod(incoming.runId().hashCode(), runLocks.length)];
+        synchronized (runLock) {
+            Disposition disposition = disposition(latestByRunId.get(incoming.runId()), incoming);
+            if (disposition != Disposition.PROJECTED) {
+                return new ProjectionResult(disposition, StoreResult.NOT_ATTEMPTED);
+            }
+            try {
+                store.store(incoming);
+            } catch (Exception unavailable) {
+                return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
+            }
+            latestByRunId.put(incoming.runId(), incoming);
+            return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
         }
-        try {
-            store.store(incoming);
-        } catch (Exception unavailable) {
-            return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
-        }
-        latestByRunId.put(incoming.runId(), incoming);
-        return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
     }
 
     private static Disposition disposition(RunLedger previous, RunLedger incoming) {
