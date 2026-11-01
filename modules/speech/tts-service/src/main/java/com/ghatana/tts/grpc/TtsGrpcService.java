@@ -395,7 +395,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 trace.finishUnknown();
                 return;
             }
-            requireAuthorizedVoiceSelection(request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE);
+            // Capture interceptor-verified identity while still on the gRPC call context;
+            // provider callbacks and completion run on unrelated executor threads.
+            JwtServerInterceptor.VerifiedIdentity streamIdentity = JwtServerInterceptor.verifiedIdentity();
+            requireAuthorizedVoiceSelection(
+                    request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE, streamIdentity);
             TtsEngine engine = library.getTtsEngine();
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
@@ -507,6 +511,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                                 throw new IllegalStateException("TTS stream interrupted while waiting for downstream readiness", interrupted);
                             }
                             if (!isCancelled()) {
+                                // A long-lived stream can outlive voice consent. Recheck at
+                                // the actual disclosure boundary, after backpressure has
+                                // cleared, so a revoked grant cannot leak another chunk.
+                                requireAuthorizedVoiceSelection(
+                                        request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE,
+                                        streamIdentity);
                                 tracedObserver.onNext(toGrpcChunk(chunkSnapshot, synthesisOptions, false));
                             }
                         }
@@ -598,7 +608,21 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     } else {
                         try {
                             awaitSinkReady(sink);
-                            if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
+                            if (sink.isCancelled()) {
+                                if (terminal.compareAndSet(false, true)) {
+                                    recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                                    recordDuration.run();
+                                    trace.finishUnknown();
+                                }
+                                return;
+                            }
+                            // The provider's final marker may sit buffered while synthesis
+                            // finishes or while downstream is backpressured. Revalidate
+                            // immediately before exposing it as final.
+                            requireAuthorizedVoiceSelection(
+                                    request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE,
+                                    streamIdentity);
+                            if (terminal.compareAndSet(false, true)) {
                                 tracedObserver.onNext(toGrpcChunk(pendingFinalChunk.get(), synthesisOptions, true));
                                 completionDeliveryStarted.set(true);
                                 tracedObserver.onCompleted();
@@ -613,8 +637,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                             }
                         } catch (RuntimeException finalDeliveryFailure) {
                             if (!sink.isCancelled() && terminal.compareAndSet(false, true)) {
+                                requestSessionCancellation.run();
                                 fail(tracedObserver, "Streaming synthesis", finalDeliveryFailure);
                             } else {
+                                requestSessionCancellation.run();
                                 recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
                             }
                         }
@@ -771,12 +797,19 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
 
     private void requireAuthorizedVoiceSelection(
             SynthesizeRequest request, TtsRequestAuthorization.Operation operation) {
+        requireAuthorizedVoiceSelection(request, operation, JwtServerInterceptor.verifiedIdentity());
+    }
+
+    private void requireAuthorizedVoiceSelection(
+            SynthesizeRequest request,
+            TtsRequestAuthorization.Operation operation,
+            JwtServerInterceptor.VerifiedIdentity identity) {
         try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
                      instrumentation.beginBoundaryMeasurement(
                              MediaWorkflowMetrics.Modality.TTS, MediaWorkflowMetrics.Boundary.ADMISSION)) {
             try {
                 TtsRequestAuthorization.requireAdmission(requestAuthorization,
-                        JwtServerInterceptor.verifiedIdentity(), operation,
+                        identity, operation,
                         request.getVoiceId(), request.getProfileId());
                 admissionBoundary.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
             } catch (TtsRequestAuthorization.AuthorizationException denied) {

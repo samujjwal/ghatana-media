@@ -317,8 +317,9 @@ class TtsGrpcServiceTest {
         } while (System.nanoTime() < metricDeadline);
         assertThat(responseSuccess).isNotNull();
         assertThat(responseSuccess.count()).isEqualTo(1);
-        // Streaming has separate voice/profile, provider, and rights decisions.
-        assertAdmissionBoundary("success", 3);
+        // Admission covers voice/profile, provider, initial rights, and each of the
+        // two disclosed chunks (partial plus final).
+        assertAdmissionBoundary("success", 4);
         assertThat(responseSuccess.getId().getTags()).extracting("key")
                 .doesNotContain("tenant", "subject", "request", "text", "content");
         assertThat(registry.find("media.modality.boundary.duration")
@@ -941,6 +942,194 @@ class TtsGrpcServiceTest {
                 chunk.getAudioData().toByteArray()[0] == 3
                         && chunk.getTimestampMs() == 7 && chunk.getIsFinal()));
         verify(observer, org.mockito.Mockito.timeout(1_000)).onCompleted();
+    }
+
+    @Test
+    void revocationBeforeBufferedFinalChunkPreventsFinalDisclosure() {
+        AtomicReference<TtsRequestAuthorization.Decision> decision =
+                new AtomicReference<>(TtsRequestAuthorization.Decision.ADMITTED);
+        AtomicInteger authorizationChecks = new AtomicInteger();
+        TtsRequestAuthorization authorization = new TtsRequestAuthorization() {
+            @Override public Decision authorize(Request request) {
+                authorizationChecks.incrementAndGet();
+                return decision.get();
+            }
+            @Override public String configuredDefaultVoiceId() { return "consented-voice"; }
+        };
+        TtsGrpcService admitted = new TtsGrpcService(
+                library, registry, () -> true, () -> true, null, authorization,
+                (voiceId, language) -> true);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(sessionCancelled, completion);
+        });
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        TtsStreamSink sink = sinkRef.get();
+        sink.onAudioFormat(monoPcm16Format());
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+        sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {3, 4}, 1, true, 2));
+        assertThat(authorizationChecks).hasValue(2); // admission plus first disclosed chunk
+        verify(observer).onNext(org.mockito.ArgumentMatchers.argThat(chunk -> !chunk.getIsFinal()));
+
+        // The provider has produced its final chunk, but completion has not exposed it yet.
+        // A live revocation at that boundary must prevent the final marker and completion.
+        decision.set(TtsRequestAuthorization.Decision.REVOKED);
+        completionRef.get().complete(null);
+
+        var failure = org.mockito.ArgumentCaptor.forClass(Throwable.class);
+        verify(observer, org.mockito.Mockito.timeout(1_000)).onError(failure.capture());
+        assertThat(Status.fromThrowable(failure.getValue()).getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+        assertThat(Status.fromThrowable(failure.getValue()).getDescription())
+                .contains("TTS_VOICE_AUTH_REVOKED");
+        assertThat(authorizationChecks).hasValue(3);
+        verify(observer, org.mockito.Mockito.times(1)).onNext(any());
+        verify(observer, never()).onCompleted();
+        assertThat(sessionCancelled).isTrue();
+    }
+
+    @Test
+    void revocationWhilePartialChunkIsBackpressuredPreventsDisclosure() throws Exception {
+        AtomicReference<TtsRequestAuthorization.Decision> decision =
+                new AtomicReference<>(TtsRequestAuthorization.Decision.ADMITTED);
+        AtomicInteger authorizationChecks = new AtomicInteger();
+        TtsRequestAuthorization authorization = new TtsRequestAuthorization() {
+            @Override public Decision authorize(Request request) {
+                authorizationChecks.incrementAndGet();
+                return decision.get();
+            }
+            @Override public String configuredDefaultVoiceId() { return "consented-voice"; }
+        };
+        TtsGrpcService admitted = new TtsGrpcService(
+                library, registry, () -> true, () -> true, Duration.ofSeconds(5), authorization,
+                (voiceId, language) -> true);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicBoolean downstreamReady = new AtomicBoolean();
+        CountDownLatch readinessChecked = new CountDownLatch(1);
+        AtomicReference<Runnable> readyHandler = new AtomicReference<>();
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        when(observer.isReady()).thenAnswer(invocation -> {
+            readinessChecked.countDown();
+            return downstreamReady.get();
+        });
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { readyHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnReadyHandler(any(Runnable.class));
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        TtsStreamSink sink = sinkRef.get();
+        sink.onAudioFormat(monoPcm16Format());
+        Thread producer = Thread.startVirtualThread(() ->
+                sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1)));
+        try {
+            assertThat(readinessChecked.await(1, TimeUnit.SECONDS)).isTrue();
+            long waitDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (producer.getState() != Thread.State.WAITING && System.nanoTime() < waitDeadline) {
+                Thread.onSpinWait();
+            }
+            assertThat(producer.getState()).isEqualTo(Thread.State.WAITING);
+
+            decision.set(TtsRequestAuthorization.Decision.REVOKED);
+            downstreamReady.set(true);
+            readyHandler.get().run();
+            producer.join(1_000);
+
+            assertThat(producer.isAlive()).isFalse();
+            assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+            assertThat(Status.fromThrowable(error.get()).getDescription()).contains("TTS_VOICE_AUTH_REVOKED");
+            assertThat(authorizationChecks).hasValue(2); // start admission plus post-backpressure recheck
+            verify(observer, never()).onNext(any());
+            verify(observer, never()).onCompleted();
+            assertThat(sessionCancelled).isTrue();
+        } finally {
+            downstreamReady.set(true);
+            if (readyHandler.get() != null) readyHandler.get().run();
+            producer.join(10_000);
+            assertThat(producer.isAlive()).isFalse();
+        }
+    }
+
+    @Test
+    void cancellationWhileFinalChunkWaitsForReadinessRecordsUnknown() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<Runnable> cancelHandler = new AtomicReference<>();
+        AtomicReference<Runnable> readyHandler = new AtomicReference<>();
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicReference<CompletableFuture<Void>> completionRef = new AtomicReference<>();
+        CountDownLatch readinessChecked = new CountDownLatch(1);
+        when(observer.isReady()).thenAnswer(invocation -> {
+            readinessChecked.countDown();
+            return false;
+        });
+        when(observer.isCancelled()).thenReturn(false);
+        doAnswer(invocation -> { cancelHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnCancelHandler(any(Runnable.class));
+        doAnswer(invocation -> { readyHandler.set(invocation.getArgument(0)); return null; })
+                .when(observer).setOnReadyHandler(any(Runnable.class));
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            CompletableFuture<Void> completion = new CompletableFuture<>();
+            completionRef.set(completion);
+            return TtsStreamingSession.create(new AtomicBoolean(), completion);
+        });
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, true, 1));
+        completionRef.get().complete(null);
+        assertThat(readinessChecked.await(1, TimeUnit.SECONDS)).isTrue();
+
+        // Transport cancellation wakes the final-delivery waiter. The cancellation
+        // handler owns the single UNKNOWN outcome even though readiness never returns.
+        cancelHandler.get().run();
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        verify(observer, never()).onError(any());
+        long metricDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+        Timer responseUnknown;
+        do {
+            responseUnknown = registry.find("media.modality.boundary.duration")
+                    .tag("modality", "tts").tag("service", "tts")
+                    .tag("boundary", "response").tag("execution_class", "control")
+                    .tag("outcome", "unknown").timer();
+            if (responseUnknown != null && responseUnknown.count() == 1) break;
+            Thread.yield();
+        } while (System.nanoTime() < metricDeadline);
+        assertThat(responseUnknown).isNotNull();
+        assertThat(responseUnknown.count()).isEqualTo(1);
+        assertThat(registry.get("tts.synthesize.streaming").timer().count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts")
+                .tag("boundary", "response").tag("execution_class", "control")
+                .tag("outcome", "success").timer()).isNull();
     }
 
     @Test
