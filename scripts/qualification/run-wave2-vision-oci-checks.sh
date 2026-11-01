@@ -48,6 +48,15 @@ elif [[ "$mode" == "broker" ]]; then
   [[ "$image" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Pinned OCI fixture image unavailable" >&2; exit 4; }
   export GHATANA_MEDIA_VISION_WORKER_IMAGE="$image"
   broker_dir="$(mktemp -d /tmp/ghatana-media-oci-broker.XXXXXXXX)"
+  cleanup_broker_dir() {
+    if [[ -n "${broker_dir:-}" && -d "$broker_dir" ]]; then
+      rm -rf -- "$broker_dir" || true
+    fi
+  }
+  trap cleanup_broker_dir EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
   token_file="$broker_dir/broker.token"
   python3 -c "import secrets; print(secrets.token_hex(32))" > "$token_file"
   chmod 0600 "$token_file"
