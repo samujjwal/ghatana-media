@@ -68,32 +68,42 @@ public class VisionGrpcServerRuntimePortFactoryTest {
         Path serviceFile = temp.resolve("META-INF/services/" + MediaRuntimePortFactory.class.getName());
         Files.createDirectories(serviceFile.getParent());
         Files.writeString(serviceFile, RegisteredTestFactory.class.getName() + "\n");
-        MediaProcessingRuntimePort composed;
+        var environment = new java.util.HashMap<>(ocrEnvironment());
+        int portNumber = freePort();
+        environment.put("VISION_GRPC_PORT", Integer.toString(portNumber));
+        VisionGrpcServer server;
         try (URLClassLoader serviceLoaderClassLoader = new URLClassLoader(
                 new URL[] {temp.toUri().toURL()}, getClass().getClassLoader())) {
-            composed = VisionGrpcServer.composeRuntimePort(ocrEnvironment(), serviceLoaderClassLoader);
+            server = VisionGrpcServer.createStandaloneServer(environment, serviceLoaderClassLoader);
         }
-        assertThat(composed).isSameAs(port);
-
-        var environment = ocrEnvironment();
-        var service = new ProductionVisionGrpcService(
-                ProductionVisionGrpcService.compose(environment, composed), MediaProcessingMetrics.create(),
-                new SimpleMeterRegistry(), composed);
-        service.ownRuntimePort(composed);
-        var readiness = VisionGrpcServer.createReadinessLifecycle(new SimpleMeterRegistry(), service::isProviderReady);
-        service.setReadinessProbe(readiness::isServing);
-        var server = new VisionGrpcServer(freePort(), AudioVideoGrpcServerBase.TransportSecurity.plaintext(),
-                service, readiness);
         try {
             server.start();
             assertThat(server.isShutdown()).isFalse();
             assertThat(server.isReady()).isFalse();
+            assertThat(server.getPort()).isEqualTo(portNumber);
         } finally {
             server.close();
         }
         assertThat(server.isShutdown()).isTrue();
         verify((AutoCloseable) port).close();
         RegisteredTestFactory.runtimePort = null;
+    }
+
+    @Test
+    void standaloneOcrOnlyWithoutFactoryFailsBeforeBinding() throws Exception {
+        var environment = new java.util.HashMap<>(ocrEnvironment());
+        int portNumber = freePort();
+        environment.put("VISION_GRPC_PORT", Integer.toString(portNumber));
+        try (URLClassLoader withoutFactory = new URLClassLoader(new URL[0], null)) {
+            assertThatThrownBy(() -> VisionGrpcServer.createStandaloneServer(environment, withoutFactory))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("OCR_ONLY requires the canonical Media runtime port");
+        }
+        try (Socket ignored = new Socket("127.0.0.1", portNumber)) {
+            throw new AssertionError("server unexpectedly bound without the canonical runtime factory");
+        } catch (java.io.IOException expected) {
+            // A failed standalone composition must not expose a listener.
+        }
     }
 
     @Test

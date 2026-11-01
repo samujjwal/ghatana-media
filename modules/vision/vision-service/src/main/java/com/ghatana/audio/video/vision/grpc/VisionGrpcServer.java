@@ -53,7 +53,6 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
 
     private VisionGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         this(port, transportSecurity, runtime.service(), runtime.readiness());
-        runtime.service().ownRuntimePort(runtime.ownedRuntimePort());
     }
 
     VisionGrpcServer(
@@ -80,16 +79,25 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
 
     private static ServerRuntime createProductionRuntime(
             MediaProcessingRuntimePort mediaRuntimePort, boolean ownRuntimePort) {
-        MeterRegistry providerMetrics = new SimpleMeterRegistry();
-        ProductionVisionGrpcService service = new ProductionVisionGrpcService(
-                MediaProcessingMetrics.create(), providerMetrics, mediaRuntimePort);
+        return createProductionRuntime(System.getenv(), mediaRuntimePort, ownRuntimePort);
+    }
+
+    private static ServerRuntime createProductionRuntime(
+            Map<String, String> environment, MediaProcessingRuntimePort mediaRuntimePort, boolean ownRuntimePort) {
+        ProductionVisionGrpcService service = null;
         try {
+            MeterRegistry providerMetrics = new SimpleMeterRegistry();
+            service = new ProductionVisionGrpcService(
+                    ProductionVisionGrpcService.compose(environment, mediaRuntimePort),
+                    MediaProcessingMetrics.create(), providerMetrics, mediaRuntimePort);
+            if (ownRuntimePort) service.ownRuntimePort(mediaRuntimePort);
             AudioVideoHealthService readiness = createReadinessLifecycle(
                     providerMetrics, service::isProviderReady);
             service.setReadinessProbe(readiness::isServing);
-            return new ServerRuntime(service, readiness, ownRuntimePort ? mediaRuntimePort : null);
-        } catch (RuntimeException failure) {
-            service.close();
+            return new ServerRuntime(service, readiness);
+        } catch (RuntimeException | Error failure) {
+            if (service != null) service.close();
+            else if (ownRuntimePort) closeRuntimePort(mediaRuntimePort);
             throw failure;
         }
     }
@@ -140,8 +148,22 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
         return readiness;
     }
 
-    private record ServerRuntime(ProductionVisionGrpcService service, AudioVideoHealthService readiness,
-                                 MediaProcessingRuntimePort ownedRuntimePort) { }
+    private record ServerRuntime(ProductionVisionGrpcService service, AudioVideoHealthService readiness) { }
+
+    /** Builds the same factory-backed server used by the standalone process entrypoint. */
+    static VisionGrpcServer createStandaloneServer(Map<String, String> environment, ClassLoader classLoader) {
+        int port = parsePort(environment.get("VISION_GRPC_PORT"));
+        TransportSecurity security = transportSecurity(environment);
+        MediaProcessingRuntimePort runtimePort = composeRuntimePort(environment, classLoader);
+        ServerRuntime runtime = null;
+        try {
+            runtime = createProductionRuntime(environment, runtimePort, true);
+            return new VisionGrpcServer(port, security, runtime);
+        } catch (RuntimeException | Error failure) {
+            if (runtime != null) runtime.service().close();
+            throw failure;
+        }
+    }
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("av.smokeTest")) {
@@ -149,17 +171,11 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
             return;
         }
 
-        MediaProcessingRuntimePort runtimePort = null;
         VisionGrpcServer server = null;
         int exitCode = 0;
         try {
             Map<String, String> environment = System.getenv();
-            int port = parsePort(environment.get("VISION_GRPC_PORT"));
-            TransportSecurity transportSecurity = transportSecurity(environment);
-            runtimePort = composeRuntimePort(environment);
-            server = new VisionGrpcServer(
-                    port, transportSecurity, createProductionRuntime(runtimePort, true));
-            runtimePort = null; // ownership transferred to the service lifecycle
+            server = createStandaloneServer(environment, VisionGrpcServer.class.getClassLoader());
             startAndAwaitShutdown(server);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
@@ -172,11 +188,6 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
             exitCode = 1;
         } finally {
             if (server != null) server.close();
-            // The service owns and closes a port after successful composition. This covers
-            // the narrow case where server construction fails before ownership transfers.
-            if (runtimePort instanceof AutoCloseable closeable) {
-                closeRuntimePort(runtimePort);
-            }
         }
         if (exitCode != 0) System.exit(exitCode);
     }
