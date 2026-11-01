@@ -97,6 +97,25 @@ class RunLedgerProjectionTest {
     }
 
     @Test
+    @DisplayName("A later terminal record cannot rewrite finalized truth for the same attempt")
+    void laterTerminalCannotReplaceFinalAttemptTruth() {
+        List<RunLedger> written = new ArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(written::add);
+        RunLedger success = ledger("immutable-run", JobExecutionState.COMPLETED,
+                ExecutionOutcome.SUCCEEDED, 1, 100, 150);
+        RunLedger laterFailure = ledger("immutable-run", JobExecutionState.COMPLETED,
+                ExecutionOutcome.FAILED, 1, 100, 250);
+
+        assertThat(projection.project(success).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+        var conflict = projection.project(laterFailure);
+
+        assertThat(conflict.disposition()).isEqualTo(RunLedgerProjection.Disposition.CONFLICT);
+        assertThat(conflict.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(written).containsExactly(success);
+    }
+
+    @Test
     @DisplayName("Store outage is UNAVAILABLE and never marks the record as projected")
     void outageIsExplicitAndRetryable() {
         java.util.concurrent.atomic.AtomicBoolean down = new java.util.concurrent.atomic.AtomicBoolean(true);

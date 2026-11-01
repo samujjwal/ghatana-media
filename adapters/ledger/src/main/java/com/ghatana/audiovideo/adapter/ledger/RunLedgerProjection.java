@@ -172,6 +172,15 @@ public final class RunLedgerProjection {
         if (previousTerminal && !incomingTerminal) {
             return Disposition.STALE;
         }
+        // A job attempt has one immutable terminal result. A later timestamp
+        // cannot make a contradictory terminal record newer truth: timestamps
+        // order observations, but do not authorize rewriting a finalized
+        // attempt. Exact repeats were handled above as REPLAYED.
+        if (previousTerminal && incomingTerminal) {
+            long incomingAt = Math.max(incoming.completedAtMs(), incoming.createdAtMs());
+            long previousAt = Math.max(previous.completedAtMs(), previous.createdAtMs());
+            return incomingAt < previousAt ? Disposition.STALE : Disposition.CONFLICT;
+        }
         if (incomingTerminal && !previousTerminal) {
             return Disposition.PROJECTED;
         }
