@@ -155,6 +155,26 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls[0]!.url).toBe("https://media.example.test/api/v1/jobs/job-1/cancel");
   });
 
+  it("reports a post-dispatch cancel abort as OUTCOME_UNKNOWN without retry", async () => {
+    const controller = new AbortController();
+    const { fetchImpl, calls } = recordedFetch((_url, init) => new Promise<Response>((_resolve, reject) => {
+      init.signal?.addEventListener("abort", () => {
+        reject(init.signal?.reason ?? new DOMException("The operation was aborted.", "AbortError"));
+      }, { once: true });
+    }));
+    const client = clientWith(fetchImpl);
+    const pending = client.cancelJob("job-1", controller.signal);
+    await vi.waitFor(() => expect(calls).toHaveLength(1));
+    controller.abort();
+    const failure = await pending.then(
+      () => { throw new Error("unreachable"); },
+      (error: unknown) => error,
+    );
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs/job-1/cancel");
+    expect(calls).toHaveLength(1);
+  });
+
   it("listJobs honors the bounded limit and binds every job to scope", async () => {
     const { fetchImpl, calls } = recordedFetch(() =>
       jsonResponse({ jobs: [job(), job({ jobId: "job-2", requestId: "req-2" })] }));

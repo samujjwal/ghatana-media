@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'http';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createMediaCanonicalClient } from '../canonical-operations.js';
+import { createMediaOperationClient } from '../operations.js';
 import { MediaClientError, MediaOperationAmbiguousError } from '../http-core.js';
 
 /**
@@ -32,6 +33,16 @@ function session(overrides: Record<string, unknown> = {}) {
     createdAt: timestamp, updatedAt: timestamp, closedAt: null,
     metadata: {}, version: 1, acknowledgementRevision: 0, finality: 'NONE',
     ...overrides,
+  };
+}
+
+function artifact() {
+  return {
+    tenantId: 'tenant-1', principalId: 'principal-1', artifactId: 'art-1',
+    fileName: 'fixture.wav', contentType: 'audio/wav', sizeBytes: 16,
+    sha256: 'a'.repeat(64), objectReference: 'opaque-fixture-reference',
+    classification: 'INTERNAL', createdAt: timestamp,
+    expiresAt: '2026-10-31T12:00:00.000Z', metadata: {},
   };
 }
 
@@ -75,6 +86,32 @@ function makeClient(endpoint: string, extra: Record<string, unknown> = {}) {
 }
 
 describe('MediaCanonicalClient over real HTTP', () => {
+  it('inspects artifact metadata through the existing scoped read route', async () => {
+    let observed: { method?: string; path?: string; authorization?: string; tenant?: string; principal?: string } = {};
+    await withServer((request, response) => {
+      observed = {
+        method: request.method,
+        path: request.url,
+        authorization: request.headers.authorization,
+        tenant: request.headers['x-tenant-id'] as string | undefined,
+        principal: request.headers['x-principal-id'] as string | undefined,
+      };
+      response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(artifact()));
+    }, async (endpoint) => {
+      const client = createMediaOperationClient({
+        baseUrl: endpoint,
+        tenantId: 'tenant-1',
+        defaultHeaders: { 'X-Principal-Id': 'principal-1' },
+        getAccessToken: () => 'integration-secret',
+      });
+      expect(await client.getArtifact('art-1')).toEqual(artifact());
+    });
+    expect(observed).toEqual({
+      method: 'GET', path: '/api/v1/artifacts/art-1', authorization: 'Bearer integration-secret',
+      tenant: 'tenant-1', principal: 'principal-1',
+    });
+  });
+
   it('submits, reads, lists and cancels a job against a live server', async () => {
     const seen: string[] = [];
     await withServer((request, response) => {
