@@ -221,6 +221,66 @@ class RetryPolicyTest {
     }
 
     @Test
+    @DisplayName("builder: non-finite multiplier and jitter values are rejected")
+    void builder_nonFiniteBackoffValues_areRejected() {
+        for (double value : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            assertThatThrownBy(() -> RetryPolicy.builder().multiplier(value))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("multiplier");
+            assertThatThrownBy(() -> RetryPolicy.builder().jitterFactor(value))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("jitterFactor");
+        }
+    }
+
+    @Test
+    @DisplayName("builder: retry durations must fit millisecond precision and range")
+    void builder_unrepresentableRetryDurations_areRejected() {
+        Duration subMillisecond = Duration.ofNanos(999_999);
+        assertThatThrownBy(() -> RetryPolicy.builder().initialDelay(subMillisecond))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("initialDelay");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxDelay(subMillisecond))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxDelay");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxElapsed(subMillisecond))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxElapsed");
+
+        Duration overflow = Duration.ofSeconds(Long.MAX_VALUE);
+        assertThatThrownBy(() -> RetryPolicy.builder().initialDelay(overflow))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("initialDelay")
+            .hasMessageContaining("range");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxDelay(overflow))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxDelay")
+            .hasMessageContaining("range");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxElapsed(overflow))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxElapsed")
+            .hasMessageContaining("range");
+    }
+
+    @Test
+    @DisplayName("large positive jitter saturates instead of wrapping the delay")
+    void jitter_largePositiveDelaySaturates() {
+        assertThat(RetryPolicy.applyJitter(Long.MAX_VALUE, 1.0, Math.nextDown(1.0)))
+            .isEqualTo(Long.MAX_VALUE);
+        assertThat(RetryPolicy.applyJitter(100, 0.1, 0.25))
+            .isEqualTo(95);
+    }
+
+    @Test
+    @DisplayName("maxDelay caps initial and jittered retry delays")
+    void retryDelay_isCappedAfterJitterIncludingInitialDelay() {
+        assertThat(RetryPolicy.boundedDelay(500, 100, 0, 0.5)).isEqualTo(100);
+        assertThat(RetryPolicy.boundedDelay(80, 100, 1.0, Math.nextDown(1.0)))
+            .isEqualTo(100);
+        assertThat(RetryPolicy.boundedDelay(80, 100, 1.0, 0.0)).isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("builder: jitterFactor out of [0,1] → IllegalArgumentException")
     void builder_invalidJitterFactor_throwsException() { 
         assertThatThrownBy(() -> RetryPolicy.builder().jitterFactor(1.5).build()) 

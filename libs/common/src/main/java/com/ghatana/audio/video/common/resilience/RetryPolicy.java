@@ -125,7 +125,12 @@ public final class RetryPolicy {
                 }
 
                 long actualDelay = applyJitter(delayMs);
-                long elapsedMs = Duration.ofNanos(System.nanoTime() - startedNanos).toMillis();
+                long elapsedNanos = System.nanoTime() - startedNanos;
+                if (elapsedNanos < 0) {
+                    LOG.warn("Retry elapsed-time measurement exceeded the monotonic clock range");
+                    break;
+                }
+                long elapsedMs = Duration.ofNanos(elapsedNanos).toMillis();
                 if (elapsedMs >= maxElapsedMs || actualDelay > maxElapsedMs - elapsedMs) {
                     LOG.warn("Retry elapsed-time budget exhausted after {} attempts", attempt);
                     break;
@@ -144,11 +149,29 @@ public final class RetryPolicy {
     }
 
     private long applyJitter(long delayMs) {
-        if (jitterFactor <= 0) {
-            return delayMs;
+        double randomValue = jitterFactor <= 0 ? 0.5 : ThreadLocalRandom.current().nextDouble();
+        return boundedDelay(delayMs, maxDelayMs, jitterFactor, randomValue);
+    }
+
+    /** Applies jitter and the configured cap, including to the first retry delay. */
+    static long boundedDelay(long delayMs, long maxDelayMs, double jitterFactor, double randomValue) {
+        long jitteredDelay = jitterFactor <= 0 ? delayMs : applyJitter(delayMs, jitterFactor, randomValue);
+        return Math.min(jitteredDelay, maxDelayMs);
+    }
+
+    /** Applies symmetric jitter while saturating the addition instead of wrapping a large delay. */
+    static long applyJitter(long delayMs, double jitterFactor, double randomValue) {
+        double jitterValue = delayMs * jitterFactor * (randomValue * 2 - 1);
+        long jitter = (long) jitterValue;
+        long adjusted;
+        if (jitter > 0 && delayMs > Long.MAX_VALUE - jitter) {
+            adjusted = Long.MAX_VALUE;
+        } else if (jitter < 0 && delayMs < Long.MIN_VALUE - jitter) {
+            adjusted = Long.MIN_VALUE;
+        } else {
+            adjusted = delayMs + jitter;
         }
-        double jitter = delayMs * jitterFactor * (ThreadLocalRandom.current().nextDouble() * 2 - 1);
-        return Math.max(0, delayMs + (long) jitter);
+        return Math.max(0, adjusted);
     }
 
     /**
@@ -215,7 +238,7 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder initialDelay(Duration initialDelay) {
-            this.initialDelayMs = initialDelay.toMillis();
+            this.initialDelayMs = positiveMillis(initialDelay, "initialDelay");
             return this;
         }
 
@@ -226,19 +249,13 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder maxDelay(Duration maxDelay) {
-            if (maxDelay == null || maxDelay.isZero() || maxDelay.isNegative()) {
-                throw new IllegalArgumentException("maxDelay must be positive");
-            }
-            this.maxDelayMs = maxDelay.toMillis();
+            this.maxDelayMs = positiveMillis(maxDelay, "maxDelay");
             return this;
         }
 
         /** Maximum wall-clock time spent retrying, including back-off sleeps. */
         public Builder maxElapsed(Duration maxElapsed) {
-            if (maxElapsed == null || maxElapsed.isZero() || maxElapsed.isNegative()) {
-                throw new IllegalArgumentException("maxElapsed must be positive");
-            }
-            this.maxElapsedMs = maxElapsed.toMillis();
+            this.maxElapsedMs = positiveMillis(maxElapsed, "maxElapsed");
             return this;
         }
 
@@ -249,7 +266,9 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder multiplier(double multiplier) {
-            if (multiplier < 1.0) throw new IllegalArgumentException("multiplier must be >= 1.0");
+            if (!Double.isFinite(multiplier) || multiplier < 1.0) {
+                throw new IllegalArgumentException("multiplier must be finite and >= 1.0");
+            }
             this.multiplier = multiplier;
             return this;
         }
@@ -262,7 +281,7 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder jitterFactor(double jitterFactor) {
-            if (jitterFactor < 0 || jitterFactor > 1) {
+            if (!Double.isFinite(jitterFactor) || jitterFactor < 0 || jitterFactor > 1) {
                 throw new IllegalArgumentException("jitterFactor must be in [0, 1]");
             }
             this.jitterFactor = jitterFactor;
@@ -303,6 +322,22 @@ public final class RetryPolicy {
                 throw new IllegalArgumentException("initialDelay must not be negative");
             }
             return new RetryPolicy(this);
+        }
+
+        private static long positiveMillis(Duration duration, String name) {
+            if (duration == null || duration.isZero() || duration.isNegative()) {
+                throw new IllegalArgumentException(name + " must be positive");
+            }
+            long millis;
+            try {
+                millis = duration.toMillis();
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException(name + " exceeds the supported millisecond range", overflow);
+            }
+            if (millis <= 0) {
+                throw new IllegalArgumentException(name + " must be at least 1 millisecond");
+            }
+            return millis;
         }
     }
 }
