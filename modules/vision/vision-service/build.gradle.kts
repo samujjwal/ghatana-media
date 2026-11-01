@@ -83,6 +83,9 @@ java {
 
 tasks.test {
     useJUnitPlatform()
+    // Vision lifecycle tests bind the shared health server; port 0 keeps the
+    // suite isolated from host-level listeners and parallel test workers.
+    environment("AV_HEALTH_PORT", "0")
 }
 
 val visionPort = System.getenv("VISION_GRPC_PORT") ?: "50054"
