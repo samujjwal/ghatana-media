@@ -1026,6 +1026,245 @@ mod tests {
         panic!("missing WAVE chunk {:?}", String::from_utf8_lossy(wanted));
     }
 
+    const MAX_RESAMPLE_BENCH_WORKERS: usize = 64;
+    const MAX_RESAMPLE_BENCH_SCRATCH_BYTES: usize = 16 * 1024 * 1024;
+    const RESAMPLE_BENCH_REPETITIONS: usize = 3;
+
+    fn seeded_stereo_fixture() -> AudioBuffer {
+        let frames = 48_000usize;
+        let mut samples = Vec::new();
+        samples
+            .try_reserve_exact(frames * 2)
+            .expect("one-second fixture allocation is bounded");
+        for frame in 0..frames {
+            samples.push((frame as f64 * 0.17).sin() as f32 * 0.4);
+            samples.push((frame as f64 * 0.11).cos() as f32 * 0.4);
+        }
+        AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        )
+    }
+
+    fn estimate_resample_bench_scratch(
+        input_samples: usize,
+        output_samples: usize,
+        worker_count: usize,
+        repetitions: usize,
+    ) -> Result<usize> {
+        let output_bytes = output_samples
+            .checked_mul(std::mem::size_of::<f32>())
+            .and_then(|bytes| bytes.checked_mul(worker_count))
+            .ok_or_else(|| {
+                SpeechAudioError::ResourceLimit(
+                    "fixture concurrency output allocation estimate overflowed".to_string(),
+                )
+            })?;
+        let worker_slot_bytes = std::mem::size_of::<AudioBuffer>()
+            .checked_add(std::mem::size_of::<std::time::Duration>())
+            .and_then(|bytes| {
+                bytes.checked_add(std::mem::size_of::<
+                    std::thread::ScopedJoinHandle<'_, Result<(std::time::Duration, AudioBuffer)>>,
+                >())
+            })
+            .and_then(|bytes| bytes.checked_mul(worker_count));
+        let observation_bytes = worker_count
+            .checked_mul(repetitions)
+            .and_then(|count| count.checked_mul(std::mem::size_of::<std::time::Duration>()));
+        let input_bytes = input_samples.checked_mul(std::mem::size_of::<f32>());
+        let reference_bytes = output_samples.checked_mul(std::mem::size_of::<f32>());
+        let fixed_buffer_headers = std::mem::size_of::<AudioBuffer>().checked_mul(2);
+        let result_vector_headers = std::mem::size_of::<Vec<AudioBuffer>>()
+            .checked_add(std::mem::size_of::<Vec<std::time::Duration>>() * 2)
+            .and_then(|bytes| {
+                bytes.checked_add(std::mem::size_of::<
+                    Vec<
+                        std::thread::ScopedJoinHandle<
+                            '_,
+                            Result<(std::time::Duration, AudioBuffer)>,
+                        >,
+                    >,
+                >())
+            });
+        let scratch_bytes = worker_slot_bytes
+            .and_then(|bytes| bytes.checked_add(output_bytes))
+            .and_then(|bytes| bytes.checked_add(observation_bytes?))
+            .and_then(|bytes| bytes.checked_add(input_bytes?))
+            .and_then(|bytes| bytes.checked_add(reference_bytes?))
+            .and_then(|bytes| bytes.checked_add(fixed_buffer_headers?))
+            .and_then(|bytes| bytes.checked_add(result_vector_headers?))
+            .and_then(|bytes| bytes.checked_add(std::mem::size_of::<std::sync::Barrier>()))
+            .and_then(|bytes| {
+                bytes.checked_add(std::mem::size_of::<
+                    std::sync::Mutex<Option<Option<std::sync::Arc<std::sync::Barrier>>>>,
+                >())
+            })
+            .and_then(|bytes| bytes.checked_add(std::mem::size_of::<std::sync::Condvar>()))
+            .ok_or_else(|| {
+                SpeechAudioError::ResourceLimit(
+                    "fixture concurrency scratch estimate overflowed".to_string(),
+                )
+            })?;
+        if scratch_bytes > MAX_RESAMPLE_BENCH_SCRATCH_BYTES {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "fixture concurrency scratch estimate {scratch_bytes} exceeds {} byte budget",
+                MAX_RESAMPLE_BENCH_SCRATCH_BYTES
+            )));
+        }
+        Ok(scratch_bytes)
+    }
+
+    fn run_concurrent_resample_fixture(
+        input: &AudioBuffer,
+        expected: &AudioBuffer,
+        worker_count: usize,
+        repetitions: usize,
+    ) -> Result<(std::time::Duration, Vec<std::time::Duration>, usize)> {
+        if worker_count == 0 || worker_count > MAX_RESAMPLE_BENCH_WORKERS {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "fixture concurrency must be within 1..={MAX_RESAMPLE_BENCH_WORKERS} workers"
+            )));
+        }
+        if repetitions == 0 {
+            return Err(SpeechAudioError::InvalidInput(
+                "fixture repetition count must be positive".to_string(),
+            ));
+        }
+        let scratch_bytes = estimate_resample_bench_scratch(
+            input.samples.len(),
+            expected.samples.len(),
+            worker_count,
+            repetitions,
+        )?;
+
+        let mut batch_wall_elapsed = std::time::Duration::ZERO;
+        let mut latencies = Vec::new();
+        latencies
+            .try_reserve_exact(worker_count * repetitions)
+            .map_err(|error| {
+                SpeechAudioError::ResourceLimit(format!(
+                    "cannot reserve bounded fixture latency observations: {error}"
+                ))
+            })?;
+
+        for _ in 0..repetitions {
+            let (wall_elapsed, batch_latencies) = std::thread::scope(|scope| -> Result<_> {
+                let mut handles = Vec::new();
+                handles.try_reserve_exact(worker_count).map_err(|error| {
+                    SpeechAudioError::ResourceLimit(format!(
+                        "cannot reserve bounded fixture worker handles: {error}"
+                    ))
+                })?;
+                let gate = std::sync::Arc::new((
+                    std::sync::Mutex::new(None::<Option<std::sync::Arc<std::sync::Barrier>>>),
+                    std::sync::Condvar::new(),
+                ));
+                let mut batch_latencies = Vec::new();
+                batch_latencies
+                    .try_reserve_exact(worker_count)
+                    .map_err(|error| {
+                        SpeechAudioError::ResourceLimit(format!(
+                            "cannot reserve bounded fixture batch latencies: {error}"
+                        ))
+                    })?;
+                let mut outputs = Vec::new();
+                outputs.try_reserve_exact(worker_count).map_err(|error| {
+                    SpeechAudioError::ResourceLimit(format!(
+                        "cannot reserve bounded fixture outputs: {error}"
+                    ))
+                })?;
+
+                for _ in 0..worker_count {
+                    let worker_gate = std::sync::Arc::clone(&gate);
+                    match std::thread::Builder::new()
+                        .name("speech-audio-resample-fixture".to_string())
+                        .spawn_scoped(scope, move || {
+                            let (lock, ready) = &*worker_gate;
+                            let state = lock
+                                .lock()
+                                .unwrap_or_else(std::sync::PoisonError::into_inner);
+                            let state = ready
+                                .wait_while(state, |state| state.is_none())
+                                .unwrap_or_else(std::sync::PoisonError::into_inner);
+                            let Some(Some(barrier)) = state.as_ref() else {
+                                return Err(SpeechAudioError::ResourceLimit(
+                                    "fixture worker start was cancelled".to_string(),
+                                ));
+                            };
+                            let barrier = std::sync::Arc::clone(barrier);
+                            drop(state);
+                            barrier.wait();
+                            let start = std::time::Instant::now();
+                            let output = Resampler::new(16_000).resample(input)?;
+                            Ok::<_, SpeechAudioError>((start.elapsed(), output))
+                        }) {
+                        Ok(handle) => handles.push(handle),
+                        Err(error) => {
+                            let (lock, ready) = &*gate;
+                            *lock
+                                .lock()
+                                .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(None);
+                            ready.notify_all();
+                            for handle in handles {
+                                let _ = handle.join();
+                            }
+                            return Err(SpeechAudioError::ResourceLimit(format!(
+                                "cannot start bounded fixture worker: {error}"
+                            )));
+                        }
+                    }
+                }
+
+                let barrier = std::sync::Arc::new(std::sync::Barrier::new(worker_count + 1));
+                let (lock, ready) = &*gate;
+                *lock
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner) =
+                    Some(Some(std::sync::Arc::clone(&barrier)));
+                ready.notify_all();
+                let wall_start = std::time::Instant::now();
+                barrier.wait();
+                for handle in handles {
+                    let (latency, output) = handle.join().map_err(|_| {
+                        SpeechAudioError::ResourceLimit(
+                            "fixture resampler worker panicked".to_string(),
+                        )
+                    })??;
+                    batch_latencies.push(latency);
+                    outputs.push(output);
+                }
+                let elapsed = wall_start.elapsed();
+                if outputs.iter().any(|output| {
+                    output.config.sample_rate != expected.config.sample_rate
+                        || output.config.channels != expected.config.channels
+                        || output.samples != expected.samples
+                        || output.samples.iter().any(|sample| !sample.is_finite())
+                }) {
+                    return Err(SpeechAudioError::InvalidInput(
+                        "fixture resampler output differs from deterministic reference".to_string(),
+                    ));
+                }
+                drop(outputs);
+                Ok((elapsed, batch_latencies))
+            })?;
+            batch_wall_elapsed += wall_elapsed;
+            latencies.extend(batch_latencies);
+        }
+        Ok((batch_wall_elapsed, latencies, scratch_bytes))
+    }
+
+    fn nearest_rank_percentile(
+        sorted: &[std::time::Duration],
+        percentile: usize,
+    ) -> std::time::Duration {
+        let rank = (sorted.len() * percentile).div_ceil(100).max(1);
+        sorted[rank - 1]
+    }
+
     #[test]
     fn decoded_duration_matches_buffer_formula_without_requiring_valid_rates() {
         let decoded = DecodedAudio {
@@ -1308,20 +1547,7 @@ mod tests {
         // Seeded measurement smoke only: records real-time factor for resample
         // and WAV decode under a generous bounded-scratch ceiling. No baseline
         // is asserted; the absolute bound only guards pathological regression.
-        let frames = 48_000usize;
-        let mut samples = Vec::with_capacity(frames * 2);
-        for frame in 0..frames {
-            samples.push((frame as f64 * 0.17).sin() as f32 * 0.4);
-            samples.push((frame as f64 * 0.11).cos() as f32 * 0.4);
-        }
-        let input = AudioBuffer::new(
-            samples,
-            AudioConfig {
-                sample_rate: 48_000,
-                channels: 2,
-                sample_format: SampleFormat::F32,
-            },
-        );
+        let input = seeded_stereo_fixture();
 
         let start = std::time::Instant::now();
         let output = Resampler::new(16_000).resample(&input).unwrap();
@@ -1348,6 +1574,41 @@ mod tests {
             resample_elapsed.as_secs_f64() < 30.0,
             "resample pathologically slow: {resample_elapsed:?}"
         );
+        drop(decoded);
+        drop(output);
+
+        let expected = Resampler::new(16_000).resample(&input).unwrap();
+        for worker_count in [1usize, 16, 64] {
+            let (wall_elapsed, mut latencies, scratch_bytes) = run_concurrent_resample_fixture(
+                &input,
+                &expected,
+                worker_count,
+                RESAMPLE_BENCH_REPETITIONS,
+            )
+            .unwrap();
+            latencies.sort_unstable();
+            let audio_seconds =
+                input.duration_seconds() * worker_count as f64 * RESAMPLE_BENCH_REPETITIONS as f64;
+            println!(
+                "fixture_local_resample_concurrency workers={worker_count} repetitions={RESAMPLE_BENCH_REPETITIONS} latency_p50_ms={:.3} latency_p95_ms={:.3} aggregate_rtf={:.6} estimated_tracked_bytes={scratch_bytes}",
+                nearest_rank_percentile(&latencies, 50).as_secs_f64() * 1_000.0,
+                nearest_rank_percentile(&latencies, 95).as_secs_f64() * 1_000.0,
+                wall_elapsed.as_secs_f64() / audio_seconds
+            );
+        }
+        assert!(matches!(
+            run_concurrent_resample_fixture(&input, &expected, 65, RESAMPLE_BENCH_REPETITIONS),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        assert!(matches!(
+            estimate_resample_bench_scratch(
+                input.samples.len(),
+                MAX_RESAMPLE_BENCH_SCRATCH_BYTES,
+                1,
+                RESAMPLE_BENCH_REPETITIONS,
+            ),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
     }
 
     #[test]
