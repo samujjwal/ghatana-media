@@ -4,6 +4,7 @@ import {
   MediaCanonicalErrorSchema,
   MultimodalAnalysisRequestSchema,
   ProviderCapabilitySchema,
+  SynthesisResultSchema,
   TranscriptionResultSchema,
   normalizeLegacyMediaJobState,
   observeMediaJobState,
@@ -176,6 +177,62 @@ describe("media contracts", () => {
     expect(() => UploadSessionSchema.parse({
       ...session, partSizeBytes: 5_368_709_121,
     })).toThrow();
+    for (const partSizeBytes of [0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+      expect(() => UploadSessionSchema.parse({ ...session, partSizeBytes })).toThrow();
+    }
+  });
+
+  it("applies exact safe-integer semantics to every declared byte and millisecond result field", () => {
+    const synthesis = {
+      artifactId: "artifact-1",
+      voiceId: "voice-1",
+      providerId: "provider-1",
+      durationMs: Number.MAX_SAFE_INTEGER,
+      characterCount: Number.MAX_SAFE_INTEGER,
+      processingTimeMs: Number.MAX_SAFE_INTEGER,
+    };
+    expect(SynthesisResultSchema.parse(synthesis)).toMatchObject(synthesis);
+    for (const field of ["durationMs", "characterCount", "processingTimeMs"] as const) {
+      for (const value of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+        expect(() => SynthesisResultSchema.parse({ ...synthesis, [field]: value }))
+          .toThrow();
+      }
+    }
+
+    const capability = {
+      id: "capability-1",
+      providerId: "provider-1",
+      operation: "TRANSCRIBE" as const,
+      state: "ACTIVE" as const,
+      supportedMimeTypes: ["audio/wav"],
+      supportedLanguages: ["en"],
+      maxInputBytes: Number.MAX_SAFE_INTEGER,
+      maxDurationMs: Number.MAX_SAFE_INTEGER,
+      streamingSupported: false,
+      cancellationSupported: true,
+      lastCheckedAt: timestamp,
+    };
+    expect(ProviderCapabilitySchema.parse(capability)).toMatchObject(capability);
+    for (const field of ["maxInputBytes", "maxDurationMs"] as const) {
+      for (const value of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+        expect(() => ProviderCapabilitySchema.parse({ ...capability, [field]: value }))
+          .toThrow();
+      }
+    }
+
+    const error = {
+      code: "RATE_LIMITED",
+      message: "retry later",
+      correlationId: "correlation-1",
+      retryable: true,
+      category: "RATE_LIMIT" as const,
+      retryAfterMs: Number.MAX_SAFE_INTEGER,
+    };
+    expect(MediaCanonicalErrorSchema.parse(error)).toMatchObject(error);
+    for (const retryAfterMs of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+      expect(() => MediaCanonicalErrorSchema.parse({ ...error, retryAfterMs }))
+        .toThrow();
+    }
   });
 
   it("rejects impossible upload progress", () => {
