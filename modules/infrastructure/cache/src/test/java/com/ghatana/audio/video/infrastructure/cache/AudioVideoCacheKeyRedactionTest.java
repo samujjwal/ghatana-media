@@ -15,6 +15,9 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,14 +38,14 @@ class AudioVideoCacheKeyRedactionTest {
         String tenantKey = "media-cache:tenant-987-secret:transcript-654-private";
 
         String reference = AudioVideoCache.keyReference(tenantKey);
-        assertThat(reference).matches("sha256:[0-9a-f]{12}");
+        assertThat(reference).matches("hmac256:[0-9a-f]{24}");
         assertThat(reference).isEqualTo(AudioVideoCache.keyReference(tenantKey));
         assertThat(reference).doesNotContain("tenant-987-secret", "transcript-654-private",
                 "tenant", "secret");
         assertThat(AudioVideoCache.keyReference(
                         "media-cache:tenant-987-secret:other-id"))
                 .isNotEqualTo(reference);
-        assertThat(AudioVideoCache.keyReference(12345)).matches("sha256:[0-9a-f]{12}");
+        assertThat(AudioVideoCache.keyReference(12345)).matches("hmac256:[0-9a-f]{24}");
     }
 
     @Test
@@ -71,6 +74,41 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void equalAudioFingerprintDoesNotProduceCrossTenantCacheHits() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        String audioFingerprint = "audio-sha256:" + "a".repeat(64);
+        String tenantOneKey = cache.buildKey("tenant-one", audioFingerprint);
+        String tenantTwoKey = cache.buildKey("tenant-two", audioFingerprint);
+        ConcurrentHashMap<String, String> values = new ConcurrentHashMap<>();
+        AtomicInteger tenantOneLoads = new AtomicInteger();
+        AtomicInteger tenantTwoLoads = new AtomicInteger();
+        when(port.get(org.mockito.ArgumentMatchers.anyString())).thenAnswer(invocation ->
+                AsyncOperation.success(Optional.ofNullable(values.get(invocation.getArgument(0)))));
+        when(port.put(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(Duration.class)))
+                .thenAnswer(invocation -> {
+                    values.put(invocation.getArgument(0), invocation.getArgument(1));
+                    return AsyncOperation.success(null);
+                });
+
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(tenantOneKey, ignored -> {
+            tenantOneLoads.incrementAndGet();
+            return AsyncOperation.success("tenant-one-transcript");
+        }))).isEqualTo("tenant-one-transcript");
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(tenantTwoKey, ignored -> {
+            tenantTwoLoads.incrementAndGet();
+            return AsyncOperation.success("tenant-two-transcript");
+        }))).isEqualTo("tenant-two-transcript");
+
+        assertThat(tenantOneKey).isNotEqualTo(tenantTwoKey);
+        assertThat(tenantOneLoads).hasValue(1);
+        assertThat(tenantTwoLoads).hasValue(1);
+        assertThat(values).containsEntry(tenantOneKey, "tenant-one-transcript")
+                .containsEntry(tenantTwoKey, "tenant-two-transcript");
+    }
+
+    @Test
     void backendFailureLogsNeverRenderRawKeyOrThrowableMessage() {
         String key = "media-cache:tenant-987-secret:transcript-654-private";
         String exceptionMarker = "backend failure for " + key + " secret-cache-material";
@@ -84,7 +122,8 @@ class AudioVideoCacheKeyRedactionTest {
         DistributedCacheService service = mock(DistributedCacheService.class);
         when(service.invalidateAsync(key)).thenReturn(AsyncOperation.failure(failure));
 
-        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        String secretNamespace = "secret-marker-cache-namespace";
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, secretNamespace);
         AudioVideoCache<String, String> serviceCache =
                 new AudioVideoCache<>(service, "transcription");
         try (LogCapture logs = capture(AudioVideoCache.class)) {
@@ -101,8 +140,9 @@ class AudioVideoCacheKeyRedactionTest {
             // invalidation is rejected locally and produces no backend error log.
             assertThat(logs.entries).hasSize(4);
             assertThat(output).contains("causeType=IllegalStateException", "keyRef="
-                    + AudioVideoCache.keyReference(key), "namespace=transcription");
-            assertThat(output).doesNotContain(key, exceptionMarker, "secret-cache-material");
+                    + AudioVideoCache.keyReference(key), "namespaceRef="
+                    + AudioVideoCache.keyReference(secretNamespace));
+            assertThat(output).doesNotContain(key, exceptionMarker, "secret-cache-material", secretNamespace);
             assertThat(logs.entries).allSatisfy(entry ->
                     assertThat(entry).doesNotContain("java.lang.IllegalStateException:"));
         }

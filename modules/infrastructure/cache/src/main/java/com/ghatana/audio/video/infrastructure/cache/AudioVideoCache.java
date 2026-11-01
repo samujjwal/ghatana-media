@@ -5,6 +5,8 @@ import com.ghatana.core.async.AsyncOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,6 +31,8 @@ public class AudioVideoCache<K, V> {
     private static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
     private static final Duration DEFAULT_CACHE_OPERATION_TIMEOUT = Duration.ofSeconds(5);
     private static final int MAX_IN_FLIGHT_KEYS = 1_024;
+    /** Process-local key keeps low-entropy tenant and entity identifiers resistant to dictionary recovery. */
+    private static final byte[] DIAGNOSTIC_REFERENCE_KEY = createDiagnosticReferenceKey();
     
     private final DistributedCachePort<K, V> cachePort;
     private final String namespace;
@@ -71,22 +75,35 @@ public class AudioVideoCache<K, V> {
     /**
      * Bounded, redacted key reference for diagnostics. Cache keys can embed
      * tenant, principal, artifact or transcript identity, so the raw key is
-     * never written to logs or metrics; a fixed-length SHA-256 prefix keeps
-     * entries correlatable without disclosing the key material.
+     * never written to logs or metrics; a process-keyed, fixed-length HMAC
+     * keeps entries correlatable within this process without exposing a
+     * dictionary-testable hash of low-entropy identifiers.
      */
     static String keyReference(Object key) {
         try {
-            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
-                    .digest(String.valueOf(key).getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder ref = new StringBuilder("sha256:");
-            for (int i = 0; i < 6; i++) {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(DIAGNOSTIC_REFERENCE_KEY, "HmacSHA256"));
+            byte[] digest = mac.doFinal(String.valueOf(key)
+                    .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder ref = new StringBuilder("hmac256:");
+            for (int i = 0; i < 12; i++) {
                 ref.append(Character.forDigit((digest[i] >> 4) & 0xf, 16))
                         .append(Character.forDigit(digest[i] & 0xf, 16));
             }
             return ref.toString();
-        } catch (java.security.NoSuchAlgorithmException failure) {
-            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        } catch (java.security.GeneralSecurityException failure) {
+            throw new IllegalStateException("HMAC-SHA256 is unavailable", failure);
         }
+    }
+
+    private static byte[] createDiagnosticReferenceKey() {
+        byte[] key = new byte[32];
+        new java.security.SecureRandom().nextBytes(key);
+        return key;
+    }
+
+    private String namespaceReference() {
+        return keyReference(namespace);
     }
 
     /**
@@ -116,8 +133,8 @@ public class AudioVideoCache<K, V> {
                             || pendingCacheWrites.containsKey(key)) {
                         accepted = Optional.of(Optional.empty());
                     } else if (error != null) {
-                        LOG.error("Cache get error: namespace={}, keyRef={}, causeType={}",
-                                namespace, keyReference(key), failureType(error));
+                        LOG.error("Cache get error: namespaceRef={}, keyRef={}, causeType={}",
+                                namespaceReference(), keyReference(key), failureType(error));
                         accepted = Optional.empty();
                         failure = error;
                     } else if (opt == null) {
@@ -125,9 +142,9 @@ public class AudioVideoCache<K, V> {
                         failure = new IllegalStateException("Cache read returned no outcome");
                     } else {
                         if (opt.isPresent()) {
-                            LOG.trace("Cache hit: namespace={}, keyRef={}", namespace, keyReference(key));
+                            LOG.trace("Cache hit: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         } else {
-                            LOG.trace("Cache miss: namespace={}, keyRef={}", namespace, keyReference(key));
+                            LOG.trace("Cache miss: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         }
                         accepted = Optional.of(opt);
                         capturedEpoch.state.deliveries++;
@@ -147,16 +164,16 @@ public class AudioVideoCache<K, V> {
                 CompletableFuture.delayedExecutor(cacheOperationTimeoutNanos, TimeUnit.NANOSECONDS)
                         .execute(() -> {
                             if (!settled.compareAndSet(false, true)) return;
-                            LOG.warn("Cache get timed out: namespace={}, keyRef={}",
-                                    namespace, keyReference(key));
+                            LOG.warn("Cache get timed out: namespaceRef={}, keyRef={}",
+                                    namespaceReference(), keyReference(key));
                             releaseReadSnapshot(key, capturedEpoch);
                             result.completeExceptionally(new java.util.concurrent.TimeoutException("Cache read timed out"));
                         });
             }
         } catch (RuntimeException failure) {
             if (settled.compareAndSet(false, true)) {
-                LOG.error("Cache get error: namespace={}, keyRef={}, causeType={}",
-                        namespace, keyReference(key), failureType(failure));
+                LOG.error("Cache get error: namespaceRef={}, keyRef={}, causeType={}",
+                        namespaceReference(), keyReference(key), failureType(failure));
                 releaseReadSnapshot(key, capturedEpoch);
                 result.completeExceptionally(failure);
             }
@@ -198,7 +215,7 @@ public class AudioVideoCache<K, V> {
         if (!reserveInFlightSlot()) {
             existing = inFlightLoads.get(key);
             if (existing != null) return AsyncOperation.from(existing);
-            LOG.warn("Cache load coordination capacity reached: namespace={}", namespace);
+            LOG.warn("Cache load coordination capacity reached: namespaceRef={}", namespaceReference());
             return AsyncOperation.failure(new IllegalStateException(
                     "Cache load coordination capacity reached"));
         }
@@ -245,8 +262,8 @@ public class AudioVideoCache<K, V> {
                 if (!cacheEpochCurrent(key, capturedEpoch)) {
                     completeFrom(loadWithoutCache(key, loader), operationFuture);
                 } else if (readError != null) {
-                    LOG.warn("Cache get failed; loading from source: namespace={}, keyRef={}, causeType={}",
-                            namespace, keyReference(key), failureType(readError));
+                    LOG.warn("Cache get failed; loading from source: namespaceRef={}, keyRef={}, causeType={}",
+                            namespaceReference(), keyReference(key), failureType(readError));
                     completeFrom(loadWithoutCache(key, loader), operationFuture);
                 } else if (cached != null && cached.isPresent()) {
                     if (!completeFromCacheIfCurrent(key, capturedEpoch, cached.get(), operationFuture)) {
@@ -261,8 +278,8 @@ public class AudioVideoCache<K, V> {
                         cacheOperationTimeoutNanos, TimeUnit.NANOSECONDS)
                         .execute(() -> {
                             if (!readSettled.compareAndSet(false, true)) return;
-                            LOG.warn("Cache get timed out; loading from source: namespace={}, keyRef={}",
-                                    namespace, keyReference(key));
+                            LOG.warn("Cache get timed out; loading from source: namespaceRef={}, keyRef={}",
+                                    namespaceReference(), keyReference(key));
                             completeFrom(loadWithoutCache(key, loader), operationFuture);
                         });
             }
@@ -270,8 +287,8 @@ public class AudioVideoCache<K, V> {
             if (!readSettled.compareAndSet(false, true)) {
                 return AsyncOperation.from(candidate);
             }
-            LOG.warn("Cache get failed; loading from source: namespace={}, keyRef={}, causeType={}",
-                    namespace, keyReference(key), failureType(cacheFailure));
+            LOG.warn("Cache get failed; loading from source: namespaceRef={}, keyRef={}, causeType={}",
+                    namespaceReference(), keyReference(key), failureType(cacheFailure));
             completeFrom(loadWithoutCache(key, loader), operationFuture);
         }
         return observeLoad(candidate, key);
@@ -280,8 +297,8 @@ public class AudioVideoCache<K, V> {
     private AsyncOperation<V> observeLoad(CompletableFuture<V> candidate, K key) {
         return AsyncOperation.from(candidate).whenComplete((ignored, error) -> {
             if (error != null) {
-                LOG.error("Cache load error: namespace={}, keyRef={}, causeType={}",
-                        namespace, keyReference(key), failureType(error));
+                LOG.error("Cache load error: namespaceRef={}, keyRef={}, causeType={}",
+                        namespaceReference(), keyReference(key), failureType(error));
             }
         });
     }
@@ -490,8 +507,8 @@ public class AudioVideoCache<K, V> {
                     cacheWrite.whenComplete((ignored, putError) -> {
                         settlePendingCacheWrite(key, marker, putError == null);
                         if (putError != null) LOG.warn(
-                                "Cache put failed; returning source value: namespace={}, keyRef={}, causeType={}",
-                                namespace, keyReference(key), failureType(putError));
+                                "Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
+                                namespaceReference(), keyReference(key), failureType(putError));
                         result.complete(value);
                     });
                     if (!result.isDone()) {
@@ -503,8 +520,8 @@ public class AudioVideoCache<K, V> {
                     // stays until the port reports the actual write outcome, even after timeout.
                     callerResult.complete(value);
                 } catch (RuntimeException cacheFailure) {
-                    LOG.warn("Cache put failed; returning source value: namespace={}, keyRef={}, causeType={}",
-                            namespace, keyReference(key), failureType(cacheFailure));
+                    LOG.warn("Cache put failed; returning source value: namespaceRef={}, keyRef={}, causeType={}",
+                            namespaceReference(), keyReference(key), failureType(cacheFailure));
                     result.complete(value);
                     callerResult.complete(value);
                 }
@@ -545,11 +562,11 @@ public class AudioVideoCache<K, V> {
                 service.invalidateAsync(stringKey).whenComplete((ignored, error) -> {
                     settlePendingCacheWrite(key, marker, error == null);
                     if (error != null) {
-                        LOG.error("Cache invalidate error: namespace={}, keyRef={}, causeType={}",
-                                namespace, keyReference(key), failureType(error));
+                        LOG.error("Cache invalidate error: namespaceRef={}, keyRef={}, causeType={}",
+                                namespaceReference(), keyReference(key), failureType(error));
                         result.completeExceptionally(error);
                     } else {
-                        LOG.debug("Cache invalidate: namespace={}, keyRef={}", namespace, keyReference(key));
+                        LOG.debug("Cache invalidate: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         result.complete(null);
                     }
                 });
@@ -590,8 +607,8 @@ public class AudioVideoCache<K, V> {
                     if (complete) portInvalidationPending = false;
                 }
                 if (error != null) {
-                    LOG.error("Cache invalidate all error: namespace={}, causeType={}",
-                            namespace, failureType(error));
+                    LOG.error("Cache invalidate all error: namespaceRef={}, causeType={}",
+                            namespaceReference(), failureType(error));
                     result.completeExceptionally(error);
                 } else if (outcome == null) {
                     result.completeExceptionally(new IllegalStateException(
@@ -600,7 +617,7 @@ public class AudioVideoCache<K, V> {
                     result.completeExceptionally(new IllegalStateException(
                             "Cache port-scope invalidation was incomplete"));
                 } else {
-                    LOG.info("Cache invalidate all: namespace={}", namespace);
+                    LOG.info("Cache invalidate all: namespaceRef={}", namespaceReference());
                     result.complete(null);
                 }
             });
@@ -654,11 +671,11 @@ public class AudioVideoCache<K, V> {
     private AsyncOperation<Void> observePut(AsyncOperation<Void> operation, K key, Duration ttl) {
         return operation.whenComplete((ignored, error) -> {
             if (error == null) {
-                LOG.trace("Cache put: namespace={}, keyRef={}, ttl={}s",
-                        namespace, keyReference(key), ttl.getSeconds());
+                LOG.trace("Cache put: namespaceRef={}, keyRef={}, ttl={}s",
+                        namespaceReference(), keyReference(key), ttl.getSeconds());
             } else {
-                LOG.error("Cache put error: namespace={}, keyRef={}, causeType={}",
-                        namespace, keyReference(key), failureType(error));
+                LOG.error("Cache put error: namespaceRef={}, keyRef={}, causeType={}",
+                        namespaceReference(), keyReference(key), failureType(error));
             }
         });
     }
