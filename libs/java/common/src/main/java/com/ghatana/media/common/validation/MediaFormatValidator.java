@@ -8,7 +8,14 @@ package com.ghatana.media.common.validation;
 
 import com.ghatana.media.common.ValidationError;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Locale;
 
 
 /**
@@ -369,7 +376,53 @@ public final class MediaFormatValidator {
             return ImageValidationResult.error("Image dimensions exceed the supported image bounds");
         }
 
+        String decodeError = validateImageDecode(data, detectedFormat, dims.width, dims.height);
+        if (decodeError != null) {
+            return ImageValidationResult.error(decodeError);
+        }
+
         return ImageValidationResult.success(detectedFormat, data.length, dims.width, dims.height);
+    }
+
+    /** Decode locally supported image formats only after their advertised dimensions are bounded. */
+    private static String validateImageDecode(byte[] data, String detectedFormat, int expectedWidth, int expectedHeight) {
+        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(data))) {
+            if (input == null) {
+                return "Image data cannot be opened by an installed decoder";
+            }
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+            if (!readers.hasNext()) {
+                return "Image data cannot be decoded by an installed codec";
+            }
+
+            ImageReader reader = readers.next();
+            try {
+                String readerFormat = reader.getFormatName().toUpperCase(Locale.ROOT);
+                if (!readerFormat.equals(detectedFormat)) {
+                    return "Image decoder format does not match detected format";
+                }
+                reader.setInput(input, true, true);
+                int decodedWidth = reader.getWidth(0);
+                int decodedHeight = reader.getHeight(0);
+                if (decodedWidth < 1 || decodedHeight < 1
+                        || decodedWidth > MAX_SUPPORTED_IMAGE_DIMENSION
+                        || decodedHeight > MAX_SUPPORTED_IMAGE_DIMENSION
+                        || (long) decodedWidth * decodedHeight > MAX_SUPPORTED_IMAGE_PIXELS) {
+                    return "Decoded image dimensions exceed the supported image bounds";
+                }
+                if (decodedWidth != expectedWidth || decodedHeight != expectedHeight) {
+                    return "Image header dimensions disagree with decoded dimensions";
+                }
+                if (reader.read(0) == null) {
+                    return "Image decoder returned no image";
+                }
+                return null;
+            } finally {
+                reader.dispose();
+            }
+        } catch (IOException | RuntimeException e) {
+            return "Image payload cannot be decoded as " + detectedFormat;
+        }
     }
 
     private static String validatePngHeaderAndDimensions(byte[] data) {

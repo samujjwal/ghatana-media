@@ -2,6 +2,10 @@ package com.ghatana.media.common.validation;
 
 import org.junit.jupiter.api.Test;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -132,16 +136,15 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
-    void validatesPngIhdrStructureAndSupportedUnsignedDimensions() {
-        var dimensionBoundary = MediaFormatValidator.validateImage(pngHeader(8192, 1), "PNG");
+    void validatesPngIhdrStructureAndSupportedUnsignedDimensions() throws IOException {
+        var dimensionBoundary = MediaFormatValidator.validateImage(encodedImage("PNG", 8192, 1), "PNG");
         assertThat(dimensionBoundary.valid).isTrue();
         assertThat(dimensionBoundary.width).isEqualTo(8192);
         assertThat(dimensionBoundary.height).isEqualTo(1);
 
         var pixelBoundary = MediaFormatValidator.validateImage(pngHeader(4000, 4000), "PNG");
-        assertThat(pixelBoundary.valid).isTrue();
-        assertThat(pixelBoundary.width).isEqualTo(4000);
-        assertThat(pixelBoundary.height).isEqualTo(4000);
+        assertThat(pixelBoundary.valid).isFalse();
+        assertThat(pixelBoundary.errorMessage).contains("cannot be decoded");
 
         assertThat(MediaFormatValidator.validateImage(pngHeader(4001, 4000), "PNG").errorMessage)
                 .contains("supported image bounds");
@@ -166,8 +169,8 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
-    void pngSpecificBoundsDoNotChangeOtherImageHeaderHandling() {
-        byte[] jpegHeader = jpegHeader(640, 480);
+    void pngSpecificBoundsDoNotChangeOtherImageHeaderHandling() throws IOException {
+        byte[] jpegHeader = encodedImage("JPEG", 640, 480);
         var result = MediaFormatValidator.validateImage(jpegHeader, "JPEG");
         assertThat(result.valid).isTrue();
         assertThat(result.width).isEqualTo(640);
@@ -177,6 +180,25 @@ class MediaFormatValidatorQualificationTest {
         assertThat(MediaFormatValidator.validateImage(
                 new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 4, 0, 0}, "JPEG").errorMessage)
                 .contains("valid dimensions");
+    }
+
+    @Test
+    void requiresInstalledDecoderToDecodeTheAdvertisedPngJpegAndGifPayload() throws IOException {
+        for (String format : new String[] {"PNG", "JPEG", "GIF"}) {
+            byte[] encoded = encodedImage(format, 2, 1);
+            var valid = MediaFormatValidator.validateImage(encoded, format);
+            assertThat(valid.valid).as(format).isTrue();
+            assertThat(valid.format).as(format).isEqualTo(format);
+
+            byte[] headerOnly = switch (format) {
+                case "PNG" -> pngHeader(2, 1);
+                case "JPEG" -> jpegHeader(2, 1);
+                default -> gifHeader(2, 1);
+            };
+            var invalid = MediaFormatValidator.validateImage(headerOnly, format);
+            assertThat(invalid.valid).as(format).isFalse();
+            assertThat(invalid.errorMessage).as(format).contains("cannot be decoded");
+        }
     }
 
     @Test
@@ -262,6 +284,15 @@ class MediaFormatValidatorQualificationTest {
         return new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xC0,
                 0, 11, 8, (byte) (height >>> 8), (byte) height,
                 (byte) (width >>> 8), (byte) width, 1, 1, 0x11, 0};
+    }
+
+    private static byte[] encodedImage(String format, int width, int height) throws IOException {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        if (!ImageIO.write(image, format, output)) {
+            throw new IOException("No local writer for " + format);
+        }
+        return output.toByteArray();
     }
 
     private static void putAscii(byte[] bytes, int offset, String text) {
