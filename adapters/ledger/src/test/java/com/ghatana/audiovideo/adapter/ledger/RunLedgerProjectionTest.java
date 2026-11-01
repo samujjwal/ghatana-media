@@ -102,7 +102,7 @@ class RunLedgerProjectionTest {
         java.util.concurrent.atomic.AtomicBoolean down = new java.util.concurrent.atomic.AtomicBoolean(true);
         List<RunLedger> written = new ArrayList<>();
         RunLedgerProjection projection = new RunLedgerProjection(ledger -> {
-            if (down.get()) throw new IllegalStateException("event plane unavailable");
+            if (down.get()) throw new RunLedgerProjection.StoreNotDispatchedException("event plane unavailable");
             written.add(ledger);
         });
         RunLedger record = ledger("r1", JobExecutionState.RUNNING, null, 1, 100, 0);
@@ -116,6 +116,55 @@ class RunLedgerProjectionTest {
         assertThat(retried.disposition()).isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
         assertThat(retried.store()).isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
         assertThat(written).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Lost store acknowledgement fences retries until exact authoritative readback")
+    void ambiguousStoreOutcomeRequiresReadback() {
+        var persisted = new java.util.concurrent.atomic.AtomicReference<RunLedger>();
+        var attempts = new java.util.concurrent.atomic.AtomicInteger();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            attempts.incrementAndGet();
+            persisted.set(record); // effect committed, response then lost
+            throw new IllegalStateException("response lost");
+        });
+        RunLedger record = ledger("uncertain-run", JobExecutionState.RUNNING, null, 1, 100, 0);
+        assertThat(projection.project(record).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.OUTCOME_UNKNOWN);
+        assertThat(projection.project(record).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PENDING_RECONCILIATION);
+        assertThat(attempts).hasValue(1);
+        assertThat(projection.reconcile("uncertain-run", id -> java.util.Optional.empty()))
+                .isEqualTo(RunLedgerProjection.ReconciliationResult.UNRESOLVED);
+        assertThat(projection.project(record).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.OUTCOME_UNKNOWN);
+        assertThat(attempts).hasValue(1);
+        assertThat(projection.reconcile("uncertain-run", id -> java.util.Optional.of(persisted.get())))
+                .isEqualTo(RunLedgerProjection.ReconciliationResult.CONFIRMED);
+        assertThat(projection.project(record).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.REPLAYED);
+        assertThat(attempts).hasValue(1);
+    }
+
+    @Test
+    @DisplayName("Unknown and fatal store outcomes fence only the affected run")
+    void uncertainEffectDoesNotBlockIndependentRunAndFatalRemainsFenced() {
+        var writes = new java.util.concurrent.atomic.AtomicInteger();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            writes.incrementAndGet();
+            if (record.runId().equals("unknown")) throw new IllegalStateException("response lost");
+            if (record.runId().equals("fatal")) throw new AssertionError("fatal after dispatch");
+        });
+        RunLedger unknown = ledger("unknown", JobExecutionState.RUNNING, null, 1, 100, 0);
+        RunLedger other = ledger("other", JobExecutionState.RUNNING, null, 1, 100, 0);
+        RunLedger fatal = ledger("fatal", JobExecutionState.RUNNING, null, 1, 100, 0);
+        assertThat(projection.project(unknown).store()).isEqualTo(RunLedgerProjection.StoreResult.OUTCOME_UNKNOWN);
+        assertThat(projection.project(other).store()).isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> projection.project(fatal))
+                .isInstanceOf(AssertionError.class);
+        assertThat(projection.project(fatal).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PENDING_RECONCILIATION);
+        assertThat(writes).hasValue(3);
     }
 
     @Test

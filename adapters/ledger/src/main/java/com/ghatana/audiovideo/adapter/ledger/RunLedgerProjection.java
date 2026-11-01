@@ -4,6 +4,7 @@ import com.ghatana.datacloud.delivery.ledger.RunLedger;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -38,13 +39,17 @@ public final class RunLedgerProjection {
         /** Older or weaker truth — skipped without touching the store. */
         STALE,
         /** Same attempt at the same logical instant but different truth — rejected. */
-        CONFLICT
+        CONFLICT,
+        /** A prior store call may have committed and must be reconciled first. */
+        PENDING_RECONCILIATION
     }
 
     /** Whether the store acknowledged the projection. */
     public enum StoreResult {
         ACKNOWLEDGED,
         UNAVAILABLE,
+        /** The store may have committed; the acknowledgement is unknown. */
+        OUTCOME_UNKNOWN,
         /** Store was not contacted — nothing newer to write. */
         NOT_ATTEMPTED
     }
@@ -57,8 +62,22 @@ public final class RunLedgerProjection {
         void store(RunLedger ledger) throws Exception;
     }
 
+    /** The store guarantees this exception is raised before any write attempt. */
+    public static final class StoreNotDispatchedException extends Exception {
+        public StoreNotDispatchedException(String message) { super(message); }
+    }
+
+    /** Host-supplied authoritative readback from the same ledger authority. */
+    @FunctionalInterface
+    public interface LedgerReadback {
+        Optional<RunLedger> read(String runId) throws Exception;
+    }
+
+    public enum ReconciliationResult { NO_PENDING, CONFIRMED, UNRESOLVED }
+
     private final LedgerStore store;
     private final Map<String, RunLedger> latestByRunId = new ConcurrentHashMap<>();
+    private final Map<String, RunLedger> uncertainByRunId = new ConcurrentHashMap<>();
     private final Object[] runLocks = new Object[LOCK_STRIPE_COUNT];
 
     public RunLedgerProjection(LedgerStore store) {
@@ -69,27 +88,70 @@ public final class RunLedgerProjection {
     }
 
     /**
-     * Projects one ledger record. A {@code STALE}, {@code REPLAYED} or
-     * {@code CONFLICT} decision never reaches the store; a store failure is
-     * reported as {@link StoreResult#UNAVAILABLE} and the record is not marked
-     * as projected, so a later retry can still deliver it.
+     * Projects one ledger record. An exception after dispatch leaves an
+     * unknown outcome; later writes for that run are held until exact readback.
+     * Only a store-guaranteed pre-dispatch refusal is classified unavailable.
+     * The fence is process-local and does not establish restart durability.
      */
     public ProjectionResult project(RunLedger incoming) {
         Objects.requireNonNull(incoming, "incoming must not be null");
-        Object runLock = runLocks[Math.floorMod(incoming.runId().hashCode(), runLocks.length)];
+        Object runLock = lockFor(incoming.runId());
         synchronized (runLock) {
+            if (uncertainByRunId.containsKey(incoming.runId())) {
+                return new ProjectionResult(Disposition.PENDING_RECONCILIATION, StoreResult.OUTCOME_UNKNOWN);
+            }
             Disposition disposition = disposition(latestByRunId.get(incoming.runId()), incoming);
             if (disposition != Disposition.PROJECTED) {
                 return new ProjectionResult(disposition, StoreResult.NOT_ATTEMPTED);
             }
             try {
                 store.store(incoming);
-            } catch (Exception unavailable) {
+            } catch (StoreNotDispatchedException unavailable) {
                 return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
+            } catch (Exception unknown) {
+                if (unknown instanceof InterruptedException) Thread.currentThread().interrupt();
+                uncertainByRunId.put(incoming.runId(), incoming);
+                return new ProjectionResult(disposition, StoreResult.OUTCOME_UNKNOWN);
+            } catch (Error fatal) {
+                // An effect may have occurred even when the caller must see a
+                // fatal failure. Fence any later in-process retry first.
+                uncertainByRunId.put(incoming.runId(), incoming);
+                throw fatal;
             }
             latestByRunId.put(incoming.runId(), incoming);
             return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
         }
+    }
+
+    /**
+     * Clears an in-process fence only when the trusted ledger readback returns
+     * the exact uncertain record. Missing, different, or failed readback cannot
+     * prove whether the prior effect occurred and keeps the fence in place.
+     */
+    public ReconciliationResult reconcile(String runId, LedgerReadback readback) {
+        Objects.requireNonNull(runId, "runId");
+        Objects.requireNonNull(readback, "readback");
+        synchronized (lockFor(runId)) {
+            RunLedger pending = uncertainByRunId.get(runId);
+            if (pending == null) return ReconciliationResult.NO_PENDING;
+            final Optional<RunLedger> observed;
+            try {
+                observed = readback.read(runId);
+            } catch (Exception unavailable) {
+                if (unavailable instanceof InterruptedException) Thread.currentThread().interrupt();
+                return ReconciliationResult.UNRESOLVED;
+            }
+            if (observed == null || observed.isEmpty() || !pending.equals(observed.get())) {
+                return ReconciliationResult.UNRESOLVED;
+            }
+            latestByRunId.put(runId, pending);
+            uncertainByRunId.remove(runId);
+            return ReconciliationResult.CONFIRMED;
+        }
+    }
+
+    private Object lockFor(String runId) {
+        return runLocks[Math.floorMod(runId.hashCode(), runLocks.length)];
     }
 
     private static Disposition disposition(RunLedger previous, RunLedger incoming) {

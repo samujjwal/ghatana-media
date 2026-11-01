@@ -377,3 +377,13 @@ and the registered package command:
 - Alert rule: `alert:MediaServiceDown`
 - Alert rule: `alert:MediaSLOAvailabilityBreach`
 - Runbook command: `command:check:focused:media`
+
+### Ledger projection uncertainty
+
+`RunLedgerProjection` treats a store exception as an unknown write outcome and
+blocks later writes for that run until a trusted readback returns the exact
+record. A store may report `StoreNotDispatchedException` only when it can prove
+that no write was attempted; that case remains retryable. This fence exists
+only in the current process. Cross-process and restart safety require a durable
+Data Cloud ledger claim or compare-and-set contract and are not established by
+this adapter.
