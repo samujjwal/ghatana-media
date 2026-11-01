@@ -29,9 +29,9 @@
     "phase": "PDP-0",
     "valid": true,
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
-    "exitDigest": "sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a",
+    "exitDigest": "sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
-    "currentnessDigest": "sha256:82306fcef405fe2df0520a0f84af3cae70f6d3e047d3e96258abb7762b1b7d6f",
+    "currentnessDigest": "sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4",
     "currentnessValid": true,
     "matrixCutMatches": true,
     "sourceMapValid": true,
@@ -280,9 +280,9 @@
     "status": "BLOCKED_OWNER_STATUS_JOIN_MISMATCH",
     "valid": false,
     "historicalExitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
-    "historicalExitDigest": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957",
+    "historicalExitDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDirectionsRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
-    "ownerDirectionsDigest": "sha256:4dc505154364b4ef98836e327cc556f1d24adf937d964913caba09c49c4176a4",
+    "ownerDirectionsDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDecisionId": "MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2",
     "supplementalPdp1DefinitionReview": {
       "valid": true,
@@ -323,7 +323,7 @@
       "valid": true,
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-c22-semantic-repair-impact-2026-10-14.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-C22-SEMANTIC-REPAIR-IMPACT-2026-10-14",
-      "digest": "sha256:1ab4f5b6a22ad0e3d5615db5890fa52a738c0a15796df0a9c5b54d2abc9cac39",
+      "digest": "sha256:a8aab8aafd2c76f47965b22bc38e80ee5a32bef64e402c5e1bee789440ca9c93",
       "sourceDeltas": [
         {
           "path": ".product-experience/pdp-1-domain-data/operations.yaml",
@@ -361,7 +361,7 @@
         "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
         "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-        "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+        "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
         "rowChecks": [
           {
             "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -407,9 +407,9 @@
       "valid": false,
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-three-review-source-transition-2026-10-14.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-THREE-REVIEW-SOURCE-TRANSITION-2026-10-14",
-      "digest": "sha256:ae7d99416d30e31ef6dbd4dec92bb2b190cdf9baf47f156e12d3ca08648554bf",
+      "digest": "sha256:cbe96981d3d29496992f9400a424c0d61cb136425cf75fd637ea4f44c9d3f1a4",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-      "predecessorDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+      "predecessorDigest": "sha256:cbe96981d3d29496992f9400a424c0d61cb136425cf75fd637ea4f44c9d3f1a4",
       "rowChecks": [
         {
           "path": ".product-experience/interface-parity/current-source-review.json",
@@ -446,7 +446,7 @@
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-      "predecessorDigest": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+      "predecessorDigest": "sha256:a713333120a056fd6aea3c911e583b529990d06f3c27053b96fa61cba099e83d",
       "sourceDeltas": [
         {
           "path": ".product-experience/decision-log.md",
@@ -504,7 +504,7 @@
       "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
       "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-      "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+      "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
       "rowChecks": [
         {
           "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -573,13 +573,13 @@
       "valid": true,
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-r27-successor-source-impact-2026-10-15-r1.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-R27-SUCCESSOR-SOURCE-IMPACT-2026-10-15-R1",
-      "recordDigest": "sha256:4e280bc6292dda90069119b7902ee91cf842ee66c1f9ffbb042211157810cc06",
+      "recordDigest": "sha256:cfa61d0fc98671e782761f28bbb6bc9f7fca26399a61426820f4028bb931acd2",
       "predecessorPdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
-      "predecessorPdp0ExitDigest": "sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a",
+      "predecessorPdp0ExitDigest": "sha256:cfa61d0fc98671e782761f28bbb6bc9f7fca26399a61426820f4028bb931acd2",
       "predecessorPdp0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
-      "predecessorPdp0CurrentnessDigest": "sha256:82306fcef405fe2df0520a0f84af3cae70f6d3e047d3e96258abb7762b1b7d6f",
+      "predecessorPdp0CurrentnessDigest": "sha256:cfa61d0fc98671e782761f28bbb6bc9f7fca26399a61426820f4028bb931acd2",
       "historicalPdp1ReceiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "historicalPdp1ReceiptDigest": "sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e",
+      "historicalPdp1ReceiptDigest": "sha256:cfa61d0fc98671e782761f28bbb6bc9f7fca26399a61426820f4028bb931acd2",
       "rowChecks": [
         {
           "path": ".product-experience/source-manifest.yaml",
@@ -611,9 +611,9 @@
       "valid": true,
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r3.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-STATUS-JOIN-TEST-REFRESH-2026-10-14-R3",
-      "digest": "sha256:e77d73678f918c7b039545721f9c3559484442d4b0de47bb9a9e3343364dd9bc",
+      "digest": "sha256:1a2504db8453ece17bd7c25040bee5be275b57f64e9e2d87bc49dc12eb3853b2",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r2.json",
-      "predecessorDigest": "sha256:89a8fb541ea527c4b314a7c1c1b588b4465ca33ca2107cc9b7315b4c951c68aa",
+      "predecessorDigest": "sha256:1a2504db8453ece17bd7c25040bee5be275b57f64e9e2d87bc49dc12eb3853b2",
       "sourcePath": "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
       "predecessorSha256": "sha256:ec1169c9c7a5c147dac13a24460d5f73dc9517861752bb0b5b1fe72f9f068d88",
       "observedSha256": "sha256:bb56e5986d7737ff19e62a477710a2e3998d8ee72361c73b205b7796caa72d1c",
@@ -668,7 +668,7 @@
         "predecessorAuthorization": {
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R5",
-          "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
+          "digest": "sha256:e2af44b107f49e6cf22ade98c71bf30a8e92349f6e84d7fc1c4831bbbdda36af",
           "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
           "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "authorized": true
@@ -677,7 +677,7 @@
           "valid": true,
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1",
-          "digest": "sha256:7f38612bf42a08783ac035218a58f3e7f05ae0bb542e8c8c4c07432d2353fdc0",
+          "digest": "sha256:8daee6006e62a49f8745eb97dd924042f806a0d39afed613fcf6305512dd23f9",
           "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
           "matchingDeltaCount": 1,
@@ -696,7 +696,7 @@
         "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
         "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-        "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+        "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
         "rowChecks": [
           {
             "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -755,7 +755,7 @@
     "predecessorMaterialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
     "freshMaterialSourceSetFingerprint": "sha256:2185d5ad62063619b612109d41b6e72fbc9aa9ef9041c5bd6e448f711ca66976",
     "predecessorExitRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "predecessorExitDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "predecessorExitDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "predecessorExitValid": true,
     "predecessorPathCount": 329,
     "observedPathCount": 329,
@@ -865,9 +865,9 @@
       "valid": true,
       "ref": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
       "recordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-      "digest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+      "digest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-      "predecessorDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+      "predecessorDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
       "predecessorPathCount": 329,
       "rows": [
         {
@@ -918,11 +918,11 @@
       "valid": true,
       "recordId": "MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1",
       "impactRef": "docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json",
-      "impactDigest": "sha256:7fe0da3920240dc3f37d9a267f71a6ce25c74ce94586b0157cc9169356f5b996",
+      "impactDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
       "p0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json",
-      "p0ExitDigest": "sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9",
+      "p0ExitDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
       "p0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json",
-      "p0CurrentnessDigest": "sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e",
+      "p0CurrentnessDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
       "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
       "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
       "p0ReporterCurrentDigest": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
@@ -1061,30 +1061,30 @@
         "requiresFreshCurrentness": true,
         "matches": true,
         "impactRef": "docs/implementation/observations/media-discovery-pdp1-c22-semantic-repair-impact-2026-10-14.json",
-        "impactDigest": "sha256:51fe23d5b02a8c08755bd010affa0051cbb87117aaa962fdb2ecdf0a6b5484cd",
+        "impactDigest": "sha256:a8aab8aafd2c76f47965b22bc38e80ee5a32bef64e402c5e1bee789440ca9c93",
         "externalOwnerAcceptance": "NOT_CLAIMED",
         "independentSpecialistAcceptance": "NOT_CLAIMED"
       }
     ],
     "supplementalImpactReviewRef": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json",
-    "supplementalImpactReviewDigest": "sha256:1530e22dfb8c60296123ec95d494c53fc2f5ff81be7c8fc47bf0252661d2655b",
+    "supplementalImpactReviewDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "predecessorReporterImpactRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-    "predecessorReporterImpactDigest": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+    "predecessorReporterImpactDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "currentCutSourceImpactReview": {
       "valid": false,
       "impactRef": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json",
-      "impactDigest": "sha256:1530e22dfb8c60296123ec95d494c53fc2f5ff81be7c8fc47bf0252661d2655b",
+      "impactDigest": "sha256:fa3d9acba5e0d88623fc944aa484d70ff0cbf0abaacf830b0ea9b5ce843df140",
       "impactRecordId": "MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
       "testEvidenceValid": true,
       "reporterSuccessorImpact": {
         "valid": true,
         "recordId": "MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1",
         "impactRef": "docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json",
-        "impactDigest": "sha256:7fe0da3920240dc3f37d9a267f71a6ce25c74ce94586b0157cc9169356f5b996",
+        "impactDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
         "p0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json",
-        "p0ExitDigest": "sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9",
+        "p0ExitDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
         "p0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json",
-        "p0CurrentnessDigest": "sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e",
+        "p0CurrentnessDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
         "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
         "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
         "p0ReporterCurrentDigest": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
@@ -1227,7 +1227,7 @@
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r4.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-INTERFACE-REVIEW-IMPACT-2026-10-14-R4",
-      "digest": "sha256:24a7cb29ca1893a7a2e02d7f7586399f4dfd8db670f9bf038c6b9cf6687ab2b7",
+      "digest": "sha256:f4a933ee9a63c838bab20788299c3503fdd260212d05234fcb2c7c599ce9b38c",
       "path": ".product-experience/interface-parity/current-source-review.json",
       "predecessorSha256": "sha256:9f9150548c5e4e97881cc08dd28df0c4b892d88ad51e783e5f51465e1d8715c2",
       "observedSha256": "sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd",
@@ -1238,7 +1238,7 @@
       "valid": false,
       "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r5.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R5",
-      "digest": "sha256:5ca5b8e51183041164396c34f69e986130983c02579fce1ccfeea85ff2280de7",
+      "digest": "sha256:7394f6b88790ca23db22e034d42b0e47a89086659efbb3d1f0ae1d9736ee608b",
       "path": ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml",
       "predecessorSha256": "sha256:f6155c1bf0a1851b0fa45f631ce09eb459d2b8d5d8df6cd03a3dd6d634be19cf",
       "observedSha256": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b",
@@ -1249,7 +1249,7 @@
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r6.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-TEST-CENSUS-IMPACT-2026-10-14-R6",
-      "digest": "sha256:1ada99a9af6a8e41b39bcf53a9d6269020077755c4fa474907ca309e18f755ca",
+      "digest": "sha256:08d5fd2b4a43ef5a40fe20b8f731a26a0b23a6ef239f78dcbab96d7cede9cc69",
       "path": "tests/media-pdp-p1-dev-status.test.mjs",
       "predecessorSha256": "sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e",
       "observedSha256": "sha256:5201e4b1915f35594641f8683ee3c499bb563259ed5f3387f027ce787bf0899d",
@@ -1524,7 +1524,7 @@
               {
                 "phase": "PDP-1",
                 "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json",
-                "receiptSha256": "sha256:75defdea88ca9f4320e8de4189891261b10de20e1db9f4cb119d31cb2f2a777e",
+                "receiptSha256": "sha256:9137b22645481fe36d31b12135c3258cbd9fb46084a6ddda9c90272e8009dbf7",
                 "materialSourceSetFingerprint": "sha256:1da1c83eda4ad1f4bed0ad35c27564887ca06b05ea2251a7f1f8b49e1c9176d5",
                 "materialPathCount": 329,
                 "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"
@@ -1532,7 +1532,7 @@
               {
                 "phase": "PDP-2",
                 "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json",
-                "receiptSha256": "sha256:30e463012e3b0de2959756dbc24ae990357c8ccf1e310a6d0493266701456805",
+                "receiptSha256": "sha256:a1eb7833cafd9bf01555f871381fa2b3e1593866767a97d966da43c4a5bebfd6",
                 "materialSourceSetFingerprint": "sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b",
                 "materialPathCount": 405,
                 "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"
@@ -1557,7 +1557,7 @@
           "predecessorSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
           "observedSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1",
           "impactRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-          "impactDigest": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+          "impactDigest": "sha256:478a0f09197366e4b6472991ae9f03776d7a2a106104c7a5362847e76fc5fe2f",
           "classification": "PDP3_STATUS_GUARD_ONLY; PDP1_NO_MEANING_CHANGE",
           "meaningChange": "NONE",
           "freshCurrentnessRequired": true
@@ -1903,7 +1903,7 @@
             },
             "predecessor": {
               "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-              "exitSha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+              "exitSha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
               "materialSourcePathCount": 329
             },
             "sourceTransitions": [
@@ -1971,14 +1971,14 @@
           "freshCurrentnessRequired": true,
           "impactRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
           "impactRecordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-          "impactDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+          "impactDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
           "validationDetails": {
             "valid": true,
             "recordRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
             "recordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-            "recordDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+            "recordDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-            "predecessorDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+            "predecessorDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorPathCount": 329,
             "transitionCount": 3,
             "meaningDisposition": "NO_PRODUCT_MEANING_CHANGE_FOR_THE_THREE_EXACT_TRANSITIONS",
@@ -2046,7 +2046,7 @@
             },
             "predecessor": {
               "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-              "exitSha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+              "exitSha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
               "materialSourcePathCount": 329
             },
             "sourceTransitions": [
@@ -2114,14 +2114,14 @@
           "freshCurrentnessRequired": true,
           "impactRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
           "impactRecordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-          "impactDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+          "impactDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
           "validationDetails": {
             "valid": true,
             "recordRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
             "recordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-            "recordDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+            "recordDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-            "predecessorDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+            "predecessorDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorPathCount": 329,
             "transitionCount": 3,
             "meaningDisposition": "NO_PRODUCT_MEANING_CHANGE_FOR_THE_THREE_EXACT_TRANSITIONS",
@@ -2189,7 +2189,7 @@
             },
             "predecessor": {
               "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-              "exitSha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+              "exitSha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
               "materialSourcePathCount": 329
             },
             "sourceTransitions": [
@@ -2257,14 +2257,14 @@
           "freshCurrentnessRequired": true,
           "impactRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
           "impactRecordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-          "impactDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+          "impactDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
           "validationDetails": {
             "valid": true,
             "recordRef": "docs/implementation/observations/media-pdp1-three-source-transition-no-meaning-disposition-2026-10-14.json",
             "recordId": "MEDIA-PDP1-THREE-SOURCE-TRANSITION-NO-MEANING-2026-10-14",
-            "recordDigest": "sha256:0232e292777457b3b87b02ed1639dd9e5f507237bda6c195decb1defcc34cc50",
+            "recordDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-            "predecessorDigest": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+            "predecessorDigest": "sha256:575429f7b109d263953148757069584e001619692eaa423e75757c8b5e53fb02",
             "predecessorPathCount": 329,
             "transitionCount": 3,
             "meaningDisposition": "NO_PRODUCT_MEANING_CHANGE_FOR_THE_THREE_EXACT_TRANSITIONS",
@@ -2307,11 +2307,11 @@
             "valid": true,
             "recordId": "MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1",
             "impactRef": "docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json",
-            "impactDigest": "sha256:7fe0da3920240dc3f37d9a267f71a6ce25c74ce94586b0157cc9169356f5b996",
+            "impactDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "p0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json",
-            "p0ExitDigest": "sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9",
+            "p0ExitDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "p0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json",
-            "p0CurrentnessDigest": "sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e",
+            "p0CurrentnessDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
             "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
             "p0ReporterCurrentDigest": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
@@ -2326,16 +2326,16 @@
           "freshCurrentnessRequired": true,
           "impactRef": "docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json",
           "impactRecordId": "MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1",
-          "impactDigest": "sha256:7fe0da3920240dc3f37d9a267f71a6ce25c74ce94586b0157cc9169356f5b996",
+          "impactDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
           "validationDetails": {
             "valid": true,
             "recordId": "MEDIA-DISCOVERY-PDP0-R6-SUCCESSOR-IMPACT-2026-10-14-R1",
             "impactRef": "docs/implementation/observations/media-discovery-pdp0-r6-successor-impact-2026-10-14-r1.json",
-            "impactDigest": "sha256:7fe0da3920240dc3f37d9a267f71a6ce25c74ce94586b0157cc9169356f5b996",
+            "impactDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "p0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json",
-            "p0ExitDigest": "sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9",
+            "p0ExitDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "p0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json",
-            "p0CurrentnessDigest": "sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e",
+            "p0CurrentnessDigest": "sha256:f2e24f3110624f4b6ab47ad99ac7fced31cf9fb8f9896fb0d70914d99d881cc1",
             "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
             "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
             "p0ReporterCurrentDigest": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
@@ -2359,7 +2359,7 @@
             "meaningOwnerId": "media.operation.action.request-admitted-speech-operation",
             "sourcePredecessor": {
               "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-              "sha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
+              "sha256": "sha256:77c76d6afdae1f216db32af987407de6618152afe884bdf7e3617da22bbd2433",
               "sourceDigests": {
                 ".product-experience/decision-log.md": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
                 ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
@@ -2489,7 +2489,7 @@
             "recordRef": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
             "recordId": "MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-            "predecessorDigest": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+            "predecessorDigest": "sha256:a713333120a056fd6aea3c911e583b529990d06f3c27053b96fa61cba099e83d",
             "sourceDeltas": [
               {
                 "path": ".product-experience/decision-log.md",
@@ -2558,7 +2558,7 @@
             "meaningOwnerId": "media.operation.action.request-admitted-speech-operation",
             "sourcePredecessor": {
               "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-              "sha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
+              "sha256": "sha256:77c76d6afdae1f216db32af987407de6618152afe884bdf7e3617da22bbd2433",
               "sourceDigests": {
                 ".product-experience/decision-log.md": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
                 ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
@@ -2688,7 +2688,7 @@
             "recordRef": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
             "recordId": "MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-            "predecessorDigest": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+            "predecessorDigest": "sha256:a713333120a056fd6aea3c911e583b529990d06f3c27053b96fa61cba099e83d",
             "sourceDeltas": [
               {
                 "path": ".product-experience/decision-log.md",
@@ -2757,7 +2757,7 @@
             "meaningOwnerId": "media.operation.action.request-admitted-speech-operation",
             "sourcePredecessor": {
               "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-              "sha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
+              "sha256": "sha256:77c76d6afdae1f216db32af987407de6618152afe884bdf7e3617da22bbd2433",
               "sourceDigests": {
                 ".product-experience/decision-log.md": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
                 ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",
@@ -2885,7 +2885,7 @@
             "recordRef": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
             "recordId": "MEDIA-DISCOVERY-PDP1-PXD164-SEMANTIC-REPAIR-IMPACT-2026-10-14-R1",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-            "predecessorDigest": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+            "predecessorDigest": "sha256:a713333120a056fd6aea3c911e583b529990d06f3c27053b96fa61cba099e83d",
             "sourceDeltas": [
               {
                 "path": ".product-experience/decision-log.md",
@@ -3060,7 +3060,7 @@
             "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
             "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-            "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+            "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "rowChecks": [
               {
                 "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -3248,7 +3248,7 @@
             "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
             "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-            "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+            "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "rowChecks": [
               {
                 "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -3436,7 +3436,7 @@
             "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
             "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-            "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+            "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "rowChecks": [
               {
                 "path": ".product-experience/interface-parity/operation-parity.yaml",
@@ -3636,7 +3636,7 @@
             "recordId": "MEDIA-DISCOVERY-PDP1-OPERATION-PARITY-PROJECTION-IMPACT-2026-10-14-R1",
             "recordDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "predecessorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-            "predecessorDigest": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+            "predecessorDigest": "sha256:91327daca4b952a929c2f206a83cd68c38acf6b05154d3bcf544358445237bd5",
             "rowChecks": [
               {
                 "path": ".product-experience/interface-parity/operation-parity.yaml",

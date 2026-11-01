@@ -27,7 +27,7 @@
   },
   "predecessor": {
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "exitSha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "exitSha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
     "materialSourcePathCount": 329
   },
   "sourceTransitions": [

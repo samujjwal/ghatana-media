@@ -45,13 +45,13 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-    "receiptSha256": "sha256:3b42a5eb0171198fe52577dd75fe3476b005920db0c5c94d95e6489beacc475a",
+    "receiptSha256": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
     "sourceFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
     "materialPathCount": 405,
     "cellCount": 50,
     "pdp1Predecessor": {
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "receiptSha256": "sha256:4f122013190fa06d53df90a09195428043fcd7b70eb558b1bcb8d0101c8714ac",
+      "receiptSha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
       "sourceFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
     }
   },
@@ -59,7 +59,7 @@
     "pdp1": {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-      "receiptSha256": "sha256:6379333121790bf213ec3cad45297321012fe06769b9cd0a9018617f0e8c327b",
+      "receiptSha256": "sha256:41c1009e3f8938829eb05e281ef23c49fd6d7895eaf965b5f9270e092ecba7f6",
       "sourceFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
       "status": "PASS",
       "sourceCurrent": true,

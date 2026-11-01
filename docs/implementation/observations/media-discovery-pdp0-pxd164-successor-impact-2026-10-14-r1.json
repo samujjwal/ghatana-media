@@ -19,9 +19,9 @@
   "predecessorCut": {
     "phase": "PDP-0",
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r10.json",
-    "exitSha256": "sha256:f6c0e6a693ce74b0997743bbd2317f9f7ae0ab25e6f562aabf77f1ad2a9375a9",
+    "exitSha256": "sha256:7ba403c15b7f506827327e63b2e5247694ac486dc47f0815c683d28fb641b3e7",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r10.json",
-    "currentnessSha256": "sha256:1f2ee24f5913b8d9d9fc6d306a2d1356347f16e437e49de59e3f502643c83d0e",
+    "currentnessSha256": "sha256:7ba403c15b7f506827327e63b2e5247694ac486dc47f0815c683d28fb641b3e7",
     "materialSourceSetFingerprint": "sha256:af292ca4f4d3d932fa081c42bb09273a286ec8aae83975a827f63cbc633b4687",
     "materialPathCount": 146,
     "topology": {
@@ -34,7 +34,7 @@
   },
   "pdp1ImpactBasis": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-pxd164-semantic-repair-impact-2026-10-14-r1.json",
-    "sha256": "sha256:f22c036d2b9e073b064e188a4d4eb50f336361c654f0f65db716aa16a28a7e05"
+    "sha256": "sha256:a713333120a056fd6aea3c911e583b529990d06f3c27053b96fa61cba099e83d"
   },
   "sourceDeltas": [
     {

@@ -15,7 +15,7 @@
     "phase": "PDP-0",
     "valid": true,
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-13-r2.json",
-    "exitDigest": "sha256:4ec8acdcae8a6040e98e0492a710dff9f2e0b24f12fdb2576410dae838e521a8",
+    "exitDigest": "sha256:52394ae29b5aa0c5cc15956516b454e5d51bed4c0628e074f35a57d85136fa4c",
     "exitRecordId": "MEDIA-PDP0-EXIT-cc0aadd8031b",
     "materialSourceSetFingerprint": "sha256:7a7a0f700890915863e9f93eafa30edc2f6d856adbf7944c17fecc0aadd8031b",
     "observedHead": "2aaa15f5a15ce9d05726cc133885b6415317efff",

@@ -19,7 +19,7 @@
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-13-R3",
     "cellCount": 50,
     "status": "PASS",
-    "exitDigest": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957"
+    "exitDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294"
   },
   "authority": {
     "delegatedOwnerDirection": {

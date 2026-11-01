@@ -18,7 +18,7 @@
   },
   "sourcePredecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "sha256": "sha256:af959512bc1d351f1de77d8744d5e47f5593855243f610473b5c74de5ae953da",
+    "sha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
     "sourceDigests": {
       ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:ec1e29eceb76333dec91b52b94d20fa882456dcb52989b1794c4f9c58fdfd111",
       ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b"

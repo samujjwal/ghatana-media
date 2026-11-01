@@ -34,12 +34,18 @@
     "delivery": "BLOCKED",
     "release": "NOT_AUTHORIZED",
     "freshTechnicalCurrentness": "REQUIRED",
-    "orderedTechnicalCurrentness": ["PDP-0", "PDP-1"]
+    "orderedTechnicalCurrentness": [
+      "PDP-0",
+      "PDP-1"
+    ]
   },
   "sourceDeltas": [
     {
       "path": "scripts/report-media-pdp-readiness.mjs",
-      "phases": ["PDP-0", "PDP-1"],
+      "phases": [
+        "PDP-0",
+        "PDP-1"
+      ],
       "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
       "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
       "classification": "PDP_STATUS_REPORTER_SELECTION_CHANGE",
@@ -52,9 +58,9 @@
     {
       "phase": "PDP-0",
       "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r6.json",
-      "exitSha256": "sha256:dac98419a6a2314741d584e120f7a9e7a3190559cbde7b6ca7e5d5b1a785aabb",
+      "exitSha256": "sha256:12551052c626ef494e612c8bb19146136e7725911f99c12a46254e26f40622f0",
       "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r6.json",
-      "currentnessSha256": "sha256:826b0a69673818e9e97046fc4288af4cdf59d724f78bc2e6db5709f8d3b7bf65",
+      "currentnessSha256": "sha256:12551052c626ef494e612c8bb19146136e7725911f99c12a46254e26f40622f0",
       "materialSourceSetFingerprint": "sha256:d44b0268aaec280bbd1a661d4ce2449e5e26daba41bba9f496005010bfa6f7bb",
       "materialPathCount": 146,
       "topology": {

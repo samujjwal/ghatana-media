@@ -19,9 +19,9 @@
   "predecessorCut": {
     "phase": "PDP-0",
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r8.json",
-    "exitSha256": "sha256:4984d80baff808caf1792dddb5e52e20fe81d5d764e90948934d6e013e1e4e77",
+    "exitSha256": "sha256:ed044d6368b48d875a9860b9a78136b2739bdc8af49bfa21fc1c6bb7ac679a3f",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r8.json",
-    "currentnessSha256": "sha256:96841df11e13c1a394968d68ea3154724bd6168b5bc6dc0c5376ec09a40ea871",
+    "currentnessSha256": "sha256:ed044d6368b48d875a9860b9a78136b2739bdc8af49bfa21fc1c6bb7ac679a3f",
     "materialSourceSetFingerprint": "sha256:26fdd485663c5ddd3426d50e0ca5d7c51606fd1a5854861c4c614e1786201c04",
     "materialPathCount": 146,
     "topology": {

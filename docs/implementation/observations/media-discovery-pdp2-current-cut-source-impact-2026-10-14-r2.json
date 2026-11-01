@@ -66,13 +66,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r1.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
-    "sha256": "sha256:78e501e178c36979318b16e9c65a6071a4fee99f612e2f3408c22005c8ff5706",
+    "sha256": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
     "reason": "R1 remains immutable history and covers only its exact earlier two path transitions. R2 records the authorized five additional R4-to-current transitions, updates the interface-review observed hash to the current source, and retains the readiness-reporter disposition."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-    "receiptSha256": "sha256:5132a261f6d2c316098bea9675a046afd51524a635d53ce6570c02e95bdecabd",
+    "receiptSha256": "sha256:9042cbe0455cf2f90c73e75fc90da587e8b8dec69a9436a0bc4a514316aa49d5",
     "materialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -80,7 +80,7 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r15.json",
-    "receiptSha256": "sha256:1d076122761c4f0c5b1b87cd3a38cd3f45347183213486958ce820502dfee3a7",
+    "receiptSha256": "sha256:22303f9076535972e31feca249ef9b416bdc58623885a0ae473c3d01e72fffac",
     "status": "PASS",
     "sourceCurrentness": "PASS",
     "developmentStatus": "DEV_COMPLETE",

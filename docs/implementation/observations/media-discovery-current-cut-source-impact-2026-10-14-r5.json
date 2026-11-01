@@ -28,12 +28,12 @@
   "parentImpact": {
     "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r3.json",
     "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R3",
-    "sha256": "sha256:5c1703c8bd3834104550357ffc2b6c58a917519efbca4b965d2dc92f422c5786"
+    "sha256": "sha256:d1bb8cef54d9e3e120658af52e5f432c9e69cf39e3ca4d1cff30210127241fbe"
   },
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r3.json",
     "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-ACTION-WIRE-IMPACT-2026-10-14-R3",
-    "sha256": "sha256:5c1703c8bd3834104550357ffc2b6c58a917519efbca4b965d2dc92f422c5786",
+    "sha256": "sha256:d1bb8cef54d9e3e120658af52e5f432c9e69cf39e3ca4d1cff30210127241fbe",
     "reason": "R3 preserves the exact technical delta but omitted the direct authorization trace and used a placeholder observedAt. This successor records the user's scoped authorization and revalidates the same exact source hashes; the R3 bytes remain unchanged as history."
   },
   "sourceDeltas": [

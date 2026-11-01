@@ -22,7 +22,7 @@
     "phase": "PDP-2",
     "observationRef": "docs/implementation/observations/media-discovery-pdp2-exit-r16.json",
     "observationId": "MEDIA-PDP2-CURRENTNESS-R16",
-    "receiptSha256": "sha256:c74551eaf472d3b46e8bfa8da681857e4b13ed545363450715d16a591b114dac",
+    "receiptSha256": "sha256:2dc750f2431ca3b31e52a024bda82d4685913c4c50fa682236b8cf2a3159c7b2",
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
   },
   "sourceDeltas": [
@@ -31,7 +31,7 @@
       "phase": "PDP-2 generated projection",
       "selector": "Generated experience-language candidate projection",
       "predecessorSha256": "sha256:612760df546543582d5b6a867e3086bc6f1b21c5ba745367fbe3dd88b27f0979",
-      "observedSha256": "sha256:e7c3f762eb95d3ea6e5111fe24266406010de05abb20f05b6e310f2b9a80bd4c",
+      "observedSha256": "sha256:31b3ba5c760888b992a53e4f4ecb507643e9e6198e982cf390758a0a3aeff51b",
       "classification": "PDP2_GENERATED_PROJECTION_REFRESH_NO_MEANING_CHANGE",
       "meaningChange": "NO_PDP2_MEANING_CHANGE",
       "meaningIdsChanged": [],
@@ -41,7 +41,7 @@
   "reviewedInputs": [
     {
       "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753",
+      "sha256": "sha256:0dee51af433c88216a4bcd7e3e8c1e60577893f99cf0c55d0ec21595c6577822",
       "status": "UNCHANGED",
       "selector": "PDP-2 design-language input to the generated experience-language candidate"
     }

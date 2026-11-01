@@ -15,7 +15,7 @@
     "valid": true,
     "phase": "PDP-1",
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json",
-    "exitDigest": "sha256:ed56354c2838fc8bc1ed11ac72a52a34525629b46a3e6fa36fd9ade8dc972e9a",
+    "exitDigest": "sha256:9137b22645481fe36d31b12135c3258cbd9fb46084a6ddda9c90272e8009dbf7",
     "materialSourceSetFingerprint": "sha256:1da1c83eda4ad1f4bed0ad35c27564887ca06b05ea2251a7f1f8b49e1c9176d5",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R4",
     "cellCount": 50,
@@ -24,7 +24,7 @@
   "decisionInputs": {
     "p1Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json",
-      "sha256": "sha256:75defdea88ca9f4320e8de4189891261b10de20e1db9f4cb119d31cb2f2a777e",
+      "sha256": "sha256:9137b22645481fe36d31b12135c3258cbd9fb46084a6ddda9c90272e8009dbf7",
       "materialSourceSetFingerprint": "sha256:1da1c83eda4ad1f4bed0ad35c27564887ca06b05ea2251a7f1f8b49e1c9176d5"
     },
     "p0Exit": {
@@ -49,7 +49,7 @@
     },
     "historicalP2Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
-      "sha256": "sha256:d9c55aa3ab4e4da26be903e6b26f39d58bc8a4299b9afe9dcdca22ce75c16cfc",
+      "sha256": "sha256:43ea6ebf78ed3d2c9605cadcf2a492994286a17de1222f02ad0bda9d7be0504f",
       "includedIn405PathMaterialDenominator": false
     }
   },
@@ -232,7 +232,7 @@
   "ownerStatusJoin": {
     "status": "FAIL",
     "historicalExitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
-    "historicalExitDigest": "sha256:e6b2a2e6484d529da7b671953dfbd67fe7ca6e20062bc3a538433ac7d24f0e29",
+    "historicalExitDigest": "sha256:43ea6ebf78ed3d2c9605cadcf2a492994286a17de1222f02ad0bda9d7be0504f",
     "historicalMaterialSourceSetFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
     "ownerReviewValid": true,
     "materialSourceSetFingerprint": "sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b",

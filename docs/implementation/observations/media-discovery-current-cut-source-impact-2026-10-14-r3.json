@@ -18,7 +18,7 @@
   "parentImpact": {
     "ref": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r2.json",
     "recordId": "MEDIA-DISCOVERY-PDP1-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R2",
-    "sha256": "sha256:f12af05f9cf2d709e9e05e1cebd9802a18c3d4b676706ed9bde2db8fede58a0e"
+    "sha256": "sha256:dd4f550a4001cba5e90c1b6791cf5b0ea56aa76cbef188f2967e86f0353b7d4a"
   },
   "sourceDeltas": [
     {

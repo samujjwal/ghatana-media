@@ -39,7 +39,7 @@
     {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r10.json",
-      "receiptSha256": "sha256:6e7328342cc6f889d746d356f20c538a9f8f050f2d489688e40a6dde4cec5893",
+      "receiptSha256": "sha256:e37b82d31e89f339746c80b74802418d24958319dab1d4d741fc674d2e463746",
       "materialSourceSetFingerprint": "sha256:6ae63551e152a19d36a0766f510a1f993e0509bb7a5f8b6837f860806409b19a",
       "materialPathCount": 329,
       "receiptStatus": "FAIL_OWNER_STATUS_JOIN_ONLY"
@@ -59,7 +59,7 @@
       "predecessorChain": [
         {
           "receiptRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-          "receiptSha256": "sha256:b62118ef7a7128c817c3f842a1912c29d775d9db8e55d4634f156a735819854d",
+          "receiptSha256": "sha256:478a0f09197366e4b6472991ae9f03776d7a2a106104c7a5362847e76fc5fe2f",
           "fromSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
           "toSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1"
         }

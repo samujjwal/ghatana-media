@@ -4312,7 +4312,7 @@
       {
         "path": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json",
         "role": "HISTORICAL_SELECTOR_ONLY",
-        "currentSha256": "sha256:74efdaa56faa5c5203cb2c19b47102ae6bab9fadbcf591e2b8845379ce7de976"
+        "currentSha256": "sha256:003c8ccd968c9cc16d0592810e5d04d1b812a84626d7f6094391cf2816379d11"
       },
       {
         "path": "docs/implementation/pdp-3-phase-dev-status.json",
@@ -11686,8 +11686,8 @@
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp3-mdc30-implementation-progress-2026-10-14-r5.json",
-        "observedSha256": "sha256:74efdaa56faa5c5203cb2c19b47102ae6bab9fadbcf591e2b8845379ce7de976",
-        "capturedSha256": "sha256:74efdaa56faa5c5203cb2c19b47102ae6bab9fadbcf591e2b8845379ce7de976",
+        "observedSha256": "sha256:003c8ccd968c9cc16d0592810e5d04d1b812a84626d7f6094391cf2816379d11",
+        "capturedSha256": "sha256:003c8ccd968c9cc16d0592810e5d04d1b812a84626d7f6094391cf2816379d11",
         "status": "MATCH"
       },
       {

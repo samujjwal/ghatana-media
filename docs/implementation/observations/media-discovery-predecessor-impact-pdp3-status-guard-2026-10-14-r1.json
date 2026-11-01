@@ -49,7 +49,7 @@
     {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json",
-      "receiptSha256": "sha256:75defdea88ca9f4320e8de4189891261b10de20e1db9f4cb119d31cb2f2a777e",
+      "receiptSha256": "sha256:9137b22645481fe36d31b12135c3258cbd9fb46084a6ddda9c90272e8009dbf7",
       "materialSourceSetFingerprint": "sha256:1da1c83eda4ad1f4bed0ad35c27564887ca06b05ea2251a7f1f8b49e1c9176d5",
       "materialPathCount": 329,
       "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"
@@ -57,7 +57,7 @@
     {
       "phase": "PDP-2",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json",
-      "receiptSha256": "sha256:30e463012e3b0de2959756dbc24ae990357c8ccf1e310a6d0493266701456805",
+      "receiptSha256": "sha256:a1eb7833cafd9bf01555f871381fa2b3e1593866767a97d966da43c4a5bebfd6",
       "materialSourceSetFingerprint": "sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b",
       "materialPathCount": 405,
       "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"

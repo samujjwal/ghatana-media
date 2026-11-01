@@ -29,9 +29,9 @@
     "phase": "PDP-0",
     "valid": false,
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json",
-    "exitDigest": "sha256:3f9b401f36ed23a50cf40a70670414e92327a71cffe80274d96d4006b55a39a3",
+    "exitDigest": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r2.json",
-    "currentnessDigest": "sha256:488268557558299df19a73e4be11bf34b29066850c7711a2ed56d40573506db2",
+    "currentnessDigest": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
     "currentnessValid": true,
     "matrixCutMatches": false,
     "exitRecordId": "MEDIA-PDP0-EXIT-a311af1f31e8",
@@ -276,9 +276,9 @@
     "status": "ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA",
     "valid": true,
     "historicalExitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
-    "historicalExitDigest": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957",
+    "historicalExitDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDirectionsRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
-    "ownerDirectionsDigest": "sha256:4dc505154364b4ef98836e327cc556f1d24adf937d964913caba09c49c4176a4",
+    "ownerDirectionsDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDecisionId": "MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2",
     "predecessorMaterialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
     "freshMaterialSourceSetFingerprint": "sha256:5c58c7a09897d0656ec1416b0ddfbcb736b3b199719906a654ecf36770a20def",
@@ -342,7 +342,7 @@
       }
     ],
     "supplementalImpactReviewRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-    "supplementalImpactReviewDigest": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+    "supplementalImpactReviewDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "limitation": "Scoped internal owner materiality join for the exact reviewed delta; it is not exact-cut owner acceptance, independent approval, lifecycle closure, or release qualification."
   },
   "developmentStatus": {

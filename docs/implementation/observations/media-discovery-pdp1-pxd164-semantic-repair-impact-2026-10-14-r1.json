@@ -12,7 +12,7 @@
   "meaningOwnerId": "media.operation.action.request-admitted-speech-operation",
   "sourcePredecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-    "sha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
+    "sha256": "sha256:77c76d6afdae1f216db32af987407de6618152afe884bdf7e3617da22bbd2433",
     "sourceDigests": {
       ".product-experience/decision-log.md": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
       ".product-experience/pdp-1-domain-data/operations-current-source-review.json": "sha256:d5f83fad612d6598165072137390c70c8d4dfdc549a236a29c7bda34b50b6d0c",

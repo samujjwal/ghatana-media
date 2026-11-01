@@ -10,13 +10,13 @@
   },
   "predecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r2.json",
-    "sha256": "sha256:9c268a0fe76b45a388f4afe360ac239a22852ddc654df2ebd3d2c442cce4fdd7",
+    "sha256": "sha256:09e6bdb2f77668f72efccfa9072a5eded11d9ae1005e1566691eceba76eafd38",
     "testPath": "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
     "testSha256": "sha256:ec1169c9c7a5c147dac13a24460d5f73dc9517861752bb0b5b1fe72f9f068d88",
     "pdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json",
-    "pdp0ExitSha256": "sha256:fe8e73184cf385328a4974a9a3b2aad84ff9033fb999c80c10f49c3db066c4ea",
+    "pdp0ExitSha256": "sha256:09e6bdb2f77668f72efccfa9072a5eded11d9ae1005e1566691eceba76eafd38",
     "pdp0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r11.json",
-    "pdp0CurrentnessSha256": "sha256:b6986cd2e93241c9962d1215977c99f899949f87da15a72d8087e6ad130d7026",
+    "pdp0CurrentnessSha256": "sha256:09e6bdb2f77668f72efccfa9072a5eded11d9ae1005e1566691eceba76eafd38",
     "materialSourceSetFingerprint": "sha256:d9fc2839dc341cb05250e31093a2250678a9004febffaf290d4852e29f7282f1"
   },
   "authority": {

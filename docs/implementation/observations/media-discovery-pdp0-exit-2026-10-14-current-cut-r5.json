@@ -7451,7 +7451,7 @@
     "ownerDirectionsRef": null,
     "supplementalImpactRef": "docs/implementation/observations/media-discovery-current-cut-source-impact-2026-10-14-r1.json",
     "supplementalDecisionId": "MEDIA-DISCOVERY-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R1",
-    "supplementalImpactSha256": "sha256:1530e22dfb8c60296123ec95d494c53fc2f5ff81be7c8fc47bf0252661d2655b",
+    "supplementalImpactSha256": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
     "predecessorPathCount": 146,
     "observedPathCount": 146,
     "unchangedPathCount": 145,

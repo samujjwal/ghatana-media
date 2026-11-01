@@ -9,12 +9,12 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json",
-    "receiptSha256": "sha256:6b7d18da275d0e31c675ff66c7136bef41cd1ead93a8ad714918454659efb91e"
+    "receiptSha256": "sha256:a5ae282993a7720100ed8cd05a06f25a1be49c7ee2a1e3a919aa9b31eee1e608"
   },
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json",
-    "receiptSha256": "sha256:a4a2d18d77874986361f32e8ce37dee03153929859b1a5deff0449c88df82e9b",
+    "receiptSha256": "sha256:3d657bf907ecfcd766010f032f353f2b77af7d390965dd2a762fbe2254a3af19",
     "sourceFingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
     "status": "PASS",
     "sourceCurrentness": "PASS",
@@ -39,17 +39,17 @@
         {
           "path": ".product-experience/decision-log.md",
           "predecessorSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
-          "observedSha256": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc"
+          "observedSha256": "sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
         },
         {
           "path": ".product-experience/interface-parity/current-source-review.json",
           "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
-          "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06"
+          "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6"
         },
         {
           "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
           "predecessorSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
-          "observedSha256": "sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9"
+          "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d"
         }
       ]
     },
@@ -61,7 +61,7 @@
     {
       "path": ".product-experience/decision-log.md",
       "predecessorSha256": "sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c",
-      "observedSha256": "sha256:97ad3104abec9ba6670804394c68a11c663f37171e90ea2a1f2e629aa5619bbc",
+      "observedSha256": "sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
       "classification": "PDP1_PXD164_SEMANTIC_REPAIR_NO_ADDITIONAL_PDP2_MEANING",
       "sourceSelector": ".product-experience/decision-log.md#PXD-164",
       "phase": "PDP-2",
@@ -72,7 +72,7 @@
     {
       "path": ".product-experience/interface-parity/current-source-review.json",
       "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
-      "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
+      "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
       "classification": "PDP1_INTERFACE_SOURCE_REVIEW_REFRESH",
       "sourceSelector": ".product-experience/interface-parity/current-source-review.json",
       "phase": "PDP-2",
@@ -83,7 +83,7 @@
     {
       "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
       "predecessorSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
-      "observedSha256": "sha256:15ec0101ba8d7c178bed46b116284b0de1150ac38caacedd65904225ab4b51c9",
+      "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
       "classification": "PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH",
       "sourceSelector": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
       "phase": "PDP-2",

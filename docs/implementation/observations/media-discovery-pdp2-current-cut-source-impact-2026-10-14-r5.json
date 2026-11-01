@@ -79,7 +79,7 @@
           {
             "path": ".product-experience/interface-parity/current-source-review.json",
             "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
-            "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6"
+            "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd"
           },
           {
             "path": "docs/implementation/pdp-1-phase-dev-status.json",
@@ -89,7 +89,7 @@
           {
             "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
             "predecessorSha256": "sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76",
-            "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d"
+            "observedSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6"
           },
           {
             "path": "tests/pdp-design-interface-parity.test.mjs",
@@ -115,13 +115,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R4",
-    "sha256": "sha256:8562aa0bc01732e9492964de6e5e913c883ca653144b66c9a561fa9e8edeee31",
+    "sha256": "sha256:5487d6c00a4aa608557ec2500e98623fb15a39a934e269de0ce4c71ee39e82be",
     "reason": "R4 is immutable history for its earlier R9-to-live transitions and PDP-1 R19. R5 preserves those dispositions and binds the newly authorized exact transitions and PDP-1 R22."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
+    "receiptSha256": "sha256:df1871069896bdcde3fda7f15ab828ac417700233b8ee773efd6f67717b708e7",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -129,7 +129,7 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-    "receiptSha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
+    "receiptSha256": "sha256:77c76d6afdae1f216db32af987407de6618152afe884bdf7e3617da22bbd2433",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R22",
     "sourceFingerprint": "sha256:66bbc971734f92ae8f51446582f4a1118704168acac3c0e33783efbb208a5a0b",
     "status": "PASS",
@@ -223,7 +223,7 @@
       "path": ".product-experience/interface-parity/current-source-review.json",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
-      "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
+      "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
       "classification": "PDP2_INTERFACE_CURRENT_SOURCE_REVIEW_REFRESH",
       "changeSummary": "Refreshes the interface current-source review for the current source cut.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -245,7 +245,7 @@
       "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76",
-      "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
+      "observedSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
       "classification": "PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH",
       "changeSummary": "Refreshes PDP-1 semantic review evidence; no additional PDP-2 meaning.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",

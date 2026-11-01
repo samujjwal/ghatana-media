@@ -18,6 +18,7 @@ const r9Path = 'docs/implementation/observations/media-discovery-pdp2-exit-curre
 const r4Path = 'docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json';
 const r5Path = 'docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json';
 const r22Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json';
+const r27Path = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
 const statusGuardPath = 'docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json';
 const statusPath = 'docs/implementation/pdp-1-phase-dev-status.json';
 const semanticReviewPath = 'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json';
@@ -25,6 +26,7 @@ const r9 = read(r9Path);
 const r4 = read(r4Path);
 const r5 = read(r5Path);
 const r22 = read(r22Path);
+const r13 = read('docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json');
 
 const r4Transitions = [
   ['.product-experience/interface-parity/current-source-review.json', '0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76'],
@@ -38,15 +40,14 @@ const r4Transitions = [
 ];
 const r5Transitions = [
   ['.product-experience/interface-parity/operation-parity.yaml', '8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6', '15e54634c2838c78dd2e75e1738ed4b2a1a600503e57c18648bcce3905b5b07b'],
-  ['.product-experience/interface-parity/current-source-review.json', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', 'd813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6'],
+  ['.product-experience/interface-parity/current-source-review.json', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', '866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd'],
   ['docs/implementation/pdp-1-phase-dev-status.json', '5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65', 'd9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a'],
-  ['docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json', '610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d'],
+  ['docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json', '610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6'],
   ['tests/pdp-design-interface-parity.test.mjs', '0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b', '5a01bb0b3aa2e496281b846b9ea7c1c895f46ba1e0a63cc22f1752492dc312eb'],
 ];
 
 function r5Impact(candidate = r5) {
-  const sourceMap = r9.sourceCurrentness.sourceSetDigests.sourceContentDigests;
-  const currentDigests = Object.fromEntries(Object.keys(sourceMap).map((sourcePath) => [sourcePath, sha(sourcePath)]));
+  const currentDigests = { ...r13.sourceCurrentness.sourceSetDigests.sourceContentDigests };
   const actualCurrentDigests = { ...currentDigests };
   return validatePdp2CurrentCutImpact({
     impact: candidate,
@@ -176,15 +177,16 @@ test('the active owner join uses the exact R9 checkpoint and R5 R9-to-live trans
   const checkpoint = validatePdp2R9HistoricalCheckpoint(r9);
   const result = currentnessOwnerStatusJoin(historicalR2, currentDigests, ownerReview,
     'sha256:current-test-material-fingerprint', { r9Checkpoint: r9,
-      pdp2CurrentCutOptions: { pdp1ExitPath: r22Path,
-        additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json' } });
+      pdp2CurrentCutOptions: { pdp1ExitPath: r27Path,
+        additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json',
+        additionalProjectionImpactPath: 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json' } });
 
   assert.equal(checkpoint.valid, true, JSON.stringify(checkpoint));
   assert.equal(checkpoint.historicalJoinStatus, 'PASS');
   assert.deepEqual(checkpoint.decisionLogCheckpoint, {
     path: '.product-experience/decision-log.md',
     predecessorSha256: 'sha256:cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4',
-    observedSha256: 'sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298',
+    observedSha256: 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c',
     classification: 'PDP1_DELEGATED_DEFINITION_DECISION_LOG_PREDECESSOR_REFRESH',
     valid: true,
   });
@@ -193,7 +195,7 @@ test('the active owner join uses the exact R9 checkpoint and R5 R9-to-live trans
   assert.equal(result.legacyR2HistoricalDiagnostic.ref, 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json');
   assert.deepEqual([result.historicalPathCount, result.currentPathCount, result.unchangedPathCount,
     result.changedPathCount, result.unapprovedChangedPathCount, result.missingPathCount,
-    result.additionalPathCount], [405, 405, 395, 10, 0, 0, 0]);
+    result.additionalPathCount], [405, 405, 393, 12, 0, 0, 0]);
   assert.equal(result.pdp2ScopedImpact.valid, true);
 });
 

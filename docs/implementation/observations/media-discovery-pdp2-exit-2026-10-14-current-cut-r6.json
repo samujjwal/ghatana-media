@@ -15,7 +15,7 @@
     "valid": true,
     "phase": "PDP-1",
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-    "exitDigest": "sha256:5998fec8b0c48137906bf877d7770843658c39154f15b78cc101fcc9bd4f28c6",
+    "exitDigest": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
     "materialSourceSetFingerprint": "sha256:819e2bc95c437c228e70d245fcb6337c974adc9caa579e1f359dcaa1bb56a08b",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R13",
     "cellCount": 50,
@@ -24,12 +24,12 @@
   "decisionInputs": {
     "p1Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-      "sha256": "sha256:7dba965fa36cbfdfd1e17b680785dec21f2c445fa7bc6d313102a80ff9d39259",
+      "sha256": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
       "materialSourceSetFingerprint": "sha256:819e2bc95c437c228e70d245fcb6337c974adc9caa579e1f359dcaa1bb56a08b"
     },
     "p0Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r5.json",
-      "sha256": "sha256:827cf5243d3a7b850852185e4305035c3dc52697d0cde72aa26f9cfa5144b580",
+      "sha256": "sha256:434b5d80910a58749dbba01e2ef138b80c7f82c602ca47060cfd7b1b8f169269",
       "materialSourceSetFingerprint": "sha256:760ed4560854a37063f69eb47daf9d6bb62f1752450b38f9654c91a3f4d8809e"
     },
     "matrix": {
@@ -49,22 +49,22 @@
     },
     "historicalP2Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
-      "sha256": "sha256:d9c55aa3ab4e4da26be903e6b26f39d58bc8a4299b9afe9dcdca22ce75c16cfc",
+      "sha256": "sha256:43ea6ebf78ed3d2c9605cadcf2a492994286a17de1222f02ad0bda9d7be0504f",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r1.json",
-      "sha256": "sha256:78e501e178c36979318b16e9c65a6071a4fee99f612e2f3408c22005c8ff5706",
+      "sha256": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-      "sha256": "sha256:5132a261f6d2c316098bea9675a046afd51524a635d53ce6570c02e95bdecabd",
+      "sha256": "sha256:9042cbe0455cf2f90c73e75fc90da587e8b8dec69a9436a0bc4a514316aa49d5",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp1EvidenceRefresh": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-      "sha256": "sha256:7dba965fa36cbfdfd1e17b680785dec21f2c445fa7bc6d313102a80ff9d39259",
+      "sha256": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp1StatusEvidence": {
@@ -306,9 +306,9 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r1.json",
-      "digest": "sha256:78e501e178c36979318b16e9c65a6071a4fee99f612e2f3408c22005c8ff5706",
+      "digest": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-      "predecessorDigest": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
+      "predecessorDigest": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
       "predecessorMaterialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
       "materialPathCount": 405,
       "changedPathCount": 4,
@@ -348,7 +348,7 @@
         "classification": "PDP1_STATUS_AND_SEMANTIC_REVIEW_EVIDENCE_REFRESH_NO_PDP2_MEANING_DISPOSITION",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
         "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-        "successorDigest": "sha256:5998fec8b0c48137906bf877d7770843658c39154f15b78cc101fcc9bd4f28c6",
+        "successorDigest": "sha256:9042cbe0455cf2f90c73e75fc90da587e8b8dec69a9436a0bc4a514316aa49d5",
         "paths": [
           {
             "path": "docs/implementation/pdp-1-phase-dev-status.json",
@@ -421,7 +421,7 @@
           },
           "successorPdp1Receipt": {
             "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-            "digest": "sha256:7dba965fa36cbfdfd1e17b680785dec21f2c445fa7bc6d313102a80ff9d39259",
+            "digest": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
             "phaseStatus": "PASS",
             "sourceCurrentness": "PASS",
             "developmentStatus": "DEV_COMPLETE"
@@ -461,7 +461,7 @@
   "ownerStatusJoin": {
     "status": "PASS",
     "historicalExitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
-    "historicalExitDigest": "sha256:e6b2a2e6484d529da7b671953dfbd67fe7ca6e20062bc3a538433ac7d24f0e29",
+    "historicalExitDigest": "sha256:43ea6ebf78ed3d2c9605cadcf2a492994286a17de1222f02ad0bda9d7be0504f",
     "historicalPhaseExitStatus": "PASS",
     "historicalPhaseExitDevelopmentStatus": "DEV_COMPLETE",
     "historicalMaterialSourceSetFingerprint": "sha256:954c8930f3e9cc4e68570bfca29ac586be7474869b785a9b8c59ea9beeff4cea",
@@ -494,9 +494,9 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r1.json",
-      "digest": "sha256:78e501e178c36979318b16e9c65a6071a4fee99f612e2f3408c22005c8ff5706",
+      "digest": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-      "predecessorDigest": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
+      "predecessorDigest": "sha256:170387a475b11342505c24c079dcc806946f11b53d8a9e9bf8791a61809d57ce",
       "predecessorMaterialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
       "materialPathCount": 405,
       "changedPathCount": 4,
@@ -536,7 +536,7 @@
         "classification": "PDP1_STATUS_AND_SEMANTIC_REVIEW_EVIDENCE_REFRESH_NO_PDP2_MEANING_DISPOSITION",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
         "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-        "successorDigest": "sha256:5998fec8b0c48137906bf877d7770843658c39154f15b78cc101fcc9bd4f28c6",
+        "successorDigest": "sha256:9042cbe0455cf2f90c73e75fc90da587e8b8dec69a9436a0bc4a514316aa49d5",
         "paths": [
           {
             "path": "docs/implementation/pdp-1-phase-dev-status.json",
@@ -609,7 +609,7 @@
           },
           "successorPdp1Receipt": {
             "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-            "digest": "sha256:7dba965fa36cbfdfd1e17b680785dec21f2c445fa7bc6d313102a80ff9d39259",
+            "digest": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
             "phaseStatus": "PASS",
             "sourceCurrentness": "PASS",
             "developmentStatus": "DEV_COMPLETE"
@@ -648,7 +648,7 @@
       "classification": "PDP1_STATUS_AND_SEMANTIC_REVIEW_EVIDENCE_REFRESH_NO_PDP2_MEANING_DISPOSITION",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
       "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-      "successorDigest": "sha256:5998fec8b0c48137906bf877d7770843658c39154f15b78cc101fcc9bd4f28c6",
+      "successorDigest": "sha256:9042cbe0455cf2f90c73e75fc90da587e8b8dec69a9436a0bc4a514316aa49d5",
       "paths": [
         {
           "path": "docs/implementation/pdp-1-phase-dev-status.json",
@@ -721,7 +721,7 @@
         },
         "successorPdp1Receipt": {
           "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r13.json",
-          "digest": "sha256:7dba965fa36cbfdfd1e17b680785dec21f2c445fa7bc6d313102a80ff9d39259",
+          "digest": "sha256:299547841361f432a3cc9dee40eb6e80c73d7c25c63ccb026d753fa73af0622b",
           "phaseStatus": "PASS",
           "sourceCurrentness": "PASS",
           "developmentStatus": "DEV_COMPLETE"

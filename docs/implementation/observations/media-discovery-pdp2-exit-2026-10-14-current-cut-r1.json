@@ -15,7 +15,7 @@
     "valid": true,
     "phase": "PDP-1",
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json",
-    "exitDigest": "sha256:e5ff75e0045895290a3d839eee8fb8c301679e306a2075b892b092ad73502511",
+    "exitDigest": "sha256:cb64fbbe24dbc638867a4083177781ea5fc0049a4981f88a0a3d65f919c108da",
     "materialSourceSetFingerprint": "sha256:ad39e6cbc5a54e8771d76adac18b26c5eb107f3495189992b2e29adcd4681f17",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R2",
     "cellCount": 50,
@@ -24,7 +24,7 @@
   "decisionInputs": {
     "p1Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r2.json",
-      "sha256": "sha256:2c92b9c9b0942aef553bcada352ad98979b5fb7250e2fa12c1e1577f1cf481a5",
+      "sha256": "sha256:cb64fbbe24dbc638867a4083177781ea5fc0049a4981f88a0a3d65f919c108da",
       "materialSourceSetFingerprint": "sha256:ad39e6cbc5a54e8771d76adac18b26c5eb107f3495189992b2e29adcd4681f17"
     },
     "p0Exit": {

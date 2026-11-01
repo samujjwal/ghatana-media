@@ -28,9 +28,9 @@
     "phase": "PDP-0",
     "status": "PASS",
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
-    "exitSha256": "sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a",
+    "exitSha256": "sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
-    "currentnessSha256": "sha256:82306fcef405fe2df0520a0f84af3cae70f6d3e047d3e96258abb7762b1b7d6f",
+    "currentnessSha256": "sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4",
     "materialSourceSetFingerprint": "sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95",
     "materialPathCount": 146,
     "cellCount": 50
@@ -39,23 +39,23 @@
     "phase": "PDP-1",
     "status": "PASS",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-    "receiptSha256": "sha256:4f122013190fa06d53df90a09195428043fcd7b70eb558b1bcb8d0101c8714ac",
+    "receiptSha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
     "sourceCurrentness": "PASS",
     "predecessorExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
-    "predecessorExitSha256": "sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5",
+    "predecessorExitSha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
     "relationshipToCurrentPredecessor": "HISTORICAL_PDP1_RECEIPT_NOT_CHAINED_TO_PDP0_R15; FRESH_PDP1_CAPTURE_REQUIRED"
   },
   "pdp0AntecedentDispositions": [
     {
       "ref": "docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r2.json",
       "recordId": "MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R2",
-      "sha256": "sha256:7b14877d3103ba63933521c95766114d068d3d450f803ae66e2bc9af422b9d22",
+      "sha256": "sha256:a9ba665e7af874d911bf4063eb4bf5c0145d7410ce83161dbc182ea1125a62b6",
       "role": "PDP-0 antecedent disposition only; not a PDP-1 disposition or a substitute for fresh PDP-1 currentness."
     },
     {
       "ref": "docs/implementation/observations/media-discovery-pdp0-r12-successor-impact-2026-10-14-r3.json",
       "recordId": "MEDIA-DISCOVERY-PDP0-R12-SUCCESSOR-IMPACT-2026-10-14-R3",
-      "sha256": "sha256:e58996e977ff63d9099247a7c19370059a8f7466c746d184723708f0feebbd60",
+      "sha256": "sha256:33310a20c8d31fd84a426a771b6a6be344e0065d5d422c62f211b32fca568055",
       "role": "PDP-0 antecedent disposition only; its external Lifecycle tooling classification does not substitute for this PDP-1 review or a fresh PDP-1 capture."
     }
   ],

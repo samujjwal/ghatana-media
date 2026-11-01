@@ -10,7 +10,7 @@
   },
   "predecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "sha256": "sha256:af959512bc1d351f1de77d8744d5e47f5593855243f610473b5c74de5ae953da",
+    "sha256": "sha256:5cbd6fb6f39957f40e3012e1048658479eb367b18ebc57e3be313ffdbd18d6aa",
     "observedHead": "e58e67084a4871dc21fb10523f0bcd0df8167d47",
     "testSourceBaseline": "HEAD:tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
     "testSourcePredecessorSha256": "sha256:0c0b593a3cfa0a1cecfc1c6eb016d4c1f6019a24bbc2ea5755e849c679bd4839"
@@ -44,7 +44,7 @@
   "limitation": "This internal disposition covers only the exact regression-test source transition shown. It changes no PDP-1 product meaning, requires fresh PDP-1 currentness capture, and makes no owner acceptance, independent acceptance, native closure, runtime admission, or release claim.",
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14.json",
-    "sha256": "sha256:e50d736d4a81a558867bbd2810c34918df0d820aebb3cf193ad3c25a3b827f54",
+    "sha256": "sha256:d83301fe5adc097532d52306f5f0d628081b50fdc17cbcb2525ccec3a7b49043",
     "recordId": "MEDIA-DISCOVERY-PDP1-OWNER-STATUS-JOIN-TEST-REFRESH-2026-10-14",
     "reason": "Correct only the observedAt timestamp for current evidence; retain the exact authorized test transition and no-product-meaning scope."
   },

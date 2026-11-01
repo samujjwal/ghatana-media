@@ -29,9 +29,9 @@
     "phase": "PDP-0",
     "valid": true,
     "exitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json",
-    "exitDigest": "sha256:3f9b401f36ed23a50cf40a70670414e92327a71cffe80274d96d4006b55a39a3",
+    "exitDigest": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
     "currentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r2.json",
-    "currentnessDigest": "sha256:488268557558299df19a73e4be11bf34b29066850c7711a2ed56d40573506db2",
+    "currentnessDigest": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
     "currentnessValid": true,
     "matrixCutMatches": true,
     "exitRecordId": "MEDIA-PDP0-EXIT-a311af1f31e8",
@@ -276,9 +276,9 @@
     "status": "ACCEPTED_FOR_EXACT_CURRENT_FINGERPRINT_WITH_REVIEWED_DELTA",
     "valid": true,
     "historicalExitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
-    "historicalExitDigest": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957",
+    "historicalExitDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDirectionsRef": "docs/implementation/observations/media-discovery-current-cut-owner-directions-2026-10-13-r2.json",
-    "ownerDirectionsDigest": "sha256:4dc505154364b4ef98836e327cc556f1d24adf937d964913caba09c49c4176a4",
+    "ownerDirectionsDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "ownerDecisionId": "MEDIA-DISCOVERY-CURRENT-CUT-OWNER-2026-10-13-R2",
     "predecessorMaterialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
     "freshMaterialSourceSetFingerprint": "sha256:7e383ec49b6836fd5bd8ee09f3ec33875ca5ca3a6458eaff4205b313cf22f63b",
@@ -344,7 +344,7 @@
       }
     ],
     "supplementalImpactReviewRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-    "supplementalImpactReviewDigest": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+    "supplementalImpactReviewDigest": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
     "limitation": "Scoped internal owner materiality join for the exact reviewed delta; it is not exact-cut owner acceptance, independent approval, lifecycle closure, or release qualification."
   },
   "developmentStatus": {
@@ -601,7 +601,7 @@
               {
                 "phase": "PDP-1",
                 "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r4.json",
-                "receiptSha256": "sha256:75defdea88ca9f4320e8de4189891261b10de20e1db9f4cb119d31cb2f2a777e",
+                "receiptSha256": "sha256:9137b22645481fe36d31b12135c3258cbd9fb46084a6ddda9c90272e8009dbf7",
                 "materialSourceSetFingerprint": "sha256:1da1c83eda4ad1f4bed0ad35c27564887ca06b05ea2251a7f1f8b49e1c9176d5",
                 "materialPathCount": 329,
                 "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"
@@ -609,7 +609,7 @@
               {
                 "phase": "PDP-2",
                 "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r3.json",
-                "receiptSha256": "sha256:30e463012e3b0de2959756dbc24ae990357c8ccf1e310a6d0493266701456805",
+                "receiptSha256": "sha256:a1eb7833cafd9bf01555f871381fa2b3e1593866767a97d966da43c4a5bebfd6",
                 "materialSourceSetFingerprint": "sha256:725bd6097f4ba654569a76f9f5e248d3362c4c5123194796130e8890bf06921b",
                 "materialPathCount": 405,
                 "recordedPathDigest": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c"
@@ -634,7 +634,7 @@
           "predecessorSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
           "observedSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1",
           "impactRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-          "impactDigest": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+          "impactDigest": "sha256:478a0f09197366e4b6472991ae9f03776d7a2a106104c7a5362847e76fc5fe2f",
           "classification": "PDP3_STATUS_GUARD_ONLY; PDP1_NO_MEANING_CHANGE",
           "meaningChange": "NONE",
           "freshCurrentnessRequired": true

@@ -138,7 +138,7 @@
         "phase": "PDP-2",
         "exitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
         "fingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
-        "receiptDigest": "sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e",
+        "receiptDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
         "status": "PASS_AT_CAPTURED_SOURCE_CUT",
         "developmentStatus": "DEV_COMPLETE",
         "exactCutOwnerAcceptance": "NOT_RECORDED_OR_NOT_CLAIMED"
@@ -580,17 +580,17 @@
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-        "sha256": "sha256:4f122013190fa06d53df90a09195428043fcd7b70eb558b1bcb8d0101c8714ac",
+        "sha256": "sha256:b737f659cc35fb621aedf70ff0c7ada01fb75adc16cd9fd8d56f8f9e86997722",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "sha256": "sha256:2953afe865129746bfece73f65918434bf69d39869d1608c5f90e7391fb45405",
+        "sha256": "sha256:76dd2db4213f94a6cee86186a20c1dfd7d86b062344e9b6ee5ff95150a8d5f60",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp3-mdc30-execution-2026-10-13-r1.json",
-        "sha256": "sha256:bc8c3cec58fb7727b745b869823b6a6cfbdcba417a37e78275e3f8349bc08268",
+        "sha256": "sha256:6b78224f34b703f128f06f51b05b943c850e02d1e45d9a3f2b66e56d3b2b1ecd",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
