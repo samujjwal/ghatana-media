@@ -139,6 +139,23 @@ class AudioVideoRequestContextInterceptorTest {
             AuditRecord record = awaitRecord();
             assertThat(record.outcome()).isEqualTo(Outcome.DENIED_CROSS_TENANT);
         }
+
+        @Test
+        @DisplayName("rejects a forged raw x-tenant-id header even when Shared tenant context is not installed")
+        void rejectsForgedTenantHeaderWithoutSharedInterceptorContext() throws InterruptedException {
+            ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
+            Metadata headers = rolesHeader("av:user");
+            headers.put(com.ghatana.security.tenant.TenantGrpcInterceptor.TENANT_ID_KEY, "tenant-B");
+            ServerCallHandler<Object, Object> handler = mockHandler();
+
+            verifiedContext("user-1", "tenant-A").run(() -> interceptor.interceptCall(call, headers, handler));
+
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+            verify(handler, never()).startCall(any(), any());
+            assertThat(awaitRecord().outcome()).isEqualTo(Outcome.DENIED_CROSS_TENANT);
+        }
     }
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ Missing principal (unauthenticated) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬

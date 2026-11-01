@@ -88,6 +88,10 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         JwtServerInterceptor.VerifiedIdentity verifiedIdentity = JwtServerInterceptor.verifiedIdentity();
         String jwtTenant = verifiedIdentity == null ? null : verifiedIdentity.tenantId();
         String metaTenant = TenantGrpcInterceptor.TENANT_ID_CTX_KEY.get();
+        // The standard Media chain does not install Shared's TenantGrpcInterceptor,
+        // so inspect the raw tenant scope header as an untrusted cross-check too.
+        // It can never establish the effective tenant; only the verified identity can.
+        String requestedTenant = headers.get(TenantGrpcInterceptor.TENANT_ID_KEY);
 
         // The tenant interceptor context is a cross-check only. It cannot
         // substitute for the identity established by the JWT validator.
@@ -102,15 +106,16 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         }
 
         // ── 3. Cross-tenant guard ──────────────────────────────────────────
-        // If both JWT tenant and metadata tenant are present they must agree.
+        // Any supplied tenant scope must agree with the verified JWT tenant.
         if (jwtTenant != null && !jwtTenant.isBlank()
-                && metaTenant != null && !metaTenant.isBlank()
-                && !jwtTenant.equals(metaTenant)) {
+                && ((metaTenant != null && !metaTenant.isBlank() && !jwtTenant.equals(metaTenant))
+                || (requestedTenant != null && !requestedTenant.isBlank()
+                && !jwtTenant.equals(requestedTenant)))) {
             LOG.warn("Rejected cross-tenant request on {}", fullMethod);
             auditSink.emit(new AuditRecord(
                 effectiveTenant, principal(verifiedIdentity), "", fullMethod,
                 Outcome.DENIED_CROSS_TENANT,
-                "JWT tenant '" + jwtTenant + "' does not match header tenant '" + metaTenant + "'"));
+                "JWT tenant does not match supplied tenant scope"));
             call.close(Status.PERMISSION_DENIED.withDescription("Cross-tenant access denied"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
