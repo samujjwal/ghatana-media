@@ -476,6 +476,10 @@ class AudioVideoRunLedgerAdapterTest {
         params.put("bitrate", "5000k");
         params.put("codec", "h264");
         params.put("language", "en");
+        params.put("rightsRef", "rights:consent-42");
+        // Attackers can place credentials beneath a whitelisted key.
+        params.put("purpose", "Bearer sk-live-credential-value");
+        params.put("classification", "https://example.invalid/signed-source?token=secret");
         params.put("oversized", "x".repeat(300));
 
         RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
@@ -486,7 +490,11 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(ledger.inputs().parameters())
                 .containsEntry("bitrate", "5000k")
                 .containsEntry("codec", "h264")
-                .containsEntry("sanitizedParamsDropped", "4")
+                .containsEntry("language", "en")
+                .containsEntry("rightsRef", "rights:consent-42")
+                .containsEntry("sanitizedParamsDropped", "6")
+                .doesNotContainKey("purpose")
+                .doesNotContainKey("classification")
                 .doesNotContainKey("apiKey")
                 .doesNotContainKey("sourceToken")
                 .doesNotContainKey("tenantSecret")
@@ -494,7 +502,8 @@ class AudioVideoRunLedgerAdapterTest {
         // The raw provider job id never serializes — only a bounded fingerprint.
         String serialized = ledger.toString();
         assertThat(serialized).doesNotContain("mco-tenant-secret-job-1",
-                "sk-live-secret-token", "s3-signed-url-token", "do-not-leak");
+                "sk-live-secret-token", "s3-signed-url-token", "do-not-leak",
+                "sk-live-credential-value", "signed-source");
         assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
     }
 }

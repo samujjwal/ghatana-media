@@ -179,6 +179,12 @@ public final class AudioVideoRunLedgerAdapter {
      */
     private static final int MAX_LEDGER_KEY_CHARS = 64;
     private static final int MAX_LEDGER_VALUE_CHARS = 256;
+    // Values are metadata, not free-form text. Reject URL/credential shaped values
+    // even when supplied under an otherwise harmless whitelisted key.
+    private static final java.util.regex.Pattern SENSITIVE_LEDGER_VALUE =
+        java.util.regex.Pattern.compile(
+            "(?i)(https?://|\\bbearer\\s|(?:api[_ -]?key|secret|token|password|credential)\\s*[:=]"
+                + "|\\b(?:sk|pk|ghp|gho|glpat|akia)[-_][a-z0-9_-]{8,}\\b)");
     private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
         "bitrate", "codec", "format", "language", "languageTag", "sampleRate",
         "channels", "fps", "resolution", "width", "height", "durationMs",
@@ -215,8 +221,12 @@ public final class AudioVideoRunLedgerAdapter {
                 continue;
             }
             String value = entry.getValue() == null ? "" : entry.getValue();
-            clean.put(key, value.length() > MAX_LEDGER_VALUE_CHARS
-                    ? value.substring(0, MAX_LEDGER_VALUE_CHARS) : value);
+            if (value.length() > MAX_LEDGER_VALUE_CHARS
+                    || SENSITIVE_LEDGER_VALUE.matcher(value).find()) {
+                dropped++;
+                continue;
+            }
+            clean.put(key, value);
         }
         if (dropped > 0) {
             clean.put("sanitizedParamsDropped", String.valueOf(dropped));
