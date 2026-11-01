@@ -1073,6 +1073,76 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void ambiguousDownstreamChunkDeliveryCancelsProviderWithoutSendingContradictoryError() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        doAnswer(invocation -> { throw new IllegalStateException("transport write outcome ambiguous"); })
+                .when(observer).onNext(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+        sinkRef.get().onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1));
+
+        assertThat(sessionCancelled).isTrue();
+        verify(observer).onNext(any());
+        verify(observer, never()).onError(any());
+        verify(observer, never()).onCompleted();
+        Timer unknownResponse = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response").tag("outcome", "unknown")
+                .timer();
+        assertThat(unknownResponse).isNotNull();
+        assertThat(unknownResponse.count()).isEqualTo(1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response").tag("outcome", "failure")
+                .timer()).isNull();
+    }
+
+    @Test
+    void downstreamFatalDeliveryErrorIsRethrownAfterUnknownAndProviderCancellation() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        @SuppressWarnings("unchecked")
+        ServerCallStreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer =
+                mock(ServerCallStreamObserver.class);
+        AtomicReference<TtsStreamSink> sinkRef = new AtomicReference<>();
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        when(observer.isReady()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false);
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            sinkRef.set(invocation.getArgument(2));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        doAnswer(invocation -> { throw new AssertionError("fatal transport failure"); })
+                .when(observer).onNext(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+        sinkRef.get().onAudioFormat(monoPcm16Format());
+
+        assertThatThrownBy(() -> sinkRef.get().onChunk(
+                new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 0, false, 1)))
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("fatal transport failure");
+        assertThat(sessionCancelled).isTrue();
+        verify(observer).onNext(any());
+        verify(observer, never()).onError(any());
+        verify(observer, never()).onCompleted();
+        Timer unknownResponse = registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("boundary", "response").tag("outcome", "unknown")
+                .timer();
+        assertThat(unknownResponse).isNotNull();
+        assertThat(unknownResponse.count()).isEqualTo(1);
+    }
+
+    @Test
     void admittedStreamBoundsCumulativeOutputAndCancelsWhenTheLimitIsExceeded() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();

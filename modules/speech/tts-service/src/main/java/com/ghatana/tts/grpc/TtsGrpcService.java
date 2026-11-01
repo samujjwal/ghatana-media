@@ -290,6 +290,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         MediaWorkflowMetrics.Modality.TTS,
                         MediaWorkflowMetrics.Boundary.RESPONSE);
         AtomicBoolean responseRecorded = new AtomicBoolean();
+        AtomicBoolean responseDeliveryUnknown = new AtomicBoolean();
         java.util.function.Consumer<MediaWorkflowMetrics.Outcome> recordResponse = outcome -> {
             if (responseRecorded.compareAndSet(false, true)) responseBoundary.complete(outcome);
         };
@@ -298,6 +299,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 try {
                     responseObserver.onNext(value);
                 } catch (RuntimeException | Error ambiguousDelivery) {
+                    responseDeliveryUnknown.set(true);
                     recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
                     throw ambiguousDelivery;
                 }
@@ -307,6 +309,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     responseObserver.onError(failure);
                     recordResponse.accept(MediaWorkflowMetrics.Outcome.FAILURE);
                 } catch (RuntimeException | Error ambiguousDelivery) {
+                    responseDeliveryUnknown.set(true);
                     recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
                     throw ambiguousDelivery;
                 }
@@ -316,6 +319,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                     responseObserver.onCompleted();
                     recordResponse.accept(MediaWorkflowMetrics.Outcome.SUCCESS);
                 } catch (RuntimeException | Error ambiguousDelivery) {
+                    responseDeliveryUnknown.set(true);
                     recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
                     throw ambiguousDelivery;
                 }
@@ -506,13 +510,26 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                                 tracedObserver.onNext(toGrpcChunk(chunkSnapshot, synthesisOptions, false));
                             }
                         }
-                    } catch (RuntimeException streamFailure) {
-                        if (!isCancelled() && terminal.compareAndSet(false, true)) {
+                    } catch (RuntimeException | Error streamFailure) {
+                        if (responseDeliveryUnknown.get()) {
+                            if (terminal.compareAndSet(false, true)) {
+                                requestSessionCancellation.run();
+                                recordDuration.run();
+                            } else {
+                                requestSessionCancellation.run();
+                            }
+                            if (streamFailure instanceof Error fatal) throw fatal;
+                        } else if (streamFailure instanceof RuntimeException runtimeFailure
+                                && !isCancelled() && terminal.compareAndSet(false, true)) {
                             requestSessionCancellation.run();
-                            fail(tracedObserver, "Streaming synthesis", streamFailure);
+                            fail(tracedObserver, "Streaming synthesis", runtimeFailure);
                             recordDuration.run();
                         } else {
                             requestSessionCancellation.run();
+                            recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                            recordDuration.run();
+                            trace.finishUnknown();
+                            if (streamFailure instanceof Error fatal) throw fatal;
                         }
                     }
                     }
