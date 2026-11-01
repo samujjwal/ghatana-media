@@ -212,6 +212,25 @@ class TranscriptionCacheIT {
     }
 
     @Test
+    @DisplayName("Should not return a Redis transcript after the current source reports revocation")
+    void shouldTreatCachedTranscriptAsMissAfterCurrentSourceRevocation() {
+        String tenantId = "tenant-revoked";
+        UUID transcriptionId = UUID.randomUUID();
+        TranscriptionEntity previouslyAuthorized = buildEntityWithIdAndText(
+                tenantId, transcriptionId, "Previously authorized transcript");
+        await(cacheService.cacheTranscription(tenantId, previouslyAuthorized));
+
+        TranscriptionEntity current = await(cacheService.getOrLoadTranscription(
+                tenantId, transcriptionId,
+                ignored -> AsyncOperation.success(Optional.empty())));
+
+        assertThat(current).isNull();
+        // Redis may still hold an optimization entry, but the protected read path
+        // only returns what its current source/authorization loader supplied.
+        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isPresent();
+    }
+
+    @Test
     @DisplayName("Should return the same current source result with Redis writes enabled or disabled")
     @SuppressWarnings("unchecked")
     void shouldHaveCacheOnCacheOffSourceEquivalence() {

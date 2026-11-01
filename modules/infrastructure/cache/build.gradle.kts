@@ -42,3 +42,14 @@ tasks.test {
     // Exclude integration tests (ending in IT) as they require Docker/Testcontainers
     exclude("**/*IT.class", "**/*IT$*.class")
 }
+
+// Explicit isolated Redis/Testcontainers qualification, kept separate from the fast unit task.
+tasks.register<Test>("integrationTest") {
+    description = "Runs cache integration tests against isolated Redis containers."
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    include("**/*IT.class", "**/*IntegrationTest.class")
+    shouldRunAfter(tasks.test)
+}

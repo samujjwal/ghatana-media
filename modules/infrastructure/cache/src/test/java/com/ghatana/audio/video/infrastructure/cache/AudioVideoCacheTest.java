@@ -1,6 +1,9 @@
 package com.ghatana.audio.video.infrastructure.cache;
 
 import com.ghatana.cache.DistributedCachePort;
+import com.ghatana.cache.CacheBulkInvalidationOutcome;
+import com.ghatana.cache.DistributedCacheService;
+import com.ghatana.cache.backend.CacheOperationResult;
 import com.ghatana.core.async.AsyncOperation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,15 +22,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static com.ghatana.audio.video.infrastructure.cache.AsyncOperationTestSupport.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -134,7 +141,7 @@ class AudioVideoCacheTest {
     }
 
     @Test
-    @DisplayName("distinct-key contention never exceeds in-flight cap and overflow loads source")
+    @DisplayName("distinct-key contention caps source concurrency and rejects overflow")
     void distinctKeyContentionRespectsInFlightCap() throws Exception {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
         int requestCount = 1_200;
@@ -171,12 +178,20 @@ class AudioVideoCacheTest {
             }
 
             assertThat(cacheReads).hasSize(capacity);
-            assertThat(sourceLoads).hasValue(requestCount - capacity);
+            assertThat(sourceLoads).hasValue(0);
             cacheReads.values().forEach(read -> read.complete(Optional.empty()));
             for (int index = 0; index < requestCount; index++) {
-                assertThat(await(requests.get(index))).isEqualTo("source-key-" + index);
+                String key = "key-" + index;
+                AsyncOperation<String> request = requests.get(index);
+                if (cacheReads.containsKey(key)) {
+                    assertThat(await(request)).isEqualTo("source-" + key);
+                } else {
+                    assertThatThrownBy(() -> await(request))
+                            .hasRootCauseInstanceOf(IllegalStateException.class)
+                            .hasRootCauseMessage("Cache load coordination capacity reached");
+                }
             }
-            assertThat(sourceLoads).hasValue(requestCount);
+            assertThat(sourceLoads).hasValue(capacity);
         } finally {
             workers.shutdownNow();
         }
@@ -196,5 +211,548 @@ class AudioVideoCacheTest {
                 ).isEqualTo("source-value");
         assertThat(await(cache.getOrLoad("write-fails", ignored -> AsyncOperation.success("source-value")))
                 ).isEqualTo("source-value");
+    }
+
+    @Test
+    @DisplayName("pending cache write keeps same-key calls coalesced until timeout releases reservation")
+    void pendingCacheWriteKeepsSameKeyCoalescedUntilTimeoutThenReleasesReservation() throws Exception {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                cachePort, "transcription", Duration.ofSeconds(2));
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        AtomicInteger loads = new AtomicInteger();
+        when(cachePort.get("write-pends")).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(cachePort.put(eq("write-pends"), eq("source-value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite), AsyncOperation.success(null));
+
+        AsyncOperation<String> first = cache.getOrLoad("write-pends", ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("source-value");
+        });
+        CompletableFuture<String> firstResult = new CompletableFuture<>();
+        first.whenComplete((value, error) -> {
+            if (error == null) firstResult.complete(value);
+            else firstResult.completeExceptionally(error);
+        });
+        assertThat(firstResult.get(500, TimeUnit.MILLISECONDS)).isEqualTo("source-value");
+        assertThat(pendingWrite).isNotCompleted();
+
+        AsyncOperation<String> duringWrite = cache.getOrLoad("write-pends", ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("unexpected-duplicate-load");
+        });
+        assertThat(await(duringWrite)).isEqualTo("source-value");
+        assertThat(loads).hasValue(1);
+
+        CompletableFuture<String> recoveredValue = new CompletableFuture<>();
+        CompletableFuture.delayedExecutor(2_100, TimeUnit.MILLISECONDS).execute(() ->
+                cache.getOrLoad("write-pends", ignored -> {
+                    loads.incrementAndGet();
+                    return AsyncOperation.success("source-after-timeout");
+                }).whenComplete((value, error) -> {
+                    if (error == null) recoveredValue.complete(value);
+                    else recoveredValue.completeExceptionally(error);
+                }));
+        assertThat(recoveredValue.get(3, TimeUnit.SECONDS)).isEqualTo("source-after-timeout");
+        assertThat(loads).hasValue(2);
+        verify(cachePort).put(eq("write-pends"), eq("source-value"), any(Duration.class));
+        assertThat(pendingWrite).isNotCompleted();
+    }
+
+    @Test
+    @DisplayName("cache write is dispatched and observed before caller completion")
+    @SuppressWarnings("unchecked")
+    void dispatchesAndObservesCacheWriteBeforeCallerCompletion() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        AtomicBoolean putDispatched = new AtomicBoolean();
+        AtomicBoolean writeCompletionRegistered = new AtomicBoolean();
+        AtomicBoolean callerSawWriteRegistration = new AtomicBoolean();
+        when(cachePort.get("ordered-write")).thenReturn(AsyncOperation.success(Optional.empty()));
+        AsyncOperation<Void> trackedWrite = mock(AsyncOperation.class);
+        when(cachePort.put(eq("ordered-write"), eq("source-value"), any(Duration.class)))
+                .thenAnswer(invocation -> {
+                    putDispatched.set(true);
+                    return trackedWrite;
+                });
+        when(trackedWrite.whenComplete(any())).thenAnswer(invocation -> {
+            BiConsumer<Void, Throwable> callback = invocation.getArgument(0);
+            pendingWrite.whenComplete(callback);
+            writeCompletionRegistered.set(true);
+            return trackedWrite;
+        });
+
+        cache.getOrLoad("ordered-write", ignored -> AsyncOperation.success("source-value"))
+                .whenComplete((value, error) -> callerSawWriteRegistration.set(
+                        putDispatched.get() && writeCompletionRegistered.get()));
+
+        assertThat(putDispatched).isTrue();
+        assertThat(writeCompletionRegistered).isTrue();
+        assertThat(callerSawWriteRegistration).isTrue();
+    }
+
+    @Test
+    @DisplayName("uncertain late write fences reads, newer writes and invalidation until it settles")
+    void uncertainLateWriteFencesSameKeyUntilActualCompletion() throws Exception {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                service, "transcription", Duration.ofMillis(25));
+        CompletableFuture<Void> lateWrite = new CompletableFuture<>();
+        java.util.concurrent.ConcurrentHashMap<String, String> values = new java.util.concurrent.ConcurrentHashMap<>();
+        AtomicInteger sourceLoads = new AtomicInteger();
+        AtomicInteger cacheWrites = new AtomicInteger();
+        AtomicInteger cacheReads = new AtomicInteger();
+        when(service.get("uncertain-write")).thenAnswer(invocation -> {
+            cacheReads.incrementAndGet();
+            return AsyncOperation.success(Optional.ofNullable(values.get("uncertain-write")));
+        });
+        when(service.put(eq("uncertain-write"), anyString(), any(Duration.class)))
+                .thenAnswer(invocation -> {
+                    String value = invocation.getArgument(1);
+                    cacheWrites.incrementAndGet();
+                    lateWrite.whenComplete((ignored, error) -> {
+                        if (error == null) values.put("uncertain-write", value);
+                    });
+                    return AsyncOperation.from(lateWrite);
+                });
+
+        assertThat(await(cache.getOrLoad("uncertain-write", ignored -> {
+            sourceLoads.incrementAndGet();
+            return AsyncOperation.success("original-value");
+        }))).isEqualTo("original-value");
+        CompletableFuture<Void> timeoutElapsed = new CompletableFuture<>();
+        CompletableFuture.delayedExecutor(100, TimeUnit.MILLISECONDS)
+                .execute(() -> timeoutElapsed.complete(null));
+        timeoutElapsed.get(1, TimeUnit.SECONDS);
+
+        assertThat(await(cache.get("uncertain-write"))).isEmpty();
+        assertThat(await(cache.getOrLoad("uncertain-write", ignored -> {
+            sourceLoads.incrementAndGet();
+            return AsyncOperation.success("fresh-source-value");
+        }))).isEqualTo("fresh-source-value");
+        assertThatThrownBy(() -> await(cache.put("uncertain-write", "new-cache-value")))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Cache write is already pending or coordination capacity is full");
+        assertThatThrownBy(() -> await(cache.invalidate("uncertain-write")))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Cache key has an active mutation or coordination capacity is full");
+        assertThat(cacheReads).hasValue(1);
+        assertThat(cacheWrites).hasValue(1);
+        assertThat(sourceLoads).hasValue(2);
+
+        lateWrite.complete(null);
+        assertThat(values).containsEntry("uncertain-write", "original-value");
+        await(cache.put("uncertain-write", "after-settlement"));
+        assertThat(cacheWrites).hasValue(2);
+    }
+
+    @Test
+    @DisplayName("pending cache read falls back once and ignores a late cache hit")
+    void pendingCacheReadTimesOutToSourceAndIgnoresLateCompletion() throws Exception {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                cachePort, "transcription", Duration.ofMillis(100));
+        CompletableFuture<Optional<String>> pendingRead = new CompletableFuture<>();
+        CompletableFuture<String> sourceValue = new CompletableFuture<>();
+        java.util.concurrent.CountDownLatch sourceStarted = new java.util.concurrent.CountDownLatch(1);
+        AtomicInteger loads = new AtomicInteger();
+        when(cachePort.get("read-pends")).thenReturn(AsyncOperation.from(pendingRead));
+
+        AsyncOperation<String> first = cache.getOrLoad("read-pends", ignored -> {
+            loads.incrementAndGet();
+            sourceStarted.countDown();
+            return AsyncOperation.from(sourceValue);
+        });
+        assertThat(sourceStarted.await(1, TimeUnit.SECONDS)).isTrue();
+
+        AsyncOperation<String> duringSourceLoad = cache.getOrLoad("read-pends", ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("duplicate-source-value");
+        });
+        sourceValue.complete("source-value");
+        assertThat(await(first)).isEqualTo("source-value");
+        assertThat(await(duringSourceLoad)).isEqualTo("source-value");
+        assertThat(loads).hasValue(1);
+
+        pendingRead.complete(Optional.of("late-cache-value"));
+        assertThat(await(first)).isEqualTo("source-value");
+        assertThat(loads).hasValue(1);
+        verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("source errors remain visible when a cache read times out")
+    void sourceLoaderFailureRemainsVisibleAfterCacheReadTimeout() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                cachePort, "transcription", Duration.ofMillis(20));
+        CompletableFuture<Optional<String>> pendingRead = new CompletableFuture<>();
+        when(cachePort.get("read-and-source-fail")).thenReturn(AsyncOperation.from(pendingRead));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> await(cache.getOrLoad(
+                "read-and-source-fail", ignored -> AsyncOperation.failure(
+                        new IllegalStateException("source unavailable")))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("source unavailable");
+
+        verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("direct cache get and put have bounded caller outcomes")
+    void directCacheOperationsTimeOutWithoutReleasingPendingWriteMarker() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(
+                cachePort, "transcription", Duration.ofMillis(20));
+        CompletableFuture<Optional<String>> pendingRead = new CompletableFuture<>();
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        when(cachePort.get("public-read-pends")).thenReturn(AsyncOperation.from(pendingRead));
+        when(cachePort.put(eq("public-write-pends"), eq("value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite));
+
+        assertThatThrownBy(() -> await(cache.get("public-read-pends")))
+                .hasRootCauseInstanceOf(java.util.concurrent.TimeoutException.class);
+        pendingRead.complete(Optional.of("late-read"));
+
+        assertThatThrownBy(() -> await(cache.put("public-write-pends", "value")))
+                .hasRootCauseInstanceOf(java.util.concurrent.TimeoutException.class);
+        assertThat(await(cache.get("public-write-pends"))).isEmpty();
+        verify(cachePort, times(0)).get("public-write-pends");
+
+        pendingWrite.complete(null);
+    }
+
+    @Test
+    @DisplayName("pending write markers cap memory and recover when writes settle")
+    void pendingWriteMarkerCapacityIsBoundedAndReleasedOnCompletion() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        when(cachePort.put(anyString(), anyString(), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite));
+        List<AsyncOperation<Void>> writes = new ArrayList<>();
+        for (int index = 0; index < 1_024; index++) {
+            writes.add(cache.put("pending-" + index, "value"));
+        }
+
+        assertThatThrownBy(() -> await(cache.put("overflow", "value")))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Cache write is already pending or coordination capacity is full");
+
+        pendingWrite.complete(null);
+        for (AsyncOperation<Void> write : writes) await(write);
+        await(cache.put("after-settlement", "value"));
+    }
+
+    @Test
+    @DisplayName("unknown synchronous cache write outcome remains fenced")
+    void synchronousWriteFailureRetainsFenceAndReturnsFailure() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        when(cachePort.put(eq("write-throws"), eq("value"), any(Duration.class)))
+                .thenThrow(new IllegalStateException("cache dispatch failed"));
+
+        assertThatThrownBy(() -> await(cache.put("write-throws", "value")))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("cache dispatch failed");
+        assertThat(await(cache.get("write-throws"))).isEmpty();
+        assertThat(await(cache.getOrLoad("write-throws", ignored -> AsyncOperation.success("source-value"))))
+                .isEqualTo("source-value");
+        verify(cachePort, times(0)).get("write-throws");
+    }
+
+    @Test
+    @DisplayName("null cache operations fail closed or fall back to source without leaking uncertain writes")
+    void nullCacheOperationsAreHandledSafely() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        when(cachePort.get("null-get")).thenReturn(null);
+        when(cachePort.get("null-read-through")).thenReturn(null);
+        when(cachePort.put(eq("null-write"), eq("value"), any(Duration.class))).thenReturn(null);
+
+        assertThatThrownBy(() -> await(cache.get("null-get")))
+                .hasRootCauseInstanceOf(NullPointerException.class);
+        assertThat(await(cache.getOrLoad("null-read-through",
+                ignored -> AsyncOperation.success("source-value"))))
+                .isEqualTo("source-value");
+        assertThatThrownBy(() -> await(cache.put("null-write", "value")))
+                .hasRootCauseInstanceOf(NullPointerException.class);
+        assertThat(await(cache.get("null-write"))).isEmpty();
+        verify(cachePort, times(0)).get("null-write");
+    }
+
+    @Test
+    @DisplayName("cache epochs downgrade reads and source loads that overlap a write")
+    void cacheEpochFencesPendingReadAndStaleSourceRecache() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> directRead = new CompletableFuture<>();
+        CompletableFuture<Optional<String>> readThrough = new CompletableFuture<>();
+        when(cachePort.get("direct-epoch")).thenReturn(AsyncOperation.from(directRead));
+        when(cachePort.get("read-through-epoch")).thenReturn(AsyncOperation.from(readThrough));
+        when(cachePort.put(eq("direct-epoch"), eq("new-value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(cachePort.put(eq("read-through-epoch"), eq("write-during-read"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        AtomicInteger loads = new AtomicInteger();
+
+        AsyncOperation<Optional<String>> direct = cache.get("direct-epoch");
+        await(cache.put("direct-epoch", "new-value"));
+        directRead.complete(Optional.of("pre-write-stale"));
+        assertThat(await(direct)).isEmpty();
+
+        AsyncOperation<String> readThroughResult = cache.getOrLoad("read-through-epoch", ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("current-source-value");
+        });
+        await(cache.put("read-through-epoch", "write-during-read"));
+        readThrough.complete(Optional.of("pre-write-stale"));
+        assertThat(await(readThroughResult)).isEqualTo("current-source-value");
+        assertThat(loads).hasValue(1);
+        verify(cachePort, times(1)).put(eq("read-through-epoch"), eq("write-during-read"),
+                any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("mutating one key does not invalidate another key's pending load or read")
+    void perKeyGenerationsDoNotFenceUnrelatedKeys() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> readA = new CompletableFuture<>();
+        CompletableFuture<Optional<String>> readB = new CompletableFuture<>();
+        CompletableFuture<String> sourceB = new CompletableFuture<>();
+        when(cachePort.get("a")).thenReturn(AsyncOperation.from(readA));
+        when(cachePort.get("b")).thenReturn(AsyncOperation.from(readB));
+        when(cachePort.put(eq("a"), eq("mutation"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(cachePort.put(eq("b"), eq("loaded-b"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        AsyncOperation<String> loadB = cache.getOrLoad("b", ignored -> AsyncOperation.from(sourceB));
+        AsyncOperation<String> loadA = cache.getOrLoad("a", ignored -> AsyncOperation.success("loaded-a"));
+        await(cache.put("a", "mutation"));
+        readA.complete(Optional.empty());
+        readB.complete(Optional.empty());
+        sourceB.complete("loaded-b");
+        assertThat(await(loadB)).isEqualTo("loaded-b");
+        assertThat(await(loadA)).isEqualTo("loaded-a");
+        verify(cachePort).put(eq("b"), eq("loaded-b"), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("a direct read for one key survives mutation of another key")
+    void unrelatedDirectReadSurvivesOtherKeyMutation() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> readB = new CompletableFuture<>();
+        when(cachePort.get("b")).thenReturn(AsyncOperation.from(readB));
+        when(cachePort.put(eq("a"), eq("mutation"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        AsyncOperation<Optional<String>> directB = cache.get("b");
+        await(cache.put("a", "mutation"));
+        readB.complete(Optional.of("cached-b"));
+        assertThat(await(directB)).contains("cached-b");
+    }
+
+    @Test
+    @DisplayName("completing a read callback does not hold the lock needed by unrelated mutations")
+    void blockedReadCallbackDoesNotBlockUnrelatedMutation() throws Exception {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> read = new CompletableFuture<>();
+        CountDownLatch callbackEntered = new CountDownLatch(1);
+        CountDownLatch releaseCallback = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        when(cachePort.get("callback-key")).thenReturn(AsyncOperation.from(read));
+        when(cachePort.put(eq("other-key"), eq("value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        try {
+            cache.get("callback-key").whenComplete((ignored, error) -> {
+                callbackEntered.countDown();
+                try {
+                    releaseCallback.await(2, TimeUnit.SECONDS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+            Future<?> completingRead = executor.submit(() -> read.complete(Optional.of("cached")));
+            assertThat(callbackEntered.await(1, TimeUnit.SECONDS)).isTrue();
+            Future<Void> mutation = executor.submit(() -> await(cache.put("other-key", "value")));
+            mutation.get(1, TimeUnit.SECONDS);
+            releaseCallback.countDown();
+            completingRead.get(1, TimeUnit.SECONDS);
+        } finally {
+            releaseCallback.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("cache-hit load callbacks run outside the mutation lock")
+    void blockedCacheHitCallbackDoesNotBlockUnrelatedMutation() throws Exception {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> read = new CompletableFuture<>();
+        CountDownLatch callbackEntered = new CountDownLatch(1);
+        CountDownLatch releaseCallback = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        when(cachePort.get("cache-hit")).thenReturn(AsyncOperation.from(read));
+        when(cachePort.put(eq("other-key"), eq("value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        try {
+            cache.getOrLoad("cache-hit", ignored -> AsyncOperation.success("source"))
+                    .whenComplete((ignored, error) -> {
+                        callbackEntered.countDown();
+                        try {
+                            releaseCallback.await(2, TimeUnit.SECONDS);
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                        }
+                    });
+            Future<?> completingRead = executor.submit(() -> read.complete(Optional.of("cached")));
+            assertThat(callbackEntered.await(1, TimeUnit.SECONDS)).isTrue();
+            Future<Void> mutation = executor.submit(() -> await(cache.put("other-key", "value")));
+            mutation.get(1, TimeUnit.SECONDS);
+            releaseCallback.countDown();
+            completingRead.get(1, TimeUnit.SECONDS);
+        } finally {
+            releaseCallback.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("accepted cache-hit delivery fences port invalidation until completion returns")
+    void cacheHitDeliveryFencesPortInvalidation() throws Exception {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        CompletableFuture<Optional<String>> read = new CompletableFuture<>();
+        CountDownLatch callbackEntered = new CountDownLatch(1);
+        CountDownLatch releaseCallback = new CountDownLatch(1);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        when(service.get("cache-hit-during-invalidate"))
+                .thenReturn(AsyncOperation.from(read));
+        when(service.invalidateAll()).thenReturn(AsyncOperation.success(bulkInvalidationSuccess()));
+        try {
+            cache.getOrLoad("cache-hit-during-invalidate", ignored -> AsyncOperation.success("source"))
+                    .whenComplete((ignored, error) -> {
+                        callbackEntered.countDown();
+                        try {
+                            releaseCallback.await(2, TimeUnit.SECONDS);
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                        }
+                    });
+            Future<?> completingRead = executor.submit(
+                    () -> read.complete(Optional.of("cached-before-invalidation")));
+            assertThat(callbackEntered.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThatThrownBy(() -> await(cache.invalidateAll()))
+                    .hasRootCauseInstanceOf(IllegalStateException.class);
+            verify(service, times(0)).invalidateAll();
+            releaseCallback.countDown();
+            completingRead.get(1, TimeUnit.SECONDS);
+            await(cache.invalidateAll());
+            verify(service, times(1)).invalidateAll();
+        } finally {
+            releaseCallback.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("sequential unique mutations release bounded per-key coordination state")
+    void uniqueSequentialMutationsDoNotRetainKeyState() {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        when(service.put(anyString(), anyString(), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(service.invalidateAsync(anyString())).thenReturn(AsyncOperation.success(null));
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+
+        for (int i = 0; i < 2_500; i++) {
+            String key = "unique-" + i;
+            await(cache.put(key, "value"));
+            assertThat(cache.activeKeyCoordinationCount()).isZero();
+            await(cache.invalidate(key));
+            assertThat(cache.activeKeyCoordinationCount()).isZero();
+        }
+    }
+
+    @Test
+    @DisplayName("single-key invalidation atomically fences reads and writes")
+    void singleKeyInvalidationReservesMutationBarrier() {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        CompletableFuture<Void> invalidation = new CompletableFuture<>();
+        when(service.invalidateAsync("invalidate-key")).thenReturn(AsyncOperation.from(invalidation));
+        when(service.put(eq("invalidate-key"), anyString(), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        AsyncOperation<Void> result = cache.invalidate("invalidate-key");
+        assertThat(await(cache.get("invalidate-key"))).isEmpty();
+        assertThatThrownBy(() -> await(cache.put("invalidate-key", "new-value")))
+                .hasRootCauseInstanceOf(IllegalStateException.class);
+        verify(service, times(0)).get("invalidate-key");
+        verify(service, times(0)).put(eq("invalidate-key"), anyString(), any(Duration.class));
+
+        invalidation.complete(null);
+        await(result);
+        await(cache.put("invalidate-key", "after-invalidation"));
+    }
+
+    @Test
+    @DisplayName("port-scope invalidation rejects overlapping writes and fences old reads")
+    void portScopeInvalidationBlocksMutationsAndStaleReads() throws Exception {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        CompletableFuture<String> oldSourceResult = new CompletableFuture<>();
+        java.util.concurrent.CountDownLatch oldSourceStarted = new java.util.concurrent.CountDownLatch(1);
+        when(service.put(eq("active-write"), eq("old"), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite));
+        when(service.get("source-before-port-invalidate"))
+                .thenReturn(AsyncOperation.success(Optional.empty()));
+        when(service.put(eq("during-port-invalidate"), eq("after-erase"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        AsyncOperation<Void> write = cache.put("active-write", "old");
+        assertThatThrownBy(() -> await(cache.invalidateAll()))
+                .hasRootCauseInstanceOf(IllegalStateException.class);
+        verify(service, times(0)).invalidateAll();
+        pendingWrite.complete(null);
+        await(write);
+
+        AsyncOperation<String> oldSourceLoad = cache.getOrLoad("source-before-port-invalidate", ignored -> {
+            oldSourceStarted.countDown();
+            return AsyncOperation.from(oldSourceResult);
+        });
+        assertThat(oldSourceStarted.await(1, TimeUnit.SECONDS)).isTrue();
+
+        CompletableFuture<com.ghatana.cache.CacheBulkInvalidationOutcome> pendingInvalidation =
+                new CompletableFuture<>();
+        when(service.invalidateAll()).thenReturn(AsyncOperation.from(pendingInvalidation));
+        AsyncOperation<Void> invalidation = cache.invalidateAll();
+        assertThatThrownBy(() -> await(cache.put("during-port-invalidate", "blocked")))
+                .hasRootCauseInstanceOf(IllegalStateException.class);
+        assertThat(await(cache.get("during-port-invalidate"))).isEmpty();
+        assertThat(await(cache.getOrLoad("during-port-invalidate",
+                ignored -> AsyncOperation.success("source-only")))).isEqualTo("source-only");
+        verify(service, times(0)).get("during-port-invalidate");
+
+        oldSourceResult.complete("old-source-result");
+        assertThat(await(oldSourceLoad)).isEqualTo("old-source-result");
+        verify(service, times(0)).put(eq("source-before-port-invalidate"), anyString(),
+                any(Duration.class));
+
+        pendingInvalidation.complete(bulkInvalidationSuccess());
+        await(invalidation);
+        await(cache.put("during-port-invalidate", "after-erase"));
+    }
+
+    private static CacheBulkInvalidationOutcome bulkInvalidationSuccess() {
+        return CacheBulkInvalidationOutcome.from(
+                "test", CacheOperationResult.complete(0, 0, 0));
+    }
+
+    @Test
+    @DisplayName("source loader failure remains visible and is not cached")
+    void sourceLoaderFailureIsNotHiddenByCache() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        when(cachePort.get("source-fails")).thenReturn(AsyncOperation.success(Optional.empty()));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> await(cache.getOrLoad(
+                "source-fails", ignored -> AsyncOperation.failure(
+                        new IllegalStateException("source unavailable")))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("source unavailable");
+
+        verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
     }
 }

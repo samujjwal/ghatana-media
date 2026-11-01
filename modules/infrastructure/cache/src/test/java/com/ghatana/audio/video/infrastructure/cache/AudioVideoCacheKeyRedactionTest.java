@@ -19,6 +19,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -91,10 +93,13 @@ class AudioVideoCacheKeyRedactionTest {
                     ignored -> AsyncOperation.success("source-value")))).isEqualTo("source-value");
             assertOperationFails(() -> cache.put(key, "value"));
             assertOperationFails(cache::invalidateAll);
+            verify(port, never()).invalidateAll();
             assertOperationFails(() -> serviceCache.invalidate(key));
 
             String output = logs.output();
-            assertThat(logs.entries).hasSize(5);
+            // The failed write has an unresolved backend outcome, so the port-scope
+            // invalidation is rejected locally and produces no backend error log.
+            assertThat(logs.entries).hasSize(4);
             assertThat(output).contains("causeType=IllegalStateException", "keyRef="
                     + AudioVideoCache.keyReference(key), "namespace=transcription");
             assertThat(output).doesNotContain(key, exceptionMarker, "secret-cache-material");
