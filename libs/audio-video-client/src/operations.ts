@@ -475,20 +475,22 @@ export class MediaOperationClient {
     // Detach caller-owned metadata before headers() can await token acquisition.
     // The same immutable JSON snapshot is sent and then used for response binding.
     const requestSnapshot = JSON.parse(JSON.stringify(uploadRequest)) as typeof uploadRequest;
-    const created = await this.transport.request(
-      "POST", "/api/v1/artifacts/uploads", requestSnapshot,
+    return this.requestMutation(
+      "/api/v1/artifacts/uploads", requestSnapshot,
       { parse: parseCanonicalMediaUploadSession }, signal,
       { "Idempotency-Key": idempotencyKey },
+      (created) => {
+        this.assertUploadScope(created, principalId);
+        if (created.fileName !== requestSnapshot.fileName || created.contentType !== requestSnapshot.contentType
+          || created.expectedSizeBytes !== requestSnapshot.expectedSizeBytes
+          || created.expectedSha256 !== requestSnapshot.expectedSha256
+          || created.classification !== requestSnapshot.classification
+          || !sameJson(created.metadata, requestSnapshot.metadata)) {
+          throw new TypeError("Canonical Media upload response does not bind the submitted immutable request fields.");
+        }
+        return created;
+      },
     );
-    this.assertUploadScope(created, principalId);
-    if (created.fileName !== requestSnapshot.fileName || created.contentType !== requestSnapshot.contentType
-      || created.expectedSizeBytes !== requestSnapshot.expectedSizeBytes
-      || created.expectedSha256 !== requestSnapshot.expectedSha256
-      || created.classification !== requestSnapshot.classification
-      || !sameJson(created.metadata, requestSnapshot.metadata)) {
-      throw new TypeError("Canonical Media upload response does not bind the submitted immutable request fields.");
-    }
-    return created;
   }
 
   public async uploadPart(
@@ -627,20 +629,49 @@ export class MediaOperationClient {
         throw new Error("Session-based completion requires an OPEN, complete upload session.");
       }
     }
-    const artifact = await this.transport.request(
-      "POST", `/api/v1/artifacts/uploads/${encodeURIComponent(requestedId)}/complete`, undefined,
-      { parse: parseCanonicalMediaArtifactObservation }, signal,
+    return this.requestMutation(
+      `/api/v1/artifacts/uploads/${encodeURIComponent(requestedId)}/complete`, undefined,
+      { parse: parseCanonicalMediaArtifactObservation }, signal, {},
+      (artifact) => {
+        if (artifact.tenantId !== this.tenantId || artifact.principalId !== principalId) {
+          throw new TypeError("Canonical Media artifact response scope does not match the caller.");
+        }
+        if (session && (artifact.sizeBytes !== session.expectedSizeBytes
+          || artifact.sha256 !== session.expectedSha256 || artifact.fileName !== session.fileName
+          || artifact.contentType !== session.contentType || artifact.classification !== session.classification
+          || !sameJson(artifact.metadata, session.metadata))) {
+          throw new TypeError("Canonical Media artifact response does not bind to the completed upload session.");
+        }
+        return artifact;
+      },
     );
-    if (artifact.tenantId !== this.tenantId || artifact.principalId !== principalId) {
-      throw new TypeError("Canonical Media artifact response scope does not match the caller.");
+  }
+
+  private async requestMutation<T>(
+    path: string,
+    body: unknown,
+    parser: RuntimeParser<T>,
+    signal?: AbortSignal,
+    headers: Readonly<Record<string, string>> = {},
+    validate?: (value: T) => T,
+  ): Promise<T> {
+    let dispatched = false;
+    try {
+      const result = await this.transport.request(
+        "POST", path, body, parser, signal, headers,
+        () => { dispatched = true; },
+      );
+      return validate ? validate(result) : result;
+    } catch (failure) {
+      const definitiveClientRejection = failure instanceof MediaClientError
+        && failure.statusCode !== undefined
+        && failure.statusCode >= 400 && failure.statusCode < 500
+        && failure.statusCode !== 408 && failure.statusCode !== 429;
+      if (dispatched && !definitiveClientRejection) {
+        throw new MediaOperationAmbiguousError(path, failure);
+      }
+      throw failure;
     }
-    if (session && (artifact.sizeBytes !== session.expectedSizeBytes
-      || artifact.sha256 !== session.expectedSha256 || artifact.fileName !== session.fileName
-      || artifact.contentType !== session.contentType || artifact.classification !== session.classification
-      || !sameJson(artifact.metadata, session.metadata))) {
-      throw new TypeError("Canonical Media artifact response does not bind to the completed upload session.");
-    }
-    return artifact;
   }
 
   private requirePrincipalId(operation: string): string {
@@ -795,8 +826,7 @@ export class MediaOperationClient {
     operationId: string,
     signal?: AbortSignal,
   ): Promise<MediaProcessingJob> {
-    return this.transport.request(
-      "POST",
+    return this.requestMutation(
       `/api/v1/media/operations/${encodeURIComponent(operationId)}:cancel`,
       {},
       MediaProcessingJobSchema,
@@ -838,28 +868,9 @@ export class MediaOperationClient {
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<T>> {
     let accepted: OperationAccepted;
-    let dispatched = false;
-    try {
-      accepted = await this.transport.request(
-        "POST",
-        path,
-        body,
-        OperationAcceptedSchema,
-        signal,
-        { "Idempotency-Key": idempotencyKey },
-        () => { dispatched = true; },
-      );
-    } catch (failure) {
-      // Once fetch is entered, the job may already exist server-side. A
-      // transport failure, server failure, or unusable acknowledgement cannot
-      // prove no effect; preserve UNKNOWN so callers reconcile before replay.
-      const definitiveClientRejection = failure instanceof MediaClientError
-        && [400, 401, 403].includes(failure.statusCode ?? 0);
-      if (dispatched && !definitiveClientRejection) {
-        throw new MediaOperationAmbiguousError(path, failure);
-      }
-      throw failure;
-    }
+    accepted = await this.requestMutation(
+      path, body, OperationAcceptedSchema, signal, { "Idempotency-Key": idempotencyKey },
+    );
     return new MediaOperationHandle(this, accepted, resultParser);
   }
 

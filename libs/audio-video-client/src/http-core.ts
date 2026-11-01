@@ -227,13 +227,14 @@ export class MediaHttpTransport {
     try {
       const headers = await this.headers(additionalHeaders);
       if (body !== undefined) headers.set("Content-Type", "application/json");
+      const serializedBody = body === undefined ? undefined : JSON.stringify(body);
       // Callers that perform mutations can distinguish local setup failures
       // from failures after the request may have crossed the network boundary.
       onDispatch?.();
       const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method,
         headers,
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        ...(serializedBody === undefined ? {} : { body: serializedBody }),
         signal: controller.signal,
       });
       if (!response.ok) throw await this.errorFromResponse(response);

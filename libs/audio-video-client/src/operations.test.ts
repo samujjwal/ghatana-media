@@ -212,24 +212,30 @@ describe("MediaOperationClient", () => {
     },
   );
 
-  it("rejects a create receipt bound to a different submitted payload", async () => {
+  it("keeps a create receipt bound to a different submitted payload ambiguous", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ expectedSha256: "b".repeat(64) }))) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
     await expect(client.createUploadSession({
       fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
       expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key",
-    })).rejects.toThrow(/does not bind the submitted immutable/u);
+    })).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/artifacts/uploads",
+    });
   });
 
-  it("rejects a create response with a classification outside the canonical enum", async () => {
+  it("keeps a create response with an invalid classification ambiguous", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ classification: "SECRET" }))) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
     await expect(client.createUploadSession({
       fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
       expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H", idempotencyKey: "key",
-    })).rejects.toThrow(/classification is outside the runtime enum/u);
+    })).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/artifacts/uploads",
+    });
   });
 
   it("snapshots upload metadata before asynchronous token acquisition", async () => {
@@ -465,6 +471,62 @@ describe("MediaOperationClient", () => {
     });
   });
 
+  it.each([
+    ["upload creation", "/api/v1/artifacts/uploads", (client: ReturnType<typeof createMediaOperationClient>) => client.createUploadSession({
+      fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H",
+      idempotencyKey: "upload-ambiguous-1",
+    })],
+    ["upload completion", "/api/v1/artifacts/uploads/upload-1/complete", (client: ReturnType<typeof createMediaOperationClient>) => client.completeUploadSession(
+      uploadSession({ expectedSizeBytes: 3, bytesReceived: 3 }),
+    )],
+    ["job cancellation", "/api/v1/media/operations/operation-1:cancel", (client: ReturnType<typeof createMediaOperationClient>) => client.cancelOperation("operation-1")],
+  ] as const)("preserves ambiguous post-dispatch failures for %s", async (_label, expectedPath, invoke) => {
+    for (const response of [
+      jsonResponse({ error: { code: "UNAVAILABLE", message: "Unavailable", retryable: true },
+        meta: { correlationId: "correlation-503" } }, 503),
+      new Response("{", { status: 200, headers: { "Content-Type": "application/json" } }),
+    ]) {
+      const fetchImpl = vi.fn(async (): Promise<Response> => response) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+      const failure = await invoke(client).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect((failure as MediaOperationAmbiguousError).path).toBe(expectedPath);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("keeps definitive upload and cancellation validation/authorization responses canonical", async () => {
+    const errorResponse = (status: number): Response => jsonResponse({
+      error: { code: status === 403 ? "FORBIDDEN" : "INVALID_REQUEST", message: "Rejected", retryable: false },
+      meta: { correlationId: `correlation-${status}` },
+    }, status);
+    const attempts = [
+      (client: ReturnType<typeof createMediaOperationClient>) => client.createUploadSession({
+        fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+        expectedSha256: "a".repeat(64), classification: "INTERNAL", retention: "PT24H",
+        idempotencyKey: "upload-denied-1",
+      }),
+      (client: ReturnType<typeof createMediaOperationClient>) => client.completeUploadSession(
+        uploadSession({ expectedSizeBytes: 3, bytesReceived: 3 }),
+      ),
+      (client: ReturnType<typeof createMediaOperationClient>) => client.cancelOperation("operation-1"),
+    ];
+    for (const status of [400, 403]) {
+      for (const attempt of attempts) {
+        const fetchImpl = vi.fn(async (): Promise<Response> => errorResponse(status)) as unknown as typeof fetch;
+        const client = createMediaOperationClient({
+          baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+          defaultHeaders: { "X-Principal-Id": "principal-1" },
+        });
+        await expect(attempt(client)).rejects.toMatchObject({ name: "MediaClientError", statusCode: status });
+      }
+    }
+  });
+
   it("keeps header-provider and progress-callback failures distinguishable from dispatch ambiguity", async () => {
     const beforeDispatchFetch = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ bytesReceived: 3, nextChunkIndex: 1 }))) as unknown as typeof fetch;
     const headerFailure = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1",
@@ -565,12 +627,15 @@ describe("MediaOperationClient", () => {
     expect(captured?.init?.body).toBeUndefined();
   });
 
-  it("rejects a completion artifact whose hash or size differs from the supplied session", async () => {
+  it("keeps a completion artifact whose hash or size differs from the supplied session ambiguous", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(canonicalArtifact({ sizeBytes: 3, sha256: "b".repeat(64) }), 201)) as unknown as typeof fetch;
     const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
     const session = uploadSession({ expectedSizeBytes: 3, bytesReceived: 3, metadata: { purpose: "transcription" } });
-    await expect(client.completeUploadSession(session)).rejects.toThrow(/does not bind to the completed upload session/u);
+    await expect(client.completeUploadSession(session)).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/artifacts/uploads/upload-1/complete",
+    });
   });
 
   it("retains ID-only completion compatibility without claiming upload-payload binding", async () => {
