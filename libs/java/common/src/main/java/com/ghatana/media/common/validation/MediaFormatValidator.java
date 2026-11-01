@@ -40,7 +40,8 @@ public final class MediaFormatValidator {
     private static final byte[] JPEG_SIGNATURE = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
     private static final byte[] WEBP_SIGNATURE = {0x52, 0x49, 0x46, 0x46}; // "RIFF"
     private static final byte[] WEBP_VP8 = {0x57, 0x45, 0x42, 0x50}; // "WEBP"
-    private static final byte[] GIF_SIGNATURE = {0x47, 0x49, 0x46, 0x38}; // "GIF8"
+    private static final byte[] GIF87A_SIGNATURE = {0x47, 0x49, 0x46, 0x38, 0x37, 0x61}; // "GIF87a"
+    private static final byte[] GIF89A_SIGNATURE = {0x47, 0x49, 0x46, 0x38, 0x39, 0x61}; // "GIF89a"
 
     // Video format magic numbers
     private static final byte[] MP4_FTYP = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
@@ -119,8 +120,9 @@ public final class MediaFormatValidator {
             }
         }
 
-        // Check GIF
-        if (matchesMagic(data, 0, GIF_SIGNATURE)) {
+        // Check the complete versioned GIF signature; a "GIF8" prefix alone
+        // is not sufficient to identify a GIF stream.
+        if (matchesMagic(data, 0, GIF87A_SIGNATURE) || matchesMagic(data, 0, GIF89A_SIGNATURE)) {
             return "GIF";
         }
 

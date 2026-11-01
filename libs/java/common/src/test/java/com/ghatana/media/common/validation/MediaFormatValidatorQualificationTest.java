@@ -188,6 +188,12 @@ class MediaFormatValidatorQualificationTest {
         byte[] truncated = new byte[] {'G', 'I', 'F', '8', '9', 'a', 1, 0};
         assertThat(MediaFormatValidator.validateImage(truncated, "GIF").errorMessage)
                 .contains("image dimensions");
+
+        byte[] invalidVersion = gifHeader(1, 1);
+        invalidVersion[4] = 'x';
+        assertThat(MediaFormatValidator.detectImageFormat(invalidVersion)).isEqualTo("UNKNOWN");
+        assertThat(MediaFormatValidator.validateImage(invalidVersion, "GIF").errorMessage)
+                .contains("not a valid image file");
     }
 
     @Test
