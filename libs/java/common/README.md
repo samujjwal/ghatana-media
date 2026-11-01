@@ -52,3 +52,27 @@ The legacy raw `borrow`/`returnEngine` API remains available for compatibility;
 it carries no lease token and cannot detect a stale return of a handle that
 has already been borrowed again. Neither local pool leases nor these lifecycle
 checks constitute a distributed worker fence or provider admission.
+
+### Runtime factory ownership and consumers
+
+`AudioVideoLibrary` is the sole production caller of `SttEngineFactory.create`,
+`TtsEngineFactory.create`, and `VisionEngineFactory.create`. It lazily owns those
+engines and returns borrowed interface views. Source references to that facade
+are used by the HTTP adapters (`SttHttpAdapter`, `TtsHttpAdapter`, and
+`VisionHttpAdapter`), the STT services (`SttGrpcService`,
+`ProductionSttGrpcService`, `PersistentSttGrpcService`, and
+`PersistentSttService`), the TTS services (`TtsGrpcService`,
+`ProductionTtsGrpcService`, `PersistentTtsGrpcService`, and
+`PersistentTtsService`), and `PlatformMultimodalAdapter`.
+
+| API or class | Observed owner/use | Boundary |
+|---|---|---|
+| `SttEngineFactory`, `TtsEngineFactory`, `VisionEngineFactory` | Created only by `AudioVideoLibrary` in production source. | Do not add another factory or unconditional synthetic production fallback. |
+| `WhisperOnnxSttProvider` | Directly constructs `WhisperOnnxEngine` for the separate STT provider path. | Keep its source, rights, and model-quality admission with the Wave 2 provider owner. |
+| `AudioVideoServiceRegistry` | Wraps pools supplied by callers; no production callsite was found in this repository search. | It is not a second engine factory or runtime owner. |
+| `MediaCapabilityInventory` | Returned by `AudioVideoLibrary`; no other production consumer was found in this repository search. | `RUNTIME_SUPPORTED` requires an owned engine with healthy runtime status. Missing, uninitialized, degraded, closed, or failing engines remain `PROVIDER_OPTIONAL`. |
+
+The capability inventory reports runtime health only. It does not establish a
+model license, independent quality result, provider effect, or production
+admission. `AudioVideoLibraryTest` covers the public inventory before engine
+construction and with the STT, TTS, and Vision synthetic fallback engines.
