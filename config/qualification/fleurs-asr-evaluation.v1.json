@@ -57,7 +57,7 @@
   "selection": {
     "holdoutSplit": "dev",
     "trainingSplit": "train",
-    "sourceMetadataObservation": "Pinned-revision TSV rows provide row id, filename, transcript, normalized transcript, character form, num_samples, and gender; at 16 kHz, duration can be derived as num_samples/16000. They do not provide a speaker identifier or per-audio digest. The dataset-server first-rows endpoint returned HTTP 500/501 during preparation. Audio is stored in split-level tar.gz archives, so obtaining per-clip hashes requires selected audio extraction; no archive or audio was downloaded. No row is selected until exact clip digest and speaker identity/source reference can be recorded.",
+    "sourceMetadataObservation": "Pinned-revision TSV rows provide row id, filename, transcript, normalized transcript, character form, num_samples, and gender; at 16 kHz, duration can be derived as num_samples/16000. They do not provide a speaker identifier or per-audio digest. On 2026-11-01 the pinned validation Parquet footer schemas for en_us, hi_in and ne_np also had no speaker ID; the dataset provider stated it had no plans to release individual speaker IDs (https://huggingface.co/datasets/google/fleurs/discussions/7). Dataset-server first-rows returned HTTP 500 during this check. The pinned Parquet files support range requests, but this does not supply the required speaker clusters or rights review. No row is selected until exact clip digest and an authoritative speaker source reference can be recorded; use an independently rights-cleared alternative if the original qualification requirements cannot be met. No archive or audio was downloaded during this metadata check.",
     "clips": [],
     "mode": "PILOT"
   },
