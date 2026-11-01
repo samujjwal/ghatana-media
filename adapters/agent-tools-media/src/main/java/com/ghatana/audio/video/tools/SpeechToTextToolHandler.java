@@ -36,6 +36,11 @@ public final class SpeechToTextToolHandler implements ToolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SpeechToTextToolHandler.class);
     public static final String TOOL_ID = "av.speech-to-text";
+    private static final Set<String> VALIDATION_CODES = Set.of(
+            "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
+            "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
+            "INVALID_AUDIOSOURCE", "INVALID_MEDIAARTIFACTID", "INVALID_AUDIOBYTES",
+            "INVALID_MIME_TYPE", "INVALID_LANGUAGE_CODE", "INVALID_ENABLE_DIARIZATION", "INVALID_MODEL");
 
     public SpeechToTextToolHandler() {
         this(null);
@@ -56,8 +61,6 @@ public final class SpeechToTextToolHandler implements ToolHandler {
         Instant start = Instant.now();
         Map<String, Object> input;
 
-        log.debug("STT invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
-
         try {
             input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("audioSource", "languageCode", "enableDiarization", "model"));
             resolveAudioSource(input);
@@ -68,11 +71,12 @@ public final class SpeechToTextToolHandler implements ToolHandler {
                 throw new IllegalArgumentException("INVALID_MODEL");
 
         } catch (Exception e) {
-            log.error("STT handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
+            String errorCode = validationErrorCode(e);
+            log.warn("STT input rejected: {}", errorCode);
             Instant end = Instant.now();
             return Promise.of(ToolExecutionResult.failed(
                     envelope.invocationId(),
-                    "STT processing error: " + e.getMessage(),
+                    "STT processing error: " + errorCode,
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
@@ -95,6 +99,11 @@ public final class SpeechToTextToolHandler implements ToolHandler {
 
     private String resolveAudioSource(Map<String, Object> input) {
         return AgentToolInput.source(input, "audioSource", "audioBytes", 20 * 1024 * 1024, false);
+    }
+
+    private static String validationErrorCode(Exception error) {
+        String message = error.getMessage();
+        return message != null && VALIDATION_CODES.contains(message) ? message : "STT_INPUT_INVALID";
     }
 
 }

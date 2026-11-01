@@ -13,10 +13,22 @@ import com.ghatana.agent.framework.tools.ToolTransport;
 import com.ghatana.toolruntime.ToolHandler;
 import com.ghatana.tools.testing.EventloopTestBase;
 import io.activej.promise.Promise;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Property;
 import org.junit.jupiter.api.Test;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -84,6 +96,61 @@ final class SpeechToolAdmissionTest extends EventloopTestBase {
         }
     }
 
+    @Test
+    void sensitiveSpeechInputsAndValidationExceptionsDoNotReachResultsOrLogs() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        ToolHandler delegate = countingDelegate(providerCalls);
+        List<String> capturedLogs = new ArrayList<>();
+        CapturingAppender appender = attachCapture(capturedLogs);
+
+        try {
+            String audioSourceSecret = "audio-source-secret-" + "a".repeat(520);
+            ToolExecutionEnvelope sttEnvelope = envelope("av.speech-to-text", Map.of(
+                    "audioSource", Map.of("mediaArtifactId", audioSourceSecret),
+                    "languageCode", "en-US"));
+            ToolExecutionResult sttResult = await(new SpeechToTextToolHandler(delegate)
+                    .handle(sttEnvelope, contract(sttEnvelope)));
+            String validAudioSourceSecret = "audio-source-ref-private-sentinel";
+            ToolExecutionEnvelope admittedSttEnvelope = envelope("av.speech-to-text", Map.of(
+                    "audioSource", Map.of("mediaArtifactId", validAudioSourceSecret),
+                    "languageCode", "en-US"));
+            ToolExecutionResult admittedSttResult = await(new SpeechToTextToolHandler(delegate)
+                    .handle(admittedSttEnvelope, contract(admittedSttEnvelope)));
+
+            String textSecret = "private-transcript-sentinel";
+            String voiceSecret = "voice-secret-" + "v".repeat(140);
+            ToolExecutionEnvelope ttsEnvelope = envelope("av.text-to-speech", Map.of(
+                    "text", textSecret, "voiceId", voiceSecret));
+            ToolExecutionResult ttsResult = await(new TextToSpeechToolHandler(delegate)
+                    .handle(ttsEnvelope, contract(ttsEnvelope)));
+            String qualifiedVoiceSecret = "private-voice-id-sentinel";
+            ToolExecutionEnvelope validTtsEnvelope = envelope("av.text-to-speech", Map.of(
+                    "text", textSecret, "voiceId", qualifiedVoiceSecret));
+            ToolExecutionResult validTtsResult = await(new TextToSpeechToolHandler(delegate)
+                    .handle(validTtsEnvelope, contract(validTtsEnvelope)));
+
+            assertThat(sttResult.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(sttResult.errorMessage()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(admittedSttResult.failure().code()).isEqualTo("STT_NOT_ADMITTED");
+            assertThat(ttsResult.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(ttsResult.errorMessage()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(validTtsResult.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
+            assertThat(sttResult.toString()).doesNotContain(audioSourceSecret);
+            assertThat(admittedSttResult.toString()).doesNotContain(validAudioSourceSecret);
+            assertThat(ttsResult.toString()).doesNotContain(textSecret, voiceSecret);
+            assertThat(validTtsResult.toString()).doesNotContain(textSecret, qualifiedVoiceSecret);
+            assertThat(String.join("\n", capturedLogs))
+                    .doesNotContain(audioSourceSecret, validAudioSourceSecret, textSecret, voiceSecret,
+                            qualifiedVoiceSecret, "tenant-at03")
+                    .contains("INVALID_MEDIAARTIFACTID", "INVALID_VOICEID")
+                    .doesNotContain(sttEnvelope.invocationId(), admittedSttEnvelope.invocationId(),
+                            ttsEnvelope.invocationId(), validTtsEnvelope.invocationId());
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            detachCapture(appender);
+        }
+    }
+
     private ToolHandler countingDelegate(AtomicInteger calls) {
         return (envelope, contract) -> {
             calls.incrementAndGet();
@@ -105,5 +172,50 @@ final class SpeechToolAdmissionTest extends EventloopTestBase {
 
     private ToolExecutionResult await(Promise<ToolExecutionResult> promise) {
         return runPromise(() -> promise);
+    }
+
+    private CapturingAppender attachCapture(List<String> messages) {
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        Configuration configuration = context.getConfiguration();
+        LoggerConfig root = configuration.getRootLogger();
+        CapturingAppender appender = new CapturingAppender(messages);
+        appender.start();
+        appender.previousRootLevel = root.getLevel();
+        root.addAppender(appender, Level.ALL, null);
+        root.setLevel(Level.ALL);
+        context.updateLoggers();
+        return appender;
+    }
+
+    private void detachCapture(CapturingAppender appender) {
+        LoggerContext context = (LoggerContext) LogManager.getContext(false);
+        LoggerConfig root = context.getConfiguration().getRootLogger();
+        root.removeAppender(appender.getName());
+        root.setLevel(appender.previousRootLevel);
+        appender.stop();
+        context.updateLoggers();
+    }
+
+    private static final class CapturingAppender extends AbstractAppender {
+        private final List<String> messages;
+        private Level previousRootLevel;
+
+        private CapturingAppender(List<String> messages) {
+            super("speech-tool-privacy-capture", null, null, true, Property.EMPTY_ARRAY);
+            this.messages = messages;
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            String message = event.getMessage().getFormattedMessage();
+            Throwable thrown = event.getThrown();
+            if (thrown == null) {
+                messages.add(message);
+            } else {
+                StringWriter trace = new StringWriter();
+                thrown.printStackTrace(new PrintWriter(trace));
+                messages.add(message + " " + trace);
+            }
+        }
     }
 }
