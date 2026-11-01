@@ -256,7 +256,7 @@ const FailedJobSchema = JobBaseSchema.extend({
     message: z.string().min(1).max(2_000),
     retryable: z.boolean(),
     remediation: z.string().max(2_000).optional(),
-  }),
+  }).strict(),
 }).strict();
 
 const CancelledJobSchema = JobBaseSchema.extend({
@@ -326,7 +326,7 @@ export const MediaCanonicalErrorSchema = z
           field: z.string().max(256),
           code: z.string().max(128),
           message: z.string().max(2_000),
-        }),
+        }).strict(),
       )
       .optional(),
     runtimeDependency: z.string().max(128).optional(),
@@ -365,7 +365,7 @@ export const TranscriptionResultSchema = z
           endMs: NonNegativeIntegerSchema,
           confidence: ConfidenceSchema,
           speakerId: IdentifierSchema.optional(),
-        }).superRefine((word, context) => {
+        }).strict().superRefine((word, context) => {
           if (word.endMs < word.startMs) {
             context.addIssue({
               code: z.ZodIssueCode.custom,
@@ -379,7 +379,7 @@ export const TranscriptionResultSchema = z
       .default([]),
     alternatives: z
       .array(
-        z.object({ text: z.string().max(2_000_000), confidence: ConfidenceSchema }),
+        z.object({ text: z.string().max(2_000_000), confidence: ConfidenceSchema }).strict(),
       )
       .max(10)
       .default([]),

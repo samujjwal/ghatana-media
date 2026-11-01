@@ -329,4 +329,58 @@ describe("media contracts", () => {
       provenance: { sourceArtifactIds: [] }, metadata: {},
     })).toThrow();
   });
+
+  it("rejects unknown nested result and error properties while preserving current payload shapes", () => {
+    const result = {
+      artifactId: "a1", transcriptArtifactId: "t1", text: "ok",
+      languageTag: "en", confidence: 0.9,
+      words: [{ text: "word", startMs: 0, endMs: 1, confidence: 0.9 }],
+      alternatives: [{ text: "word", confidence: 0.9 }],
+      providerId: "p", modelId: "m", modelVersion: "v1", processingTimeMs: 1,
+    };
+
+    expect(TranscriptionResultSchema.parse(result)).toMatchObject(result);
+    expect(() => TranscriptionResultSchema.parse({
+      ...result,
+      words: [{ ...result.words[0], sourceTimebase: "guessed" }],
+    })).toThrow();
+    expect(() => TranscriptionResultSchema.parse({
+      ...result,
+      alternatives: [{ ...result.alternatives[0], isFinal: true }],
+    })).toThrow();
+    expect(() => MediaCanonicalErrorSchema.parse({
+      code: "VALIDATION", message: "invalid input", correlationId: "c1",
+      retryable: false, category: "VALIDATION",
+      fieldErrors: [{ field: "artifactId", code: "INVALID", message: "invalid", value: "secret" }],
+    })).toThrow();
+
+    const failedJob = {
+      id: "job-1", tenantId: "tenant-1", kind: "TRANSCRIBE",
+      createdAt: timestamp, updatedAt: timestamp, correlationId: "c1",
+      inputArtifactIds: ["a1"], outputArtifactIds: [], cancellable: false,
+      retryable: false, state: "FAILED", progress: 0, completedAt: timestamp,
+      error: { code: "FAILED", message: "failed", retryable: false },
+    } as const;
+    expect(MediaProcessingJobSchema.parse(failedJob)).toMatchObject(failedJob);
+    expect(() => MediaProcessingJobSchema.parse({
+      ...failedJob, error: { ...failedJob.error, providerException: "secret" },
+    })).toThrow();
+  });
+
+  it("keeps artifact identity and provenance at the currently declared shape", () => {
+    const artifact = {
+      id: "artifact-1", tenantId: "tenant-1", kind: "AUDIO", status: "AVAILABLE",
+      fileName: "source.wav", mimeType: "audio/wav", sizeBytes: 1024,
+      checksumSha256: "a".repeat(64), classification: "CONFIDENTIAL",
+      createdAt: timestamp, updatedAt: timestamp, ownerId: "user-1",
+      provenance: { sourceArtifactIds: ["source-1"], operationId: "op-1" }, metadata: {},
+    } as const;
+    expect(MediaArtifactSchema.parse(artifact)).toMatchObject(artifact);
+    // PDP-1's immutable ArtifactVersion/revision relationship is not bound to
+    // this observed MediaArtifact wire shape; do not accept client-invented IDs.
+    expect(() => MediaArtifactSchema.parse({ ...artifact, revisionId: "r2" })).toThrow();
+    expect(() => MediaArtifactSchema.parse({
+      ...artifact, provenance: { ...artifact.provenance, sourceRevisionIds: ["r1"] },
+    })).toThrow();
+  });
 });
