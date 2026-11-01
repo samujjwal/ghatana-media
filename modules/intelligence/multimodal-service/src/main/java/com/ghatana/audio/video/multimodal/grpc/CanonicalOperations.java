@@ -67,24 +67,56 @@ final class CanonicalOperations {
     static Map<JobType, Map<String, Object>> requireGroundedChildren(
             CanonicalOperationOutcome outcome) throws Exception {
         if (outcome.status() == JobStatus.FAILED || outcome.status() == JobStatus.CANCELLED) {
-            throw new CanonicalOperationFailedException(
-                    outcome.jobId(), outcome.status(), outcome.failureCode());
+            throw new CanonicalOperationFailedException(outcome.jobId(), outcome.status(), outcome.failureCode());
+        }
+        if (outcome.status() == JobStatus.OUTCOME_UNKNOWN) {
+            throw new CanonicalOperationUnknownException(outcome.jobId());
+        }
+        if (outcome.status() != JobStatus.COMPLETED) {
+            throw new CanonicalOperationUnknownException(outcome.jobId());
         }
         Object raw = outcome.result().get("observations");
         if (!(raw instanceof List<?> list) || list.isEmpty()) {
-            throw new IllegalStateException(
-                    "multimodal parent result carries no grounded child observations");
+            throw new CanonicalOperationUnknownException(outcome.jobId(),
+                    new IllegalStateException("multimodal parent result carries no grounded child observations"));
         }
         Map<JobType, Map<String, Object>> byType = new java.util.EnumMap<>(JobType.class);
         for (Object entry : list) {
-            if (!(entry instanceof Map<?, ?> map)) continue;
+            if (!(entry instanceof Map<?, ?> map)) {
+                throw new CanonicalOperationUnknownException(outcome.jobId(),
+                        new IllegalStateException("multimodal child observation is malformed"));
+            }
             Object type = map.get("childJobType");
             Object observations = map.get("observations");
-            if (!(observations instanceof Map<?, ?> childResult)) continue;
-            JobType jobType = JobType.valueOf(String.valueOf(type));
+            if (!(observations instanceof Map<?, ?> childResult)) {
+                throw new CanonicalOperationUnknownException(outcome.jobId(),
+                        new IllegalStateException("multimodal child result is missing"));
+            }
+            final JobType jobType;
+            try {
+                jobType = JobType.valueOf(String.valueOf(type));
+            } catch (IllegalArgumentException malformedType) {
+                throw new CanonicalOperationUnknownException(outcome.jobId(), malformedType);
+            }
+            JobStatus childStatus;
+            try {
+                childStatus = JobStatus.valueOf(String.valueOf(map.get("childStatus")));
+            } catch (IllegalArgumentException | NullPointerException missingStatus) {
+                throw new CanonicalOperationUnknownException(outcome.jobId(), missingStatus);
+            }
+            if (childStatus == JobStatus.FAILED || childStatus == JobStatus.CANCELLED) {
+                throw new CanonicalOperationFailedException(
+                        outcome.jobId(), childStatus, "CHILD_" + childStatus.name());
+            }
+            if (childStatus != JobStatus.COMPLETED) {
+                throw new CanonicalOperationUnknownException(outcome.jobId());
+            }
             Map<String, Object> typed = new java.util.LinkedHashMap<>();
             childResult.forEach((key, value) -> typed.put(String.valueOf(key), value));
-            byType.put(jobType, Map.copyOf(typed));
+            if (byType.putIfAbsent(jobType, Map.copyOf(typed)) != null) {
+                throw new CanonicalOperationUnknownException(outcome.jobId(),
+                        new IllegalStateException("multimodal parent result duplicated a child modality"));
+            }
         }
         return byType;
     }
