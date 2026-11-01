@@ -29,6 +29,10 @@ public final class AnimationSpecCompiler {
     /** Bounded plan inputs. */
     public static final int MAX_SCENES = 256;
     public static final int MAX_KEYFRAMES_PER_SCENE = 4_096;
+    /** Bound compiled instruction count across all scenes, not just each scene. */
+    public static final int MAX_TOTAL_KEYFRAMES = 65_536;
+    public static final int MAX_ASSET_REFS_PER_SCENE = 256;
+    public static final int MAX_REFERENCE_LENGTH = 512;
 
     /** Typed easing functions with real semantics — anything else is unavailable. */
     public enum Easing { LINEAR, EASE_IN, EASE_OUT, EASE_IN_OUT, STEP }
@@ -68,11 +72,20 @@ public final class AnimationSpecCompiler {
             if (durationMillis < 1 || durationMillis > 3_600_000L) {
                 throw new IllegalArgumentException("scene duration must be 1ms..1h");
             }
-            keyframes = List.copyOf(Objects.requireNonNull(keyframes, "keyframes"));
-            assetRefs = List.copyOf(Objects.requireNonNull(assetRefs, "assetRefs"));
+            Objects.requireNonNull(keyframes, "keyframes");
+            Objects.requireNonNull(assetRefs, "assetRefs");
             if (keyframes.size() > MAX_KEYFRAMES_PER_SCENE) {
                 throw new IllegalArgumentException("scene keyframes exceed the bound");
             }
+            if (assetRefs.size() > MAX_ASSET_REFS_PER_SCENE) {
+                throw new IllegalArgumentException("scene asset refs exceed the bound");
+            }
+            if (assetRefs.stream().anyMatch(ref -> ref == null || ref.isBlank()
+                    || ref.length() > MAX_REFERENCE_LENGTH || !ref.equals(ref.trim()))) {
+                throw new IllegalArgumentException("scene asset refs must be canonical and bounded");
+            }
+            keyframes = List.copyOf(keyframes);
+            assetRefs = List.copyOf(assetRefs);
             if (keyframes.stream().anyMatch(k -> k.atMillis() > durationMillis)) {
                 throw new IllegalArgumentException("keyframe outside scene duration");
             }
@@ -95,13 +108,34 @@ public final class AnimationSpecCompiler {
             if (specRevision.isBlank() || specRevision.length() > 384) {
                 throw new IllegalArgumentException("specRevision is required and bounded");
             }
-            scenes = List.copyOf(Objects.requireNonNull(scenes, "scenes"));
-            rigRefs = List.copyOf(rigRefs);
-            physicsRefs = List.copyOf(physicsRefs);
-            model3dRefs = List.copyOf(model3dRefs);
+            Objects.requireNonNull(scenes, "scenes");
+            Objects.requireNonNull(rigRefs, "rigRefs");
+            Objects.requireNonNull(physicsRefs, "physicsRefs");
+            Objects.requireNonNull(model3dRefs, "model3dRefs");
             if (scenes.isEmpty() || scenes.size() > MAX_SCENES) {
                 throw new IllegalArgumentException("scenes must contain 1.." + MAX_SCENES);
             }
+            if (rigRefs.size() > MAX_SCENES || physicsRefs.size() > MAX_SCENES
+                    || model3dRefs.size() > MAX_SCENES) {
+                throw new IllegalArgumentException("unsupported binding refs exceed the bound");
+            }
+            for (List<String> refs : List.of(rigRefs, physicsRefs, model3dRefs)) {
+                if (refs.stream().anyMatch(ref -> ref == null || ref.isBlank()
+                        || ref.length() > MAX_REFERENCE_LENGTH || !ref.equals(ref.trim()))) {
+                    throw new IllegalArgumentException("unsupported binding refs must be canonical and bounded");
+                }
+            }
+            long totalKeyframes = 0;
+            for (Scene scene : scenes) {
+                totalKeyframes += Objects.requireNonNull(scene, "scene").keyframes().size();
+                if (totalKeyframes > MAX_TOTAL_KEYFRAMES) {
+                    throw new IllegalArgumentException("total keyframes exceed the compiled plan bound");
+                }
+            }
+            scenes = List.copyOf(scenes);
+            rigRefs = List.copyOf(rigRefs);
+            physicsRefs = List.copyOf(physicsRefs);
+            model3dRefs = List.copyOf(model3dRefs);
             var ids = new TreeSet<String>();
             for (Scene scene : scenes) {
                 if (!ids.add(scene.sceneId())) {

@@ -69,4 +69,35 @@ class AnimationSpecCompilerTest {
                 List.of(), List.of(), List.of()))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void boundsAggregateInstructionsAndAssetReferenceExpansion() {
+        var denseFrames = java.util.stream.IntStream.range(0,
+                        AnimationSpecCompiler.MAX_KEYFRAMES_PER_SCENE)
+                .mapToObj(at -> new Keyframe(at, Property.OPACITY, 1.0, Easing.LINEAR))
+                .toList();
+        var scenes = java.util.stream.IntStream.range(0, 17)
+                .mapToObj(index -> new Scene("scene-" + index, 4_096,
+                        denseFrames, List.of()))
+                .toList();
+        assertThatThrownBy(() -> new AnimationSpec("too-many-instructions", scenes,
+                List.of(), List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("total keyframes");
+
+        assertThatThrownBy(() -> new Scene("too-many-assets", 100, List.of(),
+                java.util.Collections.nCopies(AnimationSpecCompiler.MAX_ASSET_REFS_PER_SCENE + 1, "asset/v1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("asset refs");
+        assertThatThrownBy(() -> new Scene("oversized-asset-ref", 100, List.of(),
+                List.of("a".repeat(AnimationSpecCompiler.MAX_REFERENCE_LENGTH + 1))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("canonical and bounded");
+        assertThatThrownBy(() -> new AnimationSpec("oversized-binding-ref",
+                List.of(new Scene("s", 100, List.of(), List.of())),
+                List.of("rig/" + "x".repeat(AnimationSpecCompiler.MAX_REFERENCE_LENGTH)),
+                List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("binding refs");
+    }
 }
