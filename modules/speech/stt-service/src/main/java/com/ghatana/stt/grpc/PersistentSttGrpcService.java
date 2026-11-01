@@ -115,7 +115,29 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
             return;
         }
 
-        if (!authorizeTranscription(responseObserver, identity, request.getArtifactId())) return;
+        final String sourceSha256;
+        try {
+            // Keep the inbound representation bounded before digesting it. Authorization
+            // binds these exact bytes; decoded/transcoded equivalence is not inferred.
+            SttGrpcService.requireHashableInputSize(request.getAudioData().size());
+            sourceSha256 = SttGrpcService.sha256(request.getAudioData());
+        } catch (SttAudioInputDecoder.InputException rejectedInput) {
+            io.grpc.Status status = switch (rejectedInput.kind()) {
+                case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT;
+                case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED;
+                case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION;
+            };
+            responseObserver.onError(status.withDescription("Invalid or unsupported audio input")
+                    .asRuntimeException());
+            return;
+        } catch (RuntimeException hashingFailure) {
+            responseObserver.onError(io.grpc.Status.UNAVAILABLE
+                    .withDescription("STT_SOURCE_BINDING_UNAVAILABLE: unable to bind input bytes to source authority")
+                    .asRuntimeException());
+            return;
+        }
+
+        if (!authorizeTranscription(responseObserver, identity, request.getArtifactId(), sourceSha256)) return;
 
         try {
             SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
@@ -201,11 +223,12 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
     private boolean authorizeTranscription(
             StreamObserver<?> observer,
             JwtServerInterceptor.VerifiedIdentity identity,
-            String artifactId) {
+            String artifactId,
+            String sourceSha256) {
         SttRequestAuthorization.Decision decision;
         try {
             decision = requestAuthorization.authorize(new SttRequestAuthorization.Request(
-                    identity, SttRequestAuthorization.Operation.TRANSCRIBE, artifactId));
+                    identity, SttRequestAuthorization.Operation.TRANSCRIBE, artifactId, sourceSha256));
         } catch (RuntimeException unavailable) {
             decision = SttRequestAuthorization.Decision.UNAVAILABLE;
         }

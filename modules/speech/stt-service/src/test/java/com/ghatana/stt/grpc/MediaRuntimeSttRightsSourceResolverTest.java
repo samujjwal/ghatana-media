@@ -53,6 +53,21 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
+    void transcriptionRequiresExactCanonicalSourceBytesAndFailsClosedWithoutDigest() throws Exception {
+        administration.add(record(NOW.instant().plusSeconds(600), null));
+
+        Request missingDigest = new Request(IDENTITY, SttRequestAuthorization.Operation.TRANSCRIBE, ARTIFACT);
+        Request alteredBytes = new Request(IDENTITY, SttRequestAuthorization.Operation.TRANSCRIBE,
+                ARTIFACT, "b".repeat(64));
+        Request exactBytes = new Request(IDENTITY, SttRequestAuthorization.Operation.TRANSCRIBE,
+                ARTIFACT, "a".repeat(64));
+
+        assertThat(await(resolver.resolve(missingDigest)).status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(await(resolver.resolve(alteredBytes)).status()).isEqualTo(Status.DENIED);
+        assertThat(await(resolver.resolve(exactBytes)).status()).isEqualTo(Status.ADMITTED);
+    }
+
+    @Test
     void malformedHumanConsentProjectionIsUnavailableRatherThanNonhuman() throws Exception {
         administration.add(recordWithConsent(
                 MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING,
@@ -188,7 +203,7 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     private static Request request(JwtServerInterceptor.VerifiedIdentity identity) {
-        return new Request(identity, SttRequestAuthorization.Operation.TRANSCRIBE, ARTIFACT);
+        return new Request(identity, SttRequestAuthorization.Operation.TRANSCRIBE, ARTIFACT, "a".repeat(64));
     }
 
     private static String recordVersion() {

@@ -64,6 +64,10 @@ final class MediaRuntimeSttRightsSourceResolver
                 || resourceId == null || resourceId.isBlank()) {
             return new Resolution(Status.UNAVAILABLE, null);
         }
+        if (request.operation() == SttRequestAuthorization.Operation.TRANSCRIBE
+                && request.sourceSha256() == null) {
+            return new Resolution(Status.UNAVAILABLE, null);
+        }
         List<MediaSourceRightsAdministration.SourceRecord> records;
         try {
             if (!administration.ready()) return new Resolution(Status.UNAVAILABLE, null);
@@ -107,6 +111,12 @@ final class MediaRuntimeSttRightsSourceResolver
                 || !record.allowedOperations().contains(operationToken(request.operation()))) {
             return new Resolution(Status.DENIED, null);
         }
+        if (request.operation() == SttRequestAuthorization.Operation.TRANSCRIBE) {
+            if (!hasValidContentBinding(record)) return new Resolution(Status.UNAVAILABLE, null);
+            if (!constantTimeDigestEquals(request.sourceSha256(), record.sourceSha256())) {
+                return new Resolution(Status.DENIED, null);
+            }
+        }
         return new Resolution(Status.ADMITTED, new SourceFacts(
                 record.artifactId(),
                 record.sourceVersion(),
@@ -117,6 +127,22 @@ final class MediaRuntimeSttRightsSourceResolver
                         : record.consentDecisionId(),
                 record.expiresAt(),
                 "epoch:" + record.revocationEpoch()));
+    }
+
+    private static boolean hasValidContentBinding(MediaSourceRightsAdministration.SourceRecord record) {
+        return record.sourceSha256().matches("(?i)[0-9a-f]{64}")
+                && record.sourceVersion().equalsIgnoreCase("sha256:" + record.sourceSha256());
+    }
+
+    /** Compare fixed-size digest bytes without an early-exit string comparison. */
+    private static boolean constantTimeDigestEquals(String requestDigest, String sourceDigest) {
+        try {
+            return java.security.MessageDigest.isEqual(
+                    java.util.HexFormat.of().parseHex(requestDigest),
+                    java.util.HexFormat.of().parseHex(sourceDigest));
+        } catch (IllegalArgumentException malformedDigest) {
+            return false;
+        }
     }
 
     private static boolean hasValidConsentShape(

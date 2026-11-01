@@ -19,11 +19,19 @@ interface SttRequestAuthorization {
     }
     enum Decision { ADMITTED, DENIED, REVOKED, UNAVAILABLE }
 
-    record Request(JwtServerInterceptor.VerifiedIdentity identity, Operation operation, String resourceId) {
+    record Request(JwtServerInterceptor.VerifiedIdentity identity, Operation operation,
+                   String resourceId, String sourceSha256) {
         public Request {
             Objects.requireNonNull(identity, "identity");
             Objects.requireNonNull(operation, "operation");
             resourceId = resourceId == null || resourceId.isBlank() ? null : resourceId;
+            if (sourceSha256 != null && !sourceSha256.matches("[a-f0-9]{64}")) {
+                throw new IllegalArgumentException("sourceSha256 must be a lowercase SHA-256 digest");
+            }
+        }
+
+        Request(JwtServerInterceptor.VerifiedIdentity identity, Operation operation, String resourceId) {
+            this(identity, operation, resourceId, null);
         }
     }
 

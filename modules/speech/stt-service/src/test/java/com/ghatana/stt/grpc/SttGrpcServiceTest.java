@@ -121,6 +121,48 @@ class SttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("transcribe: altered request bytes are denied before provider and exact bytes are admitted")
+    void transcribe_bindsExactRequestBytesToSourceAuthority() throws Exception {
+        byte[] authorizedBytes = new byte[] {1, 2, 3, 4};
+        byte[] alteredBytes = new byte[] {1, 2, 3, 5};
+        String sourceDigest = java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256").digest(authorizedBytes));
+        java.util.List<String> observedDigests = new java.util.ArrayList<>();
+        SttGrpcService sourceBoundService = new SttGrpcService(mockLibrary, meterRegistry,
+                (SttRequestAuthorization) request -> {
+                    observedDigests.add(request.sourceSha256());
+                    return sourceDigest.equals(request.sourceSha256())
+                            ? SttRequestAuthorization.Decision.ADMITTED
+                            : SttRequestAuthorization.Decision.DENIED;
+                });
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("authorized transcript", 0.8, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-engine"));
+
+        CapturingObserver<TranscribeResponse> altered = new CapturingObserver<>();
+        sourceBoundService.transcribe(TranscribeRequest.newBuilder()
+                .setArtifactId("artifact-1")
+                .setAudioData(ByteString.copyFrom(alteredBytes))
+                .setSampleRate(16_000).build(), altered);
+
+        assertThat(((StatusRuntimeException) altered.getError()).getStatus().getCode())
+                .isEqualTo(Status.PERMISSION_DENIED.getCode());
+        verifyNoInteractions(mockLibrary);
+
+        CapturingObserver<TranscribeResponse> exact = new CapturingObserver<>();
+        sourceBoundService.transcribe(TranscribeRequest.newBuilder()
+                .setArtifactId("artifact-1")
+                .setAudioData(ByteString.copyFrom(authorizedBytes))
+                .setSampleRate(16_000).build(), exact);
+
+        assertThat(exact.getValue().getText()).isEqualTo("authorized transcript");
+        assertThat(observedDigests).containsExactly(
+                java.util.HexFormat.of().formatHex(
+                        java.security.MessageDigest.getInstance("SHA-256").digest(alteredBytes)), sourceDigest);
+        verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
+    }
+
+    @Test
     @DisplayName("transcribe: direct service call rejects missing verified identity before provider access")
     void transcribe_rejectsMissingVerifiedIdentityBeforeProviderAccess() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();

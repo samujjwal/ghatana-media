@@ -205,6 +205,27 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("persistent transcription authorization receives the exact bounded request digest")
+    void persistentTranscribeBindsAuthorizationToExactRequestBytes() {
+        java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Request> seen =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        PersistentSttGrpcService sourceBound = new PersistentSttGrpcService(persistentSttService, request -> {
+            seen.set(request);
+            return SttRequestAuthorization.Decision.ADMITTED;
+        });
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        TranscribeRequest request = TranscribeRequest.newBuilder().setArtifactId("artifact-1")
+                .setAudioData(AUDIO).setLanguage("en").setSampleRate(16_000).build();
+
+        runWithTenantContext("tenant-abc", USER_ID, () -> sourceBound.transcribe(request, observer));
+
+        assertThat(seen.get()).isNotNull();
+        assertThat(seen.get().sourceSha256()).isEqualTo(SttGrpcService.sha256(AUDIO));
+        assertTranscriptVersionNotAdmitted(observer);
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
     @DisplayName("malformed transcription requests fail validation before provider or source admission")
     void transcribeValidatesInputBeforeTranscriptVersionAdmission() {
         TranscribeRequest[] malformedRequests = {

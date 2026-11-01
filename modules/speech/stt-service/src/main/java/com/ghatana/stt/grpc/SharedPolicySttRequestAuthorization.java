@@ -51,7 +51,7 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
         try {
             CompletionStage<MediaRightsSourceResolver.Resolution> stage =
                     rightsResolver.resolve(new MediaRightsSourceResolver.Request(
-                            request.identity(), request.operation(), request.resourceId()));
+                            request.identity(), request.operation(), request.resourceId(), request.sourceSha256()));
             if (stage == null) return Decision.UNAVAILABLE;
             source = await(stage, deadline);
         } catch (InterruptedException interrupted) {
@@ -94,7 +94,8 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
         try {
             CompletionStage<MediaRightsSourceResolver.Resolution> stage = rightsResolver.revalidate(
                     new MediaRightsSourceResolver.Request(
-                            request.identity(), request.operation(), request.resourceId()), source.facts());
+                            request.identity(), request.operation(), request.resourceId(), request.sourceSha256()),
+                    source.facts());
             if (stage == null) return Decision.UNAVAILABLE;
             revalidated = await(stage, deadline);
         } catch (InterruptedException interrupted) {
@@ -205,7 +206,14 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
         return timeout;
     }
 
-    /** Separate server-side authority for source ownership, rights, purpose, and current revocation. */
+    /**
+     * Separate server-side authority for source ownership, rights, purpose, and current revocation.
+     * Implementations handling TRANSCRIBE must bind {@link Request#sourceSha256()} to the
+     * authoritative source bytes on every {@link #resolve(Request)} and
+     * {@link #revalidate(Request, SourceFacts)} call. An ADMITTED result based only on artifact
+     * identity or facts retained from an earlier call is insufficient. SourceFacts deliberately
+     * does not substitute for this per-request content check.
+     */
     interface MediaRightsSourceResolver {
         enum Status { ADMITTED, DENIED, REVOKED, STALE, UNAVAILABLE }
 
@@ -249,10 +257,19 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
         record Request(
                 JwtServerInterceptor.VerifiedIdentity identity,
                 Operation operation,
-                String resourceId) {
+                String resourceId,
+                String sourceSha256) {
             public Request {
                 Objects.requireNonNull(identity, "identity");
                 Objects.requireNonNull(operation, "operation");
+                if (sourceSha256 != null && !sourceSha256.matches("[a-f0-9]{64}")) {
+                    throw new IllegalArgumentException("sourceSha256 must be a lowercase SHA-256 digest");
+                }
+            }
+
+            public Request(JwtServerInterceptor.VerifiedIdentity identity,
+                           Operation operation, String resourceId) {
+                this(identity, operation, resourceId, null);
             }
         }
 

@@ -122,15 +122,31 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     @Override
     public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
-        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.TRANSCRIBE, request.getArtifactId())) return;
+        final String sourceSha256;
+        try {
+            // Bound the protobuf payload before hashing it. Hash the exact inbound
+            // representation; do not infer equivalence to decoded or transcoded audio.
+            requireHashableInputSize(request.getAudioData().size());
+            sourceSha256 = sha256(request.getAudioData());
+        } catch (SttAudioInputDecoder.InputException rejectedInput) {
+            responseObserver.onError(inputSizeStatus(rejectedInput).asRuntimeException());
+            return;
+        } catch (RuntimeException hashingFailure) {
+            responseObserver.onError(io.grpc.Status.UNAVAILABLE
+                    .withDescription("STT_SOURCE_BINDING_UNAVAILABLE: unable to bind input bytes to source authority")
+                    .asRuntimeException());
+            return;
+        }
+        if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.TRANSCRIBE,
+                request.getArtifactId(), sourceSha256)) return;
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
                 responseObserver, tracingService, span);
         try (Scope ignored = tracingService.createScope(span)) {
         transcribeTimer.record(() -> {
             try {
-                // Inspect the protobuf's declared byte count before creating another byte array.
                 SttAudioInputDecoder.requireInputSize(request.getAudioData().size());
+                // Materialize provider input only after exact source-byte authorization.
                 byte[] audioBytes = request.getAudioData().toByteArray();
 
                     // The product contract defines no implicit sample-rate default. A proto3
@@ -270,6 +286,40 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     private static boolean isCancelled(StreamObserver<?> observer) {
         return observer instanceof io.grpc.stub.ServerCallStreamObserver<?> serverObserver
                 && serverObserver.isCancelled();
+    }
+
+    static String sha256(com.google.protobuf.ByteString bytes) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            try (java.io.InputStream input = bytes.newInput()) {
+                byte[] buffer = new byte[16 * 1024];
+                int count;
+                while ((count = input.read(buffer)) != -1) digest.update(buffer, 0, count);
+            }
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        } catch (java.io.IOException readFailure) {
+            throw new IllegalStateException("Unable to read bounded STT request bytes", readFailure);
+        }
+    }
+
+    static void requireHashableInputSize(long size) {
+        if (size > SttAudioInputDecoder.MAX_INPUT_BYTES) {
+            throw new SttAudioInputDecoder.InputException(
+                    SttAudioInputDecoder.FailureKind.RESOURCE_EXHAUSTED,
+                    "STT_AUDIO_TOO_LARGE: audio data exceeds the 4 MiB input limit");
+        }
+    }
+
+    private static io.grpc.Status inputSizeStatus(SttAudioInputDecoder.InputException failure) {
+        return switch (failure.kind()) {
+            case INVALID_ARGUMENT -> io.grpc.Status.INVALID_ARGUMENT.withDescription("Invalid audio input");
+            case RESOURCE_EXHAUSTED -> io.grpc.Status.RESOURCE_EXHAUSTED
+                    .withDescription("Audio input exceeds the supported limit");
+            case NOT_ADMITTED -> io.grpc.Status.FAILED_PRECONDITION
+                    .withDescription("Audio input format is not admitted");
+        };
     }
 
     private AudioData decodeAudio(byte[] input, int sampleRate) {
@@ -634,10 +684,15 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
 
     protected final boolean authorizeRequest(StreamObserver<?> observer, SttRequestAuthorization.Operation operation,
             String resourceId) {
+        return authorizeRequest(observer, operation, resourceId, null);
+    }
+
+    protected final boolean authorizeRequest(StreamObserver<?> observer, SttRequestAuthorization.Operation operation,
+            String resourceId, String sourceSha256) {
         try (AudioVideoGrpcInstrumentation.BoundaryMeasurement admissionBoundary =
                      boundaryInstrumentation.beginBoundaryMeasurement(
                              MediaWorkflowMetrics.Modality.STT, MediaWorkflowMetrics.Boundary.ADMISSION)) {
-            boolean admitted = authorizeRequestDecision(observer, operation, resourceId);
+            boolean admitted = authorizeRequestDecision(observer, operation, resourceId, sourceSha256);
             admissionBoundary.complete(admitted
                     ? MediaWorkflowMetrics.Outcome.SUCCESS : MediaWorkflowMetrics.Outcome.FAILURE);
             return admitted;
@@ -645,7 +700,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     }
 
     private boolean authorizeRequestDecision(StreamObserver<?> observer,
-            SttRequestAuthorization.Operation operation, String resourceId) {
+            SttRequestAuthorization.Operation operation, String resourceId, String sourceSha256) {
         JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
         if (identity == null) {
             observer.onError(io.grpc.Status.UNAUTHENTICATED
@@ -656,7 +711,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
         SttRequestAuthorization.Decision decision;
         try {
             decision = requestAuthorization.authorize(new SttRequestAuthorization.Request(
-                    identity, operation, resourceId));
+                    identity, operation, resourceId, sourceSha256));
         } catch (RuntimeException failure) {
             decision = SttRequestAuthorization.Decision.UNAVAILABLE;
         }
