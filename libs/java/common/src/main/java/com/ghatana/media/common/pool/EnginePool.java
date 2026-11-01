@@ -43,6 +43,8 @@ public class EnginePool<T> implements AutoCloseable {
     private final ConcurrentMap<IdentityKey<T>, PooledEngine<T>> inUse;
     private final Object lifecycleLock = new Object();
     private final Set<IdentityKey<T>> ownedEngines = ConcurrentHashMap.newKeySet();
+    private final ConcurrentMap<IdentityKey<T>, T> pendingDestructions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<IdentityKey<T>, Object> destructionLocks = new ConcurrentHashMap<>();
     private final Map<IdentityKey<T>, Object> leaseTokens = new HashMap<>();
     private final Supplier<T> factory;
     private final Function<T, Boolean> healthCheck;
@@ -417,13 +419,26 @@ public class EnginePool<T> implements AutoCloseable {
     @Override
     public void close() {
         List<PooledEngine<T>> idle = new ArrayList<>();
+        boolean alreadyClosed;
         synchronized (lifecycleLock) {
-            if (closed) return;
-            closed = true;
-            available.drainTo(idle);
+            alreadyClosed = closed;
+            if (!alreadyClosed) {
+                closed = true;
+                available.drainTo(idle);
+            }
+        }
+        if (alreadyClosed) {
+            // A failed native/provider close remains owned and can be retried
+            // explicitly by the owner. Successful disposals are removed from
+            // ownedEngines and therefore are never invoked a second time.
+            retryPendingDestructions();
+            return;
         }
         evictionExecutor.shutdown();
         leakDetectionExecutor.shutdown();
+        // Retry cleanup that failed during an earlier return/eviction before
+        // disposing the idle engines drained by this close call.
+        retryPendingDestructions();
         // Borrowed engines remain usable until their owner returns them. Their
         // eventual return destroys them because the pool is already closed.
         idle.forEach(p -> destroyEngine(p.engine));
@@ -483,16 +498,32 @@ public class EnginePool<T> implements AutoCloseable {
     }
 
     private void destroyEngine(T engine) {
-        try {
-            destroyer.apply(engine);
-            ownedEngines.remove(new IdentityKey<>(engine));
-            totalDestroyed.incrementAndGet();
-            activeEngines.updateAndGet(current -> Math.max(0, current - 1));
-        } catch (Exception e) {
-            // Destruction is unconfirmed. Keep the capacity reservation rather
-            // than creating another engine over a potentially live resource.
-            failedDestructions.incrementAndGet();
-            LOG.warning("Engine destruction failed; capacity remains reserved");
+        IdentityKey<T> key = new IdentityKey<>(engine);
+        Object lock = destructionLocks.computeIfAbsent(key, ignored -> new Object());
+        synchronized (lock) {
+            // Concurrent close/return paths may see the same pending handle.
+            // Serialize its disposal and make successful disposal one-shot.
+            if (!ownedEngines.contains(key)) return;
+            try {
+                destroyer.apply(engine);
+                pendingDestructions.remove(key);
+                ownedEngines.remove(key);
+                destructionLocks.remove(key, lock);
+                totalDestroyed.incrementAndGet();
+                activeEngines.updateAndGet(current -> Math.max(0, current - 1));
+            } catch (Exception e) {
+                // Destruction is unconfirmed. Keep the capacity reservation
+                // and retain the handle for an explicit later close retry.
+                pendingDestructions.put(key, engine);
+                failedDestructions.incrementAndGet();
+                LOG.warning("Engine destruction failed; capacity remains reserved");
+            }
+        }
+    }
+
+    private void retryPendingDestructions() {
+        for (T engine : pendingDestructions.values()) {
+            destroyEngine(engine);
         }
     }
 

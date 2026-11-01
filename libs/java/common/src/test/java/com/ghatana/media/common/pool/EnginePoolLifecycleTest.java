@@ -133,6 +133,34 @@ class EnginePoolLifecycleTest {
     }
 
     @Test
+    void failedIdleDestructionCanBeRetriedByCloseWithoutDisposingTwice() {
+        Engine engine = new Engine();
+        var attempts = new AtomicInteger();
+        var pool = new EnginePool<>(() -> engine, resource -> true, resource -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new IllegalStateException("native close failed before disposal");
+            }
+            resource.closes.incrementAndGet();
+            return null;
+        }, config().minSize(1));
+
+        pool.close();
+        assertThat(attempts).hasValue(1);
+        assertThat(pool.getFailedDestructionCount()).isEqualTo(1);
+        assertThat(engine.closes).hasValue(0);
+        assertThat(pool.getStats().totalDestroyed).isZero();
+
+        pool.close();
+        assertThat(attempts).hasValue(2);
+        assertThat(engine.closes).hasValue(1);
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(1);
+
+        pool.close();
+        assertThat(attempts).hasValue(2);
+        assertThat(engine.closes).hasValue(1);
+    }
+
+    @Test
     void blockingReturnHealthCheckDoesNotBlockPoolClose() throws Exception {
         var entered = new CountDownLatch(1);
         var release = new CountDownLatch(1);
