@@ -72,17 +72,24 @@ public final class MediaDeterministicSimulator {
         }
     }
 
-    /** An immutable state checkpoint — resuming reproduces the trajectory. */
+    /** An immutable state checkpoint bound to the exact numerical model identity. */
     public record Checkpoint(
             int stepIndex,
             double positionMeters,
             double velocityMetersPerSecond,
-            long seed) {
+            long seed,
+            String modelFingerprint) {
         public Checkpoint {
             if (stepIndex < 0 || !Double.isFinite(positionMeters)
-                    || !Double.isFinite(velocityMetersPerSecond)) {
+                    || !Double.isFinite(velocityMetersPerSecond)
+                    || modelFingerprint == null || modelFingerprint.length() > 512) {
                 throw new IllegalArgumentException("checkpoint step and state must be valid and finite");
             }
+        }
+
+        /** Compatibility constructor for checkpoints without verifiable model binding. */
+        public Checkpoint(int stepIndex, double positionMeters, double velocityMetersPerSecond, long seed) {
+            this(stepIndex, positionMeters, velocityMetersPerSecond, seed, "");
         }
     }
 
@@ -136,14 +143,14 @@ public final class MediaDeterministicSimulator {
             }
             position = nextPosition;
             velocity = nextVelocity;
-            checkpoints.add(new Checkpoint(step, position, velocity, seed));
+            checkpoints.add(new Checkpoint(step, position, velocity, seed, modelFingerprint(model)));
         }
         return new SimulationResult(Verdict.CONVERGED, checkpoints, null);
     }
 
     /**
-     * Continues from a caller-supplied checkpoint. The caller is responsible for
-     * verifying its model and source provenance before using this numerical helper.
+     * Continues from a checkpoint with a matching numerical model binding. The caller
+     * remains responsible for checkpoint authenticity and source provenance.
      */
     public SimulationResult resume(
             ModelSpec model, Checkpoint from, int additionalSteps) {
@@ -158,6 +165,10 @@ public final class MediaDeterministicSimulator {
         }
         if (!supportsSolver(model)) {
             return new SimulationResult(Verdict.ABSTAIN, List.of(), "unsupported solver identity or version");
+        }
+        if (!modelFingerprint(model).equals(from.modelFingerprint())) {
+            return new SimulationResult(Verdict.ABSTAIN, List.of(),
+                    "checkpoint model binding does not match requested model");
         }
         long finalStep = (long) from.stepIndex() + additionalSteps;
         if (finalStep > model.maxSteps()) {
@@ -186,13 +197,23 @@ public final class MediaDeterministicSimulator {
             }
             position = nextPosition;
             velocity = nextVelocity;
-            checkpoints.add(new Checkpoint(step, position, velocity, from.seed()));
+            checkpoints.add(new Checkpoint(step, position, velocity, from.seed(), from.modelFingerprint()));
         }
         return new SimulationResult(Verdict.CONVERGED, checkpoints, null);
     }
 
     private static boolean supportsSolver(ModelSpec model) {
         return "constant-force".equals(model.solverId()) && "1.0.0".equals(model.solverVersion());
+    }
+
+    /** Stable exact parameter binding; hexadecimal doubles avoid locale/rounding ambiguity. */
+    private static String modelFingerprint(ModelSpec model) {
+        return model.solverId() + "@" + model.solverVersion() + "|" + model.unitsRegistry()
+                + "|m=" + Double.toHexString(model.massKg())
+                + "|f=" + Double.toHexString(model.forceN())
+                + "|dt=" + Double.toHexString(model.stepSeconds())
+                + "|steps=" + model.maxSteps()
+                + "|tol=" + Double.toHexString(model.tolerance());
     }
 
     private static boolean withinTolerance(double actual, double expected, double tolerance) {

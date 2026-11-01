@@ -54,6 +54,33 @@ class MediaDeterministicSimulatorTest {
     }
 
     @Test
+    void resumeAbstainsForCheckpointBoundToDifferentModelParameters() {
+        var simulator = new MediaDeterministicSimulator();
+        var sourceModel = newtonModel(0.5);
+        var changedForce = new ModelSpec("constant-force", "1.0.0", "SI", 2.0, 8.0, 0.5, 100, 1e-9);
+        Checkpoint checkpoint = simulator.run(sourceModel, new InitialState(0, 0), 42L)
+                .checkpoints().get(1);
+
+        SimulationResult resumed = simulator.resume(changedForce, checkpoint, 1);
+
+        assertThat(resumed.verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(resumed.abstainReason()).contains("model binding");
+        assertThat(resumed.checkpoints()).isEmpty();
+    }
+
+    @Test
+    void resumeAbstainsForLegacyCheckpointWithoutModelBinding() {
+        var simulator = new MediaDeterministicSimulator();
+        Checkpoint unbound = new Checkpoint(1, 0, 0, 42L);
+
+        SimulationResult resumed = simulator.resume(newtonModel(0.5), unbound, 1);
+
+        assertThat(resumed.verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(resumed.abstainReason()).contains("model binding");
+        assertThat(resumed.checkpoints()).isEmpty();
+    }
+
+    @Test
     void mismatchedUnitsRegistryAbstainsBeforeAnyStep() {
         var simulator = new MediaDeterministicSimulator();
         ModelSpec imperial = new ModelSpec(
@@ -85,11 +112,13 @@ class MediaDeterministicSimulatorTest {
     @Test
     void resumePreservesStepLimitAndRejectsMalformedCheckpoints() {
         var simulator = new MediaDeterministicSimulator();
-        var model = newtonModel(0.5);
-        assertThat(simulator.resume(model, new Checkpoint(99, 0, 0, 1), 2).verdict())
+        var model = new ModelSpec("constant-force", "1.0.0", "SI", 2.0, 6.0, 0.5, 2, 1e-9);
+        Checkpoint finalCheckpoint = simulator.run(model, new InitialState(0, 0), 1L)
+                .checkpoints().get(1);
+        assertThat(simulator.resume(model, finalCheckpoint, 1).verdict())
                 .isEqualTo(Verdict.STEP_LIMIT_REACHED);
         assertThat(simulator.resume(model, new Checkpoint(Integer.MAX_VALUE, 0, 0, 1), Integer.MAX_VALUE)
-                .checkpoints()).isEmpty();
+                .verdict()).isEqualTo(Verdict.ABSTAIN);
         assertThatThrownBy(() -> new Checkpoint(-1, 0, 0, 1)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new Checkpoint(1, Double.NaN, 0, 1)).isInstanceOf(IllegalArgumentException.class);
     }
