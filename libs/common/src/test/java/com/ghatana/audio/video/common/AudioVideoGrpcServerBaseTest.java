@@ -5,6 +5,7 @@ import io.grpc.CallOptions;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.MethodDescriptor;
+import io.grpc.Server;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServiceDescriptor;
 import io.grpc.Status;
@@ -18,8 +19,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
@@ -33,6 +36,8 @@ import javax.net.ssl.TrustManagerFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -225,6 +230,72 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void tlsRotationFailsClosedWhenReplacementPortCannotBeRebound() throws Exception {
+        Path certA = tlsFixture("rotation-a-cert.pem");
+        Path keyA = tlsFixture("rotation-a-key.pem");
+        Path certB = tlsFixture("rotation-b-cert.pem");
+        Path keyB = tlsFixture("rotation-b-key.pem");
+        FakeReadinessLifecycle readiness = new FakeReadinessLifecycle(true);
+        CloseableNoOpService service = new CloseableNoOpService(readiness::isServing);
+        TestServer server = new TestServer(0, service,
+                AudioVideoGrpcServerBase.TransportSecurity.tls(certA, keyA), readiness);
+        server.start();
+        int port = server.getPort();
+        CountDownLatch awaitTerminationEntered = new CountDownLatch(1);
+        CountDownLatch allowAwaitTermination = new CountDownLatch(1);
+        Server previousGeneration = currentServer(server);
+        setCurrentServer(server, new GatedTerminationServer(
+                previousGeneration, awaitTerminationEntered, allowAwaitTermination));
+        AtomicReference<Throwable> rotationFailure = new AtomicReference<>();
+        Thread rotation = new Thread(() -> {
+            try {
+                server.rotateTls(AudioVideoGrpcServerBase.TransportSecurity.tls(certB, keyB));
+            } catch (Throwable failure) {
+                rotationFailure.set(failure);
+            }
+        }, "test-tls-rotation-failure");
+
+        try {
+            assertThat(server.isReady()).isTrue();
+            assertThat(peerCertificate(port, certA).getSerialNumber()).isNotNull();
+            rotation.start();
+            assertThat(awaitTerminationEntered.await(3, TimeUnit.SECONDS)).isTrue();
+            assertThat(server.isReady()).isFalse();
+            assertThat(service.closeCount()).isZero();
+
+            // The delegate has stopped its listener and rotation is held at awaitTermination, so
+            // this socket deterministically owns the port before the replacement generation starts.
+            try (ServerSocket portBlocker = claimPortAfterListenerStops(port)) {
+                allowAwaitTermination.countDown();
+                rotation.join(10_000);
+
+                assertThat(rotation.isAlive()).isFalse();
+                assertThat(rotationFailure.get()).isInstanceOf(IOException.class);
+                assertThat(server.isShutdown()).isTrue();
+                assertThat(server.isReady()).isFalse();
+                assertThat(readiness.isServing()).isFalse();
+                assertThat(readiness.closeCount()).isEqualTo(1);
+                assertThat(service.closeCount()).isEqualTo(1);
+            } finally {
+                allowAwaitTermination.countDown();
+            }
+        } finally {
+            allowAwaitTermination.countDown();
+            rotation.join(10_000);
+            server.close();
+        }
+
+        assertThat(rotation.isAlive()).isFalse();
+        assertThatThrownBy(() -> {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress("127.0.0.1", port), 1_000);
+            }
+        }).isInstanceOf(IOException.class);
+        assertThat(service.closeCount()).isEqualTo(1);
+        assertThat(readiness.closeCount()).isEqualTo(1);
+    }
+
+    @Test
     void configuredInboundLimitRejectsOversizedTransportMessageBeforeServiceDispatch() throws Exception {
         AtomicInteger dispatches = new AtomicInteger();
         BindableService service = payloadService(dispatches);
@@ -356,6 +427,38 @@ class AudioVideoGrpcServerBaseTest {
         }
     }
 
+    private static ServerSocket claimPortAfterListenerStops(int port) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+        IOException lastBindFailure = null;
+        while (System.nanoTime() < deadline) {
+            ServerSocket socket = new ServerSocket();
+            try {
+                socket.setReuseAddress(false);
+                socket.bind(new InetSocketAddress(port));
+                return socket;
+            } catch (IOException bindFailure) {
+                lastBindFailure = bindFailure;
+                socket.close();
+            }
+            Thread.sleep(1);
+        }
+        throw new IOException("Old listener did not release its port for deterministic rebind failure",
+                lastBindFailure);
+    }
+
+    private static Server currentServer(AudioVideoGrpcServerBase server) throws ReflectiveOperationException {
+        Field field = AudioVideoGrpcServerBase.class.getDeclaredField("server");
+        field.setAccessible(true);
+        return (Server) field.get(server);
+    }
+
+    private static void setCurrentServer(AudioVideoGrpcServerBase owner, Server replacement)
+            throws ReflectiveOperationException {
+        Field field = AudioVideoGrpcServerBase.class.getDeclaredField("server");
+        field.setAccessible(true);
+        field.set(owner, replacement);
+    }
+
     private static void awaitThreadBlocked(Thread thread, long timeoutMillis) throws InterruptedException {
         long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
         while (thread.isAlive()
@@ -405,6 +508,7 @@ class AudioVideoGrpcServerBaseTest {
         }
     }
 
+
     private static final class FakeReadinessLifecycle implements ServerReadinessLifecycle {
         private final boolean requiredChecksAvailable;
         private final AtomicInteger readyAttempts = new AtomicInteger();
@@ -452,4 +556,65 @@ class AudioVideoGrpcServerBaseTest {
             return closeCount.get();
         }
     }
+
+    private static final class GatedTerminationServer extends Server {
+        private final Server delegate;
+        private final CountDownLatch awaitTerminationEntered;
+        private final CountDownLatch allowAwaitTermination;
+
+        private GatedTerminationServer(
+                Server delegate,
+                CountDownLatch awaitTerminationEntered,
+                CountDownLatch allowAwaitTermination) {
+            this.delegate = delegate;
+            this.awaitTerminationEntered = awaitTerminationEntered;
+            this.allowAwaitTermination = allowAwaitTermination;
+        }
+
+        @Override
+        public Server start() throws IOException {
+            delegate.start();
+            return this;
+        }
+
+        @Override
+        public int getPort() {
+            return delegate.getPort();
+        }
+
+        @Override
+        public Server shutdown() {
+            delegate.shutdown();
+            return this;
+        }
+
+        @Override
+        public Server shutdownNow() {
+            delegate.shutdownNow();
+            return this;
+        }
+
+        @Override
+        public boolean isShutdown() {
+            return delegate.isShutdown();
+        }
+
+        @Override
+        public boolean isTerminated() {
+            return delegate.isTerminated();
+        }
+
+        @Override
+        public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+            awaitTerminationEntered.countDown();
+            allowAwaitTermination.await();
+            return delegate.awaitTermination(timeout, unit);
+        }
+
+        @Override
+        public void awaitTermination() throws InterruptedException {
+            delegate.awaitTermination();
+        }
+    }
+
 }
