@@ -6,8 +6,41 @@ import {
   createMediaOperationClient,
   type CanonicalMediaUploadSessionObservation,
 } from "./operations";
+import { MediaHttpTransport } from "./http-core";
 
 const timestamp = "2026-08-05T12:00:00.000Z";
+
+describe("MediaHttpTransport configured identity boundary", () => {
+  it("does not let per-request additions replace tenant/principal scope or inject credentials", async () => {
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      defaultHeaders: { "X-Principal-Id": "principal-configured" },
+      requestContext: { correlationId: "correlation-configured" },
+    });
+    const headers = await transport.headers({
+      "X-Tenant-ID": "tenant-attacker",
+      "X-Principal-Id": "principal-attacker",
+      "X-Correlation-ID": "correlation-attacker",
+      Authorization: "Bearer caller-injected",
+    });
+
+    expect(headers.get("X-Tenant-ID")).toBe("tenant-configured");
+    expect(headers.get("X-Principal-Id")).toBe("principal-configured");
+    expect(headers.get("X-Correlation-ID")).toBe("correlation-configured");
+    expect(headers.has("Authorization")).toBe(false);
+  });
+
+  it("uses only the configured credential provider even when additions carry Authorization", async () => {
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      getAccessToken: () => "configured-token",
+    });
+    const headers = await transport.headers({ Authorization: "Bearer injected-token" });
+    expect(headers.get("Authorization")).toBe("Bearer configured-token");
+  });
+});
 
 function jsonResponse(body: unknown, status = 200, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body), {

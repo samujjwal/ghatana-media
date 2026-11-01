@@ -155,6 +155,13 @@ export class MediaHttpTransport {
     additions: Readonly<Record<string, string>> = {},
   ): Promise<Headers> {
     const headers = new Headers(this.defaultHeaders);
+    const callerPrincipalId = headers.get("X-Principal-Id");
+    // Apply operation-specific headers before restoring the caller's trusted
+    // identity/context below. Additions may carry idempotency or stream tokens,
+    // but cannot change the authority under which this client was configured.
+    for (const [name, value] of Object.entries(additions)) {
+      headers.set(name, value);
+    }
     headers.set("Accept", "application/json");
     const requestId = crypto.randomUUID();
     headers.set("X-Request-ID", requestId);
@@ -175,11 +182,11 @@ export class MediaHttpTransport {
     } else {
       headers.delete("X-Ghatana-Delegation");
     }
-    for (const [name, value] of Object.entries(additions)) {
-      headers.set(name, value);
-    }
+    if (callerPrincipalId === null) headers.delete("X-Principal-Id");
+    else headers.set("X-Principal-Id", callerPrincipalId);
     const token = await this.getAccessToken?.();
     if (token) headers.set("Authorization", `Bearer ${token}`);
+    else headers.delete("Authorization");
     return headers;
   }
 
