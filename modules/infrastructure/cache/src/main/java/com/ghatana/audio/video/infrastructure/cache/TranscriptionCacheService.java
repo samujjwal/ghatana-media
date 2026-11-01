@@ -84,6 +84,9 @@ public class TranscriptionCacheService {
      */
     public AsyncOperation<Void> cacheTranscription(String tenantId, TranscriptionEntity entity, Duration ttl) {
         if (!hasTenantId(tenantId)) return AsyncOperation.failure(invalidTenantId());
+        if (ttl == null || ttl.isZero() || ttl.isNegative()) {
+            return AsyncOperation.failure(new IllegalArgumentException("ttl must be positive"));
+        }
         if (!isWritableForTenant(tenantId, entity)) {
             return AsyncOperation.failure(identityMismatch());
         }

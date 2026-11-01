@@ -401,6 +401,37 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void invalidCustomTtlFailsExplicitlyAndDoesNotWrite() {
+        UUID transcriptionId = UUID.randomUUID();
+        TranscriptionEntity entry = entity("tenant-a", transcriptionId, false);
+
+        for (Duration invalidTtl : new Duration[] {Duration.ZERO, Duration.ofNanos(-1)}) {
+            assertThatThrownBy(() -> await(cacheService.cacheTranscription(
+                    "tenant-a", entry, invalidTtl)))
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("ttl must be positive");
+        }
+        assertThatThrownBy(() -> await(cacheService.cacheTranscription("tenant-a", entry, null)))
+                .hasRootCauseInstanceOf(IllegalArgumentException.class)
+                .hasRootCauseMessage("ttl must be positive");
+
+        verifyNoInteractions(cachePort);
+    }
+
+    @Test
+    void customTtlAboveCacheMaximumIsCapped() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        String cacheKey = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity entry = entity("tenant-a", transcriptionId, false);
+        when(cachePort.put(eq(cacheKey), any(), eq(Duration.ofMinutes(30))))
+                .thenReturn(AsyncOperation.success(null));
+
+        await(cacheService.cacheTranscription("tenant-a", entry, Duration.ofDays(2)));
+
+        verify(cachePort).put(eq(cacheKey), any(), eq(Duration.ofMinutes(30)));
+    }
+
+    @Test
     void oversizedSourceValueIsReturnedButNotSerializedBeyondTheCacheBoundOrLogged() {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());

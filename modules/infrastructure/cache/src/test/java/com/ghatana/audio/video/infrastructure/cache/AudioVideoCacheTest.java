@@ -755,4 +755,18 @@ class AudioVideoCacheTest {
 
         verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
     }
+
+    @Test
+    @DisplayName("source provider timeout remains classified and is not cached")
+    void sourceProviderTimeoutRemainsVisibleAndIsNotCached() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        when(cachePort.get("provider-times-out")).thenReturn(AsyncOperation.success(Optional.empty()));
+
+        assertThatThrownBy(() -> await(cache.getOrLoad("provider-times-out", ignored ->
+                AsyncOperation.failure(new java.util.concurrent.TimeoutException("provider timed out")))))
+                .hasRootCauseInstanceOf(java.util.concurrent.TimeoutException.class)
+                .hasRootCauseMessage("provider timed out");
+
+        verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
+    }
 }
