@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.ghatana.testing.activej.EventloopTestBase;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -433,6 +435,66 @@ class AudioVideoRunLedgerPortTest extends EventloopTestBase {
 
     assertThat(entry).isNotNull();
     assertThat(entry.runId()).isEqualTo("run-019");
+  }
+
+  @Test
+  @DisplayName("Ledger metadata is copied on construction and cannot be changed through the record")
+  void testSystemMetadataIsImmutableSnapshot() {
+    Map<String, Object> suppliedMetadata = new HashMap<>();
+    suppliedMetadata.put("source", "upload-1");
+    AudioVideoRunLedgerEntry entry =
+        AudioVideoRunLedgerEntry.builder()
+            .runId("run-metadata")
+            .sessionId(SESSION_ID)
+            .mediaArtifactId(MEDIA_ARTIFACT_ID)
+            .tenantId(TENANT_ID)
+            .actorId(ACTOR_ID)
+            .state(AudioVideoRunLedgerEntry.RunState.PROCESSING)
+            .startedAt(Instant.now())
+            .traceId(TRACE_ID)
+            .systemMetadata(suppliedMetadata)
+            .build();
+
+    suppliedMetadata.put("source", "replaced");
+
+    assertThat(entry.systemMetadata()).containsEntry("source", "upload-1");
+    assertThatThrownBy(() -> entry.systemMetadata().put("new", "value"))
+        .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  @DisplayName("Canonical constructor snapshots the top-level metadata map")
+  void testCanonicalConstructorSnapshotsSystemMetadata() {
+    Map<String, Object> suppliedMetadata = new HashMap<>();
+    suppliedMetadata.put("source", "upload-1");
+    AudioVideoRunLedgerEntry entry =
+        new AudioVideoRunLedgerEntry(
+            "run-direct-metadata",
+            SESSION_ID,
+            MEDIA_ARTIFACT_ID,
+            TENANT_ID,
+            ACTOR_ID,
+            AudioVideoRunLedgerEntry.RunState.PROCESSING,
+            Instant.now(),
+            null,
+            TRACE_ID,
+            null,
+            null,
+            null,
+            0,
+            null,
+            0L,
+            null,
+            null,
+            0,
+            null,
+            suppliedMetadata);
+
+    suppliedMetadata.put("source", "replaced");
+
+    assertThat(entry.systemMetadata()).containsEntry("source", "upload-1");
+    assertThatThrownBy(() -> entry.systemMetadata().put("new", "value"))
+        .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test

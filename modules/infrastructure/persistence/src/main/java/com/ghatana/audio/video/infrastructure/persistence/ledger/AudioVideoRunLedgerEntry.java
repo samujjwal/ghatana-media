@@ -2,6 +2,7 @@ package com.ghatana.audio.video.infrastructure.persistence.ledger;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,6 +98,13 @@ public record AudioVideoRunLedgerEntry(
     if (processingStepCount != null && processingStepCount < 0) {
       throw new IllegalArgumentException("processingStepCount must be non-negative");
     }
+
+    // Snapshot the top-level metadata map here as well as in the builder, so
+    // direct canonical-constructor callers cannot replace its entries later.
+    // Values are not recursively copied and may themselves remain mutable.
+    systemMetadata = systemMetadata == null
+        ? Collections.emptyMap()
+        : Collections.unmodifiableMap(new HashMap<>(systemMetadata));
   }
 
   /**
@@ -227,7 +235,7 @@ public record AudioVideoRunLedgerEntry(
     }
 
     public Builder systemMetadata(Map<String, Object> systemMetadata) {
-      this.systemMetadata = systemMetadata != null ? new java.util.HashMap<>(systemMetadata) : Collections.emptyMap();
+      this.systemMetadata = systemMetadata != null ? new HashMap<>(systemMetadata) : Collections.emptyMap();
       return this;
     }
 
