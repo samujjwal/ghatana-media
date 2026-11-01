@@ -51,6 +51,17 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
 
     private static final String DIGEST = "a".repeat(64);
 
+    private enum EvidenceTampering {
+        SOURCE_OWNER,
+        SCOPE,
+        POLICY_DECISION,
+        POLICY_VERSION,
+        HUMAN_CONSENT,
+        SOURCE_CLOCK,
+        VERIFIED_AT,
+        EXPIRES_AT
+    }
+
     @Test
     void registeredNonhumanSourceResolvesToAllowedEvidenceAndSurvivesRevalidation() throws Exception {
         try (Fixture fixture = openFixture()) {
@@ -72,8 +83,74 @@ class PostgresqlMediaSourceAuthorizationAuthorityTest {
                     request("tenant-reg", "principal-a", "artifact-a"), evidence,
                     authenticated("tenant-reg", "principal-a"));
             assertThat(revalidated.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
-            assertThat(revalidated.evidence().decisionId()).isEqualTo(evidence.decisionId());
+            assertThat(revalidated.evidence()).isEqualTo(evidence);
         }
+    }
+
+    @Test
+    void revalidationRejectsCallerAlteredEvidenceAttribution() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            fixture.administration().register(register("tenant-forged", "principal-a", "artifact-a"),
+                    authenticated("tenant-forged", "principal-a"));
+            var allowed = fixture.authority().resolve(
+                    request("tenant-forged", "principal-a", "artifact-a"),
+                    authenticated("tenant-forged", "principal-a"));
+            assertThat(allowed.status()).isEqualTo(MediaSourceAuthorizationContracts.Status.ALLOWED);
+            var original = allowed.evidence();
+            for (EvidenceTampering tampering : EvidenceTampering.values()) {
+                var revalidated = fixture.authority().revalidate(
+                        request("tenant-forged", "principal-a", "artifact-a"),
+                        tamper(original, tampering), authenticated("tenant-forged", "principal-a"));
+                assertThat(revalidated.status())
+                        .as("tampered %s must not revalidate", tampering)
+                        .isEqualTo(MediaSourceAuthorizationContracts.Status.DENIED);
+                assertThat(revalidated.evidence()).as("tampered %s evidence", tampering).isNull();
+            }
+            assertThat(decisionCount(fixture.state(), "tenant-forged")).isEqualTo(1);
+        }
+    }
+
+    private static MediaSourceAuthorizationContracts.Evidence tamper(
+            MediaSourceAuthorizationContracts.Evidence source, EvidenceTampering tampering) {
+        String sourceOwnerId = source.sourceOwnerId();
+        Set<String> allowedOperations = source.allowedOperations();
+        Set<String> allowedRegions = source.allowedRegions();
+        Set<ProviderDataRetention> allowedRetentions = source.allowedProviderRetentions();
+        String policyDecisionId = source.policyDecisionId();
+        String policyVersion = source.policyVersion();
+        MediaSourceAuthorizationContracts.SourceKind sourceKind = source.sourceKind();
+        MediaSourceAuthorizationContracts.HumanConsentDisposition consentDisposition =
+                source.humanConsentDisposition();
+        String consentDecisionId = source.consentDecisionId();
+        String sourceClockEvidenceRef = source.sourceClockEvidenceRef();
+        Instant verifiedAt = source.verifiedAt();
+        Instant expiresAt = source.expiresAt();
+        switch (tampering) {
+            case SOURCE_OWNER -> sourceOwnerId = "unregistered-source-owner";
+            case SCOPE -> {
+                allowedOperations = Set.of("speech_to_text", "vision");
+                allowedRegions = Set.of("local", "*");
+                allowedRetentions = Set.of(ProviderDataRetention.NONE, ProviderDataRetention.PERSISTENT);
+            }
+            case POLICY_DECISION -> policyDecisionId = "fabricated-policy-decision";
+            case POLICY_VERSION -> policyVersion = "fabricated-policy-version";
+            case HUMAN_CONSENT -> {
+                sourceKind = MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING;
+                consentDisposition = MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED;
+                consentDecisionId = "fabricated-consent-decision";
+            }
+            case SOURCE_CLOCK -> sourceClockEvidenceRef = "fabricated-source-clock";
+            case VERIFIED_AT -> verifiedAt = verifiedAt.plusMillis(1);
+            case EXPIRES_AT -> expiresAt = expiresAt.plusMillis(1);
+        }
+        return new MediaSourceAuthorizationContracts.Evidence(
+                source.authorityId(), source.decisionId(), source.tenantId(), source.principalId(),
+                sourceOwnerId, source.artifactId(), source.sourceVersion(), source.sourceSha256(),
+                source.operation(), source.purpose(), source.providerId(), source.providerVersion(),
+                source.processingBoundary(), source.processingRegion(), source.providerRetention(),
+                allowedOperations, allowedRegions, allowedRetentions, source.rightsDecisionId(),
+                policyDecisionId, policyVersion, sourceKind, consentDisposition, consentDecisionId,
+                sourceClockEvidenceRef, source.revocationEpoch(), verifiedAt, expiresAt);
     }
 
     @Test

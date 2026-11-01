@@ -135,9 +135,6 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             if (decision == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             if (decision.revokedAt != null) return decision(MediaSourceAuthorizationContracts.Status.REVOKED);
             if (!decision.expiresAt.isAfter(now)) return decision(MediaSourceAuthorizationContracts.Status.STALE);
-            if (!decision.matches(request, expectedEvidence)) {
-                return decision(MediaSourceAuthorizationContracts.Status.DENIED);
-            }
             SourceRecord record = readRecord(request.tenantId(), request.artifactId(),
                     request.sourceVersion().value());
             if (record == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
@@ -145,6 +142,10 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                 return decision(MediaSourceAuthorizationContracts.Status.REVOKED);
             }
             if (record.expiredAt(now)) return decision(MediaSourceAuthorizationContracts.Status.STALE);
+            if (scopeStatus(record, request, now) != MediaSourceAuthorizationContracts.Status.ALLOWED
+                    || !decision.matches(request, expectedEvidence, record)) {
+                return decision(MediaSourceAuthorizationContracts.Status.DENIED);
+            }
 
             PolicyDecisionRecord policy = evaluatePolicy(request, record, authenticated);
             if (policy == null) return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
@@ -155,7 +156,8 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                 return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
             }
             return new MediaSourceAuthorizationContracts.Decision(
-                    MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
+                    MediaSourceAuthorizationContracts.Status.ALLOWED,
+                    canonicalEvidence(request, record, decision));
         } catch (IllegalStateException unavailable) {
             return decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE);
         }
@@ -209,9 +211,15 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
             MediaSourceAuthorizationContracts.Request request,
             SourceRecord observed,
             PolicyDecisionRecord policy) {
-        Instant now = Instant.now();
+        // Persisted timestamps use epoch milliseconds. Issue the returned evidence at that
+        // same precision so later revalidation can compare it to the durable decision exactly.
+        Instant now = Instant.ofEpochMilli(Instant.now().toEpochMilli());
         Instant expiresAt = observed.expiresAt().isBefore(now.plus(MAX_DECISION_TTL))
                 ? observed.expiresAt() : now.plus(MAX_DECISION_TTL);
+        expiresAt = Instant.ofEpochMilli(expiresAt.toEpochMilli());
+        if (!expiresAt.isAfter(now)) {
+            return decision(MediaSourceAuthorizationContracts.Status.STALE);
+        }
         String decisionId = UUID.randomUUID().toString();
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
@@ -314,13 +322,15 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
     }
 
     private record DecisionRow(
-            String artifactId, String sourceVersion, String principalId, String operation,
-            String purpose, String providerId, String providerVersion, ProcessingBoundary boundary,
-            String region, ProviderDataRetention retention, long revocationEpoch, Instant expiresAt,
-            Instant revokedAt) {
+            String decisionId, String artifactId, String sourceVersion, String principalId,
+            String sourceOwnerId, String operation, String purpose, String providerId,
+            String providerVersion, ProcessingBoundary boundary, String region,
+            ProviderDataRetention retention, String policyDecisionId, String policyVersion,
+            long revocationEpoch, Instant decidedAt, Instant expiresAt, Instant revokedAt) {
         boolean matches(
                 MediaSourceAuthorizationContracts.Request request,
-                MediaSourceAuthorizationContracts.Evidence evidence) {
+                MediaSourceAuthorizationContracts.Evidence evidence,
+                SourceRecord record) {
             return artifactId.equals(request.artifactId())
                     && sourceVersion.equals(request.sourceVersion().value())
                     && principalId.equals(request.principalId())
@@ -331,17 +341,54 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                     && boundary == request.processingBoundary()
                     && region.equals(request.processingRegion())
                     && retention == request.providerRetention()
+                    && AUTHORITY_ID.equals(evidence.authorityId())
+                    && decisionId.equals(evidence.decisionId())
+                    && decisionId.equals(evidence.rightsDecisionId())
+                    && request.tenantId().equals(evidence.tenantId())
+                    && sourceOwnerId.equals(evidence.sourceOwnerId())
+                    && evidence.matches(request)
+                    && record.sourceVersion().equals(sourceVersion)
+                    && record.sourceSha256().equals(request.sourceSha256())
+                    && sourceOwnerId.equals(record.sourceOwnerId())
+                    && evidence.allowedOperations().equals(record.allowedOperations())
+                    && evidence.allowedRegions().equals(record.allowedRegions())
+                    && evidence.allowedProviderRetentions().equals(record.allowedProviderRetentions())
+                    && policyDecisionId.equals(evidence.policyDecisionId())
+                    && policyVersion.equals(evidence.policyVersion())
+                    && evidence.sourceKind() == record.sourceKind()
+                    && evidence.humanConsentDisposition() == record.humanConsentDisposition()
+                    && evidence.consentDecisionId().equals(record.consentDecisionId())
+                    && evidence.sourceClockEvidenceRef().equals(record.sourceClockEvidenceRef())
                     && revocationEpoch == evidence.revocationEpoch()
-                    && artifactId.equals(evidence.artifactId());
+                    && revocationEpoch == record.revocationEpoch()
+                    && decidedAt.equals(evidence.verifiedAt())
+                    && expiresAt.equals(evidence.expiresAt());
         }
+    }
+
+    private static MediaSourceAuthorizationContracts.Evidence canonicalEvidence(
+            MediaSourceAuthorizationContracts.Request request,
+            SourceRecord record,
+            DecisionRow decision) {
+        return new MediaSourceAuthorizationContracts.Evidence(
+                AUTHORITY_ID, decision.decisionId(), request.tenantId(), request.principalId(),
+                decision.sourceOwnerId(), request.artifactId(), request.sourceVersion(),
+                request.sourceSha256(), request.operation(), request.purpose(), request.providerId(),
+                request.providerVersion(), request.processingBoundary(), request.processingRegion(),
+                request.providerRetention(), record.allowedOperations(), record.allowedRegions(),
+                record.allowedProviderRetentions(), decision.decisionId(), decision.policyDecisionId(),
+                decision.policyVersion(), record.sourceKind(), record.humanConsentDisposition(),
+                record.consentDecisionId(), record.sourceClockEvidenceRef(), record.revocationEpoch(),
+                decision.decidedAt(), decision.expiresAt());
     }
 
     private DecisionRow readDecisionForUpdate(String tenantId, String decisionId) {
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement("""
-                     SELECT artifact_id,source_version,principal_id,operation,purpose,provider_id,
-                            provider_version,processing_boundary,processing_region,provider_retention,
-                            revocation_epoch,expires_at,revoked_at
+                     SELECT decision_id,artifact_id,source_version,principal_id,source_owner_id,
+                            operation,purpose,provider_id,provider_version,processing_boundary,
+                            processing_region,provider_retention,policy_decision_id,policy_version,
+                            revocation_epoch,decided_at,expires_at,revoked_at
                        FROM media_source_rights_decisions
                       WHERE tenant_id=? AND decision_id=? FOR UPDATE
                      """)) {
@@ -352,14 +399,17 @@ public final class PostgresqlMediaSourceAuthorizationAuthority
                 long revoked = row.getLong("revoked_at");
                 Instant revokedAt = row.wasNull() ? null : Instant.ofEpochMilli(revoked);
                 return new DecisionRow(
-                        row.getString("artifact_id"), row.getString("source_version"),
-                        row.getString("principal_id"), row.getString("operation"),
+                        row.getString("decision_id"), row.getString("artifact_id"),
+                        row.getString("source_version"), row.getString("principal_id"),
+                        row.getString("source_owner_id"), row.getString("operation"),
                         row.getString("purpose"), row.getString("provider_id"),
                         row.getString("provider_version"),
                         ProcessingBoundary.valueOf(row.getString("processing_boundary")),
                         row.getString("processing_region"),
                         ProviderDataRetention.valueOf(row.getString("provider_retention")),
+                        row.getString("policy_decision_id"), row.getString("policy_version"),
                         row.getLong("revocation_epoch"),
+                        Instant.ofEpochMilli(row.getLong("decided_at")),
                         Instant.ofEpochMilli(row.getLong("expires_at")),
                         revokedAt);
             }
