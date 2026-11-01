@@ -136,6 +136,11 @@ class RunLedgerProjectionTest {
         assertThat(attempts).hasValue(1);
         assertThat(projection.reconcile("uncertain-run", id -> java.util.Optional.empty()))
                 .isEqualTo(RunLedgerProjection.ReconciliationResult.UNRESOLVED);
+        assertThat(projection.reconcile("uncertain-run", id -> java.util.Optional.of(
+                ledger("uncertain-run", JobExecutionState.RUNNING, null, 1, 101, 0))))
+                .isEqualTo(RunLedgerProjection.ReconciliationResult.UNRESOLVED);
+        assertThat(projection.reconcile("uncertain-run", id -> { throw new IllegalStateException("read failed"); }))
+                .isEqualTo(RunLedgerProjection.ReconciliationResult.UNRESOLVED);
         assertThat(projection.project(record).store())
                 .isEqualTo(RunLedgerProjection.StoreResult.OUTCOME_UNKNOWN);
         assertThat(attempts).hasValue(1);
