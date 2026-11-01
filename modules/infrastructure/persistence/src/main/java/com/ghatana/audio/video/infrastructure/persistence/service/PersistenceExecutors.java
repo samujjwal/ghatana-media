@@ -11,6 +11,7 @@ final class PersistenceExecutors {
 
     private static final int MAX_THREADS = 8;
     private static final int QUEUE_CAPACITY = 128;
+    static final int MAX_OUTSTANDING_OPERATIONS = MAX_THREADS + QUEUE_CAPACITY;
 
     private PersistenceExecutors() { }
 

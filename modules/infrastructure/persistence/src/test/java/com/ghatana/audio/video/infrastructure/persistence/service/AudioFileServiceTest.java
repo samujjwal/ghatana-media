@@ -42,7 +42,7 @@ class AudioFileServiceTest extends EventloopTestBase {
 
     @BeforeEach
     void setUp() { 
-        Eventloop eventloop = Eventloop.create(); 
+        Eventloop eventloop = eventloop();
         injectedExecutor = Executors.newSingleThreadExecutor();
         service = new AudioFileService(repository, eventloop, injectedExecutor);
     }

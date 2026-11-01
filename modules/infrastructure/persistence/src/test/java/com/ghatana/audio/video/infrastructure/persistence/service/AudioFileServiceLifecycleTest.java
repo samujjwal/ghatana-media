@@ -3,7 +3,6 @@ package com.ghatana.audio.video.infrastructure.persistence.service;
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
 import com.ghatana.audio.video.infrastructure.persistence.repository.AudioFileRepository;
 import com.ghatana.testing.activej.EventloopTestBase;
-import io.activej.eventloop.Eventloop;
 import io.activej.promise.Promise;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,7 @@ class AudioFileServiceLifecycleTest extends EventloopTestBase {
         });
         ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.AbortPolicy());
-        AudioFileService service = new AudioFileService(repository, Eventloop.create(), executor, ExecutorOwnership.SERVICE);
+        AudioFileService service = new AudioFileService(repository, eventloop(), executor, ExecutorOwnership.SERVICE);
         AtomicReference<AudioFileEntity> firstResult = new AtomicReference<>();
         AtomicReference<Exception> rejectedFailure = new AtomicReference<>();
 

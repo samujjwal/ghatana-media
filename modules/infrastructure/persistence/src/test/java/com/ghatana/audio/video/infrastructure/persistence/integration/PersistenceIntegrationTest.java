@@ -6,7 +6,6 @@ import com.ghatana.audio.video.infrastructure.persistence.repository.JpaAudioFil
 import com.ghatana.audio.video.infrastructure.persistence.repository.JpaTranscriptionRepository;
 import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
 import com.ghatana.testing.activej.EventloopTestBase;
-import io.activej.eventloop.Eventloop;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -111,7 +110,7 @@ class PersistenceIntegrationTest extends EventloopTestBase {
         TranscriptionEntity forged = new TranscriptionEntity(original.getId(), attacker,
                 priorAudioId, UUID.randomUUID(), "forged text", "en");
         var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
-        var service = new AudioFileService(audioFileRepository, Eventloop.create(), executor);
+        var service = new AudioFileService(audioFileRepository, eventloop(), executor);
         try {
             assertThatThrownBy(() -> runPromise(() -> service.saveWithTranscription(attacker, newAudio, forged)))
                     .hasRootCauseInstanceOf(IllegalArgumentException.class)
@@ -133,7 +132,7 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     void postgresCombinedSavePersistsSameTenantRecords() {
         String owner = "owner-" + UUID.randomUUID();
         var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
-        var service = new AudioFileService(audioFileRepository, Eventloop.create(), executor);
+        var service = new AudioFileService(audioFileRepository, eventloop(), executor);
         try {
             AudioFileEntity admittedAudio = createAudioFile(owner, "admitted.wav");
             TranscriptionEntity admitted = new TranscriptionEntity(UUID.randomUUID(), owner,

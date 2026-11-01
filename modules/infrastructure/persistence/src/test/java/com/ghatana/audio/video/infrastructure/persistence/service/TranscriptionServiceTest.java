@@ -41,7 +41,7 @@ class TranscriptionServiceTest extends EventloopTestBase {
 
     @BeforeEach
     void setUp() { 
-        Eventloop eventloop = Eventloop.create(); 
+        Eventloop eventloop = eventloop();
         injectedExecutor = Executors.newSingleThreadExecutor();
         service = new TranscriptionService(repository, eventloop, injectedExecutor);
     }
