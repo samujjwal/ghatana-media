@@ -7,6 +7,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaChildJobDispatcher;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -80,8 +83,68 @@ class DelegatingMultimodalProviderTest {
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
         } finally {
             scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void samePrincipalMismatchedReturnedChildIsNotCancelled() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                    ProcessingJob submitted = super.submitChild(request);
+                    return new ProcessingJob(submitted.jobId(), submitted.requestId(), submitted.tenantId(),
+                            submitted.principalId(), "rebound-artifact", submitted.jobType(),
+                            submitted.providerId(), submitted.status(), submitted.createdAt(),
+                            submitted.startedAt(), submitted.completedAt(), submitted.result(),
+                            submitted.failureCode(), submitted.version(),
+                            submitted.expectedArtifactVersion(), submitted.requestFingerprint());
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "unbound result"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void legacyOrMalformedChildRequestFingerprintCannotBeFused() throws Exception {
+        for (String fingerprint : List.of("", "malformed-fingerprint")) {
+            var scheduler = Executors.newSingleThreadScheduledExecutor();
+            try {
+                var provider = DelegatingMultimodalProvider.forTesting(
+                        scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+                var dispatcher = new FixtureDispatcher() {
+                    @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                        ProcessingJob submitted = super.submitChild(request);
+                        return new ProcessingJob(submitted.jobId(), submitted.requestId(),
+                                submitted.tenantId(), submitted.principalId(), submitted.artifactId(),
+                                submitted.jobType(), submitted.providerId(), submitted.status(),
+                                submitted.createdAt(), submitted.startedAt(), submitted.completedAt(),
+                                submitted.result(), submitted.failureCode(), submitted.version(),
+                                submitted.expectedArtifactVersion(), fingerprint);
+                    }
+                }.with(JobStatus.COMPLETED, Map.of("text", "unbound result"));
+
+                var submission = provider.processAttempt(context(dispatcher), attempt())
+                        .get(10, TimeUnit.SECONDS);
+                assertThat(submission.finality()).as("fingerprint=%s", fingerprint)
+                        .isEqualTo(AttemptFinality.UNKNOWN);
+                assertThat(submission.result()).as("fingerprint=%s", fingerprint).isEmpty();
+                assertThat(dispatcher.cancelledJobIds()).as("fingerprint=%s", fingerprint).isEmpty();
+            } finally {
+                scheduler.shutdownNow();
+            }
         }
     }
 
@@ -163,7 +226,7 @@ class DelegatingMultimodalProviderTest {
                     .failOn(JobType.VISION, new SecurityException("child source rights revoked"));
             var submission = provider.processAttempt(context(dispatcher, twoChildRequest()), attempt())
                     .get(10, TimeUnit.SECONDS);
-            assertThat(submission.finality()).isEqualTo(AttemptFinality.FAILED);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
         } finally {
             scheduler.shutdownNow();
@@ -198,6 +261,143 @@ class DelegatingMultimodalProviderTest {
             var submission = provider.processAttempt(context(), attempt())
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.NO_EFFECT_PROVEN);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void completedSubmissionWithoutCurrentDurableReadbackRemainsUnknown() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public Optional<ProcessingJob> findJob(String jobId) {
+                    return Optional.empty();
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "stale snapshot"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void mismatchedChildTenantCannotBeFusedAsSucceeded() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                    ProcessingJob submitted = super.submitChild(request);
+                    return new ProcessingJob(submitted.jobId(), submitted.requestId(), "other-tenant",
+                            submitted.principalId(), submitted.artifactId(), submitted.jobType(),
+                            submitted.providerId(), submitted.status(), submitted.createdAt(),
+                            submitted.startedAt(), submitted.completedAt(), submitted.result(),
+                            submitted.failureCode(), submitted.version(),
+                            submitted.expectedArtifactVersion(), submitted.requestFingerprint());
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "unbound result"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).isEmpty();
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void durableReadbackWithChangedSourceBindingRemainsUnknown() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher() {
+                @Override public Optional<ProcessingJob> findJob(String jobId) {
+                    return super.findJob(jobId).map(job -> new ProcessingJob(
+                            job.jobId(), job.requestId(), job.tenantId(), job.principalId(), "rebound-artifact",
+                            job.jobType(), job.providerId(), job.status(), job.createdAt(), job.startedAt(),
+                            job.completedAt(), job.result(), job.failureCode(), job.version(),
+                            job.expectedArtifactVersion(), job.requestFingerprint()));
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "rebound result"));
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void sameChildRequestIdWithChangedParametersAndGovernanceRemainsUnknown() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher().with(JobStatus.COMPLETED, Map.of("text", "result"));
+            var first = singleChildRequest(Map.of("language", "en"),
+                    new MediaGovernanceContext("consent-v1", "transcription", "local", Set.of("local"),
+                            false, false));
+            var changed = singleChildRequest(Map.of("language", "hi"),
+                    new MediaGovernanceContext("consent-v2", "transcription", "local", Set.of("local"),
+                            false, false));
+
+            var firstSubmission = provider.processAttempt(context(dispatcher, first), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            var replaySubmission = provider.processAttempt(context(dispatcher, changed), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(firstSubmission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(replaySubmission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(replaySubmission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void lostChildSubmissionAcknowledgementRemainsUnknownThenExactReplayReadsSameJob() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            AtomicInteger acknowledgements = new AtomicInteger();
+            var dispatcher = new FixtureDispatcher() {
+                @Override public ProcessingJob submitChild(ProcessingJobRequest request) {
+                    ProcessingJob job = super.submitChild(request);
+                    if (acknowledgements.getAndIncrement() == 0) {
+                        throw new IllegalStateException("simulated lost child acknowledgement");
+                    }
+                    return job;
+                }
+            }.with(JobStatus.COMPLETED, Map.of("text", "durable result"));
+            ProcessingJobRequest request = singleChildRequest(Map.of("language", "en"),
+                    MediaGovernanceContext.compatibilityDefault());
+
+            var first = provider.processAttempt(context(dispatcher, request), attempt())
+                    .get(10, TimeUnit.SECONDS);
+            var replay = provider.processAttempt(context(dispatcher, request), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(first.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(first.result()).isEmpty();
+            assertThat(replay.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(dispatcher.submits).hasValue(1);
         } finally {
             scheduler.shutdownNow();
         }
@@ -241,6 +441,20 @@ class DelegatingMultimodalProviderTest {
                 Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()));
     }
 
+    private static ProcessingJobRequest singleChildRequest(
+            Map<String, Object> childParameters, MediaGovernanceContext governance) {
+        var spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "cap", "op", 1, "src", "sha256:" + SHA, SHA,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec(
+                        "stt", JobType.SPEECH_TO_TEXT, "child-art",
+                        "sha256:" + SHA, SHA, "", childParameters)),
+                null, Map.of());
+        return new ProcessingJobRequest("req-1", "tenant-a", "principal-a", "corr-1",
+                "src", "sha256:" + SHA, JobType.MULTIMODAL, "",
+                Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()), governance);
+    }
+
     private static ProcessingContext clockedContext(FixtureDispatcher dispatcher) {
         var spec = new MultimodalOperationSpec(
                 MultimodalOperationSpec.SPEC_VERSION,
@@ -281,8 +495,9 @@ class DelegatingMultimodalProviderTest {
         return new ProviderAttemptContext("tenant-a", "job-1", "req-1", 1, 1, SHA);
     }
 
-    private static final class FixtureDispatcher implements MediaChildJobDispatcher {
+    private static class FixtureDispatcher implements MediaChildJobDispatcher {
         private final Map<String, ProcessingJob> jobs = new ConcurrentHashMap<>();
+        private final Map<String, ProcessingJobRequest> requests = new ConcurrentHashMap<>();
         private final Map<JobType, JobStatus> statuses = new ConcurrentHashMap<>();
         private final Map<JobType, Map<String, Object>> results = new ConcurrentHashMap<>();
         private final Map<JobType, RuntimeException> failures = new ConcurrentHashMap<>();
@@ -313,9 +528,17 @@ class DelegatingMultimodalProviderTest {
         }
 
         @Override public ProcessingJob submitChild(ProcessingJobRequest childRequest) {
-            submits.incrementAndGet();
             RuntimeException failure = failures.get(childRequest.jobType());
             if (failure != null) throw failure;
+            ProcessingJobRequest priorRequest = requests.putIfAbsent(childRequest.requestId(), childRequest);
+            if (priorRequest != null) {
+                if (!priorRequest.equals(childRequest)) {
+                    throw new MediaJobStoreConflictException(
+                            "same child request id was resubmitted with different normalized input");
+                }
+                return jobs.get(childRequest.requestId());
+            }
+            submits.incrementAndGet();
             JobStatus status = statuses.getOrDefault(childRequest.jobType(), defaultStatus);
             Map<String, Object> result =
                     results.getOrDefault(childRequest.jobType(), defaultResult);

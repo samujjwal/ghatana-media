@@ -215,12 +215,10 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         try {
             children = submitChildren(spec, context, dispatcher);
         } catch (RuntimeException failure) {
-            // Already-submitted children were cancelled inside submitChildren. A parent
-            // cancellation racing the fanout reports UNKNOWN, never a failure code for
-            // an effect that was refused rather than attempted.
-            result.complete(context.cancellation().cancelled()
-                    ? OperationOutcome.unknown()
-                    : OperationOutcome.failed("CHILD_SUBMISSION_FAILED"));
+            // A child submit can fail after durable creation when its acknowledgement is
+            // lost, or when same-ID normalized input conflicts. Do not convert that
+            // ambiguous boundary into FAILED; exact child records own finality.
+            result.complete(OperationOutcome.unknown());
             return result;
         }
         if (children.size() != spec.children().size()) {
@@ -247,17 +245,16 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 context.cancellation().throwIfCancelled();
                 String childRequestId = MultimodalOperationSpec.childRequestId(
                         parent.requestId(), child.childKey());
-                ProcessingJob existing = dispatcher.findJobByRequest(childRequestId).orElse(null);
-                if (existing != null) {
-                    children.add(existing);
-                    continue;
-                }
                 ProcessingJobRequest childRequest = new ProcessingJobRequest(
                         childRequestId, parent.tenantId(), parent.principalId(),
                         boundedCorrelation(parent.correlationId(), child.childKey()),
                         child.artifactId(), child.artifactVersion(), child.jobType(),
                         child.providerHint(), child.parameters(), parent.governanceContext());
-                children.add(dispatcher.submitChild(childRequest));
+                ProcessingJob submitted = dispatcher.submitChild(childRequest);
+                if (!matchesChildRequest(submitted, childRequest)) {
+                    throw new ChildBindingMismatchException();
+                }
+                children.add(submitted);
             } catch (RuntimeException failure) {
                 // A denied or cancelled fanout must not leak the children already
                 // submitted: cancel them best-effort before the failure propagates.
@@ -289,7 +286,14 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             List<ProcessingJob> current = new ArrayList<>(children.size());
             for (ProcessingJob child : children) {
                 Optional<ProcessingJob> readback = dispatcher.findJob(child.jobId());
-                current.add(readback.orElse(child));
+                if (readback.isEmpty() || !sameChildBinding(child, readback.orElseThrow())) {
+                    // A submitted snapshot is not a substitute for current durable
+                    // finality. Missing or rebound readback must never fuse as success.
+                    cancelChildrenQuietly(children, dispatcher);
+                    result.complete(OperationOutcome.unknown());
+                    return;
+                }
+                current.add(readback.orElseThrow());
             }
             OperationOutcome terminal = evaluate(spec, current);
             if (terminal != null) {
@@ -378,6 +382,40 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         String base = (parent == null || parent.isBlank()) ? "mm" : parent;
         String combined = base + ":" + childKey;
         return combined.length() > 512 ? combined.substring(0, 512) : combined;
+    }
+
+    private static boolean matchesChildRequest(ProcessingJob job, ProcessingJobRequest request) {
+        return job != null
+                && job.requestId().equals(request.requestId())
+                && job.tenantId().equals(request.tenantId())
+                && job.principalId().equals(request.principalId())
+                && job.artifactId().equals(request.artifactId())
+                && job.jobType() == request.jobType()
+                && job.expectedArtifactVersion().equals(request.expectedArtifactVersion())
+                && hasCanonicalRequestFingerprint(job);
+    }
+
+    private static boolean sameChildBinding(ProcessingJob submitted, ProcessingJob readback) {
+        return submitted.jobId().equals(readback.jobId())
+                && submitted.requestId().equals(readback.requestId())
+                && submitted.tenantId().equals(readback.tenantId())
+                && submitted.principalId().equals(readback.principalId())
+                && submitted.artifactId().equals(readback.artifactId())
+                && submitted.jobType() == readback.jobType()
+                && submitted.expectedArtifactVersion().equals(readback.expectedArtifactVersion())
+                && hasCanonicalRequestFingerprint(submitted)
+                && hasCanonicalRequestFingerprint(readback)
+                && submitted.requestFingerprint().equals(readback.requestFingerprint());
+    }
+
+    private static boolean hasCanonicalRequestFingerprint(ProcessingJob job) {
+        return job.requestFingerprint().matches("sha256:[0-9a-f]{64}");
+    }
+
+    private static final class ChildBindingMismatchException extends RuntimeException {
+        private ChildBindingMismatchException() {
+            super("Multimodal child job does not match its declared request binding");
+        }
     }
 
     private static String digest(Object value) {
