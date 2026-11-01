@@ -118,6 +118,30 @@ describe("orchestrateScenario", () => {
       scenes: [{ ...base.scenes[0]!, actorRefs: ["actor-1", "actor-1"] }, base.scenes[1]!],
     })).toThrowError(/duplicate actorRef/u);
   });
+
+  it("rejects malformed actor, narration, and caption collections as scenario errors", () => {
+    const base = scenario();
+    expect(() => orchestrateScenario({
+      ...base,
+      actors: [null],
+    } as unknown as Scenario)).toThrowError(ScenarioError);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, actorRefs: "actor-1" }],
+    } as unknown as Scenario)).toThrowError(/actorRefs must be an array/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, narration: [null] }],
+    } as unknown as Scenario)).toThrowError(/narration\[0\] must be an object/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, captionRefs: ["captions/intro@v1", " "] }],
+    })).toThrowError(/captionRefs\[1\]/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, captionRefs: "captions/intro@v1" }],
+    } as unknown as Scenario)).toThrowError(/captionRefs must be an array/u);
+  });
 });
 
 describe("recaptureScenario", () => {

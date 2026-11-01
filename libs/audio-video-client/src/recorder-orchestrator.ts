@@ -85,6 +85,14 @@ function requireText(value: string | undefined, field: string): string {
   return value;
 }
 
+function requireTextArray(value: unknown, field: string): string[] {
+  if (!Array.isArray(value)) {
+    throw new ScenarioError("INVALID_SCENARIO", `${field} must be an array`);
+  }
+  return value.map((entry: unknown, index: number) =>
+    requireText(entry as string | undefined, `${field}[${index}]`));
+}
+
 /** Deterministic lineage: scenario identity + scene identity + revision. */
 function lineageId(scenarioId: string, sceneId: string, sourceRevision: string): string {
   return `${scenarioId}/${sceneId}@${sourceRevision}`;
@@ -112,6 +120,9 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
   }
   const actorsById = new Map<string, ScenarioActor>();
   for (const actor of scenario.actors) {
+    if (!actor || typeof actor !== "object") {
+      throw new ScenarioError("INVALID_SCENARIO", "actors entries must be objects");
+    }
     const actorId = requireText(actor.actorId, "actorId");
     const role = requireText(actor.role, "actor.role");
     if (actorsById.has(actorId)) {
@@ -122,6 +133,9 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
   const seenSceneIds = new Set<string>();
 
   const sceneRuns: SceneRun[] = scenario.scenes.map((scene, index) => {
+    if (!scene || typeof scene !== "object") {
+      throw new ScenarioError("INVALID_SCENARIO", `scenes[${index}] must be an object`);
+    }
     const sceneId = requireText(scene.sceneId, `scenes[${index}].sceneId`);
     if (seenSceneIds.has(sceneId)) {
       throw new ScenarioError("INVALID_SCENARIO", `duplicate sceneId: ${sceneId}`);
@@ -130,7 +144,9 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     const sourceRef = requireText(scene.sourceRef, `scenes[${index}].sourceRef`);
     const sourceRevision = requireText(scene.sourceRevision, `scenes[${index}].sourceRevision`);
     const sceneActorIds = new Set<string>();
-    const actorBindings = (scene.actorRefs ?? []).map((actorRef: string) => {
+    const actorRefs = scene.actorRefs === undefined ? []
+      : requireTextArray(scene.actorRefs, `scenes[${index}].actorRefs`);
+    const actorBindings = actorRefs.map((actorRef: string) => {
       if (sceneActorIds.has(actorRef)) {
         throw new ScenarioError("INVALID_SCENARIO",
           `scene ${sceneId} contains duplicate actorRef: ${actorRef}`);
@@ -148,7 +164,15 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       throw new ScenarioError("INVALID_SCENARIO",
         `scene ${sceneId} durationMillis must be 1..3600000`);
     }
-    const narration = (scene.narration ?? []).map((cue: NarrationCue, cueIndex: number) => {
+    const narrationEntries = scene.narration === undefined ? [] : scene.narration;
+    if (!Array.isArray(narrationEntries)) {
+      throw new ScenarioError("INVALID_SCENARIO", `scenes[${index}].narration must be an array`);
+    }
+    const narration = narrationEntries.map((cue: NarrationCue, cueIndex: number) => {
+      if (!cue || typeof cue !== "object") {
+        throw new ScenarioError("INVALID_SCENARIO",
+          `scene ${sceneId} narration[${cueIndex}] must be an object`);
+      }
       if (!Number.isSafeInteger(cue.atMillis) || cue.atMillis < 0
         || cue.atMillis > scene.durationMillis) {
         throw new ScenarioError("INVALID_SCENARIO",
@@ -171,7 +195,8 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       durationMillis: scene.durationMillis,
       actorBindings,
       narration,
-      captionRefs: [...(scene.captionRefs ?? [])],
+      captionRefs: scene.captionRefs === undefined ? []
+        : requireTextArray(scene.captionRefs, `scenes[${index}].captionRefs`),
     };
   });
   return { scenarioId, revision, sceneRuns, dryRunOnly: true };
