@@ -5004,6 +5004,194 @@ typedHttpOperationContracts:
       pathLevel: []
       operationLevel: []
     idempotencyContract: null
+  - identity: registerMediaCaptionVersion
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1caption-versions/post
+    method: POST
+    path: /api/v1/caption-versions
+    role: domain-command-candidate
+    bindingStatus: CANDIDATE_ONLY
+    fieldParityStatus: FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted
+    canonicalOperationRef: media.operation.caption-version-write
+    bindingBasis: exact HTTP operation is inventoried against the declared public
+      contract; family-level candidate association does not establish exact leaf
+      parity, runtime admission, or independent acceptance
+    requestSchemaRefs:
+      - "#/components/schemas/CaptionRegistrationRequest"
+    requestMediaTypes:
+      - application/json
+    responseContracts:
+      - status: "201"
+        responseRef: null
+        schemaRefs:
+          - "#/components/schemas/CaptionVersionRegistered"
+        schemas:
+          - mediaType: application/json
+            schema:
+              $ref: "#/components/schemas/CaptionVersionRegistered"
+        mediaTypes:
+          - application/json
+        requiredHeaders: []
+      - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "409"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "422"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+    security:
+      - bearerAuth: []
+      - apiKeyAuth: []
+    requestSchemas:
+      - mediaType: application/json
+        schema:
+          $ref: "#/components/schemas/CaptionRegistrationRequest"
+    parameterContracts:
+      pathLevel: []
+      operationLevel:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+    idempotencyContract:
+      required: true
+      payloadHashRequired: true
+      scopeTemplate: tenantId|principalId|requestId
+  - identity: listMediaCaptionVersions
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1caption-versions/get
+    method: GET
+    path: /api/v1/caption-versions
+    role: domain-query-candidate
+    bindingStatus: CANDIDATE_ONLY
+    fieldParityStatus: FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted
+    canonicalOperationRef: media.operation.caption-version-read
+    bindingBasis: exact HTTP operation is inventoried against the declared public
+      contract; family-level candidate association does not establish exact leaf
+      parity, runtime admission, or independent acceptance
+    requestSchemaRefs: []
+    requestMediaTypes: []
+    responseContracts:
+      - status: "200"
+        responseRef: null
+        schemaRefs:
+          - "#/components/schemas/CaptionVersionList"
+        schemas:
+          - mediaType: application/json
+            schema:
+              $ref: "#/components/schemas/CaptionVersionList"
+        mediaTypes:
+          - application/json
+        requiredHeaders: []
+      - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+    security:
+      - bearerAuth: []
+      - apiKeyAuth: []
+    requestSchemas: []
+    parameterContracts:
+      pathLevel: []
+      operationLevel:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+        - $ref: "#/components/parameters/CaptionSourceArtifactId"
+        - $ref: "#/components/parameters/CaptionSourceArtifactVersionId"
+    idempotencyContract: null
+  - identity: getMediaCaptionVersion
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1caption-versions~1{captionVersionId}/get
+    method: GET
+    path: /api/v1/caption-versions/{captionVersionId}
+    role: domain-query-candidate
+    bindingStatus: CANDIDATE_ONLY
+    fieldParityStatus: FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted
+    canonicalOperationRef: media.operation.caption-version-read
+    bindingBasis: exact HTTP operation is inventoried against the declared public
+      contract; family-level candidate association does not establish exact leaf
+      parity, runtime admission, or independent acceptance
+    requestSchemaRefs: []
+    requestMediaTypes: []
+    responseContracts:
+      - status: "200"
+        responseRef: null
+        schemaRefs:
+          - "#/components/schemas/CaptionVersionSnapshot"
+        schemas:
+          - mediaType: application/json
+            schema:
+              $ref: "#/components/schemas/CaptionVersionSnapshot"
+        mediaTypes:
+          - application/json
+        requiredHeaders: []
+      - status: "400"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "403"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "404"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+      - status: "503"
+        responseRef: "#/components/responses/Error"
+        schemaRefs: []
+        schemas: []
+        mediaTypes: []
+        requiredHeaders: []
+    security:
+      - bearerAuth: []
+      - apiKeyAuth: []
+    requestSchemas: []
+    parameterContracts:
+      pathLevel: []
+      operationLevel:
+        - $ref: "#/components/parameters/TenantHeader"
+        - $ref: "#/components/parameters/PrincipalHeader"
+        - $ref: "#/components/parameters/CaptionVersionId"
+    idempotencyContract: null
 
 typedGrpcMethodContracts:
   - identity: STTService.Transcribe
@@ -8224,9 +8412,9 @@ typedFixtureCliContracts:
 
 typedSdkMethodContracts:
   - identity: media.sdk.getStatus
-    sourceRef: libs/audio-video-client/src/operations.ts#L402
+    sourceRef: libs/audio-video-client/src/operations.ts#L379
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 402
+    sourceLine: 379
     declaringClass: MediaOperationHandle
     method: getStatus
     sourceSignature: "getStatus(signal?: AbortSignal): Promise<MediaProcessingJob>"
@@ -8240,9 +8428,9 @@ typedSdkMethodContracts:
       returns MediaProcessingJobSchema; route is absent from active manifest and
       canonical observation uses job identity route
   - identity: media.sdk.cancel
-    sourceRef: libs/audio-video-client/src/operations.ts#L406
+    sourceRef: libs/audio-video-client/src/operations.ts#L345
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 406
+    sourceLine: 345
     declaringClass: MediaOperationHandle
     method: cancel
     sourceSignature: "cancel(signal?: AbortSignal): Promise<MediaProcessingJob>"
@@ -8256,9 +8444,9 @@ typedSdkMethodContracts:
       returns MediaProcessingJobSchema; no active route or canonical
       cancellation receipt binding
   - identity: media.sdk.retry
-    sourceRef: libs/audio-video-client/src/operations.ts#L410
+    sourceRef: libs/audio-video-client/src/operations.ts#L349
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 410
+    sourceLine: 349
     declaringClass: MediaOperationHandle
     method: retry
     sourceSignature: "retry(signal?: AbortSignal): Promise<MediaOperationHandle<T>>"
@@ -8269,9 +8457,9 @@ typedSdkMethodContracts:
     semanticBinding: not-admitted-to-current-media-runtime
     bindingEvidence: MediaOperationHandle.retry-delegates-to-retryOperation-which-throws-MediaOperationNotAdmittedError-before-network
   - identity: media.sdk.getResult
-    sourceRef: libs/audio-video-client/src/operations.ts#L414
+    sourceRef: libs/audio-video-client/src/operations.ts#L384
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 414
+    sourceLine: 384
     declaringClass: MediaOperationHandle
     method: getResult
     sourceSignature: "getResult(signal?: AbortSignal): Promise<T>"
@@ -8285,9 +8473,9 @@ typedSdkMethodContracts:
       RuntimeParser<T>; raw route is not active; parser does not derive target
       output schema from trusted accepted-submit snapshot
   - identity: media.sdk.wait
-    sourceRef: libs/audio-video-client/src/operations.ts#L354
+    sourceRef: libs/audio-video-client/src/operations.ts#L361
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 354
+    sourceLine: 361
     declaringClass: MediaOperationHandle
     method: wait
     sourceSignature: "wait(milliseconds: number, signal?: AbortSignal): Promise<void>"
@@ -8298,9 +8486,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
   - identity: media.sdk.createUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L503
+    sourceRef: libs/audio-video-client/src/operations.ts#L418
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 503
+    sourceLine: 418
     declaringClass: MediaOperationClient
     method: createUploadSession
     sourceSignature: "createUploadSession( request: CreateUploadSessionRequest,
@@ -8314,9 +8502,9 @@ typedSdkMethodContracts:
       idempotency-is-defined-under-PXD-046;
       trusted-host-and-independent-runtime-qualification-open
   - identity: media.sdk.uploadPart
-    sourceRef: libs/audio-video-client/src/operations.ts#L562
+    sourceRef: libs/audio-video-client/src/operations.ts#L477
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 562
+    sourceLine: 477
     declaringClass: MediaOperationClient
     method: uploadPart
     sourceSignature: "uploadPart( session: CanonicalMediaUploadSessionObservation,
@@ -8332,9 +8520,9 @@ typedSdkMethodContracts:
       ordered-index-and-no-auto-replay-rules-retained;
       trusted-host-and-independent-runtime-qualification-open
   - identity: media.sdk.completeUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L641
+    sourceRef: libs/audio-video-client/src/operations.ts#L566
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 641
+    sourceLine: 566
     declaringClass: MediaOperationClient
     method: completeUploadSession
     sourceSignature: "completeUploadSession( session:
@@ -8349,9 +8537,9 @@ typedSdkMethodContracts:
       session-overload-binds-upload-receipt; legacy-ID-overload-remains-weaker;
       availability-not-inferred
   - identity: media.sdk.getArtifact
-    sourceRef: libs/audio-video-client/src/operations.ts#L697
+    sourceRef: libs/audio-video-client/src/operations.ts#L613
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 697
+    sourceLine: 613
     declaringClass: MediaOperationClient
     method: getArtifact
     sourceSignature: "getArtifact( artifactId: string, signal?: AbortSignal, ):
@@ -8365,9 +8553,9 @@ typedSdkMethodContracts:
       strict-scope-and-malformed-response-tests;
       no-legacy-domain-alias-or-rights-inference
   - identity: media.sdk.getUploadSession
-    sourceRef: libs/audio-video-client/src/operations.ts#L612
+    sourceRef: libs/audio-video-client/src/operations.ts#L528
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 612
+    sourceLine: 528
     declaringClass: MediaOperationClient
     method: getUploadSession
     sourceSignature: "getUploadSession( uploadId: string, signal?: AbortSignal, ):
@@ -8383,9 +8571,9 @@ typedSdkMethodContracts:
       scoped-UPLOAD_NOT_FOUND-preserved;
       no-state-mutation-rights-or-finality-inference
   - identity: media.sdk.listProviderCapabilities
-    sourceRef: libs/audio-video-client/src/operations.ts#L733
+    sourceRef: libs/audio-video-client/src/operations.ts#L649
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 733
+    sourceLine: 649
     declaringClass: MediaOperationClient
     method: listProviderCapabilities
     sourceSignature: "listProviderCapabilities( signal?: AbortSignal, ):
@@ -8420,9 +8608,9 @@ typedSdkMethodContracts:
       - this-legacy-path-is-absent-from-the-active-route-manifest
       - this-legacy-response-is-not-the-getMediaProviders-readiness-response
   - identity: media.sdk.transcribe
-    sourceRef: libs/audio-video-client/src/operations.ts#L753
+    sourceRef: libs/audio-video-client/src/operations.ts#L669
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 753
+    sourceLine: 669
     declaringClass: MediaOperationClient
     method: transcribe
     sourceSignature: "transcribe( request: TranscriptionRequest, signal?:
@@ -8438,9 +8626,9 @@ typedSdkMethodContracts:
       request identity, purpose, consent, rights, retention, and location;
       result DTO is not owner submission receipt
   - identity: media.sdk.synthesize
-    sourceRef: libs/audio-video-client/src/operations.ts#L766
+    sourceRef: libs/audio-video-client/src/operations.ts#L682
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 766
+    sourceLine: 682
     declaringClass: MediaOperationClient
     method: synthesize
     sourceSignature: "synthesize( request: SynthesisRequest, signal?: AbortSignal,
@@ -8454,9 +8642,9 @@ typedSdkMethodContracts:
     bindingEvidence: SynthesisRequestSchema-and-SynthesisResultSchema-do-not-bind-owner-synthesis-authority-context-rights-output-version-or-finality;
       exact-path-has-no-active-route; NOT_ADMITTED
   - identity: media.sdk.legacy.AudioVideoClient.transcribe
-    sourceRef: libs/audio-video-client/src/index.ts#L172
+    sourceRef: libs/audio-video-client/src/index.ts#L206
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 172
+    sourceLine: 206
     declaringClass: AudioVideoClient
     method: transcribe
     sourceSignature: "transcribe(request: STTRequest, options?: { onProgress?:
@@ -8470,9 +8658,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/stt/transcribe;
       no-matching-openapi-or-active-runtime-route
   - identity: media.sdk.legacy.AudioVideoClient.synthesize
-    sourceRef: libs/audio-video-client/src/index.ts#L200
+    sourceRef: libs/audio-video-client/src/index.ts#L234
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 200
+    sourceLine: 234
     declaringClass: AudioVideoClient
     method: synthesize
     sourceSignature: "synthesize(request: TTSRequest, options?: { onProgress?:
@@ -8486,9 +8674,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/index.ts-posts-to-/api/tts/synthesize;
       no-matching-openapi-or-active-runtime-route
   - identity: media.sdk.trainVoiceModel
-    sourceRef: libs/audio-video-client/src/operations.ts#L779
+    sourceRef: libs/audio-video-client/src/operations.ts#L695
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 779
+    sourceLine: 695
     declaringClass: MediaOperationClient
     method: trainVoiceModel
     sourceSignature: "trainVoiceModel( request: VoiceTrainingRequest, signal?:
@@ -8501,9 +8689,9 @@ typedSdkMethodContracts:
     bindingEvidence: exact-owner-operation-ref-exists-but-legacy-artifactId-and-MediaArtifact-result-do-not-match-versioned-model-input-and-result-contract;
       no-active-route
   - identity: media.sdk.convertVoice
-    sourceRef: libs/audio-video-client/src/operations.ts#L792
+    sourceRef: libs/audio-video-client/src/operations.ts#L708
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 792
+    sourceLine: 708
     declaringClass: MediaOperationClient
     method: convertVoice
     sourceSignature: "convertVoice( request: VoiceConversionRequest, signal?:
@@ -8516,9 +8704,9 @@ typedSdkMethodContracts:
     bindingEvidence: exact-owner-operation-ref-exists-but-legacy-sourceArtifactId-voiceModelArtifactId-and-MediaArtifact-result-do-not-match-versioned-source-model-profile-purpose-rights-and-result-contract;
       no-active-route
   - identity: media.sdk.analyzeMultimodal
-    sourceRef: libs/audio-video-client/src/operations.ts#L805
+    sourceRef: libs/audio-video-client/src/operations.ts#L721
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 805
+    sourceLine: 721
     declaringClass: MediaOperationClient
     method: analyzeMultimodal
     sourceSignature: "analyzeMultimodal( request: MultimodalAnalysisRequest,
@@ -8532,9 +8720,9 @@ typedSdkMethodContracts:
     bindingEvidence: MultimodalAnalysisRequestSchema-and-MediaArtifactSchema-do-not-bind-versioned-source-alignment-purpose-or-cross-modal-observation-semantics;
       exact-path-has-no-active-route; NOT_ADMITTED
   - identity: media.sdk.getOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L403
+    sourceRef: libs/audio-video-client/src/operations.ts#L342
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 403
+    sourceLine: 342
     declaringClass: MediaOperationClient
     method: getOperation
     sourceSignature: getOperation(this.operationId, signal)
@@ -8548,9 +8736,9 @@ typedSdkMethodContracts:
       MediaProcessingJobSchema; no active route; canonical job query uses job
       identity and distinct route
   - identity: media.sdk.cancelOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L407
+    sourceRef: libs/audio-video-client/src/operations.ts#L346
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 407
+    sourceLine: 346
     declaringClass: MediaOperationClient
     method: cancelOperation
     sourceSignature: cancelOperation(this.operationId, signal)
@@ -8564,9 +8752,9 @@ typedSdkMethodContracts:
       MediaProcessingJobSchema; route absent from manifest; no canonical
       cancellation receipt binding
   - identity: media.sdk.retryOperation
-    sourceRef: libs/audio-video-client/src/operations.ts#L411
+    sourceRef: libs/audio-video-client/src/operations.ts#L350
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 411
+    sourceLine: 350
     declaringClass: MediaOperationClient
     method: retryOperation
     sourceSignature: retryOperation(this.operationId, this.resultParser, signal)
@@ -8578,9 +8766,9 @@ typedSdkMethodContracts:
     bindingEvidence: retryOperation-throws-MediaOperationNotAdmittedError-before-network;
       OpenAPI-and-runtime-route-manifest-have-no-retry-route
   - identity: media.sdk.getOperationResult
-    sourceRef: libs/audio-video-client/src/operations.ts#L415
+    sourceRef: libs/audio-video-client/src/operations.ts#L354
     sourceFile: libs/audio-video-client/src/operations.ts
-    sourceLine: 415
+    sourceLine: 354
     declaringClass: MediaOperationClient
     method: getOperationResult
     sourceSignature: getOperationResult( this.operationId, this.resultParser, signal, )
@@ -8592,9 +8780,9 @@ typedSdkMethodContracts:
     bindingEvidence: libs/audio-video-client/src/operations.ts-gets-/api/v1/media/operations/{operationId}/result;
       exact-route-is-recorded-in-compatibilityRouteFindings-and-has-no-active-runtime-route
   - identity: media.sdk.processAIVoice
-    sourceRef: libs/audio-video-client/src/index.ts#L227
+    sourceRef: libs/audio-video-client/src/index.ts#L261
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 227
+    sourceLine: 261
     declaringClass: AudioVideoClient
     method: processAIVoice
     sourceSignature: "processAIVoice(request: AIVoiceRequest, options?: {
@@ -8607,9 +8795,9 @@ typedSdkMethodContracts:
     semanticBinding: no-current-canonical-operation-for-legacy-text-task-contract
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.processVision
-    sourceRef: libs/audio-video-client/src/index.ts#L254
+    sourceRef: libs/audio-video-client/src/index.ts#L288
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 254
+    sourceLine: 288
     declaringClass: AudioVideoClient
     method: processVision
     sourceSignature: "processVision(request: VisionRequest, options?: { onProgress?:
@@ -8622,9 +8810,9 @@ typedSdkMethodContracts:
     semanticBinding: legacy-vision-contract-without-exact-canonical-leaf-crosswalk
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.processMultimodal
-    sourceRef: libs/audio-video-client/src/index.ts#L282
+    sourceRef: libs/audio-video-client/src/index.ts#L316
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 282
+    sourceLine: 316
     declaringClass: AudioVideoClient
     method: processMultimodal
     sourceSignature: "processMultimodal(request: MultimodalRequest, options?: {
@@ -8637,9 +8825,9 @@ typedSdkMethodContracts:
     semanticBinding: legacy-multimodal-contract-without-exact-canonical-leaf-crosswalk
     bindingEvidence: no-approved-media-http-operation-or-active-runtime-route-for-this-legacy-client-method
   - identity: media.sdk.getServiceStatus
-    sourceRef: libs/audio-video-client/src/index.ts#L311
+    sourceRef: libs/audio-video-client/src/index.ts#L345
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 311
+    sourceLine: 345
     declaringClass: AudioVideoClient
     method: getServiceStatus
     sourceSignature: "getServiceStatus(service: ServiceType): Promise<ServiceStatus>"
@@ -8650,9 +8838,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
   - identity: media.sdk.getAllServicesStatus
-    sourceRef: libs/audio-video-client/src/index.ts#L348
+    sourceRef: libs/audio-video-client/src/index.ts#L382
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 348
+    sourceLine: 382
     declaringClass: AudioVideoClient
     method: getAllServicesStatus
     sourceSignature: "getAllServicesStatus(): Promise<ServiceStatus[]>"
@@ -8663,9 +8851,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: service-status-uses-configured-provider-endpoint-health-port-not-the-media-api-base-path
   - identity: media.sdk.addEventListener
-    sourceRef: libs/audio-video-client/src/index.ts#L355
+    sourceRef: libs/audio-video-client/src/index.ts#L389
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 355
+    sourceLine: 389
     declaringClass: AudioVideoClient
     method: addEventListener
     sourceSignature: "addEventListener(event: string, callback: Function): void"
@@ -8676,9 +8864,9 @@ typedSdkMethodContracts:
     semanticBinding: not-a-domain-operation
     bindingEvidence: wait-or-listener-orchestration-is-local-and-declares-no-independent-media-http-operation
   - identity: media.sdk.removeEventListener
-    sourceRef: libs/audio-video-client/src/index.ts#L362
+    sourceRef: libs/audio-video-client/src/index.ts#L396
     sourceFile: libs/audio-video-client/src/index.ts
-    sourceLine: 362
+    sourceLine: 396
     declaringClass: AudioVideoClient
     method: removeEventListener
     sourceSignature: "removeEventListener(event: string, callback: Function): void"

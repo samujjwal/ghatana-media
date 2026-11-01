@@ -288,7 +288,7 @@ test("HTTP identities carry exact route, request/result, role, and bounded-or-ca
   }
   assert.deepEqual(fieldParityCounts, {
     "SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable": 9,
-    "FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted": 13,
+    "FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted": 16,
     "BOUNDED_DEFINITION_ONLY; full-wire-field-parity-not-asserted": 5,
   });
 });
@@ -458,7 +458,7 @@ test("gRPC identities retain every exact request/result field while leaving sema
   const contracts = parity.typedGrpcMethodContracts;
   const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
   const operationIds = new Set(operations.ownerDefinedOperationContracts.records.map(({ id }) => id));
-  assert.equal(contracts.length, 43);
+  assert.equal(contracts.length, 44);
   const counts = {};
   for (const contract of contracts) {
     counts[contract.fieldParityStatus] = (counts[contract.fieldParityStatus] ?? 0) + 1;
@@ -489,7 +489,7 @@ test("gRPC identities retain every exact request/result field while leaving sema
       assert.equal(contract.canonicalFamilyCandidateRef, null);
     }
   }
-  assert.equal(counts["FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted"], 17);
+  assert.equal(counts["FAMILY_CANDIDATE_ONLY; leaf-and-field-parity-not-asserted"], 18);
   assert.equal(counts["SOURCE_BACKED_NON_OPERATION; canonical-operation-field-parity-not-applicable"], 22);
   assert.equal(counts["OWNER_ADAPTER_REQUIRED; legacy-wire-field-parity-not-established"], 4);
   assert.equal(counts.UNRESOLVED_ROLE_AND_FIELD_PARITY ?? 0, 0);
@@ -528,12 +528,12 @@ test("TTS profile RPCs remain provider-engine administration and feedback remain
     ["profile_id"], "get is only a provider profile ID lookup");
   assert.deepEqual(protobufMessageFields("modules/speech/tts-service/src/main/proto/tts_service.proto", "UpdateProfileRequest").map(({ name }) => name),
     ["profile_id", "settings"], "update has no expected version, idempotency key, or principal scope");
-  assert.match(implementation, /UUID\.randomUUID\(\)[\s\S]*?\.createProfile\(profileId, displayName, settings\)/u,
+  assert.match(implementation, /profileAccessNotAdmitted\(responseObserver\)/u,
     "create mutates the provider engine profile store using a random provider ID");
-  assert.match(implementation, /loadProfile\(profileId\)[\s\S]*?Status\.NOT_FOUND/u,
-    "get uses provider-engine profile lookup and provider NOT_FOUND semantics");
-  assert.match(implementation, /engine\.saveProfile\(updated\)[\s\S]*?\.setSettings\(request\.getSettings\(\)\)/u,
-    "update saves a provider profile without CAS and echoes submitted settings in its response");
+  assert.match(implementation, /public void getProfile\([\s\S]*?profileAccessNotAdmitted/u,
+    "get stays explicitly unadmitted until an authoritative scoped profile store exists");
+  assert.match(implementation, /public void updateProfile\([\s\S]*?profileAccessNotAdmitted/u,
+    "update stays explicitly unadmitted until an authoritative scoped profile store exists");
   assert.match(implementation, /public void submitFeedback\([\s\S]*?Status\.UNIMPLEMENTED[\s\S]*?explicit persistence and learning provider/u,
     "feedback has no implemented persistence/learning effect");
   const forgedDomainOperation = structuredClone(profiles[0]);
@@ -560,12 +560,12 @@ test("STT file-transcription candidate records the exact canonical adapter gaps 
   const persistent = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/PersistentSttGrpcService.java"), "utf8");
   const directMethod = direct.slice(direct.indexOf("public void transcribe("), direct.indexOf("public StreamObserver<AudioChunk> streamTranscribe("));
   const persistentMethod = persistent.slice(persistent.indexOf("public void transcribe("), persistent.indexOf("private String getTenantId("));
-  assert.match(directMethod, /request\.getSampleRate\(\)\s*>\s*0\s*\?\s*request\.getSampleRate\(\)\s*:\s*16_000/u);
-  assert.match(directMethod, /TranscriptionOptions\.defaults\(\)/u);
-  assert.match(directMethod, /getLanguage\(\)[\s\S]*?toLowerCase\(Locale\.ROOT\)\.split\("-"\)\[0\]/u);
-  assert.doesNotMatch(directMethod, /getProfileId\(\)|getTenantId\(\)|getArtifactId\(\)|getConsentStatus\(\)|getRetentionPolicy\(\)/u);
-  assert.match(persistentMethod, /String tenantId\s*=\s*getTenantId\(\)/u);
-  assert.match(persistent, /private String getTenantId\(\)[\s\S]*?JwtServerInterceptor\.CTX_TENANT/u);
+  assert.match(directMethod, /SttAudioInputDecoder\.requireSampleRate\(sampleRate\)/u);
+  assert.match(directMethod, /transcriptionOptions\(request\)/u);
+  assert.match(directMethod, /SttLanguageSupport\.isSupported\(language\)/u);
+  assert.doesNotMatch(directMethod, /getProfileId\(\)|getTenantId\(\)|getConsentStatus\(\)|getRetentionPolicy\(\)/u);
+  assert.match(persistentMethod, /String tenantId\s*=\s*identity\.tenantId\(\)/u);
+  assert.match(persistent, /JwtServerInterceptor\.verifiedIdentity\(\)/u);
   assert.doesNotMatch(persistentMethod, /request\.getTenantId\(\)|request\.getProfileId\(\)|request\.getOptions\(\)/u);
 
   const requiredGaps = [
@@ -613,12 +613,10 @@ test("STT streaming candidate separates transport chunks from canonical versione
 
   const implementation = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java"), "utf8");
   const streamMethod = implementation.slice(implementation.indexOf("public StreamObserver<AudioChunk> streamTranscribe("), implementation.indexOf("public void getStatus("));
-  assert.match(streamMethod, /chunk\.getAudioData\(\)/u);
-  assert.match(streamMethod, /chunk\.getTimestampMs\(\)/u);
-  assert.doesNotMatch(streamMethod, /chunk\.getSampleRate\(\)|chunk\.getSessionId\(\)/u);
-  assert.match(streamMethod, /new (?:java\.util\.concurrent\.)?LinkedBlockingQueue<>\(MAX_BUFFER_CHUNKS\)/u);
-  assert.match(streamMethod, /RESOURCE_EXHAUSTED/u);
-  assert.match(streamMethod, /session\.endStream\(\)/u);
+  assert.match(streamMethod, /STT_STREAM_SESSION_NOT_ADMITTED/u);
+  assert.match(streamMethod, /FAILED_PRECONDITION/u);
+  assert.doesNotMatch(streamMethod, /chunk\.getSampleRate\(\)|chunk\.getSessionId\(\)|chunk\.getAudioData\(\)|chunk\.getTimestampMs\(\)/u);
+  assert.match(streamMethod, /durable session store, ACK\/resume epoch, and provider session are unavailable/u);
   assert.deepEqual(assessment.observedImplementationBehavior.consumedFields, ["audio_data", "timestamp_ms"]);
   assert.deepEqual(assessment.observedImplementationBehavior.ignoredFields, ["sample_rate", "session_id"]);
   const expectedGaps = [
@@ -649,8 +647,8 @@ test("STT correction acknowledgement stub cannot be promoted to a canonical corr
 
   const implementation = readFileSync(resolve(root, "modules/speech/stt-service/src/main/java/com/ghatana/stt/grpc/SttGrpcService.java"), "utf8");
   const method = implementation.slice(implementation.indexOf("public void submitCorrection("), implementation.indexOf("private static String cid("));
-  assert.match(method, /CorrectionResponse\.newBuilder\(\)[\s\S]*?\.setAccepted\(true\)[\s\S]*?\.setMessage\("Correction accepted"\)/u);
-  assert.doesNotMatch(method, /request\.get(?:OriginalText|CorrectedText|ProfileId|ContextId|AudioFeatures)\(\)|save|persist|adapt/u);
+  assert.match(method, /STT_CORRECTION_NOT_ADMITTED/u);
+  assert.doesNotMatch(method, /request\.get(?:OriginalText|CorrectedText|ContextId|AudioFeatures)\(\)|stt\.(?:save|persist|adapt)/u);
   const safe = (value) => value.canonicalEquivalence === "NOT_ESTABLISHED"
     && value.runtimeAdmission === "NOT_ADMITTED"
     && value.nonEquivalenceRules.length === 3
@@ -678,16 +676,15 @@ test("STT profile and adaptation identities retain source-exact effects while ca
     assert.equal(assessment.independentAcceptance, "OPEN");
     assert.ok(assessment.missingOwnerSemantics.length >= 3);
   }
-  assert.match(adapt, /getProfileId\(\)[\s\S]*?getCorrectedTranscript\(\)[\s\S]*?stt\.saveProfile\(updated\)/u);
+  assert.match(adapt, /STT_ADAPTATION_NOT_ADMITTED/u);
   assert.doesNotMatch(adapt, /getAudioFeatures\(\)|getOriginalTranscript\(\)|getContextId\(\)|getTimestampMs\(\)|getMode\(\)/u);
-  assert.match(create, /UUID\.randomUUID\(\)/u);
-  assert.match(create, /new AudioData\(sample\.toByteArray\(\), 16000, 1, 16\)/u);
-  assert.match(create, /stt\.createProfile\(profileId, enrollmentAudio\)/u);
-  assert.doesNotMatch(create.slice(0, create.indexOf("responseObserver.onNext")), /request\.getSettings\(\)/u);
-  assert.match(get, /stt\.loadProfile\(profileId\)/u);
-  assert.match(update, /request\.getSettings\(\)\.getPreferredLanguage\(\)/u);
-  assert.doesNotMatch(update, /request\.getSettings\(\)\.get(?:Model|Provider|Enrollment|Vocabulary)/u);
-  assert.match(update, /stt\.saveProfile\(updated\)/u);
+  assert.match(create, /speakerProfileNotAdmitted\(responseObserver\)/u);
+  assert.match(create, /CREATE_SPEAKER_IDENTITY/u);
+  assert.match(get, /speakerProfileNotAdmitted\(responseObserver\)/u);
+  assert.match(get, /READ_SPEAKER_IDENTITY/u);
+  assert.match(update, /speakerProfileNotAdmitted\(responseObserver\)/u);
+  assert.match(update, /UPDATE_SPEAKER_IDENTITY/u);
+  assert.match(update, /STT_SPEAKER_PROFILE_NOT_ADMITTED/u);
 
   const unresolvedWithoutPromotion = (assessment) => assessment.disposition.startsWith("UNRESOLVED_MEDIA_PROFILE_")
     && assessment.canonicalEquivalence === "NOT_ESTABLISHED"
@@ -716,12 +713,12 @@ test("TTS synthesis remains a family candidate because its implementation lacks 
   assert.match(method, /\.setAudioData\(/u);
   assert.match(method, /\.setSampleRate\(/u);
   assert.doesNotMatch(method, /request\.get(?:TenantId|ArtifactId|JobId|CorrelationId|ConsentStatus|RetentionPolicy|ProfileId)\(\)/u);
-  assert.match(options, /getVoiceId\(\)/u);
-  assert.match(options, /getSpeed\(\)/u);
-  assert.match(options, /getPitch\(\)/u);
-  assert.match(options, /getEnergy\(\)/u);
-  assert.match(options, /getLanguage\(\)/u);
-  assert.doesNotMatch(options, /getEmotion\(\)|getOutputFormat\(\)/u);
+  assert.match(options, /SynthesisControlPolicy\.resolve\(request, outputFormat\)/u);
+  assert.match(options, /AUDIO_FORMAT_PCM_S16LE -> AudioFormat\.PCM/u);
+  assert.match(options, /AUDIO_FORMAT_PCM_F32LE -> throw/u);
+  assert.match(options, /AUDIO_FORMAT_WAV -> throw/u);
+  assert.match(options, /AUDIO_FORMAT_MP3 -> throw/u);
+  assert.doesNotMatch(options, /getEmotion\(\)/u);
   const missing = [
     "trusted tenant/principal/workspace authority and current voice-rights/consent/purpose checks",
     "exact input text/version and voice profile identity/version/configuration digest",
@@ -748,12 +745,9 @@ test("TTS voice cloning remains unadmitted until exact voice-rights and enrollme
   assert.equal(assessment.runtimeAdmission, "NOT_ADMITTED");
   const source = readFileSync(resolve(root, "modules/speech/tts-service/src/main/java/com/ghatana/tts/grpc/TtsGrpcService.java"), "utf8");
   const method = source.slice(source.indexOf("public void cloneVoice("), source.indexOf("public void submitFeedback("));
-  assert.match(method, /request\.getAudioSamplesList\(\)/u);
-  assert.match(method, /new AudioData\(sample\.toByteArray\(\), 22_050, 1, 16\)/u);
-  assert.match(method, /getFineTuneEpochs\(\)\s*>\s*0[\s\S]*?100/u);
-  assert.match(method, /getLearningRate\(\)\s*>\s*0[\s\S]*?0\.001f/u);
-  assert.match(method, /getVoiceName\(\)/u);
-  assert.doesNotMatch(method, /getTenantId\(\)|getPrincipalId\(\)|getConsent|rights|sourceArtifactVersion/u);
+  assert.match(method, /Status\.UNIMPLEMENTED/u);
+  assert.match(method, /Voice cloning is NOT_ADMITTED until owner consent, biometric purpose, and retention are verified/u);
+  assert.doesNotMatch(method, /getAudioSamplesList\(\)|getFineTuneEpochs\(\)|getLearningRate\(\)|getTenantId\(\)|getPrincipalId\(\)|getConsent|sourceArtifactVersion/u);
   const required = [
     "speaker identity and explicit authorization for voice likeness or cloning use",
     "consent, rights evidence, purpose, retention, and tenant/principal ownership of enrollment samples and cloned voice",
@@ -824,7 +818,7 @@ test("legacy and candidate SDK paths stay explicitly unadmitted when absent from
     assert.ok(!routeManifest.routes.some((route) => route.method === finding.method && route.path === finding.path),
       `${finding.method} ${finding.path} must not be described as admitted without an active route`);
   }
-  assert.equal(routeManifest.routes.length, 27);
+  assert.equal(routeManifest.routes.length, 30);
   assert.match(parity.compatibilityRouteFindings.disposition, /NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST/u);
 });
 
