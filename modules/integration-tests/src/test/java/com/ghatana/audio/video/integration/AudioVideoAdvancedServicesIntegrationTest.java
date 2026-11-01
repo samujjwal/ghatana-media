@@ -4,13 +4,19 @@ import com.ghatana.stt.diarization.SpeakerDiarizationService;
 import com.ghatana.tts.ssml.SsmlProcessor;
 import com.ghatana.audio.video.vision.recognition.FacialRecognitionService;
 import com.ghatana.audio.video.vision.scene.SceneUnderstandingService;
+import com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp;
+import com.ghatana.audio.video.multimodal.datacloud.MediaProcessingProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +37,49 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Tag("integration")
 @DisplayName("Audio-Video Service Integration Tests — AV-012")
 class AudioVideoAdvancedServicesIntegrationTest {
+
+    @Test
+    @DisplayName("Data Cloud media boundary exposes projection reads only")
+    void dataCloudProviderContractIsReadOnly() {
+        Set<String> operations = Arrays.stream(MediaProcessingProvider.class.getDeclaredMethods())
+                .map(Method::getName)
+                .collect(Collectors.toSet());
+
+        assertThat(operations).containsExactlyInAnyOrder(
+                "getJobStatus",
+                "fetchTranscript",
+                "fetchFrameIndex",
+                "fetchExtractedEvents",
+                "fetchEmbeddings",
+                "listJobsForArtifact");
+    }
+
+    @Nested
+    @DisplayName("Source timebase integration")
+    class SourceTimebaseIntegration {
+
+        @Test
+        @DisplayName("synthetic source sample clock stays exact and missing source time stays UNKNOWN")
+        void sourceTimebase_preservesExactSamplePositionAndUnknownState() {
+            MediaClockTimestamp sample = MediaClockTimestamp.audioSamples(
+                    24_000, 48_000, "synthetic-fixture:audio-clock");
+
+            assertThat(sample.status()).isEqualTo(MediaClockTimestamp.Status.KNOWN);
+            assertThat(sample.ticks()).isEqualTo(24_000L);
+            assertThat(sample.timeBaseNumerator()).isEqualTo(1L);
+            assertThat(sample.timeBaseDenominator()).isEqualTo(48_000L);
+            assertThat(sample.domain()).isEqualTo(MediaClockTimestamp.ClockDomain.SOURCE);
+            assertThat(sample.clockId()).isEqualTo("synthetic-fixture:audio-clock");
+
+            MediaClockTimestamp absent = MediaClockTimestamp.unknown("NO_SOURCE_PTS");
+            assertThat(absent.status()).isEqualTo(MediaClockTimestamp.Status.UNKNOWN);
+            assertThat(absent.ticks()).isNull();
+            assertThat(absent.timeBaseNumerator()).isNull();
+            assertThat(absent.timeBaseDenominator()).isNull();
+            assertThat(absent.clockId()).isNull();
+            assertThat(absent.unknownReason()).isEqualTo("NO_SOURCE_PTS");
+        }
+    }
 
     // ─── STT advanced feature integration ────────────────────────────────────
 

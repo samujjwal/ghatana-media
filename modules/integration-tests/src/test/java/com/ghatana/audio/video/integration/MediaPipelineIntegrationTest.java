@@ -5,6 +5,7 @@ import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.common.validation.MediaFormatValidator;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.config.TtsConfig;
+import com.ghatana.audio.streaming.BoundedAudioFrameDecoder;
 import com.ghatana.media.stt.api.SttEngineFactory;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.media.tts.api.TtsEngineFactory;
@@ -66,5 +67,32 @@ class MediaPipelineIntegrationTest {
         } finally {
             engine.close();
         }
+    }
+
+    @Test
+    void boundedStreamDecoderPreservesExactSourceTimebaseAndReportsUnsupportedCodec() {
+        byte[] syntheticPcmFixture = new byte[] {0x01, 0x02, 0x03, 0x04};
+        BoundedAudioFrameDecoder pcmDecoder = BoundedAudioFrameDecoder.declare(
+                "PCM_S16LE", 1, 48_000, new BoundedAudioFrameDecoder.SessionBudget(1, 4));
+
+        var decoded = pcmDecoder.decode(syntheticPcmFixture, 24_000, true);
+
+        assertThat(decoded.verdict()).isEqualTo(BoundedAudioFrameDecoder.DecodeVerdict.DECODED);
+        assertThat(decoded.frame().codec()).isEqualTo(BoundedAudioFrameDecoder.Codec.PCM_S16LE);
+        assertThat(decoded.frame().position())
+                .isEqualTo(new BoundedAudioFrameDecoder.SamplePosition(24_000, 48_000));
+        assertThat(decoded.frame().partialRevision()).isTrue();
+        syntheticPcmFixture[0] = 0x7f;
+        assertThat(decoded.frame().payload()).containsExactly((byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04);
+
+        var malformed = pcmDecoder.decode(new byte[] {0x01}, 24_001, false);
+        assertThat(malformed.verdict()).isEqualTo(BoundedAudioFrameDecoder.DecodeVerdict.MALFORMED);
+        assertThat(malformed.frame()).isNull();
+
+        BoundedAudioFrameDecoder opusDecoder = BoundedAudioFrameDecoder.declare(
+                "OPUS", 1, 48_000, new BoundedAudioFrameDecoder.SessionBudget(1, 4));
+        var unavailable = opusDecoder.decode(new byte[] {0x01, 0x02}, 24_000, false);
+        assertThat(unavailable.verdict()).isEqualTo(BoundedAudioFrameDecoder.DecodeVerdict.UNAVAILABLE);
+        assertThat(unavailable.frame()).isNull();
     }
 }
