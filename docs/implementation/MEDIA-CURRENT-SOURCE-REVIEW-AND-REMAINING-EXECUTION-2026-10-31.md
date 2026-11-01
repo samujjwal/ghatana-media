@@ -851,3 +851,14 @@ This pulse started from local `main@591a96c3`, 181 commits ahead of `origin/main
 
 The denominators remain **Wave 2: 58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL; W3: 84; H: 8**. No original task was promoted. Actual STT/TTS/Vision/MM effects and rights, lawful independent gold, five transport intents and real 1/16/64 host capacity, public Ghatana #252/#254 client contracts, authenticated Action Plane envelope and durable ledger, product-host J-03, protected Lifecycle evidence, legacy-writer cutover, and UI/Recorder/Studio/Player work remain open.
 
+## 34. Local Track A continuation readback (2026-11-01, sixteenth pulse)
+
+This pulse started from local `main@5006ae9c`, 189 commits ahead of `origin/main`. It added only test-scope integration coverage; no external API, rights, provider, product status, deployment or Track B authority changed.
+
+| Work unit | Exact change or readback | Verification and remaining bound |
+| --- | --- | --- |
+| **CT-03 source-timebase fixture integration** (`ea2715e6`) | Added a test-only dependency on the existing audio-streaming module. The synthetic pipeline test covers bounded PCM decode, exact rational sample position, codec/partial-revision provenance, defensive payload copying, malformed frames and OPUS `UNAVAILABLE`. The advanced integration test pins a known sample clock and keeps missing source time explicitly `UNKNOWN`; it also confirms the Data Cloud media provider SPI exposes read operations only. | `MediaPipelineIntegrationTest` and `AudioVideoAdvancedServicesIntegrationTest` passed **13/13**. These are controlled fixtures and interface checks; no real provider, model quality, or Data Cloud implementation/readback is established. Cache/Redis and ledger contracts retain their separate owner-module tests. |
+| **CT-04 cross-surface multimodal parity** | No change. PDP-1's source-current review marks legacy multimodal RPCs non-equivalent/`NOT_ADMITTED`; the two legacy RPCs have no single target, Agent Tools execution is not admitted, and the SDK request lacks immutable source and temporal bindings. | Focused `MultimodalContractTest` passed **9/9** and confirms existing fail-closed behavior only. There is no source-authorized cross-surface positive parity result to assert. |
+
+Wave 2 remains **58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL**; W3 remains **84**; H remains **8**. No original row was promoted. Actual stream transports and capacity, public Data Cloud/Document Intelligence APIs, authenticated Action Plane principal plus durable ledger, lawful media/model evidence, real product-host J-03, and protected Track B/deployment inputs remain open.
+
