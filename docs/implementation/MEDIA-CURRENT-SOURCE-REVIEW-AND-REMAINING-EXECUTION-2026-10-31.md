@@ -599,3 +599,68 @@ Focused verification commands:
 
 The original denominator remains **58 Wave 2 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL** plus **96 W3/H**. This pulse records no original row acceptance or Track B transition. Remaining independent work includes an admitted Whisper profile and larger independently reviewed en/hi/ne gold corpus, verified Media source/consent and live Shared-policy authority, real TTS/Vision effects, installed DI/Tools identity contracts, actual STT provider-to-job/outbox/transcript restart readback, real transports and workload capacity, and the separate host/product journey.
 
+## 23. Local Track A continuation readback (2026-11-01, sixth pulse)
+
+Tests and source review ran on local `main@415b1a3d` with OpenJDK 27 / Gradle 9.8.2 on macOS ARM64. At that tested source cut, the worktree was clean and `main` was 139 commits ahead of `origin/main`; no push occurred. The work below is source implementation and bounded test evidence only. It changes no PDP, Build, R8, W3/H, gtool, rights, deployment, release, or active-writer status.
+
+| Original work unit | Local implementation/readback | Remaining bound |
+| --- | --- | --- |
+| **RS-05 / WAV container and sample bounds** (`72020ee5`) | Strict RIFF/WAVE and extensible-header extent checks, bounded format parsing, safe writer sizes, finite float decoding, exact PCM payload checks, and PCM16/24 cases. `cargo fmt --check`, `cargo test`, and `cargo clippy --all-targets -- -D warnings` passed; Rust tests: 33/33. | Generated fixtures verify parser/encoder code only. This does not qualify codec-provider output, model inference, or licensed source/audio. |
+| **SK-01 / SDK route parity** (`d1677f9d`) | Added an executable comparison of client-bound job/stream methods against OpenAPI and runtime route-manifest identities, while preserving separate legacy compatibility paths. `pnpm --dir libs/audio-video-client test`: 251 tests passed across 15 files. | Covers the nine exported client-bound operations and route identity. It does not establish the full 27 HTTP / 43 RPC semantic mapping, installed roundtrip, or remote authorization/finality. |
+| **MC-01 / capability readiness** (`d7de3a9c`, `9555ff74`) | STT/TTS/vision inventory now reports provider-optional unless the library-owned engine reports healthy; the README records the factory/consumer inventory. Focused library and inventory selectors passed 11/11. | Health/readiness is not model, rights, provider, or output qualification. Whisper remains a separate Wave 2 owner path. |
+| **MC-02 / untrusted image headers** (`097d929a`) | Header formats without safely parsed positive dimensions fail closed; JPEG segment and magic-offset arithmetic avoid overflow within the existing 8,192-axis / 16-million-pixel ceiling. Focused converter/validator tests passed 28/28. | Header checks do not decode or qualify successful image output, crop semantics, or provider results. |
+| **MC-03 / engine pool lifecycle** (`1245cdac`) | Circuit-breaker wrappers close delegates exactly once after successful cleanup and permit retry if provider close fails. Added concurrent lease, interrupted acquisition, idle expiry, and close-retry tests. Focused pool/wrapper suite passed 31/31. | Provider handles are mocks; native model-handle release and real inference recovery remain unqualified. |
+| **JC-03 / TLS identity rotation** (`222e3e55`) | Certificate/key pairs are prevalidated, replacement TLS handshake is verified, the existing service rebinds on the same port, and cleanup releases preflight TLS context. Rotation test passed 1/1; STT/TTS/Vision/MM consumer selectors passed 24/24 (12/2/2/8). | This is in-process TLS compatibility on this host. A deterministic failed-rebind test and other host/platform qualification remain open; no provider is admitted by TLS success. |
+| **IP-03 / injected persistence execution** (`f6b64973`) | Both services route DAO calls through bounded admission of 136 outstanding operations per service, derived from the default pool's 8 workers plus 128 queued calls. Saturation, supplier failure, executor rejection, inline execution on the active eventloop, shutdown ownership, and draining are covered. Persistence unit suite passed 77 tests. The explicit `integrationTest` run against PostgreSQL 16 passed all 13 `PersistenceIntegrationTest` cases. | Each service has a separate admission gate; this is not a process-wide cap for a shared executor. ActiveJ Promise exposes no task cancellation, so accepted JPA work drains. The tests do not establish process-crash recovery, pool/connection leak freedom under production load, or an operational writer cutover. |
+| **JC-03 / retry outcome safety** (`6ec63b09`) | `RetryPolicy` now performs one attempt by default; retries require an explicit predicate documented for failures that prove no effect. Regression confirms an ambiguous failure is attempted once. Focused retry suite passed 23/23; no production Java callsites using the permissive default were found. | Retry predicates still depend on each caller's operation semantics. This utility does not supply provider finality or idempotency proof. |
+| **JC-03 / model descriptor bounds** (`34a39bee`) | Canonical `ModelMetadata` construction bounds model ID to 256 chars, name to 512, version to 128, path to 4,096, language lists to 512 entries of at most 64 chars, and rejects negative size. Language lists are defensively copied. `READY` remains local asset-store readiness only and descriptors exclude filesystem paths. Focused model-store suite passed 25/25. | Caps are conservative local development bounds, not PDP-defined product maxima, model identity/currentness, license, engine readiness, or model quality. |
+| **AT-02/AT-03 / speech tool privacy boundary** (`47c149ca`) | STT/TTS validation logs and failure strings now use allowlisted codes or generic sanitized errors; tenant, invocation, transcript text, audio source and voice IDs are excluded. Captured-log sentinel tests confirm injected delegates receive zero calls and typed `STT_NOT_ADMITTED` / `TTS_NOT_ADMITTED` remains. Focused selector passed 4/4. | No authenticated public Tools registry, trusted principal binding, admitted STT/TTS operation, qualified voice/model, consent, or provider output is established. |
+| **IT-01 / integration fixture registry** (`415b1a3d`) | Extended the existing census as the single registry for local fixtures, isolated integrations, and external qualification selectors. `MediaTestHarness` exposes immutable profiles; its consumer test checks selectors, source paths, prerequisites, assets, safety, and evidence limits. Focused selector passed 2/2. | Untagged `MediaServicesIntegrationTest`, four disabled untagged legacy scaffolds, the separate `modules/integration-tests` module, provider-owned tests, and observability-owned tests remain separate selections. No hosted runner or verified external model/source assets are declared. |
+
+Focused commands and observed counts:
+
+```bash
+# RS-05; run from modules/intelligence/speech/libs/speech-audio-rust/: 33 Rust tests
+cargo fmt --check && cargo test && cargo clippy --all-targets -- -D warnings
+
+# SK-01: 251 tests across 15 files
+pnpm --dir libs/audio-video-client test
+
+# MC-01: 11 tests
+./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.AudioVideoLibraryTest --tests com.ghatana.media.capability.MediaCapabilityInventoryTest
+
+# MC-02: 28 tests
+./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.common.AudioConverterTest --tests com.ghatana.media.common.validation.MediaFormatValidatorQualificationTest
+
+# MC-03: 31 tests
+./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.common.pool.EnginePoolLifecycleTest --tests com.ghatana.media.resilience.CircuitBreakerEngineCloseTest --tests com.ghatana.media.resilience.CircuitBreakerSttEngineTest --tests com.ghatana.media.resilience.CircuitBreakerTtsEngineTest
+
+# JC-03 TLS: 1 rotation test
+./gradlew :services:media:libs:common:test --tests com.ghatana.audio.video.common.AudioVideoGrpcServerBaseTest.tlsRotationRebindsWithNewCertificateWithoutClosingService
+
+# JC-03 TLS consumers: 24 tests (STT 12, TTS 2, Vision 2, Multimodal 8)
+./gradlew :services:media:modules:speech:stt-service:test --tests com.ghatana.stt.grpc.SttGrpcServiceInProcessIntegrationTest :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServerCompositionTest :services:media:modules:vision:vision-service:test --tests com.ghatana.audio.video.vision.grpc.VisionGrpcServerCompositionTest :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceInProcessIntegrationTest
+
+# IP-03: 77 persistence module tests
+./gradlew :services:media:modules:infrastructure:persistence:test
+
+# IP-03 PostgreSQL integration: 13 tests
+./gradlew :services:media:modules:infrastructure:persistence:integrationTest --tests com.ghatana.audio.video.infrastructure.persistence.integration.PersistenceIntegrationTest --no-daemon --max-workers=2 --console=plain
+
+# JC-03 RetryPolicy: 23 tests
+./gradlew :services:media:libs:common:test --tests com.ghatana.audio.video.common.resilience.RetryPolicyTest
+
+# JC-03 model descriptor: 25 tests
+./gradlew :services:media:libs:common:test --tests com.ghatana.audio.video.common.model.FileSystemModelStoreTest --no-daemon
+
+# AT-02/AT-03: 4 tests
+./gradlew :services:media:adapters:agent-tools-media:test --tests com.ghatana.audio.video.tools.SpeechToolAdmissionTest
+
+# IT-01: 2 tests
+./gradlew :services:media:integration-tests:test --tests com.ghatana.media.integration.MediaTestHarnessCatalogTest
+```
+
+No latency or c1/c16/c64 performance benchmark was run in this pulse. The updated IT-01 census is an executable fixture/selector inventory, not provider qualification. The local cache source also retains a 1 MiB bounded transcription serialization path; total Redis cardinality and protected cache-hit authority remain separate limits.
+
+The canonical denominator remains **58 Wave 2 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL** and **96 W3/H**. For the alternate physical-task accounting, the 88 backend/support tasks include 84 active non-OCR W3 tasks plus the four OCR compatibility tasks already retired; eight H outcomes remain. No row was promoted by this pulse. Still-open actual effects include lawful and independently reviewed en/hi/ne model gold and voice rights, an admitted STT provider through job/outbox/transcript restart readback, real TTS/Vision/MM effects, all five unadmitted stream intents and AS-07/VS-07 transport capacity, Ghatana #252/#254 public consumers, the real J-03 product-host recording, authenticated PDP/gtool owner evidence, and the separately governed one-writer migration/deployment track.
+
