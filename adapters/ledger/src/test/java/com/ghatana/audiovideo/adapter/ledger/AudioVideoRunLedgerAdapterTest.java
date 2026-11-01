@@ -196,7 +196,7 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
-    @DisplayName("Maps provider state vocabulary variants correctly")
+    @DisplayName("Maps provider progress variants but rejects provider-only terminal claims")
     void testProviderStateVariants() {
         long now = System.currentTimeMillis();
 
@@ -204,15 +204,17 @@ class AudioVideoRunLedgerAdapterTest {
             "j1", "a1", "provider", "p1", "PENDING", Map.of(), now, 0, "t", "c");
         RunLedger inProgress = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
             "j2", "a2", "provider", "p2", "IN_PROGRESS", Map.of(), now, now, "t", "c");
-        RunLedger finished = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
-            "j3", "a3", "provider", "p3", "FINISHED", Map.of(), now, now, "t", "c");
-        RunLedger error = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
-            "j4", "a4", "provider", "p4", "ERROR", Map.of(), now, now, "t", "c");
 
         assertThat(pending.state()).isEqualTo(JobExecutionState.PENDING);
         assertThat(inProgress.state()).isEqualTo(JobExecutionState.RUNNING);
-        assertThat(finished.state()).isEqualTo(JobExecutionState.COMPLETED);
-        assertThat(error.state()).isEqualTo(JobExecutionState.COMPLETED);
+        for (String providerTerminal : List.of(
+                "FINISHED", "ERROR", "CANCELLED", "ABORTED", "SUCCESSFUL")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                    "j-terminal", "a-terminal", "provider", "p-terminal", providerTerminal,
+                    Map.of(), now, now, "t", "c"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("provider terminal state cannot establish Media job finality");
+        }
     }
 
     @Test
@@ -348,7 +350,7 @@ class AudioVideoRunLedgerAdapterTest {
             "artifact-source",
             "deepgram",
             "dg-job-555",
-            "ERROR",
+            "PROCESSING",
             Map.of(
                 "policyCheckpointId", "av-provider-tenant-policy",
                 "policyDecision", "DENY",
@@ -360,9 +362,9 @@ class AudioVideoRunLedgerAdapterTest {
             "corr-provider-policy"
         );
 
-        assertThat(ledger.state()).isEqualTo(JobExecutionState.COMPLETED);
-        assertThat(ledger.outcome()).isEqualTo(ExecutionOutcome.FAILED);
-        assertThat(ledger.outputs()).isNotNull();
+        assertThat(ledger.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(ledger.outcome()).isNull();
+        assertThat(ledger.outputs()).isNull();
         assertThat(ledger.policyCheckpointId()).isEqualTo("av-provider-tenant-policy");
         assertThat(ledger.policyDecision()).isPresent();
         assertThat(ledger.policyDecision().orElseThrow().allowed()).isFalse();
@@ -382,7 +384,7 @@ class AudioVideoRunLedgerAdapterTest {
 
         RunLedger ledger = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
                 "job-policy-private", "artifact-source", "provider", "provider-job",
-                "FAILED", Map.of(
+                "PROCESSING", Map.of(
                         "policyCheckpointId", email,
                         "policyDecision", "DENY",
                         "policyReason", "Denied for " + email + " at " + signedUrl,
@@ -402,7 +404,7 @@ class AudioVideoRunLedgerAdapterTest {
 
         RunLedger oversizedConstraints = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
                 "job-policy-large", "artifact-source", "provider", "provider-job",
-                "FAILED", Map.of(
+                "PROCESSING", Map.of(
                         "policyCheckpointId", "av-policy-checkpoint",
                         "policyDecision", "DENY",
                         "policyConstraints", "C".repeat(100_000)),
@@ -466,6 +468,17 @@ class AudioVideoRunLedgerAdapterTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("unmapped Media processing job state");
 
+        // RunLedger has no typed UNKNOWN or cancellation-request state. Do not
+        // collapse those canonical states into RUNNING and lose their meaning.
+        for (String unrepresentable : List.of("OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "job-unresolved", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
+                    unrepresentable, now, now, null, null, null, null, "t", "c"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot be represented without loss")
+                .hasMessageContaining(unrepresentable);
+        }
+
         // Mapped nonterminal states keep an honest null outcome.
         RunLedger running = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
             "j4", "a4", "provider", "p4", "EXECUTING", Map.of(), now, 0, "t", "c");
@@ -504,35 +517,22 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(retry.outcome()).isNull();
         assertThat(retry.attributes()).containsEntry("effectFinality", "UNRESOLVED");
 
-        // Cancellation requested is not cancellation confirmed.
-        RunLedger cancelling = AudioVideoRunLedgerAdapter.fromProcessingJob(
-                "j-cxreq", "AUDIO", "STT", "col", "src", Map.of(), "CANCELLING",
-                now - 100, now - 90, null, null, "whisper", "pj-4", "t", "c");
-        assertThat(cancelling.state()).isEqualTo(JobExecutionState.RUNNING);
-        assertThat(cancelling.outcome()).isNull();
-
         RunLedger cancelled = AudioVideoRunLedgerAdapter.fromProcessingJob(
                 "j-cx", "AUDIO", "STT", "col", "src", Map.of(), "CANCELLED",
                 now - 100, now - 90, null, null, "whisper", "pj-5", "t", "c");
         assertThat(cancelled.state()).isEqualTo(JobExecutionState.CANCELLED);
         assertThat(cancelled.outcome()).isEqualTo(ExecutionOutcome.CANCELLED);
 
-        // Uncertain finality stays open and preserves the raw observation.
-        RunLedger unknown = AudioVideoRunLedgerAdapter.fromProcessingJob(
-                "j-unk", "AUDIO", "STT", "col", "src", Map.of(), "OUTCOME_UNKNOWN",
-                now - 100, now - 90, null, null, "whisper", "pj-6", "t", "c");
-        assertThat(unknown.state()).isEqualTo(JobExecutionState.RUNNING);
-        assertThat(unknown.outcome()).isNull();
-        assertThat(unknown.outputs()).isNull();
-        assertThat(unknown.attributes())
-                .containsEntry("jobState", "OUTCOME_UNKNOWN")
-                .containsEntry("effectFinality", "UNRESOLVED");
-
-        RunLedger reconciling = AudioVideoRunLedgerAdapter.fromProcessingJob(
-                "j-rec", "AUDIO", "STT", "col", "src", Map.of(), "RECONCILING",
-                now - 100, now - 90, null, null, "whisper", "pj-7", "t", "c");
-        assertThat(reconciling.state()).isEqualTo(JobExecutionState.RUNNING);
-        assertThat(reconciling.outcome()).isNull();
+        // UNKNOWN and RECONCILING must stay in the authoritative Media job
+        // state machine; this coarse RunLedger cannot encode them losslessly.
+        for (String unresolved : List.of("OUTCOME_UNKNOWN", "RECONCILING")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "j-unresolved", "AUDIO", "STT", "col", "src", Map.of(), unresolved,
+                    now - 100, now - 90, null, null, "whisper", "pj-unresolved", "t", "c"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot be represented without loss")
+                .hasMessageContaining(unresolved);
+        }
     }
 
     @Test
@@ -610,6 +610,7 @@ class AudioVideoRunLedgerAdapterTest {
     @DisplayName("Typed ledger projection preserves rights classification and drops PII biometric and provider metadata")
     void testTypedLedgerProjectionDisclosureBoundary() {
         long now = System.currentTimeMillis();
+        String sourceToken = "https://source.invalid/media?X-Amz-Credential=tenant-secret&token=source-secret";
         Map<String, String> params = new java.util.HashMap<>();
         params.put("classification", "BIOMETRIC");
         params.put("rightsRef", "rights:consent-42");
@@ -619,7 +620,7 @@ class AudioVideoRunLedgerAdapterTest {
         params.put("frameCount", "999999999999999999999");
 
         RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
-                "job-typed", "VIDEO", "VISION_ANALYSIS", "collection-1", "artifact-source",
+                "job-typed", "VIDEO", "VISION_ANALYSIS", "collection-1", sourceToken,
                 params, "PROCESSING", now, now, null, null, "provider@example.com",
                 "provider-account-voiceprint-123", "trace", "correlation");
 
@@ -629,26 +630,28 @@ class AudioVideoRunLedgerAdapterTest {
                 .containsEntry("sanitizedParamsDropped", "4")
                 .doesNotContainKeys("purpose", "language", "format", "frameCount");
         assertThat(ledger.attributes()).doesNotContainKey("provider");
+        assertThat(ledger.attributes().get("mediaArtifactId")).startsWith("redacted:sha256:");
         assertThat(ledger.toString()).doesNotContain(
                 "Alice Example", "person@example.com", "private.invalid", "token=abc",
-                "provider@example.com", "provider-account-voiceprint-123");
+                "provider@example.com", "provider-account-voiceprint-123", sourceToken,
+                "source.invalid", "tenant-secret", "source-secret");
         assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
 
+        String signedObjectUri = "s3://private-bucket/source?X-Amz-Signature=object-secret";
         RunLedger provider = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
-                "job-provider-typed", "artifact-source", "provider-name", "provider-secret-id",
-                "COMPLETED", Map.of(
+                "job-provider-typed", signedObjectUri, "provider-name", "provider-secret-id",
+                "PROCESSING", Map.of(
                         "mediaType", "VIDEO", "processingType", "STT",
                         "duration", "120", "words_processed", "5000",
                         "biometric_confidence", "0.998", "face_embedding", "1234",
                         "person@example.com", "789"),
                 now - 10_000, now - 9_000, "trace", "correlation");
 
-        assertThat(provider.outputs().metrics())
-                .containsEntry("duration", 120L)
-                .containsEntry("words_processed", 5000L)
-                .doesNotContainKeys("biometric_confidence", "face_embedding", "person@example.com");
+        assertThat(provider.outputs()).isNull();
+        assertThat(provider.attributes().get("mediaArtifactId")).startsWith("redacted:sha256:");
         assertThat(provider.toString()).doesNotContain(
-                "provider-secret-id", "biometric_confidence", "face_embedding", "person@example.com");
+                "provider-secret-id", "biometric_confidence", "face_embedding", "person@example.com",
+                signedObjectUri, "private-bucket", "X-Amz-Signature", "object-secret");
     }
 
     @Test

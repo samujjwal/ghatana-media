@@ -71,6 +71,7 @@ public final class AudioVideoRunLedgerAdapter {
         JobExecutionState mappedState = mapProcessingJobState(jobState);
         ExecutionOutcome mappedOutcome = mapProcessingJobOutcome(jobState);
         String ledgerFailureReason = sanitizeLedgerFailure(failureReason);
+        String ledgerMediaArtifactId = safeLedgerReference(mediaArtifactId);
         long now = System.currentTimeMillis();
 
         InputSnapshot inputs = new InputSnapshot(
@@ -79,7 +80,7 @@ public final class AudioVideoRunLedgerAdapter {
             Map.of(
                 "mediaType", mediaType,
                 "processingType", processingType,
-                "mediaArtifactId", mediaArtifactId
+                    "mediaArtifactId", ledgerMediaArtifactId
             ),
             "system",
             createdAtMs
@@ -121,7 +122,7 @@ public final class AudioVideoRunLedgerAdapter {
         attributes.put("mediaType", mediaType);
         attributes.put("processingType", processingType);
         attributes.put("collectionId", collectionId);
-        attributes.put("mediaArtifactId", mediaArtifactId);
+        attributes.put("mediaArtifactId", ledgerMediaArtifactId);
         // Preserve the raw observed state so a coarse projection never drops
         // uncertainty, cancellation-requested or partial-finality information.
         attributes.put("jobState", jobState);
@@ -356,19 +357,17 @@ public final class AudioVideoRunLedgerAdapter {
     }
 
     private static JobExecutionState mapProcessingJobState(String jobState) {
-        return switch (jobState.toUpperCase(Locale.ENGLISH)) {
+        String normalizedState = jobState.toUpperCase(Locale.ENGLISH);
+        return switch (normalizedState) {
             // Queued-but-not-started and retry-pending are waiting states, not execution.
             case "SUBMITTED", "QUEUED", "PREPARING", "RETRY_PENDING" -> JobExecutionState.PENDING;
             case "TRANSCODING", "PROCESSING", "ANALYZING", "STORING", "UPLOADING", "INDEXING",
                  "RUNNING" -> JobExecutionState.RUNNING;
-            // An uncertain or reconciling outcome is nonterminal: the job ran
-            // but finality is unresolved — honest "still open", never complete.
-            case "OUTCOME_UNKNOWN", "RECONCILING" -> JobExecutionState.RUNNING;
-            // A cancellation request is not confirmed cancellation.
-            case "CANCELLING" -> JobExecutionState.RUNNING;
             case "COMPLETED", "SUCCEEDED", "STORED", "FAILED", "ERROR",
                  "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
             case "CANCELLED", "ABORTED" -> JobExecutionState.CANCELLED;
+            case "OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING" -> throw new IllegalArgumentException(
+                    "Media processing job state cannot be represented without loss: " + jobState);
             // An unrecognized state must never be projected as RUNNING or a
             // final outcome; fail closed so the caller must not fabricate.
             default -> throw new IllegalArgumentException(
@@ -382,8 +381,8 @@ public final class AudioVideoRunLedgerAdapter {
             case "PARTIALLY_SUCCEEDED" -> ExecutionOutcome.DEGRADED;
             case "FAILED", "ERROR" -> ExecutionOutcome.FAILED;
             case "CANCELLED", "ABORTED" -> ExecutionOutcome.CANCELLED;
-            // Uncertain/cancelling/queued states carry no outcome — the ledger
-            // must not infer success or failure.
+            // Nonterminal and unrepresentable states carry no outcome. The
+            // caller must retain canonical UNKNOWN/cancellation-request truth.
             default -> null;
         };
     }
@@ -427,9 +426,10 @@ public final class AudioVideoRunLedgerAdapter {
     ) {
         JobExecutionState mappedState = mapProviderJobState(providerJobState);
         ExecutionOutcome mappedOutcome = mapProviderJobOutcome(providerJobState);
+        String ledgerMediaArtifactId = safeLedgerReference(mediaArtifactId);
 
         InputSnapshot inputs = new InputSnapshot(
-            Map.of("mediaArtifactId", mediaArtifactId),
+            Map.of("mediaArtifactId", ledgerMediaArtifactId),
             null,
             Map.of("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"),
                    "providerJobIdRef", ledgerFingerprint(providerJobId)),
@@ -473,7 +473,7 @@ public final class AudioVideoRunLedgerAdapter {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"));
         attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
-        attributes.put("mediaArtifactId", mediaArtifactId);
+        attributes.put("mediaArtifactId", ledgerMediaArtifactId);
         attributes.put("mediaType", providerMetadata != null
             ? safeMetadataToken(providerMetadata.get("mediaType"), "UNKNOWN") : "UNKNOWN");
         attributes.put("processingType", providerMetadata != null
@@ -488,7 +488,7 @@ public final class AudioVideoRunLedgerAdapter {
         return new RunLedger(
             jobId,
             "AV_PROCESSING_JOB",
-            mediaArtifactId,
+            ledgerMediaArtifactId,
             mappedState,
             mappedOutcome,
             createdAtMs,
@@ -657,6 +657,18 @@ public final class AudioVideoRunLedgerAdapter {
         return providerName;
     }
 
+    /** Keep ordinary immutable source IDs readable, but never serialize URL/token-shaped references. */
+    private static String safeLedgerReference(String value) {
+        if (value.length() > MAX_LEDGER_VALUE_CHARS) {
+            return "redacted:oversized";
+        }
+        if (value.contains("://") || !SAFE_IDENTIFIER.matcher(value).matches()
+                || containsSensitiveLedgerText(value)) {
+            return "redacted:" + ledgerFingerprint(value);
+        }
+        return value;
+    }
+
     private static String safeMetadataToken(String value, String fallback) {
         return value != null && value.length() <= 64
                 && SAFE_ENUM.matcher(value).matches() && !containsSensitiveLedgerText(value)
@@ -698,12 +710,15 @@ public final class AudioVideoRunLedgerAdapter {
             case "PROCESSING", "IN_PROGRESS", "RUNNING", "EXECUTING", "ACTIVE", "WORKING", "ANALYZING",
                  "TRANSCODING", "ENCODING", "DECODING", "CONVERTING" ->
                 JobExecutionState.RUNNING;
-            case "COMPLETED", "DONE", "FINISHED", "SUCCESS", "OK", "SUCCEEDED", "SUCCESSFUL" ->
-                JobExecutionState.COMPLETED;
-            case "FAILED", "ERROR", "EXCEPTION", "FAULT" ->
-                JobExecutionState.COMPLETED;
-            case "CANCELLED", "ABORTED", "STOPPED", "TERMINATED", "INTERRUPTED" ->
-                JobExecutionState.CANCELLED;
+            // A provider terminal string is only an observation about that
+            // provider attempt. It cannot establish Media output validation,
+            // job failure finality, or cancellation confirmation. Let the
+            // owning job/attempt path retain OUTCOME_UNKNOWN until reconciled.
+            case "COMPLETED", "DONE", "FINISHED", "SUCCESS", "OK", "SUCCEEDED", "SUCCESSFUL",
+                 "FAILED", "ERROR", "EXCEPTION", "FAULT",
+                 "CANCELLED", "ABORTED", "STOPPED", "TERMINATED", "INTERRUPTED" ->
+                throw new IllegalArgumentException(
+                        "provider terminal state cannot establish Media job finality: " + providerState);
             // An unrecognized provider vocabulary must never be projected as
             // RUNNING; fail closed and let the caller normalize new spellings.
             default -> throw new IllegalArgumentException(
