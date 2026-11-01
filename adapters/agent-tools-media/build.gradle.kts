@@ -5,6 +5,7 @@ plugins {
 dependencies {
     // Optional integration boundary: keep canonical Tool SPI adapters out of core modality libraries.
     implementation(project(":services:media:libs:common"))
+    implementation(project(":services:media:runtime-contracts"))
     implementation(project(":services:media:modules:intelligence:multimodal-service"))
     implementation("com.ghatana.platform:tool-runtime:${providers.gradleProperty("ghatana.tools.version").get()}")
     implementation(libs.networknt.validator)
