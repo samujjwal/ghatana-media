@@ -58,6 +58,10 @@ class GuardedVideoStreamSessionTest {
         assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
                 f -> egressEffects.incrementAndGet()))
                 .isInstanceOf(StaleLeaseException.class);
+        assertThatThrownBy(() -> session.egress("worker-a", 1L,
+                new VideoStreamSession.DecodedFrame(0, true, 0L, null),
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(StaleLeaseException.class);
         assertThat(egressEffects.get()).isZero();
         assertThat(session.nextAck("worker-b", 2L)).isEqualTo(0);
     }
@@ -97,13 +101,17 @@ class GuardedVideoStreamSessionTest {
                 identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
         assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
-        assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
+        VideoStreamSession.DecodedFrame held = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[]{0x4});
+        assertThat(session.submitFrame("worker-a", 1L, held))
                 .isEqualTo(FrameVerdict.HELD);
+        held.payload()[0] = 0x7;
         assertThat(session.nextAck("worker-a", 1L)).isEqualTo(0);
         assertThat(session.submitFrame("worker-a", 1L, frame(1, false)))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
         var released = session.takeDelivered("worker-a", 1L);
         assertThat(released.sequenceNumber()).isEqualTo(2);
+        assertThat(released.payload()).containsExactly(0x4);
         // Frame 2's GOP keyframe (seq 0) predates it — decodable.
         assertThat(session.verdictOfDelivered("worker-a", 1L, released))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
@@ -124,6 +132,114 @@ class GuardedVideoStreamSessionTest {
                 f -> egressEffects.incrementAndGet()))
                 .isInstanceOf(ConsentDeniedException.class);
         assertThat(egressEffects.get()).isZero();
+    }
+
+    @Test
+    @DisplayName("provider egress requires the exact delivered decodable frame and is single-attempt")
+    void egressRequiresDeliveredFrameAndRejectsMutationAndReplay() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        AtomicInteger egressEffects = new AtomicInteger();
+        VideoStreamSession.DecodedFrame admitted = frame(0, true);
+
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(egressEffects.get()).isZero();
+
+        assertThat(session.submitFrame("worker-a", 1L, admitted))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        VideoStreamSession.DecodedFrame forged = new VideoStreamSession.DecodedFrame(
+                0, true, admitted.timestampMillis(), new byte[]{0x7});
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, forged,
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(egressEffects.get()).isZero();
+
+        session.egress("worker-a", 1L, admitted, f -> {
+            admitted.payload()[0] = 0x8;
+            assertThat(f.payload()).containsExactly(0x2);
+            egressEffects.incrementAndGet();
+        });
+        assertThat(egressEffects.get()).isEqualTo(1);
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already egressed");
+        assertThat(egressEffects.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("full egress retention applies backpressure without dropping accepted frames")
+    void egressCapacityBackpressuresWithoutEviction() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        for (int seq = 0; seq < 256; seq++) {
+            assertThat(session.submitFrame("worker-a", 1L, frame(seq, seq == 0)))
+                    .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        }
+
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DUPLICATE);
+        assertThat(session.submitFrame("worker-a", 1L, frame(257, false)))
+                .isEqualTo(FrameVerdict.HELD);
+        assertThat(session.submitFrame("worker-a", 1L, frame(256, false)))
+                .isEqualTo(FrameVerdict.OVERFLOW);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(255);
+        assertThat(session.pendingCount()).isEqualTo(1);
+
+        session.egress("worker-a", 1L, frame(0, true), f -> { });
+        assertThat(session.submitFrame("worker-a", 1L, frame(256, false)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(256);
+        assertThatThrownBy(() -> session.takeDelivered("worker-a", 1L))
+                .isInstanceOf(GuardedVideoStreamSession.EgressCapacityException.class);
+        assertThat(session.pendingCount()).isEqualTo(1);
+
+        session.egress("worker-a", 1L, frame(1, false), f -> { });
+        VideoStreamSession.DecodedFrame released = session.takeDelivered("worker-a", 1L);
+        assertThat(released.sequenceNumber()).isEqualTo(257);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(257);
+        assertThat(session.pendingCount()).isZero();
+    }
+
+    @Test
+    @DisplayName("malformed frame payload is rejected before the ACK cursor advances")
+    void malformedFrameDoesNotAdvanceStream() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame missingPayload = new VideoStreamSession.DecodedFrame(
+                0, true, 0L, null);
+
+        assertThatThrownBy(() -> session.submitFrame("worker-a", 1L, missingPayload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(-1);
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+    }
+
+    @Test
+    @DisplayName("sink failure leaves egress outcome unknown and the frame is not blindly retried")
+    void sinkFailureDoesNotPermitBlindEgressRetry() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame admitted = frame(0, true);
+        session.submitFrame("worker-a", 1L, admitted);
+        AtomicInteger attempts = new AtomicInteger();
+
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, f -> {
+            attempts.incrementAndGet();
+            throw new IllegalStateException("provider outcome unknown");
+        })).isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("outcome unknown");
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
+                f -> attempts.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already egressed");
+        assertThat(attempts.get()).isEqualTo(1);
     }
 
     @Test
@@ -150,6 +266,29 @@ class GuardedVideoStreamSessionTest {
         assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
         assertThat(session.nextAck("worker-a", 1L)).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("resume preserves pending egress candidates only at the matching durable ACK")
+    void resumePreservesEgressCandidatesAtMatchingAck() {
+        SessionIdentity durable = identity("t1");
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                durable, consent(ConsentDecision.ADMITTED), "worker-a");
+        VideoStreamSession.DecodedFrame admitted = frame(0, true);
+        session.submitFrame("worker-a", 1L, admitted);
+        session.detach("worker-a", 1L);
+
+        assertThatThrownBy(() -> session.resume(
+                "worker-a", 1L, durable, -1, -1, Long.MIN_VALUE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("ACK must match");
+        assertThat(session.detached()).isTrue();
+        assertThat(session.nextAck("worker-a", 1L)).isZero();
+
+        session.resume("worker-a", 1L, durable, 0, 0, 0L);
+        AtomicInteger effects = new AtomicInteger();
+        session.egress("worker-a", 1L, admitted, f -> effects.incrementAndGet());
+        assertThat(effects.get()).isEqualTo(1);
     }
 
     @Test

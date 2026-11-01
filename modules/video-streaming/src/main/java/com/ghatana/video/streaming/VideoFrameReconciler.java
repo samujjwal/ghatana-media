@@ -176,6 +176,12 @@ public final class VideoFrameReconciler {
         return frame;
     }
 
+    /** Read-only view of the next held frame eligible for release. */
+    VideoStreamSession.DecodedFrame peekDelivered() {
+        var head = pending.firstEntry();
+        return head != null && head.getKey() == nextExpected ? head.getValue() : null;
+    }
+
     /** The sequence the next ACK acknowledges — the last contiguous delivered. */
     public int nextAck() {
         return nextExpected - 1;

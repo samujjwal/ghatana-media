@@ -1,5 +1,10 @@
 package com.ghatana.video.streaming;
 
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
@@ -34,6 +39,8 @@ import java.util.Objects;
  */
 public final class GuardedVideoStreamSession {
 
+    private static final int MAX_EGRESS_CANDIDATES = 256;
+
     /** The consent decision for one guarded egress transition. */
     public enum ConsentDecision { ADMITTED, DENIED, NOT_ADMITTED, EXPIRED }
 
@@ -67,7 +74,7 @@ public final class GuardedVideoStreamSession {
         HELD,
         /** Duplicate of an acked or held frame. */
         DUPLICATE,
-        /** Bounded pending set is full. */
+        /** Pending reorder set or bounded egress-candidate capacity is full. */
         OVERFLOW
     }
 
@@ -93,6 +100,13 @@ public final class GuardedVideoStreamSession {
         }
     }
 
+    /** Backpressure raised when a held deliverable frame cannot be retained for egress yet. */
+    public static final class EgressCapacityException extends RuntimeException {
+        EgressCapacityException() {
+            super("video stream egress candidate capacity is full; release a candidate before draining held frames");
+        }
+    }
+
     /** External provider/capture egress sink; reached only under lease+consent. */
     @FunctionalInterface
     public interface ProviderEgress {
@@ -106,6 +120,8 @@ public final class GuardedVideoStreamSession {
     private long claimToken;
     private boolean detached;
     private boolean cancelled;
+    /** Bounded digests bind provider egress to exact frames delivered in this process. */
+    private final LinkedHashMap<Integer, byte[]> egressCandidates = new LinkedHashMap<>();
 
     private GuardedVideoStreamSession(
             VideoFrameReconciler.SessionIdentity identity,
@@ -150,18 +166,35 @@ public final class GuardedVideoStreamSession {
         claimToken = newClaimToken;
     }
 
-    /** Offers one frame under the presented claim; returns the honest verdict. */
+    /**
+     * Offers one frame under the presented claim; returns the honest verdict.
+     * {@link FrameVerdict#OVERFLOW} applies backpressure without advancing the
+     * ACK cursor when a decodable frame cannot be retained for egress.
+     */
     public FrameVerdict submitFrame(
             String workerId, long presentedToken, VideoStreamSession.DecodedFrame frame) {
         requireLease(workerId, presentedToken, "frame submit");
         requireAttached("frame submit");
-        VideoFrameReconciler.Disposition disposition = reconciler.offer(frame);
+        VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
+        // Do not advance the ACK cursor when a decodable frame could not be
+        // retained for its later provider-egress check. Duplicates remain
+        // duplicates even while the egress queue is full.
+        if (snapshot.sequenceNumber() >= 0
+                && snapshot.sequenceNumber() < Integer.MAX_VALUE
+                && snapshot.sequenceNumber() == reconciler.nextExpected()
+                && reconciler.deliveryOf(snapshot).decodable()
+                && egressCandidates.size() >= MAX_EGRESS_CANDIDATES) {
+            return FrameVerdict.OVERFLOW;
+        }
+        VideoFrameReconciler.Disposition disposition = reconciler.offer(snapshot);
         if (disposition == VideoFrameReconciler.Disposition.DELIVERED) {
             // A contiguous frame is not automatically a success — without its
             // GOP keyframe it is an undecodable gap.
-            return reconciler.deliveryOf(frame).decodable()
-                    ? FrameVerdict.DELIVERED_DECODABLE
-                    : FrameVerdict.DELIVERED_UNDECODABLE;
+            if (reconciler.deliveryOf(snapshot).decodable()) {
+                rememberEgressCandidate(snapshot);
+                return FrameVerdict.DELIVERED_DECODABLE;
+            }
+            return FrameVerdict.DELIVERED_UNDECODABLE;
         }
         return switch (disposition) {
             case HELD -> FrameVerdict.HELD;
@@ -171,12 +204,28 @@ public final class GuardedVideoStreamSession {
         };
     }
 
-    /** Releases a held frame once its gap closes, under the presented claim. */
+    /**
+     * Releases a held frame once its gap closes, under the presented claim.
+     * If the next held frame needs an egress slot and all bounded slots are
+     * occupied, {@link EgressCapacityException} leaves it pending for retry.
+     */
     public VideoStreamSession.DecodedFrame takeDelivered(
             String workerId, long presentedToken) {
         requireLease(workerId, presentedToken, "frame delivery");
         requireAttached("frame delivery");
-        return reconciler.takeDelivered();
+        VideoStreamSession.DecodedFrame pending = reconciler.peekDelivered();
+        if (pending != null && reconciler.deliveryOf(pending).decodable()
+                && egressCandidates.size() >= MAX_EGRESS_CANDIDATES) {
+            throw new EgressCapacityException();
+        }
+        VideoStreamSession.DecodedFrame frame = reconciler.takeDelivered();
+        if (frame != null) {
+            frame = snapshotFrame(frame);
+            if (reconciler.deliveryOf(frame).decodable()) {
+                rememberEgressCandidate(frame);
+            }
+        }
+        return frame;
     }
 
     /**
@@ -194,22 +243,33 @@ public final class GuardedVideoStreamSession {
     /**
      * Dispatches one frame to an external provider/capture egress. Live
      * consent is re-evaluated at the point of egress — revocation between
-     * submit and dispatch prevents the external effect entirely.
+     * submit and dispatch prevents the external effect entirely. The exact
+     * decodable frame must have been delivered by this in-memory session and
+     * is consumed before the sink is called, preventing a local blind replay.
+     * A sink exception therefore leaves the external outcome unknown and the
+     * frame cannot be retried through this session; this is not provider-side
+     * exactly-once or finality evidence.
      */
     public void egress(
             String workerId, long presentedToken,
             VideoStreamSession.DecodedFrame frame, ProviderEgress sink) {
-        Objects.requireNonNull(frame, "frame");
         Objects.requireNonNull(sink, "sink");
         requireLease(workerId, presentedToken, "provider egress");
         requireAttached("provider egress");
+        VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         ConsentDecision decision = consent.authorize(new ConsentContext(
                 identity.tenantId(), identity.principalId(),
                 identity.purposeRef(), claimToken));
         if (decision != ConsentDecision.ADMITTED) {
             throw new ConsentDeniedException("provider egress", decision);
         }
-        sink.accept(frame);
+        byte[] admittedDigest = egressCandidates.get(snapshot.sequenceNumber());
+        if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
+            throw new IllegalArgumentException(
+                    "video frame was not delivered as a decodable frame or was already egressed");
+        }
+        egressCandidates.remove(snapshot.sequenceNumber());
+        sink.accept(snapshot);
     }
 
     /** Client transport detach — the session stays resumable under its lease. */
@@ -222,7 +282,9 @@ public final class GuardedVideoStreamSession {
      * Resumes a detached session at the durable position: last ACK, last
      * delivered keyframe and last delivered PTS — frame identity and GOP
      * dependencies survive the reconnect. Tenant and revision mismatches are
-     * denied by the reconciler, never merged.
+     * denied by the reconciler, never merged. If locally delivered frames
+     * still await provider egress, the supplied ACK must match the in-memory
+     * ACK; those bounded egress candidates are preserved across this resume.
      */
     public void resume(
             String workerId, long presentedToken,
@@ -231,6 +293,10 @@ public final class GuardedVideoStreamSession {
         requireLease(workerId, presentedToken, "resume");
         if (!detached) {
             throw new IllegalStateException("only a detached session can resume");
+        }
+        if (!egressCandidates.isEmpty() && lastAckedSequence != reconciler.nextAck()) {
+            throw new IllegalArgumentException(
+                    "resume ACK must match the in-memory ACK while delivered frames await egress");
         }
         reconciler = VideoFrameReconciler.resume(
                 identity, durableIdentity,
@@ -249,6 +315,7 @@ public final class GuardedVideoStreamSession {
     public void cancel(String workerId, long presentedToken) {
         requireLeaseIdentity(workerId, presentedToken, "cancel");
         reconciler.discardPending();
+        egressCandidates.clear();
         cancelled = true;
     }
 
@@ -297,6 +364,41 @@ public final class GuardedVideoStreamSession {
         if (cancelled) {
             throw new IllegalStateException("video stream " + transition + " is forbidden after cancellation");
         }
+    }
+
+    private void rememberEgressCandidate(VideoStreamSession.DecodedFrame frame) {
+        egressCandidates.put(frame.sequenceNumber(), frameDigest(frame));
+    }
+
+    private static byte[] frameDigest(VideoStreamSession.DecodedFrame frame) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(ByteBuffer.allocate(Integer.BYTES + 1 + Long.BYTES)
+                    .putInt(frame.sequenceNumber())
+                    .put((byte) (frame.keyFrame() ? 1 : 0))
+                    .putLong(frame.timestampMillis())
+                    .array());
+            digest.update(validateFramePayload(frame));
+            return digest.digest();
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+    }
+
+    private static byte[] validateFramePayload(VideoStreamSession.DecodedFrame frame) {
+        Objects.requireNonNull(frame, "frame");
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length > VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("video stream frame payload is outside the bounded size");
+        }
+        return payload;
+    }
+
+    private static VideoStreamSession.DecodedFrame snapshotFrame(
+            VideoStreamSession.DecodedFrame frame) {
+        byte[] payload = validateFramePayload(frame);
+        return new VideoStreamSession.DecodedFrame(
+                frame.sequenceNumber(), frame.keyFrame(), frame.timestampMillis(), payload.clone());
     }
 
     private void requireAttached(String transition) {
