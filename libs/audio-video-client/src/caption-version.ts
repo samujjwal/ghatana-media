@@ -212,6 +212,11 @@ export interface HttpCaptionTransportOptions {
 }
 
 const RETRYABLE_STATUS = new Set([429, 502, 503, 504]);
+const REGISTRATION_ERROR_CODES: ReadonlySet<string> = new Set([
+  'INVALID_REQUEST', 'ACCESS_DENIED', 'VERSION_REGISTRATION_NOT_ALLOWED',
+  'SOURCE_NOT_READY', 'CAPTION_DRAFT_EMPTY', 'CAPTION_ALIGNMENT_REQUIRED',
+  'CAPTION_VERSION_CONFLICT', 'IDEMPOTENCY_CONFLICT', 'UNAVAILABLE', 'UNKNOWN_OUTCOME',
+]);
 
 function readError(status: number): CaptionVersionReadError {
   switch (status) {
@@ -313,8 +318,35 @@ export async function saveCaptionVersion(
   } catch {
     return { requestId: request.requestId, requestFingerprint: fingerprint, error: 'UNKNOWN_OUTCOME', retryable: true };
   }
-  if (!result || result.requestId !== request.requestId) {
+  if (!result || typeof result !== 'object' || Array.isArray(result)
+    || result.requestId !== request.requestId) {
     return { requestId: request.requestId, requestFingerprint: fingerprint, error: 'UNKNOWN_OUTCOME', retryable: true };
+  }
+  // Registration is immutable and idempotent on request identity plus the
+  // canonical fingerprint. A matching requestId with a mismatched/missing
+  // fingerprint is not proof that this exact caption payload was registered.
+  if ('captionVersionId' in result) {
+    if (result.requestFingerprint !== fingerprint
+      || typeof result.captionVersionId !== 'string' || result.captionVersionId.length === 0
+      || typeof result.registrationReceiptId !== 'string' || result.registrationReceiptId.length === 0
+      || !Number.isSafeInteger(result.registeredAt) || result.registeredAt < 0
+      || result.sourceArtifactId !== request.sourceArtifactId
+      || result.sourceArtifactVersionId !== request.sourceArtifactVersionId
+      || result.parentVersionKind !== request.parentVersionKind
+      || result.parentVersionId !== request.parentVersionId
+      || result.languageDisposition !== request.languageDisposition
+      || result.sourceClockId !== request.sourceClockId) {
+      return { requestId: request.requestId, requestFingerprint: fingerprint, error: 'UNKNOWN_OUTCOME', retryable: true };
+    }
+  } else {
+    if (!REGISTRATION_ERROR_CODES.has(result.error)
+      || typeof result.retryable !== 'boolean'
+      || (result.requestFingerprint != null
+        && (typeof result.requestFingerprint !== 'string'
+          || !/^[0-9a-f]{64}$/u.test(result.requestFingerprint)
+          || result.requestFingerprint !== fingerprint))) {
+      return { requestId: request.requestId, requestFingerprint: fingerprint, error: 'UNKNOWN_OUTCOME', retryable: true };
+    }
   }
   return result;
 }

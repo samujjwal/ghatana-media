@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
   httpCaptionVersionTransport,
+  reconcileCaptionRegistration,
   requestFingerprint,
   saveCaptionVersion,
   type CaptionRegistrationRequest,
@@ -32,8 +33,8 @@ const transport = (result: unknown): CaptionVersionTransport => ({
   version: vi.fn(async () => null),
 });
 
-const registered = (requestId: string) => ({
-  requestId, requestFingerprint: 'f'.repeat(64), captionVersionId: 'capv-1',
+const registered = (requestId: string, fingerprint = requestFingerprint('t', 'p', request())) => ({
+  requestId, requestFingerprint: fingerprint, captionVersionId: 'capv-1',
   registrationReceiptId: 'capreg-1', sourceArtifactId: 'artifact-1', sourceArtifactVersionId: 'src-v1',
   parentVersionKind: 'TRANSCRIPT_VERSION' as const, parentVersionId: 'transcript-v1',
   languageDisposition: 'DECLARED_BY_USER' as const, sourceClockId: 'clock.v1', registeredAt: 1,
@@ -199,6 +200,31 @@ describe('caption-version-write client (J-03)', () => {
       requestId: 'req-1',
       requestFingerprint: requestFingerprint('t', 'p', request()),
     }));
+  });
+
+  it('does not claim registration when the response echoes a different payload fingerprint', async () => {
+    const mismatched = transport(registered('req-1', 'a'.repeat(64)));
+    await expect(saveCaptionVersion(mismatched, 't', 'p', request()))
+      .resolves.toEqual({
+        requestId: 'req-1',
+        requestFingerprint: requestFingerprint('t', 'p', request()),
+        error: 'UNKNOWN_OUTCOME',
+        retryable: true,
+      });
+    await expect(reconcileCaptionRegistration(mismatched, 't', 'p', request()))
+      .resolves.toMatchObject({ error: 'UNKNOWN_OUTCOME', retryable: true });
+  });
+
+  it('treats an untyped rejection-shaped transport response as UNKNOWN_OUTCOME', async () => {
+    const expectedFingerprint = requestFingerprint('t', 'p', request());
+    const malformed = transport({ requestId: 'req-1', requestFingerprint: expectedFingerprint });
+    await expect(saveCaptionVersion(malformed, 't', 'p', request()))
+      .resolves.toEqual({
+        requestId: 'req-1',
+        requestFingerprint: expectedFingerprint,
+        error: 'UNKNOWN_OUTCOME',
+        retryable: true,
+      });
   });
 
   it('maps transport failure and mismatched echo to UNKNOWN_OUTCOME for reconcile-first', async () => {
