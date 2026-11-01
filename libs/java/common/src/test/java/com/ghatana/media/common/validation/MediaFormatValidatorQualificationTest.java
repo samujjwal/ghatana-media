@@ -191,6 +191,17 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
+    void rejectsWebpContainerHeaderWithoutParsedDimensions() {
+        byte[] webp = new byte[12];
+        putAscii(webp, 0, "RIFF");
+        putAscii(webp, 8, "WEBP");
+
+        var result = MediaFormatValidator.validateImage(webp, "WEBP");
+        assertThat(result.valid).isFalse();
+        assertThat(result.errorMessage).contains("valid dimensions");
+    }
+
+    @Test
     void validatesChunksAfterFmtEvenWhenSampleRateDiffers() {
         byte[] wav = pcmWav(4);
         ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN).putInt(40, 1000);

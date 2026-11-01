@@ -358,14 +358,12 @@ public final class MediaFormatValidator {
 
         // Extract dimensions based on format
         ImageDimensions dims = extractImageDimensions(data, detectedFormat);
-        if (dims.width < 0 || dims.height < 0) {
+        if (dims.width < 1 || dims.height < 1) {
             return ImageValidationResult.error("Image header does not contain valid dimensions");
         }
-        if ((dims.width > 0 || dims.height > 0)
-                && (dims.width < 1 || dims.height < 1
-                || dims.width > MAX_SUPPORTED_IMAGE_DIMENSION
+        if (dims.width > MAX_SUPPORTED_IMAGE_DIMENSION
                 || dims.height > MAX_SUPPORTED_IMAGE_DIMENSION
-                || (long) dims.width * dims.height > MAX_SUPPORTED_IMAGE_PIXELS)) {
+                || (long) dims.width * dims.height > MAX_SUPPORTED_IMAGE_PIXELS) {
             return ImageValidationResult.error("Image dimensions exceed the supported image bounds");
         }
 
@@ -430,7 +428,7 @@ public final class MediaFormatValidator {
             int marker = data[offset++] & 0xFF;
             if (marker == 0xD9 || marker == 0xDA) return new ImageDimensions(-1, -1);
             if (marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7)) continue;
-            if (offset + 2 > data.length) return new ImageDimensions(-1, -1);
+            if ((long) offset + 2L > data.length) return new ImageDimensions(-1, -1);
             int segmentLength = ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
             if (segmentLength < 2 || (long) offset + segmentLength > data.length) {
                 return new ImageDimensions(-1, -1);
@@ -455,7 +453,7 @@ public final class MediaFormatValidator {
 
     private static boolean matchesMagic(byte[] data, int offset, byte[] magic) {
         if (data == null || magic == null) return false;
-        if (offset + magic.length > data.length) return false;
+        if (offset < 0 || offset > data.length || magic.length > data.length - offset) return false;
 
         for (int i = 0; i < magic.length; i++) {
             if (data[offset + i] != magic[i]) {
