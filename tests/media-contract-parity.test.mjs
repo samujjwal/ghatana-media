@@ -391,6 +391,20 @@ test("extracts explicit verbs from request, fetch, submit, and facade call sites
   ]);
 });
 
+test("extracts routes passed through mutation helpers and source-local fetchRaw paths", () => {
+  const calls = parseSdkHttpCalls([
+    'this.requestMutation("/api/v1/artifacts/uploads", body, parser);',
+    'this.requestMutation(`/api/v1/artifacts/uploads/${encodeURIComponent(uploadId)}/complete`, undefined, parser);',
+    'const path = `/api/v1/artifacts/uploads/${encodeURIComponent(uploadId)}/chunks/${chunkIndex}`;',
+    'this.transport.fetchRaw(`${this.transport.baseUrl}${path}`, { method: "PUT", body }, signal);',
+  ].join("\n"), "fixture-sdk");
+  assert.deepEqual(calls.map(({ method, path }) => ({ method, path })), [
+    { method: "POST", path: "/api/v1/artifacts/uploads" },
+    { method: "POST", path: "/api/v1/artifacts/uploads/{parameter}/complete" },
+    { method: "PUT", path: "/api/v1/artifacts/uploads/{parameter}/chunks/{parameter}" },
+  ]);
+});
+
 test("SDK registry method extraction excludes control tokens and built-in calls but retains public methods", () => {
   const registry = ["getStatus", "for", "if", "clearTimeout", "cancel"].map((method) =>
     `  - id: media.sdk.${method}\n    method: ${method}\n    visibility: public\n    source: sdk.ts`).join("\n");

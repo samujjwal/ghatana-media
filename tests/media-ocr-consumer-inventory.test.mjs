@@ -43,3 +43,30 @@ test('OCR-C01 rejects undeclared call sites, stale paths, false retirement and i
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+test('OCR-C01 skips only the ignored audio-video-client CommonJS output, not authored JavaScript', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'media-ocr-generated-output-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'libs/audio-video-client/dist-cjs'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'libs/audio-video-client/dist-cjs/generated.js'), 'export const generated = engine.extractText(input);');
+    fs.mkdirSync(path.join(tmp, 'libs/audio-video-client/src'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'libs/audio-video-client/src/consumer.js'), 'export const text = engine.extractText(input);');
+    fs.mkdirSync(path.join(tmp, 'libs/other/dist-cjs'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'libs/other/dist-cjs/consumer.js'), 'export const text = engine.extractText(input);');
+
+    const source = 'libs/audio-video-client/src/consumer.js';
+    const authored = 'libs/other/dist-cjs/consumer.js';
+    assert.deepEqual(scanMediaOcrSignals(tmp), [source, authored]);
+    const base = { schemaVersion: 'media.ocr-consumer-inventory.v1', externalEntries: [], mediaEntries: [] };
+    assert.match(checkMediaOcrConsumerInventory({ root: tmp, inventory: base }).join('\n'), /undeclared Media OCR call site.*consumer\.js/u);
+    assert.deepEqual(checkMediaOcrConsumerInventory({
+      root: tmp,
+      inventory: { ...base, mediaEntries: [
+        { id: 'AUTHORED-SOURCE', paths: [source], disposition: 'REQUIRES_WORK', remaining: 'migrate' },
+        { id: 'AUTHORED-JS', paths: [authored], disposition: 'REQUIRES_WORK', remaining: 'migrate' },
+      ] },
+    }), []);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});

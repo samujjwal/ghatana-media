@@ -520,10 +520,25 @@ export function parseSdkOpenApiDispositions(parityMatrix) {
 export function parseSdkHttpCalls(source, sourceName = "SDK source") {
   const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const calls = [];
+  const routeVariables = new Map();
   const add = (method, path) => {
     const routePath = path.match(/\/(?:api\/)?[^\s"'`]+/)?.[0] ?? path;
     if (routePath.startsWith("/")) calls.push({ source: sourceName, method: method?.toUpperCase(), path: routePath.replace(/\$\{[^}]+\}/g, "{parameter}") });
   };
+  // Shared SDK mutation wrappers fix the HTTP verb to POST. Record their exact
+  // first-argument route just like a direct request() call.
+  for (const match of code.matchAll(/\.requestMutation\(\s*(["'`])([^"'`]+)\1\s*,/g)) add("POST", match[2]);
+  // Resolve source-local route variables passed to fetchRaw as baseUrl + path.
+  // This captures the actual path expression without inferring from a method name.
+  for (const match of code.matchAll(/\bconst\s+(\w+)\s*=\s*`([^`]+)`\s*;/g)) {
+    if (match[2].startsWith("/")) routeVariables.set(match[1], match[2]);
+  }
+  for (const match of code.matchAll(/\.fetchRaw\(\s*`([^`]*)`\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) {
+    const [, expression, method] = match;
+    const variable = [...expression.matchAll(/\$\{([A-Za-z_$][\w$]*)\}/g)].at(-1)?.[1];
+    const route = variable ? routeVariables.get(variable) : undefined;
+    if (route && expression.endsWith(`\${${variable}}`)) add(method, route);
+  }
   for (const match of code.matchAll(/\.request\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*(["'`])([^"'`]+)\2/g)) add(match[1], match[3]);
   for (const match of code.matchAll(/\.submit\(\s*(["'`])([^"'`]+)\1/g)) add("POST", match[2]);
   for (const match of code.matchAll(/\.fetchImpl\(\s*(["'`])([^"'`]+)\1\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) add(match[3], match[2]);
