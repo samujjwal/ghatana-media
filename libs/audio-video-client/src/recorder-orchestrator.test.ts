@@ -43,6 +43,7 @@ describe("orchestrateScenario", () => {
     const b = orchestrateScenario(scenario());
     expect(a.sceneRuns.map((r) => r.lineageId))
       .toEqual(b.sceneRuns.map((r) => r.lineageId));
+    expect(b).toEqual(a);
     expect(a.dryRunOnly).toBe(true);
     expect(a.sceneRuns[0]!.capturePlan.sourceVersionRef).toBe("intro@v2");
     expect(a.sceneRuns[0]!.narration[0]!.atMillis).toBe(500);
@@ -206,6 +207,44 @@ describe("recaptureScenario", () => {
       },
     }, { sceneIds: ["main", "intro"], maxScenes: 2 });
     expect(sourceOrder).toEqual(["media-file:intro-clip", "media-file:main-clip"]);
+  });
+
+  it("recaptures only the changed source scene and retains carried scene lineage", async () => {
+    const prior = orchestrateScenario(scenario());
+    const next = orchestrateScenario(scenario({
+      scenes: [
+        { ...scenario().scenes[0]!, sourceRevision: "intro@v3" },
+        scenario().scenes[1]!,
+      ],
+    }));
+    const changes = changedSceneLineages(prior, next);
+    expect(changes).toEqual({ carried: ["main"], replanned: ["intro"] });
+    expect(next.sceneRuns.find((run) => run.sceneId === "main")!.lineageId)
+      .toBe(prior.sceneRuns.find((run) => run.sceneId === "main")!.lineageId);
+    expect(next.sceneRuns.find((run) => run.sceneId === "intro")!.lineageId)
+      .not.toBe(prior.sceneRuns.find((run) => run.sceneId === "intro")!.lineageId);
+
+    const admittedRequests: string[] = [];
+    const capturedSources: string[] = [];
+    const frames = await recaptureScenario(next, {
+      check: (request) => {
+        admittedRequests.push(request.sourceVersionRef);
+        return "ADMITTED";
+      },
+    }, {
+      capture: async (request) => {
+        capturedSources.push(request.sourceVersionRef);
+        return {
+          ...frame,
+          sourceIdentity: request.sourceIdentity,
+          frameClockRef: request.frameClockRef,
+        };
+      },
+    }, { sceneIds: changes.replanned, maxScenes: 1 });
+
+    expect(admittedRequests).toEqual(["intro@v3"]);
+    expect(capturedSources).toEqual(["intro@v3"]);
+    expect(frames).toHaveLength(1);
   });
 
   it("rejects oversized plans/selectors and malformed plan runs before callbacks", async () => {
