@@ -49,8 +49,8 @@ for (const declaration of [
   if (!authorityMap.includes(declaration)) fail(`source ownership boundary lacks ${declaration}`);
 }
 const registryCounts = [
-  [".product-experience/pdp-3-product-experience/api/api-registry.yaml", /^  - id: media\.http\./gmu, 27],
-  [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", /^  - id: media\.grpc\./gmu, 43],
+  [".product-experience/pdp-3-product-experience/api/api-registry.yaml", /^  - id: media\.http\./gmu, 30],
+  [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", /^  - id: media\.grpc\./gmu, 44],
   [".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml", /^  - id: /gmu, 4],
   [".product-experience/pdp-3-product-experience/cli/command-registry.yaml", /^  - id: /gmu, 11],
 ];

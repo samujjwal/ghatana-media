@@ -1323,7 +1323,7 @@ steps:
       canonicalOperationRef: exact optional submit-render operation is source-bound; transport and runtime admission remain pending
       authorityRef: exact authority enforcement is not admitted; step-specific authority binding remains pending
       decisionRef: PXD-075 classifies the action role; a J-19-specific action decision remains pending
-      transitionRef: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED
+      transitionRef: INITIAL_AGGREGATE_ADMISSION; NO_EXISTING_AGGREGATE_TRANSITION; OWNER_STATE_OBSERVATION_REQUIRED; admission and state observation remain pending
       handoffRef: no step-specific handoff is defined; handoff binding remains pending
       success: optional immediate result is admission-only and does not alter the preceding J-19 selection or decline; runtimeAdmission NOT_ADMITTED
       failure: candidate-proposal-only command failure and UNKNOWN handling remain separately defined; owner acceptance pending

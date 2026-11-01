@@ -88,6 +88,18 @@ classifications:
     implementationStatus: LEGACY_COMPATIBILITY
     qualificationStatus: NOT_ADMITTED
     migration: retain until an admitted public DI client and replacement conformance path exist
+  - id: media.ocr.generic-service-boundary
+    target: EXCLUDED
+    source: generic OcrService / Document Intelligence generic OCR engine
+    classification: INCORRECT_IMPLEMENTATION
+    semanticAuthority: false
+    allowedUse: none; a generic service implementation must not be treated as Media Product Truth
+    implementationStatus: EXCLUDED
+    qualificationStatus: EXTERNAL_BLOCKER
+    migration: >-
+      The generic OcrService boundary is Document Intelligence-owned; any
+      Media-side implementation claiming Product-Truth status is an incorrect
+      implementation and is blocked pending the external public DI client.
 registrations:
   - id: media.ocr.provider-manifest-entry
     source: config/provider-manifest.json#/providers/media.ocr

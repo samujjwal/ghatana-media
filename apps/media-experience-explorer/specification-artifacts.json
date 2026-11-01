@@ -2581,5 +2581,33 @@
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "title": "Source Manifest"
+  },
+  {
+    "artifactId": "ART-MEDIA-3364F8C554CDF4419E0",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaCaptionVersion.yaml",
+    "title": "GetMediaCaptionVersion"
+  },
+  {
+    "artifactId": "ART-MEDIA-18F6004131A93F8BA10",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/listMediaCaptionVersions.yaml",
+    "title": "ListMediaCaptionVersions"
+  },
+  {
+    "artifactId": "ART-MEDIA-515DD387FC53EC7F2E1",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/registerMediaCaptionVersion.yaml",
+    "title": "RegisterMediaCaptionVersion"
+  },
+  {
+    "artifactId": "ART-MEDIA-134896BF4138996B9F5",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml",
+    "title": "VisionService.RecognizeSceneText"
   }
 ]

@@ -2862,11 +2862,11 @@ test("PDP3-005 journey steps are structured, provenance-bound proposals across a
 test("gRPC source inventory status matches the active proto census without changing pending bindings", () => {
   const registry = readYaml(".product-experience/pdp-3-product-experience/grpc/service-registry.yaml");
   assert.equal(registry.status, "active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending");
-  assert.equal(registry.observedRpcCount, 43);
-  assert.equal(registry.requestedRpcCount, 43);
+  assert.equal(registry.observedRpcCount, 44);
+  assert.equal(registry.requestedRpcCount, 44);
   assert.equal(registry.unresolvedRpcCount, 0);
-  assert.equal(registry.rpcs.length, 43);
-  assert.equal(new Set(registry.rpcs.map(record => record.id)).size, 43);
+  assert.equal(registry.rpcs.length, 44);
+  assert.equal(new Set(registry.rpcs.map(record => record.id)).size, 44);
   assert.ok(registry.rpcs.every(record => record.experienceBinding === "pending-owner-review"));
 
 });
@@ -3088,7 +3088,7 @@ test("PDP1-005 registries preserve observed facts, proposal boundaries, and owne
   assert.match(decisions, /offline-sync-and-runtime-owners-define-durable-recovery-provider-outcome-reconciliation-and-any-runtime-admission/u);
 
   const normalizedDomainModel = domainModel.replaceAll(/\s+/gu, " ");
-  assert.ok(normalizedDomainModel.includes("currentDefinitionAdjudication` separately defines scoped Media logical meanings, including ArtifactVersion identity and exact-version ancestry, while leaving persistence, external authority, consumer compatibility, and independent acceptance distinct"));
+  assert.ok(normalizedDomainModel.includes("currentDefinitionAdjudication` defines current scoped Media logical meanings for Project and ProjectRevision identity, ArtifactVersion identity and exact-version ancestry, and other bounded domains, while leaving persistence, external authority, consumer compatibility, and independent acceptance distinct"));
   assert.ok(normalizedDomainModel.includes("`ArtifactVersion` has a current Media owner-defined logical identity and lineage rule in `canonical-reconciliation.yaml#currentDefinitionAdjudication` and `versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion`; the inspected runtime still does not establish a separate persisted version record"));
 });
 
@@ -3255,9 +3255,9 @@ test("HTTP route, SDK, and interface projections retain canonical ownership", ()
   assert.equal(result.status, 1, result.stderr);
   const output = `${result.stdout}${result.stderr}`;
   assert.match(output, /Media contract parity: NON-GREEN/u);
-  assert.match(output, /"openapiRoutes":27,"runtimeRoutes":27,"httpRegistryRoutes":27/u);
-  assert.match(output, /semantic binding: UNRESOLVED/u);
-  assert.match(output, /source findings audited: 47 \(46 dispositioned; 1 unresolved\)/u);
+  assert.match(output, /"openapiRoutes":30,"runtimeRoutes":30,"httpRegistryRoutes":30/u);
+  assert.match(output, /semantic binding: REVIEW_REQUIRED/u);
+  assert.match(output, /source findings audited: 46 \(2 dispositioned; 44 unresolved\)/u);
   assert.match(output, /source-dispositioned findings: 46/u);
   assert.match(output, /historical source findings: 52 \(51 dispositioned; 1 unresolved; 5 retired routes\)/u);
 });
@@ -3377,7 +3377,7 @@ test("PDP2-004/005 interface registries are complete proposals with owner and ru
   const agentTools = readFileSync(resolve(designRoot, "agent-tools/conventions.yaml"), "utf8");
   assert.match(cli, /production-runtime-cli-not-connected/u);
   assert.match(cli, /process exit status reports the CLI invocation\/observation result; domain state and effect finality are separate/u);
-  assert.match(sdk, /canonical mapping is unresolved/u);
+  assert.match(sdk, /cross-projection mapping remains unresolved|canonical mapping is unresolved/u);
   assert.match(events, /runtimeLifecyclePublishers:[\s\S]*?count: 9[\s\S]*?clientLocalNotifications:[\s\S]*?count: 15/u);
   assert.match(events, /not Event Plane publication or runtime lifecycle event taxonomy/u);
   assert.match(events, /scopeStatus: proposal; conventions below are design constraints, not an accepted event contract/u);

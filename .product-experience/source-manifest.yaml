@@ -3815,6 +3815,98 @@ productArtifactIndex:
       contentSha256: bb94d8c47d314e4344679c0cce5dbd134661a424e64d5b83aa2f2d4675c4bba4
       contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
     legacyPlanTaskRefs: []
+  - artifactId: ART-MEDIA-3364F8C554CDF4419E0
+    title: "GetMediaCaptionVersion"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_EXPERIENCE_AUTHORITY
+    owningPhase: PDP-3
+    path: .product-experience/pdp-3-product-experience/api/operations/getMediaCaptionVersion.yaml
+    surfaceIds: [media.surface.public-http]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: pdp.3.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 428f80c12fbe601cf3b642a678466bcbe36bc671c676ad9cbe7d0da6c37ea984
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-MEDIA-18F6004131A93F8BA10
+    title: "ListMediaCaptionVersions"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_EXPERIENCE_AUTHORITY
+    owningPhase: PDP-3
+    path: .product-experience/pdp-3-product-experience/api/operations/listMediaCaptionVersions.yaml
+    surfaceIds: [media.surface.public-http]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: pdp.3.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: dde0d55a3a62dafba284360473a19c8c29e24bd022f6d88c6ac545a1e4856459
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-MEDIA-515DD387FC53EC7F2E1
+    title: "RegisterMediaCaptionVersion"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_EXPERIENCE_AUTHORITY
+    owningPhase: PDP-3
+    path: .product-experience/pdp-3-product-experience/api/operations/registerMediaCaptionVersion.yaml
+    surfaceIds: [media.surface.public-http]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: pdp.3.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 8cac8fca1a2cbf296e3cbb3f3a9506eb959a8007c1e17aaf87f39f93ee6d382e
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
+  - artifactId: ART-MEDIA-134896BF4138996B9F5
+    title: "VisionService.RecognizeSceneText"
+    owner: ghatana-media-product-owners
+    authorityClass: PRODUCT_EXPERIENCE_AUTHORITY
+    owningPhase: PDP-3
+    path: .product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml
+    surfaceIds: [media.surface.service-grpc]
+    semanticStatus: PROPOSAL_PENDING_OWNER_REVIEW
+    generatedOrAuthored: AUTHORED
+    generatedFrom:
+    - canonical-source-file
+    dependencyBasis: explicit-repository-relative-source-path-mentions; provenance-only
+    dependencies: []
+    dependents: []
+    schema: pdp.3.artifact.v1
+    verification: LOCAL_STRUCTURE_ONLY_NATIVE_CURRENTNESS_PENDING
+    acceptanceState: PENDING_OWNER_REVIEW
+    explorerProjection: SPECIFICATION_SOURCE_RECORD
+    semanticFingerprint:
+      status: PENDING_OWNER_APPROVED_TOOLS_GENERATION
+      contentSha256: 8f16ffc734eedb9c82410babcb4b4ee30e16ee599662da8bbf02eb3b9fc7f559
+      contentFingerprintSemantics: "Exact file bytes for provenance only; not semantic currentness or acceptance."
+    legacyPlanTaskRefs: []
   - artifactId: ART-MEDIA-2CE401638C56A67F5ECC
     title: "CloseMediaStream"
     owner: ghatana-media-product-owners

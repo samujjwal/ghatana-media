@@ -2,13 +2,13 @@ schemaVersion: media.grpc-service-registry.v1
 productId: media
 status: active-source-inventory; observed-proto-projections; protocol-authority-unselected; operation-bindings-proposal-only; owner-review-pending
 sourceRule: every-rpc-is-derived-from-a-non-archived-repository-proto-service-declaration
-observedRpcCount: 43
+observedRpcCount: 44
 authorityDisposition: protobuf-declarations-are-implementation-or-projection-observations; no-canonical-wire-authority-selected
 semanticAuthority: PDP-1 operation proposal is intended semantic authority only after phase acceptance
 sourceInventory: four-non-archived-governed-proto-services-STT-TTS-Vision-Multimodal
 explicitProposedLogicalOperationBindings: 24
 unresolvedLogicalOperationBindings: 19
-requestedRpcCount: 43
+requestedRpcCount: 44
 unresolvedRpcCount: 0
 rpcs:
   - id: media.grpc.MultimodalService.ProcessMultimodal
