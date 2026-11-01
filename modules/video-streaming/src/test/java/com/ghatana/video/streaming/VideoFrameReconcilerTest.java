@@ -97,4 +97,47 @@ class VideoFrameReconcilerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("cross-tenant");
     }
+
+    @Test
+    @DisplayName("negative and wrapping sequences are rejected without advancing ACK")
+    void rejectsNegativeAndWrappingSequences() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+
+        assertThatThrownBy(() -> rec.offer(frame(-1, true, 10)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence is outside");
+        assertThatThrownBy(() -> rec.offer(frame(Integer.MAX_VALUE, true, 10)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence is outside");
+
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.nextExpected()).isZero();
+        assertThat(rec.pendingCount()).isZero();
+        assertThat(rec.offer(frame(0, true, 10))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isZero();
+    }
+
+    @Test
+    @DisplayName("resume rejects impossible ACK and keyframe positions")
+    void resumeRejectsImpossiblePositions() {
+        SessionIdentity durable = identity("t1");
+
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                durable, durable, Integer.MAX_VALUE, -1, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("last ACK");
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                durable, durable, 3, 4, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("keyframe sequence");
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                durable, durable, -2, -1, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("last ACK");
+
+        VideoFrameReconciler valid = VideoFrameReconciler.resume(durable, durable, 3, 2, 99);
+        assertThat(valid.nextExpected()).isEqualTo(4);
+        assertThat(valid.lastKeyFrameSequence()).isEqualTo(2);
+        assertThat(valid.lastDeliveredPts()).isEqualTo(99);
+    }
 }
