@@ -86,4 +86,12 @@ class VideoStreamSessionFrameTest {
         assertThatThrownBy(() -> session.encodeFrame(1, false, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void reconnectFrameDoesNotWrapIntoAnAmbiguousStreamOrder() {
+        assertThat(session.expectedNextFrameAfterReconnect(41)).isEqualTo(42);
+        assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("new stream");
+    }
 }

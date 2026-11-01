@@ -73,6 +73,9 @@ public final class VideoStreamSession {
     }
 
     public int expectedNextFrameAfterReconnect(int lastRenderedFrame) {
+        if (lastRenderedFrame == Integer.MAX_VALUE) {
+            throw new IllegalStateException("video stream sequence exhausted; reconnect requires a new stream");
+        }
         return lastRenderedFrame + 1;
     }
 

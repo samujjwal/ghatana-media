@@ -79,4 +79,12 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.encodeFrame(1, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void reconnectSequenceDoesNotWrapIntoAnAmbiguousStreamOrder() {
+        assertThat(session.expectedNextSequenceAfterReconnect(41)).isEqualTo(42);
+        assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(Integer.MAX_VALUE))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("new stream");
+    }
 }

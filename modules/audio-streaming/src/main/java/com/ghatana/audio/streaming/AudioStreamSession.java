@@ -66,6 +66,9 @@ public final class AudioStreamSession {
     }
 
     public int expectedNextSequenceAfterReconnect(int lastAckedSequence) {
+        if (lastAckedSequence == Integer.MAX_VALUE) {
+            throw new IllegalStateException("audio stream sequence exhausted; reconnect requires a new stream");
+        }
         return lastAckedSequence + 1;
     }
 
