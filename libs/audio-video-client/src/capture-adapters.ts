@@ -45,6 +45,16 @@ export const noAdmittedCaptureAdapter: CaptureAdapterEligibility = {
   check: () => "NOT_ADMITTED",
 };
 
+/**
+ * Explicit result for a host that cannot provide a required capture
+ * capability. Keep this separate from a deliberately disabled adapter:
+ * callers can report UNAVAILABLE without probing for, or simulating, a host
+ * API that is not present.
+ */
+export const unavailableCaptureAdapter: CaptureAdapterEligibility = {
+  check: () => "UNAVAILABLE",
+};
+
 export class CaptureNotAdmittedError extends Error {
   public constructor(
     public readonly kind: CaptureSourceKind,
@@ -52,6 +62,14 @@ export class CaptureNotAdmittedError extends Error {
   ) {
     super(`capture source ${kind} is not admitted: ${eligibility}`);
     this.name = "CaptureNotAdmittedError";
+  }
+}
+
+/** A host capability is absent; eligibility rejected capture before dispatch. */
+export class CaptureUnavailableError extends CaptureNotAdmittedError {
+  public constructor(kind: CaptureSourceKind) {
+    super(kind, "UNAVAILABLE");
+    this.name = "CaptureUnavailableError";
   }
 }
 
@@ -128,6 +146,9 @@ export async function captureWithAdmission(
     throw new TypeError("capture eligibility returned an unsupported decision");
   }
   if (decision !== "ADMITTED") {
+    if (decision === "UNAVAILABLE") {
+      throw new CaptureUnavailableError(admittedRequest.kind);
+    }
     throw new CaptureNotAdmittedError(admittedRequest.kind, decision);
   }
   let frame: CapturedFrame;

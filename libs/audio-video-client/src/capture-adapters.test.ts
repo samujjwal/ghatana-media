@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   CaptureNotAdmittedError,
   CaptureOutcomeUnknownError,
+  CaptureUnavailableError,
   captureWithAdmission,
   noAdmittedCaptureAdapter,
+  unavailableCaptureAdapter,
   type CaptureRequest,
   type CapturedFrame,
 } from "./capture-adapters";
@@ -96,6 +98,27 @@ describe("captureWithAdmission", () => {
       });
       await expect(captureWithAdmission({ check: () => decision }, adapter, request))
         .rejects.toBeInstanceOf(CaptureNotAdmittedError);
+      expect(adapter.calls()).toBe(0);
+    });
+
+  it.each(["BROWSER", "DESKTOP", "MOBILE", "CAMERA", "HTTP_API", "GRPC_API"] as const)(
+    "reports an absent %s host capability as UNAVAILABLE without dispatch", async (kind) => {
+      let eligibilityCalls = 0;
+      const adapter = adapterReturning({
+        sourceIdentity: request.sourceIdentity,
+        frameClockRef: request.frameClockRef,
+        bytes: new Uint8Array([1]),
+        capturedAtEpochMillis: 0,
+      });
+      await expect(captureWithAdmission({
+        check: (candidate) => {
+          eligibilityCalls++;
+          expect(candidate.kind).toBe(kind);
+          return unavailableCaptureAdapter.check(candidate);
+        },
+      }, adapter, { ...request, kind }))
+        .rejects.toBeInstanceOf(CaptureUnavailableError);
+      expect(eligibilityCalls).toBe(1);
       expect(adapter.calls()).toBe(0);
     });
 
