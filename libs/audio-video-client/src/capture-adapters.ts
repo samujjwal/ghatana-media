@@ -12,6 +12,13 @@ export type CaptureSourceKind =
 
 export type CaptureEligibility = "ADMITTED" | "NOT_ADMITTED" | "UNAVAILABLE";
 
+const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
+  "BROWSER", "DESKTOP", "MOBILE", "TERMINAL", "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE",
+]);
+
+/** Bound the result of one capture before it can enter a recorder pipeline. */
+export const MAX_CAPTURED_FRAME_BYTES = 64 * 1024 * 1024;
+
 export interface CaptureRequest {
   readonly kind: CaptureSourceKind;
   readonly sourceIdentity: string;
@@ -67,20 +74,49 @@ export async function captureWithAdmission(
   adapter: { capture(request: CaptureRequest): Promise<CapturedFrame> },
   request: CaptureRequest,
 ): Promise<CapturedFrame> {
-  requireRequestField(request.sourceIdentity, "sourceIdentity");
-  requireRequestField(request.purposeRef, "purposeRef");
-  requireRequestField(request.sourceVersionRef, "sourceVersionRef");
-  requireRequestField(request.secretsRef, "secretsRef");
-  requireRequestField(request.frameClockRef, "frameClockRef");
-  const decision = eligibility.check(request);
-  if (decision !== "ADMITTED") {
-    throw new CaptureNotAdmittedError(request.kind, decision);
+  if (!request || typeof request !== "object") {
+    throw new TypeError("capture request must be an object");
   }
-  const frame = await adapter.capture(request);
+  if (!CAPTURE_SOURCE_KINDS.has(request.kind)) {
+    throw new TypeError("capture request kind is outside the supported source enum");
+  }
+  // Snapshot before crossing either callback boundary. A caller may retain
+  // and mutate its input while capture is pending, and callbacks must not be
+  // able to relabel the request that the trusted eligibility seam admitted.
+  const admittedRequest: CaptureRequest = Object.freeze({
+    kind: request.kind,
+    sourceIdentity: request.sourceIdentity,
+    purposeRef: request.purposeRef,
+    sourceVersionRef: request.sourceVersionRef,
+    secretsRef: request.secretsRef,
+    frameClockRef: request.frameClockRef,
+  });
+  // Validate the captured value too: accessor-backed inputs can change between
+  // the initial guard read and the snapshot read.
+  if (!CAPTURE_SOURCE_KINDS.has(admittedRequest.kind)) {
+    throw new TypeError("capture request kind is outside the supported source enum");
+  }
+  requireRequestField(admittedRequest.sourceIdentity, "sourceIdentity");
+  requireRequestField(admittedRequest.purposeRef, "purposeRef");
+  requireRequestField(admittedRequest.sourceVersionRef, "sourceVersionRef");
+  requireRequestField(admittedRequest.secretsRef, "secretsRef");
+  requireRequestField(admittedRequest.frameClockRef, "frameClockRef");
+  const decision = eligibility.check(admittedRequest);
+  if (decision !== "ADMITTED") {
+    throw new CaptureNotAdmittedError(admittedRequest.kind, decision);
+  }
+  const frame = await adapter.capture(admittedRequest);
+  if (!frame || typeof frame !== "object" || !(frame.bytes instanceof Uint8Array)
+    || frame.bytes.byteLength < 1 || frame.bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
+    throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
+  }
+  if (!Number.isSafeInteger(frame.capturedAtEpochMillis) || frame.capturedAtEpochMillis < 0) {
+    throw new TypeError("captured frame timestamp must be a non-negative safe integer");
+  }
   // A captured frame must bind the exact requested source and clock — an
   // adapter returning bytes for another source is rejected, not relabeled.
-  if (frame.sourceIdentity !== request.sourceIdentity
-    || frame.frameClockRef !== request.frameClockRef) {
+  if (frame.sourceIdentity !== admittedRequest.sourceIdentity
+    || frame.frameClockRef !== admittedRequest.frameClockRef) {
     throw new TypeError("captured frame does not bind the requested source identity and clock");
   }
   return frame;

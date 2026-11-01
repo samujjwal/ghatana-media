@@ -87,4 +87,113 @@ describe("captureWithAdmission", () => {
     }
     expect(adapter.calls()).toBe(0);
   });
+
+  it("rejects an unrecognized runtime source kind before eligibility or capture", async () => {
+    let eligibilityCalls = 0;
+    const adapter = adapterReturning({
+      sourceIdentity: request.sourceIdentity,
+      frameClockRef: request.frameClockRef,
+      bytes: new Uint8Array([1]),
+      capturedAtEpochMillis: 1,
+    });
+    await expect(captureWithAdmission({
+      check: () => { eligibilityCalls++; return "ADMITTED"; },
+    }, adapter, { ...request, kind: "FAKE_SOURCE" as CaptureRequest["kind"] }))
+      .rejects.toThrow(/source enum/u);
+    expect(eligibilityCalls).toBe(0);
+    expect(adapter.calls()).toBe(0);
+  });
+
+  it("rejects an accessor that changes kind between guard and snapshot reads", async () => {
+    let kindReads = 0;
+    let callbackCalls = 0;
+    const changingKindRequest = { ...request };
+    Object.defineProperty(changingKindRequest, "kind", {
+      get: () => kindReads++ === 0 ? "MEDIA_FILE" : "FAKE_SOURCE",
+    });
+    await expect(captureWithAdmission({
+      check: () => { callbackCalls++; return "ADMITTED"; },
+    }, {
+      capture: async () => {
+        callbackCalls++;
+        return {
+          sourceIdentity: request.sourceIdentity,
+          frameClockRef: request.frameClockRef,
+          bytes: new Uint8Array([1]),
+          capturedAtEpochMillis: 1,
+        };
+      },
+    }, changingKindRequest))
+      .rejects.toThrow(/source enum/u);
+    expect(kindReads).toBe(2);
+    expect(callbackCalls).toBe(0);
+  });
+
+  it.each([
+    ["empty bytes", new Uint8Array(), 1],
+    ["non-byte payload", { length: 1 } as unknown as Uint8Array, 1],
+    ["invalid timestamp", new Uint8Array([1]), Number.NaN],
+    ["negative timestamp", new Uint8Array([1]), -1],
+    ["unsafe timestamp", new Uint8Array([1]), Number.MAX_SAFE_INTEGER + 1],
+  ])("rejects capture output with %s", async (_label, bytes, capturedAtEpochMillis) => {
+    const adapter = adapterReturning({
+      sourceIdentity: request.sourceIdentity,
+      frameClockRef: request.frameClockRef,
+      bytes,
+      capturedAtEpochMillis,
+    });
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
+      .rejects.toThrow(TypeError);
+    expect(adapter.calls()).toBe(1);
+  });
+
+  it("rejects captured frames above the bounded byte size", async () => {
+    const adapter = adapterReturning({
+      sourceIdentity: request.sourceIdentity,
+      frameClockRef: request.frameClockRef,
+      bytes: new Uint8Array(64 * 1024 * 1024 + 1),
+      capturedAtEpochMillis: 1,
+    });
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
+      .rejects.toThrow(/capture bound/u);
+  });
+
+  it("keeps eligibility and frame binding on a frozen request snapshot during async capture", async () => {
+    const callerRequest = { ...request };
+    let releaseCapture!: () => void;
+    const captureGate = new Promise<void>((resolve) => { releaseCapture = resolve; });
+    let eligibilityRequest: CaptureRequest | undefined;
+    let adapterRequest: CaptureRequest | undefined;
+    const pending = captureWithAdmission({
+      check: (admitted) => {
+        eligibilityRequest = admitted;
+        expect(Reflect.set(admitted as unknown as Record<string, unknown>,
+          "sourceIdentity", "media-file:eligibility-relabel")).toBe(false);
+        return "ADMITTED";
+      },
+    }, {
+      capture: async (admitted) => {
+        adapterRequest = admitted;
+        await captureGate;
+        return {
+          sourceIdentity: admitted.sourceIdentity,
+          frameClockRef: admitted.frameClockRef,
+          bytes: new Uint8Array([9]),
+          capturedAtEpochMillis: 1_700_000_000_000,
+        };
+      },
+    }, callerRequest);
+
+    callerRequest.sourceIdentity = "media-file:attacker-relabel";
+    callerRequest.frameClockRef = "clock:attacker-relabel";
+    releaseCapture();
+    const frame = await pending;
+
+    expect(Object.isFrozen(eligibilityRequest)).toBe(true);
+    expect(adapterRequest).toBe(eligibilityRequest);
+    expect(eligibilityRequest?.sourceIdentity).toBe(request.sourceIdentity);
+    expect(eligibilityRequest?.frameClockRef).toBe(request.frameClockRef);
+    expect(frame.sourceIdentity).toBe(request.sourceIdentity);
+    expect(frame.frameClockRef).toBe(request.frameClockRef);
+  });
 });
