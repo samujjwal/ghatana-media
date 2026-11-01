@@ -42,6 +42,19 @@ async function pack(root, manifest, destination) {
   return path.join(destination, result[0].filename);
 }
 
+function assertSourceFreePackage(packResult, packageName) {
+  const files = packResult.files.map(({ path: filePath }) => filePath);
+  assert.ok(files.length > 0, `${packageName} tarball must contain files`);
+  for (const filePath of files) {
+    assert.match(filePath, /^(package\.json|dist\/|dist-cjs\/)/u,
+      `${packageName} tarball must contain only package metadata and built output: ${filePath}`);
+    assert.doesNotMatch(filePath, /(?:^|\/)(?:\.env|credentials?[^/]*|secrets?[^/]*)(?:\/|$)/iu,
+      `${packageName} tarball must not contain credentials: ${filePath}`);
+    assert.doesNotMatch(filePath, /\.(?:bin|onnx|safetensors|gguf|pt|pth|ckpt)$/iu,
+      `${packageName} tarball must not bundle model weights: ${filePath}`);
+  }
+}
+
 try {
   const sourceClient = JSON.parse(await readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const sourceTypes = JSON.parse(await readFile(path.join(typesRoot, 'package.json'), 'utf8'));
@@ -55,6 +68,7 @@ try {
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
+  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], { cwd: typePackRoot }))[0], sourceTypes.name);
 
   await copyTree(path.join(packageRoot, 'dist'), path.join(clientPackRoot, 'dist'));
   await copyTree(path.join(packageRoot, 'dist-cjs'), path.join(clientPackRoot, 'dist-cjs'));
@@ -64,6 +78,7 @@ try {
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
+  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], { cwd: clientPackRoot }))[0], sourceClient.name);
 
   const consumerManifest = {
     name: 'audio-video-client-isolated-consumer',
@@ -128,14 +143,24 @@ try {
   run(process.execPath, [path.join(consumerRoot, 'consumer.cjs')], { cwd: consumerRoot });
 
   await writeFile(path.join(consumerRoot, 'consumer.ts'), `
+    import type * as main from '@audio-video/client';
     import { createMediaOperationClient } from '@audio-video/client/operations';
+    import type * as operations from '@audio-video/client/operations';
+    import type * as routes from '@audio-video/client/canonical-routes';
+    import type * as canonical from '@audio-video/client/canonical-operations';
+    import type * as http from '@audio-video/client/http-core';
+    import type * as capture from '@audio-video/client/capture-adapters';
+    import type * as recorder from '@audio-video/client/recorder-orchestrator';
+    import type * as productionExports from '@audio-video/client/production-plan';
     import { compileProductionPlan, type CaptureSourceResolver } from '@audio-video/client/production-plan';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
     const create: typeof createMediaOperationClient = createMediaOperationClient;
     const compile: typeof compileProductionPlan = compileProductionPlan;
+    const publicExportTypes: [typeof main, typeof operations, typeof routes, typeof canonical,
+      typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
     const kind = MediaArtifactKindSchema.parse('AUDIO');
     const resolver: CaptureSourceResolver | undefined = undefined;
-    void [create, compile, kind, resolver];
+    void [create, compile, kind, resolver, publicExportTypes];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
