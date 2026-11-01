@@ -84,6 +84,21 @@ class BoundedAudioFrameDecoderTest {
     }
 
     @Test
+    @DisplayName("a single PCM frame is bounded before the decoder copies it")
+    void oversizedSingleFrameDoesNotAdvanceSessionBudget() {
+        BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(
+                "pcm_s16le", 1, 48000, budget(Integer.MAX_VALUE, Long.MAX_VALUE));
+        byte[] oversized = new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 2];
+
+        var result = dec.decode(oversized, 0, false);
+
+        assertThat(result.verdict()).isEqualTo(DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(result.frame()).isNull();
+        assertThat(dec.framesDecoded()).isZero();
+        assertThat(dec.bytesDecoded()).isZero();
+    }
+
+    @Test
     @DisplayName("a VAD/caption partial revision is marked non-final")
     void partialRevisionMarked() {
         BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(

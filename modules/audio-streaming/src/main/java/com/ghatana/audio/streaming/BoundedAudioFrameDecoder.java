@@ -142,6 +142,10 @@ public final class BoundedAudioFrameDecoder {
             return Result.fail(DecodeVerdict.MALFORMED,
                     "PCM_S16LE payload must be a whole number of 16-bit samples");
         }
+        if (payload.length > AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            return Result.fail(DecodeVerdict.BUDGET_EXCEEDED,
+                    "frame payload exceeds the bounded audio frame size");
+        }
         if (positionNumerator < 0) {
             return Result.fail(DecodeVerdict.MALFORMED,
                     "sample position numerator cannot be negative");
@@ -153,7 +157,7 @@ public final class BoundedAudioFrameDecoder {
             return Result.fail(DecodeVerdict.MALFORMED,
                     "sample position exceeds the exact rational time range");
         }
-        if (frames >= budget.maxFrames() || bytes + payload.length > budget.maxBytes()) {
+        if (frames >= budget.maxFrames() || payload.length > budget.maxBytes() - bytes) {
             return Result.fail(DecodeVerdict.BUDGET_EXCEEDED,
                     "session frame/byte budget exceeded");
         }
