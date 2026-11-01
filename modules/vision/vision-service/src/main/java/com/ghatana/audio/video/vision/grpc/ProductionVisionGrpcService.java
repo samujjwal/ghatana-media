@@ -46,6 +46,7 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     private final VisionCapabilityProfile capabilityProfile;
     private final SceneTextBinding sceneText;
     private final MediaProcessingRuntimePort mediaRuntimePort;
+    private AutoCloseable ownedRuntimePort;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public ProductionVisionGrpcService(MediaProcessingMetrics metrics) {
@@ -88,6 +89,15 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     }
 
     MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
+
+    void ownRuntimePort(MediaProcessingRuntimePort runtimePort) {
+        if (runtimePort == null) return;
+        if (runtimePort != mediaRuntimePort) {
+            throw new IllegalArgumentException("owned runtime port must be the composed service port");
+        }
+        if (ownedRuntimePort != null) throw new IllegalStateException("runtime port ownership already assigned");
+        ownedRuntimePort = runtimePort instanceof AutoCloseable closeable ? closeable : null;
+    }
 
     @Override
     protected boolean isProviderReady() {
@@ -215,8 +225,21 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
 
     @Override public void close() {
         if (closed.compareAndSet(false, true)) {
-            if (detector != null) detector.close();
-            if (sceneText != null) sceneText.close();
+            try {
+                if (detector != null) detector.close();
+            } finally {
+                try {
+                    if (sceneText != null) sceneText.close();
+                } finally {
+                    if (ownedRuntimePort != null) {
+                        try { ownedRuntimePort.close(); }
+                        catch (Exception closeFailure) {
+                            org.slf4j.LoggerFactory.getLogger(ProductionVisionGrpcService.class)
+                                    .error("Media runtime port shutdown failed", closeFailure);
+                        }
+                    }
+                }
+            }
         }
     }
 

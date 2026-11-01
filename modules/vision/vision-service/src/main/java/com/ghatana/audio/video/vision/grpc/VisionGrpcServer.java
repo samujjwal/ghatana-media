@@ -6,13 +6,17 @@ import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
 import com.ghatana.audiovideo.observability.AudioVideoHealthService;
 import com.ghatana.observability.MetricsCollectorFactory;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.runtime.MediaRuntimePortFactory;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
@@ -49,6 +53,7 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
 
     private VisionGrpcServer(int port, TransportSecurity transportSecurity, ServerRuntime runtime) {
         this(port, transportSecurity, runtime.service(), runtime.readiness());
+        runtime.service().ownRuntimePort(runtime.ownedRuntimePort());
     }
 
     VisionGrpcServer(
@@ -70,6 +75,11 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     }
 
     private static ServerRuntime createProductionRuntime(MediaProcessingRuntimePort mediaRuntimePort) {
+        return createProductionRuntime(mediaRuntimePort, false);
+    }
+
+    private static ServerRuntime createProductionRuntime(
+            MediaProcessingRuntimePort mediaRuntimePort, boolean ownRuntimePort) {
         MeterRegistry providerMetrics = new SimpleMeterRegistry();
         ProductionVisionGrpcService service = new ProductionVisionGrpcService(
                 MediaProcessingMetrics.create(), providerMetrics, mediaRuntimePort);
@@ -77,11 +87,49 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
             AudioVideoHealthService readiness = createReadinessLifecycle(
                     providerMetrics, service::isProviderReady);
             service.setReadinessProbe(readiness::isServing);
-            return new ServerRuntime(service, readiness);
+            return new ServerRuntime(service, readiness, ownRuntimePort ? mediaRuntimePort : null);
         } catch (RuntimeException failure) {
             service.close();
             throw failure;
         }
+    }
+
+    private static void closeRuntimePort(MediaProcessingRuntimePort mediaRuntimePort) {
+        if (mediaRuntimePort instanceof AutoCloseable closeable) {
+            try { closeable.close(); }
+            catch (Exception closeFailure) { LOG.error("Media runtime port shutdown failed", closeFailure); }
+        }
+    }
+
+    /** Discover and compose the canonical runtime for the standalone process. */
+    static MediaProcessingRuntimePort composeRuntimePort(Map<String, String> environment) {
+        return composeRuntimePort(environment, ServiceLoader.load(MediaRuntimePortFactory.class));
+    }
+
+    static MediaProcessingRuntimePort composeRuntimePort(Map<String, String> environment, ClassLoader classLoader) {
+        return composeRuntimePort(environment, ServiceLoader.load(MediaRuntimePortFactory.class, classLoader));
+    }
+
+    static MediaProcessingRuntimePort composeRuntimePort(
+            Map<String, String> environment, Iterable<MediaRuntimePortFactory> discoveredFactories) {
+        List<MediaRuntimePortFactory> factories = new ArrayList<>();
+        discoveredFactories.forEach(factories::add);
+        if (factories.isEmpty()) {
+            LOG.warn("No MediaRuntimePortFactory installed; Vision source operations stay NOT_ADMITTED");
+            return null;
+        }
+        if (factories.size() > 1) {
+            throw new IllegalStateException("Multiple MediaRuntimePortFactory implementations are installed: "
+                    + factories.stream().map(MediaRuntimePortFactory::factoryId).sorted().toList());
+        }
+        MediaRuntimePortFactory factory = factories.getFirst();
+        MediaProcessingRuntimePort port = factory.compose(Map.copyOf(environment));
+        if (port == null) {
+            throw new IllegalStateException("MediaRuntimePortFactory " + factory.factoryId()
+                    + " returned a null runtime port");
+        }
+        LOG.info("Composed Media runtime port via factory {}", factory.factoryId());
+        return port;
     }
 
     static AudioVideoHealthService createReadinessLifecycle(
@@ -92,7 +140,8 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
         return readiness;
     }
 
-    private record ServerRuntime(ProductionVisionGrpcService service, AudioVideoHealthService readiness) { }
+    private record ServerRuntime(ProductionVisionGrpcService service, AudioVideoHealthService readiness,
+                                 MediaProcessingRuntimePort ownedRuntimePort) { }
 
     public static void main(String[] args) {
         if (Boolean.getBoolean("av.smokeTest")) {
@@ -100,20 +149,43 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
             return;
         }
 
+        MediaProcessingRuntimePort runtimePort = null;
+        VisionGrpcServer server = null;
+        int exitCode = 0;
         try {
             Map<String, String> environment = System.getenv();
             int port = parsePort(environment.get("VISION_GRPC_PORT"));
             TransportSecurity transportSecurity = transportSecurity(environment);
-            new VisionGrpcServer(port, transportSecurity).startAndAwaitShutdown();
+            runtimePort = composeRuntimePort(environment);
+            server = new VisionGrpcServer(
+                    port, transportSecurity, createProductionRuntime(runtimePort, true));
+            runtimePort = null; // ownership transferred to the service lifecycle
+            startAndAwaitShutdown(server);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             LOG.info("Vision server interrupted");
         } catch (IOException transportFailure) {
             LOG.error("Vision server transport failed", transportFailure);
-            System.exit(1);
+            exitCode = 1;
         } catch (RuntimeException configurationFailure) {
             LOG.error("Vision server configuration or provider startup failed", configurationFailure);
-            System.exit(1);
+            exitCode = 1;
+        } finally {
+            if (server != null) server.close();
+            // The service owns and closes a port after successful composition. This covers
+            // the narrow case where server construction fails before ownership transfers.
+            if (runtimePort instanceof AutoCloseable closeable) {
+                closeRuntimePort(runtimePort);
+            }
+        }
+        if (exitCode != 0) System.exit(exitCode);
+    }
+
+    static void startAndAwaitShutdown(VisionGrpcServer server) throws IOException, InterruptedException {
+        try {
+            server.startAndAwaitShutdown();
+        } finally {
+            server.close();
         }
     }
 
