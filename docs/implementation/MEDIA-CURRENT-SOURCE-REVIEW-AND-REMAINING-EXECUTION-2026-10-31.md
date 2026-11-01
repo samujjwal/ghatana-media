@@ -802,3 +802,9 @@ This pulse continues from Media `main@2383b317`, 168 commits ahead of `origin/ma
 
 The denominator remains **Wave 2: 58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL; W3: 84; H: 8**; no original task was accepted or promoted. The ten-pin status successor still lacks its authentic root-status owner decision; 56/54 and F00 source observations, stale Build projection, DI #252 and Data Cloud #254 public artifacts, lawful model/voice/gold evidence, durable authorized STT result, real transport/capacity and host outcomes, product-host J-03, protected Lifecycle proof, live legacy-writer cutover, and UI/Recorder/Studio/Player remain separately tracked. This pulse did not change Track B or external ownership.
 
+## 30. Local Track A continuation readback (2026-11-01, twelfth pulse)
+
+This pulse started at Media `main@7040dbb4`, 174 commits ahead of `origin/main`. During integration of the VIS-03 cleanup fix, source review found that a failed/timed-out/malformed Docker `inspect --format {{.State.OOMKilled}}` response was converted to `oomKilled=false`. The broker now requires exit-zero and an exact `true` or `false` result; otherwise it fails the worker result and attempts container cleanup. `MediaOciBrokerPolicyTest` passed **8/8**, including true/false, failed command, timeout, malformed state, and failed-force-removal cases. `git diff --check` passed before commit `1b10d8ea`.
+
+This closes two local broker-result honesty gaps only. It does not qualify cgroup enforcement, real OOM/PID/CPU/disk/time adversaries, hostile codec safety, zero container leaks on a real constrained host, model rights, or the complete VIS-03 row. The original denominator remains **Wave 2: 58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL; W3: 84; H: 8**; no original row or lifecycle status changed.
+
