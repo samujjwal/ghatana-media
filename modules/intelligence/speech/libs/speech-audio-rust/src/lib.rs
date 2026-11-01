@@ -1369,6 +1369,52 @@ mod tests {
     }
 
     #[test]
+    fn resampler_impulse_is_time_aligned_across_named_source_rates() {
+        // Exercise the rates called out by RS-03. The source impulse is kept
+        // well inside the buffer so truncation at either edge cannot move the
+        // peak. Expected positions use integer rational conversion, matching
+        // the public sample-boundary convention (no accumulated float clock).
+        for source_rate in [1_000u32, 8_000, 44_100, 48_000] {
+            let target_rate = 16_000u32;
+            let input_frames = source_rate as usize * 2;
+            let source_impulse = source_rate as usize;
+            let mut samples = vec![0.0f32; input_frames];
+            samples[source_impulse] = 1.0;
+            let input = AudioBuffer::new(
+                samples,
+                AudioConfig {
+                    sample_rate: source_rate,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            );
+
+            let output = Resampler::new(target_rate).resample(&input).unwrap();
+            let peak = output
+                .samples
+                .iter()
+                .enumerate()
+                .max_by(|a, b| a.1.total_cmp(b.1))
+                .map(|(index, _)| index)
+                .unwrap();
+            let expected = (source_impulse as u128 * target_rate as u128 + source_rate as u128 / 2)
+                / source_rate as u128;
+            assert!(
+                (peak as u128).abs_diff(expected) <= 1,
+                "{source_rate} Hz impulse peak at {peak}, expected {expected}"
+            );
+            let peak_amplitude = output.samples[peak];
+            // For downsampling the impulse's peak scales with the low-pass
+            // cutoff (approximately target/source rate); the key regression
+            // is a finite, substantial peak at the rationally mapped time.
+            assert!(
+                (0.2..=1.05).contains(&peak_amplitude),
+                "{source_rate} Hz impulse peak amplitude {peak_amplitude}"
+            );
+        }
+    }
+
+    #[test]
     fn resampler_attenuates_alias_content() {
         // 20 kHz source content is above the 4 kHz Nyquist edge of an 8 kHz
         // target and must be attenuated before sampling, not folded.
@@ -1416,6 +1462,24 @@ mod tests {
                 frame[1]
             );
         }
+
+        // A left-only impulse must not appear in the right channel. Check the
+        // complete tail so even low-level kernel leakage is caught.
+        let mut isolated_samples = vec![0.0f32; 256 * 2];
+        isolated_samples[128 * 2] = 1.0;
+        let isolated = AudioBuffer::new(
+            isolated_samples,
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        let isolated_output = Resampler::new(8_000).resample(&isolated).unwrap();
+        assert!(isolated_output
+            .samples
+            .chunks_exact(2)
+            .all(|frame| frame[1] == 0.0));
     }
 
     #[test]
@@ -1447,6 +1511,63 @@ mod tests {
             peak.abs_diff(expected) <= 1,
             "impulse drifted: peak={peak} expected={expected}"
         );
+    }
+
+    #[test]
+    fn resampler_long_duration_matches_rational_endpoint_and_reference_tone() {
+        // Thirty seconds at the common 44.1 -> 48 kHz conversion is long
+        // enough to expose a per-output floating-point phase accumulator. The
+        // final impulse is checked against direct rational arithmetic.
+        let source_rate = 44_100u32;
+        let target_rate = 48_000u32;
+        let input_frames = source_rate as usize * 30;
+        let impulse_frame = input_frames - 20_000;
+        let mut samples = vec![0.0f32; input_frames];
+        samples[impulse_frame] = 1.0;
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: source_rate,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        let output = Resampler::new(target_rate).resample(&input).unwrap();
+        let peak = output
+            .samples
+            .iter()
+            .enumerate()
+            .max_by(|a, b| a.1.total_cmp(b.1))
+            .map(|(index, _)| index)
+            .unwrap();
+        let expected = (impulse_frame as u128 * target_rate as u128 + source_rate as u128 / 2)
+            / source_rate as u128;
+        assert!(
+            (peak as u128).abs_diff(expected) <= 1,
+            "long-duration impulse drifted: peak={peak}, expected={expected}"
+        );
+
+        // Compare an independent in-band 440 Hz reference after edge settling.
+        // This bounds passband error without claiming provider or production
+        // quality.
+        let tone_frames = 44_100usize * 2;
+        let tone = sine_buffer(source_rate, 1, tone_frames, 440.0);
+        let tone_output = Resampler::new(target_rate).resample(&tone).unwrap();
+        let edge = 128usize;
+        let mut max_error = 0.0f64;
+        for (index, sample) in tone_output
+            .samples
+            .iter()
+            .enumerate()
+            .skip(edge)
+            .take(tone_output.samples.len() - 2 * edge)
+        {
+            let reference =
+                (2.0 * std::f64::consts::PI * 440.0 * index as f64 / target_rate as f64).sin()
+                    * 0.5;
+            max_error = max_error.max((*sample as f64 - reference).abs());
+        }
+        assert!(max_error < 0.01, "440 Hz reference max error {max_error}");
     }
 
     #[test]
