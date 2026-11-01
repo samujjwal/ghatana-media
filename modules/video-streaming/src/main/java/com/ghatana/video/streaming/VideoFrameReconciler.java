@@ -94,6 +94,12 @@ public final class VideoFrameReconciler {
         if (!identity.tenantId().equals(durable.tenantId())) {
             throw new IllegalArgumentException("cross-tenant resume is denied");
         }
+        if (!identity.principalId().equals(durable.principalId())) {
+            throw new IllegalArgumentException("resume principal does not match the durable session");
+        }
+        if (!identity.purposeRef().equals(durable.purposeRef())) {
+            throw new IllegalArgumentException("resume purpose does not match the durable session");
+        }
         if (identity.sessionRevision() < durable.sessionRevision()) {
             throw new IllegalArgumentException(
                     "resume carries an older session revision than the durable session");

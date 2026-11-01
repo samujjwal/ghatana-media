@@ -83,6 +83,15 @@ public final class StreamFrameReconciler {
         if (!identity.tenantId().equals(durable.tenantId())) {
             throw new IllegalArgumentException("cross-tenant resume is denied");
         }
+        if (!identity.principalId().equals(durable.principalId())) {
+            throw new IllegalArgumentException("resume principal does not match the durable session");
+        }
+        if (!identity.purposeRef().equals(durable.purposeRef())) {
+            throw new IllegalArgumentException("resume purpose does not match the durable session");
+        }
+        if (lastAckedSequence < -1 || lastAckedSequence == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
+        }
         if (identity.sessionRevision() < durable.sessionRevision()) {
             throw new IllegalArgumentException(
                     "resume carries an older session revision than the durable session");
@@ -97,6 +106,12 @@ public final class StreamFrameReconciler {
     public Disposition offer(AudioStreamSession.DecodedFrame frame) {
         Objects.requireNonNull(frame, "frame");
         int sequence = frame.sequenceNumber();
+        // Sequence arithmetic is signed int and the next-expected cursor is
+        // advanced by one. Reserve MAX_VALUE as an exhausted cursor sentinel
+        // so accepting it cannot wrap the cursor back to negative values.
+        if (sequence < 0 || sequence == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("audio frame sequence is outside the supported range");
+        }
         if (sequence < nextExpected) {
             return Disposition.DUPLICATE;
         }

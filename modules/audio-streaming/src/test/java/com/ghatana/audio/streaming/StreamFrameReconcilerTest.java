@@ -109,4 +109,49 @@ class StreamFrameReconcilerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("streamId");
     }
+
+    @Test
+    @DisplayName("resume cannot change the durable principal or processing purpose")
+    void resumeDeniedPrincipalOrPurposeChange() {
+        SessionIdentity durable = identity("t1");
+        SessionIdentity otherPrincipal = new SessionIdentity(
+                "stream-1", "t1", "principal-2", "purpose-1", 1);
+        SessionIdentity otherPurpose = new SessionIdentity(
+                "stream-1", "t1", "principal-1", "purpose-2", 1);
+
+        assertThatThrownBy(() -> StreamFrameReconciler.resume(otherPrincipal, durable, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principal");
+        assertThatThrownBy(() -> StreamFrameReconciler.resume(otherPurpose, durable, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purpose");
+    }
+
+    @Test
+    @DisplayName("negative and rollover sequences are rejected without moving the ACK")
+    void invalidSequenceCannotCorruptCursor() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        assertThatThrownBy(() -> rec.offer(frame(-1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> rec.offer(frame(Integer.MAX_VALUE)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.nextExpected()).isZero();
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isZero();
+    }
+
+    @Test
+    @DisplayName("resume rejects ACK values outside the supported sequence range")
+    void resumeRejectsInvalidAck() {
+        SessionIdentity same = identity("t1");
+        for (int invalidAck : new int[]{-2, Integer.MAX_VALUE}) {
+            assertThatThrownBy(() -> StreamFrameReconciler.resume(same, same, invalidAck))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("last ACK");
+        }
+    }
 }

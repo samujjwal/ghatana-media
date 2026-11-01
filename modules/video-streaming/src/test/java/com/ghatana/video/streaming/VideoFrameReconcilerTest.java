@@ -140,4 +140,23 @@ class VideoFrameReconcilerTest {
         assertThat(valid.lastKeyFrameSequence()).isEqualTo(2);
         assertThat(valid.lastDeliveredPts()).isEqualTo(99);
     }
+
+    @Test
+    @DisplayName("resume cannot change the durable principal or processing purpose")
+    void resumeDeniesPrincipalOrPurposeChange() {
+        SessionIdentity durable = identity("t1");
+        SessionIdentity otherPrincipal = new SessionIdentity(
+                "vstream-1", "t1", "principal-2", "purpose-1", 1);
+        SessionIdentity otherPurpose = new SessionIdentity(
+                "vstream-1", "t1", "principal-1", "purpose-2", 1);
+
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                otherPrincipal, durable, 10, 8, 9000))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principal");
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                otherPurpose, durable, 10, 8, 9000))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purpose");
+    }
 }
