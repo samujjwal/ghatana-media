@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Server-side broker policy negatives; no Docker or socket required. */
 class MediaOciBrokerPolicyTest {
@@ -113,5 +114,19 @@ class MediaOciBrokerPolicyTest {
                 java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
                 java.nio.file.attribute.PosixFilePermission.GROUP_READ));
         assertThat(MediaOciBrokerPolicy.ownerOnlyFile(token)).isFalse();
+    }
+
+    @Test
+    void brokerDoesNotTreatFailedForceRemovalAsSuccessfulCleanup() throws Exception {
+        Path dockerStub = root.resolve("docker-rm-fails");
+        Files.writeString(dockerStub, "#!/bin/sh\nexit 7\n");
+        Files.setPosixFilePermissions(dockerStub, Set.of(
+                java.nio.file.attribute.PosixFilePermission.OWNER_READ,
+                java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
+                java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE));
+
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.remove(dockerStub.toString(), "a".repeat(64)))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("could not confirm worker container cleanup");
     }
 }

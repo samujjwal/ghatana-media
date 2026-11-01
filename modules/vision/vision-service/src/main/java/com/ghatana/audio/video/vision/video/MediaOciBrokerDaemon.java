@@ -267,8 +267,11 @@ public final class MediaOciBrokerDaemon {
         }
     }
 
-    private static void remove(String docker, String id) throws IOException {
-        run(List.of(docker, "rm", "--force", id), Duration.ofSeconds(5));
+    static void remove(String docker, String id) throws IOException {
+        CommandResult result = run(List.of(docker, "rm", "--force", id), Duration.ofSeconds(5));
+        if (result.timedOut() || result.exitCode() != 0) {
+            throw new IOException("Vision OCI broker could not confirm worker container cleanup");
+        }
     }
 
     private static void kill(String docker, String id) throws IOException {
