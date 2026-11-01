@@ -3,6 +3,7 @@ package com.ghatana.audio.video.common.model;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Immutable metadata for a managed AI model.
@@ -25,6 +26,57 @@ public record ModelMetadata(
         Instant lastLoadedAt,
         boolean loaded
 ) {
+    /** Development bound aligned with the public media identifier contract. */
+    public static final int MAX_MODEL_ID_LENGTH = 256;
+    /** Conservative development bound for a registry display name; not a product maximum. */
+    public static final int MAX_NAME_LENGTH = 512;
+    /** Development bound aligned with public model-version contracts. */
+    public static final int MAX_VERSION_LENGTH = 128;
+    /** Maximum textual path size retained by the local registry; not an asset-size limit. */
+    public static final int MAX_MODEL_PATH_LENGTH = 4_096;
+    /** Development bounds aligned with public capability descriptors. */
+    public static final int MAX_SUPPORTED_LANGUAGES = 512;
+    public static final int MAX_LANGUAGE_LENGTH = 64;
+
+    /**
+     * Validates metadata regardless of whether it was created through the builder or directly.
+     * These are bounded development metadata limits, not product maxima or model qualification.
+     */
+    public ModelMetadata {
+        modelId = requireBoundedText(modelId, "modelId", MAX_MODEL_ID_LENGTH, true);
+        if (name == null || name.isBlank()) {
+            name = modelId;
+        }
+        name = requireBoundedText(name, "name", MAX_NAME_LENGTH, true);
+        version = requireBoundedText(version, "version", MAX_VERSION_LENGTH, true);
+        type = Objects.requireNonNull(type, "type");
+        if (modelPath != null && modelPath.toString().length() > MAX_MODEL_PATH_LENGTH) {
+            throw new IllegalArgumentException("modelPath exceeds " + MAX_MODEL_PATH_LENGTH + " characters");
+        }
+        Objects.requireNonNull(supportedLanguages, "supportedLanguages");
+        if (supportedLanguages.size() > MAX_SUPPORTED_LANGUAGES) {
+            throw new IllegalArgumentException("supportedLanguages exceeds " + MAX_SUPPORTED_LANGUAGES + " entries");
+        }
+        for (String language : supportedLanguages) {
+            requireBoundedText(language, "supportedLanguages element", MAX_LANGUAGE_LENGTH, false);
+        }
+        supportedLanguages = List.copyOf(supportedLanguages);
+        if (sizeBytes < 0) {
+            throw new IllegalArgumentException("sizeBytes must be nonnegative");
+        }
+        registeredAt = Objects.requireNonNull(registeredAt, "registeredAt");
+    }
+
+    private static String requireBoundedText(String value, String field, int maxLength, boolean requireNonBlank) {
+        Objects.requireNonNull(value, field);
+        if ((requireNonBlank && value.isBlank()) || value.length() > maxLength) {
+            throw new IllegalArgumentException(field + " must "
+                    + (requireNonBlank ? "be nonblank and " : "")
+                    + "contain at most " + maxLength + " characters");
+        }
+        return value;
+    }
+
     /** Canonical model type taxonomy. */
     public enum ModelType {
         STT, TTS, VISION, MULTIMODAL

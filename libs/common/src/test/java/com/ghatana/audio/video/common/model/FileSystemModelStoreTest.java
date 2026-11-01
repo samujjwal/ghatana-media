@@ -8,6 +8,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -84,6 +86,70 @@ class FileSystemModelStoreTest {
             .hasMessageContaining("cacheCapacity");
     }
 
+    @Test
+    @DisplayName("metadata: accepts values at conservative development bounds and copies languages")
+    void metadata_acceptsBoundsAndDefensivelyCopiesLanguages() {
+        List<String> languages = new ArrayList<>(List.of("en"));
+        ModelMetadata metadata = new ModelMetadata(
+                "i".repeat(ModelMetadata.MAX_MODEL_ID_LENGTH),
+                "n".repeat(ModelMetadata.MAX_NAME_LENGTH),
+                "v".repeat(ModelMetadata.MAX_VERSION_LENGTH),
+                ModelMetadata.ModelType.STT,
+                Path.of("p".repeat(ModelMetadata.MAX_MODEL_PATH_LENGTH)),
+                languages,
+                0,
+                false,
+                Instant.EPOCH,
+                null,
+                false);
+
+        languages.add("fr");
+
+        assertThat(metadata.supportedLanguages()).containsExactly("en");
+        assertThatThrownBy(() -> metadata.supportedLanguages().add("de"))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThat(metadata.modelId()).hasSize(ModelMetadata.MAX_MODEL_ID_LENGTH);
+
+        ModelMetadata languageBounds = ModelMetadata.builder().modelId("language-bounds")
+                .supportedLanguages(java.util.Collections.nCopies(ModelMetadata.MAX_SUPPORTED_LANGUAGES,
+                        "l".repeat(ModelMetadata.MAX_LANGUAGE_LENGTH)))
+                .build();
+        assertThat(languageBounds.supportedLanguages()).hasSize(ModelMetadata.MAX_SUPPORTED_LANGUAGES)
+                .allSatisfy(language -> assertThat(language).hasSize(ModelMetadata.MAX_LANGUAGE_LENGTH));
+    }
+
+    @Test
+    @DisplayName("metadata: rejects over-bound strings, language lists, and negative sizes via builder and constructor")
+    void metadata_rejectsOutOfBoundsValues() {
+        assertThatThrownBy(() -> ModelMetadata.builder()
+                .modelId("i".repeat(ModelMetadata.MAX_MODEL_ID_LENGTH + 1)).build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("modelId");
+        assertThatThrownBy(() -> new ModelMetadata("i".repeat(ModelMetadata.MAX_MODEL_ID_LENGTH + 1),
+                "name", "version", ModelMetadata.ModelType.STT, null, List.of(), 0,
+                false, Instant.EPOCH, null, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("modelId");
+        assertThatThrownBy(() -> ModelMetadata.builder().modelId("id")
+                .name("n".repeat(ModelMetadata.MAX_NAME_LENGTH + 1)).build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("name");
+        assertThatThrownBy(() -> ModelMetadata.builder().modelId("id")
+                .version("v".repeat(ModelMetadata.MAX_VERSION_LENGTH + 1)).build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("version");
+        assertThatThrownBy(() -> ModelMetadata.builder().modelId("id")
+                .modelPath(Path.of("p".repeat(ModelMetadata.MAX_MODEL_PATH_LENGTH + 1))).build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("modelPath");
+        assertThatThrownBy(() -> ModelMetadata.builder().modelId("id")
+                .supportedLanguages(List.of("l".repeat(ModelMetadata.MAX_LANGUAGE_LENGTH + 1))).build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("supportedLanguages element");
+        assertThatThrownBy(() -> ModelMetadata.builder().modelId("id")
+                .supportedLanguages(java.util.Collections.nCopies(ModelMetadata.MAX_SUPPORTED_LANGUAGES + 1, "en"))
+                .build())
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("supportedLanguages");
+        assertThatThrownBy(() -> new ModelMetadata("id", "name", "version",
+                ModelMetadata.ModelType.STT, null, List.of(), -1, false,
+                Instant.EPOCH, null, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("nonnegative");
+    }
+
     // ── load ────────────────────────────────────────────────────────────────
 
     @Test
@@ -131,6 +197,9 @@ class FileSystemModelStoreTest {
         assertThat(beforeLoad.source()).isEqualTo("filesystem");
         assertThat(beforeLoad.readiness()).isEqualTo(FileSystemModelStore.Readiness.NOT_READY);
         assertThat(beforeLoad.toString()).doesNotContain(modelFile.toString());
+        assertThat(java.util.Arrays.stream(FileSystemModelStore.ModelDescriptor.class.getRecordComponents())
+                .map(java.lang.reflect.RecordComponent::getName))
+                .doesNotContain("modelPath", "path");
 
         store.load("model-a");
         assertThat(store.describe("model-a").orElseThrow().readiness())

@@ -151,14 +151,19 @@ public final class FileSystemModelStore implements ModelRegistry {
                 metadata.type(), readiness));
     }
 
-    /** Asset-store readiness only; it is not model or engine qualification. */
+    /**
+     * Asset-store readiness only; {@code READY} never means that a model or engine is qualified.
+     */
     public enum Readiness {
         READY,
         NOT_READY,
         UNVERIFIED
     }
 
-    /** Public descriptor with no local path or qualification claim. */
+    /**
+     * Public descriptor with no local path or qualification claim. Its readiness is limited to
+     * whether this registry has the local asset available, not whether an engine is qualified.
+     */
     public record ModelDescriptor(
             String modelId,
             String version,
