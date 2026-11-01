@@ -73,4 +73,24 @@ class MediaDeterministicSimulatorTest {
         assertThatThrownBy(() -> new InitialState(Double.NaN, 0))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void unsupportedSolverIdentityNeverClaimsAValidSimulation() {
+        var simulator = new MediaDeterministicSimulator();
+        var unknown = new ModelSpec("different-solver", "1.0.0", "SI", 2, 6, 0.5, 10, 1e-9);
+        assertThat(simulator.run(unknown, new InitialState(0, 0), 1).verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(simulator.resume(unknown, new Checkpoint(1, 0, 0, 1), 1).verdict()).isEqualTo(Verdict.ABSTAIN);
+    }
+
+    @Test
+    void resumePreservesStepLimitAndRejectsMalformedCheckpoints() {
+        var simulator = new MediaDeterministicSimulator();
+        var model = newtonModel(0.5);
+        assertThat(simulator.resume(model, new Checkpoint(99, 0, 0, 1), 2).verdict())
+                .isEqualTo(Verdict.STEP_LIMIT_REACHED);
+        assertThat(simulator.resume(model, new Checkpoint(Integer.MAX_VALUE, 0, 0, 1), Integer.MAX_VALUE)
+                .checkpoints()).isEmpty();
+        assertThatThrownBy(() -> new Checkpoint(-1, 0, 0, 1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Checkpoint(1, Double.NaN, 0, 1)).isInstanceOf(IllegalArgumentException.class);
+    }
 }

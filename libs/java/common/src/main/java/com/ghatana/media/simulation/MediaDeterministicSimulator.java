@@ -78,6 +78,12 @@ public final class MediaDeterministicSimulator {
             double positionMeters,
             double velocityMetersPerSecond,
             long seed) {
+        public Checkpoint {
+            if (stepIndex < 0 || !Double.isFinite(positionMeters)
+                    || !Double.isFinite(velocityMetersPerSecond)) {
+                throw new IllegalArgumentException("checkpoint step and state must be valid and finite");
+            }
+        }
     }
 
     /** One run's outcome. */
@@ -103,6 +109,9 @@ public final class MediaDeterministicSimulator {
             return new SimulationResult(Verdict.ABSTAIN, List.of(),
                     "mismatched units registry: " + model.unitsRegistry());
         }
+        if (!supportsSolver(model)) {
+            return new SimulationResult(Verdict.ABSTAIN, List.of(), "unsupported solver identity or version");
+        }
         double a = model.forceN() / model.massKg();
         double dt = model.stepSeconds();
         double position = initial.positionMeters();
@@ -119,6 +128,7 @@ public final class MediaDeterministicSimulator {
             double analyticPosition = initial.positionMeters()
                     + initial.velocityMetersPerSecond() * t + 0.5 * a * t * t;
             if (!Double.isFinite(nextPosition) || !Double.isFinite(nextVelocity)
+                    || !Double.isFinite(analyticPosition) || !Double.isFinite(analyticVelocity)
                     || !withinTolerance(nextVelocity, analyticVelocity, model.tolerance())
                     || !withinTolerance(nextPosition, analyticPosition, model.tolerance())) {
                 return new SimulationResult(Verdict.ABSTAIN, List.copyOf(checkpoints),
@@ -131,7 +141,10 @@ public final class MediaDeterministicSimulator {
         return new SimulationResult(Verdict.CONVERGED, checkpoints, null);
     }
 
-    /** Resumes a trajectory from a checkpoint — the same run continues. */
+    /**
+     * Continues from a caller-supplied checkpoint. The caller is responsible for
+     * verifying its model and source provenance before using this numerical helper.
+     */
     public SimulationResult resume(
             ModelSpec model, Checkpoint from, int additionalSteps) {
         Objects.requireNonNull(model, "model");
@@ -143,24 +156,43 @@ public final class MediaDeterministicSimulator {
             return new SimulationResult(Verdict.ABSTAIN, List.of(),
                     "mismatched units registry: " + model.unitsRegistry());
         }
+        if (!supportsSolver(model)) {
+            return new SimulationResult(Verdict.ABSTAIN, List.of(), "unsupported solver identity or version");
+        }
+        long finalStep = (long) from.stepIndex() + additionalSteps;
+        if (finalStep > model.maxSteps()) {
+            return new SimulationResult(Verdict.STEP_LIMIT_REACHED, List.of(),
+                    "requested continuation exceeds model step limit");
+        }
         double a = model.forceN() / model.massKg();
         double dt = model.stepSeconds();
         double position = from.positionMeters();
         double velocity = from.velocityMetersPerSecond();
 
         List<Checkpoint> checkpoints = new ArrayList<>();
-        for (int step = from.stepIndex() + 1; step <= from.stepIndex() + additionalSteps; step++) {
+        for (int step = from.stepIndex() + 1; step <= finalStep; step++) {
             double nextVelocity = velocity + a * dt;
             double nextPosition = position + (velocity + nextVelocity) / 2.0 * dt;
-            if (!Double.isFinite(nextPosition) || !Double.isFinite(nextVelocity)) {
+            double elapsed = (step - from.stepIndex()) * dt;
+            double analyticVelocity = from.velocityMetersPerSecond() + a * elapsed;
+            double analyticPosition = from.positionMeters() + from.velocityMetersPerSecond() * elapsed
+                    + 0.5 * a * elapsed * elapsed;
+            if (!Double.isFinite(nextPosition) || !Double.isFinite(nextVelocity)
+                    || !Double.isFinite(analyticPosition) || !Double.isFinite(analyticVelocity)
+                    || !withinTolerance(nextVelocity, analyticVelocity, model.tolerance())
+                    || !withinTolerance(nextPosition, analyticPosition, model.tolerance())) {
                 return new SimulationResult(Verdict.ABSTAIN, List.copyOf(checkpoints),
-                        "non-finite state at step " + step);
+                        "solver diverged from closed form at step " + step);
             }
             position = nextPosition;
             velocity = nextVelocity;
             checkpoints.add(new Checkpoint(step, position, velocity, from.seed()));
         }
         return new SimulationResult(Verdict.CONVERGED, checkpoints, null);
+    }
+
+    private static boolean supportsSolver(ModelSpec model) {
+        return "constant-force".equals(model.solverId()) && "1.0.0".equals(model.solverVersion());
     }
 
     private static boolean withinTolerance(double actual, double expected, double tolerance) {
