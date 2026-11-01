@@ -156,6 +156,31 @@ class JpaAudioFileRepositoryTest {
     }
 
     @Test
+    @DisplayName("A retagged managed audio file cannot authorize a cross-tenant status update")
+    void managedTenantMutationCannotAuthorizeAudioFileUpdate() {
+        AudioFileEntity original = createTestAudioFile("tenant-owner");
+        original.setFileName("owner-file.mp3");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        AudioFileEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setTenantId("tenant-attacker");
+
+        assertThat(repository.updateStatus("tenant-attacker", original.getId(),
+            AudioFileEntity.ProcessingStatus.FAILED, "forged update")).isFalse();
+        assertThat(managed.getTenantId()).isEqualTo("tenant-owner");
+
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .satisfies(actual -> {
+                assertThat(actual.getTenantId()).isEqualTo("tenant-owner");
+                assertThat(actual.getFileName()).isEqualTo("owner-file.mp3");
+                assertThat(actual.getStatus()).isEqualTo(AudioFileEntity.ProcessingStatus.PENDING);
+            });
+        assertThat(repository.findById("tenant-attacker", original.getId())).isEmpty();
+    }
+
+    @Test
     @DisplayName("GIVEN saved entity WHEN findById THEN returns entity")
     void testFindById() { 
         // GIVEN

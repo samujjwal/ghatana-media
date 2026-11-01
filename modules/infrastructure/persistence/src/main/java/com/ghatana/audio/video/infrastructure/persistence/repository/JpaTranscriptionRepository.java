@@ -142,6 +142,29 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
         }
     }
 
+    /**
+     * Load the database-owned row while holding its write lock, then refresh any existing
+     * persistence-context instance before a tenant-scoped mutation. A managed entity may have
+     * been retagged in memory; checking only its current tenant field would let that dirty value
+     * authorize a cross-tenant update and then flush the forged tenant along with it.
+     */
+    private TranscriptionEntity findPersistedForTenantUpdate(String tenantId, UUID id) {
+        PersistedTranscription persisted = readPersistedForUpdate(id);
+        if (persisted == null) {
+            return null;
+        }
+
+        TranscriptionEntity entity = entityManager.find(TranscriptionEntity.class, id);
+        if (entity == null) {
+            return null;
+        }
+        entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
+        if (!tenantId.equals(persisted.tenantId()) || !tenantId.equals(entity.getTenantId())) {
+            return null;
+        }
+        return entity;
+    }
+
     @Override
     public Optional<TranscriptionEntity> findById(String tenantId, UUID id) {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
@@ -249,8 +272,8 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 began = true;
             }
 
-            TranscriptionEntity entity = entityManager.find(TranscriptionEntity.class, id);
-            if (entity != null && entity.getTenantId().equals(tenantId) && !entity.isDeleted()) {
+            TranscriptionEntity entity = findPersistedForTenantUpdate(tenantId, id);
+            if (entity != null && !entity.isDeleted()) {
                 entity.setDeleted(true);
                 entity.setDeletedAt(Instant.now());
                 entityManager.merge(entity);
@@ -281,8 +304,8 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 began = true;
             }
 
-            TranscriptionEntity entity = entityManager.find(TranscriptionEntity.class, id);
-            if (entity != null && entity.getTenantId().equals(tenantId)) {
+            TranscriptionEntity entity = findPersistedForTenantUpdate(tenantId, id);
+            if (entity != null) {
                 entityManager.remove(entity);
                 if (began) tx.commit();
                 LOG.debug("Transcription hard deleted: tenantId={}, id={}", tenantId, id);

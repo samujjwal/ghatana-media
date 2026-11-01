@@ -118,6 +118,29 @@ public class JpaAudioFileRepository implements AudioFileRepository {
         }
     }
 
+    /**
+     * Load the database-owned row while holding its write lock, then refresh any existing
+     * persistence-context instance before a tenant-scoped mutation. A managed entity may have
+     * been retagged in memory; checking only its current tenant field would let that dirty value
+     * authorize a cross-tenant update and then flush the forged tenant along with it.
+     */
+    private AudioFileEntity findPersistedForTenantUpdate(String tenantId, UUID id) {
+        String persistedTenant = readPersistedTenantForUpdate(id);
+        if (persistedTenant == null) {
+            return null;
+        }
+
+        AudioFileEntity entity = entityManager.find(AudioFileEntity.class, id);
+        if (entity == null) {
+            return null;
+        }
+        entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
+        if (!tenantId.equals(persistedTenant) || !tenantId.equals(entity.getTenantId())) {
+            return null;
+        }
+        return entity;
+    }
+
     @Override
     public Optional<AudioFileEntity> findById(String tenantId, UUID id) {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
@@ -204,8 +227,8 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 began = true;
             }
 
-            AudioFileEntity entity = entityManager.find(AudioFileEntity.class, id);
-            if (entity != null && entity.getTenantId().equals(tenantId) && !entity.isDeleted()) {
+            AudioFileEntity entity = findPersistedForTenantUpdate(tenantId, id);
+            if (entity != null && !entity.isDeleted()) {
                 entity.setDeleted(true);
                 entity.setDeletedAt(Instant.now());
                 entityManager.merge(entity);
@@ -236,8 +259,8 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 began = true;
             }
 
-            AudioFileEntity entity = entityManager.find(AudioFileEntity.class, id);
-            if (entity != null && entity.getTenantId().equals(tenantId)) {
+            AudioFileEntity entity = findPersistedForTenantUpdate(tenantId, id);
+            if (entity != null) {
                 entityManager.remove(entity);
                 if (began) tx.commit();
                 LOG.debug("AudioFile hard deleted: tenantId={}, id={}", tenantId, id);
@@ -305,8 +328,8 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 began = true;
             }
 
-            AudioFileEntity entity = entityManager.find(AudioFileEntity.class, id);
-            if (entity != null && entity.getTenantId().equals(tenantId)) {
+            AudioFileEntity entity = findPersistedForTenantUpdate(tenantId, id);
+            if (entity != null) {
                 entity.setStatus(status);
                 entity.setUpdatedAt(Instant.now());
                 if (reason != null) {

@@ -202,6 +202,30 @@ class JpaTranscriptionRepositoryTest {
     }
 
     @Test
+    @DisplayName("A retagged managed transcription cannot authorize a cross-tenant delete")
+    void managedTenantMutationCannotAuthorizeTranscriptionDelete() {
+        TranscriptionEntity original = createTestTranscription("tenant-owner");
+        original.setText("owner transcript");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        TranscriptionEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setTenantId("tenant-attacker");
+
+        assertThat(repository.softDelete("tenant-attacker", original.getId())).isFalse();
+        assertThat(managed.getTenantId()).isEqualTo("tenant-owner");
+
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .satisfies(actual -> {
+                assertThat(actual.getTenantId()).isEqualTo("tenant-owner");
+                assertThat(actual.getText()).isEqualTo("owner transcript");
+                assertThat(actual.isDeleted()).isFalse();
+            });
+        assertThat(repository.findById("tenant-attacker", original.getId())).isEmpty();
+    }
+
+    @Test
     @DisplayName("GIVEN saved entity WHEN findById THEN returns entity")
     void testFindById() { 
         // GIVEN

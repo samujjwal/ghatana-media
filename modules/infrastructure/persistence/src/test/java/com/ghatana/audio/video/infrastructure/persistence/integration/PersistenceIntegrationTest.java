@@ -192,6 +192,46 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL tenant-scoped mutations ignore retagged managed entities")
+    void postgresMutationsCannotUseManagedTenantRetagging() {
+        String owner = "owner-" + UUID.randomUUID();
+        String attacker = "attacker-" + UUID.randomUUID();
+        AudioFileEntity audio = createAudioFile(owner, "original.wav");
+        audioFileRepository.save(owner, audio);
+        TranscriptionEntity transcript = createTranscription(owner, "original transcript");
+        transcriptionRepository.save(owner, transcript);
+        entityManager.clear();
+
+        AudioFileEntity managedAudio = audioFileRepository.findById(owner, audio.getId()).orElseThrow();
+        managedAudio.setTenantId(attacker);
+        managedAudio.setFileName("forged.wav");
+        assertThat(audioFileRepository.updateStatus(attacker, audio.getId(),
+                AudioFileEntity.ProcessingStatus.FAILED, "forged update")).isFalse();
+
+        TranscriptionEntity managedTranscript = transcriptionRepository.findById(owner, transcript.getId())
+                .orElseThrow();
+        managedTranscript.setTenantId(attacker);
+        managedTranscript.setText("forged transcript");
+        assertThat(transcriptionRepository.softDelete(attacker, transcript.getId())).isFalse();
+
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(owner, audio.getId())).get()
+                .satisfies(actual -> {
+                    assertThat(actual.getTenantId()).isEqualTo(owner);
+                    assertThat(actual.getFileName()).isEqualTo("original.wav");
+                    assertThat(actual.getStatus()).isEqualTo(AudioFileEntity.ProcessingStatus.PENDING);
+                });
+        assertThat(transcriptionRepository.findById(owner, transcript.getId())).get()
+                .satisfies(actual -> {
+                    assertThat(actual.getTenantId()).isEqualTo(owner);
+                    assertThat(actual.getText()).isEqualTo("original transcript");
+                    assertThat(actual.isDeleted()).isFalse();
+                });
+        assertThat(audioFileRepository.findById(attacker, audio.getId())).isEmpty();
+        assertThat(transcriptionRepository.findById(attacker, transcript.getId())).isEmpty();
+    }
+
+    @Test
     @DisplayName("PostgreSQL primary key prevents concurrent tenant overwrite on a new ID")
     void postgresConcurrentInsertCannotOverwriteAnotherTenant() throws Exception {
         UUID sharedId = UUID.randomUUID();
