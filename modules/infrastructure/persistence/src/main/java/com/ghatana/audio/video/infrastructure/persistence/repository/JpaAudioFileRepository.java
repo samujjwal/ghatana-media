@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,16 +50,21 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 began = true;
             }
 
-            String persistedTenant = entity.getId() == null
+            PersistedAudioFile persisted = entity.getId() == null
                 ? null
-                : readPersistedTenantForUpdate(entity.getId());
+                : readPersistedForUpdate(entity.getId());
+            String persistedTenant = persisted == null ? null : persisted.tenantId();
             if (entity.getTenantId() != null && !tenantId.equals(entity.getTenantId())) {
-                restoreManagedEntityIfPresent(entity, persistedTenant);
+                restoreManagedEntityIfPresent(entity, persisted);
                 throw new TenantScopeException("AudioFile tenant does not match save tenant");
             }
             if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
-                restoreManagedEntityIfPresent(entity, persistedTenant);
+                restoreManagedEntityIfPresent(entity, persisted);
                 throw new TenantScopeException("AudioFile does not belong to save tenant");
+            }
+            if (persisted != null && !Objects.equals(entity.getUserId(), persisted.userId())) {
+                restoreManagedEntityIfPresent(entity, persisted);
+                throw new TenantScopeException("AudioFile principal ownership cannot be changed");
             }
 
             AudioFileEntity saved;
@@ -100,20 +106,45 @@ public class JpaAudioFileRepository implements AudioFileRepository {
         }
     }
 
-    private String readPersistedTenantForUpdate(UUID id) {
+    private record PersistedAudioFile(String tenantId, UUID userId) { }
+
+    private PersistedAudioFile readPersistedForUpdate(UUID id) {
         try {
-            return (String) entityManager.createNativeQuery(
-                    "SELECT tenant_id FROM audio_video.audio_files WHERE id = :id FOR UPDATE")
+            Object[] row = (Object[]) entityManager.createNativeQuery(
+                    "SELECT tenant_id, user_id FROM audio_video.audio_files WHERE id = :id FOR UPDATE")
                 .setParameter("id", id)
                 .setFlushMode(FlushModeType.COMMIT)
                 .getSingleResult();
+            return new PersistedAudioFile((String) row[0], readUuidColumn(row[1], "user_id"));
         } catch (jakarta.persistence.NoResultException missing) {
             return null;
         }
     }
 
-    private void restoreManagedEntityIfPresent(AudioFileEntity entity, String persistedTenant) {
-        if (persistedTenant != null && entityManager.contains(entity)) {
+    private static UUID readUuidColumn(Object value, String columnName) {
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+        if (value instanceof byte[] bytes && bytes.length == 16) {
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            return new UUID(buffer.getLong(), buffer.getLong());
+        }
+        if (value instanceof String text) {
+            UUID uuid;
+            try {
+                uuid = UUID.fromString(text);
+            } catch (IllegalArgumentException malformed) {
+                throw new IllegalStateException("Database returned malformed UUID for " + columnName, malformed);
+            }
+            if (uuid.toString().equalsIgnoreCase(text)) {
+                return uuid;
+            }
+        }
+        throw new IllegalStateException("Database returned unsupported UUID value for " + columnName);
+    }
+
+    private void restoreManagedEntityIfPresent(AudioFileEntity entity, PersistedAudioFile persisted) {
+        if (persisted != null && entityManager.contains(entity)) {
             entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
         }
     }
@@ -125,8 +156,8 @@ public class JpaAudioFileRepository implements AudioFileRepository {
      * authorize a cross-tenant update and then flush the forged tenant along with it.
      */
     private AudioFileEntity findPersistedForTenantUpdate(String tenantId, UUID id) {
-        String persistedTenant = readPersistedTenantForUpdate(id);
-        if (persistedTenant == null) {
+        PersistedAudioFile persisted = readPersistedForUpdate(id);
+        if (persisted == null) {
             return null;
         }
 
@@ -135,7 +166,7 @@ public class JpaAudioFileRepository implements AudioFileRepository {
             return null;
         }
         entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
-        if (!tenantId.equals(persistedTenant) || !tenantId.equals(entity.getTenantId())) {
+        if (!tenantId.equals(persisted.tenantId()) || !tenantId.equals(entity.getTenantId())) {
             return null;
         }
         return entity;

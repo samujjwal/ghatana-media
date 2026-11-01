@@ -127,6 +127,33 @@ class JpaAudioFileRepositoryTest {
     }
 
     @Test
+    @DisplayName("GIVEN a saved audio file WHEN its principal owner is changed THEN the update is rejected")
+    void testSaveCannotReassignAudioFilePrincipal() {
+        AudioFileEntity original = createTestAudioFile("tenant-owner");
+        UUID originalUserId = original.getUserId();
+        original.setFileName("owner-file.mp3");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        AudioFileEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setUserId(UUID.randomUUID());
+        managed.setFileName("reassigned-file.mp3");
+
+        assertThatThrownBy(() -> repository.save("tenant-owner", managed))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("principal ownership cannot be changed");
+
+        assertThat(managed.getUserId()).isEqualTo(originalUserId);
+        assertThat(managed.getFileName()).isEqualTo("owner-file.mp3");
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .satisfies(file -> {
+                assertThat(file.getUserId()).isEqualTo(originalUserId);
+                assertThat(file.getFileName()).isEqualTo("owner-file.mp3");
+            });
+    }
+
+    @Test
     @DisplayName("GIVEN a stale file revision WHEN saved THEN it cannot overwrite the current tenant row")
     void staleAudioFileRevisionCannotOverwriteCurrentValue() {
         String tenantId = "tenant-version-owner";

@@ -173,6 +173,60 @@ class JpaTranscriptionRepositoryTest {
     }
 
     @Test
+    @DisplayName("GIVEN a saved transcription WHEN its principal owner changes THEN the update is rejected")
+    void transcriptionPrincipalCannotBeReassigned() {
+        TranscriptionEntity original = createTestTranscription("tenant-owner");
+        UUID originalUserId = original.getUserId();
+        original.setText("owner transcript");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        TranscriptionEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setUserId(UUID.randomUUID());
+        managed.setText("reassigned transcript");
+
+        assertThatThrownBy(() -> repository.save("tenant-owner", managed))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("principal and source audio ownership cannot be changed");
+
+        assertThat(managed.getUserId()).isEqualTo(originalUserId);
+        assertThat(managed.getText()).isEqualTo("owner transcript");
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .satisfies(transcription -> {
+                assertThat(transcription.getUserId()).isEqualTo(originalUserId);
+                assertThat(transcription.getText()).isEqualTo("owner transcript");
+            });
+    }
+
+    @Test
+    @DisplayName("GIVEN a saved transcription WHEN its source audio is rebound THEN the update is rejected")
+    void transcriptionSourceAudioCannotBeRebound() {
+        TranscriptionEntity original = createTestTranscription("tenant-owner");
+        UUID originalAudioFileId = original.getAudioFileId();
+        original.setText("source-bound transcript");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        TranscriptionEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setAudioFileId(UUID.randomUUID());
+        managed.setText("transcript for another source");
+
+        assertThatThrownBy(() -> repository.save("tenant-owner", managed))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("principal and source audio ownership cannot be changed");
+
+        assertThat(managed.getAudioFileId()).isEqualTo(originalAudioFileId);
+        assertThat(managed.getText()).isEqualTo("source-bound transcript");
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .satisfies(transcription -> {
+                assertThat(transcription.getAudioFileId()).isEqualTo(originalAudioFileId);
+                assertThat(transcription.getText()).isEqualTo("source-bound transcript");
+            });
+    }
+
+    @Test
     @DisplayName("GIVEN a stale transcript revision WHEN saved THEN it cannot overwrite the current tenant row")
     void staleTranscriptionRevisionCannotOverwriteCurrentValue() {
         String tenantId = "tenant-version-owner";

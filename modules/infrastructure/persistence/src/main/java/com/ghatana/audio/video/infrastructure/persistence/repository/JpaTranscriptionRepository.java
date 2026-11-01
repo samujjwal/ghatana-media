@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,12 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
                 restoreManagedEntityIfPresent(entity, persistedTenant);
                 throw new TenantScopeException("Transcription does not belong to save tenant");
+            }
+            if (persisted != null && (!Objects.equals(entity.getUserId(), persisted.userId())
+                    || !Objects.equals(entity.getAudioFileId(), persisted.audioFileId()))) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new TenantScopeException(
+                    "Transcription principal and source audio ownership cannot be changed");
             }
             // The legacy JPA row has no canonical source-version or successful-attempt binding.
             // Keep it from claiming provider-owned transcript finality.
@@ -115,7 +122,8 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
         }
     }
 
-    private record PersistedTranscription(String tenantId, TranscriptionEntity.TranscriptionStatus status) { }
+    private record PersistedTranscription(String tenantId, UUID audioFileId, UUID userId,
+                                          TranscriptionEntity.TranscriptionStatus status) { }
 
     private static boolean claimsSuccessfulTranscriptFinality(TranscriptionEntity.TranscriptionStatus status) {
         return status == TranscriptionEntity.TranscriptionStatus.COMPLETED
@@ -125,15 +133,39 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
     private PersistedTranscription readPersistedForUpdate(UUID id) {
         try {
             Object[] row = (Object[]) entityManager.createNativeQuery(
-                    "SELECT tenant_id, status FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
+                    "SELECT tenant_id, audio_file_id, user_id, status "
+                        + "FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
                 .setParameter("id", id)
                 .setFlushMode(FlushModeType.COMMIT)
                 .getSingleResult();
-            return new PersistedTranscription((String) row[0],
-                TranscriptionEntity.TranscriptionStatus.valueOf((String) row[1]));
+            return new PersistedTranscription((String) row[0], readUuidColumn(row[1], "audio_file_id"),
+                readUuidColumn(row[2], "user_id"),
+                TranscriptionEntity.TranscriptionStatus.valueOf((String) row[3]));
         } catch (jakarta.persistence.NoResultException missing) {
             return null;
         }
+    }
+
+    private static UUID readUuidColumn(Object value, String columnName) {
+        if (value instanceof UUID uuid) {
+            return uuid;
+        }
+        if (value instanceof byte[] bytes && bytes.length == 16) {
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            return new UUID(buffer.getLong(), buffer.getLong());
+        }
+        if (value instanceof String text) {
+            UUID uuid;
+            try {
+                uuid = UUID.fromString(text);
+            } catch (IllegalArgumentException malformed) {
+                throw new IllegalStateException("Database returned malformed UUID for " + columnName, malformed);
+            }
+            if (uuid.toString().equalsIgnoreCase(text)) {
+                return uuid;
+            }
+        }
+        throw new IllegalStateException("Database returned unsupported UUID value for " + columnName);
     }
 
     private void restoreManagedEntityIfPresent(TranscriptionEntity entity, String persistedTenant) {
