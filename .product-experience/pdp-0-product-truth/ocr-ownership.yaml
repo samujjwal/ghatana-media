@@ -14,8 +14,8 @@ publicDependency:
   reason: >-
     A DI v1 client implementation exists in Ghatana but the source-free,
     version-compatible installed client and real provider rights/qualifications
-    are not yet admitted for Media. The retained Kernel adapter and local
-    OcrService are fail-closed legacy remnants, not alternate OCR runtimes.
+    are not yet admitted for Media. The Media Kernel adapter and local
+    OcrService have been retired; this does not qualify a replacement.
 classifications:
   - id: media.ocr.semantic-capability
     target: CANONICAL_MEDIA_SEMANTIC
@@ -38,11 +38,9 @@ classifications:
     implementationStatus: RETIRED
     qualificationStatus: SUPERSEDED_BY_DI
     migration: >-
-      completed: Media OCR requests run through the DI v1 client
-      (DocumentIntelligenceHttpClient + SceneTextRecognitionService); the
-      Kernel media.ocr provider is DI-owned DiOcrProvider in ghatana-kernel
-      platform-kernel/kernel-product-runtime. Requalification runs against the
-      installed DI worker, never replayed legacy evidence.
+      Media's DI-only scene-text path uses DocumentIntelligenceHttpClient and
+      SceneTextRecognitionService. The legacy service is removed; an installed
+      DI worker and Kernel consumer replacement remain unqualified.
   - id: media.ocr.kernel-adapter
     target: RETIRED
     source: adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java
@@ -53,8 +51,8 @@ classifications:
     implementationStatus: RETIRED
     qualificationStatus: SUPERSEDED_BY_DI
     migration: >-
-      completed: kernel#99 DiOcrProvider owns ProductRuntimeFacets.OcrProvider
-      over DI worker v1; the legacy Kernel adapter is deleted and no consumer
+      The legacy Media adapter is deleted. Kernel replacement and installed
+      consumer compatibility remain unverified under kernel#99; no consumer
       may reintroduce a Media-owned generic OCR engine.
   - id: media.ocr.vision-model-engine
     target: LEGACY_COMPATIBILITY

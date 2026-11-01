@@ -20,6 +20,11 @@ test('legacy OCR is not an automatically selected provider', () => {
   const meaning = read('.product-experience/pdp-0-product-truth/ocr-ownership.yaml');
   assert.match(meaning, /classification: LEGACY_COMPATIBILITY/u);
   assert.match(meaning, /status: EXTERNAL_BLOCKER/u);
+  assert.match(meaning, /Kernel replacement and installed\s+consumer compatibility remain unverified/u);
+  const request = JSON.parse(read('config/kernel-provider-dependency-requests.source.json')).requests[0];
+  assert(request.sourceRefs.every(ref => !ref.path.includes('DiOcrProvider')));
+  assert.match(request.note, /local-only candidate.*not an admitted provider/u);
+  assert(request.environmentPrerequisites.length > 0);
 });
 
 test('MDI-001 is the sole OCR execution owner and Media has no generic recognizer path', () => {

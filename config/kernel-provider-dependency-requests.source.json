@@ -18,12 +18,12 @@
       },
       "sourceRefs": [
         {
-          "path": "platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/DiOcrProvider.java",
-          "role": "provider-adapter"
+          "path": "platform-kernel/kernel-product-api/src/main/java/com/ghatana/kernel/product/api/capability/ProductRuntimeFacets.java",
+          "role": "provider-spi"
         },
         {
-          "path": "platform-kernel/kernel-product-runtime/src/test/java/com/ghatana/kernel/product/runtime/DiOcrProviderTest.java",
-          "role": "provider-conformance-tests"
+          "path": "platform-kernel/kernel-product-runtime/src/main/java/com/ghatana/kernel/product/runtime/ProductRuntimeFacetMaterializer.java",
+          "role": "kernel-materialization"
         }
       ],
       "closureUnits": {
@@ -31,8 +31,11 @@
         "kernelMaterialization": "ghatana.runtime-provider.media.ocr::kernel-materialization",
         "consumerConformance": "ghatana.runtime-provider.media.ocr::consumer-conformance"
       },
-      "environmentPrerequisites": [],
-      "note": "DI-owned provider: adapters/ocr-compat retired; the Document Intelligence worker v1 binding now lives in ghatana-kernel platform-kernel/kernel-product-runtime."
+      "environmentPrerequisites": [
+        "Owner-qualified DI-backed provider and real DI worker",
+        "Installed Kernel consumer conformance and compatible published DI contract"
+      ],
+      "note": "Media adapters/ocr-compat is retired. Kernel origin/main at 209921dea lacks the proposed DiOcrProvider; local-only candidate f30264795 is not an admitted provider or installed-consumer proof."
     }
   ]
 }
