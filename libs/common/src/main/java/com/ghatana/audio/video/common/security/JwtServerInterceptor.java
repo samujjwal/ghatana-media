@@ -25,6 +25,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -54,10 +55,23 @@ public class JwtServerInterceptor implements ServerInterceptor {
     public static final Context.Key<String> CTX_SUBJECT = Context.key("av.jwt.subject");
     /** gRPC {@link Context} key carrying the validated tenant ID. */
     public static final Context.Key<String> CTX_TENANT = Context.key("av.jwt.tenant");
-    private static final Context.Key<VerifiedIdentity> VERIFIED_IDENTITY = Context.key("av.jwt.verifiedIdentity");
+    static final Context.Key<VerifiedIdentity> VERIFIED_IDENTITY = Context.key("av.jwt.verifiedIdentity");
 
     /** Immutable identity established by this interceptor after token validation. */
-    public record VerifiedIdentity(String subject, String tenantId) { }
+    public record VerifiedIdentity(String subject, String tenantId, Set<String> roles) {
+        public VerifiedIdentity {
+            roles = roles == null ? Set.of() : Set.copyOf(roles);
+            if (roles.size() > 128 || roles.stream().anyMatch(role -> role == null
+                    || role.isBlank() || role.length() > 256)) {
+                throw new IllegalArgumentException("roles exceed supported limits");
+            }
+        }
+
+        /** Legacy callers carry no role evidence and therefore cannot grant RBAC access. */
+        public VerifiedIdentity(String subject, String tenantId) {
+            this(subject, tenantId, Set.of());
+        }
+    }
 
     /** Returns the identity validated by this interceptor, or {@code null} when none was established. */
     public static VerifiedIdentity verifiedIdentity() {
@@ -143,29 +157,30 @@ public class JwtServerInterceptor implements ServerInterceptor {
             return new ServerCall.Listener<>() {};
         }
 
+        Context authenticatedContext;
         try {
             // Validate signature and standard claims
-            jwtProcessor.process(jwt, null);
+            JWTClaimsSet verifiedClaims = jwtProcessor.process(jwt, null);
 
-            String subject = jwt.getJWTClaimsSet().getSubject();
+            String subject = verifiedClaims.getSubject();
             if (!isUsableSubject(subject)) {
                 LOG.warn("JWT missing subject claim on {}", fullMethod);
                 call.close(Status.UNAUTHENTICATED.withDescription("Missing subject claim"), new Metadata());
                 return new ServerCall.Listener<>() {};
             }
-            String tenantId = extractTenantId(jwt);
+            String tenantId = verifiedClaims.getStringClaim("tenantId");
             if (tenantId == null || tenantId.isBlank()) {
                 LOG.warn("JWT missing tenantId claim on {}", fullMethod);
                 call.close(Status.UNAUTHENTICATED.withDescription("Missing tenant claim"), new Metadata());
                 return new ServerCall.Listener<>() {};
             }
+            Set<String> roles = extractVerifiedRoles(verifiedClaims);
             String authenticatedSubject = subject.trim();
-            Context ctx = requestContext
+            authenticatedContext = requestContext
                     .withValue(CTX_SUBJECT, authenticatedSubject)
                     .withValue(CTX_TENANT, tenantId)
-                    .withValue(VERIFIED_IDENTITY, new VerifiedIdentity(authenticatedSubject, tenantId));
+                    .withValue(VERIFIED_IDENTITY, new VerifiedIdentity(authenticatedSubject, tenantId, roles));
             LOG.debug("Authenticated request on {}", fullMethod);
-            return Contexts.interceptCall(ctx, call, headers, next);
 
         } catch (Exception e) {
             // Local JWT validation failed — attempt platform auth-gateway fallback
@@ -197,19 +212,23 @@ public class JwtServerInterceptor implements ServerInterceptor {
                     }
                     subject = subject.trim();
                     LOG.debug("Platform auth-gateway accepted request on {}", fullMethod);
-                    Context ctx = requestContext
+                    authenticatedContext = requestContext
                             .withValue(CTX_SUBJECT, subject)
                             .withValue(CTX_TENANT, tenantId)
                             .withValue(VERIFIED_IDENTITY, new VerifiedIdentity(subject, tenantId));
-                    return Contexts.interceptCall(ctx, call, headers, next);
+                } else {
+                    LOG.warn("Auth-gateway rejected token on {}", fullMethod);
+                    call.close(Status.UNAUTHENTICATED.withDescription("Invalid token"), new Metadata());
+                    return new ServerCall.Listener<>() {};
                 }
+            } else {
+                LOG.warn("JWT validation failed on {} (type={})", fullMethod, e.getClass().getSimpleName());
+                call.close(Status.UNAUTHENTICATED.withDescription("Invalid token"), new Metadata());
+                return new ServerCall.Listener<>() {};
             }
-
-            LOG.warn("JWT validation failed on {} (type={})", fullMethod, e.getClass().getSimpleName());
-            call.close(Status.UNAUTHENTICATED.withDescription("Invalid token"),
-                    new Metadata());
-            return new ServerCall.Listener<>() {};
         }
+        // Downstream failures must not trigger gateway fallback or dispatch the call twice.
+        return Contexts.interceptCall(authenticatedContext, call, headers, next);
     }
 
     private String extractTenantId(SignedJWT jwt) {
@@ -218,6 +237,23 @@ public class JwtServerInterceptor implements ServerInterceptor {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Reads only the bounded roles claim from the same signed token verified above. */
+    private static Set<String> extractVerifiedRoles(JWTClaimsSet verifiedClaims) throws Exception {
+        Object claim = verifiedClaims.getClaim("roles");
+        if (claim == null) return Set.of();
+        if (!(claim instanceof List<?> values) || values.size() > 128) {
+            throw new IllegalArgumentException("Invalid roles claim");
+        }
+        Set<String> roles = new HashSet<>();
+        for (Object value : values) {
+            if (!(value instanceof String role) || role.isBlank() || role.length() > 256) {
+                throw new IllegalArgumentException("Invalid roles claim");
+            }
+            roles.add(role);
+        }
+        return Set.copyOf(roles);
     }
 
     private static boolean isUsableSubject(String subject) {

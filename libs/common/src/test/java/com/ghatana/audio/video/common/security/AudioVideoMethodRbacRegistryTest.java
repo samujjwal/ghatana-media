@@ -21,31 +21,31 @@ class AudioVideoMethodRbacRegistryTest {
     @Test
     @DisplayName("av:user can transcribe")
     void userCanTranscribe() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/Transcribe", "av:user")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/Transcribe", "av:user")).isTrue();
     }
 
     @Test
     @DisplayName("av:admin can transcribe")
     void adminCanTranscribe() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/Transcribe", "av:admin")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/Transcribe", "av:admin")).isTrue();
     }
 
     @Test
     @DisplayName("av:readonly cannot transcribe")
     void readonlyCannotTranscribe() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/Transcribe", "av:readonly")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/Transcribe", "av:readonly")).isFalse();
     }
 
     @Test
     @DisplayName("av:user cannot load model")
     void userCannotLoadModel() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/LoadModel", "av:user")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/LoadModel", "av:user")).isFalse();
     }
 
     @Test
     @DisplayName("av:admin can load model")
     void adminCanLoadModel() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/LoadModel", "av:admin")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/LoadModel", "av:admin")).isTrue();
     }
 
     @Test
@@ -54,34 +54,45 @@ class AudioVideoMethodRbacRegistryTest {
         assertThat(AudioVideoMethodRbacRegistry.isExempt("/grpc.health.v1.Health/Check")).isTrue();
         assertThat(AudioVideoMethodRbacRegistry.isExempt("grpc.health.v1.Health/Check")).isTrue();
         assertThat(AudioVideoMethodRbacRegistry.isExempt("grpc.health.v1.Health/Watch")).isTrue();
-        assertThat(AudioVideoMethodRbacRegistry.isExempt("HealthCheck")).isTrue();
-        assertThat(AudioVideoMethodRbacRegistry.isExempt("healthCheck")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isExempt("evil.v1.AdminService/HealthCheck")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isExempt("evil.v1.AdminService/GetStatus")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("evil.v1.AdminService/GetStatus", "av:user")).isFalse();
     }
 
     @Test
     @DisplayName("isAllowedAny with multiple roles — at least one must match")
     void allowedAnyWithMultipleRoles() {
         Set<String> roles = Set.of("viewer", "av:user");
-        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("stt.v1.STTService/Transcribe", roles)).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("com.ghatana.audio.video.stt.grpc.STTService/Transcribe", roles)).isTrue();
     }
 
     @Test
     @DisplayName("isAllowedAny with no matching roles returns false")
     void deniedAnyWithNoMatchingRoles() {
         Set<String> roles = Set.of("viewer", "readonly");
-        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("stt.v1.STTService/LoadModel", roles)).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("com.ghatana.audio.video.stt.grpc.STTService/LoadModel", roles)).isFalse();
     }
 
     @Test
     @DisplayName("null role returns false for protected method")
     void nullRoleReturnsFalse() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("stt.v1.STTService/Transcribe", null)).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/Transcribe", null)).isFalse();
+    }
+
+    @Test
+    @DisplayName("unregistered methods are denied instead of defaulting to any authenticated role")
+    void unregisteredMethodIsDenied() {
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/DeleteAll", "av:admin")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("com.ghatana.audio.video.stt.grpc.STTService/DeleteAll",
+                Set.of("av:user", "av:admin"))).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("evil.v1.AdminService/Transcribe", "av:user")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("Transcribe", "av:user")).isFalse();
     }
 
     @Test
     @DisplayName("extractSimpleName strips service prefix")
     void extractSimpleName() {
-        assertThat(AudioVideoMethodRbacRegistry.extractSimpleName("stt.v1.STTService/Transcribe"))
+        assertThat(AudioVideoMethodRbacRegistry.extractSimpleName("com.ghatana.audio.video.stt.grpc.STTService/Transcribe"))
             .isEqualTo("Transcribe");
         assertThat(AudioVideoMethodRbacRegistry.extractSimpleName("Transcribe"))
             .isEqualTo("Transcribe");
@@ -92,18 +103,18 @@ class AudioVideoMethodRbacRegistryTest {
     @Test
     @DisplayName("TTS synthesize is allowed for av:user")
     void ttsSynthesizeAllowed() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("tts.v1.TTSService/Synthesize", "av:user")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.tts.grpc.TTSService/Synthesize", "av:user")).isTrue();
     }
 
     @Test
     @DisplayName("Vision analyze is allowed for av:user")
     void visionAnalyzeAllowed() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("vision.v1.VisionService/Analyze", "av:user")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.vision.grpc.VisionService/AnalyzeImage", "av:user")).isTrue();
     }
 
     @Test
     @DisplayName("Multimodal process is allowed for av:user")
     void multimodalProcessAllowed() {
-        assertThat(AudioVideoMethodRbacRegistry.isAllowed("mm.v1.MultimodalService/Process", "av:user")).isTrue();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.multimodal.grpc.MultimodalService/ProcessMultimodal", "av:user")).isTrue();
     }
 }

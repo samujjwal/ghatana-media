@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("AudioVideoRequestContextInterceptor")
 class AudioVideoRequestContextInterceptorTest {
 
-    private static final String TRANSCRIBE_METHOD = "stt.v1.STTService/Transcribe";
+    private static final String TRANSCRIBE_METHOD = "com.ghatana.audio.video.stt.grpc.STTService/Transcribe";
     private static final String HEALTH_METHOD = "/grpc.health.v1.Health/Check";
 
     private LinkedBlockingQueue<AuditRecord> emittedQueue;
@@ -84,6 +84,26 @@ class AudioVideoRequestContextInterceptorTest {
             AuditRecord record = awaitRecord();
             assertThat(record.outcome()).isEqualTo(Outcome.DENIED_MISSING_TENANT);
         }
+
+        @Test
+        @DisplayName("does not use unverified tenant context as a fallback for the missing JWT identity")
+        void rejectsMetadataTenantWithoutVerifiedIdentity() throws InterruptedException {
+            ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
+            Metadata headers = rolesHeader("av:user");
+            ServerCallHandler<Object, Object> handler = mockHandler();
+            Context context = Context.current()
+                    .withValue(JwtServerInterceptor.CTX_SUBJECT, "forged-context-subject")
+                    .withValue(com.ghatana.security.tenant.TenantGrpcInterceptor.TENANT_ID_CTX_KEY,
+                            "metadata-tenant");
+
+            context.run(() -> interceptor.interceptCall(call, headers, handler));
+
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.INVALID_ARGUMENT);
+            verify(handler, never()).startCall(any(), any());
+            assertThat(awaitRecord().outcome()).isEqualTo(Outcome.DENIED_MISSING_TENANT);
+        }
     }
 
     // Ã¢â€â‚¬Ã¢â€â‚¬ Cross-tenant mismatch Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -100,9 +120,7 @@ class AudioVideoRequestContextInterceptorTest {
             ServerCallHandler<Object, Object> handler = mockHandler();
 
             // JWT context Ã¢â€ â€™ tenant-A; TenantGrpcInterceptor context Ã¢â€ â€™ tenant-B
-            Context outerCtx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "user-1")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-A");
+            Context outerCtx = verifiedContext("user-1", "tenant-A");
 
             outerCtx.run(() -> {
                 Context innerCtx = Context.current()
@@ -135,8 +153,7 @@ class AudioVideoRequestContextInterceptorTest {
             ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
             Metadata headers = rolesHeader("av:user");
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-X");
+            Context ctx = verifiedContext("", "tenant-X");
 
             ServerCallHandler<Object, Object> handler = mockHandler();
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
@@ -163,9 +180,7 @@ class AudioVideoRequestContextInterceptorTest {
             ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
             Metadata headers = rolesHeader("av:readonly");
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "user-2")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-Y");
+            Context ctx = verifiedContext("user-2", "tenant-Y");
 
             ServerCallHandler<Object, Object> handler = mockHandler();
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
@@ -183,12 +198,10 @@ class AudioVideoRequestContextInterceptorTest {
         @Test
         @DisplayName("rejects loadModel for av:user role (requires av:admin)")
         void rejectsLoadModelForUserRole() throws InterruptedException {
-            ServerCall<Object, Object> call = mockCall("stt.v1.STTService/LoadModel");
+            ServerCall<Object, Object> call = mockCall("com.ghatana.audio.video.stt.grpc.STTService/LoadModel");
             Metadata headers = rolesHeader("av:user");
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "user-3")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-Z");
+            Context ctx = verifiedContext("user-3", "tenant-Z");
 
             ServerCallHandler<Object, Object> handler = mockHandler();
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
@@ -205,53 +218,51 @@ class AudioVideoRequestContextInterceptorTest {
     // Ã¢â€â‚¬Ã¢â€â‚¬ Allowed Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     @Nested
-    @DisplayName("allowed calls")
+    @DisplayName("role metadata is not authority")
     class AllowedCalls {
 
         @Test
-        @DisplayName("proceeds to handler when tenant, principal, and role are valid")
-        @SuppressWarnings("unchecked")
-        void proceedsWhenValid() throws InterruptedException {
+        @DisplayName("denies an authenticated user even when caller metadata claims av:user")
+        void callerUserRoleCannotAuthorize() throws InterruptedException {
             ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
             Metadata headers = rolesHeader("av:user");
             ServerCallHandler<Object, Object> handler = mockHandler();
-            when(handler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "user-good")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-good");
+            Context ctx = verifiedContext("user-good", "tenant-good");
 
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
 
-            verify(call, never()).close(any(), any());
-            verify(handler).startCall(any(), any());
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+            verify(handler, never()).startCall(any(), any());
 
             AuditRecord record = awaitRecord();
-            assertThat(record.outcome()).isEqualTo(Outcome.ALLOWED);
+            assertThat(record.outcome()).isEqualTo(Outcome.DENIED_INSUFFICIENT_ROLE);
             assertThat(record.tenantId()).isEqualTo("tenant-good");
             assertThat(record.principal()).isEqualTo("user-good");
+            assertThat(record.roles()).isBlank();
         }
 
         @Test
-        @DisplayName("allows av:admin to call loadModel")
-        @SuppressWarnings("unchecked")
-        void adminCanCallLoadModel() throws InterruptedException {
-            ServerCall<Object, Object> call = mockCall("stt.v1.STTService/LoadModel");
+        @DisplayName("denies loadModel even when caller metadata claims av:admin")
+        void callerAdminRoleCannotAuthorize() throws InterruptedException {
+            ServerCall<Object, Object> call = mockCall("com.ghatana.audio.video.stt.grpc.STTService/LoadModel");
             Metadata headers = rolesHeader("av:admin");
             ServerCallHandler<Object, Object> handler = mockHandler();
-            when(handler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "admin-1")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "tenant-admin");
+            Context ctx = verifiedContext("admin-1", "tenant-admin");
 
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
 
-            verify(call, never()).close(any(), any());
-            verify(handler).startCall(any(), any());
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+            verify(handler, never()).startCall(any(), any());
 
             AuditRecord record = awaitRecord();
-            assertThat(record.outcome()).isEqualTo(Outcome.ALLOWED);
+            assertThat(record.outcome()).isEqualTo(Outcome.DENIED_INSUFFICIENT_ROLE);
+            assertThat(record.roles()).isBlank();
         }
     }
 
@@ -287,27 +298,24 @@ class AudioVideoRequestContextInterceptorTest {
     class AuditRecordContents {
 
         @Test
-        @DisplayName("allowed record carries correct tenant, principal, method, and roles")
+        @DisplayName("denied record excludes caller role metadata and retains verified identity")
         @SuppressWarnings("unchecked")
         void allowedRecordHasCorrectFields() throws InterruptedException {
             ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
             Metadata headers = rolesHeader("av:user");
             ServerCallHandler<Object, Object> handler = mockHandler();
-            when(handler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
 
-            Context ctx = Context.current()
-                .withValue(JwtServerInterceptor.CTX_SUBJECT, "alice")
-                .withValue(JwtServerInterceptor.CTX_TENANT, "acme");
+            Context ctx = verifiedContext("alice", "acme");
 
             ctx.run(() -> interceptor.interceptCall(call, headers, handler));
 
             AuditRecord record = awaitRecord();
             assertThat(record.tenantId()).isEqualTo("acme");
             assertThat(record.principal()).isEqualTo("alice");
-            assertThat(record.roles()).contains("av:user");
+            assertThat(record.roles()).isBlank();
             assertThat(record.grpcMethod()).isEqualTo(TRANSCRIBE_METHOD);
-            assertThat(record.outcome()).isEqualTo(Outcome.ALLOWED);
-            assertThat(record.reason()).isBlank();
+            assertThat(record.outcome()).isEqualTo(Outcome.DENIED_INSUFFICIENT_ROLE);
+            assertThat(record.reason()).contains("insufficient");
         }
     }
 
@@ -335,6 +343,11 @@ class AudioVideoRequestContextInterceptorTest {
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), roles);
         return headers;
+    }
+
+    private static Context verifiedContext(String subject, String tenant) {
+        return Context.current().withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
+                new JwtServerInterceptor.VerifiedIdentity(subject, tenant));
     }
 }
 

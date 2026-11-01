@@ -18,7 +18,8 @@ import java.util.List;
  * gRPC applies interceptors in reverse-list order (last = outermost), so the chain
  * as seen by an incoming request is:
  * <pre>
- *   TracingInterceptor → RateLimiter → CircuitBreaker → JwtInterceptor → Service
+ *   Tracing → Metrics → RateLimiter → CircuitBreaker → JWT → RBAC/audit
+ *       → InputValidation → Service
  * </pre>
  *
  * <p>Usage in a gRPC server setup:
@@ -45,11 +46,11 @@ public final class GrpcInterceptorChain {
      * {@code intercept()} contract is "last added = first to run (outermost)", so the
      * execution order for an incoming request is <b>exactly reversed</b> from this list.
      *
-     * <p>Actual execution order (outermost → innermost → TenantInterceptor → service):
+     * <p>Actual execution order (outermost → innermost → service):
      * <pre>
      *   Tracing → Metrics → RateLimiter → CircuitBreaker
      *       → JWT → RbacAudit → InputValidation
-     *       → TenantGrpcInterceptor → Service
+     *       → Service
      * </pre>
      *
      * <p><b>Ordering invariant</b>: {@link AudioVideoRequestContextInterceptor} (RBAC)

@@ -154,7 +154,7 @@ class SttGrpcServerCompositionTest {
         String header = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String payload = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(
-                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"tenant-stt-root\",\"exp\":"
+                ("{\"sub\":\"00000000-0000-0000-0000-000000000001\",\"tenantId\":\"tenant-stt-root\",\"roles\":[\"av:user\"],\"exp\":"
                         + (System.currentTimeMillis() / 1000 + 3600) + "}")
                         .getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String unsigned = header + "." + payload;
@@ -164,7 +164,6 @@ class SttGrpcServerCompositionTest {
                 .encodeToString(mac.doFinal(unsigned.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
         Metadata auth = new Metadata();
         auth.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + token);
-        auth.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:user");
         return auth;
     }
 

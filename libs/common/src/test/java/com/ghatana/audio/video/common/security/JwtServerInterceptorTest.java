@@ -4,10 +4,14 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.grpc.Metadata;
 import io.grpc.Context;
 import io.grpc.MethodDescriptor;
@@ -23,7 +27,11 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -153,7 +161,8 @@ class JwtServerInterceptorTest {
         @DisplayName("validated JWT exposes subject and tenant in gRPC context")
         void validatedJwtExposesSubjectAndTenantContext() throws Exception { 
             ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class); 
-            when(processor.process(any(SignedJWT.class), eq(null))).thenReturn(null); 
+            when(processor.process(any(SignedJWT.class), eq(null)))
+                    .thenAnswer(invocation -> invocation.<SignedJWT>getArgument(0).getJWTClaimsSet());
 
             JwtServerInterceptor interceptor = new JwtServerInterceptor( 
                     processor,
@@ -213,7 +222,8 @@ class JwtServerInterceptorTest {
         @DisplayName("validated JWT without tenant claim is rejected")
         void validatedJwtWithoutTenantClaimIsRejected() throws Exception { 
             ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class); 
-            when(processor.process(any(SignedJWT.class), eq(null))).thenReturn(null); 
+            when(processor.process(any(SignedJWT.class), eq(null)))
+                    .thenAnswer(invocation -> invocation.<SignedJWT>getArgument(0).getJWTClaimsSet());
 
             JwtServerInterceptor interceptor = new JwtServerInterceptor( 
                     processor,
@@ -315,6 +325,102 @@ class JwtServerInterceptorTest {
         }
     }
 
+    @Nested
+    @DisplayName("verified token roles")
+    class VerifiedTokenRoles {
+        @Test
+        @DisplayName("exact signed av role authorizes while forged role metadata cannot elevate")
+        void signedRoleAuthorizesAndForgedHeaderCannotElevate() throws Exception {
+            JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+            AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+            ServerCall<Object, Object> allowedCall = mockCall("com.ghatana.audio.video.stt.grpc.STTService/Transcribe");
+            ServerCallHandler<Object, Object> allowedHandler = mock(ServerCallHandler.class);
+            when(allowedHandler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
+            Metadata signedUserHeaders = authorizationHeader(signedToken("u1", "t1", List.of("av:user"), 300));
+            signedUserHeaders.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:admin");
+            jwt.interceptCall(allowedCall, signedUserHeaders,
+                    (call, headers) -> rbac.interceptCall(call, headers, allowedHandler));
+            verify(allowedHandler).startCall(eq(allowedCall), any());
+            verify(allowedCall, never()).close(any(), any());
+
+            ServerCall<Object, Object> deniedCall = mockCall("com.ghatana.audio.video.stt.grpc.STTService/LoadModel");
+            ServerCallHandler<Object, Object> deniedHandler = mock(ServerCallHandler.class);
+            Metadata signedUserHeadersForAdminMethod = authorizationHeader(
+                    signedToken("u1", "t1", List.of("av:user"), 300));
+            signedUserHeadersForAdminMethod.put(
+                    Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:admin");
+            jwt.interceptCall(deniedCall, signedUserHeadersForAdminMethod,
+                    (call, headers) -> rbac.interceptCall(call, headers, deniedHandler));
+            ArgumentCaptor<Status> denied = ArgumentCaptor.forClass(Status.class);
+            verify(deniedCall).close(denied.capture(), any());
+            assertThat(denied.getValue().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+            verify(deniedHandler, never()).startCall(any(), any());
+        }
+
+        @Test
+        @DisplayName("downstream failure does not retry authentication or dispatch")
+        void downstreamFailureDoesNotRetryThroughGateway() throws Exception {
+            JwtServerInterceptor.TokenValidator gateway = mock(JwtServerInterceptor.TokenValidator.class);
+            when(gateway.isEnabled()).thenReturn(true);
+            JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), gateway);
+            ServerCall<Object, Object> call = mockCall(SECURE_METHOD);
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            when(handler.startCall(any(), any())).thenThrow(new IllegalStateException("downstream failed"));
+
+            assertThatThrownBy(() -> jwt.interceptCall(call,
+                    authorizationHeader(signedToken("u1", "t1", List.of("av:user"), 300)), handler))
+                    .isInstanceOf(IllegalStateException.class).hasMessage("downstream failed");
+            verify(handler).startCall(eq(call), any());
+            verify(gateway, never()).validate(any(), any());
+        }
+
+        @Test
+        @DisplayName("expired signed role token is rejected before verified identity is established")
+        void expiredSignedRoleTokenIsRejected() throws Exception {
+            JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+            ServerCall<Object, Object> call = mockCall(SECURE_METHOD);
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+            jwt.interceptCall(call, authorizationHeader(signedToken("u1", "t1", List.of("av:user"), -300)), handler);
+            ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(status.capture(), any());
+            assertThat(status.getValue().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+            verify(handler, never()).startCall(any(), any());
+        }
+
+        @Test
+        @DisplayName("role claim bounds and unrecognized role vocabulary fail closed")
+        void malformedAndUnrecognizedSignedRolesDoNotGrantAccess() throws Exception {
+            JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+            AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+            ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
+
+            ServerCall<Object, Object> unrecognizedCall = mockCall("com.ghatana.audio.video.stt.grpc.STTService/Transcribe");
+            jwt.interceptCall(unrecognizedCall,
+                    authorizationHeader(signedToken("u1", "t1", List.of("USER"), 300)),
+                    (call, headers) -> rbac.interceptCall(call, headers, handler));
+            ArgumentCaptor<Status> denied = ArgumentCaptor.forClass(Status.class);
+            verify(unrecognizedCall).close(denied.capture(), any());
+            assertThat(denied.getValue().getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
+
+            List<String> excessiveRoles = java.util.stream.IntStream.range(0, 129)
+                    .mapToObj(index -> "role-" + index).toList();
+            ServerCall<Object, Object> excessiveCall = mockCall(SECURE_METHOD);
+            jwt.interceptCall(excessiveCall,
+                    authorizationHeader(signedToken("u1", "t1", excessiveRoles, 300)), handler);
+            ArgumentCaptor<Status> invalid = ArgumentCaptor.forClass(Status.class);
+            verify(excessiveCall).close(invalid.capture(), any());
+            assertThat(invalid.getValue().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+            verify(handler, never()).startCall(any(), any());
+
+            ServerCall<Object, Object> malformedCall = mockCall(SECURE_METHOD);
+            jwt.interceptCall(malformedCall,
+                    authorizationHeader(signedTokenWithRoleClaim("u1", "t1", "av:user", 300)), handler);
+            ArgumentCaptor<Status> malformed = ArgumentCaptor.forClass(Status.class);
+            verify(malformedCall).close(malformed.capture(), any());
+            assertThat(malformed.getValue().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -357,6 +463,37 @@ class JwtServerInterceptorTest {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims.build()); 
         jwt.sign(new MACSigner("01234567890123456789012345678901".getBytes(StandardCharsets.UTF_8))); 
         return jwt.serialize(); 
+    }
+
+    private String signedToken(String subject, String tenantId, List<String> roles, long expiresInSeconds)
+            throws JOSEException {
+        return signedTokenWithRoleClaim(subject, tenantId, roles, expiresInSeconds);
+    }
+
+    private String signedTokenWithRoleClaim(String subject, String tenantId, Object roles, long expiresInSeconds)
+            throws JOSEException {
+        JWTClaimsSet claims = new JWTClaimsSet.Builder().subject(subject)
+                .expirationTime(Date.from(Instant.now().plusSeconds(expiresInSeconds)))
+                .claim("tenantId", tenantId).claim("roles", roles).build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
+        jwt.sign(new MACSigner("01234567890123456789012345678901".getBytes(StandardCharsets.UTF_8)));
+        return jwt.serialize();
+    }
+
+    private static Metadata authorizationHeader(String token) {
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + token);
+        return headers;
+    }
+
+    private static ConfigurableJWTProcessor<SecurityContext> realProcessor() {
+        byte[] secret = "01234567890123456789012345678901".getBytes(StandardCharsets.UTF_8);
+        ConfigurableJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
+        processor.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.HS256,
+                new ImmutableSecret<>(secret)));
+        processor.setJWTClaimsSetVerifier(new DefaultJWTClaimsVerifier<>(
+                new JWTClaimsSet.Builder().build(), new HashSet<>(Arrays.asList("sub", "exp"))));
+        return processor;
     }
 
     /** Trivial marshaller for test purposes. */

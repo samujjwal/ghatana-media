@@ -122,7 +122,7 @@ public final class AuditEventSink implements AutoCloseable {
      *
      * @param tenantId    extracted tenant identifier
      * @param principal   authenticated subject / user identifier
-     * @param roles       comma-separated roles from JWT or metadata
+     * @param roles       comma-separated role claims from verified identity, or empty
      * @param grpcMethod  full gRPC method name (e.g. {@code stt.v1.STTService/Transcribe})
      * @param outcome     result of the RBAC/auth check
      * @param reason      human-readable reason string (empty string on success)

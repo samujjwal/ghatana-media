@@ -12,8 +12,6 @@ import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,9 +20,9 @@ import java.util.Set;
  *
  * <p>This interceptor is the single enforcement point for all requests to audio-video
  * gRPC services. It runs <em>after</em> {@link JwtServerInterceptor} (which validates
- * the token and populates {@link JwtServerInterceptor#CTX_SUBJECT} /
- * {@link JwtServerInterceptor#CTX_TENANT}) and after
- * {@link TenantGrpcInterceptor} (which populates the tenant context).
+ * the token and populates its verified identity. Optional
+ * {@link TenantGrpcInterceptor} context is used only as a tenant mismatch
+ * cross-check; it is not installed by the standard Media interceptor chain.
  *
  * <h3>What it enforces</h3>
  * <ol>
@@ -50,9 +48,6 @@ import java.util.Set;
 public final class AudioVideoRequestContextInterceptor implements ServerInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoRequestContextInterceptor.class);
-
-    private static final Metadata.Key<String> ROLES_KEY =
-        Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER);
 
     private final AuditEventSink auditSink;
 
@@ -88,16 +83,19 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         }
 
         // ── 2. Tenant extraction ───────────────────────────────────────────
-        // Prefer the JWT-validated tenant from JwtServerInterceptor.CTX_TENANT,
-        // then fall back to the TenantGrpcInterceptor context key.
-        String jwtTenant = JwtServerInterceptor.CTX_TENANT.get();
+        // Use the authenticated tenant. TenantGrpcInterceptor context is only
+        // a cross-check and cannot establish identity by itself.
+        JwtServerInterceptor.VerifiedIdentity verifiedIdentity = JwtServerInterceptor.verifiedIdentity();
+        String jwtTenant = verifiedIdentity == null ? null : verifiedIdentity.tenantId();
         String metaTenant = TenantGrpcInterceptor.TENANT_ID_CTX_KEY.get();
 
-        String effectiveTenant = selectTenant(jwtTenant, metaTenant);
+        // The tenant interceptor context is a cross-check only. It cannot
+        // substitute for the identity established by the JWT validator.
+        String effectiveTenant = jwtTenant;
         if (effectiveTenant == null || effectiveTenant.isBlank()) {
             LOG.warn("Rejected request without tenant on {}", fullMethod);
             auditSink.emit(new AuditRecord(
-                "unknown", principal(), roles(headers), fullMethod,
+                "unknown", principal(verifiedIdentity), "", fullMethod,
                 Outcome.DENIED_MISSING_TENANT, "missing tenant ID"));
             call.close(Status.INVALID_ARGUMENT.withDescription("Tenant ID is required"), new Metadata());
             return new ServerCall.Listener<>() {};
@@ -110,7 +108,7 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
                 && !jwtTenant.equals(metaTenant)) {
             LOG.warn("Rejected cross-tenant request on {}", fullMethod);
             auditSink.emit(new AuditRecord(
-                effectiveTenant, principal(), roles(headers), fullMethod,
+                effectiveTenant, principal(verifiedIdentity), "", fullMethod,
                 Outcome.DENIED_CROSS_TENANT,
                 "JWT tenant '" + jwtTenant + "' does not match header tenant '" + metaTenant + "'"));
             call.close(Status.PERMISSION_DENIED.withDescription("Cross-tenant access denied"), new Metadata());
@@ -118,18 +116,20 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
         }
 
         // ── 4. Principal ───────────────────────────────────────────────────
-        String principal = principal();
+        String principal = principal(verifiedIdentity);
         if (principal == null || principal.isBlank() || "unknown".equals(principal)) {
             LOG.warn("Rejected request without principal on {}", fullMethod);
             auditSink.emit(new AuditRecord(
-                effectiveTenant, "unknown", roles(headers), fullMethod,
+                effectiveTenant, "unknown", "", fullMethod,
                 Outcome.DENIED_UNAUTHENTICATED, "missing authenticated principal"));
             call.close(Status.UNAUTHENTICATED.withDescription("Authenticated principal required"), new Metadata());
             return new ServerCall.Listener<>() {};
         }
 
         // ── 5. RBAC ────────────────────────────────────────────────────────
-        Set<String> callerRoles = parseRoles(headers);
+        // Role values come only from the signed-token snapshot. x-roles
+        // metadata is caller-controlled and is deliberately ignored.
+        Set<String> callerRoles = verifiedIdentity == null ? Set.of() : verifiedIdentity.roles();
         if (!AudioVideoMethodRbacRegistry.isAllowedAny(fullMethod, callerRoles)) {
             LOG.warn("RBAC denied request for method={}", fullMethod);
             auditSink.emit(new AuditRecord(
@@ -151,34 +151,8 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
 
     // ── Helpers ────────────────────────────────────────────────────────────────
 
-    private static String selectTenant(String jwtTenant, String metaTenant) {
-        if (jwtTenant != null && !jwtTenant.isBlank()) {
-            return jwtTenant;
-        }
-        return metaTenant;
-    }
-
-    private static String principal() {
-        String sub = JwtServerInterceptor.CTX_SUBJECT.get();
-        return sub != null ? sub : "";
-    }
-
-    private static Set<String> parseRoles(Metadata headers) {
-        String rolesHeader = headers.get(ROLES_KEY);
-        if (rolesHeader == null || rolesHeader.isBlank()) {
-            return Set.of();
-        }
-        Set<String> roles = new HashSet<>();
-        Arrays.stream(rolesHeader.split(","))
-            .map(String::trim)
-            .filter(r -> !r.isBlank())
-            .forEach(roles::add);
-        return roles;
-    }
-
-    private static String roles(Metadata headers) {
-        String h = headers.get(ROLES_KEY);
-        return h != null ? h : "";
+    private static String principal(JwtServerInterceptor.VerifiedIdentity identity) {
+        return identity == null || identity.subject() == null ? "" : identity.subject();
     }
 
 }

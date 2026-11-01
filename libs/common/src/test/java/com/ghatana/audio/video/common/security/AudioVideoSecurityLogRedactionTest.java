@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AudioVideoSecurityLogRedactionTest {
-    private static final String METHOD = "stt.v1.STTService/Transcribe";
+    private static final String METHOD = "com.ghatana.audio.video.stt.grpc.STTService/Transcribe";
 
     @Test
     void jwtApplicationLogsOmitSubjectAndTenantWhileRequestContextStillPropagates() throws Exception {
