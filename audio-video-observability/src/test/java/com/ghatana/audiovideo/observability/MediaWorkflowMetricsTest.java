@@ -220,7 +220,7 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
-    void rejectsOutOfOrderAndConflictingEqualTimeProviderObservationsWithoutRegressingGauges() {
+    void rejectsOutOfOrderAndConflictingEqualTimeProviderObservationsUntilNewerCheck() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "vision");
         Instant newerCheck = Instant.parse("2026-10-26T12:00:10Z");
@@ -238,9 +238,24 @@ class MediaWorkflowMetricsTest {
                 "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
                 MediaWorkflowMetrics.ProviderReadiness.HEALTHY, newerCheck.minusSeconds(1), null))).isFalse();
 
-        assertProviderProfile(registry, 0.0, newerCheck, newerCheck.minusSeconds(5));
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("provider_id", "vision-cpu").gauge().value()).isNaN();
+        assertThat(registry.get("media.provider.profile.checked_at_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(newerCheck.getEpochSecond());
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "vision-cpu").gauge().value()).isNaN();
+        assertThat(registry.get("media.provider.profile.observation_conflict")
+                .tag("provider_id", "vision-cpu").gauge().value()).isEqualTo(1.0);
         assertThat(registry.get("media.provider.profile.observation.rejected")
                 .tag("service", "vision").counter().count()).isEqualTo(2);
+
+        var recovered = new MediaWorkflowMetrics.ProviderProfileObservation(
+                "vision-cpu", "2.4.1", "detector-cpu", "sha256-abc123",
+                MediaWorkflowMetrics.ProviderReadiness.HEALTHY, newerCheck.plusSeconds(1), newerCheck);
+        assertThat(metrics.recordProviderProfile(key, recovered)).isTrue();
+        assertProviderProfile(registry, 1.0, newerCheck.plusSeconds(1), newerCheck);
+        assertThat(registry.get("media.provider.profile.observation_conflict")
+                .tag("provider_id", "vision-cpu").gauge().value()).isZero();
     }
 
     @Test

@@ -126,7 +126,8 @@ class MediaWorkflowAlertRulesTest {
                         "component: vision", "alert: MultimodalProviderNotReady",
                         "av_service_readiness{service=\"multimodal\"} == 0", "component: multimodal")
                 .contains("alert: MediaProviderProfileDegraded", "alert: MediaProviderProfileUnavailable",
-                        "alert: MediaProviderProfileStale",
+                        "alert: MediaProviderProfileStale", "alert: MediaProviderProfileObservationConflict",
+                        "media_provider_profile_observation_conflict{contract_version=\"v1\"} == 1",
                         "media_provider_profile_readiness{contract_version=\"v1\"}")
                 .doesNotContain("alert: MediaQualityRegression", "alert: MediaModelQualityRegression\n");
         assertThat(rules).contains(
@@ -237,6 +238,7 @@ class MediaWorkflowAlertRulesTest {
                 "name: readiness-zero-is-unavailable-not-missing",
                 "name: down-target-does-not-report-stale-provider-status",
                 "name: provider-profile-health-alerts-fire-and-recover-with-fixed-labels",
+                "name: provider-profile-conflict-alert-fires-and-recovers-on-newer-check",
                 "name: provider-profile-stale-health-check-alerts-and-recovers",
                 "alertname: SttReadinessTelemetryMissing",
                 "alertname: TtsReadinessTelemetryMissing",
@@ -249,6 +251,7 @@ class MediaWorkflowAlertRulesTest {
                 "alertname: MediaProviderProfileDegraded",
                 "alertname: MediaProviderProfileUnavailable",
                 "alertname: MediaProviderProfileStale",
+                "alertname: MediaProviderProfileObservationConflict",
                 "values: '0x3'",
                 "values: 1x3",
                 "values: NaN NaN NaN",

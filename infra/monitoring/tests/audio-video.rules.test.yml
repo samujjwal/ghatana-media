@@ -875,6 +875,48 @@ tests:
   - eval_time: 3m
     alertname: MediaProviderProfileUnavailable
     exp_alerts: []
+- name: provider-profile-conflict-alert-fires-and-recovers-on-newer-check
+  interval: 30s
+  input_series:
+  - series: media_provider_profile_readiness{service="vision",modality="vision",provider_id="vision-cpu",provider_version="2.4.1",model_profile="detector-cpu",model_revision="rev-1",contract_version="v1"}
+    values: -1 -1 -1 NaN NaN 1 1
+  - series: media_provider_profile_checked_at_seconds{service="vision",modality="vision",provider_id="vision-cpu",provider_version="2.4.1",model_profile="detector-cpu",model_revision="rev-1",contract_version="v1"}
+    values: 100 100 100 100 100 160 160
+  - series: media_provider_profile_observation_conflict{service="vision",modality="vision",provider_id="vision-cpu",provider_version="2.4.1",model_profile="detector-cpu",model_revision="rev-1",contract_version="v1"}
+    values: 0 0 0 1 1 0 0
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: MediaProviderProfileUnavailable
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: provider-profile
+        service: vision
+        modality: vision
+      exp_annotations:
+        summary: A Media provider profile is unavailable
+        description: A source-reported provider profile for vision (vision) is unavailable. Keep the dependent capability closed until its owning provider reports recovery.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 1m30s
+    alertname: MediaProviderProfileUnavailable
+    exp_alerts: []
+  - eval_time: 1m30s
+    alertname: MediaProviderProfileObservationConflict
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: provider-profile
+        service: vision
+        modality: vision
+      exp_annotations:
+        summary: A Media provider profile has conflicting equal-time observations
+        description: Conflicting provider profile results share one check timestamp for vision (vision). Readiness and quality freshness are unknown; keep the capability closed until a strictly newer profile check arrives.
+        runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
+  - eval_time: 2m30s
+    alertname: MediaProviderProfileObservationConflict
+    exp_alerts: []
 - name: provider-profile-stale-health-check-alerts-and-recovers
   interval: 30s
   input_series:

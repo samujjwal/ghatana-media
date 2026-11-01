@@ -262,6 +262,17 @@ groups:
           description: "The latest provider health check for {{ $labels.service }} ({{ $labels.modality }}) is over five minutes old. Keep dependent capabilities closed until the owning profile reports a fresh check."
           runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
 
+      - alert: MediaProviderProfileObservationConflict
+        expr: count by (service, modality) (media_provider_profile_observation_conflict{contract_version="v1"} == 1) > 0
+        labels:
+          severity: warning
+          product: audio-video
+          component: provider-profile
+        annotations:
+          summary: "A Media provider profile has conflicting equal-time observations"
+          description: "Conflicting provider profile results share one check timestamp for {{ $labels.service }} ({{ $labels.modality }}). Readiness and quality freshness are unknown; keep the capability closed until a strictly newer profile check arrives."
+          runbook: "docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook"
+
   # -------------------------------------------------------------------------
   # Real source-derived model-quality rules. They consume only the bounded
   # media_provider_quality_* series exported from a verified, source-linked

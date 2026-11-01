@@ -217,7 +217,9 @@ public final class MediaWorkflowMetrics {
         private final AtomicReference<Double> readiness = new AtomicReference<>(Double.NaN);
         private final AtomicReference<Double> checkedAt = new AtomicReference<>(Double.NaN);
         private final AtomicReference<Double> qualityObservedAt = new AtomicReference<>(Double.NaN);
+        private final AtomicReference<Double> observationConflict = new AtomicReference<>(Double.NaN);
         private ProviderProfileObservation latestObservation;
+        private boolean latestObservationConflicted;
     }
 
     public MediaWorkflowMetrics(MeterRegistry registry, String service) {
@@ -351,10 +353,20 @@ public final class MediaWorkflowMetrics {
         }
         synchronized (gauges) {
             ProviderProfileObservation latest = gauges.latestObservation;
-            if (latest != null && !observation.checkedAt().isAfter(latest.checkedAt())) {
-                // Exact duplicates are idempotent. Older or conflicting equal-time results are stale:
-                // async completion order must not replace the more recent readiness/quality tuple.
-                if (observation.equals(latest)) return true;
+            if (latest != null && observation.checkedAt().isBefore(latest.checkedAt())) {
+                registry.counter("media.provider.profile.observation.rejected",
+                        "service", safeService, "contract_version", CONTRACT_VERSION).increment();
+                return false;
+            }
+            if (latest != null && observation.checkedAt().equals(latest.checkedAt())) {
+                // Exact duplicates are idempotent only while the timestamp is unambiguous.
+                // Conflicting outcomes at one check time cannot be ordered, so retain the
+                // timestamp but clear the readiness/quality observation until a newer check.
+                if (!gauges.latestObservationConflicted && observation.equals(latest)) return true;
+                gauges.readiness.set(Double.NaN);
+                gauges.qualityObservedAt.set(Double.NaN);
+                gauges.observationConflict.set(1.0);
+                gauges.latestObservationConflicted = true;
                 registry.counter("media.provider.profile.observation.rejected",
                         "service", safeService, "contract_version", CONTRACT_VERSION).increment();
                 return false;
@@ -367,7 +379,9 @@ public final class MediaWorkflowMetrics {
             gauges.checkedAt.set(epochSeconds(observation.checkedAt()));
             gauges.qualityObservedAt.set(observation.qualityObservedAt() == null
                     ? Double.NaN : epochSeconds(observation.qualityObservedAt()));
+            gauges.observationConflict.set(0.0);
             gauges.latestObservation = observation;
+            gauges.latestObservationConflicted = false;
             return true;
         }
     }
@@ -382,7 +396,7 @@ public final class MediaWorkflowMetrics {
                 "model_revision", key.modelRevision(),
                 "contract_version", CONTRACT_VERSION);
         Gauge.builder("media.provider.profile.readiness", gauges.readiness, AtomicReference::get)
-                .description("Latest provider profile readiness: 1 healthy, 0 degraded, -1 unavailable")
+                .description("Latest provider profile readiness: 1 healthy, 0 degraded, -1 unavailable, NaN if conflicting")
                 .tags(tags)
                 .register(registry);
         Gauge.builder("media.provider.profile.checked_at_seconds", gauges.checkedAt, AtomicReference::get)
@@ -392,6 +406,10 @@ public final class MediaWorkflowMetrics {
         Gauge.builder("media.provider.quality.observation_timestamp_seconds",
                         gauges.qualityObservedAt, AtomicReference::get)
                 .description("Unix timestamp of the latest measured provider quality observation; NaN if absent")
+                .tags(tags)
+                .register(registry);
+        Gauge.builder("media.provider.profile.observation_conflict", gauges.observationConflict, AtomicReference::get)
+                .description("1 when equal-time provider profile observations conflict, 0 after an unambiguous check, NaN before the first check")
                 .tags(tags)
                 .register(registry);
     }
