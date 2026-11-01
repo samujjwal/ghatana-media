@@ -779,9 +779,27 @@ class PostgresqlMediaTranscriptStoreTest {
             seedSuccessfulAttempt(state, "tenant-binding-reopen", "principal-a", "source-binding-reopen",
                     "job-binding-reopen", digest, fingerprint, 1, 37, versionRef, "durable words",
                     "provider-op-reopen", "provider-receipt-reopen");
+            var sourceTicks = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "durable", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(12_000, 48_000, "source-clock-reopen", 48_000, 96_000));
+            var unqualified = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-unqualified", "words", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .providerTimeUnqualified(250, 750, "milliseconds"));
             TranscriptDraft draft = draft("tenant-binding-reopen", "principal-a", "transcript-binding-reopen",
-                    "source-binding-reopen", "job-binding-reopen", "consent-binding-reopen", digest, "durable words");
+                    "source-binding-reopen", "job-binding-reopen", "consent-binding-reopen", digest,
+                    "durable words");
+            draft = new TranscriptDraft(draft.tenantId(), draft.principalId(), draft.transcriptId(),
+                    draft.sourceArtifactId(), draft.sourceVersion(), draft.sourceSha256(), draft.jobId(),
+                    draft.profileId(), draft.providerId(), draft.modelId(), draft.language(), draft.timebase(),
+                    draft.text(), draft.consentDecisionId(), draft.rightsDecisionId(), draft.policyVersion(),
+                    draft.purposeRef(), draft.processingPurpose(), List.of(sourceTicks, unqualified));
             var revision = fixture.store().appendFromSuccessfulAttempt(draft, 0, 1, 37, fingerprint, versionRef);
+            assertThat(revision.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
+            assertThat(fixture.store().appendFromSuccessfulAttempt(draft, 0, 1, 37, fingerprint, versionRef))
+                    .isEqualTo(revision);
             var expected = fixture.store().attemptBinding("tenant-binding-reopen", "transcript-binding-reopen", 1);
             fixture.store().close(); state.release(); fixture.installed().close();
 
@@ -789,6 +807,11 @@ class PostgresqlMediaTranscriptStoreTest {
             try (installation; PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
                 assertThat(reopened.revisions("tenant-binding-reopen", "principal-a", "transcript-binding-reopen"))
                         .containsExactly(revision);
+                var restored = reopened.revisions("tenant-binding-reopen", "principal-a",
+                        "transcript-binding-reopen").get(0).draft();
+                assertThat(restored.segments()).containsExactly(sourceTicks, unqualified);
+                assertThat(restored.timingAvailability())
+                        .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
                 assertThat(reopened.attemptBinding("tenant-binding-reopen", "transcript-binding-reopen", 1))
                         .isEqualTo(expected);
             }
