@@ -146,6 +146,29 @@ class RetryPolicyTest {
         assertThat(calls.get()).isEqualTo(1);
     }
 
+    @Test
+    @DisplayName("executeWithResult: slow timed-out attempt consumes retry budget")
+    void executeWithResult_slowAttemptConsumesElapsedBudget() {
+        AtomicInteger calls = new AtomicInteger();
+        RetryPolicy policy = RetryPolicy.builder()
+            .maxAttempts(3)
+            .initialDelay(Duration.ofMillis(1))
+            .maxElapsed(Duration.ofMillis(10))
+            .jitterFactor(0)
+            // The test models an I/O timeout after a known no-effect attempt.
+            .retryOn(t -> true)
+            .build();
+
+        assertThatThrownBy(() -> policy.executeWithResult(() -> {
+            calls.incrementAndGet();
+            Thread.sleep(25);
+            throw new java.util.concurrent.TimeoutException("provider call timed out");
+        }))
+            .isInstanceOf(RetryPolicy.RetryExhaustedException.class)
+            .hasMessageContaining("after 1 attempts");
+        assertThat(calls.get()).isEqualTo(1);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Non-retryable exception
     // ─────────────────────────────────────────────────────────────────────────

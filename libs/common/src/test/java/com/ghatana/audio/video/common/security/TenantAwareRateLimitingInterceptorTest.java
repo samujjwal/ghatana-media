@@ -312,6 +312,32 @@ class TenantAwareRateLimitingInterceptorTest {
     }
 
     @Test
+    @DisplayName("Saturated tenant calls are rejected immediately without queueing")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void shouldRejectSaturatedTenantCallsWithoutQueueing() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(50.0, Map.of(), 4, 1);
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+        ArgumentCaptor<ServerCall<String, String>> admitted = ArgumentCaptor.forClass(ServerCall.class);
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant-a");
+        for (int i = 0; i < 100; i++) {
+            ServerCall<String, String> rejected = createServerCall("av.STT/Transcribe");
+            interceptAs(interceptor, rejected, headers, next, "tenant-a");
+            verify(rejected).close(argThat(status -> status.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
+        }
+
+        // Every request was rejected synchronously; only the first reached the service handler.
+        verify(next, times(1)).startCall(admitted.capture(), eq(headers));
+        admitted.getValue().close(Status.OK, new Metadata());
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant-a");
+        verify(next, times(2)).startCall(any(), eq(headers));
+    }
+
+    @Test
     @DisplayName("Default and unconfigured tenants receive isolated bounds without retained ID state")
     void shouldNotAllocateOrApplyPerTenantStateToUnconfiguredIds() {
         TenantAwareRateLimitingInterceptor interceptor =

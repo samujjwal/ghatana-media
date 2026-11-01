@@ -199,11 +199,15 @@ class FileSystemModelStoreTest {
         assertThat(beforeLoad.toString()).doesNotContain(modelFile.toString());
         assertThat(java.util.Arrays.stream(FileSystemModelStore.ModelDescriptor.class.getRecordComponents())
                 .map(java.lang.reflect.RecordComponent::getName))
-                .doesNotContain("modelPath", "path");
+                .containsExactly("modelId", "version", "source", "type", "readiness")
+                .doesNotContain("modelPath", "path", "qualified", "engineEffect");
 
         store.load("model-a");
-        assertThat(store.describe("model-a").orElseThrow().readiness())
-                .isEqualTo(FileSystemModelStore.Readiness.READY);
+        var loaded = store.describe("model-a").orElseThrow();
+        assertThat(loaded.version()).isEqualTo("2.4.1");
+        assertThat(loaded.source()).isEqualTo("filesystem");
+        assertThat(loaded.readiness()).isEqualTo(FileSystemModelStore.Readiness.READY);
+        assertThat(loaded.toString()).doesNotContain("qualified", "engineEffect", modelFile.toString());
     }
 
     @Test
@@ -234,8 +238,10 @@ class FileSystemModelStoreTest {
         store.register(buildMeta("memory-model", ModelMetadata.ModelType.STT));
         store.load("memory-model");
 
-        assertThat(store.describe("memory-model").orElseThrow().readiness())
-                .isEqualTo(FileSystemModelStore.Readiness.UNVERIFIED);
+        var descriptor = store.describe("memory-model").orElseThrow();
+        assertThat(descriptor.source()).isEqualTo("in-memory");
+        assertThat(descriptor.readiness()).isEqualTo(FileSystemModelStore.Readiness.UNVERIFIED);
+        assertThat(descriptor.toString()).doesNotContain("qualified", "engineEffect");
     }
 
     @Test
