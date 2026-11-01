@@ -1,0 +1,3693 @@
+{
+  "schemaVersion": "media.audio-video-types.protocol-projection-observation.v1",
+  "disposition": "OBSERVED_SOURCE_FIELDS_ONLY; NOT_ADMITTED; no semantic equivalence claimed",
+  "denominator": {
+    "http": 27,
+    "grpc": 43
+  },
+  "sourceGaps": {
+    "httpRouteOperationsOutsideNamedDenominator": [
+      "getMediaCaptionVersion",
+      "listMediaCaptionVersions",
+      "registerMediaCaptionVersion"
+    ],
+    "grpcRpcsOutsideNamedDenominator": [
+      "VisionService.RecognizeSceneText"
+    ]
+  },
+  "grpcSourceExtras": [
+    {
+      "id": "VisionService.RecognizeSceneText",
+      "disposition": "UNBOUND/NOT_ADMITTED: outside the named PDP-1 denominator",
+      "request": {
+        "message": "SceneTextRecognizeRequest",
+        "fields": [
+          {
+            "name": "operation_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "purpose_ref",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "source_artifact_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "source_version",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "frame_id",
+            "type": "string",
+            "number": 5
+          },
+          {
+            "name": "pts_us",
+            "type": "int64",
+            "number": 6
+          },
+          {
+            "name": "frame_width",
+            "type": "uint32",
+            "number": 7
+          },
+          {
+            "name": "frame_height",
+            "type": "uint32",
+            "number": 8
+          },
+          {
+            "name": "roi",
+            "type": "SceneTextRoi",
+            "number": 9
+          },
+          {
+            "name": "media_type",
+            "type": "string",
+            "number": 10
+          },
+          {
+            "name": "cropped_bytes",
+            "type": "bytes",
+            "number": 11
+          },
+          {
+            "name": "original_frame_sha256",
+            "type": "string",
+            "number": 12
+          },
+          {
+            "name": "cropped_frame_sha256",
+            "type": "string",
+            "number": 13
+          },
+          {
+            "name": "language_hint",
+            "type": "string",
+            "number": 14
+          }
+        ]
+      },
+      "response": {
+        "message": "SceneTextRecognizeResponse",
+        "fields": [
+          {
+            "name": "recognized",
+            "type": "SceneTextRecognized",
+            "number": 1
+          },
+          {
+            "name": "rejected",
+            "type": "SceneTextRejected",
+            "number": 2
+          }
+        ]
+      }
+    }
+  ],
+  "http": [
+    {
+      "id": "getMediaHealth",
+      "identity": {
+        "method": "GET",
+        "path": "/health",
+        "routeId": "GET /health"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaLiveness",
+      "identity": {
+        "method": "GET",
+        "path": "/health/live",
+        "routeId": "GET /health/live"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaReadiness",
+      "identity": {
+        "method": "GET",
+        "path": "/health/ready",
+        "routeId": "GET /health/ready"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaStartup",
+      "identity": {
+        "method": "GET",
+        "path": "/health/startup",
+        "routeId": "GET /health/startup"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaReadyAlias",
+      "identity": {
+        "method": "GET",
+        "path": "/ready",
+        "routeId": "GET /ready"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaMetrics",
+      "identity": {
+        "method": "GET",
+        "path": "/metrics",
+        "routeId": "GET /metrics"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaInfo",
+      "identity": {
+        "method": "GET",
+        "path": "/info",
+        "routeId": "GET /info"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaVersionedHealth",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/health",
+        "routeId": "GET /api/v1/health"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {},
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "grantMediaConsent",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/consents",
+        "routeId": "POST /api/v1/consents"
+      },
+      "requestFields": [
+        "allowedRegions",
+        "biometricProcessingAllowed",
+        "expiresAt",
+        "externalProcessingAllowed",
+        "purposes"
+      ],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "201": [
+          "allowedRegions",
+          "biometricProcessingAllowed",
+          "consentId",
+          "expiresAt",
+          "externalProcessingAllowed",
+          "grantedAt",
+          "principalId",
+          "purposes",
+          "revokedAt",
+          "tenantId",
+          "version"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "listMediaConsents",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/consents",
+        "routeId": "GET /api/v1/consents"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "consents"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaConsent",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/consents/{consentId}",
+        "routeId": "GET /api/v1/consents/{consentId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "consentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "allowedRegions",
+          "biometricProcessingAllowed",
+          "consentId",
+          "expiresAt",
+          "externalProcessingAllowed",
+          "grantedAt",
+          "principalId",
+          "purposes",
+          "revokedAt",
+          "tenantId",
+          "version"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "revokeMediaConsent",
+      "identity": {
+        "method": "DELETE",
+        "path": "/api/v1/consents/{consentId}",
+        "routeId": "DELETE /api/v1/consents/{consentId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Correlation-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "consentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "allowedRegions",
+          "biometricProcessingAllowed",
+          "consentId",
+          "expiresAt",
+          "externalProcessingAllowed",
+          "grantedAt",
+          "principalId",
+          "purposes",
+          "revokedAt",
+          "tenantId",
+          "version"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "beginMediaUpload",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/artifacts/uploads",
+        "routeId": "POST /api/v1/artifacts/uploads"
+      },
+      "requestFields": [
+        "classification",
+        "contentType",
+        "expectedSha256",
+        "expectedSizeBytes",
+        "fileName",
+        "metadata",
+        "principalId",
+        "retention",
+        "tenantId"
+      ],
+      "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "201": [
+          "bytesReceived",
+          "classification",
+          "contentType",
+          "createdAt",
+          "expectedSha256",
+          "expectedSizeBytes",
+          "expiresAt",
+          "fileName",
+          "metadata",
+          "nextChunkIndex",
+          "principalId",
+          "status",
+          "tenantId",
+          "uploadId"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "BOUNDED_SOURCE_SHAPE_ONLY/NOT_ADMITTED: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED"
+    },
+    {
+      "id": "getMediaUpload",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/artifacts/uploads/{uploadId}",
+        "routeId": "GET /api/v1/artifacts/uploads/{uploadId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "uploadId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "bytesReceived",
+          "classification",
+          "contentType",
+          "createdAt",
+          "expectedSha256",
+          "expectedSizeBytes",
+          "expiresAt",
+          "fileName",
+          "metadata",
+          "nextChunkIndex",
+          "principalId",
+          "status",
+          "tenantId",
+          "uploadId"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "BOUNDED_SOURCE_SHAPE_ONLY/NOT_ADMITTED: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED"
+    },
+    {
+      "id": "appendMediaChunk",
+      "identity": {
+        "method": "PUT",
+        "path": "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}",
+        "routeId": "PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "chunkIndex",
+          "in": "path",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "uploadId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "bytesReceived",
+          "classification",
+          "contentType",
+          "createdAt",
+          "expectedSha256",
+          "expectedSizeBytes",
+          "expiresAt",
+          "fileName",
+          "metadata",
+          "nextChunkIndex",
+          "principalId",
+          "status",
+          "tenantId",
+          "uploadId"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "409": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "BOUNDED_SOURCE_SHAPE_ONLY/NOT_ADMITTED: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED"
+    },
+    {
+      "id": "completeMediaUpload",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/artifacts/uploads/{uploadId}/complete",
+        "routeId": "POST /api/v1/artifacts/uploads/{uploadId}/complete"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "uploadId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "201": [
+          "artifactId",
+          "classification",
+          "contentType",
+          "createdAt",
+          "expiresAt",
+          "fileName",
+          "metadata",
+          "objectReference",
+          "principalId",
+          "sha256",
+          "sizeBytes",
+          "tenantId"
+        ],
+        "409": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "BOUNDED_SOURCE_SHAPE_ONLY/NOT_ADMITTED: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED"
+    },
+    {
+      "id": "getMediaArtifact",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/artifacts/{artifactId}",
+        "routeId": "GET /api/v1/artifacts/{artifactId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "artifactId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "artifactId",
+          "classification",
+          "contentType",
+          "createdAt",
+          "expiresAt",
+          "fileName",
+          "metadata",
+          "objectReference",
+          "principalId",
+          "sha256",
+          "sizeBytes",
+          "tenantId"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "BOUNDED_SOURCE_SHAPE_ONLY/NOT_ADMITTED: bounded-PDP1-definition-crosswalk-under-PXD-051; HTTP-source-shape-observed; runtime-admission-NOT_ADMITTED"
+    },
+    {
+      "id": "submitMediaJob",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/jobs",
+        "routeId": "POST /api/v1/jobs"
+      },
+      "requestFields": [
+        "artifactId",
+        "correlationId",
+        "governanceContext",
+        "jobType",
+        "parameters",
+        "principalId",
+        "providerHint",
+        "requestId",
+        "tenantId"
+      ],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "202": [
+          "artifactId",
+          "completedAt",
+          "createdAt",
+          "expectedArtifactVersion",
+          "failureCode",
+          "jobId",
+          "jobType",
+          "principalId",
+          "providerId",
+          "requestFingerprint",
+          "requestId",
+          "result",
+          "startedAt",
+          "status",
+          "tenantId",
+          "version"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "listMediaJobs",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/jobs",
+        "routeId": "GET /api/v1/jobs"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "required": false,
+          "type": "integer"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "jobs"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaJob",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/jobs/{jobId}",
+        "routeId": "GET /api/v1/jobs/{jobId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "jobId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "artifactId",
+          "completedAt",
+          "createdAt",
+          "expectedArtifactVersion",
+          "failureCode",
+          "jobId",
+          "jobType",
+          "principalId",
+          "providerId",
+          "requestFingerprint",
+          "requestId",
+          "result",
+          "startedAt",
+          "status",
+          "tenantId",
+          "version"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "cancelMediaJob",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/jobs/{jobId}/cancel",
+        "routeId": "POST /api/v1/jobs/{jobId}/cancel"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "jobId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "artifactId",
+          "completedAt",
+          "createdAt",
+          "expectedArtifactVersion",
+          "failureCode",
+          "jobId",
+          "jobType",
+          "principalId",
+          "providerId",
+          "requestFingerprint",
+          "requestId",
+          "result",
+          "startedAt",
+          "status",
+          "tenantId",
+          "version"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "openMediaStream",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/streams",
+        "routeId": "POST /api/v1/streams"
+      },
+      "requestFields": [
+        "correlationId",
+        "governanceContext",
+        "leaseDuration",
+        "maximumBufferedBytes",
+        "metadata",
+        "principalId",
+        "providerHint",
+        "streamKind",
+        "tenantId"
+      ],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "201": [
+          "connectionToken",
+          "session"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaStream",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/streams/{sessionId}",
+        "routeId": "GET /api/v1/streams/{sessionId}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "acknowledgementRevision",
+          "bufferedBytes",
+          "closedAt",
+          "createdAt",
+          "finality",
+          "lastSequence",
+          "leaseExpiresAt",
+          "maximumBufferedBytes",
+          "metadata",
+          "principalId",
+          "providerId",
+          "reconnectCount",
+          "sessionId",
+          "state",
+          "streamKind",
+          "tenantId",
+          "updatedAt",
+          "version"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "connectMediaStream",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/connect",
+        "routeId": "POST /api/v1/streams/{sessionId}/connect"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Stream-Token",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "acknowledgementRevision",
+          "bufferedBytes",
+          "closedAt",
+          "createdAt",
+          "finality",
+          "lastSequence",
+          "leaseExpiresAt",
+          "maximumBufferedBytes",
+          "metadata",
+          "principalId",
+          "providerId",
+          "reconnectCount",
+          "sessionId",
+          "state",
+          "streamKind",
+          "tenantId",
+          "updatedAt",
+          "version"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "409": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "submitMediaStreamFrame",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/frames/{sequence}",
+        "routeId": "POST /api/v1/streams/{sessionId}/frames/{sequence}"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-End-Of-Stream",
+          "in": "header",
+          "required": false,
+          "type": "boolean"
+        },
+        {
+          "name": "X-Stream-Token",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sequence",
+          "in": "path",
+          "required": true,
+          "type": "integer",
+          "format": "int64"
+        },
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "202": [
+          "acceptedSequence",
+          "backpressured",
+          "bufferedBytes"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "409": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "closeMediaStream",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/streams/{sessionId}/close",
+        "routeId": "POST /api/v1/streams/{sessionId}/close"
+      },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Stream-Token",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sessionId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "acknowledgementRevision",
+          "bufferedBytes",
+          "closedAt",
+          "createdAt",
+          "finality",
+          "lastSequence",
+          "leaseExpiresAt",
+          "maximumBufferedBytes",
+          "metadata",
+          "principalId",
+          "providerId",
+          "reconnectCount",
+          "sessionId",
+          "state",
+          "streamKind",
+          "tenantId",
+          "updatedAt",
+          "version"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "getMediaProviders",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/providers",
+        "routeId": "GET /api/v1/providers"
+      },
+      "requestFields": [],
+      "parameters": [],
+      "responseFieldsByStatus": {
+        "200": [
+          "artifactStoreId",
+          "capabilityProfiles",
+          "consentAdministrationId",
+          "genericModelIntegration",
+          "jobStoreId",
+          "metadataIntegration",
+          "processingProviders",
+          "streamStoreId",
+          "streamingProviders"
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    }
+  ],
+  "grpc": [
+    {
+      "id": "STTService.Transcribe",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "Transcribe",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "TranscribeRequest",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "sample_rate",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "options",
+            "type": "TranscriptionOptions",
+            "number": 5
+          },
+          {
+            "name": "tenant_id",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "artifact_id",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "job_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "correlation_id",
+            "type": "string",
+            "number": 9
+          },
+          {
+            "name": "consent_status",
+            "type": "string",
+            "number": 10
+          },
+          {
+            "name": "retention_policy",
+            "type": "string",
+            "number": 11
+          }
+        ]
+      },
+      "response": {
+        "message": "TranscribeResponse",
+        "fields": [
+          {
+            "name": "text",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "confidence",
+            "type": "float",
+            "number": 2
+          },
+          {
+            "name": "word_timings",
+            "type": "WordTiming",
+            "number": 3,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "model_used",
+            "type": "string",
+            "number": 5
+          },
+          {
+            "name": "alternatives",
+            "type": "AlternativeHypothesis",
+            "number": 6,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "language",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "word_timing_timebase",
+            "type": "TimestampTimebase",
+            "number": 8
+          },
+          {
+            "name": "confidence_calibration",
+            "type": "ConfidenceCalibration",
+            "number": 9
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "STTService.StreamTranscribe",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "StreamTranscribe",
+        "clientStreaming": true,
+        "serverStreaming": true
+      },
+      "request": {
+        "message": "AudioChunk",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "sample_rate",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "timestamp_ms",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "session_id",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "sequence",
+            "type": "int64",
+            "number": 5
+          },
+          {
+            "name": "sequence_token",
+            "type": "bytes",
+            "number": 6
+          }
+        ]
+      },
+      "response": {
+        "message": "Transcription",
+        "fields": [
+          {
+            "name": "text",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "is_final",
+            "type": "bool",
+            "number": 2
+          },
+          {
+            "name": "confidence",
+            "type": "float",
+            "number": 3
+          },
+          {
+            "name": "word_timings",
+            "type": "WordTiming",
+            "number": 4,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "timestamp_ms",
+            "type": "int64",
+            "number": 5
+          },
+          {
+            "name": "accepted_sequence_snapshot",
+            "type": "int64",
+            "number": 6
+          },
+          {
+            "name": "revision",
+            "type": "uint32",
+            "number": 7
+          },
+          {
+            "name": "session_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "durable_resume_enabled",
+            "type": "bool",
+            "number": 9
+          },
+          {
+            "name": "outcome_unknown",
+            "type": "bool",
+            "number": 10
+          },
+          {
+            "name": "backpressured",
+            "type": "bool",
+            "number": 11
+          },
+          {
+            "name": "acknowledgement_revision",
+            "type": "uint64",
+            "number": 12
+          },
+          {
+            "name": "finality",
+            "type": "StreamFinality",
+            "number": 13
+          },
+          {
+            "name": "sequence_token",
+            "type": "bytes",
+            "number": 14
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "STTService.LoadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "LoadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "LoadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "options",
+            "type": "ModelLoadOptions",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "LoadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "load_time_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "memory_usage_bytes",
+            "type": "int64",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.UnloadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "UnloadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "UnloadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "UnloadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "memory_freed_bytes",
+            "type": "int64",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.ListModels",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "ListModels",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "ListModelsRequest",
+        "fields": [
+          {
+            "name": "include_loaded_only",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "language_filter",
+            "type": "string",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "ListModelsResponse",
+        "fields": [
+          {
+            "name": "models",
+            "type": "ModelInfo",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "total_count",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "loaded_count",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.AdaptModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "AdaptModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "AdaptRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "interactions",
+            "type": "Interaction",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "mode",
+            "type": "AdaptationMode",
+            "number": 3
+          }
+        ]
+      },
+      "response": {
+        "message": "AdaptResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "stats",
+            "type": "AdaptationStats",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.GetStatus",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "GetStatus",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "StatusRequest",
+        "fields": [
+          {
+            "name": "include_metrics",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "include_model_info",
+            "type": "bool",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "StatusResponse",
+        "fields": [
+          {
+            "name": "state",
+            "type": "EngineState",
+            "number": 1
+          },
+          {
+            "name": "active_model",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "metrics",
+            "type": "EngineMetrics",
+            "number": 3
+          },
+          {
+            "name": "available_models",
+            "type": "ModelInfo",
+            "number": 4,
+            "cardinality": "repeated"
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.HealthCheck",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "HealthCheck",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "HealthCheckRequest",
+        "fields": [
+          {
+            "name": "include_details",
+            "type": "bool",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "HealthCheckResponse",
+        "fields": [
+          {
+            "name": "status",
+            "type": "HealthStatus",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "components",
+            "type": "map<string,ComponentHealth>",
+            "number": 3
+          },
+          {
+            "name": "uptime_ms",
+            "type": "int64",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.CreateProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "CreateProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "CreateProfileRequest",
+        "fields": [
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "enrollment_audio",
+            "type": "bytes",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 3
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 3
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.GetProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "GetProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "GetProfileRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 3
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.UpdateProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "UpdateProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "UpdateProfileRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 3
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "STTService.SubmitCorrection",
+      "identity": {
+        "package": "com.ghatana.audio.video.stt.grpc",
+        "service": "STTService",
+        "method": "SubmitCorrection",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "CorrectionRequest",
+        "fields": [
+          {
+            "name": "original_text",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "corrected_text",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "context_id",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "audio_features",
+            "type": "bytes",
+            "number": 5
+          }
+        ]
+      },
+      "response": {
+        "message": "CorrectionResponse",
+        "fields": [
+          {
+            "name": "accepted",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "vocabulary_updates",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "TTSService.Synthesize",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "Synthesize",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "SynthesizeRequest",
+        "fields": [
+          {
+            "name": "text",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "voice_id",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "options",
+            "type": "SynthesisOptions",
+            "number": 4
+          },
+          {
+            "name": "tenant_id",
+            "type": "string",
+            "number": 5
+          },
+          {
+            "name": "artifact_id",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "job_id",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "correlation_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "consent_status",
+            "type": "string",
+            "number": 9
+          },
+          {
+            "name": "retention_policy",
+            "type": "string",
+            "number": 10
+          }
+        ]
+      },
+      "response": {
+        "message": "SynthesizeResponse",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "sample_rate",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "duration_ms",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "voice_used",
+            "type": "string",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "TTSService.StreamSynthesize",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "StreamSynthesize",
+        "clientStreaming": false,
+        "serverStreaming": true
+      },
+      "request": {
+        "message": "SynthesizeRequest",
+        "fields": [
+          {
+            "name": "text",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "voice_id",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "options",
+            "type": "SynthesisOptions",
+            "number": 4
+          },
+          {
+            "name": "tenant_id",
+            "type": "string",
+            "number": 5
+          },
+          {
+            "name": "artifact_id",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "job_id",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "correlation_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "consent_status",
+            "type": "string",
+            "number": 9
+          },
+          {
+            "name": "retention_policy",
+            "type": "string",
+            "number": 10
+          }
+        ]
+      },
+      "response": {
+        "message": "AudioChunk",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "sample_rate",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "timestamp_ms",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "is_final",
+            "type": "bool",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "TTSService.GetStatus",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "GetStatus",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "StatusRequest",
+        "fields": [
+          {
+            "name": "include_metrics",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "include_voice_info",
+            "type": "bool",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "StatusResponse",
+        "fields": [
+          {
+            "name": "state",
+            "type": "EngineState",
+            "number": 1
+          },
+          {
+            "name": "active_voice",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "error_message",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "active_sessions",
+            "type": "int32",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.GetMetrics",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "GetMetrics",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "MetricsRequest",
+        "fields": []
+      },
+      "response": {
+        "message": "MetricsResponse",
+        "fields": [
+          {
+            "name": "real_time_factor",
+            "type": "float",
+            "number": 1
+          },
+          {
+            "name": "memory_usage_bytes",
+            "type": "int64",
+            "number": 2
+          },
+          {
+            "name": "active_sessions",
+            "type": "int32",
+            "number": 3
+          },
+          {
+            "name": "total_syntheses",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "average_latency_ms",
+            "type": "float",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.GetVoices",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "GetVoices",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "GetVoicesRequest",
+        "fields": [
+          {
+            "name": "language",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "GetVoicesResponse",
+        "fields": [
+          {
+            "name": "voices",
+            "type": "VoiceInfo",
+            "number": 1,
+            "cardinality": "repeated"
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "TTSService.LoadVoice",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "LoadVoice",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "LoadVoiceRequest",
+        "fields": [
+          {
+            "name": "voice_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "LoadVoiceResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "voice",
+            "type": "VoiceInfo",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.CreateProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "CreateProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "CreateProfileRequest",
+        "fields": [
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 3
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.GetProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "GetProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "GetProfileRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 3
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.UpdateProfile",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "UpdateProfile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "UpdateProfileRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "ProfileResponse",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "display_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "settings",
+            "type": "ProfileSettings",
+            "number": 3
+          },
+          {
+            "name": "stats",
+            "type": "ProfileStats",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "TTSService.CloneVoice",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "CloneVoice",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "CloneVoiceRequest",
+        "fields": [
+          {
+            "name": "voice_name",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "audio_samples",
+            "type": "bytes",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "options",
+            "type": "CloneOptions",
+            "number": 3
+          }
+        ]
+      },
+      "response": {
+        "message": "CloneVoiceResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "voice_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "similarity_score",
+            "type": "float",
+            "number": 4
+          },
+          {
+            "name": "voice",
+            "type": "VoiceInfo",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "TTSService.SubmitFeedback",
+      "identity": {
+        "package": "com.ghatana.audio.video.tts.grpc",
+        "service": "TTSService",
+        "method": "SubmitFeedback",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "FeedbackRequest",
+        "fields": [
+          {
+            "name": "profile_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "synthesis_id",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "feedback_type",
+            "type": "FeedbackType",
+            "number": 3
+          },
+          {
+            "name": "comment",
+            "type": "string",
+            "number": 4
+          }
+        ]
+      },
+      "response": {
+        "message": "FeedbackResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "VisionService.DetectObjects",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "DetectObjects",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "DetectRequest",
+        "fields": [
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "target_classes",
+            "type": "string",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "max_detections",
+            "type": "int32",
+            "number": 3
+          },
+          {
+            "name": "confidence_threshold",
+            "type": "double",
+            "number": 4
+          },
+          {
+            "name": "tenant_id",
+            "type": "string",
+            "number": 5
+          },
+          {
+            "name": "artifact_id",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "job_id",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "correlation_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "consent_status",
+            "type": "string",
+            "number": 9
+          },
+          {
+            "name": "retention_policy",
+            "type": "string",
+            "number": 10
+          },
+          {
+            "name": "source_raster_roi",
+            "type": "SourceRasterRoi",
+            "number": 11
+          }
+        ]
+      },
+      "response": {
+        "message": "DetectResponse",
+        "fields": [
+          {
+            "name": "detections",
+            "type": "Detection",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 2
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "VisionService.AnalyzeImage",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "AnalyzeImage",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "AnalyzeRequest",
+        "fields": [
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "analysis_types",
+            "type": "string",
+            "number": 2,
+            "cardinality": "repeated"
+          }
+        ]
+      },
+      "response": {
+        "message": "AnalyzeResponse",
+        "fields": [
+          {
+            "name": "scene_description",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "detected_text",
+            "type": "string",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "faces",
+            "type": "FaceDetection",
+            "number": 3,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "metadata",
+            "type": "map<string,string>",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "VisionService.ClassifyImage",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "ClassifyImage",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "ClassifyRequest",
+        "fields": [
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "top_k",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "confidence_threshold",
+            "type": "double",
+            "number": 3
+          }
+        ]
+      },
+      "response": {
+        "message": "ClassifyResponse",
+        "fields": [
+          {
+            "name": "labels",
+            "type": "ClassLabel",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 2
+          },
+          {
+            "name": "model_used",
+            "type": "string",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "VisionService.AnalyzeVideoFile",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "AnalyzeVideoFile",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "VideoFileRequest",
+        "fields": [
+          {
+            "name": "video_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "sample_fps",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "max_frames",
+            "type": "int32",
+            "number": 3
+          },
+          {
+            "name": "confidence_threshold",
+            "type": "double",
+            "number": 4
+          },
+          {
+            "name": "target_classes",
+            "type": "string",
+            "number": 5,
+            "cardinality": "repeated"
+          }
+        ]
+      },
+      "response": {
+        "message": "VideoFileResponse",
+        "fields": [
+          {
+            "name": "frame_results",
+            "type": "VideoFrameDetections",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "total_frames_analyzed",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "video_duration_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "object_counts",
+            "type": "map<string,int64>",
+            "number": 5
+          },
+          {
+            "name": "summary",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "tracking_status",
+            "type": "string",
+            "number": 7
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "VisionService.ProcessVideo",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "ProcessVideo",
+        "clientStreaming": true,
+        "serverStreaming": true
+      },
+      "request": {
+        "message": "VideoFrameRequest",
+        "fields": [
+          {
+            "name": "frame_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "timestamp_ms",
+            "type": "int64",
+            "number": 2
+          },
+          {
+            "name": "frame_number",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "response": {
+        "message": "VideoFrameResponse",
+        "fields": [
+          {
+            "name": "detections",
+            "type": "Detection",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "timestamp_ms",
+            "type": "int64",
+            "number": 2
+          },
+          {
+            "name": "frame_number",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "VisionService.LoadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "LoadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "LoadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "use_gpu",
+            "type": "bool",
+            "number": 2
+          }
+        ]
+      },
+      "response": {
+        "message": "LoadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "load_time_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "memory_usage_bytes",
+            "type": "int64",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "VisionService.UnloadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "UnloadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "UnloadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "UnloadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "memory_freed_bytes",
+            "type": "int64",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "VisionService.ListModels",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "ListModels",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "ListModelsRequest",
+        "fields": [
+          {
+            "name": "include_loaded_only",
+            "type": "bool",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "ListModelsResponse",
+        "fields": [
+          {
+            "name": "models",
+            "type": "VisionModelInfo",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "total_count",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "loaded_count",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "VisionService.GetStatus",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "GetStatus",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "StatusRequest",
+        "fields": []
+      },
+      "response": {
+        "message": "StatusResponse",
+        "fields": [
+          {
+            "name": "status",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "model_name",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "total_requests",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "avg_processing_time_ms",
+            "type": "double",
+            "number": 4
+          },
+          {
+            "name": "degraded_reason",
+            "type": "string",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "VisionService.HealthCheck",
+      "identity": {
+        "package": "com.ghatana.audio.video.vision.grpc",
+        "service": "VisionService",
+        "method": "HealthCheck",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "HealthCheckRequest",
+        "fields": []
+      },
+      "response": {
+        "message": "HealthCheckResponse",
+        "fields": [
+          {
+            "name": "healthy",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "MultimodalService.ProcessMultimodal",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "ProcessMultimodal",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "MultimodalRequest",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 2
+          },
+          {
+            "name": "video_data",
+            "type": "bytes",
+            "number": 3
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "analysis_types",
+            "type": "string",
+            "number": 5,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "tenant_id",
+            "type": "string",
+            "number": 6
+          },
+          {
+            "name": "artifact_id",
+            "type": "string",
+            "number": 7
+          },
+          {
+            "name": "job_id",
+            "type": "string",
+            "number": 8
+          },
+          {
+            "name": "correlation_id",
+            "type": "string",
+            "number": 9
+          },
+          {
+            "name": "consent_status",
+            "type": "string",
+            "number": 10
+          },
+          {
+            "name": "retention_policy",
+            "type": "string",
+            "number": 11
+          },
+          {
+            "name": "operation_binding",
+            "type": "CanonicalOperationBinding",
+            "number": 12
+          }
+        ]
+      },
+      "response": {
+        "message": "MultimodalResponse",
+        "fields": [
+          {
+            "name": "combined_analysis",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "audio_analysis",
+            "type": "AudioAnalysis",
+            "number": 2
+          },
+          {
+            "name": "visual_analysis",
+            "type": "VisualAnalysis",
+            "number": 3
+          },
+          {
+            "name": "metadata",
+            "type": "map<string,string>",
+            "number": 4
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "MultimodalService.AnalyzeVideoWithAudio",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "AnalyzeVideoWithAudio",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "VideoAudioRequest",
+        "fields": [
+          {
+            "name": "video_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "extract_audio",
+            "type": "bool",
+            "number": 2
+          },
+          {
+            "name": "analyze_frames",
+            "type": "bool",
+            "number": 3
+          },
+          {
+            "name": "frame_sample_rate",
+            "type": "int32",
+            "number": 4
+          },
+          {
+            "name": "operation_binding",
+            "type": "CanonicalOperationBinding",
+            "number": 5
+          }
+        ]
+      },
+      "response": {
+        "message": "VideoAudioResponse",
+        "fields": [
+          {
+            "name": "video_summary",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "audio_transcription",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "frame_analyses",
+            "type": "FrameAnalysis",
+            "number": 3,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "combined_narrative",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "synchronization_status",
+            "type": "SynchronizationStatus",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "MultimodalService.GenerateDescription",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "GenerateDescription",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "DescriptionRequest",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 2
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "style",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "operation_binding",
+            "type": "CanonicalOperationBinding",
+            "number": 5
+          }
+        ]
+      },
+      "response": {
+        "message": "DescriptionResponse",
+        "fields": [
+          {
+            "name": "description",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "confidence",
+            "type": "double",
+            "number": 2
+          },
+          {
+            "name": "key_elements",
+            "type": "string",
+            "number": 3,
+            "cardinality": "repeated"
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "MultimodalService.AnalyzeCrossModal",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "AnalyzeCrossModal",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "CrossModalRequest",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "video_data",
+            "type": "bytes",
+            "number": 2
+          },
+          {
+            "name": "analysis_window_ms",
+            "type": "int64",
+            "number": 3
+          },
+          {
+            "name": "operation_binding",
+            "type": "CanonicalOperationBinding",
+            "number": 4
+          }
+        ]
+      },
+      "response": {
+        "message": "CrossModalResponse",
+        "fields": [
+          {
+            "name": "alignment_score",
+            "type": "double",
+            "number": 1,
+            "cardinality": "optional"
+          },
+          {
+            "name": "events",
+            "type": "CrossModalEvent",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "summary",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 4
+          },
+          {
+            "name": "synchronization_status",
+            "type": "SynchronizationStatus",
+            "number": 5
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "MultimodalService.GetInsights",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "GetInsights",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "InsightsRequest",
+        "fields": [
+          {
+            "name": "audio_data",
+            "type": "bytes",
+            "number": 1
+          },
+          {
+            "name": "video_data",
+            "type": "bytes",
+            "number": 2
+          },
+          {
+            "name": "image_data",
+            "type": "bytes",
+            "number": 3
+          },
+          {
+            "name": "text",
+            "type": "string",
+            "number": 4
+          },
+          {
+            "name": "insight_types",
+            "type": "string",
+            "number": 5,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "operation_binding",
+            "type": "CanonicalOperationBinding",
+            "number": 6
+          }
+        ]
+      },
+      "response": {
+        "message": "InsightsResponse",
+        "fields": [
+          {
+            "name": "overall_sentiment",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "topics",
+            "type": "string",
+            "number": 2,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "entities",
+            "type": "string",
+            "number": 3,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "actions",
+            "type": "string",
+            "number": 4,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "confidence_scores",
+            "type": "map<string,double>",
+            "number": 5
+          },
+          {
+            "name": "processing_time_ms",
+            "type": "int64",
+            "number": 6
+          }
+        ]
+      },
+      "pdpBinding": "PROPOSED_NOT_ADMITTED: owner review pending"
+    },
+    {
+      "id": "MultimodalService.LoadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "LoadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "LoadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "LoadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 3
+          },
+          {
+            "name": "load_time_ms",
+            "type": "int64",
+            "number": 4
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "MultimodalService.UnloadModel",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "UnloadModel",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "UnloadModelRequest",
+        "fields": [
+          {
+            "name": "model_id",
+            "type": "string",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "UnloadModelResponse",
+        "fields": [
+          {
+            "name": "success",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          },
+          {
+            "name": "memory_freed_bytes",
+            "type": "int64",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "MultimodalService.ListModels",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "ListModels",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "ListModelsRequest",
+        "fields": [
+          {
+            "name": "include_loaded_only",
+            "type": "bool",
+            "number": 1
+          }
+        ]
+      },
+      "response": {
+        "message": "ListModelsResponse",
+        "fields": [
+          {
+            "name": "models",
+            "type": "MultimodalModelInfo",
+            "number": 1,
+            "cardinality": "repeated"
+          },
+          {
+            "name": "total_count",
+            "type": "int32",
+            "number": 2
+          },
+          {
+            "name": "loaded_count",
+            "type": "int32",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "MultimodalService.GetStatus",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "GetStatus",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "StatusRequest",
+        "fields": []
+      },
+      "response": {
+        "message": "StatusResponse",
+        "fields": [
+          {
+            "name": "status",
+            "type": "string",
+            "number": 1
+          },
+          {
+            "name": "total_requests",
+            "type": "int64",
+            "number": 2
+          },
+          {
+            "name": "avg_processing_time_ms",
+            "type": "double",
+            "number": 3
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    },
+    {
+      "id": "MultimodalService.HealthCheck",
+      "identity": {
+        "package": "com.ghatana.audio.video.multimodal.grpc",
+        "service": "MultimodalService",
+        "method": "HealthCheck",
+        "clientStreaming": false,
+        "serverStreaming": false
+      },
+      "request": {
+        "message": "HealthCheckRequest",
+        "fields": []
+      },
+      "response": {
+        "message": "HealthCheckResponse",
+        "fields": [
+          {
+            "name": "healthy",
+            "type": "bool",
+            "number": 1
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "number": 2
+          }
+        ]
+      },
+      "pdpBinding": "UNBOUND/NOT_ADMITTED"
+    }
+  ]
+}
