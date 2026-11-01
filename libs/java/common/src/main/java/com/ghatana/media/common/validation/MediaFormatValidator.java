@@ -34,6 +34,9 @@ public final class MediaFormatValidator {
 
     // Image format magic numbers
     private static final byte[] PNG_SIGNATURE = {(byte) 0x89, 0x50, 0x4E, 0x47};
+    private static final byte[] PNG_SIGNATURE_FULL = {
+            (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    private static final byte[] PNG_IHDR = {0x49, 0x48, 0x44, 0x52};
     private static final byte[] JPEG_SIGNATURE = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
     private static final byte[] WEBP_SIGNATURE = {0x52, 0x49, 0x46, 0x46}; // "RIFF"
     private static final byte[] WEBP_VP8 = {0x57, 0x45, 0x42, 0x50}; // "WEBP"
@@ -45,6 +48,10 @@ public final class MediaFormatValidator {
     private static final byte[] AVI_AVI = {0x41, 0x56, 0x49, 0x20}; // "AVI "
     private static final byte[] MKV_SIGNATURE = {0x1A, 0x45, (byte) 0xDF, (byte) 0xA3};
     private static final byte[] MOV_SIGNATURE = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
+
+    // Keep the header validator aligned with the owning bounded Vision decoder.
+    private static final int MAX_SUPPORTED_IMAGE_DIMENSION = 8192;
+    private static final long MAX_SUPPORTED_IMAGE_PIXELS = 16_000_000L;
 
     /**
      * Detects the audio format from the raw bytes.
@@ -339,10 +346,38 @@ public final class MediaFormatValidator {
             return ImageValidationResult.error("Unable to detect image format - not a valid image file");
         }
 
+        if ("PNG".equals(detectedFormat)) {
+            String pngHeaderError = validatePngHeaderAndDimensions(data);
+            if (pngHeaderError != null) {
+                return ImageValidationResult.error(pngHeaderError);
+            }
+        }
+
         // Extract dimensions based on format
         ImageDimensions dims = extractImageDimensions(data, detectedFormat);
 
         return ImageValidationResult.success(detectedFormat, data.length, dims.width, dims.height);
+    }
+
+    private static String validatePngHeaderAndDimensions(byte[] data) {
+        // Signature + length + IHDR type + 13-byte IHDR + CRC.
+        if (!matchesMagic(data, 0, PNG_SIGNATURE_FULL)) {
+            return "PNG signature is invalid";
+        }
+        if (data.length < 33) {
+            return "PNG data is too small to contain a complete IHDR chunk";
+        }
+        if (readUnsignedBigEndianInt(data, 8) != 13L || !matchesMagic(data, 12, PNG_IHDR)) {
+            return "PNG does not begin with a valid IHDR chunk";
+        }
+        long width = readUnsignedBigEndianInt(data, 16);
+        long height = readUnsignedBigEndianInt(data, 20);
+        if (width < 1L || height < 1L
+                || width > MAX_SUPPORTED_IMAGE_DIMENSION || height > MAX_SUPPORTED_IMAGE_DIMENSION
+                || width * height > MAX_SUPPORTED_IMAGE_PIXELS) {
+            return "PNG dimensions exceed the supported image bounds";
+        }
+        return null;
     }
 
     private static ImageDimensions extractImageDimensions(byte[] data, String format) {
@@ -385,6 +420,13 @@ public final class MediaFormatValidator {
             }
         }
         return true;
+    }
+
+    private static long readUnsignedBigEndianInt(byte[] data, int offset) {
+        return Integer.toUnsignedLong((data[offset] & 0xFF) << 24
+                | (data[offset + 1] & 0xFF) << 16
+                | (data[offset + 2] & 0xFF) << 8
+                | (data[offset + 3] & 0xFF));
     }
 
     // Result classes

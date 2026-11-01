@@ -132,6 +132,50 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
+    void validatesPngIhdrStructureAndSupportedUnsignedDimensions() {
+        var dimensionBoundary = MediaFormatValidator.validateImage(pngHeader(8192, 1), "PNG");
+        assertThat(dimensionBoundary.valid).isTrue();
+        assertThat(dimensionBoundary.width).isEqualTo(8192);
+        assertThat(dimensionBoundary.height).isEqualTo(1);
+
+        var pixelBoundary = MediaFormatValidator.validateImage(pngHeader(4000, 4000), "PNG");
+        assertThat(pixelBoundary.valid).isTrue();
+        assertThat(pixelBoundary.width).isEqualTo(4000);
+        assertThat(pixelBoundary.height).isEqualTo(4000);
+
+        assertThat(MediaFormatValidator.validateImage(pngHeader(4001, 4000), "PNG").errorMessage)
+                .contains("supported image bounds");
+        assertThat(MediaFormatValidator.validateImage(pngHeader(8193, 1), "PNG").errorMessage)
+                .contains("supported image bounds");
+        assertThat(MediaFormatValidator.validateImage(pngHeader(0, 1), "PNG").errorMessage)
+                .contains("supported image bounds");
+        assertThat(MediaFormatValidator.validateImage(pngHeader(0x8000_0000L, 1), "PNG").errorMessage)
+                .contains("supported image bounds");
+
+        byte[] signatureOnly = new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10};
+        assertThat(MediaFormatValidator.validateImage(signatureOnly, "PNG").errorMessage)
+                .contains("complete IHDR");
+        byte[] invalidSignature = pngHeader(1, 1);
+        invalidSignature[7] = 0;
+        assertThat(MediaFormatValidator.validateImage(invalidSignature, "PNG").errorMessage)
+                .contains("signature is invalid");
+        byte[] wrongChunkType = pngHeader(1, 1);
+        putAscii(wrongChunkType, 12, "IDAT");
+        assertThat(MediaFormatValidator.validateImage(wrongChunkType, "PNG").errorMessage)
+                .contains("valid IHDR");
+    }
+
+    @Test
+    void pngSpecificBoundsDoNotChangeOtherImageHeaderHandling() {
+        byte[] jpegHeader = new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0,
+                0, 0, 0, 0};
+        var result = MediaFormatValidator.validateImage(jpegHeader, "JPEG");
+        assertThat(result.valid).isTrue();
+        assertThat(result.width).isZero();
+        assertThat(result.height).isZero();
+    }
+
+    @Test
     void validatesChunksAfterFmtEvenWhenSampleRateDiffers() {
         byte[] wav = pcmWav(4);
         ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN).putInt(40, 1000);
@@ -158,6 +202,18 @@ class MediaFormatValidatorQualificationTest {
         b.putShort(32, (short) 2); b.putShort(34, (short) 16);
         putAscii(wav, 36, "data"); b.putInt(40, dataSize);
         return wav;
+    }
+
+    private static byte[] pngHeader(long width, long height) {
+        ByteBuffer buffer = ByteBuffer.allocate(33).order(ByteOrder.BIG_ENDIAN);
+        buffer.put(new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10});
+        buffer.putInt(13);
+        buffer.put("IHDR".getBytes(StandardCharsets.US_ASCII));
+        buffer.putInt((int) width);
+        buffer.putInt((int) height);
+        buffer.put(new byte[] {8, 2, 0, 0, 0});
+        buffer.putInt(0); // CRC is outside this header-only validator's current qualification.
+        return buffer.array();
     }
 
     private static void putAscii(byte[] bytes, int offset, String text) {
