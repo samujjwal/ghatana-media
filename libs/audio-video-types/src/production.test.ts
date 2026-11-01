@@ -28,6 +28,30 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, originClass: 'BOGUS' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, tenantId: 'bad id!' }).success).toBe(false);
   });
+  it('refuses cyclic and over-deep caller values before schema descent', () => {
+    const cyclic = { ...spec } as Record<string, unknown>;
+    cyclic.self = cyclic;
+    expect(ProductionSpecSchema.safeParse(cyclic).success).toBe(false);
+
+    let deeplyNested: unknown = null;
+    for (let index = 0; index < 66; index++) deeplyNested = [deeplyNested];
+    expect(ProductionSpecSchema.safeParse(deeplyNested).success).toBe(false);
+  });
+  it('rejects sparse or decorated arrays before Zod can iterate or ignore array properties', () => {
+    expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: new Array(100_001) }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: new Array(1) }).success).toBe(false);
+
+    const decoratedRefs = [ref] as string[] & { label?: string };
+    decoratedRefs.label = 'metadata-not-in-json';
+    expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: decoratedRefs }).success).toBe(false);
+  });
+  it('turns throwing Proxy inspection traps into an ordinary parse failure', () => {
+    const hostile = new Proxy(spec, {
+      getPrototypeOf() { throw new Error('inspection trap'); },
+    });
+    expect(() => ProductionSpecSchema.safeParse(hostile).success).not.toThrow();
+    expect(ProductionSpecSchema.safeParse(hostile).success).toBe(false);
+  });
   it('rejects malformed UTF-16 references and accepts valid supplementary Unicode', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, purposeRef: 'purpose/\uD800' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: ['scene/\uDC00'] }).success).toBe(false);
@@ -46,6 +70,8 @@ describe('TY-04 headless declarative parsers', () => {
     expect(AnimationSpecSchema.safeParse({
       ...anim, tStoryRef: { ...storyClock, ticks: '1.5' },
     }).success).toBe(false); // floats never accepted
+    expect(AnimationSpecSchema.safeParse({ ...anim, code: 'return fetch(...)' }).success).toBe(false);
+    expect(AnimationSpecSchema.safeParse({ ...anim, shader: 'void main() {}' }).success).toBe(false);
   });
   it('preserves exact int64 as canonical decimal strings — never a number', () => {
     expect(SignedInt64DecimalSchema.safeParse('-9223372036854775808').success).toBe(true);
@@ -76,7 +102,7 @@ describe('TY-04 headless declarative parsers', () => {
   });
   const execSpec = {
     schemaVersion: 'media.declarative.value.model-execution-spec.v1',
-    modelFamilyRef: ref, modelVersionRef: ref,
+    modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
     familyApplicability: { applicability: 'NOT_ADMITTED', evidenceRefs: [] },
     familyQualificationRef: ref, familyQualificationState: 'UNQUALIFIED',
     replayability: 'NON_REPLAYABLE',
@@ -95,6 +121,14 @@ describe('TY-04 headless declarative parsers', () => {
   it('accepts a well-formed model execution spec', () => {
     expect(ModelExecutionSpecSchema.safeParse(execSpec).success).toBe(true);
   });
+  it('rejects a model family that is not an exact PDP-1 simulation capability leaf', () => {
+    expect(ModelExecutionSpecSchema.safeParse({
+      ...execSpec, modelFamilyRef: 'media.simulation',
+    }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({
+      ...execSpec, modelFamilyRef: 'media.simulation.unregistered',
+    }).success).toBe(false);
+  });
   it('enforces the invariant: UNKNOWN randomness can never claim REPLAYABLE', () => {
     expect(ModelExecutionSpecSchema.safeParse({
       ...execSpec, replayability: 'REPLAYABLE',
@@ -110,11 +144,13 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ModelExecutionSpecSchema.safeParse({
       ...execSpec, modelDigest: { ...execSpec.modelDigest, extra: 'x' },
     }).success).toBe(false);
+    const { modelDigest: _modelDigest, ...withoutModelDigest } = execSpec;
+    expect(ModelExecutionSpecSchema.safeParse(withoutModelDigest).success).toBe(false);
   });
   it('simulation state rejects unbounded or wrong-version checkpoints', () => {
     const state = {
       schemaVersion: 'media.declarative.value.simulation-state.v1',
-      runId: 'run-1', attemptId: 'att-1', modelFamilyRef: ref, modelVersionRef: ref,
+      runId: 'run-1', attemptId: 'att-1', modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
       familyApplicability: { applicability: 'UNKNOWN', evidenceRefs: [] },
       familyQualificationRef: ref, replayability: 'UNKNOWN', solverVersionRef: ref,
       tSimTicks: '42', stepIndex: '7', stateVersion: 'sv-1',

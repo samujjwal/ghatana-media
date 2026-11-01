@@ -18,6 +18,87 @@ const POSITIVE_INT64_DECIMAL_RE = /^[1-9][0-9]*$/;
 const INT64_MIN = -(1n << 63n);
 const INT64_MAX = (1n << 63n) - 1n;
 
+// The PDP-1 contract requires recursion and workload bounds, but this typed
+// value context does not define per-value limits. Use a conservative parser
+// ceiling before Zod descends into caller-owned objects so hostile or
+// accidentally cyclic in-memory values cannot exhaust the parser stack.
+const MAX_TYPED_VALUE_DEPTH = 64;
+const MAX_TYPED_VALUE_NODES = 100_000;
+
+function isBoundedJsonValue(root: unknown): boolean {
+  const active = new WeakSet<object>();
+  const complete = new WeakSet<object>();
+  const stack: Array<{ value: unknown; depth: number; leaving?: object }> = [
+    { value: root, depth: 0 },
+  ];
+  let visited = 0;
+
+  while (stack.length > 0) {
+    const item = stack.pop()!;
+    if (item.leaving) {
+      active.delete(item.leaving);
+      complete.add(item.leaving);
+      continue;
+    }
+    if (++visited > MAX_TYPED_VALUE_NODES || item.depth > MAX_TYPED_VALUE_DEPTH) return false;
+
+    const value = item.value;
+    if (value === null || typeof value === "string" || typeof value === "boolean") continue;
+    if (typeof value === "number") {
+      if (!Number.isFinite(value)) return false;
+      continue;
+    }
+    if (typeof value !== "object") return false;
+    if (active.has(value)) return false;
+    if (complete.has(value)) continue;
+
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== Array.prototype && prototype !== null) return false;
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    if (Object.getOwnPropertySymbols(value).length > 0) return false;
+    if (Array.isArray(value)) {
+      const lengthDescriptor = descriptors.length;
+      if (!lengthDescriptor || !("value" in lengthDescriptor)
+          || !Number.isSafeInteger(lengthDescriptor.value)
+          || lengthDescriptor.value < 0
+          || lengthDescriptor.value > MAX_TYPED_VALUE_NODES - visited) return false;
+      const indexKeys = Object.keys(descriptors).filter((key) => key !== "length");
+      // JSON arrays are dense and have no custom own properties. Besides
+      // rejecting holes and metadata Zod would ignore, the length check keeps
+      // a huge sparse array from making Zod iterate an attacker-sized range.
+      if (indexKeys.length !== lengthDescriptor.value) return false;
+      for (const key of indexKeys) {
+        if (!/^(0|[1-9][0-9]*)$/.test(key) || Number(key) >= lengthDescriptor.value) return false;
+      }
+    }
+    const children: unknown[] = [];
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+      if (Array.isArray(value) && key === "length") continue;
+      if (!("value" in descriptor) || !descriptor.enumerable) return false;
+      children.push(descriptor.value);
+    }
+
+    active.add(value);
+    stack.push({ value: undefined, depth: item.depth, leaving: value });
+    for (let index = children.length - 1; index >= 0; index--) {
+      stack.push({ value: children[index], depth: item.depth + 1 });
+    }
+  }
+  return true;
+}
+
+function boundedTypedValue<T extends z.ZodTypeAny>(schema: T) {
+  return z.preprocess((value) => {
+    try {
+      return isBoundedJsonValue(value) ? value : undefined;
+    } catch {
+      // Proxy traps and exotic caller objects are not JSON values. Keep their
+      // inspection failures inside Zod's normal invalid-input result path.
+      return undefined;
+    }
+  }, schema);
+}
+
 export const OpaqueIdSchema = z.string().min(1).max(128).regex(OPAQUE_ID_RE);
 /** Opaque versioned reference — never a raw URI to fetch; it names a stored revision. */
 function hasWellFormedUtf16(value: string): boolean {
@@ -121,10 +202,20 @@ export const OriginClassSchema = z.enum([
   "REAL_CAPTURE", "DECLARATIVE_ANIMATION", "MODEL_SIMULATION",
   "GENERATIVE_MEDIA", "PDP_SYNTHETIC_FIXTURE",
 ]);
+export const SimulationCapabilityLeafSchema = z.enum([
+  "media.simulation.rigid-body", "media.simulation.soft-body", "media.simulation.cloth",
+  "media.simulation.rope", "media.simulation.particle", "media.simulation.fluid",
+  "media.simulation.smoke", "media.simulation.fire", "media.simulation.collision",
+  "media.simulation.constraint", "media.simulation.vehicle", "media.simulation.crowd",
+  "media.simulation.agent", "media.simulation.human-motion", "media.simulation.procedural-world",
+  "media.simulation.camera-experiment", "media.simulation.lighting-experiment",
+  "media.simulation.educational-demo", "media.simulation.scientific-demo", "media.simulation.robotics",
+  "media.simulation.kinematics", "media.simulation.synthetic-data",
+]);
 export const FamilyQualificationStateSchema = z.enum(["QUALIFIED", "UNQUALIFIED", "UNKNOWN"]);
 export const ReplayabilitySchema = z.enum(["REPLAYABLE", "NON_REPLAYABLE", "UNKNOWN"]);
 
-export const ProductionSpecSchema = z.object({
+export const ProductionSpecSchema = boundedTypedValue(z.object({
   tenantId: OpaqueIdSchema,
   projectId: OpaqueIdSchema,
   revisionId: OpaqueIdSchema,
@@ -135,10 +226,10 @@ export const ProductionSpecSchema = z.object({
   timelineRef: VersionRefSchema,
   rightsRef: VersionRefSchema,
   outputProfileRefs: NonEmptyVersionRefListSchema,
-}).strict();
+}).strict());
 export type ProductionSpec = z.infer<typeof ProductionSpecSchema>;
 
-export const SceneBindingSchema = z.object({
+export const SceneBindingSchema = boundedTypedValue(z.object({
   schemaVersion: z.literal("media.declarative.value.scene-binding.v1"),
   sceneId: OpaqueIdSchema,
   sceneGraphRef: VersionRefSchema,
@@ -148,10 +239,10 @@ export const SceneBindingSchema = z.object({
   temporalMappingRef: VersionRefSchema,
   semanticAnchorRefs: VersionRefListSchema,
   accessibilityRef: VersionRefSchema,
-}).strict();
+}).strict());
 export type SceneBinding = z.infer<typeof SceneBindingSchema>;
 
-export const AnimationSpecSchema = z.object({
+export const AnimationSpecSchema = boundedTypedValue(z.object({
   schemaVersion: z.literal("media.declarative.value.animation-spec.v1"),
   sceneGraphRef: VersionRefSchema,
   animationGraphRef: VersionRefSchema,
@@ -160,12 +251,12 @@ export const AnimationSpecSchema = z.object({
   propertyCurveRefs: VersionRefListSchema,
   tStoryRef: StoryTimeSchema,
   renderingRef: VersionRefSchema,
-}).strict();
+}).strict());
 export type AnimationSpec = z.infer<typeof AnimationSpecSchema>;
 
-export const ModelExecutionSpecSchema = z.object({
+export const ModelExecutionSpecSchema = boundedTypedValue(z.object({
   schemaVersion: z.literal("media.declarative.value.model-execution-spec.v1"),
-  modelFamilyRef: VersionRefSchema,
+  modelFamilyRef: SimulationCapabilityLeafSchema,
   modelVersionRef: VersionRefSchema,
   familyApplicability: FamilyApplicabilitySchema,
   familyQualificationRef: VersionRefSchema,
@@ -201,14 +292,14 @@ export const ModelExecutionSpecSchema = z.object({
       path: ["replayability"],
     });
   }
-});
+}));
 export type ModelExecutionSpec = z.infer<typeof ModelExecutionSpecSchema>;
 
-export const SimulationStateSchema = z.object({
+export const SimulationStateSchema = boundedTypedValue(z.object({
   schemaVersion: z.literal("media.declarative.value.simulation-state.v1"),
   runId: OpaqueIdSchema,
   attemptId: OpaqueIdSchema,
-  modelFamilyRef: VersionRefSchema,
+  modelFamilyRef: SimulationCapabilityLeafSchema,
   modelVersionRef: VersionRefSchema,
   familyApplicability: FamilyApplicabilitySchema,
   familyQualificationRef: VersionRefSchema,
@@ -222,5 +313,5 @@ export const SimulationStateSchema = z.object({
   rngStateOrNull: NullableVersionRefSchema,
   randomnessSemantics: RandomnessSemanticsSchema,
   checkpointParentRefOrNull: NullableVersionRefSchema,
-}).strict();
+}).strict());
 export type SimulationState = z.infer<typeof SimulationStateSchema>;
