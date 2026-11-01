@@ -7,6 +7,7 @@ package com.ghatana.audio.video.tools;
 import com.ghatana.toolruntime.ToolHandler;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Factory that produces all Audio-Video {@link ToolHandler} instances keyed by
@@ -42,6 +43,28 @@ public final class AudioVideoToolHandlerFactory {
             TOOL_ID_MULTIMODAL, MultimodalInferenceToolHandler.class
     );
 
+    /** Optional execution fence supplied by the owning Tools/Action Plane integration. */
+    private final MediaToolExecutionBinder executionBinder;
+
+    /**
+     * Creates local fail-closed handlers without an Action Plane ledger. This
+     * compatibility path is useful for handler validation and source-free
+     * consumers; it does not provide invocation replay or effect authority.
+     */
+    public AudioVideoToolHandlerFactory() {
+        this.executionBinder = null;
+    }
+
+    /**
+     * Creates handlers that pass each envelope through the supplied durable
+     * invocation binder before invoking the adapter. The binder's ledger is
+     * expected to be the owner-provided Action Plane implementation; this
+     * constructor does not authenticate the envelope or create that ledger.
+     */
+    public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder) {
+        this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
+    }
+
     /**
      * Creates a new {@link ToolHandler} for the given {@code toolId}.
      *
@@ -50,7 +73,7 @@ public final class AudioVideoToolHandlerFactory {
      * @throws IllegalArgumentException if the toolId is not recognized
      */
     public ToolHandler create(String toolId) {
-        return switch (toolId) {
+        ToolHandler handler = switch (toolId) {
             case TOOL_ID_STT       -> new SpeechToTextToolHandler();
             case TOOL_ID_TTS       -> new TextToSpeechToolHandler();
             case TOOL_ID_VISION    -> new VisionAnalysisToolHandler();
@@ -58,6 +81,8 @@ public final class AudioVideoToolHandlerFactory {
             default -> throw new IllegalArgumentException(
                     "Unknown Audio-Video tool ID: '" + toolId + "'. Known IDs: " + HANDLER_REGISTRY.keySet());
         };
+        if (executionBinder == null) return handler;
+        return (envelope, contract) -> executionBinder.execute(handler, envelope, contract);
     }
 
     /**
