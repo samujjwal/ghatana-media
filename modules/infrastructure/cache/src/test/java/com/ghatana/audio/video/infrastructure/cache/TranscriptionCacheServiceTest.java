@@ -418,10 +418,11 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void cachedValueCannotShortCircuitCurrentSourceLoad() {
+    void malformedCachedJsonCannotShortCircuitCurrentSourceLoad() {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.of("{ malformed json")));
         when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
         AtomicInteger loads = new AtomicInteger();
 
