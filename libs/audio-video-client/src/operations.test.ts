@@ -44,6 +44,22 @@ describe("MediaHttpTransport configured identity boundary", () => {
   });
 });
 
+describe("PDP-1 exact artifact-version inspection", () => {
+  it("returns NOT_ADMITTED without dispatch because no route binds an immutable version", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({})) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => "configured-token",
+      fetchImpl,
+    });
+    await expect(client.inspectArtifactVersion("artifact-1", "version-1"))
+      .rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
 function jsonResponse(body: unknown, status = 200, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body), {
     status,

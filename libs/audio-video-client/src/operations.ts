@@ -731,6 +731,15 @@ export class MediaOperationClient {
     );
   }
 
+  /**
+   * PDP-1 defines inspection of an exact immutable artifact version, while
+   * the admitted runtime route reads artifact metadata by artifact ID only.
+   * Do not treat that weaker read as the version-bound operation.
+   */
+  public inspectArtifactVersion(_artifactId: string, _artifactVersionId: string): Promise<never> {
+    return Promise.reject(new MediaOperationNotAdmittedError("media.operation-slice.inspect-artifact-version"));
+  }
+
   public async listProviderCapabilities(
     signal?: AbortSignal,
   ): Promise<readonly ProviderCapability[]> {

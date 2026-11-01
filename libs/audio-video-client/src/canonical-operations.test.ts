@@ -165,6 +165,31 @@ describe("MediaCanonicalClient job operations", () => {
     await expect(client.listJobs({ limit: 0 })).rejects.toThrow(/limit/u);
     await expect(client.listJobs({ limit: 1001 })).rejects.toThrow(/limit/u);
   });
+
+  it("does not invent a route for the seven-dimension status read", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({}));
+    const client = clientWith(fetchImpl);
+    await expect(client.readJobStatusDimensions("job-1"))
+      .rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("does not treat X-Principal-Id as an authentication credential", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
+      error: { code: "UNAUTHENTICATED", message: "bearer credential required", retryable: false },
+      meta: { correlationId: "corr-auth" },
+    }, 401));
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      fetchImpl,
+    });
+    await expect(client.getJob("job-1")).rejects.toMatchObject({ statusCode: 401 });
+    const headers = new Headers(calls[0]!.init.headers);
+    expect(headers.get("X-Principal-Id")).toBe("principal-1");
+    expect(headers.has("Authorization")).toBe(false);
+  });
 });
 
 describe("MediaCanonicalClient stream operations", () => {

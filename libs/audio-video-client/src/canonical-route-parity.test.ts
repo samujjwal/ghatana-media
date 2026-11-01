@@ -51,6 +51,11 @@ const manifestRoutes = manifest.routes.map((route) => ({
 // These are the operations implemented by createMediaCanonicalClient today.
 // Keep this inventory limited to actual transport dispatches in canonical-operations.ts.
 const clientBoundRoutes: Route[] = [
+  { method: "POST", path: "/api/v1/artifacts/uploads", operationId: "beginMediaUpload" },
+  { method: "GET", path: "/api/v1/artifacts/uploads/{uploadId}", operationId: "getMediaUpload" },
+  { method: "PUT", path: "/api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}", operationId: "appendMediaChunk" },
+  { method: "POST", path: "/api/v1/artifacts/uploads/{uploadId}/complete", operationId: "completeMediaUpload" },
+  { method: "GET", path: "/api/v1/artifacts/{artifactId}", operationId: "getMediaArtifact" },
   { method: "POST", path: "/api/v1/jobs", operationId: "submitMediaJob" },
   { method: "GET", path: "/api/v1/jobs", operationId: "listMediaJobs" },
   { method: "GET", path: "/api/v1/jobs/{jobId}", operationId: "getMediaJob" },
@@ -64,7 +69,7 @@ const clientBoundRoutes: Route[] = [
 
 const observedRouteMethods: Record<keyof typeof canonicalMediaHttpRoutes, string> = {
   beginUpload: "POST", getUpload: "GET", appendChunk: "PUT", completeUpload: "POST",
-  getArtifact: "GET", submitJob: "POST", getJob: "GET", cancelJob: "POST",
+  getArtifact: "GET", submitJob: "POST", listJobs: "GET", getJob: "GET", cancelJob: "POST",
   listProviders: "GET", health: "GET",
 };
 

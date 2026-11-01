@@ -6,6 +6,7 @@ import {
   type MediaTransportConfig,
   type RuntimeParser,
 } from "./http-core.js";
+import { canonicalMediaHttpRoutes } from "./canonical-routes.js";
 
 /**
  * Canonical `/api/v1/jobs` and `/api/v1/streams` client bound to
@@ -390,7 +391,7 @@ export class MediaCanonicalClient {
     let job: CanonicalProcessingJob;
     try {
       job = await this.transport.request(
-        "POST", "/api/v1/jobs", body,
+        "POST", canonicalMediaHttpRoutes.submitJob, body,
         { parse: parseCanonicalProcessingJob }, signal,
         { "Idempotency-Key": idempotencyKey },
       );
@@ -411,7 +412,7 @@ export class MediaCanonicalClient {
     const principalId = this.requirePrincipalId("job reads");
     const requested = safePathSegment("jobId", jobId);
     const job = await this.transport.request(
-      "GET", `/api/v1/jobs/${encodeURIComponent(requested)}`, undefined,
+      "GET", canonicalMediaHttpRoutes.getJob.replace("{jobId}", encodeURIComponent(requested)), undefined,
       { parse: parseCanonicalProcessingJob }, signal,
     );
     this.assertJobScope(job, principalId);
@@ -444,7 +445,7 @@ export class MediaCanonicalClient {
       },
     };
     const jobs = await this.transport.request(
-      "GET", `/api/v1/jobs?limit=${limit}`, undefined, parser, options.signal,
+      "GET", `${canonicalMediaHttpRoutes.listJobs}?limit=${limit}`, undefined, parser, options.signal,
     );
     return jobs.map((job) => this.assertJobScope(job, principalId));
   }
@@ -459,7 +460,7 @@ export class MediaCanonicalClient {
     let job: CanonicalProcessingJob;
     try {
       job = await this.transport.request(
-        "POST", `/api/v1/jobs/${encodeURIComponent(requested)}/cancel`, {},
+        "POST", canonicalMediaHttpRoutes.cancelJob.replace("{jobId}", encodeURIComponent(requested)), {},
         { parse: parseCanonicalProcessingJob }, signal,
       );
     } catch (failure) {
@@ -677,6 +678,14 @@ export class MediaCanonicalClient {
   /** No cursor pagination exists in the contract; use listJobs({limit}). */
   public listJobsPage(_cursor: string): Promise<never> {
     return Promise.reject(new MediaOperationNotAdmittedError("media.job.list-cursor"));
+  }
+
+  /**
+   * PDP-1's seven-dimension status observation has no admitted route. getJob
+   * remains a point-in-time read of the runtime ProcessingJob projection only.
+   */
+  public readJobStatusDimensions(_jobId: string): Promise<never> {
+    return Promise.reject(new MediaOperationNotAdmittedError("media.operation.job-status.read-dimensions.v1"));
   }
 
   private requireStreamToken(connectionToken: string): string {

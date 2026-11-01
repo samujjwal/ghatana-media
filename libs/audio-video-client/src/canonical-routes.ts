@@ -11,6 +11,7 @@ export const canonicalMediaHttpRoutes = Object.freeze({
   completeUpload: "/api/v1/artifacts/uploads/{uploadId}/complete",
   getArtifact: "/api/v1/artifacts/{artifactId}",
   submitJob: "/api/v1/jobs",
+  listJobs: "/api/v1/jobs",
   getJob: "/api/v1/jobs/{jobId}",
   cancelJob: "/api/v1/jobs/{jobId}/cancel",
   listProviders: "/api/v1/providers",
