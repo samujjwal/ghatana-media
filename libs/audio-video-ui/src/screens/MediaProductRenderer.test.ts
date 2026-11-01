@@ -227,6 +227,7 @@ describe("MediaProductRenderer", () => {
       transcript: {
         view: "correct-captions",
         clockId: "source-clock",
+        ticksPerSecond: 48_000,
         durationTicks: 100,
         segments: [{ id: "seg-1", startTime: "10", endTime: "20", startTick: 10, endTick: 20, text: "مرحبا" }],
       },

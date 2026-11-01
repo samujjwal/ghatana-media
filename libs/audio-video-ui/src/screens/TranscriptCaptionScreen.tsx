@@ -55,6 +55,20 @@ export function transcriptActionContext(
   };
 }
 
+/** J-03 timing edits require a declared source clock and a valid half-open tick range. */
+export function hasAdmissibleCaptionTimingRange(
+  transcript: Pick<TranscriptCaptionProjection, "clockId" | "ticksPerSecond" | "durationTicks">,
+  startTick: number | null | undefined,
+  endTick: number | null | undefined,
+): boolean {
+  return typeof transcript.clockId === "string" && transcript.clockId.trim().length > 0
+    && Number.isSafeInteger(transcript.ticksPerSecond) && (transcript.ticksPerSecond ?? 0) > 0
+    && Number.isSafeInteger(transcript.durationTicks) && (transcript.durationTicks ?? -1) >= 0
+    && Number.isSafeInteger(startTick) && (startTick ?? -1) >= 0
+    && Number.isSafeInteger(endTick) && (endTick ?? -1) > (startTick ?? Number.MAX_SAFE_INTEGER)
+    && (endTick ?? Number.MAX_SAFE_INTEGER) <= (transcript.durationTicks ?? -1);
+}
+
 function dispatchMessage(result: MediaActionDispatchResult): string {
   switch (result.status) {
     case "failed":
@@ -187,14 +201,17 @@ export function TranscriptCaptionScreen({
             <label htmlFor={`caption-end-${segment.id}`}>End tick</label>
             <input id={`caption-end-${segment.id}`} className="media-input" type="number" min={0} max={transcript.durationTicks} step={1}
               value={segment.endTick ?? ""} onChange={(event) => onCaptionTimingDraftChange?.(segment.id, "endTick", event.currentTarget.value === "" ? null : Number(event.currentTarget.value))} />
-            <button type="button" className="media-action-button media-action-button--primary" disabled={!alignAction?.enabled || segment.startTick == null || segment.endTick == null || pendingPayloadAction !== undefined}
+            <button type="button" className="media-action-button media-action-button--primary" disabled={!alignAction?.enabled || !hasAdmissibleCaptionTimingRange(transcript, segment.startTick, segment.endTick) || pendingPayloadAction !== undefined}
               onClick={() => {
-                if (segment.startTick != null && segment.endTick != null) {
+                if (typeof segment.startTick === "number" && typeof segment.endTick === "number"
+                  && hasAdmissibleCaptionTimingRange(transcript, segment.startTick, segment.endTick)) {
                   invokePayloadAction("media.action.align-caption-timing", {
                     segmentId: segment.id, startTick: segment.startTick, endTick: segment.endTick,
                   });
                 }
               }}>{alignAction?.label ?? "Apply timing alignment"}</button>
+            {alignAction?.enabled && !hasAdmissibleCaptionTimingRange(transcript, segment.startTick, segment.endTick)
+              && <p role="status">Timing alignment needs a source clock, tick rate, duration, and valid in-range start and end ticks.</p>}
             {alignAction?.disabledReason && <p>{alignAction.disabledReason}</p>}
           </fieldset>
         </li>)}
