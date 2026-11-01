@@ -146,12 +146,60 @@ class MediaCanonicalOperationExecutorTest {
 
     @Test
     void malformedArtifactClockMetadataFailsClosed() {
+        byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         var port = new FixturePort().withSource(Map.of(
                 "sourceClockMappingEvidenceRef", "ev-1",
                 "sourceClockTicksPerSecond", "not-a-number"));
         var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
-        assertThatThrownBy(() -> executor.execute(binding(), "op", operation(), AUTH))
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
+                () -> null, outcome -> outcome);
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void invalidGovernancePurposeFailsBeforeInlineChildUpload() {
+        byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
+                () -> null, outcome -> outcome);
+        CanonicalOperationBinding noPurpose = binding().toBuilder().setPurpose(" ").build();
+
+        assertThatThrownBy(() -> executor.execute(noPurpose, "op", operation, AUTH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purpose");
+
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void missingLaterReferencedChildFailsBeforeEarlierInlineUpload() {
+        byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"),
+                        CanonicalOperations.childArtifact("vision", JobType.VISION, "missing-vision"))),
+                () -> null, outcome -> outcome);
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("missing-vision");
+
+        assertThat(port.uploads).isEmpty();
         assertThat(port.submitted).isEmpty();
     }
 
@@ -178,6 +226,90 @@ class MediaCanonicalOperationExecutorTest {
         assertThat(child.artifactSha256()).isEqualTo(sha256(payload));
     }
 
+    @Test
+    void ambiguousInlineUploadFailureIsUnknownAndMustNotBeBlindlyRetried() {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        port.beginUploadFailure = new IllegalStateException("upload response lost after acceptance");
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = inlineOperation(payload);
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                .isInstanceOf(CanonicalOperationUnknownException.class)
+                .satisfies(failure -> {
+                    CanonicalOperationUnknownException unknown = (CanonicalOperationUnknownException) failure;
+                    assertThat(unknown.jobId()).isNull();
+                    assertThat(unknown).hasMessageContaining("do not resubmit blindly");
+                });
+
+        assertThat(port.uploads).hasSize(1);
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void parentAdmissionRejectionAfterInlineUploadIsUnknownAndMustNotBeBlindlyRetried() {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        port.submitFailure = new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "MULTIMODAL", "denied");
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", inlineOperation(payload), AUTH))
+                .isInstanceOf(CanonicalOperationUnknownException.class)
+                .satisfies(failure -> {
+                    CanonicalOperationUnknownException unknown = (CanonicalOperationUnknownException) failure;
+                    assertThat(unknown.jobId()).isNull();
+                    assertThat(unknown).hasMessageContaining("do not resubmit blindly");
+                });
+
+        assertThat(port.uploads).hasSize(1);
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void mixedInlineAndReferencedChildrenPreserveDeclaredOrder() throws Exception {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of())
+                .thenStatuses(JobStatus.COMPLETED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"),
+                        CanonicalOperations.childArtifact("vision", JobType.VISION, "child-art"))),
+                () -> null, outcome -> outcome);
+
+        executor.execute(binding(), "op", operation, AUTH);
+
+        MultimodalOperationSpec spec = MultimodalOperationSpec.from(port.submitted.peek());
+        assertThat(spec.children()).extracting(MultimodalOperationSpec.ChildOperationSpec::childKey)
+                .containsExactly("stt", "vision");
+        assertThat(spec.children()).extracting(MultimodalOperationSpec.ChildOperationSpec::jobType)
+                .containsExactly(JobType.SPEECH_TO_TEXT, JobType.VISION);
+    }
+
+    @Test
+    void mismatchedParentSourceVersionFailsBeforeInlineChildUpload() {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
+                () -> null, outcome -> outcome);
+        CanonicalOperationBinding staleBinding = binding().toBuilder()
+                .setSourceVersionId("sha256:" + "cd".repeat(32))
+                .build();
+
+        assertThatThrownBy(() -> executor.execute(staleBinding, "op", operation, AUTH))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("source artifact version does not match");
+
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+    }
+
     // ── Fixtures ────────────────────────────────────────────────────────────
 
     private static MediaCanonicalOperationExecutor executor(
@@ -189,6 +321,14 @@ class MediaCanonicalOperationExecutorTest {
         return CanonicalOperations.of(
                 CanonicalOperations.plan("cap", List.of(
                         CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null, outcome -> outcome);
+    }
+
+    private static CanonicalOperation<CanonicalOperationOutcome> inlineOperation(byte[] payload) {
+        return CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childInline(
+                                "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
                 () -> null, outcome -> outcome);
     }
 
@@ -226,6 +366,7 @@ class MediaCanonicalOperationExecutorTest {
         private final Deque<JobStatus> statuses = new ArrayDeque<>();
         private MediaArtifact source;
         private RuntimeException submitFailure;
+        private RuntimeException beginUploadFailure;
         private RuntimeException jobFailure;
 
         FixturePort withSource(Map<String, Object> metadata) {
@@ -300,6 +441,7 @@ class MediaCanonicalOperationExecutorTest {
         @Override public UploadSession beginUpload(
                 UploadRequest request, String idempotencyKey, AuthenticatedPrincipal authenticated) {
             uploads.add(request);
+            if (beginUploadFailure != null) throw beginUploadFailure;
             return new UploadSession("up-1", request.tenantId(), request.principalId(),
                     request.fileName(), request.contentType(), request.expectedSizeBytes(),
                     request.expectedSha256(), request.classification(), Instant.now(),

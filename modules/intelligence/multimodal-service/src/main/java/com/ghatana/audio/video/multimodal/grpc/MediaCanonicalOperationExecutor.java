@@ -33,9 +33,10 @@ import java.util.concurrent.Callable;
  * inline payloads through the canonical authenticated artifact-upload path first — then
  * submits exactly one parent MULTIMODAL job through the runtime's authenticated port and
  * awaits its durable terminal state. The submitted operation, its children and its
- * outcome are reconstructible from durable state alone; a transport timeout surfaces
- * {@link CanonicalOperationUnknownException} carrying the stable job id so the caller can
- * reconcile by identity rather than resubmitting blindly.</p>
+ * outcome are reconstructible from durable state once the parent is submitted. A
+ * transport timeout surfaces {@link CanonicalOperationUnknownException}; a known
+ * parent job id is included when available. An ambiguous earlier inline upload may
+ * have no parent id and needs separate upload reconciliation before retry.</p>
  *
  * @doc.type class
  * @doc.purpose Durable multimodal operation submission and bounded terminal readback
@@ -90,39 +91,60 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             throw new IllegalArgumentException(
                     "canonical multimodal operation requires at least one modality child");
         }
-        List<MultimodalOperationSpec.ChildOperationSpec> children =
-                resolveChildren(plan, authenticated);
+        // Resolve and version-check the caller's canonical source before ingesting any
+        // inline child payload. Otherwise a stale/mismatched source binding can leave
+        // durable child artifacts behind even though the parent operation is refused.
         MediaArtifact source = sourceArtifact(binding, authenticated);
-        MultimodalOperationSpec spec = new MultimodalOperationSpec(
-                MultimodalOperationSpec.SPEC_VERSION,
-                plan.capabilityRef(),
-                operationRef,
-                Math.max(1, binding.getOperationVersion()),
-                binding.getSourceArtifactId(),
-                binding.getSourceVersionId(),
-                source.sha256(),
-                children,
-                sourceClockBinding(plan, source),
-                Map.of("purpose", binding.getPurpose()));
-        Map<String, Object> parameters = new LinkedHashMap<>();
-        parameters.put(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue());
-        ProcessingJobRequest jobRequest = new ProcessingJobRequest(
-                binding.getRequestId(),
-                authenticated.tenantId(),
-                authenticated.principalId(),
-                binding.getCorrelationId().isBlank() ? binding.getRequestId() : binding.getCorrelationId(),
-                spec.sourceArtifactId(),
-                spec.sourceVersion(),
-                JobType.MULTIMODAL,
-                "",
-                parameters,
-                governanceFor(binding));
-        // Pre-submit validation/admission failures are provably effect-free and surface
-        // as typed failures; once the durable parent exists every later failure is UNKNOWN.
+        MultimodalOperationSpec.SourceClockBinding sourceClock = sourceClockBinding(plan, source);
+        var governance = governanceFor(binding);
+        // Resolve every referenced child before the first inline upload. A missing later
+        // reference must not leave earlier inline children durably ingested.
+        List<MediaArtifact> referencedChildren = resolveReferencedChildren(plan, authenticated);
+        InlineUploadAttempt uploadAttempt = new InlineUploadAttempt();
+        final ProcessingJobRequest jobRequest;
+        try {
+            List<MultimodalOperationSpec.ChildOperationSpec> children =
+                    resolveChildren(plan, authenticated, referencedChildren, uploadAttempt);
+            MultimodalOperationSpec spec = new MultimodalOperationSpec(
+                    MultimodalOperationSpec.SPEC_VERSION,
+                    plan.capabilityRef(),
+                    operationRef,
+                    Math.max(1, binding.getOperationVersion()),
+                    binding.getSourceArtifactId(),
+                    binding.getSourceVersionId(),
+                    source.sha256(),
+                    children,
+                    sourceClock,
+                    Map.of("purpose", binding.getPurpose()));
+            Map<String, Object> parameters = new LinkedHashMap<>();
+            parameters.put(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue());
+            jobRequest = new ProcessingJobRequest(
+                    binding.getRequestId(),
+                    authenticated.tenantId(),
+                    authenticated.principalId(),
+                    binding.getCorrelationId().isBlank() ? binding.getRequestId() : binding.getCorrelationId(),
+                    spec.sourceArtifactId(),
+                    spec.sourceVersion(),
+                    JobType.MULTIMODAL,
+                    "",
+                    parameters,
+                    governance);
+        } catch (RuntimeException failureAfterUploadAttempt) {
+            if (uploadAttempt.started) {
+                throw new CanonicalOperationUnknownException(null, failureAfterUploadAttempt);
+            }
+            throw failureAfterUploadAttempt;
+        }
+        // Before any inline upload, validation/refusal is provably effect-free. Once an
+        // upload attempt starts, even parent-job rejection may leave a durable child
+        // artifact; report UNKNOWN so callers do not blindly repeat the operation.
         final ProcessingJob submitted;
         try {
             submitted = port.submit(jobRequest, authenticated);
         } catch (MediaCapabilityNotAdmittedException | IllegalArgumentException provenNoEffect) {
+            if (uploadAttempt.started) {
+                throw new CanonicalOperationUnknownException(null, provenNoEffect);
+            }
             throw provenNoEffect;
         } catch (RuntimeException ambiguous) {
             throw new CanonicalOperationUnknownException(null, ambiguous);
@@ -150,18 +172,34 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 CanonicalOperationOutcome.completed(submitted.jobId(), outcome.result()));
     }
 
-    private List<MultimodalOperationSpec.ChildOperationSpec> resolveChildren(
+    private List<MediaArtifact> resolveReferencedChildren(
             CanonicalOperationPlan plan, AuthenticatedPrincipal authenticated) {
+        List<MediaArtifact> referencedChildren = new ArrayList<>(plan.children().size());
+        for (CanonicalChildSelection selection : plan.children()) {
+            if (selection.inlineSource().length > 0) {
+                referencedChildren.add(null);
+            } else {
+                MediaArtifact artifact = port.artifact(
+                                authenticated.tenantId(), authenticated.principalId(), selection.artifactId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "multimodal child source artifact is unavailable: "
+                                        + selection.artifactId()));
+                referencedChildren.add(artifact);
+            }
+        }
+        return referencedChildren;
+    }
+
+    private List<MultimodalOperationSpec.ChildOperationSpec> resolveChildren(
+            CanonicalOperationPlan plan, AuthenticatedPrincipal authenticated,
+            List<MediaArtifact> referencedChildren, InlineUploadAttempt uploadAttempt) {
         List<MultimodalOperationSpec.ChildOperationSpec> children =
                 new ArrayList<>(plan.children().size());
-        for (CanonicalChildSelection selection : plan.children()) {
+        for (int index = 0; index < plan.children().size(); index++) {
+            CanonicalChildSelection selection = plan.children().get(index);
             MediaArtifact artifact = selection.inlineSource().length > 0
-                    ? ingest(selection, authenticated)
-                    : port.artifact(authenticated.tenantId(), authenticated.principalId(),
-                                    selection.artifactId())
-                            .orElseThrow(() -> new IllegalArgumentException(
-                                    "multimodal child source artifact is unavailable: "
-                                            + selection.artifactId()));
+                    ? ingest(selection, authenticated, uploadAttempt)
+                    : referencedChildren.get(index);
             children.add(new MultimodalOperationSpec.ChildOperationSpec(
                     selection.childKey(), selection.jobType(), artifact.artifactId(),
                     artifact.version().value(), artifact.sha256(),
@@ -172,10 +210,12 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
 
     /**
      * Ingests an inline payload through the canonical authenticated artifact upload path.
-     * The deterministic idempotency key binds the upload to the exact operation request
-     * and content digest, so a retried RPC reuses the same immutable artifact.
+     * The deterministic upload idempotency key incorporates the content digest.
+     * An ambiguous upload still requires reconciliation before retry; this key
+     * alone does not establish a parent operation or its outcome.
      */
-    private MediaArtifact ingest(CanonicalChildSelection selection, AuthenticatedPrincipal authenticated) {
+    private MediaArtifact ingest(CanonicalChildSelection selection, AuthenticatedPrincipal authenticated,
+                                InlineUploadAttempt uploadAttempt) {
         byte[] bytes = selection.inlineSource();
         String sha256 = sha256Hex(bytes);
         Map<String, Object> metadata = Map.of("purpose", "multimodal-operation-ingest");
@@ -184,6 +224,9 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 selection.childKey() + "-source", selection.inlineContentType(),
                 bytes.length, sha256, "CONFIDENTIAL", UPLOAD_RETENTION, metadata);
         String idempotencyKey = "mm-upload:" + sha256;
+        // From this boundary onward begin/append/complete may have committed even if the
+        // transport reports an exception, so retries must first reconcile the effect.
+        uploadAttempt.started = true;
         UploadSession session = port.beginUpload(uploadRequest, idempotencyKey, authenticated);
         int chunks = Math.max(1, (bytes.length + UPLOAD_CHUNK_BYTES - 1) / UPLOAD_CHUNK_BYTES);
         for (int index = 0; index < chunks; index++) {
@@ -193,6 +236,10 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             session = port.appendUploadChunk(authenticated, session.uploadId(), index, chunk);
         }
         return port.completeUpload(authenticated, session.uploadId());
+    }
+
+    private static final class InlineUploadAttempt {
+        private boolean started;
     }
 
     private MediaArtifact sourceArtifact(
@@ -318,7 +365,10 @@ final class CanonicalOperationUnknownException extends Exception {
     CanonicalOperationUnknownException(String jobId, Throwable cause) {
         super("MULTIMODAL_OPERATION_OUTCOME_UNKNOWN"
                 + (jobId == null ? "" : " jobId=" + jobId)
-                + ": reconcile by exact job identity, do not resubmit", cause);
+                + (jobId == null
+                        ? ": a durable upload or operation effect may have started; reconcile when possible"
+                        : ": reconcile by exact job identity")
+                + "; do not resubmit blindly", cause);
         this.jobId = jobId;
     }
     String jobId() { return jobId; }
