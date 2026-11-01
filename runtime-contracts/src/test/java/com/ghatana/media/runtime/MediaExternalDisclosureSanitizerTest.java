@@ -85,4 +85,48 @@ class MediaExternalDisclosureSanitizerTest {
                 .hasMessageContaining("string bound")
                 .hasMessageNotContaining("x".repeat(32));
     }
+
+    @Test
+    void allowlistedScalarLeavesDoNotForwardNestedCallerFields() {
+        ProcessingJobRequest nestedRequest = new ProcessingJobRequest(
+                "request-a", "tenant-a", "principal-a", "correlation-a", "artifact-a",
+                JobType.SPEECH_TO_TEXT, "",
+                Map.of("language", Map.of("authorization", "Bearer request-secret")),
+                MediaGovernanceContext.compatibilityDefault());
+
+        assertThatThrownBy(() -> MediaExternalDisclosureSanitizer.request(nestedRequest))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("scalar value")
+                .hasMessageNotContaining("request-secret");
+
+        MediaArtifact nestedMetadata = new MediaArtifact(
+                "tenant-a", "principal-a", "artifact-a", "private-name.jpg", "image/jpeg",
+                12L, "a".repeat(64), "s3://opaque/artifact-a", "CONFIDENTIAL",
+                Instant.now(), Instant.now().plusSeconds(60),
+                Map.of("width", java.util.List.of(Map.of("token", "artifact-secret"))));
+
+        assertThatThrownBy(() -> MediaExternalDisclosureSanitizer.artifact(nestedMetadata))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("scalar value")
+                .hasMessageNotContaining("artifact-secret");
+    }
+
+    @Test
+    void scalarTypesAlreadyUsedByMediaRequestsRemainDisclosable() {
+        ProcessingJobRequest request = new ProcessingJobRequest(
+                "request-a", "tenant-a", "principal-a", "correlation-a", "artifact-a",
+                JobType.VISION, "provider-a",
+                Map.of("language", "en-US", "faceDetection", true,
+                        "width", 1920, "frameRate", 29.97),
+                MediaGovernanceContext.compatibilityDefault());
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> parameters = (Map<String, Object>)
+                MediaExternalDisclosureSanitizer.request(request).get("parameters");
+
+        assertThat(parameters).containsEntry("language", "en-US")
+                .containsEntry("faceDetection", true)
+                .containsEntry("width", 1920)
+                .containsEntry("frameRate", 29.97);
+    }
 }

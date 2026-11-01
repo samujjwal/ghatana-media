@@ -3,9 +3,7 @@ package com.ghatana.media.runtime;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +14,9 @@ import java.util.Set;
  * serializing them wholesale would allow credentials, device/location metadata, raw biometric
  * material, or unrelated subject data to cross the provider boundary. This class exposes only the
  * fields required to perform the selected operation and validates bounded JSON-compatible values.
+ * Allowlisted leaves are scalar-only, so nested caller-controlled fields cannot ride through an
+ * approved key. This is a structural disclosure boundary, not DLP: approved scalar strings still
+ * require their owning request contract to validate their meaning and contents.
  *
  * @doc.type class
  * @doc.purpose Minimize Media request and artifact data before external provider disclosure
@@ -23,8 +24,6 @@ import java.util.Set;
  * @doc.pattern PolicyBoundary, Allowlist
  */
 public final class MediaExternalDisclosureSanitizer {
-    private static final int MAX_DEPTH = 4;
-    private static final int MAX_COLLECTION_SIZE = 128;
     private static final int MAX_STRING_LENGTH = 65_536;
 
     private static final Set<String> REQUEST_PARAMETER_ALLOWLIST = Set.of(
@@ -70,12 +69,16 @@ public final class MediaExternalDisclosureSanitizer {
         Map<String, Object> result = new LinkedHashMap<>();
         if (source == null) return Map.of();
         for (String key : allowed) {
-            if (source.containsKey(key)) result.put(key, boundedValue(source.get(key), key, 0));
+            if (source.containsKey(key)) result.put(key, boundedValue(source.get(key), key));
         }
         return Map.copyOf(result);
     }
 
-    private static Object boundedValue(Object value, String path, int depth) {
+    private static Object boundedValue(Object value, String path) {
+        // An allowlisted parameter name does not make arbitrary nested content safe.
+        // These leaves are the only values disclosed to an external provider; accepting
+        // maps/lists here would let a caller smuggle secrets under e.g. "language" or
+        // "width" and bypass the top-level field allowlist.
         if (value == null || value instanceof Boolean || value instanceof Number) return value;
         if (value instanceof String text) {
             if (text.length() > MAX_STRING_LENGTH) {
@@ -83,33 +86,7 @@ public final class MediaExternalDisclosureSanitizer {
             }
             return text;
         }
-        if (depth >= MAX_DEPTH) {
-            throw new IllegalArgumentException("External Media field exceeds nesting bound: " + path);
-        }
-        if (value instanceof List<?> list) {
-            if (list.size() > MAX_COLLECTION_SIZE) {
-                throw new IllegalArgumentException("External Media field exceeds collection bound: " + path);
-            }
-            List<Object> copy = new ArrayList<>(list.size());
-            for (int index = 0; index < list.size(); index++) {
-                copy.add(boundedValue(list.get(index), path + "[" + index + "]", depth + 1));
-            }
-            return List.copyOf(copy);
-        }
-        if (value instanceof Map<?, ?> map) {
-            if (map.size() > MAX_COLLECTION_SIZE) {
-                throw new IllegalArgumentException("External Media field exceeds object bound: " + path);
-            }
-            Map<String, Object> copy = new LinkedHashMap<>();
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                if (!(entry.getKey() instanceof String key) || key.isBlank()) {
-                    throw new IllegalArgumentException("External Media object keys must be non-blank strings: " + path);
-                }
-                copy.put(key, boundedValue(entry.getValue(), path + "." + key, depth + 1));
-            }
-            return Map.copyOf(copy);
-        }
         throw new IllegalArgumentException(
-                "External Media field has unsupported value type at " + path);
+                "External Media field must be a scalar value at " + path);
     }
 }
