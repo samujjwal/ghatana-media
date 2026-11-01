@@ -109,6 +109,11 @@ class MediaProductionSpecCompilerTest {
         assertThatThrownBy(() -> new ProductionSpec(
                 "other tenant", "p", "r", "REAL_CAPTURE", "purpose", List.of("scene"), "t", "r", List.of("o")))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "media.declarative.value.production-spec.v2", "REAL_CAPTURE", "purpose",
+                List.of("scene"), "t", "r", List.of("o")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("schemaVersion");
     }
 
     @Test

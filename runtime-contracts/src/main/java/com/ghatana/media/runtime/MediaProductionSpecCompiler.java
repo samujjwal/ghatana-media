@@ -32,24 +32,48 @@ public final class MediaProductionSpecCompiler {
     /** Bounded plan size — a spec cannot compile an unbounded DAG. */
     public static final int MAX_SCENES = 256;
     public static final int MAX_OUTPUT_PROFILES = 64;
+    public static final String PRODUCTION_SPEC_SCHEMA_VERSION = "media.declarative.value.production-spec.v1";
 
     /** Typed spec — the Java mirror of media.declarative.value.production-spec.v1. */
     public record ProductionSpec(
             String tenantId,
             String projectId,
             String revisionId,
+            String schemaVersion,
             String originClass,
             String purposeRef,
             List<String> sceneRefs,
             String timelineRef,
             String rightsRef,
             List<String> outputProfileRefs) {
+        /**
+         * Source-compatible constructor for callers already receiving the one
+         * PDP-1 production-spec version; schema decoders should use the full
+         * constructor so an untrusted supplied version is validated.
+         */
+        public ProductionSpec(
+                String tenantId,
+                String projectId,
+                String revisionId,
+                String originClass,
+                String purposeRef,
+                List<String> sceneRefs,
+                String timelineRef,
+                String rightsRef,
+                List<String> outputProfileRefs) {
+            this(tenantId, projectId, revisionId, PRODUCTION_SPEC_SCHEMA_VERSION, originClass,
+                    purposeRef, sceneRefs, timelineRef, rightsRef, outputProfileRefs);
+        }
+
         public ProductionSpec {
             sceneRefs = List.copyOf(Objects.requireNonNull(sceneRefs, "sceneRefs"));
             outputProfileRefs = List.copyOf(Objects.requireNonNull(outputProfileRefs, "outputProfileRefs"));
             requireIdentifier(tenantId, "tenantId");
             requireIdentifier(projectId, "projectId");
             requireIdentifier(revisionId, "revisionId");
+            if (!PRODUCTION_SPEC_SCHEMA_VERSION.equals(schemaVersion)) {
+                throw new IllegalArgumentException("schemaVersion must be " + PRODUCTION_SPEC_SCHEMA_VERSION);
+            }
             if (originClass == null || !Set.of("REAL_CAPTURE", "DECLARATIVE_ANIMATION", "MODEL_SIMULATION",
                     "GENERATIVE_MEDIA", "PDP_SYNTHETIC_FIXTURE").contains(originClass)) {
                 throw new IllegalArgumentException("unsupported originClass");
@@ -136,7 +160,7 @@ public final class MediaProductionSpecCompiler {
 
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
                 List.of(), List.of(spec.revisionId(), spec.purposeRef()),
-                List.of(spec.tenantId(), spec.projectId(), spec.originClass()));
+                List.of(spec.tenantId(), spec.projectId(), spec.schemaVersion(), spec.originClass()));
         addNode(nodes, fingerprints, "rights-review", "rights-review", ExecutionMode.MANUAL_GATE,
                 List.of("validate-spec"), List.of(spec.rightsRef()));
         List<String> captureIds = new ArrayList<>();
