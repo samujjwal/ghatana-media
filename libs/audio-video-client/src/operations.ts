@@ -664,9 +664,7 @@ export class MediaOperationClient {
       return validate ? validate(result) : result;
     } catch (failure) {
       const definitiveClientRejection = failure instanceof MediaClientError
-        && failure.statusCode !== undefined
-        && failure.statusCode >= 400 && failure.statusCode < 500
-        && failure.statusCode !== 408 && failure.statusCode !== 429;
+        && [400, 401, 403].includes(failure.statusCode ?? 0);
       if (dispatched && !definitiveClientRejection) {
         throw new MediaOperationAmbiguousError(path, failure);
       }

@@ -527,6 +527,23 @@ describe("MediaOperationClient", () => {
     }
   });
 
+  it("keeps undocumented 409 cancellation responses ambiguous after dispatch", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({
+      error: { code: "CONFLICT", message: "Operation state changed", retryable: false },
+      meta: { correlationId: "correlation-409" },
+    }, 409)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+
+    await expect(client.cancelOperation("operation-1")).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/media/operations/operation-1:cancel",
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps header-provider and progress-callback failures distinguishable from dispatch ambiguity", async () => {
     const beforeDispatchFetch = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession({ bytesReceived: 3, nextChunkIndex: 1 }))) as unknown as typeof fetch;
     const headerFailure = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1",
