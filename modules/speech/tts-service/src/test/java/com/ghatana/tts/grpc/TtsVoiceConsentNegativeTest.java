@@ -2,6 +2,8 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
+import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.AudioFormat;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.tts.api.TtsEngine;
 import com.ghatana.tts.core.grpc.proto.CloneVoiceRequest;
@@ -28,11 +30,15 @@ import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -160,6 +166,31 @@ class TtsVoiceConsentNegativeTest {
     }
 
     @Test
+    @DisplayName("revocation after an admitted synthesis prevents the next provider effect")
+    void revocationAfterAdmittedSynthesisBlocksRetryBeforeProvider() throws Exception {
+        AtomicReference<TtsRequestAuthorization.Decision> decision =
+                new AtomicReference<>(TtsRequestAuthorization.Decision.ADMITTED);
+        start(request -> decision.get(), "admitted-voice");
+        when(engine.synthesize(eq("hello"), any())).thenReturn(validPcmOutput());
+        var blocking = stub(OWNER_SUBJECT);
+        var request = SynthesizeRequest.newBuilder()
+                .setText("hello").setVoiceId("admitted-voice").build();
+
+        var first = blocking.synthesize(request);
+        assertThat(first.getAudioData()).hasSize(128);
+        assertThat(observed).hasSize(1);
+
+        // The resolver models a live authority read: revocation becomes effective
+        // between independent requests and cannot rely on a cached previous grant.
+        decision.set(TtsRequestAuthorization.Decision.REVOKED);
+        assertError(() -> blocking.synthesize(request),
+                Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
+
+        assertThat(observed).hasSize(2);
+        verify(engine).synthesize(eq("hello"), any());
+    }
+
+    @Test
     @DisplayName("clone attempt is denied before any owner consent or biometric effect")
     void cloneAttemptDeniedBeforeEffect() throws Exception {
         start(request -> TtsRequestAuthorization.Decision.ADMITTED, "default-voice");
@@ -245,5 +276,15 @@ class TtsVoiceConsentNegativeTest {
                 SECRET.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256"));
         return unsigned + "." + java.util.Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(mac.doFinal(unsigned.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
+
+    private static AudioData validPcmOutput() {
+        byte[] pcm = new byte[128];
+        for (int i = 0; i < pcm.length; i += 2) {
+            short sample = (short) ((i / 2 % 2 == 0) ? 1_000 : -1_000);
+            pcm[i] = (byte) sample;
+            pcm[i + 1] = (byte) (sample >>> 8);
+        }
+        return new AudioData(pcm, 22_050, 1, 16, java.time.Duration.ofMillis(3), AudioFormat.PCM);
     }
 }
