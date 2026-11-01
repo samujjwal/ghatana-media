@@ -37,6 +37,12 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(VisionAnalysisToolHandler.class);
     public static final String TOOL_ID = "av.vision-analysis";
+    private static final Set<String> VALIDATION_CODES = Set.of(
+            "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
+            "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
+            "INVALID_MEDIASOURCE", "INVALID_IMAGEBYTES", "INVALID_MEDIAARTIFACTID", "INVALID_MIME_TYPE",
+            "INLINE_IMAGE_NOT_ADMITTED", "INVALID_ANALYSIS_TYPES", "INVALID_MAX_RESULTS",
+            "INVALID_CONFIDENCE_THRESHOLD", "INVALID_CUSTOMMODELID");
 
     public VisionAnalysisToolHandler() {
         this(null);
@@ -54,11 +60,9 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
         Instant start = Instant.now();
         Map<String, Object> input;
 
-        log.debug("VisionAnalysis invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
-
         try {
             input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaSource", "analysisTypes", "maxResults", "confidenceThreshold", "customModelId"));
-            String mediaSource = resolveMediaSource(input);
+            resolveMediaSource(input);
             Object rawTypes = input.getOrDefault("analysisTypes", List.of("OBJECT_DETECTION"));
             if (!(rawTypes instanceof List<?> types) || types.isEmpty() || types.size() > 8
                     || types.stream().anyMatch(type -> !(type instanceof String s) || !Set.of("OBJECT_DETECTION", "SCENE_CLASSIFICATION", "OCR", "FACE_DETECTION", "LABEL_DETECTION", "CUSTOM_MODEL").contains(s)))
@@ -71,14 +75,13 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
             if (analysisTypes.contains("CUSTOM_MODEL")) AgentToolInput.requiredString(input, "customModelId", 512);
             else if (input.containsKey("customModelId")) AgentToolInput.requiredString(input, "customModelId", 512);
 
-            log.debug("Vision: mediaSource={} types={} maxResults={}", mediaSource, analysisTypes, maxResults);
-
         } catch (Exception e) {
-            log.error("VisionAnalysis handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
+            String errorCode = validationErrorCode(e);
+            log.warn("Vision input rejected: {}", errorCode);
             Instant end = Instant.now();
             return Promise.of(ToolExecutionResult.failed(
                     envelope.invocationId(),
-                    "Vision analysis error: " + e.getMessage(),
+                    "Vision analysis error: " + errorCode,
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
@@ -107,6 +110,11 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
             throw new IllegalArgumentException("INLINE_IMAGE_NOT_ADMITTED");
         }
         return AgentToolInput.source(input, "mediaSource", "imageBytes", 20 * 1024 * 1024, true);
+    }
+
+    private static String validationErrorCode(Exception error) {
+        String message = error.getMessage();
+        return message != null && VALIDATION_CODES.contains(message) ? message : "VISION_INPUT_INVALID";
     }
 
 }

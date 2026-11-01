@@ -36,6 +36,12 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MultimodalInferenceToolHandler.class);
     public static final String TOOL_ID = "av.multimodal-inference";
+    private static final Set<String> VALIDATION_CODES = Set.of(
+            "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
+            "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
+            "INVALID_MEDIAARTIFACTID", "INVALID_INFERENCE_MODE", "INVALID_SAMPLING_RATE",
+            "INVALID_LANGUAGE_CODE", "INVALID_ENABLETRANSCRIPTION", "INVALID_ENABLEVISIONANALYSIS",
+            "NO_MODALITY_SELECTED");
 
     public MultimodalInferenceToolHandler() {
         this(null);
@@ -53,11 +59,9 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
         Instant start = Instant.now();
         Map<String, Object> input;
 
-        log.debug("MultimodalInference invocation [{}] tenant={}", envelope.invocationId(), envelope.tenantId());
-
         try {
             input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode"));
-            String mediaArtifactId = AgentToolInput.requiredString(input, "mediaArtifactId", 512);
+            AgentToolInput.requiredString(input, "mediaArtifactId", 512);
             Object mode = input.getOrDefault("inferenceMode", "SUMMARY");
             if (!(mode instanceof String inferenceMode) || !Set.of("SUMMARY", "SEGMENT", "FRAME_BY_FRAME", "FULL").contains(inferenceMode)) throw new IllegalArgumentException("INVALID_INFERENCE_MODE");
             Object sampling = input.getOrDefault("samplingRateMs", 1000);
@@ -68,14 +72,13 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
             boolean enableVision = optionalBoolean(input, "enableVisionAnalysis", true);
             if (!enableTranscription && !enableVision) throw new IllegalArgumentException("NO_MODALITY_SELECTED");
 
-            log.debug("Multimodal: artifactId={} mode={} stt={} vision={}", mediaArtifactId, inferenceMode, enableTranscription, enableVision);
-
         } catch (Exception e) {
-            log.error("MultimodalInference handler failed for invocation {}: {}", envelope.invocationId(), e.getMessage(), e);
+            String errorCode = validationErrorCode(e);
+            log.warn("Multimodal input rejected: {}", errorCode);
             Instant end = Instant.now();
             return Promise.of(ToolExecutionResult.failed(
                     envelope.invocationId(),
-                    "Multimodal inference error: " + e.getMessage(),
+                    "Multimodal inference error: " + errorCode,
                     envelope.invocationId(),
                     end,
                     Duration.between(start, end)));
@@ -95,19 +98,16 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                 envelope.invocationId(), end, Duration.between(start, end)));
     }
 
-    private String requireString(Map<String, Object> input, String key) {
-        Object val = input.get(key);
-        if (!(val instanceof String s) || s.isBlank()) {
-            throw new IllegalArgumentException("Required input field '" + key + "' is missing or blank");
-        }
-        return s;
-    }
-
     private boolean optionalBoolean(Map<String, Object> input, String key, boolean fallback) {
         Object value = input.get(key);
         if (value == null) return fallback;
         if (!(value instanceof Boolean flag)) throw new IllegalArgumentException("INVALID_" + key.toUpperCase());
         return flag;
+    }
+
+    private static String validationErrorCode(Exception error) {
+        String message = error.getMessage();
+        return message != null && VALIDATION_CODES.contains(message) ? message : "MULTIMODAL_INPUT_INVALID";
     }
 
 }
