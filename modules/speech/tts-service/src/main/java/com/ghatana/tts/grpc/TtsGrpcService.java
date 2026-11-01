@@ -571,6 +571,9 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             TtsStreamingSession session;
             try (Scope ignored = operationContext.makeCurrent()) {
                 session = engine.startStreaming(text, synthesisOptions, sink);
+                if (session == null) {
+                    throw new IllegalStateException("TTS provider returned no streaming session");
+                }
             }
             activeSession.set(session);
             // A provider session can arrive after timeout already won while startStreaming was

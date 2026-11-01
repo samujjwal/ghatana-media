@@ -1392,6 +1392,20 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void admittedStreamNullSessionReturnsTerminalPreconditionFailure() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        when(engine.startStreaming(anyString(), any(), any())).thenReturn(null);
+        CapturingObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = new CapturingObserver<>();
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertStatus(observer, Status.Code.FAILED_PRECONDITION);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(engine).startStreaming(anyString(), any(), any());
+    }
+
+    @Test
     void blockedStartTimesOutAndCancelsSessionWhenFactoryEventuallyReturns() throws Exception {
         TtsGrpcService admitted = admittedService(() -> true, () -> true, Duration.ofMillis(100));
         CountDownLatch startEntered = new CountDownLatch(1);
