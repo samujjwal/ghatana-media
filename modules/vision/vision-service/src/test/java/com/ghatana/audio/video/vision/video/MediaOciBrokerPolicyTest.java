@@ -129,4 +129,20 @@ class MediaOciBrokerPolicyTest {
                 .isInstanceOf(java.io.IOException.class)
                 .hasMessageContaining("could not confirm worker container cleanup");
     }
+
+    @Test
+    void brokerRequiresSuccessfulExactOomStateReadback() throws Exception {
+        assertThat(MediaOciBrokerDaemon.parseOomKilledState(0, "true\n", false)).isTrue();
+        assertThat(MediaOciBrokerDaemon.parseOomKilledState(0, "false\n", false)).isFalse();
+
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.parseOomKilledState(9, "false", false))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("could not confirm worker OOM state");
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.parseOomKilledState(0, "false", true))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("could not confirm worker OOM state");
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.parseOomKilledState(0, "", false))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("invalid worker OOM state");
+    }
 }

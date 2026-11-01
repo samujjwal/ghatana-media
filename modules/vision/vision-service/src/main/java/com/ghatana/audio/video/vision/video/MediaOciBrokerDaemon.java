@@ -219,6 +219,7 @@ public final class MediaOciBrokerDaemon {
             if (timedOut) kill(docker, id);
             CommandResult oom = run(List.of(docker, "inspect",
                     "--format", "{{.State.OOMKilled}}", id), Duration.ofSeconds(10));
+            boolean oomKilled = parseOomKilledState(oom.exitCode(), oom.output(), oom.timedOut());
             long outputBytes = output != null && Files.exists(output)
                     ? Files.walk(output).filter(Files::isRegularFile)
                             .mapToLong(p -> { try { return Files.size(p); } catch (IOException e) { return 0L; } })
@@ -229,7 +230,7 @@ public final class MediaOciBrokerDaemon {
                     : started.output();
             return "{\"exitCode\":" + (timedOut ? -1 : started.exitCode())
                     + ",\"timedOut\":" + timedOut
-                    + ",\"oomKilled\":" + oom.output().trim().equals("true")
+                    + ",\"oomKilled\":" + oomKilled
                     + ",\"outputBytes\":" + outputBytes
                     + ",\"outputExceeded\":" + (outputBytes > outputLimit)
                     + ",\"tail\":" + json(tail) + "}";
@@ -272,6 +273,17 @@ public final class MediaOciBrokerDaemon {
         if (result.timedOut() || result.exitCode() != 0) {
             throw new IOException("Vision OCI broker could not confirm worker container cleanup");
         }
+    }
+
+    static boolean parseOomKilledState(int exitCode, String output, boolean timedOut) throws IOException {
+        if (timedOut || exitCode != 0 || output == null) {
+            throw new IOException("Vision OCI broker could not confirm worker OOM state");
+        }
+        return switch (output.trim()) {
+            case "true" -> true;
+            case "false" -> false;
+            default -> throw new IOException("Vision OCI broker returned an invalid worker OOM state");
+        };
     }
 
     private static void kill(String docker, String id) throws IOException {
