@@ -6142,12 +6142,12 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "currentSourceFileSha256": "23f63bf813690bf8dccf940d5f339f651c6a415f298cef7d305a03035c4d5893",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "67278a175ed6f0cc952e8095f0169199ae8b26c8afd891824fb8af7d7be13849",
-              "reason": "The source-manifest provenance fingerprint was regenerated again. The selected values were re-read and are unchanged; replaced current source-file SHA-256 36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c is retained as the latest history entry. Owner review remains pending; no acceptance is inferred.",
-              "previousCurrentSourceFileSha256": "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-              "supersededCurrentSourceFileSha256": "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+              "reason": "The generated source manifest was regenerated at commit 877fc7fe. Its productArtifactIndex changed, but the exact four selected values (authoritySource, generator, records/0/owner, and records/0/generatedOrAuthored) match the prior manifest at 8e5a840d byte-for-byte. Only the pending source-file observation is refreshed; the prior 822e9b9a... file digest is retained in history. Coordinator material review remains pending; no semantic parity, owner approval, or acceptance is inferred.",
+              "previousCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "supersededCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
@@ -6160,7 +6160,8 @@
                 "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
                 "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
                 "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6"
+                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+                "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7"
               ]
             }
           },
@@ -6170,12 +6171,12 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "currentSourceFileSha256": "23f63bf813690bf8dccf940d5f339f651c6a415f298cef7d305a03035c4d5893",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "fbb4c60105fedf403d0f2cc7532815a0cfcc8e543308ed59af335359f3657531",
-              "reason": "The source-manifest provenance fingerprint was regenerated again. The selected values were re-read and are unchanged; replaced current source-file SHA-256 36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c is retained as the latest history entry. Owner review remains pending; no acceptance is inferred.",
-              "previousCurrentSourceFileSha256": "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-              "supersededCurrentSourceFileSha256": "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+              "reason": "The generated source manifest was regenerated at commit 877fc7fe. Its productArtifactIndex changed, but the exact four selected values (authoritySource, generator, records/0/owner, and records/0/generatedOrAuthored) match the prior manifest at 8e5a840d byte-for-byte. Only the pending source-file observation is refreshed; the prior 822e9b9a... file digest is retained in history. Coordinator material review remains pending; no semantic parity, owner approval, or acceptance is inferred.",
+              "previousCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "supersededCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
@@ -6188,7 +6189,8 @@
                 "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
                 "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
                 "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6"
+                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+                "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7"
               ]
             }
           },
@@ -6198,12 +6200,12 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "currentSourceFileSha256": "23f63bf813690bf8dccf940d5f339f651c6a415f298cef7d305a03035c4d5893",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "a17ac49c8e9910dde9ed73c970ecf324ac48b981daaddba6e93cf7d46b062749",
-              "reason": "The source-manifest provenance fingerprint was regenerated again. The selected values were re-read and are unchanged; replaced current source-file SHA-256 36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c is retained as the latest history entry. Owner review remains pending; no acceptance is inferred.",
-              "previousCurrentSourceFileSha256": "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-              "supersededCurrentSourceFileSha256": "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+              "reason": "The generated source manifest was regenerated at commit 877fc7fe. Its productArtifactIndex changed, but the exact four selected values (authoritySource, generator, records/0/owner, and records/0/generatedOrAuthored) match the prior manifest at 8e5a840d byte-for-byte. Only the pending source-file observation is refreshed; the prior 822e9b9a... file digest is retained in history. Coordinator material review remains pending; no semantic parity, owner approval, or acceptance is inferred.",
+              "previousCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "supersededCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
@@ -6216,7 +6218,8 @@
                 "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
                 "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
                 "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6"
+                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+                "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7"
               ]
             }
           },
@@ -6226,12 +6229,12 @@
             "currentProposalObservation": {
               "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
               "priorSourceFileSha256": null,
-              "currentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "currentSourceFileSha256": "23f63bf813690bf8dccf940d5f339f651c6a415f298cef7d305a03035c4d5893",
               "priorSourceValueSha256": null,
               "currentSourceValueSha256": "82b11bb8e13b567c0f76d554cfdbf2b5ef4d0802e1e47a85daf0f964fdd5e2a0",
-              "reason": "The source-manifest provenance fingerprint was regenerated again. The selected values were re-read and are unchanged; replaced current source-file SHA-256 36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c is retained as the latest history entry. Owner review remains pending; no acceptance is inferred.",
-              "previousCurrentSourceFileSha256": "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-              "supersededCurrentSourceFileSha256": "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+              "reason": "The generated source manifest was regenerated at commit 877fc7fe. Its productArtifactIndex changed, but the exact four selected values (authoritySource, generator, records/0/owner, and records/0/generatedOrAuthored) match the prior manifest at 8e5a840d byte-for-byte. Only the pending source-file observation is refreshed; the prior 822e9b9a... file digest is retained in history. Coordinator material review remains pending; no semantic parity, owner approval, or acceptance is inferred.",
+              "previousCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
+              "supersededCurrentSourceFileSha256": "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
               "sourceFileSha256History": [
                 "cb21a0b5a5c2c58dbf4ef9d81f77f1490a07ba470d2399ad3a7c97c114a68192",
                 "13f524c1c9827768c416d7db7e8686545d954e7c1df706376a231e167ecb9348",
@@ -6244,7 +6247,8 @@
                 "a567d1fafc9978ed8ef6c97c07e75aa59371aaaf4a7ee9737b7aa69300579a67",
                 "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
                 "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6"
+                "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6",
+                "822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7"
               ]
             }
           }

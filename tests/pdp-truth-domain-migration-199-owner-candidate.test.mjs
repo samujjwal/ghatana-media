@@ -391,19 +391,28 @@ test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preservin
   assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
   assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
   assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
+  const previousManifestSource = execFileSync("git", ["show", "8e5a840d7b6c04e90b2ee17e5b5ae816424fd43c:.product-experience/source-manifest.yaml"], { cwd: root, encoding: "utf8" });
+  const previousManifest = parse(previousManifestSource);
+  const previousManifestSha = sha(previousManifestSource);
   for (const binding of row.ownerSemanticReview.materialBindings) {
     const current = binding.currentProposalObservation;
-    assert.equal(current.currentSourceFileSha256, sha(resolveSelector(binding.ref).source));
-    const selected = resolveSelector(binding.ref).value;
+    const resolved = resolveSelector(binding.ref);
+    assert.equal(current.currentSourceFileSha256, sha(resolved.source));
+    const selected = resolved.value;
+    const previousSelected = binding.ref.split("#")[1].split("/").filter(Boolean).reduce((value, key) => value?.[key], previousManifest);
+    assert.deepEqual(selected, previousSelected, `${binding.ref} retains its selected source value across manifest regeneration`);
     assert.equal(current.currentSourceValueSha256, sha(typeof selected === "string" ? selected : JSON.stringify(selected)));
-    assert.equal(current.supersededCurrentSourceFileSha256, "8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6");
-    assert.deepEqual(current.sourceFileSha256History.slice(-3), [
-      "d6b2148f1783a90e6a91af6a67363aeb75b3d1b1ded127cabdb20a0ba0a9864d",
-      "36a4be0fc4769fc139b5ef0b13ecbf5d671869e66959e9e68d0a59cff3c5e36c",
-      current.supersededCurrentSourceFileSha256,
-    ], "manifest provenance refresh appends the replaced current source pin after earlier history");
+    assert.equal(current.supersededCurrentSourceFileSha256, previousManifestSha);
+    assert.equal(current.previousCurrentSourceFileSha256, previousManifestSha);
+    assert.equal(current.sourceFileSha256History.at(-1), previousManifestSha,
+      "the exact predecessor manifest digest remains the last history entry");
+    assert.ok(current.sourceFileSha256History.includes("8f0c68d72d1f16dc050e02ea5c714960d980212278e20f499fcf769b726860a6"),
+      "earlier source-manifest provenance history is preserved");
     assert.equal(current.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
   }
+  assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
+    "source-manifest re-observation does not approve semantic parity");
+  assert.equal(row.ownerSemanticReview.acceptanceEffect, "none");
 });
 
 test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
