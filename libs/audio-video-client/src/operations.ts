@@ -24,6 +24,7 @@ import {
 } from "@audio-video/types/contracts";
 
 import {
+  abortable,
   MediaHttpTransport,
   boundedPositive,
   linkAbortSignal,
@@ -524,7 +525,15 @@ export class MediaOperationClient {
       // Keep observer failures inside the cleanup scope, but this initial
       // notification occurs before dispatch and therefore has no effect to reconcile.
       options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
-      const headers = await this.transport.headers({ "Content-Type": "application/octet-stream" });
+      const headers = await abortable(
+        this.transport.headers({ "Content-Type": "application/octet-stream" }),
+        controller.signal,
+      );
+      // Token acquisition can await; honor an abort/timeout that fired during
+      // that setup before treating the chunk as potentially dispatched.
+      if (controller.signal.aborted) {
+        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
+      }
       // Once fetch is entered, a timeout or caller abort cannot prove whether
       // the server committed this chunk. The caller must reconcile the durable
       // upload session before attempting another mutation.

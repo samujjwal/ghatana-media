@@ -613,7 +613,10 @@ describe("MediaOperationClient", () => {
   });
 
   it("reports an aborted chunk dispatch as ambiguous so callers reconcile before retrying", async () => {
+    let markFetchEntered!: () => void;
+    const fetchEntered = new Promise<void>((resolve) => { markFetchEntered = resolve; });
     const fetchImpl = vi.fn((_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => new Promise((_, reject) => {
+      markFetchEntered();
       if (init?.signal?.aborted) reject(init.signal.reason);
       else init?.signal?.addEventListener("abort", () => reject(init.signal?.reason), { once: true });
     })) as unknown as typeof fetch;
@@ -621,12 +624,31 @@ describe("MediaOperationClient", () => {
       defaultHeaders: { "X-Principal-Id": "principal-1" } });
     const controller = new AbortController();
     const pending = client.uploadPart(uploadSession(), 0, new Blob(["abc"]), { signal: controller.signal });
-    await Promise.resolve();
+    await fetchEntered;
     controller.abort(new DOMException("caller cancelled", "AbortError"));
     const failure = await pending.catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not dispatch a chunk aborted while asynchronous credentials are being acquired", async () => {
+    let releaseToken!: (token: string) => void;
+    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      getAccessToken: () => token,
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+    });
+    const controller = new AbortController();
+    const pending = client.uploadPart(uploadSession(), 0, new Blob(["abc"]), { signal: controller.signal });
+
+    controller.abort(new DOMException("caller cancelled before chunk dispatch", "AbortError"));
+    releaseToken("token-1");
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("completes uploads on the canonical route without a body and returns the runtime artifact DTO", async () => {
@@ -704,6 +726,78 @@ describe("MediaOperationClient", () => {
       expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
       expect(failure.path).toBe("/api/v1/media/transcriptions");
       expect(fetchImpl).toHaveBeenCalledTimes(1); // no blind retry attempted
+    }
+  });
+
+  it("does not dispatch a mutation aborted while asynchronous credentials are being acquired", async () => {
+    let releaseToken!: (token: string) => void;
+    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      getAccessToken: () => token,
+    });
+    const controller = new AbortController();
+    const pending = client.transcribe({
+      artifactId: "art-1",
+      punctuation: true,
+      wordTimestamps: false,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE",
+      idempotencyKey: "submit-aborted-before-dispatch",
+    }, controller.signal);
+
+    controller.abort(new DOMException("caller cancelled before dispatch", "AbortError"));
+    releaseToken("token-1");
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("observes credential setup rejection when the request is already aborted", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+      getAccessToken: () => Promise.reject(new Error("credential provider unavailable")),
+    });
+    const controller = new AbortController();
+    controller.abort(new DOMException("cancelled before request setup", "AbortError"));
+
+    await expect(client.transcribe({
+      artifactId: "art-1",
+      punctuation: true,
+      wordTimestamps: false,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE",
+      idempotencyKey: "submit-already-aborted",
+    }, controller.signal)).rejects.toMatchObject({ name: "AbortError" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("enforces the request timeout while asynchronous credentials are pending", async () => {
+    vi.useFakeTimers();
+    try {
+      const token = new Promise<string>(() => undefined);
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        getAccessToken: () => token, requestTimeoutMs: 10,
+      });
+      const pending = client.transcribe({
+        artifactId: "art-1",
+        punctuation: true,
+        wordTimestamps: false,
+        alternatives: 1,
+        profanityPolicy: "PRESERVE",
+        idempotencyKey: "submit-timeout-before-dispatch",
+      });
+      const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
+
+      await vi.advanceTimersByTimeAsync(10);
+      await rejection;
+      expect(fetchImpl).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
     }
   });
 

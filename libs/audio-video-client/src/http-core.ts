@@ -87,6 +87,44 @@ export function linkAbortSignal(source: AbortSignal | undefined, target: AbortCo
   return () => source.removeEventListener("abort", onAbort);
 }
 
+/** Stop awaiting asynchronous request setup promptly when its signal aborts. */
+export function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    let settled = false;
+    const cleanup = (): void => signal.removeEventListener("abort", onAbort);
+    const onAbort = (): void => {
+      if (!settled) {
+        settled = true;
+        cleanup();
+        reject(signal.reason ?? new DOMException("Operation cancelled", "AbortError"));
+      }
+    };
+    // Always observe setup settlement, even if the signal is already aborted.
+    // Otherwise a later credential-provider rejection becomes unhandled.
+    promise.then(
+      (value) => {
+        if (!settled) {
+          settled = true;
+          cleanup();
+          resolve(value);
+        }
+      },
+      (failure: unknown) => {
+        if (!settled) {
+          settled = true;
+          cleanup();
+          reject(failure);
+        }
+      },
+    );
+    if (signal.aborted) {
+      onAbort();
+      return;
+    }
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
 export function wait(milliseconds: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
@@ -225,9 +263,16 @@ export class MediaHttpTransport {
       this.requestTimeoutMs,
     );
     try {
-      const headers = await this.headers(additionalHeaders);
+      const headers = await abortable(this.headers(additionalHeaders), controller.signal);
       if (body !== undefined) headers.set("Content-Type", "application/json");
       const serializedBody = body === undefined ? undefined : JSON.stringify(body);
+      // Credential acquisition may be asynchronous. If the caller or request
+      // timeout aborts while headers are being prepared, do not enter fetch:
+      // no request crossed the dispatch boundary and mutations remain safely
+      // distinguishable from OUTCOME_UNKNOWN.
+      if (controller.signal.aborted) {
+        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
+      }
       // Callers that perform mutations can distinguish local setup failures
       // from failures after the request may have crossed the network boundary.
       onDispatch?.();
