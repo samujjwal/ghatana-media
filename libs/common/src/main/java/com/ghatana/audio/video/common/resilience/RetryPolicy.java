@@ -37,6 +37,13 @@ import java.util.function.Predicate;
  */
 public final class RetryPolicy {
 
+    /** Hard ceiling preventing configurations from creating effectively unbounded retry work. */
+    public static final int MAX_ATTEMPTS = 100;
+    /** Hard ceiling for retry delays, including jitter. */
+    public static final Duration MAX_DELAY = Duration.ofMinutes(1);
+    /** Hard ceiling for retry/back-off elapsed budget. Callable execution needs its own I/O timeout. */
+    public static final Duration MAX_ELAPSED = Duration.ofMinutes(5);
+
     private static final Logger LOG = LoggerFactory.getLogger(RetryPolicy.class);
 
     private final int maxAttempts;
@@ -105,6 +112,10 @@ public final class RetryPolicy {
         int attemptsMade = 0;
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            if (retryBudgetExpired(startedNanos, System.nanoTime(), maxElapsedMs)) {
+                LOG.warn("Retry elapsed-time budget exhausted before attempt {}", attempt);
+                break;
+            }
             attemptsMade = attempt;
             try {
                 return action.call();
@@ -157,6 +168,12 @@ public final class RetryPolicy {
     static long boundedDelay(long delayMs, long maxDelayMs, double jitterFactor, double randomValue) {
         long jitteredDelay = jitterFactor <= 0 ? delayMs : applyJitter(delayMs, jitterFactor, randomValue);
         return Math.min(jitteredDelay, maxDelayMs);
+    }
+
+    /** Returns true when another attempt must not start within the elapsed retry budget. */
+    static boolean retryBudgetExpired(long startedNanos, long nowNanos, long maxElapsedMs) {
+        long elapsedNanos = nowNanos - startedNanos;
+        return elapsedNanos < 0 || elapsedNanos / 1_000_000L >= maxElapsedMs;
     }
 
     /** Applies symmetric jitter while saturating the addition instead of wrapping a large delay. */
@@ -226,7 +243,9 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder maxAttempts(int maxAttempts) {
-            if (maxAttempts < 1) throw new IllegalArgumentException("maxAttempts must be >= 1");
+            if (maxAttempts < 1 || maxAttempts > MAX_ATTEMPTS) {
+                throw new IllegalArgumentException("maxAttempts must be between 1 and " + MAX_ATTEMPTS);
+            }
             this.maxAttempts = maxAttempts;
             return this;
         }
@@ -249,13 +268,13 @@ public final class RetryPolicy {
          * @return this builder
          */
         public Builder maxDelay(Duration maxDelay) {
-            this.maxDelayMs = positiveMillis(maxDelay, "maxDelay");
+            this.maxDelayMs = boundedMillis(maxDelay, "maxDelay", MAX_DELAY);
             return this;
         }
 
         /** Maximum wall-clock time spent retrying, including back-off sleeps. */
         public Builder maxElapsed(Duration maxElapsed) {
-            this.maxElapsedMs = positiveMillis(maxElapsed, "maxElapsed");
+            this.maxElapsedMs = boundedMillis(maxElapsed, "maxElapsed", MAX_ELAPSED);
             return this;
         }
 
@@ -336,6 +355,14 @@ public final class RetryPolicy {
             }
             if (millis <= 0) {
                 throw new IllegalArgumentException(name + " must be at least 1 millisecond");
+            }
+            return millis;
+        }
+
+        private static long boundedMillis(Duration duration, String name, Duration maximum) {
+            long millis = positiveMillis(duration, name);
+            if (duration.compareTo(maximum) > 0) {
+                throw new IllegalArgumentException(name + " must not exceed " + maximum);
             }
             return millis;
         }

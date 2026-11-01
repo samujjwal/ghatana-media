@@ -213,6 +213,24 @@ class RetryPolicyTest {
     }
 
     @Test
+    @DisplayName("builder: retry work has finite hard limits")
+    void builder_retryLimits_areBounded() {
+        assertThatThrownBy(() -> RetryPolicy.builder().maxAttempts(RetryPolicy.MAX_ATTEMPTS + 1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxAttempts");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxDelay(RetryPolicy.MAX_DELAY.plusMillis(1)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxDelay");
+        assertThatThrownBy(() -> RetryPolicy.builder().maxElapsed(RetryPolicy.MAX_ELAPSED.plusMillis(1)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxElapsed");
+
+        assertThat(RetryPolicy.builder().maxAttempts(RetryPolicy.MAX_ATTEMPTS)
+            .maxDelay(RetryPolicy.MAX_DELAY).maxElapsed(RetryPolicy.MAX_ELAPSED).build())
+            .isNotNull();
+    }
+
+    @Test
     @DisplayName("builder: multiplier < 1.0 → IllegalArgumentException")
     void builder_invalidMultiplier_throwsException() { 
         assertThatThrownBy(() -> RetryPolicy.builder().multiplier(0.5).build()) 
@@ -278,6 +296,20 @@ class RetryPolicyTest {
         assertThat(RetryPolicy.boundedDelay(80, 100, 1.0, Math.nextDown(1.0)))
             .isEqualTo(100);
         assertThat(RetryPolicy.boundedDelay(80, 100, 1.0, 0.0)).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("retry budget: elapsed deadline prevents starting another attempt")
+    void retryBudgetExpired_checksBeforeAttemptAtDeadline() {
+        long startedNanos = 1_000_000L;
+        long budgetMs = 25L;
+
+        assertThat(RetryPolicy.retryBudgetExpired(startedNanos,
+                startedNanos + budgetMs * 1_000_000L - 1, budgetMs)).isFalse();
+        assertThat(RetryPolicy.retryBudgetExpired(startedNanos,
+                startedNanos + budgetMs * 1_000_000L, budgetMs)).isTrue();
+        assertThat(RetryPolicy.retryBudgetExpired(startedNanos,
+                startedNanos + (budgetMs + 1) * 1_000_000L, budgetMs)).isTrue();
     }
 
     @Test

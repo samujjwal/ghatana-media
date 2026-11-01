@@ -23,6 +23,10 @@ public final class FileSystemModelStore implements ModelRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(FileSystemModelStore.class);
     /** Default maximum number of concurrently cached models per store. */
     public static final int DEFAULT_CACHE_CAPACITY = 8;
+    /** Maximum cache size accepted from configuration. */
+    public static final int MAX_CACHE_CAPACITY = 1_024;
+    /** Maximum number of model descriptors retained by this in-memory registry. */
+    public static final int MAX_REGISTERED_MODELS = 10_000;
     private final int cacheCapacity;
     private final ConcurrentHashMap<String, ModelMetadata> registry = new ConcurrentHashMap<>();
     private final LinkedHashMap<String, ModelMetadata> lruCache;
@@ -30,7 +34,9 @@ public final class FileSystemModelStore implements ModelRegistry {
         this(DEFAULT_CACHE_CAPACITY);
     }
     public FileSystemModelStore(int cacheCapacity) {
-        if (cacheCapacity < 1) throw new IllegalArgumentException("cacheCapacity must be >= 1");
+        if (cacheCapacity < 1 || cacheCapacity > MAX_CACHE_CAPACITY) {
+            throw new IllegalArgumentException("cacheCapacity must be between 1 and " + MAX_CACHE_CAPACITY);
+        }
         this.cacheCapacity = cacheCapacity;
         this.lruCache = new LinkedHashMap<>(cacheCapacity + 1, 0.75f, true) {
             @Override
@@ -45,11 +51,15 @@ public final class FileSystemModelStore implements ModelRegistry {
         };
     }
     @Override
-    public void register(ModelMetadata metadata) {
+    public synchronized void register(ModelMetadata metadata) {
         Objects.requireNonNull(metadata, "metadata cannot be null");
-        if (registry.putIfAbsent(metadata.modelId(), metadata) != null) {
+        if (registry.containsKey(metadata.modelId())) {
             throw new ModelRegistryException("Model already registered: " + metadata.modelId());
         }
+        if (registry.size() >= MAX_REGISTERED_MODELS) {
+            throw new ModelRegistryException("Model registry capacity reached");
+        }
+        registry.put(metadata.modelId(), metadata);
         LOG.info("Model registered: {} ({})", metadata.modelId(), metadata.type());
     }
     @Override
@@ -116,6 +126,45 @@ public final class FileSystemModelStore implements ModelRegistry {
     public Optional<ModelMetadata> findById(String modelId) {
         return Optional.ofNullable(registry.get(modelId));
     }
+
+    /**
+     * Returns a bounded, non-sensitive descriptor for a registered model.
+     *
+     * <p>{@code READY} means only that this store has the model loaded and its local asset is
+     * currently available. It does not qualify a model, prove provider behavior, or imply a
+     * successful engine effect. The source field is a source kind, never a filesystem path.
+     */
+    public synchronized Optional<ModelDescriptor> describe(String modelId) {
+        Objects.requireNonNull(modelId, "modelId cannot be null");
+        ModelMetadata metadata = registry.get(modelId);
+        if (metadata == null) {
+            return Optional.empty();
+        }
+        String source = metadata.modelPath() == null ? "in-memory" : "filesystem";
+        boolean sourceAvailable = metadata.modelPath() == null
+                || (Files.isRegularFile(metadata.modelPath()) && Files.isReadable(metadata.modelPath()));
+        boolean cached = lruCache.containsKey(modelId);
+        Readiness readiness = !cached || !metadata.loaded() || !sourceAvailable
+                ? Readiness.NOT_READY
+                : metadata.modelPath() == null ? Readiness.UNVERIFIED : Readiness.READY;
+        return Optional.of(new ModelDescriptor(metadata.modelId(), metadata.version(), source,
+                metadata.type(), readiness));
+    }
+
+    /** Asset-store readiness only; it is not model or engine qualification. */
+    public enum Readiness {
+        READY,
+        NOT_READY,
+        UNVERIFIED
+    }
+
+    /** Public descriptor with no local path or qualification claim. */
+    public record ModelDescriptor(
+            String modelId,
+            String version,
+            String source,
+            ModelMetadata.ModelType type,
+            Readiness readiness) {}
     @Override
     public synchronized Optional<ModelMetadata> getActiveModel(ModelMetadata.ModelType type) {
         return lruCache.values().stream()

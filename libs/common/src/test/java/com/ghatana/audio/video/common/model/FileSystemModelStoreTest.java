@@ -63,6 +63,27 @@ class FileSystemModelStoreTest {
                 .hasMessageContaining("already registered");
     }
 
+    @Test
+    @DisplayName("register: registry refuses model counts beyond its finite descriptor bound")
+    void register_atCapacity_rejectsAdditionalModel() {
+        FileSystemModelStore bounded = new FileSystemModelStore(1);
+        for (int i = 0; i < FileSystemModelStore.MAX_REGISTERED_MODELS; i++) {
+            bounded.register(buildMeta("model-" + i, ModelMetadata.ModelType.STT));
+        }
+
+        assertThatThrownBy(() -> bounded.register(buildMeta("overflow", ModelMetadata.ModelType.STT)))
+            .isInstanceOf(ModelRegistry.ModelRegistryException.class)
+            .hasMessageContaining("capacity");
+    }
+
+    @Test
+    @DisplayName("constructor: cache capacity has a finite upper bound")
+    void constructor_cacheCapacityAboveBound_rejects() {
+        assertThatThrownBy(() -> new FileSystemModelStore(FileSystemModelStore.MAX_CACHE_CAPACITY + 1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("cacheCapacity");
+    }
+
     // ── load ────────────────────────────────────────────────────────────────
 
     @Test
@@ -92,6 +113,60 @@ class FileSystemModelStoreTest {
 
         assertThat(loaded.loaded()).isTrue(); 
         assertThat(loaded.sizeBytes()).isEqualTo(1024L); 
+    }
+
+    @Test
+    @DisplayName("describe: reports asset readiness with source and version but no local path")
+    void describe_reportsBoundedAssetReadiness() throws IOException {
+        Path modelFile = tempDir.resolve("private-model-dir/model.onnx");
+        Files.createDirectories(modelFile.getParent());
+        Files.write(modelFile, new byte[] {1, 2, 3});
+        ModelMetadata metadata = ModelMetadata.builder()
+                .modelId("model-a").version("2.4.1").type(ModelMetadata.ModelType.STT)
+                .modelPath(modelFile).build();
+        store.register(metadata);
+
+        var beforeLoad = store.describe("model-a").orElseThrow();
+        assertThat(beforeLoad.version()).isEqualTo("2.4.1");
+        assertThat(beforeLoad.source()).isEqualTo("filesystem");
+        assertThat(beforeLoad.readiness()).isEqualTo(FileSystemModelStore.Readiness.NOT_READY);
+        assertThat(beforeLoad.toString()).doesNotContain(modelFile.toString());
+
+        store.load("model-a");
+        assertThat(store.describe("model-a").orElseThrow().readiness())
+                .isEqualTo(FileSystemModelStore.Readiness.READY);
+    }
+
+    @Test
+    @DisplayName("describe: missing and unregistered models do not report ready")
+    void describe_missingSourceAndUnknownModel_areNotReady() {
+        Path missingFile = tempDir.resolve("missing.onnx");
+        store.register(ModelMetadata.builder().modelId("missing-source")
+                .modelPath(missingFile).build());
+
+        assertThat(store.describe("missing-source").orElseThrow().readiness())
+                .isEqualTo(FileSystemModelStore.Readiness.NOT_READY);
+        assertThat(store.describe("ghost")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("describe: caller-supplied loaded metadata is not store readiness")
+    void describe_preloadedMetadataRequiresStoreCacheMembership() {
+        store.register(ModelMetadata.builder().modelId("preloaded")
+                .modelPath(tempDir.resolve("exists.onnx")).loaded(true).build());
+
+        assertThat(store.describe("preloaded").orElseThrow().readiness())
+                .isEqualTo(FileSystemModelStore.Readiness.NOT_READY);
+    }
+
+    @Test
+    @DisplayName("describe: cached in-memory registration remains unverified")
+    void describe_inMemoryModelIsUnverified() {
+        store.register(buildMeta("memory-model", ModelMetadata.ModelType.STT));
+        store.load("memory-model");
+
+        assertThat(store.describe("memory-model").orElseThrow().readiness())
+                .isEqualTo(FileSystemModelStore.Readiness.UNVERIFIED);
     }
 
     @Test
