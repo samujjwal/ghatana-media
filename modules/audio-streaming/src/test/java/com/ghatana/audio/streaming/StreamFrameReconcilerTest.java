@@ -59,6 +59,25 @@ class StreamFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("held payload is snapshotted before the caller can mutate it")
+    void heldPayloadIsSnapshotted() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        byte[] sourcePayload = new byte[]{1, 2, 3};
+        AudioStreamSession.DecodedFrame source =
+                new AudioStreamSession.DecodedFrame(1, 1000L, sourcePayload);
+
+        assertThat(rec.offer(source)).isEqualTo(Disposition.HELD);
+        sourcePayload[0] = 9;
+        source.payload()[1] = 8;
+        assertThat(rec.pendingBytes()).isEqualTo(3);
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+
+        AudioStreamSession.DecodedFrame delivered = rec.takeDelivered();
+        assertThat(delivered.payload()).containsExactly((byte) 1, (byte) 2, (byte) 3);
+        assertThat(delivered).isNotSameAs(source);
+    }
+
+    @Test
     @DisplayName("a duplicate of a held frame is deduplicated, not held twice")
     void heldDuplicateDedup() {
         StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
@@ -161,7 +180,9 @@ class StreamFrameReconcilerTest {
 
         assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
         assertThat(rec.offer(frame(1))).isEqualTo(Disposition.DELIVERED);
-        assertThat(rec.takeDelivered()).isSameAs(largest);
+        AudioStreamSession.DecodedFrame delivered = rec.takeDelivered();
+        assertThat(delivered).isNotSameAs(largest);
+        assertThat(delivered.payload()).containsExactly(largest.payload());
         assertThat(rec.pendingBytes()).isZero();
         assertThat(rec.offer(new AudioStreamSession.DecodedFrame(3, 3000L, new byte[]{1})))
                 .isEqualTo(Disposition.DELIVERED);

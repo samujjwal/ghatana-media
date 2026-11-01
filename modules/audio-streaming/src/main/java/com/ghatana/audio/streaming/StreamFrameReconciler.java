@@ -136,7 +136,11 @@ public final class StreamFrameReconciler {
         if (pendingBytes + payload.length > MAX_PENDING_BYTES) {
             return Disposition.OVERFLOW;
         }
-        pending.put(sequence, frame);
+        // DecodedFrame carries a mutable byte array. The reorder buffer must own
+        // the held bytes so callers cannot change content after acceptance.
+        AudioStreamSession.DecodedFrame snapshot = new AudioStreamSession.DecodedFrame(
+                sequence, frame.timestampMillis(), payload.clone());
+        pending.put(sequence, snapshot);
         pendingBytes += payload.length;
         return Disposition.HELD;
     }
