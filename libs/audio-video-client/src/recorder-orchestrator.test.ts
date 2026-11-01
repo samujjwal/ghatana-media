@@ -63,6 +63,34 @@ describe("orchestrateScenario", () => {
     expect(next.sceneRuns[1]!.lineageId).toBe(prior.sceneRuns[1]!.lineageId);
   });
 
+  it.each([
+    ["source identity", { sourceRef: "media-file:replacement-clip" }],
+    ["narration", { narration: [{ atMillis: 750, trackRef: "narration/intro@v2" }] }],
+    ["caption refs", { captionRefs: ["captions/intro@v2"] }],
+    ["duration", { durationMillis: 6_000 }],
+  ])("replans a scene when its %s changes without changing the declared lineage ID", (_label, change) => {
+    const base = scenario();
+    const prior = orchestrateScenario(base);
+    const next = orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, ...change }, base.scenes[1]!],
+    });
+
+    expect(next.sceneRuns[0]!.lineageId).toBe(prior.sceneRuns[0]!.lineageId);
+    expect(changedSceneLineages(prior, next)).toEqual({ carried: ["main"], replanned: ["intro"] });
+  });
+
+  it("replans when the role bound to a scene actor changes", () => {
+    const base = scenario();
+    const prior = orchestrateScenario(base);
+    const next = orchestrateScenario({
+      ...base,
+      actors: [{ actorId: "actor-1", role: "narrator" }],
+    });
+    expect(next.sceneRuns[0]!.actorBindings).toEqual([{ actorId: "actor-1", role: "narrator" }]);
+    expect(changedSceneLineages(prior, next)).toEqual({ carried: [], replanned: ["intro", "main"] });
+  });
+
   it("rejects unresolved actor refs and out-of-bounds narration", () => {
     expect(() => orchestrateScenario(scenario({
       scenes: [{ ...scenario().scenes[0]!, actorRefs: ["ghost"] }],
@@ -73,6 +101,22 @@ describe("orchestrateScenario", () => {
         narration: [{ atMillis: 9_999, trackRef: "t" }],
       }],
     }))).toThrowError(ScenarioError);
+  });
+
+  it("rejects duplicate scene, actor, and per-scene actor identities", () => {
+    const base = scenario();
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [base.scenes[0]!, { ...base.scenes[1]!, sceneId: "intro" }],
+    })).toThrowError(/duplicate sceneId/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      actors: [{ actorId: "actor-1", role: "presenter" }, { actorId: "actor-1", role: "editor" }],
+    })).toThrowError(/duplicate actorId/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, actorRefs: ["actor-1", "actor-1"] }, base.scenes[1]!],
+    })).toThrowError(/duplicate actorRef/u);
   });
 });
 

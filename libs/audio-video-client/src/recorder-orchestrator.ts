@@ -47,9 +47,12 @@ export interface Scenario {
 export interface SceneRun {
   readonly sceneId: string;
   readonly sourceRevision: string;
-  /** Deterministic lineage id: scenario+scene+revision, stable across runs. */
+  /** Stable declared identity: scenario+scene+source revision, not a content digest. */
   readonly lineageId: string;
   readonly capturePlan: CaptureRequest;
+  readonly durationMillis: number;
+  /** Exact actor identity/role bindings used by this scene. */
+  readonly actorBindings: readonly ScenarioActor[];
   readonly narration: readonly NarrationCue[];
   readonly captionRefs: readonly string[];
 }
@@ -107,18 +110,39 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     || scenario.scenes.length > MAX_SCENES) {
     throw new ScenarioError("INVALID_SCENARIO", `scenes must contain 1..${MAX_SCENES}`);
   }
-  const actorIds = new Set(scenario.actors.map((a) => requireText(a.actorId, "actorId")));
+  const actorsById = new Map<string, ScenarioActor>();
+  for (const actor of scenario.actors) {
+    const actorId = requireText(actor.actorId, "actorId");
+    const role = requireText(actor.role, "actor.role");
+    if (actorsById.has(actorId)) {
+      throw new ScenarioError("INVALID_SCENARIO", `duplicate actorId: ${actorId}`);
+    }
+    actorsById.set(actorId, { actorId, role });
+  }
+  const seenSceneIds = new Set<string>();
 
   const sceneRuns: SceneRun[] = scenario.scenes.map((scene, index) => {
     const sceneId = requireText(scene.sceneId, `scenes[${index}].sceneId`);
+    if (seenSceneIds.has(sceneId)) {
+      throw new ScenarioError("INVALID_SCENARIO", `duplicate sceneId: ${sceneId}`);
+    }
+    seenSceneIds.add(sceneId);
     const sourceRef = requireText(scene.sourceRef, `scenes[${index}].sourceRef`);
     const sourceRevision = requireText(scene.sourceRevision, `scenes[${index}].sourceRevision`);
-    for (const actorRef of scene.actorRefs ?? []) {
-      if (!actorIds.has(actorRef)) {
+    const sceneActorIds = new Set<string>();
+    const actorBindings = (scene.actorRefs ?? []).map((actorRef: string) => {
+      if (sceneActorIds.has(actorRef)) {
+        throw new ScenarioError("INVALID_SCENARIO",
+          `scene ${sceneId} contains duplicate actorRef: ${actorRef}`);
+      }
+      sceneActorIds.add(actorRef);
+      const actor = actorsById.get(actorRef);
+      if (!actor) {
         throw new ScenarioError("ACTOR_UNRESOLVED",
           `scene ${sceneId} references undeclared actor ${actorRef}`);
       }
-    }
+      return actor;
+    });
     if (!Number.isSafeInteger(scene.durationMillis) || scene.durationMillis < 1
       || scene.durationMillis > 3_600_000) {
       throw new ScenarioError("INVALID_SCENARIO",
@@ -144,6 +168,8 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
         secretsRef: `secrets/scenario/${scenarioId}`,
         frameClockRef: `clock/scenario/${scenarioId}`,
       },
+      durationMillis: scene.durationMillis,
+      actorBindings,
       narration,
       captionRefs: [...(scene.captionRefs ?? [])],
     };
@@ -159,14 +185,31 @@ export function changedSceneLineages(
   prior: OrchestrationResult,
   next: OrchestrationResult,
 ): { readonly carried: readonly string[]; readonly replanned: readonly string[] } {
-  const priorLineages = new Map(prior.sceneRuns.map((r) => [r.sceneId, r.lineageId]));
+  const priorRuns = new Map(prior.sceneRuns.map((run) => [run.sceneId, run]));
   const carried: string[] = [];
   const replanned: string[] = [];
   for (const run of next.sceneRuns) {
-    (priorLineages.get(run.sceneId) === run.lineageId ? carried : replanned)
+    const priorRun = priorRuns.get(run.sceneId);
+    (priorRun && sameSceneMaterialization(priorRun, run) ? carried : replanned)
       .push(run.sceneId);
   }
   return { carried, replanned };
+}
+
+/** Compare explicit material fields; lineageId is a stable declared ID, not a content digest. */
+function sameSceneMaterialization(left: SceneRun, right: SceneRun): boolean {
+  return left.lineageId === right.lineageId
+    && left.sourceRevision === right.sourceRevision
+    && left.durationMillis === right.durationMillis
+    && left.capturePlan.kind === right.capturePlan.kind
+    && left.capturePlan.sourceIdentity === right.capturePlan.sourceIdentity
+    && left.capturePlan.purposeRef === right.capturePlan.purposeRef
+    && left.capturePlan.sourceVersionRef === right.capturePlan.sourceVersionRef
+    && left.capturePlan.secretsRef === right.capturePlan.secretsRef
+    && left.capturePlan.frameClockRef === right.capturePlan.frameClockRef
+    && JSON.stringify(left.actorBindings) === JSON.stringify(right.actorBindings)
+    && JSON.stringify(left.narration) === JSON.stringify(right.narration)
+    && JSON.stringify(left.captionRefs) === JSON.stringify(right.captionRefs);
 }
 
 /**
