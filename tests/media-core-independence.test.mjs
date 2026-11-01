@@ -53,8 +53,7 @@ test('generic OCR accepted owner and Media scene semantics are not silently rewr
   assert.match(decision,/Document Intelligence owns generic parsing/u);
   const product=read('.product-experience/pdp-0-product-truth/ocr-ownership.yaml');
   assert.match(product,/status: EXTERNAL_BLOCKER/u);
-  const compat=read('modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java');
-  assert.match(compat,/throw new NotAdmittedException/u);
+  assert.equal(existsSync(resolve(root,'modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java')),false);
   const admission=read('libs/audio-video-client/src/authorized-scene-text.ts');
   assert.match(admission,/verifyCurrentSource/u);
   assert.match(admission,/croppedFrameSha256/u);

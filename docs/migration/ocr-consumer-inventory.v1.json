@@ -45,10 +45,10 @@
         "DocumentIntelligenceHttpClient",
         "DocumentIntelligenceV1"
       ],
-      "role": "CONSUMER_SEAM_NOT_EXPOSED",
+      "role": "CONSUMER_SEAM",
       "disposition": "DI_MIGRATED",
       "packet": "OCR-M02",
-      "remaining": "Source-level DI-only frame/ROI/PTS consumer with protocol-fixture tests; not yet exposed through a public RPC and not verified against a real DI worker (VIS-09 open)."
+      "remaining": "The scene-text RPC uses the DI-only frame/ROI/PTS consumer, but standalone runtime-port composition and real DI worker qualification remain open (VIS-09)."
     },
     {
       "id": "MEDIA-JAVA-VISION-GRPC-TEXT",
@@ -73,10 +73,10 @@
         "OcrService.of",
         "OcrService.extractText"
       ],
-      "role": "LEGACY_SHIM_FAIL_CLOSED",
-      "disposition": "REQUIRES_WORK",
+      "role": "RETIRED_MEDIA_MODULE",
+      "disposition": "RETIRED",
       "packet": "OCR-M03",
-      "remaining": "Delete after OCR-K01 removes the Kernel media.ocr binding that KernelOcrProviderAdapter serves."
+      "remaining": "The Media implementation is removed; a real qualified DI provider and installed consumers remain required."
     },
     {
       "id": "MEDIA-JAVA-VISION-EXTRACT-TEXT",
@@ -104,10 +104,10 @@
         "KernelOcrProviderAdapter",
         "ProductRuntimeFacets.OcrProvider"
       ],
-      "role": "LEGACY_SHIM_FAIL_CLOSED",
-      "disposition": "REQUIRES_WORK",
+      "role": "RETIRED_MEDIA_MODULE",
+      "disposition": "RETIRED",
       "packet": "OCR-K01",
-      "remaining": "Kernel media.ocr facet must be provided by DI, not Media; then delete module and its topology row (roster RETIRE_UNDER_OCR_M03)."
+      "remaining": "The Media compatibility module is removed; Kernel replacement, public consumer compatibility and real DI qualification are not admitted."
     },
     {
       "id": "MEDIA-PROVIDER-MANIFEST-KERNEL-OCR",
@@ -123,7 +123,7 @@
       "role": "REGISTRATION_NOT_AUTO_SELECTED",
       "disposition": "REQUIRES_WORK",
       "packet": "OCR-K01",
-      "remaining": "Remove the Media Kernel OCR provider dependency request/binding and the KernelOcrProviderAdapter public-API selector once Kernel binds media.ocr to DI; automaticSelectionEligible stays false meanwhile."
+      "remaining": "The legacy Media public-API selector is removed. The dependency request remains pending a qualified DI-backed Kernel provider and installed-consumer conformance; automaticSelectionEligible stays false."
     }
   ],
   "externalEntries": [

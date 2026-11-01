@@ -1,23 +1,17 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read = (p) => readFileSync(resolve(root, p), 'utf8');
-const prefix = 'modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/';
 
-test('Media OCR compatibility source does not claim generic OCR ownership or unsupported accuracy', () => {
-  const service = read(prefix + 'OcrService.java');
-  const adapter = read('adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java');
-  const adapterBuild = read('adapters/ocr-compat/build.gradle.kts');
-  for (const source of [service, adapter]) {
-    assert.match(source, /Document Intelligence/u);
-    assert.doesNotMatch(source, /OCR accuracy &gt;95%|model identity, confidence policy, and image decoding remain Media-owned/u);
-  }
-  assert.doesNotMatch(adapterBuild, /Media owns the OCR model/u);
-  assert.match(adapterBuild, /optional Kernel bridge/u);
+test('retired Media OCR implementations remain absent', () => {
+  for (const source of [
+    'modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/OcrService.java',
+    'adapters/ocr-compat',
+  ]) assert.equal(existsSync(resolve(root, source)), false, `${source} must remain retired`);
 });
 
 test('legacy OCR is not an automatically selected provider', () => {
