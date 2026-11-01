@@ -232,6 +232,37 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
+    void unsupportedPiperLocaleCannotReachTrustedProviderAdmission() throws Exception {
+        Path model = createModelFile("tts-model-unsupported-piper-locale");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            AtomicInteger resolverCalls = new AtomicInteger();
+            TtsProviderAdmission resolver = candidate -> {
+                resolverCalls.incrementAndGet();
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "local-fixture-resolver:test-only", "controlled fixture only");
+            };
+
+            for (String language : List.of("en", "hi-IN", "ne-NP")) {
+                Map<String, String> environment = new java.util.HashMap<>(localProfile(model, digest));
+                environment.put("TTS_MODEL_LANGUAGE", language);
+
+                var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, resolver);
+
+                assertThat(profile.status()).as("language %s", language).isEqualTo("NOT_ADMITTED");
+                assertThat(profile.reason()).contains("supports en-US only");
+            }
+            assertThat(resolverCalls).hasValue(0);
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
     void modelDigestMismatchFailsBeforeLibraryConstructionOrWarmup() throws Exception {
         Path model = createModelFile("tts-model-mismatch");
         try {

@@ -420,6 +420,13 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         if (!isUsableLanguageTag(language)) {
             return notAdmitted("TTS_MODEL_LANGUAGE must be a well-formed BCP 47 language tag with a language subtag");
         }
+        // The selected Piper LJSpeech medium reference voice and the production
+        // Piper phonemizer are qualified only for en-US. Keep other well-formed
+        // tags out of the trusted admission resolver until a matching voice and
+        // phonemizer profile is bound to this runtime.
+        if (!"en-US".equalsIgnoreCase(language)) {
+            return notAdmitted("The configured Piper voice and phonemizer profile supports en-US only");
+        }
         Path path = Path.of(rawPath);
         if (!path.isAbsolute() || !path.normalize().equals(path) || containsSymbolicLink(path)
                 || !Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)
