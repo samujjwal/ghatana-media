@@ -1,6 +1,7 @@
 import React from "react";
 import { MediaTaskScreen, type MediaScreenAction, type MediaTaskScreenProps } from "./MediaTaskScreen";
 import type { MediaActionDispatchContext, MediaActionDispatchResult } from "../ports";
+import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 
 export type TranscriptCaptionView = "select-source" | "monitor-transcription" | "review-transcript" | "correct-captions" | "compare-caption-versions";
 
@@ -93,6 +94,20 @@ export function TranscriptCaptionScreen({
 }: TranscriptCaptionScreenProps): React.ReactElement {
   const [payloadActionStatus, setPayloadActionStatus] = React.useState<string | undefined>();
   const [pendingPayloadAction, setPendingPayloadAction] = React.useState<string | undefined>();
+  const [, refreshDispatchState] = React.useState(0);
+  const actionPortRef = React.useRef(actionPort);
+  actionPortRef.current = actionPort;
+  const dispatchGuardRef = React.useRef<ReturnType<typeof createMediaActionDispatchGuard> | undefined>(undefined);
+  if (!dispatchGuardRef.current) {
+    dispatchGuardRef.current = createMediaActionDispatchGuard({
+      invoke: (actionId, payload, context) => actionPortRef.current.invoke(actionId, payload, context),
+    }, () => refreshDispatchState((version) => version + 1));
+  }
+  const dispatchGuard = dispatchGuardRef.current;
+  React.useEffect(() => {
+    dispatchGuard.observeReconciliations(flow.data.actionReconciliations ?? []);
+  }, [dispatchGuard, flow.data.actionReconciliations]);
+  const guardedActionPort = dispatchGuard.actionPort;
   const heading = {
     "select-source": "Select a source recording",
     "monitor-transcription": "Transcription status",
@@ -100,7 +115,9 @@ export function TranscriptCaptionScreen({
     "correct-captions": "Correct captions",
     "compare-caption-versions": "Compare caption versions",
   }[transcript.view];
-  const availableActions = new Map(actions.map((action) => [action.id, action]));
+  const availableActions = new Map(actions.map((action) => [action.id, dispatchGuard.isInFlight(action.id)
+    ? { ...action, enabled: false, disabledReason: "This action awaits exact owner reconciliation before retry." }
+    : action]));
   const correctAction = availableActions.get("media.action.correct-caption");
   const canCorrect = correctAction?.enabled === true;
   const alignAction = availableActions.get("media.action.align-caption-timing");
@@ -141,7 +158,7 @@ export function TranscriptCaptionScreen({
     setPayloadActionStatus("Request submitted; completion remains unknown until a fresh owner projection arrives.");
     void (async () => {
       try {
-        const result = await actionPort.invoke(
+        const result = await guardedActionPort.invoke(
           actionId,
           payload,
           transcriptActionContext(action, exactSubjectRefs),
@@ -155,7 +172,7 @@ export function TranscriptCaptionScreen({
     })();
   };
 
-  return <MediaTaskScreen {...flow} actions={flowActions} nextSafeActionIds={flowSafeActionIds} actionPort={actionPort}>
+  return <MediaTaskScreen {...flow} actions={flowActions} nextSafeActionIds={flowSafeActionIds} actionPort={guardedActionPort}>
     <section className="media-screen-body" aria-labelledby="transcript-caption-title">
       <header>
         <h3 id="transcript-caption-title">{heading}</h3>
