@@ -79,9 +79,11 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       const result = await invokeEntry(linkedBin, command(endpoint), token, false);
       expect(result.status).toBe(0);
       expect(result.stderr).toBe('');
-      expect(JSON.parse(result.stdout)).toEqual({
+      const expected = {
         schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.artifact.inspect', artifact,
-      });
+      };
+      expect(result.stdout).toBe(`${JSON.stringify(expected)}\n`);
+      expect(JSON.parse(result.stdout)).toEqual(expected);
       expect(result.stdout).not.toContain(token);
       expect(requests).toBe(1);
       } finally {
@@ -123,6 +125,23 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       expect(JSON.parse(result.stderr).code).toBe('INVALID_MEDIA_RESPONSE');
       expect(result.stderr).not.toContain('rightsCleared');
       expect(result.stdout).toBe('');
+    });
+  });
+
+  it('rejects credential material echoed in an otherwise valid artifact without printing it', async () => {
+    await withServer((_request, response) => {
+      response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
+        ...artifact, metadata: { purpose: `provider echoed ${token}` },
+      }));
+    }, async endpoint => {
+      const result = await invoke(command(endpoint));
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toEqual({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_MEDIA_RESPONSE', message: 'Media returned an artifact response containing credential material.',
+      });
+      expect(result.stderr).not.toContain(token);
     });
   });
 
@@ -185,16 +204,35 @@ describe('ghatanamedia-api artifact inspect executable', () => {
   });
 
   it.each([
-    ['record', 'scenario'],
-    ['upload', 'begin'],
-    ['job', 'submit'],
+    ['upload', 'inspect', '--upload', 'u1'],
+    ['upload', 'resume', '--upload', 'u1'],
+    ['transcribe', '--source-version', 'v1', '--language', 'en'],
+    ['transcript', 'review', '--transcript-version', 'v1'],
+    ['job', 'status', '--job', 'j1'],
+    ['job', 'cancel', '--job', 'j1'],
+    ['job', 'check-outcome', '--job', 'j1'],
+    ['caption', 'correct-text', '--artifact-version', 'v1', '--segment', 's1', '--text', 'text'],
+    ['caption', 'align-timing', '--artifact-version', 'v1', '--segment', 's1', '--start-tick', '0', '--end-tick', '1'],
+    ['caption', 'save-version', '--draft-version', 'v1', '--purpose', 'review'],
+    ['caption', 'compare-versions', '--left-version', 'v1', '--right-version', 'v2'],
     ['demo', 'run'],
-  ])('never exposes the unregistered %s %s command as real', async (noun, verb) => {
-    const result = await invoke([noun, verb, '--endpoint', 'http://127.0.0.1:1']);
+  ])('never exposes the unregistered fixture command %s as real', async (...commandArgs) => {
+    const result = await invoke(commandArgs);
     expect(result.status).toBe(2);
     expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
     expect(result.stderr).not.toContain(token);
     expect(result.stdout).toBe('');
+  });
+
+  it('rejects human and scenario output modes instead of changing the registered JSON contract', async () => {
+    const human = await invoke(command('http://127.0.0.1:1', ['--format', 'human']));
+    const scenario = await invoke(command('http://127.0.0.1:1', ['--scenario', 'fixture-a']));
+    for (const result of [human, scenario]) {
+      expect(result.status).toBe(2);
+      expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
+      expect(result.stdout).toBe('');
+      expect(result.stderr).not.toContain(token);
+    }
   });
 
   it('does not follow a redirect with the bearer credential attached', async () => {

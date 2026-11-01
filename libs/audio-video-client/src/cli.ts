@@ -78,6 +78,16 @@ function safeCorrelationExtra(correlationId: unknown, token: string): Record<str
   return { correlationId };
 }
 
+function containsCredential(value: unknown, token: string): boolean {
+  const secrets = [token, token.trim()].filter(Boolean);
+  if (typeof value === 'string') return secrets.some(secret => value.includes(secret));
+  if (Array.isArray(value)) return value.some(item => containsCredential(item, token));
+  if (value && typeof value === 'object') {
+    return Object.values(value).some(item => containsCredential(item, token));
+  }
+  return false;
+}
+
 async function run(argv: readonly string[], token: string | undefined): Promise<void> {
   let args: Arguments;
   try { args = parseArguments(argv); }
@@ -105,6 +115,10 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       fetchImpl: (input, init) => fetch(input, { ...init, redirect: 'error' }),
     });
     const artifact = await client.getArtifact(args.artifact);
+    if (containsCredential(artifact, token)) {
+      writeError('INVALID_MEDIA_RESPONSE', 'Media returned an artifact response containing credential material.');
+      return;
+    }
     process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: COMMAND_ID, artifact })}\n`);
   } catch (error) {
     if (error instanceof MediaClientError) {
