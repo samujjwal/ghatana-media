@@ -10,12 +10,13 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @Tag("datacloud-event-bridge")
 class DataCloudSttAdapterLogPrivacyTest {
     @Test
-    void successLogsOmitArtifactTenantAndTranscriptIds() {
+    void unavailableCallDoesNotLogOrDispatchArtifactTenantOrTranscriptIds() {
         String artifactId = "artifact-secret-marker";
         String tenantId = "tenant-secret-marker";
         String transcriptId = "transcript-secret-marker";
@@ -24,12 +25,10 @@ class DataCloudSttAdapterLogPrivacyTest {
                 .thenReturn(Promise.of(transcriptId));
 
         try (LogCapture logs = LogCapture.capture(DataCloudSttAdapter.class)) {
-            String returned = new DataCloudSttAdapter(service)
-                    .transcribeAudio(artifactId, tenantId, "en-US", Map.of()).getResult();
+            new DataCloudSttAdapter(service).transcribeAudio(artifactId, tenantId, "en-US", Map.of());
 
-            assertThat(returned).isEqualTo(transcriptId);
-            assertThat(logs.output()).contains("Transcribing audio", "Transcription completed")
-                    .doesNotContain(artifactId, tenantId, transcriptId);
+            assertThat(logs.output()).doesNotContain(artifactId, tenantId, transcriptId);
+            verifyNoInteractions(service);
         }
     }
 
@@ -45,8 +44,8 @@ class DataCloudSttAdapterLogPrivacyTest {
         try (LogCapture logs = LogCapture.capture(DataCloudSttAdapter.class)) {
             new DataCloudSttAdapter(service).transcribeAudio(artifactId, tenantId, "en-US", Map.of());
 
-            assertThat(logs.output()).contains("failureType=IllegalStateException")
-                    .doesNotContain(artifactId, tenantId, exceptionDetail);
+            assertThat(logs.output()).doesNotContain(artifactId, tenantId, exceptionDetail);
+            verifyNoInteractions(service);
         }
     }
 }

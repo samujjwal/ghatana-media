@@ -3,7 +3,6 @@ package com.ghatana.audio.video.vision.datacloud;
 import com.ghatana.audio.video.vision.VisionLogCapture;
 import com.ghatana.audio.video.vision.service.PersistentVisionService;
 import com.ghatana.testing.activej.EventloopTestBase;
-import io.activej.promise.Promise;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -11,10 +10,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @Tag("datacloud-job-handling")
 class DataCloudVisionAdapterLogPrivacyTest extends EventloopTestBase {
@@ -24,29 +21,25 @@ class DataCloudVisionAdapterLogPrivacyTest extends EventloopTestBase {
     private static final String ERROR_MARKER = "provider-path-marker-private";
 
     @Test
-    void adapterLogsDoNotIncludeArtifactTenantFrameIndexOrProviderDetails() {
+    void unavailableVisionCallDoesNotLogOrDispatchArtifactTenantFrameIndexOrProviderDetails() {
         PersistentVisionService service = mock(PersistentVisionService.class);
-        when(service.analyze(anyString(), anyString(), anyString(), anyMap()))
-                .thenReturn(Promise.of(FRAME_INDEX_MARKER),
-                        Promise.ofException(new IllegalStateException(ERROR_MARKER)));
         DataCloudVisionAdapter adapter = new DataCloudVisionAdapter(service);
 
         try (VisionLogCapture logs = new VisionLogCapture(DataCloudVisionAdapter.class)) {
             runPromise(() -> adapter.transcribeAudio(ARTIFACT_MARKER, TENANT_MARKER, "en", Map.of()));
             runPromise(() -> adapter.indexMultimodal(ARTIFACT_MARKER, TENANT_MARKER, "video", Map.of()));
-            assertThat(runPromise(() -> adapter.analyzeVision(
-                    ARTIFACT_MARKER, TENANT_MARKER, "CUSTOM_ANALYSIS_" + TENANT_MARKER, Map.of())))
-                    .isEqualTo(FRAME_INDEX_MARKER);
             assertThatThrownBy(() -> runPromise(() -> adapter.analyzeVision(
-                    ARTIFACT_MARKER, TENANT_MARKER, "CUSTOM_ANALYSIS", Map.of())))
-                    .isInstanceOf(RuntimeException.class);
+                    ARTIFACT_MARKER, TENANT_MARKER, "CUSTOM_ANALYSIS_" + TENANT_MARKER, Map.of())))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("VISION_SOURCE_AUTHORITY_NOT_ADMITTED: source version, timebase, principal, and disclosure bindings are required");
 
             String output = String.join("\n", logs.messages());
-            assertThat(output).contains("Transcription not supported", "Analyzing vision artifact",
-                    "Vision analysis completed", "Vision analysis failed (IllegalStateException)",
-                    "Multimodal indexing not supported");
+            assertThat(output).contains("Transcription not supported", "Multimodal indexing not supported")
+                    .doesNotContain("Analyzing vision artifact", "Vision analysis completed",
+                            "Vision analysis failed");
             assertThat(output).doesNotContain(ARTIFACT_MARKER, TENANT_MARKER, FRAME_INDEX_MARKER, ERROR_MARKER);
             assertThat(logs.throwables()).isEmpty();
+            verifyNoInteractions(service);
         }
     }
 }

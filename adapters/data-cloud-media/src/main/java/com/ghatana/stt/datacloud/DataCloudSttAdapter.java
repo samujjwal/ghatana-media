@@ -13,27 +13,34 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * WS3: Adapter for STT service to implement Data Cloud MediaProcessorPort.
+ * Legacy adapter for the Data Cloud MediaProcessorPort STT shape.
  *
- * <p>This adapter bridges the audio-video STT service with Data Cloud's media processing
- * port, enabling transcription through the canonical media processing interface.
+ * <p>The current MediaProcessorPort does not bind immutable source version,
+ * authenticated principal, purpose, or live rights/disclosure readback. This
+ * adapter therefore advertises no available transcription operation until
+ * those source-owned inputs are provided; it is not publication authority.
  *
- * <p>All operations are:
+ * <p>The legacy interface's tenant argument is request scope, not authentication.
+ * Callers must not infer rights or successful transcription from constructing
+ * this adapter or from its compatibility methods.
+ *
+ * <p>The adapter has no:
  * <ul>
- *   <li>Tenant-scoped via tenantId parameter</li>
- *   <li>Consent-aware - caller must check consent before processing</li>
- *   <li>Retention-aware - caller must check retention before processing</li>
- *   <li>Event-emitting - results should be emitted via MediaArtifactEventEmitter</li>
+ *   <li>authenticated principal/delegation input</li>
+ *   <li>immutable source-version or purpose/consent readback</li>
+ *   <li>authority to publish events or Data Cloud records</li>
  * </ul>
  *
  * @doc.type class
- * @doc.purpose Adapter for STT service to implement Data Cloud MediaProcessorPort
+ * @doc.purpose Fail-closed legacy STT adapter for Data Cloud MediaProcessorPort
  * @doc.layer product
  * @doc.pattern Adapter
  */
 public class DataCloudSttAdapter implements MediaProcessorPort {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataCloudSttAdapter.class);
+    private static final String SOURCE_NOT_ADMITTED_MESSAGE =
+            "STT_SOURCE_AUTHORITY_NOT_ADMITTED: source, principal, purpose, and disclosure bindings are required";
 
     private final PersistentSttService sttService;
 
@@ -43,10 +50,11 @@ public class DataCloudSttAdapter implements MediaProcessorPort {
 
     @Override
     public Promise<String> transcribeAudio(String artifactId, String tenantId, String languageCode, Map<String, String> parameters) {
-        LOG.info("[WS3] Transcribing audio");
+        if (!isAvailable("TRANSCRIPTION")) {
+            return Promise.ofException(new IllegalStateException(SOURCE_NOT_ADMITTED_MESSAGE));
+        }
 
-        // WS3: Delegate to STT service for transcription
-        // The STT service should return a transcript ID that can be stored in Data Cloud
+        LOG.info("[WS3] Transcribing audio");
         return sttService.transcribe(artifactId, tenantId, languageCode, parameters)
             .map(transcriptId -> {
                 LOG.info("[WS3] Transcription completed");
@@ -73,17 +81,16 @@ public class DataCloudSttAdapter implements MediaProcessorPort {
 
     @Override
     public boolean isAvailable(String operationType) {
-        // WS3: STT adapter only supports transcription
-        return "TRANSCRIPTION".equalsIgnoreCase(operationType)
-            && sttService != null
-            && !sttService.isDegraded();
+        // The current artifact-backed PersistentSttService has no admitted source/version,
+        // purpose, and rights path. A constructed service or healthy local engine does not
+        // make this Data Cloud operation available.
+        return false;
     }
 
     @Override
     public String[] getSupportedLanguages() {
-        // WS3: Return supported languages from STT service
-        // Default to common languages if service doesn't provide this
-        return new String[]{"en-US", "es-ES", "fr-FR", "de-DE", "it-IT", "pt-BR", "ja-JP", "ko-KR", "zh-CN"};
+        // No locale is advertised until a source-authorized, qualified model profile is admitted.
+        return new String[0];
     }
 
     @Override

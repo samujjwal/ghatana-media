@@ -13,28 +13,35 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 /**
- * WS3: Adapter for vision service to implement Data Cloud MediaProcessorPort.
+ * Legacy adapter for the Data Cloud MediaProcessorPort Vision shape.
  *
- * <p>This adapter bridges the audio-video vision service with Data Cloud's media processing
- * port, enabling vision analysis (object detection, face recognition, scene understanding)
- * through the canonical media processing interface.
+ * <p>The current MediaProcessorPort does not bind immutable source version,
+ * authenticated principal, source timebase, or live rights/disclosure
+ * readback. This adapter therefore advertises no available Vision operation
+ * until those source-owned inputs are provided. Document Intelligence owns
+ * OCR execution; Media is only a consumer of its public contract.
  *
- * <p>All operations are:
+ * <p>The legacy interface's tenant argument is request scope, not authentication.
+ * Callers must not infer rights or successful frame analysis from constructing
+ * this adapter or from its compatibility methods.
+ *
+ * <p>The adapter has no:
  * <ul>
- *   <li>Tenant-scoped via tenantId parameter</li>
- *   <li>Consent-aware - caller must check consent before processing</li>
- *   <li>Retention-aware - caller must check retention before processing</li>
- *   <li>Event-emitting - results should be emitted via MediaArtifactEventEmitter</li>
+ *   <li>authenticated principal/delegation input</li>
+ *   <li>immutable source-version, source-timebase or purpose/consent readback</li>
+ *   <li>authority to publish events or Data Cloud records</li>
  * </ul>
  *
  * @doc.type class
- * @doc.purpose Adapter for vision service to implement Data Cloud MediaProcessorPort
+ * @doc.purpose Fail-closed legacy Vision adapter for Data Cloud MediaProcessorPort
  * @doc.layer product
  * @doc.pattern Adapter
  */
 public class DataCloudVisionAdapter implements MediaProcessorPort {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataCloudVisionAdapter.class);
+    private static final String SOURCE_NOT_ADMITTED_MESSAGE =
+            "VISION_SOURCE_AUTHORITY_NOT_ADMITTED: source version, timebase, principal, and disclosure bindings are required";
 
     private final PersistentVisionService visionService;
 
@@ -51,10 +58,11 @@ public class DataCloudVisionAdapter implements MediaProcessorPort {
 
     @Override
     public Promise<String> analyzeVision(String artifactId, String tenantId, String analysisType, Map<String, String> parameters) {
-        LOG.info("[WS3] Analyzing vision artifact");
+        if (!isAvailable("VISION")) {
+            return Promise.ofException(new IllegalStateException(SOURCE_NOT_ADMITTED_MESSAGE));
+        }
 
-        // WS3: Delegate to vision service for analysis
-        // The vision service should return a frame index ID that can be stored in Data Cloud
+        LOG.info("[WS3] Analyzing vision artifact");
         return visionService.analyze(artifactId, tenantId, analysisType, parameters)
             .map(frameIndexId -> {
                 LOG.info("[WS3] Vision analysis completed");
@@ -74,8 +82,9 @@ public class DataCloudVisionAdapter implements MediaProcessorPort {
 
     @Override
     public boolean isAvailable(String operationType) {
-        // WS3: Vision adapter only supports vision analysis
-        return "VISION".equalsIgnoreCase(operationType) && visionService != null;
+        // PersistentVisionService.analyze has no trusted artifact/version reader and fails closed.
+        // A constructed local detector does not admit an artifact-backed Data Cloud operation.
+        return false;
     }
 
     @Override
@@ -86,14 +95,9 @@ public class DataCloudVisionAdapter implements MediaProcessorPort {
 
     @Override
     public String[] getSupportedAnalysisTypes() {
-        // WS3: Return supported analysis types from vision service
-        return new String[]{
-            "OBJECT_DETECTION",
-            "FACE_RECOGNITION",
-            "SCENE_UNDERSTANDING",
-            "OCR",
-            "CLASSIFICATION"
-        };
+        // Do not advertise detector, biometric, or OCR operations without a source-bound public
+        // contract and their respective rights/consent admission paths. OCR is owned by DI.
+        return new String[0];
     }
 
     @Override
