@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 
 import React from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { hasAdmissibleCaptionTimingRange, transcriptActionContext, TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
 import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 import { canonicalMediaActionRequest, type MediaActionPort } from "../ports";
 import type { TranscriptCaptionScreenProps } from "./TranscriptCaptionScreen";
+
+afterEach(cleanup);
 
 describe("transcript action context", () => {
   it("keeps host authorization subjects and binds exact transcript and caption versions", () => {
@@ -52,6 +54,73 @@ describe("caption source-clock timing range", () => {
     expect(hasAdmissibleCaptionTimingRange({ ...qualifiedClock, clockId: " " }, 0, 1)).toBe(false);
     expect(hasAdmissibleCaptionTimingRange({ ...qualifiedClock, ticksPerSecond: 0 }, 0, 1)).toBe(false);
     expect(hasAdmissibleCaptionTimingRange({ ...qualifiedClock, durationTicks: undefined }, 0, 1)).toBe(false);
+  });
+});
+
+describe("caption text draft dispatch", () => {
+  const actionId = "media.action.correct-caption";
+  const segment = {
+    id: "segment-1", startTime: "0.0", endTime: "1.0", startTick: 0, endTick: 48_000,
+    text: "Original wording",
+  };
+
+  function props(overrides: Partial<TranscriptCaptionScreenProps> = {}): TranscriptCaptionScreenProps {
+    return {
+      data: {
+        currentProjection: {
+          title: "Correct captions", description: "Edit a session-local draft.",
+          steps: [{ id: "edit", title: "Edit", description: "Correct caption text.", state: "current" }],
+          currentStepId: "edit",
+        },
+      },
+      actions: [{ id: actionId, label: "Correct caption", enabled: true,
+        subjectRefs: ["source@v7", "transcript@v3", "draft@v4"] }],
+      actionPort: { invoke: vi.fn(async () => ({ status: "local-applied" as const })) },
+      context: { locale: "en-US" },
+      transcript: {
+        view: "correct-captions", sourceArtifactVersion: "source@v7",
+        transcriptVersion: "transcript@v3", captionDraftVersion: "draft@v4",
+        segments: [segment],
+      },
+      ...overrides,
+    };
+  }
+
+  it("does not dispatch a text correction when no local draft writer is available", () => {
+    const invoke = vi.fn(async () => ({ status: "local-applied" as const }));
+    render(React.createElement(TranscriptCaptionScreen, props({
+      actionPort: { invoke },
+    })));
+
+    expect((screen.getByLabelText("Caption text for segment segment-1") as HTMLTextAreaElement).disabled).toBe(true);
+    const apply = screen.getByRole("button", { name: "Apply caption correction" }) as HTMLButtonElement;
+    expect(apply.disabled).toBe(true);
+    fireEvent.click(apply);
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("dispatches only the host-projected draft text and binds the exact displayed versions", async () => {
+    const invoke = vi.fn(async () => ({ status: "local-applied" as const }));
+    const onCaptionEdit = vi.fn();
+    const initial = props({ actionPort: { invoke }, onCaptionEdit });
+    const view = render(React.createElement(TranscriptCaptionScreen, initial));
+    const editor = screen.getByLabelText("Caption text for segment segment-1");
+    fireEvent.change(editor, { target: { value: "Corrected wording" } });
+    expect(onCaptionEdit).toHaveBeenCalledWith("segment-1", "Corrected wording");
+    expect(invoke).not.toHaveBeenCalled();
+
+    view.rerender(React.createElement(TranscriptCaptionScreen, props({
+      actionPort: { invoke }, onCaptionEdit,
+      transcript: {
+        ...initial.transcript,
+        segments: [{ ...segment, text: "Corrected wording" }],
+      },
+    })));
+    fireEvent.click(screen.getByRole("button", { name: "Apply caption correction" }));
+    await waitFor(() => expect(invoke).toHaveBeenCalledTimes(1));
+    expect(invoke).toHaveBeenCalledWith(actionId, {
+      segmentId: "segment-1", text: "Corrected wording",
+    }, { subjectRefs: ["source@v7", "transcript@v3", "draft@v4"] });
   });
 });
 

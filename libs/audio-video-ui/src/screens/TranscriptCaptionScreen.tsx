@@ -205,8 +205,10 @@ export function TranscriptCaptionScreen({
           <label htmlFor={`caption-${segment.id}`}>Caption text for segment {segment.id}</label>
           <textarea id={`caption-${segment.id}`} className="media-input" value={segment.text} disabled={!onCaptionEdit || !canCorrect}
             onChange={(event) => onCaptionEdit?.(segment.id, event.currentTarget.value)} rows={2} />
-          <button type="button" className="media-action-button media-action-button--primary" disabled={!canCorrect || pendingPayloadAction !== undefined} onClick={() => {
-            invokePayloadAction("media.action.correct-caption", { segmentId: segment.id, text: segment.text });
+          <button type="button" className="media-action-button media-action-button--primary" disabled={!onCaptionEdit || !canCorrect || pendingPayloadAction !== undefined} onClick={() => {
+            if (onCaptionEdit) {
+              invokePayloadAction("media.action.correct-caption", { segmentId: segment.id, text: segment.text });
+            }
           }}>Apply caption correction</button>
           {correctAction?.disabledReason && <p>{correctAction.disabledReason}</p>}
           <p>{[segment.confidence, segment.provenance].filter(Boolean).join(" · ")}</p>
