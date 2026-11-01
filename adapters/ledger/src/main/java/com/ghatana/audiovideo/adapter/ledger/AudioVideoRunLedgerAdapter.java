@@ -88,13 +88,15 @@ public final class AudioVideoRunLedgerAdapter {
 
         OutputSnapshot outputs;
         if (mappedOutcome == ExecutionOutcome.SUCCEEDED || mappedOutcome == ExecutionOutcome.DEGRADED) {
+            String ledgerOutputArtifactId = outputArtifactId == null
+                    ? null : safeLedgerReference(outputArtifactId);
             outputs = new OutputSnapshot(
                 mappedOutcome == ExecutionOutcome.DEGRADED ? 206 : 200,
                 null,
                 Map.of(),
                 (startedAtMs > 0 ? now - startedAtMs : 0),
                 Map.of(),
-                outputArtifactId
+                ledgerOutputArtifactId
             );
         } else if (mappedOutcome == ExecutionOutcome.FAILED) {
             outputs = new OutputSnapshot(
@@ -141,7 +143,7 @@ public final class AudioVideoRunLedgerAdapter {
             attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
         }
         if (outputArtifactId != null) {
-            attributes.put("outputArtifactId", outputArtifactId);
+            attributes.put("outputArtifactId", safeLedgerReference(outputArtifactId));
         }
         Optional<WorkflowPolicySnapshot> policyDecision = extractPolicyDecision(inputParams, createdAtMs);
         policyDecision.ifPresent(decision -> {

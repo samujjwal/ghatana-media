@@ -578,6 +578,21 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
+    @DisplayName("Output artifact references use the same bounded safe projection as source references")
+    void testOutputArtifactReferenceDisclosureSanitization() {
+        long now = System.currentTimeMillis();
+        String signedOutput = "https://private.invalid/output?token=output-secret";
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-output-private", "VIDEO", "TRANSCODING", "col", "src", Map.of(), "COMPLETED",
+                now, now, signedOutput, null, "provider", "provider-job", "t", "c");
+
+        assertThat(ledger.outputs().resultId()).startsWith("redacted:sha256:");
+        assertThat(ledger.attributes().get("outputArtifactId")).isEqualTo(ledger.outputs().resultId());
+        assertThat(ledger.toString()).doesNotContain("private.invalid", "output-secret", signedOutput);
+    }
+
+    @Test
     @DisplayName("Provider failure details are bounded and redact personal or credential data")
     void testFailureDetailDisclosureSanitization() {
         long now = System.currentTimeMillis();
