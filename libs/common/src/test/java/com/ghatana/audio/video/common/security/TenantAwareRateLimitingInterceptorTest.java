@@ -279,6 +279,98 @@ class TenantAwareRateLimitingInterceptorTest {
         verify(next, times(21)).startCall(any(), eq(headers));
     }
 
+    @Test
+    @DisplayName("Configured tenant concurrency is isolated while the global cap still applies")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void shouldIsolateConfiguredTenantConcurrencyAndRetainGlobalCap() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(50.0,
+                        Map.of("tenant-a", 50.0, "tenant-b", 50.0), 2, 1);
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+        ArgumentCaptor<ServerCall<String, String>> wrapped = ArgumentCaptor.forClass(ServerCall.class);
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant-a");
+        ServerCall<String, String> tenantASaturated = createServerCall("av.STT/Transcribe");
+        interceptAs(interceptor, tenantASaturated, headers, next, "tenant-a");
+        verify(tenantASaturated).close(argThat(s -> s.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant-b");
+        TenantAwareRateLimitingInterceptor globalOnly =
+                new TenantAwareRateLimitingInterceptor(50.0, Map.of(), 2, 2);
+        ServerCallHandler<String, String> globalNext = mock(ServerCallHandler.class);
+        when(globalNext.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+        interceptAs(globalOnly, createServerCall("av.STT/Transcribe"), headers, globalNext, "tenant-c");
+        interceptAs(globalOnly, createServerCall("av.STT/Transcribe"), headers, globalNext, "tenant-d");
+        ServerCall<String, String> globallySaturated = createServerCall("av.STT/Transcribe");
+        interceptAs(globalOnly, globallySaturated, headers, globalNext, "tenant-e");
+        verify(globallySaturated).close(argThat(s -> s.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
+        verify(next, times(2)).startCall(wrapped.capture(), eq(headers));
+        verify(globalNext, times(2)).startCall(any(), eq(headers));
+        wrapped.getAllValues().forEach(c -> c.close(Status.OK, new Metadata()));
+    }
+
+    @Test
+    @DisplayName("Default and unconfigured tenants receive isolated bounds without retained ID state")
+    void shouldNotAllocateOrApplyPerTenantStateToUnconfiguredIds() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(50.0, Map.of("configured", 50.0), 4, 1);
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "unknown-1");
+        ServerCall<String, String> sameTenantSaturated = createServerCall("av.STT/Transcribe");
+        interceptAs(interceptor, sameTenantSaturated, headers, next, "unknown-1");
+        verify(sameTenantSaturated).close(
+                argThat(s -> s.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "unknown-2");
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "configured");
+
+        verify(next, times(3)).startCall(any(), eq(headers));
+    }
+
+    @Test
+    @DisplayName("Unknown tenant state is removed after call termination")
+    void shouldRemoveUnknownTenantStateAfterCallsFinish() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(1_000.0, Map.of(), 10_000L, 4, 1);
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        AtomicReference<ServerCall<String, String>> wrapped = new AtomicReference<>();
+        when(next.startCall(any(), any())).thenAnswer(invocation -> {
+            wrapped.set(invocation.getArgument(0));
+            return new ServerCall.Listener<>() {};
+        });
+
+        for (int i = 0; i < 4_100; i++) {
+            interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "ephemeral-" + i);
+            // The call returned by startCall is wrapped and releases its active registry entry on close.
+            wrapped.get().close(Status.OK, new Metadata());
+        }
+
+        verify(next, times(4_100)).startCall(any(), eq(headers));
+    }
+
+    @Test
+    @DisplayName("Tenant permit is released when startCall throws")
+    void shouldReleaseTenantPermitWhenStartCallFails() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(50.0, Map.of("tenant", 50.0), 2, 1);
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenThrow(new IllegalStateException("start failed"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> interceptAs(interceptor,
+                createServerCall("av.STT/Transcribe"), headers, next, "tenant"))
+                .isInstanceOf(IllegalStateException.class);
+        doReturn(new ServerCall.Listener<>() {}).when(next).startCall(any(), any());
+
+        interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant");
+        verify(next, times(2)).startCall(any(), eq(headers));
+    }
+
     // ── helpers ────────────────────────────────────────────────────────────
 
     private static Metadata withTenantId(String tenantId) {

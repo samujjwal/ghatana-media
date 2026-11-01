@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
@@ -55,14 +56,20 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
     private final double defaultTps;
     private final Map<String, Double> tenantTpsOverrides;
     private final Map<String, RateLimiter> tenantLimiters = new ConcurrentHashMap<>();
+    // Active-only tenant counts cap state even when verified tenant IDs are not configured.
+    // Entries disappear when their last call closes/cancels, so caller-controlled churn cannot
+    // accumulate historical tenant state.
+    private final Map<String, Integer> activeTenantCalls = new HashMap<>();
     private final RateLimiter defaultLimiter;
     private final Semaphore concurrencySemaphore;
+    private final int maxConcurrentPerTenant;
 
     /** Uses the same environment settings as the former global limiter. */
     public TenantAwareRateLimitingInterceptor() {
         this(parseEnvDouble("AV_RATE_LIMIT_TPS", 50.0), Map.of(),
                 parseEnvLong("AV_RATE_LIMIT_BURST", 100L),
-                Math.toIntExact(parseEnvLong("AV_RATE_LIMIT_MAX_CONCURRENT", 20L)));
+                Math.toIntExact(parseEnvLong("AV_RATE_LIMIT_MAX_CONCURRENT", 20L)),
+                Math.toIntExact(parseEnvLong("AV_RATE_LIMIT_MAX_CONCURRENT_PER_TENANT", 5L)));
     }
 
     /**
@@ -71,13 +78,37 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
      */
     public TenantAwareRateLimitingInterceptor(double defaultTps,
                                                Map<String, Double> tenantTpsOverrides) {
-        this(defaultTps, tenantTpsOverrides, Math.max(1, (int) defaultTps * 2), 20);
+        this(defaultTps, tenantTpsOverrides, (long) Math.max(1, (int) defaultTps * 2), 20, 5);
+    }
+
+    /**
+     * Configure global and per-tenant concurrency bounds while using the default burst.
+     */
+    public TenantAwareRateLimitingInterceptor(double defaultTps,
+                                               Map<String, Double> tenantTpsOverrides,
+                                               int maxConcurrent,
+                                               int maxConcurrentPerTenant) {
+        this(defaultTps, tenantTpsOverrides, Math.max(1, (int) defaultTps * 2),
+                maxConcurrent, maxConcurrentPerTenant);
     }
 
     TenantAwareRateLimitingInterceptor(double defaultTps,
                                         Map<String, Double> tenantTpsOverrides,
                                         long defaultBurst,
                                         int maxConcurrent) {
+        this(defaultTps, tenantTpsOverrides, defaultBurst, maxConcurrent, 5);
+    }
+
+    /**
+     * Configure global and per-tenant in-flight bounds. The default per-tenant
+     * development policy is five concurrent calls; it is deliberately configurable because
+     * product sources define isolation but no numeric tenant concurrency quota.
+     */
+    public TenantAwareRateLimitingInterceptor(double defaultTps,
+                                               Map<String, Double> tenantTpsOverrides,
+                                               long defaultBurst,
+                                               int maxConcurrent,
+                                               int maxConcurrentPerTenant) {
         this.defaultTps = requireTps(defaultTps, "defaultTps");
         if (defaultBurst < 1 || defaultBurst > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("defaultBurst must be within the supported range");
@@ -85,6 +116,10 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
         if (maxConcurrent < 1) {
             throw new IllegalArgumentException("maxConcurrent must be positive");
         }
+        if (maxConcurrentPerTenant < 1) {
+            throw new IllegalArgumentException("maxConcurrentPerTenant must be positive");
+        }
+        this.maxConcurrentPerTenant = maxConcurrentPerTenant;
         this.concurrencySemaphore = new Semaphore(maxConcurrent, true);
         if (tenantTpsOverrides == null) {
             throw new NullPointerException("tenantTpsOverrides must not be null");
@@ -131,10 +166,18 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
                     "Server is overloaded. Try again later."), new Metadata());
             return new ServerCall.Listener<>() {};
         }
+        boolean tenantPermitAcquired = tenantId != null && tryAcquireTenant(tenantId);
+        if (tenantId != null && !tenantPermitAcquired) {
+            concurrencySemaphore.release();
+            call.close(Status.RESOURCE_EXHAUSTED.withDescription(
+                    "Tenant is at its concurrent call limit. Try again later."), new Metadata());
+            return new ServerCall.Listener<>() {};
+        }
 
         RateLimiter limiter = tenantId == null ? defaultLimiter : resolveLimiter(tenantId);
 
         if (!limiter.tryAcquire(method).allowed()) {
+            if (tenantPermitAcquired) releaseTenant(tenantId);
             concurrencySemaphore.release();
             LOG.warn("Rate limit exceeded: method={}", method);
             call.close(
@@ -147,6 +190,7 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
         AtomicBoolean permitReleased = new AtomicBoolean();
         Runnable releasePermit = () -> {
             if (permitReleased.compareAndSet(false, true)) {
+                if (tenantPermitAcquired) releaseTenant(tenantId);
                 concurrencySemaphore.release();
             }
         };
@@ -191,6 +235,25 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
         tenantTpsOverrides.put(normalizedTenantId, validatedTps);
         tenantLimiters.put(normalizedTenantId, DefaultRateLimiter.create(buildConfig(validatedTps, burstFor(validatedTps))));
         LOG.info("Updated tenant quota: tps={}", validatedTps);
+    }
+
+    private synchronized boolean tryAcquireTenant(String tenantId) {
+        Integer activeCalls = activeTenantCalls.get(tenantId);
+        if (activeCalls == null) {
+            if (activeTenantCalls.size() >= MAX_TENANT_LIMITERS) return false;
+            activeTenantCalls.put(tenantId, 1);
+            return true;
+        }
+        if (activeCalls >= maxConcurrentPerTenant) return false;
+        activeTenantCalls.put(tenantId, activeCalls + 1);
+        return true;
+    }
+
+    private synchronized void releaseTenant(String tenantId) {
+        Integer activeCalls = activeTenantCalls.get(tenantId);
+        if (activeCalls == null) return;
+        if (activeCalls == 1) activeTenantCalls.remove(tenantId);
+        else activeTenantCalls.put(tenantId, activeCalls - 1);
     }
 
     // ── helpers ────────────────────────────────────────────────────────────
