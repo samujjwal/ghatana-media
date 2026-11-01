@@ -6,12 +6,12 @@
     {
       "role": "immediate continuation baseline",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-followup-2026-10-23T024641Z.v1.json",
-      "sha256": "7f5d3c77e364669720767320db8a0ee00c2343eaf2d2bfc4f8b0f189e7c7b3e0"
+      "sha256": "aae541c2af989b9948120f5820c42bbf190c85dafd406b32e3e3b8df2990bac2"
     },
     {
       "role": "campaign batch baseline",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-batch-2026-10-23.v1.json",
-      "sha256": "3c3c11b5c228f29e37d9e1e6c51da5e8e43f8f3fc321c144d6ca6ae54b57e2b8"
+      "sha256": "d5f0df187eb39ea81777dc205998f635fae8f5955613c3c264ebf6cafde45c75"
     }
   ],
   "campaign": {
@@ -161,7 +161,7 @@
     },
     "currentTaskProjection": {
       "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-      "sha256": "7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955"
+      "sha256": "a94a4423350d756ae8beed64d04784f2b85bc36cc76ee943af88e1e1e984194c"
     },
     "ownerExecutionQueue": {
       "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",

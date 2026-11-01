@@ -14,7 +14,7 @@
     "criterion": "Generate the complete 50-package handoff, all 54 consumer identities, and explicit source UI/code symbol slots without inventing symbols or N/A dispositions.",
     "candidateReviewed": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t03-handoff-census-candidate-20261023T043837Z.v1.json",
-      "sha256": "sha256:2f2736cb024a77cd332cf3482604bfe944f32ece0a2742b8492e08854e6c4920"
+      "sha256": "sha256:ad58e5abdb6aa6bdf49c1141cc85ce7b9337aa5b4ca175a66661324a3d4f0e25"
     }
   },
   "sourcePins": [

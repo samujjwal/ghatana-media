@@ -6,17 +6,17 @@
     {
       "role": "prior campaign continuation",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
-      "sha256": "sha256:dca0317e83c35d8396282920810c01df0fd50c8c3f03ed091881e24802052c7b"
+      "sha256": "sha256:908bae2c4f3c3f6415e7d18eb3205612a0d4b5dd60018743b1ef4615c10e5fd1"
     },
     {
       "role": "G0 source material and topology receipt",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc"
+      "sha256": "sha256:4ef867e563464bacff070fc3a02fdbcd61bd88cb0872deab71edf9caa1c5cd81"
     },
     {
       "role": "F00.T02 source-bound technical reconciliation candidate",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-      "sha256": "sha256:37be99e010fd7bff70775fdb5385bc16987f5c9cca1c59c876d6f57f106fba0d"
+      "sha256": "sha256:cc57d8878b2adc79e853416941b1eb453053c66dc78b05dc267e2129ad7a01f6"
     },
     {
       "role": "L01.T01 exact blocker reconciliation candidate with clarified edge provenance",
@@ -26,7 +26,7 @@
     {
       "role": "full 54-surface by 4-PDP phase matrix",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e"
+      "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67"
     }
   ],
   "campaign": {
@@ -74,7 +74,7 @@
     },
     "f00t01Receipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
+      "sha256": "sha256:4ef867e563464bacff070fc3a02fdbcd61bd88cb0872deab71edf9caa1c5cd81",
       "topology": {
         "physical": 26,
         "compositionsAndRoot": 7,
@@ -96,7 +96,7 @@
     },
     "currentPerSurfacePhaseMatrix": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
+      "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67",
       "rows": 216,
       "identities": 54,
       "sourceCurrent": true,
@@ -115,7 +115,7 @@
       "formalTaskAcceptance": "PENDING",
       "evidenceCandidate": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-        "sha256": "sha256:37be99e010fd7bff70775fdb5385bc16987f5c9cca1c59c876d6f57f106fba0d",
+        "sha256": "sha256:cc57d8878b2adc79e853416941b1eb453053c66dc78b05dc267e2129ad7a01f6",
         "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
         "taskAcceptance": "NOT_ESTABLISHED",
         "planReady": "NOT_PROVEN"

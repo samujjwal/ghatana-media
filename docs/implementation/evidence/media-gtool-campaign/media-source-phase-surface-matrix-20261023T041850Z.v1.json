@@ -20,7 +20,7 @@
     "g0SourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
     "sourceReceipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc"
+      "sha256": "sha256:4ef867e563464bacff070fc3a02fdbcd61bd88cb0872deab71edf9caa1c5cd81"
     },
     "topology": {
       "path": ".product-experience/surfaces/media-physical-topology.v1.json",

@@ -79,7 +79,7 @@
     "sourceMaterialReceipt": {
       "artifact": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-        "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
+        "sha256": "sha256:4ef867e563464bacff070fc3a02fdbcd61bd88cb0872deab71edf9caa1c5cd81",
         "bytes": 12406
       },
       "gtoolSourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
@@ -163,7 +163,7 @@
     },
     "workPackageProjection": {
       "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-      "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
+      "sha256": "sha256:a94a4423350d756ae8beed64d04784f2b85bc36cc76ee943af88e1e1e984194c",
       "bytes": 19473171
     },
     "binaryAbi": "UNBOUND; plan projection asserts no binary ABI fingerprint"
@@ -232,7 +232,7 @@
     },
     "priorContinuation": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
-      "sha256": "sha256:dca0317e83c35d8396282920810c01df0fd50c8c3f03ed091881e24802052c7b",
+      "sha256": "sha256:908bae2c4f3c3f6415e7d18eb3205612a0d4b5dd60018743b1ef4615c10e5fd1",
       "bytes": 16179
     }
   },

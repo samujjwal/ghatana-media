@@ -1199,7 +1199,7 @@
         ".product-experience/pdp-2-design-interface-system/cli-language.yaml": "sha256:a13291c9ac45189e4dc9a2d0f59f85594de779995bc276a086e333785da44b03",
         ".product-experience/pdp-2-design-interface-system/cli/conventions.yaml": "sha256:aab04101e875e25509a8b0171e3f2e4518c78e56aca41a49a3531ad6350762a2",
         ".product-experience/pdp-2-design-interface-system/component-contracts.yaml": "sha256:6bcd90f59bee7df018bcbff57776fa53290e22eac1cf18519c4759551d71bb63",
-        ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "sha256:aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313",
+        ".product-experience/pdp-2-design-interface-system/component-value-types.yaml": "sha256:e47dc82ee2b2bcb5b1908976b4be5f452c843854d578893ecf3f3d42287b35ba",
         ".product-experience/pdp-2-design-interface-system/design-governance.json": "sha256:389c9a61387f3e66cec94a1182695b134fa3a87a4ebf941d845b07f35c7db415",
         ".product-experience/pdp-2-design-interface-system/events/conventions.yaml": "sha256:d37f3b43279ff8fb852121516e3fc4f836221bf36bd62846a8d2c7b14ac4ebf4",
         ".product-experience/pdp-2-design-interface-system/executable-ui-inventory.json": "sha256:9be560f8a26751849d2610f62173b6ae0b450c8a826a1d3b922bf251bcfb76f6",

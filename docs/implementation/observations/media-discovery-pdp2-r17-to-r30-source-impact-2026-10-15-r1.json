@@ -24,12 +24,12 @@
         {
           "path": ".product-experience/source-manifest.yaml",
           "predecessorSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
-          "observedSha256": "sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd"
+          "observedSha256": "sha256:822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7"
         },
         {
           "path": "apps/media-experience-explorer/specification-artifacts.json",
           "predecessorSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
-          "observedSha256": "sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593"
+          "observedSha256": "sha256:a7a616e098fa2459dda1716e4ed7db1072cb2c4459b881a28da9c5734b7cbb20"
         },
         {
           "path": "scripts/record-media-discovery-pdp2-phase-exit.mjs",
@@ -45,13 +45,13 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-    "receiptSha256": "sha256:61f38f98e9f7ff989fc44dace0ae871874d55528e6a5132c091f1cd03eb36e3a",
+    "receiptSha256": "sha256:2953afe865129746bfece73f65918434bf69d39869d1608c5f90e7391fb45405",
     "sourceFingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
     "materialPathCount": 405,
     "cellCount": 50,
     "pdp1Predecessor": {
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "receiptSha256": "sha256:c822da70052a6862d96fde441442a9e9e2e88eac4392b7407edc2530aa453675",
+      "receiptSha256": "sha256:4f122013190fa06d53df90a09195428043fcd7b70eb558b1bcb8d0101c8714ac",
       "sourceFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
     }
   },
@@ -59,7 +59,7 @@
     "pdp1": {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-      "receiptSha256": "sha256:a58b8fb5b1eec548bb6360613e4e8f0aa39330259c5143a29121c99265c5aa9b",
+      "receiptSha256": "sha256:6379333121790bf213ec3cad45297321012fe06769b9cd0a9018617f0e8c327b",
       "sourceFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
       "status": "PASS",
       "sourceCurrent": true,
@@ -84,7 +84,7 @@
     {
       "path": ".product-experience/source-manifest.yaml",
       "predecessorSha256": "sha256:76cdcbff690e6a3439580e0df6fc68dbf67e7105b38d8ad1c9c3e9cb8b36145a",
-      "observedSha256": "sha256:3a5c7e92e7470ee11c8bd1779db31a27aba75461c16fef37785901544c0c29fd",
+      "observedSha256": "sha256:822e9b9a03ff2864c53263d367d10eacb89e8be784bb5f22dc399d134c51f3b7",
       "classification": "PDP1_SOURCE_INVENTORY_REFRESH_NO_ADDITIONAL_PDP2_MEANING",
       "phase": "PDP-2",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -94,7 +94,7 @@
     {
       "path": "apps/media-experience-explorer/specification-artifacts.json",
       "predecessorSha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
-      "observedSha256": "sha256:6cb5006b07b113dfa5cc1b41a78648be56e76910c60b60bd82f286c1593b8593",
+      "observedSha256": "sha256:a7a616e098fa2459dda1716e4ed7db1072cb2c4459b881a28da9c5734b7cbb20",
       "classification": "PDP1_EXPLORER_SOURCE_INVENTORY_PROJECTION_REFRESH_NO_ADDITIONAL_PDP2_MEANING",
       "phase": "PDP-2",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",

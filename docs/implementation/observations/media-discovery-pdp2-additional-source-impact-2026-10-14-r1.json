@@ -9,12 +9,12 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json",
-    "receiptSha256": "sha256:dee5cd3aa51d2c214de071723dc015666faedabe795d7ca95a46344b906d8377"
+    "receiptSha256": "sha256:6b7d18da275d0e31c675ff66c7136bef41cd1ead93a8ad714918454659efb91e"
   },
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json",
-    "receiptSha256": "sha256:199de6eab67febeda4218fc65b8daffdc80d8e40c19be55956b67a8d45fa10b9",
+    "receiptSha256": "sha256:a4a2d18d77874986361f32e8ce37dee03153929859b1a5deff0449c88df82e9b",
     "sourceFingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
     "status": "PASS",
     "sourceCurrentness": "PASS",

@@ -82,7 +82,7 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:461b0b560b57b22b1244c854f4b92fe46ab6596d6f93a77dfe8bb856c65581da",
+    "receiptSha256": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -162,7 +162,7 @@
       "path": "scripts/report-media-pdp-readiness.mjs",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573",
-      "observedSha256": "sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f",
+      "observedSha256": "sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e",
       "classification": "PDP_STATUS_TEST_REPORTER_SELECTION_ONLY",
       "changeSummary": "Selects PDP-specific readiness check commands and counts; no PDP-2 interface semantics are changed.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",

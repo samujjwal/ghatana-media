@@ -5,7 +5,7 @@
   "parentRecords": [
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T044320Z.v1.json",
-      "sha256": "sha256:9a650c7d60f60e11120ecb68581098eab821772d68179d38e13d420e1f12cb2c",
+      "sha256": "sha256:1e915e462fbc612bae8048bed836e0bfe3517e6bc38e655d00d18708e776a806",
       "relation": "PREVIOUS_CONTINUATION"
     },
     {
@@ -15,7 +15,7 @@
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t03-ai-technical-review-candidate-20261023.v1.json",
-      "sha256": "sha256:df6c61fd107d2b78ab3e7f112312cea821541fd9c20985d9c140581746a38a58",
+      "sha256": "sha256:5be0490232bc0e6aaf3f700f72378019c5ac51cc0e0c4b3d0032b2686b887edc",
       "relation": "AI_TECHNICAL_REVIEW_CANDIDATE_NOT_TASK_ACCEPTANCE"
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
+      "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67",
       "relation": "FULL_54_BY_4_PER_SURFACE_PHASE_MATRIX"
     }
   ],
@@ -164,7 +164,7 @@
     },
     "currentPerSurfacePhaseMatrix": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
+      "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67",
       "rows": 216,
       "identities": 54,
       "sourceCurrent": true,
@@ -189,7 +189,7 @@
       },
       "f00t01Receipt": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-        "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
+        "sha256": "sha256:4ef867e563464bacff070fc3a02fdbcd61bd88cb0872deab71edf9caa1c5cd81",
         "status": "SOURCE_INPUTS_RECONCILED_WITH_METHOD_AGGREGATE_BLOCKER",
         "identities": 54,
         "materialPins": 859,
@@ -198,7 +198,7 @@
       },
       "perSurfacePhaseMatrix": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-        "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
+        "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67",
         "rows": 216,
         "identities": 54,
         "sourceCurrent": true,
@@ -215,7 +215,7 @@
       },
       "packageProjection": {
         "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-        "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
+        "sha256": "sha256:a94a4423350d756ae8beed64d04784f2b85bc36cc76ee943af88e1e1e984194c",
         "status": "DETERMINISTIC_CURRENT",
         "packages": 50,
         "tasks": 57,
@@ -249,7 +249,7 @@
     },
     "perSurfacePhaseMatrix": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
+      "sha256": "sha256:266c49b9ec0dc465bedc2270b8abd8ef2e78458d54de3b3d5ce0ba3fdf158b67",
       "rows": 216,
       "sourceIdentities": 54,
       "phaseRows": {
@@ -282,7 +282,7 @@
       "formalTaskAcceptance": "PENDING",
       "evidenceCandidate": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-        "sha256": "sha256:37be99e010fd7bff70775fdb5385bc16987f5c9cca1c59c876d6f57f106fba0d",
+        "sha256": "sha256:cc57d8878b2adc79e853416941b1eb453053c66dc78b05dc267e2129ad7a01f6",
         "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
         "taskAcceptance": "NOT_ESTABLISHED",
         "planReady": "NOT_PROVEN"
@@ -434,7 +434,7 @@
     "f00T03": {
       "status": "ASSIGNED_UNVERIFIED",
       "technicalCandidate": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t03-handoff-census-candidate-20261023T043837Z.v1.json",
-      "sha256": "sha256:2f2736cb024a77cd332cf3482604bfe944f32ece0a2742b8492e08854e6c4920",
+      "sha256": "sha256:ad58e5abdb6aa6bdf49c1141cc85ce7b9337aa5b4ca175a66661324a3d4f0e25",
       "packageCount": 50,
       "packageTaskCount": 57,
       "consumerIdentities": 54,

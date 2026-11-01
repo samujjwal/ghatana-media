@@ -1416,7 +1416,7 @@
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-        "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
+        "sha256": "sha256:a94a4423350d756ae8beed64d04784f2b85bc36cc76ee943af88e1e1e984194c",
         "changeScope": "campaign execution artifact"
       },
       {
@@ -1519,7 +1519,7 @@
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-        "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955"
+        "sha256": "sha256:a94a4423350d756ae8beed64d04784f2b85bc36cc76ee943af88e1e1e984194c"
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
