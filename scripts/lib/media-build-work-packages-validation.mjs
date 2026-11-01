@@ -1,4 +1,4 @@
-export function sourceSelectorContinuityErrors({ phase, previousSelectors, currentSelectors = [], matrixPinCount }) {
+export function sourceSelectorContinuityErrors({ phase, previousSelectors, currentSelectors = [], matrixPinCount, historicalPdp2SourceScope }) {
   const errors = [];
   if (!Array.isArray(previousSelectors) || previousSelectors.length === 0) {
     errors.push(`${phase}: prior source-selector receipt missing or empty; selector continuity cannot be established`);
@@ -6,7 +6,31 @@ export function sourceSelectorContinuityErrors({ phase, previousSelectors, curre
   const previous = new Set(previousSelectors);
   const current = new Set(currentSelectors);
   const removed = [...previous].filter(selector => !current.has(selector)).sort();
-  if (removed.length) errors.push(`${phase}: ${removed.length} previously pinned selector(s) have no current status disposition: ${removed.join(', ')}`);
+  const scopePaths = new Set(historicalPdp2SourceScope?.sourcePaths ?? []);
+  // Historical R17 membership only classifies these removals. It never satisfies
+  // current selector continuity or a current phase review.
+  const hasHistoricalPdp2ScopeEvidence = phase === 'PDP-2'
+    && historicalPdp2SourceScope?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R17'
+    && historicalPdp2SourceScope?.status === 'PASS'
+    && historicalPdp2SourceScope?.ownerReviewValid === true
+    && historicalPdp2SourceScope?.sourceCurrentAtObservation === true
+    && historicalPdp2SourceScope?.observationDigestMatches === true
+    && historicalPdp2SourceScope?.successorLineageMatches === true
+    && historicalPdp2SourceScope?.successorConfirmsOutOfDenominator === true
+    && Number.isInteger(historicalPdp2SourceScope?.sourcePathCount)
+    && historicalPdp2SourceScope.sourcePathCount === scopePaths.size
+    && historicalPdp2SourceScope.sourcePathCount === historicalPdp2SourceScope.ownerReviewedPathCount
+    && historicalPdp2SourceScope.sourcePathCount === 405
+    && historicalPdp2SourceScope.historicalPinCount === current.size
+    && [...current].every(selector => !selector.includes('#') && scopePaths.has(selector));
+  const removalsAreOutsideHistoricalScope = hasHistoricalPdp2ScopeEvidence
+    && removed.length > 0
+    && removed.every(selector => !scopePaths.has(selector));
+  if (removed.length) {
+    errors.push(removalsAreOutsideHistoricalScope
+      ? `${phase}: ${removed.length} prior status selector(s) are absent and outside the historical R17 source path set; this is scope evidence only, not semantic retirement or current approval, so selector continuity remains unresolved: ${removed.join(', ')}`
+      : `${phase}: ${removed.length} previously pinned selector(s) have no current status disposition: ${removed.join(', ')}`);
+  }
   if (!Number.isInteger(matrixPinCount) || current.size !== matrixPinCount) {
     errors.push(`${phase}: source selector denominator mismatch (status=${current.size}, matrix=${matrixPinCount ?? 'unknown'})`);
   }

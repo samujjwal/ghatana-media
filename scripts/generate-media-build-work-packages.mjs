@@ -18,6 +18,9 @@ const planPath = 'docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md';
 const buildWorkPackagePath = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const tracePath = 'docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json';
 const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
+const pdp2HistoricalScopePath = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
+const pdp2HistoricalScopeSuccessorPath = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r18.json';
+const pdp2HistoricalScopeLineagePath = 'docs/implementation/media-discovery-reconciliation-worklist-2026-10-13.json';
 const topology = json(topologyPath);
 const trace = json(tracePath);
 const purposePath = '.product-experience/pdp-3-product-experience/journey-purpose-bindings.yaml';
@@ -110,6 +113,31 @@ const previousSelectorsByPhase = new Map([0, 1, 2, 3].map(index => {
     .map(record => record.selector);
   return [phase, selectors];
 }));
+const pdp2HistoricalScope = json(pdp2HistoricalScopePath);
+const pdp2HistoricalScopeSuccessor = json(pdp2HistoricalScopeSuccessorPath);
+const pdp2HistoricalScopeLineage = json(pdp2HistoricalScopeLineagePath);
+const pdp2ScopeSourcePaths = Object.keys(pdp2HistoricalScope.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {});
+const pdp2ScopePredecessor = pdp2HistoricalScopeSuccessor.decisionInputs?.pdp2ImpactPredecessor;
+const pdp2ScopeHistoryRecord = pdp2HistoricalScopeLineage.campaign?.pdp2PriorPhaseExitAttempts?.find(record => record.ref === pdp2HistoricalScopeSuccessorPath);
+const pdp2ScopeSha256 = `sha256:${sha(pdp2HistoricalScopePath)}`;
+const pdp2HistoricalSourceScope = {
+  observationId: pdp2HistoricalScope.observationId,
+  status: pdp2HistoricalScope.sourceCurrentness?.status,
+  sourceCurrentAtObservation: pdp2HistoricalScope.sourceCurrentness?.sourceCurrent === true,
+  ownerReviewValid: pdp2HistoricalScope.ownerStatusJoin?.ownerReviewValid === true,
+  sourcePaths: pdp2ScopeSourcePaths,
+  sourcePathCount: pdp2HistoricalScope.sourceCurrentness?.sourceSetDigests?.sourcePathCount,
+  ownerReviewedPathCount: pdp2HistoricalScope.ownerStatusJoin?.currentPathCount,
+  historicalPinCount: pdp2HistoricalScope.historicalPinReview?.historicalPinCount,
+  observationDigestMatches: pdp2ScopePredecessor?.ref === pdp2HistoricalScopePath
+    && pdp2ScopePredecessor?.sha256 === pdp2ScopeSha256,
+  successorLineageMatches: pdp2ScopeHistoryRecord?.status === 'FAIL'
+    && pdp2ScopeHistoryRecord?.supersededBy === 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json'
+    && pdp2ScopeHistoryRecord?.observedHead === pdp2HistoricalScopeSuccessor.campaign?.observedHead
+    && pdp2ScopeHistoryRecord?.materialSourceSetFingerprint === pdp2HistoricalScopeSuccessor.sourceCurrentness?.materialSourceSetFingerprint,
+  successorConfirmsOutOfDenominator: pdp2HistoricalScopeSuccessor.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-15-CURRENT-CUT-R18'
+    && pdp2ScopePredecessor?.includedIn405PathMaterialDenominator === false,
+};
 for (const { path, matrix } of matrixDocuments) {
   const phase = matrix?.campaign?.phase;
   const status = statuses.find(record => record.phase === phase);
@@ -118,6 +146,7 @@ for (const { path, matrix } of matrixDocuments) {
     previousSelectors: previousSelectorsByPhase.get(phase),
     currentSelectors: status?.sourceSelectors ?? [],
     matrixPinCount: matrix?.phaseSourceCurrentness?.sourcePinCount,
+    historicalPdp2SourceScope: phase === 'PDP-2' ? pdp2HistoricalSourceScope : undefined,
   });
   if (selectorErrors.length) throw new Error(`${path}: ${selectorErrors.join('\n')}`);
 }
@@ -132,7 +161,7 @@ for (const matrix of matrices) if (matrix.surfaceIds.some(id => !matrixBoundSurf
 const earlyRecordingJourneyIds = ['J-01', 'J-02', 'J-20', 'J-03'];
 const earlyJourneySet = new Set(earlyRecordingJourneyIds);
 const earlyJourneyContractPaths = channel.edges.filter(edge => earlyJourneySet.has(edge.journeyRef)).map(edge => edge.journeyContractRef);
-const sourcePaths = [...new Set([planPath, tracePath, topologyPath, surfaceRegistryPath, '.product-experience/source-manifest.yaml', purposePath, channelPath, ...earlyJourneyContractPaths, ...semanticBridge.sourceFiles, ...statusPaths, ...matrixPaths])].sort();
+const sourcePaths = [...new Set([planPath, tracePath, topologyPath, surfaceRegistryPath, pdp2HistoricalScopePath, pdp2HistoricalScopeSuccessorPath, pdp2HistoricalScopeLineagePath, '.product-experience/source-manifest.yaml', purposePath, channelPath, ...earlyJourneyContractPaths, ...semanticBridge.sourceFiles, ...statusPaths, ...matrixPaths])].sort();
 const textField = (section, label) => section.match(new RegExp(`\\*\\*${label}:\\*\\*\\s*([^\\n]+(?:\\n(?!\\*\\*)[^\\n]+)*)`))?.[1]?.trim() ?? '';
 const taskRows = packages.map(p => {
   const taskId = `${p.id}.T01`;

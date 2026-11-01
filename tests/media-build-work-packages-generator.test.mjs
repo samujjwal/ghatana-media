@@ -11,6 +11,34 @@ import { buildSemanticSourceJoins } from '../scripts/lib/media-build-semantic-so
 const run = (...args) => execFileSync(process.execPath, ['scripts/generate-media-build-work-packages.mjs', ...args], { encoding: 'utf8' });
 const path = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const digest = () => crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+const pdp2HistoricalScopePath = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
+const pdp2HistoricalScopeSuccessorPath = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r18.json';
+const pdp2HistoricalScopeLineagePath = 'docs/implementation/media-discovery-reconciliation-worklist-2026-10-13.json';
+const pdp2HistoricalSourceScope = () => {
+  const scope = JSON.parse(fs.readFileSync(pdp2HistoricalScopePath, 'utf8'));
+  const successor = JSON.parse(fs.readFileSync(pdp2HistoricalScopeSuccessorPath, 'utf8'));
+  const lineage = JSON.parse(fs.readFileSync(pdp2HistoricalScopeLineagePath, 'utf8'));
+  const predecessor = successor.decisionInputs?.pdp2ImpactPredecessor;
+  const lineageRecord = lineage.campaign?.pdp2PriorPhaseExitAttempts?.find(record => record.ref === pdp2HistoricalScopeSuccessorPath);
+  const sourceSha256 = `sha256:${crypto.createHash('sha256').update(fs.readFileSync(pdp2HistoricalScopePath)).digest('hex')}`;
+  return {
+    observationId: scope.observationId,
+    status: scope.sourceCurrentness?.status,
+    sourceCurrentAtObservation: scope.sourceCurrentness?.sourceCurrent === true,
+    ownerReviewValid: scope.ownerStatusJoin?.ownerReviewValid === true,
+    sourcePaths: Object.keys(scope.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {}),
+    sourcePathCount: scope.sourceCurrentness?.sourceSetDigests?.sourcePathCount,
+    ownerReviewedPathCount: scope.ownerStatusJoin?.currentPathCount,
+    historicalPinCount: scope.historicalPinReview?.historicalPinCount,
+    observationDigestMatches: predecessor?.ref === pdp2HistoricalScopePath && predecessor?.sha256 === sourceSha256,
+    successorLineageMatches: lineageRecord?.status === 'FAIL'
+      && lineageRecord?.supersededBy === 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-15-current-cut-r19.json'
+      && lineageRecord?.observedHead === successor.campaign?.observedHead
+      && lineageRecord?.materialSourceSetFingerprint === successor.sourceCurrentness?.materialSourceSetFingerprint,
+    successorConfirmsOutOfDenominator: successor.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-15-CURRENT-CUT-R18'
+      && predecessor?.includedIn405PathMaterialDenominator === false,
+  };
+};
 const sourceSelectorReconciliationErrors = () => {
   const previous = JSON.parse(fs.readFileSync(path, 'utf8'));
   return [0, 1, 2, 3].flatMap(index => {
@@ -22,6 +50,7 @@ const sourceSelectorReconciliationErrors = () => {
       previousSelectors: previous.materialSourceReceipt?.records?.filter(record => record.phase === phase).map(record => record.selector),
       currentSelectors: Object.keys(status.sourceShaSet ?? {}),
       matrixPinCount: matrix.phaseSourceCurrentness?.sourcePinCount,
+      historicalPdp2SourceScope: phase === 'PDP-2' ? pdp2HistoricalSourceScope() : undefined,
     });
   });
 };
@@ -163,6 +192,49 @@ test('selector continuity guard catches same-count substitutions against the pri
     currentSelectors: ['old-a.yaml'],
     matrixPinCount: 1,
   }), ['PDP-2: prior source-selector receipt missing or empty; selector continuity cannot be established']);
+});
+
+test('PDP-2 classifies the 23 absent selectors as outside historical R17 scope but keeps continuity blocked', () => {
+  const previous = JSON.parse(fs.readFileSync(path, 'utf8'));
+  const status = JSON.parse(fs.readFileSync('docs/implementation/pdp-2-phase-dev-status.json', 'utf8'));
+  const matrix = JSON.parse(fs.readFileSync('docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json', 'utf8'));
+  const previousSelectors = previous.materialSourceReceipt.records.filter(record => record.phase === 'PDP-2').map(record => record.selector);
+  const currentSelectors = Object.keys(status.sourceShaSet);
+  const scope = pdp2HistoricalSourceScope();
+  const scopePaths = new Set(scope.sourcePaths);
+  const removed = previousSelectors.filter(selector => !currentSelectors.includes(selector));
+
+  assert.equal(removed.length, 23);
+  assert.equal(scope.sourcePathCount, 405);
+  assert.equal(scope.sourcePaths.length, 405);
+  assert.equal(scope.observationDigestMatches, true);
+  assert.equal(scope.successorLineageMatches, true);
+  assert.ok(currentSelectors.every(selector => scopePaths.has(selector)));
+  assert.ok(removed.every(selector => !scopePaths.has(selector)));
+
+  const errors = sourceSelectorContinuityErrors({
+    phase: 'PDP-2', previousSelectors, currentSelectors,
+    matrixPinCount: matrix.phaseSourceCurrentness.sourcePinCount,
+    historicalPdp2SourceScope: scope,
+  });
+  assert.match(errors[0], /23 prior status selector\(s\).*outside the historical R17 source path set/u);
+  assert.match(errors[0], /not semantic retirement or current approval/u);
+  assert.match(errors[1], /source selector denominator mismatch \(status=157, matrix=180\)/u);
+
+  const staleScopeErrors = sourceSelectorContinuityErrors({
+    phase: 'PDP-2', previousSelectors, currentSelectors,
+    matrixPinCount: matrix.phaseSourceCurrentness.sourcePinCount,
+    historicalPdp2SourceScope: { ...scope, status: 'STALE', successorLineageMatches: false },
+  });
+  assert.match(staleScopeErrors[0], /no current status disposition/u);
+
+  const missingInScope = currentSelectors.slice(1);
+  const inScopeRemovalErrors = sourceSelectorContinuityErrors({
+    phase: 'PDP-2', previousSelectors, currentSelectors: missingInScope,
+    matrixPinCount: matrix.phaseSourceCurrentness.sourcePinCount,
+    historicalPdp2SourceScope: scope,
+  });
+  assert.match(inScopeRemovalErrors[0], /no current status disposition/u);
 });
 
 test('validator rejects negative identity, join, edge, cycle, N/A, census, and pin fixtures', () => {
