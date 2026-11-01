@@ -6,12 +6,15 @@ import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -258,7 +261,13 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
     }
 
     private Server buildServer(int bindPort, TransportSecurity security) {
-        ServerBuilder<?> builder = ServerBuilder.forPort(bindPort);
+        // A plaintext listener is intended only for local development and tests. The generic
+        // forPort() builder binds wildcard interfaces, which would expose those profiles to the
+        // network even though the profile policy permits plaintext only for local use.
+        ServerBuilder<?> builder = security.tlsEnabled()
+                ? ServerBuilder.forPort(bindPort)
+                : NettyServerBuilder.forAddress(
+                        new InetSocketAddress(loopbackAddress(), bindPort));
         maxInboundMessageSize.ifPresent(builder::maxInboundMessageSize);
         interceptors.forEach(builder::intercept);
         if (security.tlsEnabled()) {
@@ -267,6 +276,16 @@ public abstract class AudioVideoGrpcServerBase implements AutoCloseable {
         builder.addService(serviceImpl);
         if (readinessLifecycle != null && readinessLifecycle != serviceImpl) builder.addService(readinessLifecycle);
         return builder.build();
+    }
+
+    private static InetAddress loopbackAddress() {
+        try {
+            // The service tests and local clients use IPv4 loopback. Binding that explicit
+            // address avoids depending on whether the host has IPv6 loopback enabled.
+            return InetAddress.getByAddress(new byte[] {127, 0, 0, 1});
+        } catch (java.net.UnknownHostException impossible) {
+            throw new IllegalStateException("IPv4 loopback address is unavailable", impossible);
+        }
     }
 
     public final void startAndAwaitShutdown() throws IOException, InterruptedException {

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -34,6 +36,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManagerFactory;
 import java.util.List;
+import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +81,42 @@ class AudioVideoGrpcServerBaseTest {
 
         assertThat(server.isShutdown()).isTrue();
         assertThat(service.closeCount()).isEqualTo(1);
+    }
+
+    @Test
+    void plaintextListenerAcceptsLoopbackButDoesNotBindNetworkInterfaces() throws Exception {
+        AtomicInteger dispatches = new AtomicInteger();
+        TestServer server = new TestServer(0, payloadService(dispatches));
+        server.start();
+        try {
+            int port = server.getPort();
+            try (Socket loopback = new Socket()) {
+                loopback.connect(new InetSocketAddress(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), port),
+                        1_000);
+            }
+
+            ManagedChannel localhostChannel = ManagedChannelBuilder.forAddress("localhost", port)
+                    .usePlaintext()
+                    .build();
+            try {
+                assertThat(ClientCalls.blockingUnaryCall(
+                        localhostChannel, payloadMethod(), CallOptions.DEFAULT, "localhost"))
+                        .isEqualTo("accepted");
+                assertThat(dispatches).hasValue(1);
+            } finally {
+                localhostChannel.shutdownNow();
+            }
+
+            InetAddress networkAddress = firstNonLoopbackAddress();
+            assertThat(networkAddress).as("a non-loopback interface for the bind-scope assertion").isNotNull();
+            assertThatThrownBy(() -> {
+                try (Socket external = new Socket()) {
+                    external.connect(new InetSocketAddress(networkAddress, port), 500);
+                }
+            }).isInstanceOf(IOException.class);
+        } finally {
+            server.close();
+        }
     }
 
     @Test
@@ -129,7 +168,8 @@ class AudioVideoGrpcServerBaseTest {
 
     @Test
     void failedGrpcBindMarksDownAndClosesReadinessAndServiceResources() throws IOException {
-        try (ServerSocket occupiedPort = new ServerSocket(0)) {
+        try (ServerSocket occupiedPort = new ServerSocket(
+                0, 50, InetAddress.getByAddress(new byte[] {127, 0, 0, 1}))) {
             FakeReadinessLifecycle readiness = new FakeReadinessLifecycle(true);
             CloseableNoOpService service = new CloseableNoOpService(readiness::isServing);
             TestServer server = new TestServer(occupiedPort.getLocalPort(), service, readiness);
@@ -176,6 +216,23 @@ class AudioVideoGrpcServerBaseTest {
                                 Path.of("/definitely/missing/key.pem"))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("readable regular non-symlink file");
+    }
+
+    @Test
+    void mismatchedTlsIdentityIsRejectedBeforeAnyListenerCanBind() throws Exception {
+        Path certificate = tlsFixture("rotation-a-cert.pem");
+        Path mismatchedKey = tlsFixture("rotation-b-key.pem");
+        int port = findAvailablePort();
+
+        assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
+                        AudioVideoGrpcServerBase.TransportSecurity.tls(certificate, mismatchedKey)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("invalid or mismatched");
+        assertThatThrownBy(() -> {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
+            }
+        }).isInstanceOf(IOException.class);
     }
 
     @Test
@@ -357,6 +414,20 @@ class AudioVideoGrpcServerBaseTest {
                 ServerReadinessLifecycle readiness) {
             super(serviceName, port, service, List.of(), TransportSecurity.plaintext(), readiness);
         }
+    }
+
+    private static InetAddress firstNonLoopbackAddress() throws IOException {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces != null && interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+            if (!networkInterface.isUp() || networkInterface.isLoopback()) continue;
+            Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress address = addresses.nextElement();
+                if (!address.isLoopbackAddress()) return address;
+            }
+        }
+        return null;
     }
 
     private static BindableService payloadService(AtomicInteger dispatches) {
