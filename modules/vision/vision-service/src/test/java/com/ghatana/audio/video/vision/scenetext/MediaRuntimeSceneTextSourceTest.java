@@ -176,6 +176,30 @@ class MediaRuntimeSceneTextSourceTest {
     }
 
     @Test
+    void resolverRejectsInvalidClaimedRoiBeforeReadingArtifactAndMismatchedRasterDimensions() throws Exception {
+        byte[] png = image(100, 60);
+        String sha = sha256(png);
+        FakePort port = new FakePort();
+        port.content = png;
+        port.receiptSha = sha;
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+
+        // Invalid coordinates, including overflow-prone sums, must not trigger an artifact read.
+        for (Roi roi : new Roi[] {new Roi(-1, 0, 1, 1), new Roi(0, 0, Integer.MAX_VALUE, 1),
+                new Roi(0, 0, 0, 1)}) {
+            assertThat(((CropRefused) source.resolve(cropRequest(sha, "0", 0, 100, 60, roi))).status())
+                    .isEqualTo(SourceStatus.NOT_ADMITTED);
+        }
+        assertThat(port.acceptedBytes).isZero();
+
+        // A valid ROI against a caller-claimed raster is still refused if decoded immutable
+        // artifact dimensions differ from that claim.
+        assertThat(((CropRefused) source.resolve(cropRequest(sha, "0", 0, 101, 60,
+                new Roi(0, 0, 10, 10)))).status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+        assertThat(port.acceptedBytes).isEqualTo(png.length);
+    }
+
+    @Test
     void resolverRefusesUndecodableAndIoFailureAsTypedOutcomes() throws Exception {
         FakePort port = new FakePort();
         port.content = new byte[] {1, 2, 3};

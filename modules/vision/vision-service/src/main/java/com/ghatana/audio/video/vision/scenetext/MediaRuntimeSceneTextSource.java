@@ -128,6 +128,13 @@ public final class MediaRuntimeSceneTextSource implements SourceAuthority, Frame
         if (!STILL_FRAME_ID.equals(request.frameId()) || request.ptsUs() != 0) {
             return new CropRefused(SourceStatus.NOT_ADMITTED);
         }
+        Roi roi = request.roi();
+        if (request.frameWidth() <= 0 || request.frameHeight() <= 0 || roi == null
+                || roi.x() < 0 || roi.y() < 0 || roi.width() <= 0 || roi.height() <= 0
+                || (long) roi.x() + roi.width() > request.frameWidth()
+                || (long) roi.y() + roi.height() > request.frameHeight()) {
+            return new CropRefused(SourceStatus.NOT_ADMITTED);
+        }
         final ArtifactVersion sourceVersion;
         try {
             sourceVersion = new ArtifactVersion(request.sourceVersion());
@@ -161,8 +168,11 @@ public final class MediaRuntimeSceneTextSource implements SourceAuthority, Frame
             // extractor is a separate admission.
             return new CropRefused(SourceStatus.NOT_ADMITTED);
         }
-        Roi roi = request.roi();
-        if (roi.x() + roi.width() > frame.getWidth() || roi.y() + roi.height() > frame.getHeight()) {
+        // The resolver owns this boundary too: a direct caller cannot use an ROI admitted
+        // against a claimed raster size that differs from the decoded immutable artifact.
+        if (request.frameWidth() != frame.getWidth() || request.frameHeight() != frame.getHeight()
+                || (long) roi.x() + roi.width() > frame.getWidth()
+                || (long) roi.y() + roi.height() > frame.getHeight()) {
             return new CropRefused(SourceStatus.NOT_ADMITTED);
         }
         byte[] png;
