@@ -5,6 +5,12 @@ requires an atomic, durable invocation claim before dispatch. Its default ledger
 claim and completion methods fail closed, and this module does not provide a
 production ledger implementation or claim durable dispatch readiness.
 
+The four handler adapters currently validate inputs and return typed
+`NOT_ADMITTED` results before provider dispatch. Compatibility constructor
+delegates are ignored. The Data Cloud artifact entry in the shared capability
+descriptor is read-model metadata only; it is not a Media handler or an
+authenticated execution grant.
+
 Any future durable ledger implementation must enforce tenant and authenticated
 principal access on reads and writes, protect stored results according to data
 classification with appropriate encryption and retention, and perform fresh

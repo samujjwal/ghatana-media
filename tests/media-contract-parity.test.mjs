@@ -91,8 +91,8 @@ test("dispositions the four unadmitted Agent Tool boundaries without accepting o
   const operationCandidates = parsedRegistry.tools.filter(({ operationBinding }) => /^media\.operation\./u.test(operationBinding?.value ?? "") && operationBinding?.status === "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending");
 
   // The four Media definition schemas and operation candidates are explicit,
-  // but the Java adapter still forwards the supplied ToolContract unchanged.
-  // A candidate association is not canonical handler/API parity or admission.
+  // but their current Java handlers stop before dispatch. Generic validator
+  // utilities do not establish canonical handler/API parity or admission.
   assert.equal(inputSchemaVersions.length, 4);
   assert.equal(resultSchemaVersions.length, 4);
   assert.equal(operationCandidates.length, 4);
@@ -101,9 +101,10 @@ test("dispositions the four unadmitted Agent Tool boundaries without accepting o
   assert.match(conventions, /status: NOT_IMPLEMENTED/u);
   assert.match(parsedRegistry.contractObservationPolicy.inputSchema, /closed top-level key sets and local field validation/u);
   assert.match(parsedRegistry.contractObservationPolicy.inputSchema, /not a published JSON Schema/u);
-  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /bounded Draft 2020-12 validation/u);
-  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /does not bind the four YAML descriptors as canonical registered result schemas/u);
-  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /An empty schema remains unresolved/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /AgentToolInput\.dispatch validates a successful delegate output against the supplied ToolContract outputSchema \(Draft 2020-12/u);
+  assert.match(parsedRegistry.contractObservationPolicy.delegateInputForwarding, /None of the four current handlers dispatches/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /does not bind the four YAML descriptors as public result schemas/u);
+  assert.match(parsedRegistry.contractObservationPolicy.outputSchema, /an empty schema remains unresolved/u);
   assert.match(conventions, /no tool is admitted, callable, or authorized by this convention/u);
 
   // The operation catalog explicitly remains proposal-only, with cross-

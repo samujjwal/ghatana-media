@@ -10,13 +10,13 @@ contractObservationPolicy:
   authority: Java handler source is authoritative only for behavior directly visible in each adapter.
   schemaVersion: NOT_DECLARED_BY_HANDLER
   inputSchema: Media adapters enforce closed top-level key sets and local field validation, but these Java checks are not a published JSON Schema and do not establish a canonical public schema.
-  delegateInputForwarding: If configured, every handler delegates the original envelope and ToolContract through AgentToolInput.dispatch; it does not construct a filtered or normalized request. The returned result is checked for invocationId equality.
-  outputSchema: Successful delegate outputs receive bounded Draft 2020-12 validation against the outputSchema supplied by the matching ToolContract (strict unknown-keyword handling; remote references disabled; serialized-character, depth, and node-count bounds). An empty schema remains unresolved and passes through after output bounds; this does not bind the four YAML descriptors as canonical registered result schemas or prove output meaning, provenance, or finality.
-  asynchronousFailure: The adapter preserves delegate rejection and synchronous throw, and rejects null promises, mismatched invocationId results, and malformed successful payloads on the promise error channel. The DefaultToolExecutor boundary maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN and read-only rejection to FAILED; direct handler use preserves the rejection channel.
+  delegateInputForwarding: None of the four current handlers dispatches. Each validates the envelope, returns typed NOT_ADMITTED for valid-shaped input, and ignores any compatibility-constructor delegate. AgentToolInput.dispatch is an unbound utility and has no current handler call site.
+  outputSchema: AgentToolInput.dispatch validates a successful delegate output against the supplied ToolContract outputSchema (Draft 2020-12, strict keywords, remote resources disabled, bounded serialized characters/depth/nodes). No current handler dispatches or accepts a success result, and an empty schema remains unresolved; this utility does not bind the four YAML descriptors as public result schemas or prove output meaning, provenance, or finality.
+  asynchronousFailure: 'AgentToolInput.dispatch preserves delegate rejection and synchronous throw, and rejects null promises, mismatched invocationId results, and malformed successful payloads on its promise error channel. This is utility behavior only: the four handlers do not dispatch. The DefaultToolExecutor maps effectful post-dispatch ambiguity to non-final OUTCOME_UNKNOWN; direct utility use preserves its rejection channel.'
   localFailedResultArguments: ToolExecutionResult.failed receives invocationId for both its first and third arguments, the observed end Instant, and Duration.between(start, end).
   localFailedResultMapping: "Sibling Tools source observation only (runtime/java/tool-contracts/.../ToolExecutionResult.java): the failed(String, String, String, Instant, Duration) factory maps these non-code messages to status FAILED and failure kind INTERNAL/stage EXECUTION; its code normalizer falls back to TOOL_EXECUTION_FAILED for messages that are not a valid code. Installed package resolution and owner acceptance are not established by this Media observation."
   preTryNullArguments: Objects.requireNonNull(envelope/contract) executes before the try block in each handler, so a null argument throws directly. Envelope/contract tool ID, version and action-class mismatch is now rejected inside the validation boundary.
-  runtimeAndAvailability: UNRESOLVED; factory registration does not prove a configured delegate, runtime availability, or production readiness.
+  runtimeAndAvailability: NOT_ADMITTED; factory registration and compatibility constructors do not establish an active delegate, runtime availability, or production readiness.
   operationBinding: Media operation candidates must remain distinct from handler/runtime parity; exact operation IDs below are definition-only candidates, not proof of handler/API equivalence or Shared runtime binding.
   executionAdmitted: false
 tools:
@@ -43,21 +43,21 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
-      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video STT provider unavailable for <source>: no speech-to-text service delegate configured", invocationId, end, elapsed Duration)'
-      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + exception message, invocationId, end, elapsed Duration)'
+      success: No success result is reachable; valid-shaped input returns typed STT_NOT_ADMITTED before any provider call.
+      noDelegate: Configured delegates are ignored until an admitted public Media operation exists; missing-provider and configured-provider inputs both return STT_NOT_ADMITTED.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "STT processing error: " + allowlisted validation code, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
-      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
+      errorDisclosure: Local validation failure exposes only an allowlisted code; valid-shaped input returns typed STT_NOT_ADMITTED. No delegate error path is reachable.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
-      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
-      effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
+      delegateInputForwarding: No dispatch occurs; after validation the handler returns STT_NOT_ADMITTED and ignores its compatibility delegate.
+      observedContext: Diagnostics contain only allowlisted validation codes; tenant, invocation, artifact, source, transcript, and raw media values are not emitted.
+      effect: No provider operation is performed or delegated by the current handler.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
       timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
-    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
+    availability: {value: NOT_ADMITTED, status: handler-does-not-dispatch}
+    safeFailure: Invalid input returns a generic local validation failure; valid-shaped input returns typed STT_NOT_ADMITTED before effect. No post-dispatch ambiguity is reachable through this handler.
   - id: av.text-to-speech
     canonicalId: av.text-to-speech
     handler: TextToSpeechToolHandler
@@ -83,21 +83,21 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
-      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured", invocationId, end, elapsed Duration)'
-      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + exception message, invocationId, end, elapsed Duration)'
+      success: No success result is reachable; valid-shaped input returns typed TTS_NOT_ADMITTED before any provider or artifact-store call.
+      noDelegate: Configured delegates are ignored until an admitted public Media operation exists; missing-provider and configured-provider inputs both return TTS_NOT_ADMITTED.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "TTS processing error: " + allowlisted validation code, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
-      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
+      errorDisclosure: Local validation failure exposes only an allowlisted code; valid-shaped input returns typed TTS_NOT_ADMITTED. No delegate error path is reachable.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
-      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
-      effect: No synthesis or artifact write is performed by this adapter; storeAsArtifact is only read/logged and delegate effects are unresolved.
+      delegateInputForwarding: No dispatch occurs; after validation the handler returns TTS_NOT_ADMITTED and ignores its compatibility delegate.
+      observedContext: Diagnostics contain only allowlisted validation codes; tenant, invocation, voice, text, artifact, source, and raw audio values are not emitted.
+      effect: No synthesis or artifact write is performed or delegated by the current handler; storeAsArtifact has no effect.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
       timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
-    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
+    availability: {value: NOT_ADMITTED, status: handler-does-not-dispatch}
+    safeFailure: Invalid input returns a generic local validation failure; valid-shaped input returns typed TTS_NOT_ADMITTED before effect. No post-dispatch ambiguity is reachable through this handler.
   - id: av.vision-analysis
     canonicalId: av.vision-analysis
     handler: VisionAnalysisToolHandler
@@ -122,21 +122,21 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; field semantics, provenance, evidence, and output admission remain unresolved.
-      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Vision provider unavailable: no vision analysis service delegate configured", invocationId, end, elapsed Duration)'
-      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + exception message, invocationId, end, elapsed Duration)'
+      success: No success result is reachable; valid-shaped input returns typed VISION_NOT_ADMITTED before any provider call.
+      noDelegate: Configured delegates are ignored until an admitted public Media operation exists; missing-provider and configured-provider inputs both return VISION_NOT_ADMITTED.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Vision analysis error: " + allowlisted validation code, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
-      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
+      errorDisclosure: Local validation failure exposes only an allowlisted code; valid-shaped input returns typed VISION_NOT_ADMITTED. No delegate error path is reachable.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
-      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
-      effect: No provider operation is performed by this adapter; any effect is delegated and unresolved.
+      delegateInputForwarding: No dispatch occurs; after validation the handler returns VISION_NOT_ADMITTED and ignores its compatibility delegate.
+      observedContext: Diagnostics contain only allowlisted validation codes; tenant, invocation, artifact, source, frame, and raw image values are not emitted.
+      effect: No provider operation is performed or delegated by the current handler.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
       timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
-    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
+    availability: {value: NOT_ADMITTED, status: handler-does-not-dispatch}
+    safeFailure: Invalid input returns a generic local validation failure; valid-shaped input returns typed VISION_NOT_ADMITTED before effect. No post-dispatch ambiguity is reachable through this handler.
   - id: av.multimodal-inference
     canonicalId: av.multimodal-inference
     handler: MultimodalInferenceToolHandler
@@ -162,21 +162,21 @@ tools:
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}
-      success: Successful delegate output is checked structurally against the supplied ToolContract outputSchema; component, partial-result, provenance, and output admission semantics remain unresolved.
-      noDelegate: 'ToolExecutionResult.failed(invocationId, "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured", invocationId, end, elapsed Duration)'
-      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + exception message, invocationId, end, elapsed Duration)'
+      success: No success result is reachable; valid-shaped input returns typed MULTIMODAL_NOT_ADMITTED before any inference component call.
+      noDelegate: Configured delegates are ignored until an admitted public Media operation exists; missing-provider and configured-provider inputs both return MULTIMODAL_NOT_ADMITTED.
+      preDispatchValidationFailure: 'ToolExecutionResult.failed(invocationId, "Multimodal inference error: " + allowlisted validation code, invocationId, end, elapsed Duration)'
       finality: Tools result enum carries non-final unknown/cancellation-requested states; handler does not validate operation-specific output finality.
-      errorDisclosure: Local failure is constructed from bounded validation reason codes; canonical public error mapping remains unresolved. Delegate errors remain on the Promise error channel.
+      errorDisclosure: Local validation failure exposes only an allowlisted code; valid-shaped input returns typed MULTIMODAL_NOT_ADMITTED. No delegate error path is reachable.
     safetyAndEffects:
       envelopeChecks: Objects.requireNonNull(envelope) and Objects.requireNonNull(contract)
       nullArgumentBehavior: Both checks occur before the handler try block and throw directly; no local ToolExecutionResult is returned.
-      delegateInputForwarding: After local envelope/contract and input validation, delegate.handle receives the original envelope and contract unchanged through AgentToolInput.dispatch.
-      observedContext: Logs invocationId and tenantId; these values are not authorization checks.
-      effect: No inference component is invoked by this adapter; any component work/effects are delegated and unresolved.
+      delegateInputForwarding: No dispatch occurs; after validation the handler returns MULTIMODAL_NOT_ADMITTED and ignores its compatibility delegate.
+      observedContext: Diagnostics contain only allowlisted validation codes; tenant, invocation, artifact, source, transcript, and raw media values are not emitted.
+      effect: No inference component is invoked or delegated by the current handler.
       authority: {value: null, status: no-principal-resource-policy-or-delegation-enforcement-shown}
       timeoutCancellationIdempotencyEvidence: {value: null, status: unavailable-in-invocation-spi-and-not-shown-by-handler}
-    availability: {value: null, status: unresolved-delegate-and-runtime-binding}
-    safeFailure: Handler returns local failure for invalid input or absent delegate. After dispatch, synchronous throw, null/rejected Promise, or mismatched invocationId remains an ambiguous Promise failure for runtime reconciliation.
+    availability: {value: NOT_ADMITTED, status: handler-does-not-dispatch}
+    safeFailure: Invalid input returns a generic local validation failure; valid-shaped input returns typed MULTIMODAL_NOT_ADMITTED before effect. No post-dispatch ambiguity is reachable through this handler.
 
 implementationUpdate:
   status: adapter-validation-hardened; execution-not-admitted

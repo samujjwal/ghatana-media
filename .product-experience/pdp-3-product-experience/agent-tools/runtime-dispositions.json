@@ -9,11 +9,11 @@
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "The proposed artifact-version and language request mapping is not an implemented typed adapter; handler accepts a dynamic envelope and may also accept a flat artifact fallback."
+        "reason": "The handler validates a dynamic ToolExecutionEnvelope, then returns STT_NOT_ADMITTED before dispatch. No accepted operation adapter binds an immutable artifact version, source rights, or trusted principal."
       },
       "resultErrorMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical transcript, provenance, finality, or public typed-error mapping is established."
+        "reason": "Valid requests return typed STT_NOT_ADMITTED; local validation failures return a generic FAILED result. No delegate output or success result is accepted, and no canonical transcript, provenance, finality, or public typed-error mapping is established."
       },
       "operationMapping": {
         "disposition": "NOT_ADMITTED",
@@ -30,11 +30,11 @@
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "The proposed synthesis profile, encoding, and artifact-storage fields have no exact typed adapter to an accepted owner operation or qualified profile."
+        "reason": "The handler validates a dynamic ToolExecutionEnvelope, then returns TTS_NOT_ADMITTED before dispatch. The proposed synthesis profile, encoding, and artifact-storage fields are not bound to an accepted owner operation or qualified voice profile."
       },
       "resultErrorMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical audio artifact, provenance, finality, or public typed-error mapping is established."
+        "reason": "Valid requests return typed TTS_NOT_ADMITTED; local validation failures return a generic FAILED result. No delegate output or success result is accepted, and no canonical audio artifact, provenance, finality, or public typed-error mapping is established."
       },
       "operationMapping": {
         "disposition": "NOT_ADMITTED",
@@ -51,11 +51,11 @@
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "The proposed analysis-type and custom-model request has no exact typed adapter to an accepted operation or qualified model profile and immutable artifact version."
+        "reason": "The handler validates a dynamic ToolExecutionEnvelope, rejects inline image bytes, then returns VISION_NOT_ADMITTED before dispatch. No accepted operation binds an immutable artifact version or qualified model profile."
       },
       "resultErrorMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; no canonical observation, provenance, finality, or public typed-error mapping is established."
+        "reason": "Valid requests return typed VISION_NOT_ADMITTED; local validation failures return a generic FAILED result. No delegate output or success result is accepted, and no canonical observation, provenance, finality, or public typed-error mapping is established."
       },
       "operationMapping": {
         "disposition": "NOT_ADMITTED",
@@ -72,11 +72,11 @@
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "The proposed modality flags and sampling controls have no exact typed adapter to an accepted operation, immutable source version, or qualified component profile."
+        "reason": "The handler validates a dynamic ToolExecutionEnvelope, then returns MULTIMODAL_NOT_ADMITTED before dispatch. The proposed modality flags and sampling controls are not bound to an accepted operation, immutable source version, or qualified component profile."
       },
       "resultErrorMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "Handler returns generic ToolExecutionResult and forwards delegate output; component results, partial outcomes, provenance, finality, and public typed errors are unmapped."
+        "reason": "Valid requests return typed MULTIMODAL_NOT_ADMITTED; local validation failures return a generic FAILED result. No delegate output or success result is accepted, and component results, partial outcomes, provenance, finality, and public typed errors are unmapped."
       },
       "operationMapping": {
         "disposition": "NOT_ADMITTED",
