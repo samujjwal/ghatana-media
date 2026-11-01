@@ -441,6 +441,47 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL repositories reject stale audio and transcript revisions without overwriting current rows")
+    void postgresRepositoriesRejectStaleVersions() {
+        String tenantId = "tenant-stale-" + UUID.randomUUID();
+        AudioFileEntity audio = createAudioFile(tenantId, "revision-zero.wav");
+        audioFileRepository.save(tenantId, audio);
+        entityManager.clear();
+
+        AudioFileEntity staleAudio = audioFileRepository.findById(tenantId, audio.getId()).orElseThrow();
+        entityManager.detach(staleAudio);
+        AudioFileEntity currentAudio = audioFileRepository.findById(tenantId, audio.getId()).orElseThrow();
+        currentAudio.setFileName("current-audio-revision.wav");
+        AudioFileEntity savedAudio = audioFileRepository.save(tenantId, currentAudio);
+        assertThat(savedAudio.getVersion()).isGreaterThan(staleAudio.getVersion());
+        staleAudio.setFileName("stale-audio-overwrite.wav");
+        assertThatThrownBy(() -> audioFileRepository.save(tenantId, staleAudio))
+                .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(tenantId, audio.getId()).orElseThrow().getFileName())
+                .isEqualTo("current-audio-revision.wav");
+
+        TranscriptionEntity transcript = createTranscription(tenantId, "revision-zero transcript");
+        transcriptionRepository.save(tenantId, transcript);
+        entityManager.clear();
+
+        TranscriptionEntity staleTranscript = transcriptionRepository.findById(tenantId, transcript.getId())
+                .orElseThrow();
+        entityManager.detach(staleTranscript);
+        TranscriptionEntity currentTranscript = transcriptionRepository.findById(tenantId, transcript.getId())
+                .orElseThrow();
+        currentTranscript.setText("current transcript revision");
+        TranscriptionEntity savedTranscript = transcriptionRepository.save(tenantId, currentTranscript);
+        assertThat(savedTranscript.getVersion()).isGreaterThan(staleTranscript.getVersion());
+        staleTranscript.setText("stale transcript overwrite");
+        assertThatThrownBy(() -> transcriptionRepository.save(tenantId, staleTranscript))
+                .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+        entityManager.clear();
+        assertThat(transcriptionRepository.findById(tenantId, transcript.getId()).orElseThrow().getText())
+                .isEqualTo("current transcript revision");
+    }
+
+    @Test
     @DisplayName("GIVEN invalid entity WHEN save fails THEN transaction is rolled back")
     void testSaveRollbackOnConstraintViolation() { 
         String tenantId = "tenant-rollback";
