@@ -135,6 +135,8 @@ pub struct Resampler {
 impl Resampler {
     const DEFAULT_KERNEL_HALF_LENGTH: usize = 24;
     const DEFAULT_CUTOFF_SCALE: f64 = 0.9;
+    /// Bound output allocations to the same 384 MiB f32 scale as the default decoder.
+    const MAX_OUTPUT_SAMPLES: usize = 96_000_000;
 
     pub fn new(target_sample_rate: u32) -> Self {
         Self {
@@ -185,6 +187,28 @@ impl Resampler {
         2.0 * cutoff * sinc * window
     }
 
+    fn validate_output_sample_count(sample_count: usize) -> Result<()> {
+        if sample_count > Self::MAX_OUTPUT_SAMPLES {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "resampled audio exceeds the {} sample output budget",
+                Self::MAX_OUTPUT_SAMPLES
+            )));
+        }
+        Ok(())
+    }
+
+    fn copy_bounded(samples: &[f32]) -> Result<Vec<f32>> {
+        Self::validate_output_sample_count(samples.len())?;
+        let mut copy = Vec::new();
+        copy.try_reserve_exact(samples.len()).map_err(|error| {
+            SpeechAudioError::ResourceLimit(format!(
+                "cannot reserve bounded resampled output: {error}"
+            ))
+        })?;
+        copy.extend_from_slice(samples);
+        Ok(copy)
+    }
+
     pub fn resample(&self, buffer: &AudioBuffer) -> Result<AudioBuffer> {
         if buffer.config.sample_rate == 0 {
             return Err(SpeechAudioError::InvalidInput(
@@ -196,14 +220,15 @@ impl Resampler {
                 "target sample rate must be positive".to_string(),
             ));
         }
-        if buffer.samples.is_empty() || buffer.config.sample_rate == self.target_sample_rate {
-            return Ok(AudioBuffer::new(
-                buffer.samples.clone(),
-                AudioConfig {
-                    sample_rate: self.target_sample_rate,
-                    channels: buffer.config.channels,
-                    sample_format: SampleFormat::F32,
-                },
+        if buffer.config.channels == 0 {
+            return Err(SpeechAudioError::InvalidInput(
+                "input channel count must be positive".to_string(),
+            ));
+        }
+        let channels = buffer.config.channels as usize;
+        if buffer.samples.len() % channels != 0 {
+            return Err(SpeechAudioError::InvalidInput(
+                "interleaved sample count must be divisible by channel count".to_string(),
             ));
         }
         if buffer.samples.iter().any(|sample| !sample.is_finite()) {
@@ -211,20 +236,52 @@ impl Resampler {
                 "resampler input must not contain non-finite samples".to_string(),
             ));
         }
-
+        if buffer.samples.is_empty() || buffer.config.sample_rate == self.target_sample_rate {
+            return Ok(AudioBuffer::new(
+                Self::copy_bounded(&buffer.samples)?,
+                AudioConfig {
+                    sample_rate: self.target_sample_rate,
+                    channels: buffer.config.channels,
+                    sample_format: SampleFormat::F32,
+                },
+            ));
+        }
         let src_rate = buffer.config.sample_rate as u128;
         let dst_rate = self.target_sample_rate as u128;
-        let channels = buffer.config.channels.max(1) as usize;
         let input_frames = buffer.frame_count();
         let ratio = self.target_sample_rate as f64 / buffer.config.sample_rate as f64;
-        let output_frames =
-            (((input_frames as u128) * dst_rate * 2 + src_rate) / (src_rate * 2)).max(1) as usize;
+        let output_frames_u128 = (input_frames as u128)
+            .checked_mul(dst_rate)
+            .and_then(|value| value.checked_mul(2))
+            .and_then(|value| value.checked_add(src_rate))
+            .ok_or_else(|| {
+                SpeechAudioError::ResourceLimit("resampled frame count overflow".to_string())
+            })?
+            .checked_div(src_rate * 2)
+            .unwrap_or(0)
+            .max(1);
+        let output_frames = usize::try_from(output_frames_u128).map_err(|_| {
+            SpeechAudioError::ResourceLimit(
+                "resampled frame count exceeds addressable memory".to_string(),
+            )
+        })?;
+        let output_sample_count = output_frames.checked_mul(channels).ok_or_else(|| {
+            SpeechAudioError::ResourceLimit("resampled sample count overflow".to_string())
+        })?;
+        Self::validate_output_sample_count(output_sample_count)?;
         // Anti-alias cutoff in cycles per source sample: the tighter of the
         // source and target Nyquist edges, pulled in by the cutoff scale.
         let cutoff = 0.5 * ratio.min(1.0) * self.cutoff_scale;
         let half_length = self.kernel_half_length;
 
-        let mut output = Vec::with_capacity(output_frames * channels);
+        let mut output = Vec::new();
+        output
+            .try_reserve_exact(output_sample_count)
+            .map_err(|error| {
+                SpeechAudioError::ResourceLimit(format!(
+                    "cannot reserve bounded resampled output: {error}"
+                ))
+            })?;
         let mut acc = vec![0.0f64; channels];
 
         for output_frame in 0..output_frames {
@@ -833,6 +890,10 @@ mod tests {
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert!(matches!(
+            Resampler::new(16_000).resample(&input),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
             Resampler::new(0).resample(&sine_buffer(16_000, 1, 64, 250.0)),
             Err(SpeechAudioError::InvalidInput(_))
         ));
@@ -844,6 +905,73 @@ mod tests {
             Resampler::with_options(16_000, 24, 1.5),
             Err(SpeechAudioError::InvalidInput(_))
         ));
+    }
+
+    #[test]
+    fn resampler_bounds_output_allocation_and_rejects_malformed_channels() {
+        assert!(Resampler::validate_output_sample_count(Resampler::MAX_OUTPUT_SAMPLES).is_ok());
+        assert!(matches!(
+            Resampler::validate_output_sample_count(Resampler::MAX_OUTPUT_SAMPLES + 1),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+
+        let one_sample = AudioBuffer::new(
+            vec![0.5],
+            AudioConfig {
+                sample_rate: 1,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            Resampler::new(u32::MAX).resample(&one_sample),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+
+        let zero_channels = AudioBuffer::new(
+            vec![0.5],
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 0,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            Resampler::new(8_000).resample(&zero_channels),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+
+        let incomplete_interleaved_frame = AudioBuffer::new(
+            vec![0.1, 0.2, 0.3],
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            Resampler::new(8_000).resample(&incomplete_interleaved_frame),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+
+        let same_rate = sine_buffer(16_000, 1, 16, 250.0);
+        assert_eq!(
+            Resampler::new(16_000).resample(&same_rate).unwrap().samples,
+            same_rate.samples
+        );
+        let empty = AudioBuffer::new(
+            Vec::new(),
+            AudioConfig {
+                sample_rate: 8_000,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(Resampler::new(16_000)
+            .resample(&empty)
+            .unwrap()
+            .samples
+            .is_empty());
     }
 
     #[test]
