@@ -545,6 +545,7 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
 }
 
 pub fn write_wav<P: AsRef<Path>>(path: P, buffer: &AudioBuffer) -> Result<()> {
+    validate_audio_buffer_for_wav(buffer)?;
     let spec = WavSpec {
         channels: buffer.config.channels,
         sample_rate: buffer.config.sample_rate,
@@ -562,6 +563,51 @@ pub fn write_wav<P: AsRef<Path>>(path: P, buffer: &AudioBuffer) -> Result<()> {
     writer
         .finalize()
         .map_err(|error| SpeechAudioError::Encode(format!("failed to finalize WAV: {error}")))?;
+    Ok(())
+}
+
+fn validate_audio_buffer_for_wav(buffer: &AudioBuffer) -> Result<()> {
+    if buffer.config.channels == 0 || buffer.config.sample_rate == 0 {
+        return Err(SpeechAudioError::InvalidInput(
+            "WAV sample rate and channel count must be positive".to_string(),
+        ));
+    }
+    if !buffer
+        .samples
+        .len()
+        .is_multiple_of(buffer.config.channels as usize)
+    {
+        return Err(SpeechAudioError::InvalidInput(
+            "WAV samples must contain complete interleaved frames".to_string(),
+        ));
+    }
+    if buffer.samples.iter().any(|sample| !sample.is_finite()) {
+        return Err(SpeechAudioError::InvalidInput(
+            "WAV samples must be finite".to_string(),
+        ));
+    }
+    let data_bytes = buffer
+        .samples
+        .len()
+        .checked_mul(std::mem::size_of::<f32>())
+        .ok_or_else(|| SpeechAudioError::ResourceLimit("WAV data size overflow".to_string()))?;
+    // hound emits WAVEFORMATEXTENSIBLE for this f32 output. RIFF's size field
+    // includes the 40-byte fmt body, both 8-byte chunk headers, and WAVE tag.
+    validate_wav_data_size(data_bytes)
+}
+
+fn validate_wav_data_size(data_bytes: usize) -> Result<()> {
+    let padded_data_bytes = data_bytes
+        .checked_add(data_bytes & 1)
+        .ok_or_else(|| SpeechAudioError::ResourceLimit("WAV data padding overflow".to_string()))?;
+    let riff_bytes = padded_data_bytes
+        .checked_add(60)
+        .ok_or_else(|| SpeechAudioError::ResourceLimit("WAV RIFF size overflow".to_string()))?;
+    if data_bytes > u32::MAX as usize || riff_bytes > u32::MAX as usize {
+        return Err(SpeechAudioError::ResourceLimit(
+            "WAV exceeds the RIFF 32-bit size limit".to_string(),
+        ));
+    }
     Ok(())
 }
 
@@ -628,6 +674,8 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             limits.max_input_bytes
         )));
     }
+    validate_riff_wav(&mut file, input_bytes, limits)?;
+    file.seek(SeekFrom::Start(0))?;
     // Only WAVE/AIFF container headers provide frame counts that this decoder
     // can treat as exact. Some codec probes (notably ADTS/AAC) estimate
     // `n_frames` from sampled bitrate, which is not a truncation boundary.
@@ -765,6 +813,11 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         let mut interleaved = SampleBuffer::<f32>::new(packet_frames as u64, spec);
         interleaved.copy_interleaved_ref(decoded);
         let decoded_samples = interleaved.samples();
+        if decoded_samples.iter().any(|sample| !sample.is_finite()) {
+            return Err(SpeechAudioError::Decode(
+                "decoded audio contains non-finite IEEE float samples".to_string(),
+            ));
+        }
         if decoded_samples.len() > remaining_samples {
             return Err(SpeechAudioError::ResourceLimit(format!(
                 "decoded audio exceeds the {} sample budget",
@@ -801,6 +854,141 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
     })
 }
 
+/// Validate ordinary RIFF/WAVE chunk boundaries before handing the file to a
+/// codec. This checks container integrity and common PCM/IEEE-float layouts;
+/// it does not establish provenance, licensing, or provider quality.
+fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Result<()> {
+    let mut header = [0u8; 12];
+    file.seek(SeekFrom::Start(0))?;
+    match file.read_exact(&mut header) {
+        Ok(()) if &header[..4] == b"RIFF" && &header[8..] == b"WAVE" => {}
+        Ok(()) => return Ok(()),
+        Err(error) if error.kind() == ErrorKind::UnexpectedEof => return Ok(()),
+        Err(error) => return Err(SpeechAudioError::Io(error)),
+    }
+
+    let declared_len = u64::from(u32::from_le_bytes(header[4..8].try_into().unwrap())) + 8;
+    if declared_len != file_len {
+        return Err(SpeechAudioError::Decode(format!(
+            "RIFF size declares {declared_len} bytes but file has {file_len}"
+        )));
+    }
+
+    let mut offset = 12u64;
+    let mut fmt: Option<(u16, u16, u32, u32, u16, u16)> = None;
+    let mut data_size: Option<u32> = None;
+    while offset < declared_len {
+        if declared_len - offset < 8 {
+            return Err(SpeechAudioError::Decode(
+                "truncated RIFF chunk header".to_string(),
+            ));
+        }
+        file.seek(SeekFrom::Start(offset))?;
+        let mut chunk_header = [0u8; 8];
+        file.read_exact(&mut chunk_header)?;
+        let chunk_size = u32::from_le_bytes(chunk_header[4..8].try_into().unwrap());
+        let chunk_start = offset + 8;
+        let chunk_end = chunk_start
+            .checked_add(u64::from(chunk_size))
+            .ok_or_else(|| SpeechAudioError::Decode("RIFF chunk size overflow".to_string()))?;
+        let padded_end = chunk_end
+            .checked_add(u64::from(chunk_size & 1))
+            .ok_or_else(|| SpeechAudioError::Decode("RIFF chunk padding overflow".to_string()))?;
+        if padded_end > declared_len {
+            return Err(SpeechAudioError::Decode(format!(
+                "RIFF chunk {:?} extends beyond declared container size",
+                String::from_utf8_lossy(&chunk_header[..4])
+            )));
+        }
+
+        if &chunk_header[..4] == b"fmt " {
+            if fmt.is_some() || chunk_size < 16 {
+                return Err(SpeechAudioError::Decode(
+                    "WAVE must contain one fmt chunk of at least 16 bytes".to_string(),
+                ));
+            }
+            let mut raw = [0u8; 40];
+            let bytes_to_read = if chunk_size >= 40 { 40 } else { 16 };
+            file.read_exact(&mut raw[..bytes_to_read])?;
+            let mut encoding = u16::from_le_bytes(raw[0..2].try_into().unwrap());
+            if encoding == 0xfffe {
+                let extension_size = u32::from(u16::from_le_bytes(raw[16..18].try_into().unwrap()));
+                if chunk_size < 40 || extension_size < 22 || extension_size + 18 > chunk_size {
+                    return Err(SpeechAudioError::Decode(
+                        "WAVE extensible fmt chunk is shorter than its required extension"
+                            .to_string(),
+                    ));
+                }
+                const SUBFORMAT_TAIL: [u8; 14] =
+                    [0, 0, 0, 0, 16, 0, 128, 0, 0, 170, 0, 56, 155, 113];
+                let subtype = u16::from_le_bytes(raw[24..26].try_into().unwrap());
+                // The standard GUID begins with the subtype in the first two
+                // bytes, followed by the canonical WAVEFORMATEX GUID suffix.
+                if raw[26..40] == SUBFORMAT_TAIL {
+                    encoding = subtype;
+                } else {
+                    return Err(SpeechAudioError::Decode(
+                        "WAVE extensible fmt chunk has an unsupported subformat GUID".to_string(),
+                    ));
+                }
+                if !matches!(encoding, 1 | 3) {
+                    return Err(SpeechAudioError::Decode(
+                        "WAVE extensible fmt chunk uses an unsupported audio subformat".to_string(),
+                    ));
+                }
+            }
+            fmt = Some((
+                encoding,
+                u16::from_le_bytes(raw[2..4].try_into().unwrap()),
+                u32::from_le_bytes(raw[4..8].try_into().unwrap()),
+                u32::from_le_bytes(raw[8..12].try_into().unwrap()),
+                u16::from_le_bytes(raw[12..14].try_into().unwrap()),
+                u16::from_le_bytes(raw[14..16].try_into().unwrap()),
+            ));
+        } else if &chunk_header[..4] == b"data" && data_size.replace(chunk_size).is_some() {
+            return Err(SpeechAudioError::Decode(
+                "WAVE contains more than one data chunk".to_string(),
+            ));
+        }
+        offset = padded_end;
+    }
+
+    let (encoding, channels, rate, byte_rate, block_align, bits) =
+        fmt.ok_or_else(|| SpeechAudioError::Decode("WAVE is missing its fmt chunk".to_string()))?;
+    let data_size = data_size
+        .ok_or_else(|| SpeechAudioError::Decode("WAVE is missing its data chunk".to_string()))?;
+    if channels == 0 || channels > limits.max_channels || rate == 0 || rate > limits.max_sample_rate
+    {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "WAVE channel count {channels} or sample rate {rate} exceeds decode limits"
+        )));
+    }
+    if matches!(encoding, 1 | 3) {
+        let supported_bits = if encoding == 1 {
+            matches!(bits, 8 | 16 | 24 | 32)
+        } else {
+            matches!(bits, 32 | 64)
+        };
+        let bytes_per_sample = u32::from(bits).div_ceil(8);
+        let expected_align = u32::from(channels).checked_mul(bytes_per_sample);
+        let expected_rate = expected_align.and_then(|align| rate.checked_mul(align));
+        if !supported_bits
+            || expected_align != Some(u32::from(block_align))
+            || expected_rate != Some(byte_rate)
+        {
+            return Err(SpeechAudioError::Decode(
+                "WAVE PCM/float bit depth, byte rate, or channel alignment is invalid".to_string(),
+            ));
+        }
+        if data_size % u32::from(block_align) != 0 {
+            return Err(SpeechAudioError::Decode(
+                "WAVE data chunk does not contain complete interleaved frames".to_string(),
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn map_probe_error(error: SymphoniaError) -> SpeechAudioError {
     match error {
         SymphoniaError::Unsupported(message) => {
@@ -824,6 +1012,19 @@ fn map_decode_error(error: SymphoniaError) -> SpeechAudioError {
 mod tests {
     use super::*;
     use tempfile::tempdir;
+
+    fn wav_chunk(bytes: &[u8], wanted: &[u8; 4]) -> (usize, usize, usize) {
+        let mut offset = 12usize;
+        while offset + 8 <= bytes.len() {
+            let size =
+                u32::from_le_bytes(bytes[offset + 4..offset + 8].try_into().unwrap()) as usize;
+            if &bytes[offset..offset + 4] == wanted {
+                return (offset, offset + 4, offset + 8);
+            }
+            offset += 8 + size + (size & 1);
+        }
+        panic!("missing WAVE chunk {:?}", String::from_utf8_lossy(wanted));
+    }
 
     #[test]
     fn decoded_duration_matches_buffer_formula_without_requiring_valid_rates() {
@@ -1339,6 +1540,294 @@ mod tests {
         assert_eq!(decoded.config.sample_rate, 16000);
         assert_eq!(decoded.config.channels, 1);
         assert_eq!(decoded.samples.len(), buffer.samples.len());
+        let expected_pcm_bytes: Vec<u8> = buffer
+            .samples
+            .iter()
+            .flat_map(|sample| sample.to_le_bytes())
+            .collect();
+        assert_eq!(bytes_at_wav_data(&path), expected_pcm_bytes);
+        assert!(decoded
+            .samples
+            .iter()
+            .zip(&buffer.samples)
+            .all(|(actual, expected)| (actual - expected).abs() <= 1e-7));
+    }
+
+    fn bytes_at_wav_data(path: &Path) -> Vec<u8> {
+        let bytes = std::fs::read(path).unwrap();
+        let (_, _, data_start) = wav_chunk(&bytes, b"data");
+        bytes[data_start..].to_vec()
+    }
+
+    #[test]
+    fn write_wav_emits_consistent_float_riff_and_data_sizes() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("header.wav");
+        let buffer = AudioBuffer::new(
+            vec![-0.75, 0.5, 0.125, -0.25],
+            AudioConfig {
+                sample_rate: 24_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        write_wav(&path, &buffer).unwrap();
+        let bytes = std::fs::read(&path).unwrap();
+        assert_eq!(&bytes[0..4], b"RIFF");
+        assert_eq!(
+            u32::from_le_bytes(bytes[4..8].try_into().unwrap()) as usize + 8,
+            bytes.len()
+        );
+        assert_eq!(&bytes[8..12], b"WAVE");
+        let (fmt_offset, fmt_size_offset, fmt_data) = wav_chunk(&bytes, b"fmt ");
+        assert_eq!(
+            u32::from_le_bytes(bytes[fmt_size_offset..fmt_data].try_into().unwrap()),
+            40
+        );
+        assert_eq!(
+            u16::from_le_bytes(bytes[fmt_data..fmt_data + 2].try_into().unwrap()),
+            0xfffe
+        );
+        assert_eq!(
+            u16::from_le_bytes(bytes[fmt_data + 2..fmt_data + 4].try_into().unwrap()),
+            2
+        );
+        assert_eq!(
+            u32::from_le_bytes(bytes[fmt_data + 4..fmt_data + 8].try_into().unwrap()),
+            24_000
+        );
+        assert_eq!(
+            u32::from_le_bytes(bytes[fmt_data + 8..fmt_data + 12].try_into().unwrap()),
+            192_000
+        );
+        assert_eq!(
+            u16::from_le_bytes(bytes[fmt_data + 12..fmt_data + 14].try_into().unwrap()),
+            8
+        );
+        assert_eq!(
+            u16::from_le_bytes(bytes[fmt_data + 14..fmt_data + 16].try_into().unwrap()),
+            32
+        );
+        assert_eq!(
+            u16::from_le_bytes(bytes[fmt_data + 24..fmt_data + 26].try_into().unwrap()),
+            3
+        ); // IEEE float extensible subtype
+        assert_eq!(&bytes[fmt_offset..fmt_offset + 4], b"fmt ");
+        let (_, data_size, data_start) = wav_chunk(&bytes, b"data");
+        assert_eq!(
+            u32::from_le_bytes(bytes[data_size..data_start].try_into().unwrap()),
+            16
+        );
+        assert_eq!(bytes.len(), data_start + 16);
+    }
+
+    #[test]
+    fn write_wav_rejects_invalid_sample_layout_before_creating_output() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("invalid.wav");
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        for buffer in [
+            AudioBuffer::new(vec![0.1], config),
+            AudioBuffer::new(vec![f32::NAN, 0.0], config),
+            AudioBuffer::new(
+                vec![0.0],
+                AudioConfig {
+                    sample_rate: 0,
+                    ..config
+                },
+            ),
+            AudioBuffer::new(
+                vec![0.0],
+                AudioConfig {
+                    channels: 0,
+                    ..config
+                },
+            ),
+        ] {
+            assert!(matches!(
+                write_wav(&path, &buffer),
+                Err(SpeechAudioError::InvalidInput(_))
+            ));
+            assert!(!path.exists());
+        }
+    }
+
+    #[test]
+    fn wav_size_preflight_accounts_for_extensible_fmt_and_data_padding() {
+        let max_data_bytes = (u32::MAX as usize - 60) & !3;
+        assert!(validate_wav_data_size(max_data_bytes).is_ok());
+        assert!(matches!(
+            validate_wav_data_size(max_data_bytes + 4),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        assert!(matches!(
+            validate_wav_data_size(u32::MAX as usize - 60),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+    }
+
+    #[test]
+    fn decode_rejects_non_finite_float_wav_payloads() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("non-finite.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.25],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let mut bytes = std::fs::read(&path).unwrap();
+        let (_, _, data_start) = wav_chunk(&bytes, b"data");
+        bytes[data_start..data_start + 4].copy_from_slice(&f32::NAN.to_le_bytes());
+        std::fs::write(&path, bytes).unwrap();
+        assert!(matches!(
+            load_audio_buffer(&path),
+            Err(SpeechAudioError::Decode(_))
+        ));
+    }
+
+    #[test]
+    fn decodes_synthetic_pcm_16_and_24_bit_stereo_with_expected_range_and_layout() {
+        let temp = tempdir().unwrap();
+        for (name, bits, samples, expected, tolerance) in [
+            (
+                "pcm16.wav",
+                16,
+                vec![-32_768i32, 32_767, -16_384, 16_384],
+                vec![-1.0f32, 32_767.0 / 32_768.0, -0.5, 0.5],
+                1e-6f32,
+            ),
+            (
+                "pcm24.wav",
+                24,
+                vec![-8_388_608i32, 8_388_607, -4_194_304, 4_194_304],
+                vec![-1.0f32, 8_388_607.0 / 8_388_608.0, -0.5, 0.5],
+                1e-6f32,
+            ),
+        ] {
+            let path = temp.path().join(name);
+            let spec = WavSpec {
+                channels: 2,
+                sample_rate: 16_000,
+                bits_per_sample: bits,
+                sample_format: WavSampleFormat::Int,
+            };
+            let mut writer = WavWriter::create(&path, spec).unwrap();
+            for sample in samples {
+                writer.write_sample(sample).unwrap();
+            }
+            writer.finalize().unwrap();
+
+            let decoded = load_audio_buffer(&path).unwrap();
+            assert_eq!(decoded.config.channels, 2);
+            assert_eq!(decoded.config.sample_rate, 16_000);
+            assert_eq!(decoded.frame_count(), 2);
+            for (actual, expected) in decoded.samples.iter().zip(expected) {
+                assert!(
+                    (actual - expected).abs() <= tolerance,
+                    "{name}: {actual} != {expected}"
+                );
+                assert!((-1.0..=1.0).contains(actual));
+            }
+        }
+    }
+
+    #[test]
+    fn riff_wav_validation_rejects_inconsistent_sizes_layout_and_trailing_bytes() {
+        let temp = tempdir().unwrap();
+        let source = temp.path().join("source.wav");
+        let buffer = AudioBuffer::new(
+            vec![0.0, 0.25, -0.25, 0.5],
+            AudioConfig {
+                sample_rate: 16_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        write_wav(&source, &buffer).unwrap();
+        let original = std::fs::read(&source).unwrap();
+        let malformed = [
+            {
+                let mut bytes = original.clone();
+                let malformed_riff_size = (bytes.len() as u32) - 7;
+                bytes[4..8].copy_from_slice(&malformed_riff_size.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, size, _) = wav_chunk(&bytes, b"data");
+                bytes[size..size + 4].copy_from_slice(&17u32.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 12..fmt + 14].copy_from_slice(&4u16.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 14..fmt + 16].copy_from_slice(&12u16.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, size, _) = wav_chunk(&bytes, b"fmt ");
+                bytes[size..size + 4].copy_from_slice(&16u32.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 16..fmt + 18].copy_from_slice(&20u16.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 16..fmt + 18].copy_from_slice(&23u16.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 39] ^= 0x01;
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, _, fmt) = wav_chunk(&bytes, b"fmt ");
+                bytes[fmt + 24..fmt + 26].copy_from_slice(&2u16.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                let (_, size, _) = wav_chunk(&bytes, b"data");
+                bytes[size..size + 4].copy_from_slice(&15u32.to_le_bytes());
+                bytes
+            },
+            {
+                let mut bytes = original.clone();
+                bytes.push(0xaa);
+                bytes
+            },
+        ];
+        let path = temp.path().join("malformed.wav");
+        for bytes in malformed {
+            std::fs::write(&path, bytes).unwrap();
+            assert!(load_audio_buffer(&path).is_err());
+        }
     }
 
     #[test]
