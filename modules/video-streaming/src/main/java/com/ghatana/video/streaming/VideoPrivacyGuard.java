@@ -27,7 +27,7 @@ public final class VideoPrivacyGuard {
     /** PDP classification floor; ordered by sensitivity. */
     public enum Classification { PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED }
 
-    /** Who is viewing — scope is tenant+principal bound, clearance-bounded. */
+    /** Who is viewing — construct from a trusted authenticated context, never caller-supplied metadata. */
     public record ViewerScope(
             String tenantId, String principalId, Classification clearance) {
         public ViewerScope {
@@ -44,6 +44,14 @@ public final class VideoPrivacyGuard {
     public record FrameView(
             int sequenceNumber, boolean keyFrame, long timestampMillis,
             byte[] payload, boolean redacted) {
+        public FrameView {
+            payload = payload == null ? null : payload.clone();
+        }
+
+        public byte[] payload() {
+            return payload == null ? null : payload.clone();
+        }
+
         public boolean hasPayload() {
             return payload != null;
         }
@@ -74,16 +82,15 @@ public final class VideoPrivacyGuard {
     public FrameView viewOf(ViewerScope viewer, VideoStreamSession.DecodedFrame frame) {
         Objects.requireNonNull(viewer, "viewer");
         Objects.requireNonNull(frame, "frame");
-        if (!viewer.tenantId().equals(owner.tenantId())) {
-            throw new AccessDeniedException("cross-tenant view");
-        }
-        if (!viewer.principalId().equals(owner.principalId())) {
-            throw new AccessDeniedException("cross-principal view");
+        requireViewer(viewer);
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length > VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("video frame payload is outside the bounded size");
         }
         boolean redacted = viewer.clearance().ordinal() < frameClassification.ordinal();
         return new FrameView(
                 frame.sequenceNumber(), frame.keyFrame(), frame.timestampMillis(),
-                redacted ? null : frame.payload(), redacted);
+                redacted ? null : payload, redacted);
     }
 
     /** A log-safe projection — metadata only, never payload or credentials. */
@@ -95,13 +102,16 @@ public final class VideoPrivacyGuard {
     }
 
     /**
-     * Tenant-scoped frame cache bounded in entries and bytes with per-entry
-     * retention. Overflow evicts oldest first (bounded, never unbounded);
+     * Single-session frame cache bounded in entries and bytes with per-entry
+     * retention. The owner identity and classification are fixed at creation;
+     * callers cannot read or write under another session scope. Overflow evicts oldest first (bounded, never unbounded);
      * expired entries are dropped on access; {@link #purge()} on cancel
      * leaves no residue.
      */
     public static final class BoundedFrameCache {
 
+        private final VideoFrameReconciler.SessionIdentity owner;
+        private final Classification frameClassification;
         private final int maxFrames;
         private final long maxBytes;
         private final long retentionMillis;
@@ -111,7 +121,12 @@ public final class VideoPrivacyGuard {
         private record Entry(VideoStreamSession.DecodedFrame frame, long storedAtMillis) {
         }
 
-        public BoundedFrameCache(int maxFrames, long maxBytes, long retentionMillis) {
+        public BoundedFrameCache(
+                VideoFrameReconciler.SessionIdentity owner,
+                Classification frameClassification,
+                int maxFrames, long maxBytes, long retentionMillis) {
+            this.owner = Objects.requireNonNull(owner, "owner");
+            this.frameClassification = Objects.requireNonNull(frameClassification, "frameClassification");
             if (maxFrames < 1 || maxBytes < 1 || retentionMillis < 1) {
                 throw new IllegalArgumentException("cache bounds must be positive");
             }
@@ -120,39 +135,56 @@ public final class VideoPrivacyGuard {
             this.retentionMillis = retentionMillis;
         }
 
-        /** Stores one frame, evicting oldest entries to stay within bounds. */
-        public void put(VideoStreamSession.DecodedFrame frame, long nowMillis) {
+        /** Stores one frame for the bound session, evicting oldest entries to stay within bounds. */
+        public synchronized void put(
+                VideoFrameReconciler.SessionIdentity session,
+                VideoStreamSession.DecodedFrame frame,
+                long nowMillis) {
+            requireOwner(session);
             Objects.requireNonNull(frame, "frame");
+            byte[] payload = frame.payload();
+            if (payload == null || payload.length > VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES
+                    || payload.length > maxBytes) {
+                throw new IllegalArgumentException("video frame payload is outside the cache bound");
+            }
             evictExpired(nowMillis);
-            entries.put(frame.sequenceNumber(), new Entry(frame, nowMillis));
-            totalBytes += frame.payload().length;
-            while (entries.size() > maxFrames || totalBytes > maxBytes) {
+            Entry replaced = entries.remove(frame.sequenceNumber());
+            if (replaced != null) {
+                totalBytes -= replaced.frame().payload().length;
+            }
+            while (entries.size() >= maxFrames || totalBytes > maxBytes - payload.length) {
                 var eldest = entries.entrySet().iterator().next();
                 totalBytes -= eldest.getValue().frame().payload().length;
                 entries.remove(eldest.getKey());
             }
+            VideoStreamSession.DecodedFrame snapshot = new VideoStreamSession.DecodedFrame(
+                    frame.sequenceNumber(), frame.keyFrame(), frame.timestampMillis(), payload.clone());
+            entries.put(frame.sequenceNumber(), new Entry(snapshot, nowMillis));
+            totalBytes += payload.length;
         }
 
-        /** Returns the frame if present and within retention, else null. */
-        public VideoStreamSession.DecodedFrame get(int sequenceNumber, long nowMillis) {
+        /** Returns a scope-checked, classification-aware view, or null if absent/expired. */
+        public synchronized FrameView get(ViewerScope viewer, int sequenceNumber, long nowMillis) {
+            requireViewer(viewer);
             evictExpired(nowMillis);
             Entry entry = entries.get(sequenceNumber);
-            return entry == null ? null : entry.frame();
+            return entry == null ? null
+                    : new VideoPrivacyGuard(owner, frameClassification).viewOf(viewer, entry.frame());
         }
 
         /** Safe temp deletion on cancel — every cached frame is dropped. */
-        public int purge() {
+        public synchronized int purge() {
             int purged = entries.size();
             entries.clear();
             totalBytes = 0;
             return purged;
         }
 
-        public int size() {
+        public synchronized int size() {
             return entries.size();
         }
 
-        public long totalBytes() {
+        public synchronized long totalBytes() {
             return totalBytes;
         }
 
@@ -165,6 +197,31 @@ public final class VideoPrivacyGuard {
                     it.remove();
                 }
             }
+        }
+
+        private void requireOwner(VideoFrameReconciler.SessionIdentity session) {
+            if (!owner.equals(session)) {
+                throw new AccessDeniedException("cache session scope mismatch");
+            }
+        }
+
+        private void requireViewer(ViewerScope viewer) {
+            Objects.requireNonNull(viewer, "viewer");
+            if (!owner.tenantId().equals(viewer.tenantId())) {
+                throw new AccessDeniedException("cross-tenant view");
+            }
+            if (!owner.principalId().equals(viewer.principalId())) {
+                throw new AccessDeniedException("cross-principal view");
+            }
+        }
+    }
+
+    private void requireViewer(ViewerScope viewer) {
+        if (!owner.tenantId().equals(viewer.tenantId())) {
+            throw new AccessDeniedException("cross-tenant view");
+        }
+        if (!owner.principalId().equals(viewer.principalId())) {
+            throw new AccessDeniedException("cross-principal view");
         }
     }
 }
