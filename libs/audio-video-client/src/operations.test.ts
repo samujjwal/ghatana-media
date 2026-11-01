@@ -8,11 +8,36 @@ import {
   createMediaOperationClient,
   type CanonicalMediaUploadSessionObservation,
 } from "./operations";
-import { MediaHttpTransport } from "./http-core";
+import { boundedPositive, MediaHttpTransport, wait } from "./http-core";
 
 const timestamp = "2026-08-05T12:00:00.000Z";
 
 describe("MediaHttpTransport configured identity boundary", () => {
+  it("keeps positive sub-millisecond request bounds above zero", () => {
+    expect(boundedPositive(0.1, 30_000)).toBe(1);
+    expect(boundedPositive(0, 30_000)).toBe(30_000);
+  });
+
+  it("removes the abort listener after a polling wait completes", async () => {
+    vi.useFakeTimers();
+    try {
+      const controller = new AbortController();
+      const addListener = vi.spyOn(controller.signal, "addEventListener");
+      const removeListener = vi.spyOn(controller.signal, "removeEventListener");
+      const pending = wait(25, controller.signal);
+
+      await vi.advanceTimersByTimeAsync(25);
+      await expect(pending).resolves.toBeUndefined();
+
+      expect(addListener).toHaveBeenCalledWith("abort", expect.any(Function), { once: true });
+      expect(removeListener).toHaveBeenCalledWith("abort", addListener.mock.calls[0]?.[1]);
+      controller.abort();
+      expect(removeListener).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("does not let per-request additions replace tenant/principal scope or inject credentials", async () => {
     const transport = new MediaHttpTransport({
       baseUrl: "https://media.example.test",

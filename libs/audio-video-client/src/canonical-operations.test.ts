@@ -87,6 +87,39 @@ describe("MediaCanonicalClient job operations", () => {
     expect(body.principalId).toBe("principal-1");
   });
 
+  it("preserves the server conflict for a changed payload reused with the same idempotency key", async () => {
+    const calls: { init: RequestInit }[] = [];
+    const fetchImpl = (async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      calls.push({ init: init ?? {} });
+      if (calls.length === 1) return jsonResponse(job(), 202);
+      return jsonResponse({
+        error: { code: "IDEMPOTENCY_KEY_REUSED", message: "Request payload differs", retryable: false },
+        meta: { correlationId: "corr-idempotency-conflict" },
+      }, 409);
+    }) as typeof fetch;
+    const client = clientWith(fetchImpl);
+
+    await client.submitJob({
+      requestId: "req-1", correlationId: "corr-1", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", parameters: { languageTag: "en-US" }, idempotencyKey: "stable-key",
+    });
+    const failure = await client.submitJob({
+      requestId: "req-1", correlationId: "corr-1", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", parameters: { languageTag: "hi-IN" }, idempotencyKey: "stable-key",
+    }).then(
+      () => { throw new Error("changed payload must be rejected by the server idempotency contract"); },
+      (error: unknown) => error,
+    );
+
+    expect(failure).toBeInstanceOf(MediaClientError);
+    expect((failure as MediaClientError).statusCode).toBe(409);
+    expect((failure as MediaClientError).detail.category).toBe("CONFLICT");
+    expect(calls).toHaveLength(2);
+    expect(new Headers(calls[0]!.init.headers).get("Idempotency-Key")).toBe("stable-key");
+    expect(new Headers(calls[1]!.init.headers).get("Idempotency-Key")).toBe("stable-key");
+    expect(calls[0]!.init.body).not.toBe(calls[1]!.init.body);
+  });
+
   it("rejects a job response outside the caller tenant/principal scope", async () => {
     const { fetchImpl } = recordedFetch(() =>
       jsonResponse(job({ tenantId: "tenant-2" }), 200));

@@ -67,7 +67,9 @@ export function safeIdentityHeader(name: string, value: string | undefined): str
 }
 
 export function boundedPositive(value: number | undefined, fallback: number): number {
-  return Number.isFinite(value) && (value ?? 0) > 0 ? Math.round(value as number) : fallback;
+  return Number.isFinite(value) && (value ?? 0) > 0
+    ? Math.max(1, Math.round(value as number))
+    : fallback;
 }
 
 export function normalizeBaseUrl(value: string): string {
@@ -131,9 +133,19 @@ export function wait(milliseconds: number, signal?: AbortSignal): Promise<void> 
       reject(signal.reason ?? new DOMException("Operation cancelled", "AbortError"));
       return;
     }
-    const timeout = setTimeout(resolve, milliseconds);
+    let settled = false;
+    const cleanup = (): void => signal?.removeEventListener("abort", onAbort);
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve();
+    }, milliseconds);
     const onAbort = (): void => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timeout);
+      cleanup();
       reject(signal?.reason ?? new DOMException("Operation cancelled", "AbortError"));
     };
     signal?.addEventListener("abort", onAbort, { once: true });
