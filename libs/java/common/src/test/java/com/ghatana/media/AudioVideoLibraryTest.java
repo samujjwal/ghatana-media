@@ -83,7 +83,7 @@ class AudioVideoLibraryTest {
     }
 
     @Test
-    void publicCapabilityInventoryTracksOnlyHealthyConfiguredEngines() {
+    void publicCapabilityInventoryDoesNotPromoteEngineHealthToRuntimeAdmission() {
         try (AudioVideoLibrary consumerLibrary = AudioVideoLibrary.builder()
                 .withSttConfig(SttConfig.builder()
                         .modelPath(tempDirectory.resolve("missing-stt.onnx"))
@@ -103,15 +103,14 @@ class AudioVideoLibraryTest {
             assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.TTS);
             assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION);
 
-            assertCapabilityMatchesEngine(
-                    consumerLibrary, MediaCapabilityInventory.Capability.STT,
-                    consumerLibrary.getSttEngine().getStatus());
-            assertCapabilityMatchesEngine(
-                    consumerLibrary, MediaCapabilityInventory.Capability.TTS,
-                    consumerLibrary.getTtsEngine().getStatus());
-            assertCapabilityMatchesEngine(
-                    consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION,
-                    consumerLibrary.getVisionEngine().getStatus());
+            consumerLibrary.getSttEngine();
+            consumerLibrary.getTtsEngine();
+            consumerLibrary.getVisionEngine();
+
+            // The explicitly synthetic fallback remains non-admitted in the exported inventory.
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.STT);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.TTS);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION);
         }
     }
 
@@ -119,18 +118,8 @@ class AudioVideoLibraryTest {
             AudioVideoLibrary consumerLibrary, MediaCapabilityInventory.Capability capability) {
         assertThat(consumerLibrary.capabilityInventory().status(capability))
                 .isEqualTo(MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
-    }
-
-    private static void assertCapabilityMatchesEngine(
-            AudioVideoLibrary consumerLibrary,
-            MediaCapabilityInventory.Capability capability,
-            EngineStatus engineStatus) {
-        MediaCapabilityInventory.Status expected = engineStatus.isHealthy()
-                ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
-                : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
-        assertThat(consumerLibrary.capabilityInventory().status(capability)).isEqualTo(expected);
         assertThat(consumerLibrary.capabilityInventory().available(capability))
-                .isEqualTo(engineStatus.isHealthy());
+                .isFalse();
     }
 
     @Test

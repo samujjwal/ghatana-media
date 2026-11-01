@@ -20,7 +20,6 @@ import java.util.EnumMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -130,19 +129,19 @@ public final class AudioVideoLibrary implements AutoCloseable {
     }
 
     /**
-     * Returns the conservative capability inventory for this composed library graph. Provider
-     * optional capabilities are never advertised as runtime-supported until their provider
-     * exposes a matching capability contract.
+     * Returns the conservative capability inventory for this composed library graph. Engine
+     * health is diagnostic only; this legacy facade has no operation/profile admission evidence,
+     * so an initialized and healthy engine is not enough to advertise runtime availability.
      */
     public MediaCapabilityInventory capabilityInventory() {
         EnumMap<MediaCapabilityInventory.Capability, MediaCapabilityInventory.Status> values =
                 new EnumMap<>(MediaCapabilityInventory.Capability.class);
         values.put(MediaCapabilityInventory.Capability.STT,
-                engineCapabilityStatus(ownedSttEngine == null ? null : ownedSttEngine::getStatus));
+                MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         values.put(MediaCapabilityInventory.Capability.TTS,
-                engineCapabilityStatus(ownedTtsEngine == null ? null : ownedTtsEngine::getStatus));
+                MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         values.put(MediaCapabilityInventory.Capability.OBJECT_DETECTION,
-                engineCapabilityStatus(ownedVisionEngine == null ? null : ownedVisionEngine::getStatus));
+                MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         values.put(MediaCapabilityInventory.Capability.CLASSIFICATION,
                 MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         values.put(MediaCapabilityInventory.Capability.CAPTION,
@@ -160,21 +159,6 @@ public final class AudioVideoLibrary implements AutoCloseable {
         values.put(MediaCapabilityInventory.Capability.MULTIMODAL,
                 MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         return new MediaCapabilityInventory(values);
-    }
-
-    private static MediaCapabilityInventory.Status engineCapabilityStatus(
-            Supplier<EngineStatus> statusSupplier) {
-        if (statusSupplier == null) {
-            return MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
-        }
-        try {
-            EngineStatus engineStatus = statusSupplier.get();
-            return engineStatus != null && engineStatus.isHealthy()
-                    ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
-                    : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
-        } catch (RuntimeException unavailable) {
-            return MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
-        }
     }
 
     public LibraryStatus getStatus() {
