@@ -17,6 +17,16 @@ import java.util.Objects;
  * dependencies survive a reconnect. A missing GOP keyframe is surfaced as a
  * gap — never as a decodable false success.
  *
+ * <p>This object is an in-memory session state machine and is not thread-safe.
+ * Its owner must serialize all transitions on one event loop or equivalent
+ * per-session executor. Lease fencing protects serialized calls from stale
+ * worker claims; it does not make concurrent calls atomic.
+ *
+ * <p>{@link #cancel} is a terminal guard for subsequent serialized local
+ * transitions and discards held in-memory frames. It does not interrupt a
+ * provider call already in progress, establish provider-side finality, or
+ * persist cancellation across process restart.
+ *
  * @doc.type class
  * @doc.purpose Lease-fenced, consent-guarded video stream session
  * @doc.layer product
@@ -95,6 +105,7 @@ public final class GuardedVideoStreamSession {
     private String leaseHolder;
     private long claimToken;
     private boolean detached;
+    private boolean cancelled;
 
     private GuardedVideoStreamSession(
             VideoFrameReconciler.SessionIdentity identity,
@@ -130,6 +141,7 @@ public final class GuardedVideoStreamSession {
      * ACKs and egress are rejected by {@link #requireLease}.
      */
     public void claim(String workerId, long newClaimToken) {
+        requireNotCancelled("claim");
         Objects.requireNonNull(workerId, "workerId");
         if (newClaimToken <= claimToken) {
             throw new StaleLeaseException("claim", newClaimToken, claimToken);
@@ -226,6 +238,20 @@ public final class GuardedVideoStreamSession {
         detached = false;
     }
 
+    /**
+     * Terminal in-memory cancellation. Unlike {@link #detach}, cancellation
+     * cannot be resumed or transferred to another worker and prevents every
+     * subsequent serialized frame, ACK, or provider-egress transition. The
+     * session owner must serialize this call with other transitions; this
+     * method cannot interrupt an egress call already in progress and does not
+     * persist cancellation across process restart.
+     */
+    public void cancel(String workerId, long presentedToken) {
+        requireLeaseIdentity(workerId, presentedToken, "cancel");
+        reconciler.discardPending();
+        cancelled = true;
+    }
+
     /** The sequence the next ACK acknowledges — only under the current claim. */
     public int nextAck(String workerId, long presentedToken) {
         requireLease(workerId, presentedToken, "acknowledge");
@@ -234,6 +260,10 @@ public final class GuardedVideoStreamSession {
 
     public boolean detached() {
         return detached;
+    }
+
+    public boolean cancelled() {
+        return cancelled;
     }
 
     public String leaseHolder() {
@@ -253,8 +283,19 @@ public final class GuardedVideoStreamSession {
     }
 
     private void requireLease(String workerId, long presentedToken, String transition) {
+        requireNotCancelled(transition);
+        requireLeaseIdentity(workerId, presentedToken, transition);
+    }
+
+    private void requireLeaseIdentity(String workerId, long presentedToken, String transition) {
         if (!Objects.equals(workerId, leaseHolder) || presentedToken != claimToken) {
             throw new StaleLeaseException(transition, presentedToken, claimToken);
+        }
+    }
+
+    private void requireNotCancelled(String transition) {
+        if (cancelled) {
+            throw new IllegalStateException("video stream " + transition + " is forbidden after cancellation");
         }
     }
 

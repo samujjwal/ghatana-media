@@ -199,6 +199,11 @@ public final class VideoFrameReconciler {
         return pending.size();
     }
 
+    /** Drops held frame payloads when the owning guarded session is cancelled. */
+    void discardPending() {
+        pending.clear();
+    }
+
     public SessionIdentity identity() {
         return identity;
     }

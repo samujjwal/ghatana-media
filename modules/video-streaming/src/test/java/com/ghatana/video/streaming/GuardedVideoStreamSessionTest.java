@@ -50,6 +50,10 @@ class GuardedVideoStreamSessionTest {
                 .isInstanceOf(StaleLeaseException.class);
         assertThatThrownBy(() -> session.nextAck("worker-a", 1L))
                 .isInstanceOf(StaleLeaseException.class);
+        assertThatThrownBy(() -> session.cancel("worker-a", 1L))
+                .isInstanceOf(StaleLeaseException.class)
+                .hasMessageContaining("cancel");
+        assertThat(session.cancelled()).isFalse();
         AtomicInteger egressEffects = new AtomicInteger();
         assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
                 f -> egressEffects.incrementAndGet()))
@@ -172,5 +176,37 @@ class GuardedVideoStreamSessionTest {
         session.resume("worker-a", 1L, identity("t1"), -1, -1, Long.MIN_VALUE);
         assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
                 .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+    }
+
+    @Test
+    @DisplayName("server cancellation is terminal and prevents every later stream effect")
+    void cancellationIsTerminal() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
+                .isEqualTo(FrameVerdict.HELD);
+        assertThat(session.pendingCount()).isEqualTo(1);
+
+        session.cancel("worker-a", 1L);
+        assertThat(session.cancelled()).isTrue();
+        assertThat(session.pendingCount()).isZero();
+        AtomicInteger egressEffects = new AtomicInteger();
+        assertThatThrownBy(() -> session.submitFrame("worker-a", 1L, frame(1, false)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("cancellation");
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
+                f -> egressEffects.incrementAndGet()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("cancellation");
+        assertThatThrownBy(() -> session.claim("worker-b", 2L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("cancellation");
+        assertThatThrownBy(() -> session.resume(
+                "worker-a", 1L, identity("t1"), 0, 0, 0L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("cancellation");
+        assertThat(egressEffects.get()).isZero();
     }
 }
