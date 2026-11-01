@@ -120,6 +120,29 @@ describe("compileProductionPlan", () => {
     ]);
   });
 
+  it("requires repeated source refs to resolve to the same immutable revision", async () => {
+    const repeatedSpec = spec({ timelineRef: "scene/1@v3" });
+    const stable = await compileProductionPlan(repeatedSpec, resolver(admitted(allRefs)));
+    expect(stable.resolvedSources.filter((source) => source.sourceRef === "scene/1@v3")
+      .map((source) => source.immutableRevision)).toEqual(["scene/1@v3#sealed", "scene/1@v3#sealed"]);
+    // Version refs remain the caller's already-versioned identity, as in the Java compiler;
+    // trusted resolved revisions stay bound in resolvedSources and the fingerprint.
+    expect(stable.steps.find((step) => step.stepId === "capture-source-0")?.versionRefs).toEqual(["scene/1@v3"]);
+    expect(stable.steps.find((step) => step.stepId === "compose-timeline")?.versionRefs).toEqual(["scene/1@v3"]);
+
+    let repeatedReads = 0;
+    const conflicting = await compileProductionPlan(repeatedSpec, {
+      resolve: (sourceRef) => {
+        const immutableRevision = sourceRef === "scene/1@v3"
+          ? `scene/1@v3#sealed-${++repeatedReads}`
+          : `${sourceRef}#sealed`;
+        return { sourceRef, immutableRevision, eligibility: "LOCAL_ADMITTED" };
+      },
+    }).then(() => undefined, (failure: unknown) => failure);
+    expect(conflicting).toBeInstanceOf(ProductionPlanError);
+    expect((conflicting as ProductionPlanError).code).toBe("REVISION_MISMATCH");
+  });
+
   it("rejects a protected capture source — no headless plan from live-admission sources", async () => {
     const table = admitted(allRefs);
     table["scene/1@v3"] = "PROTECTED";

@@ -124,9 +124,14 @@ export async function compileProductionPlan(
   const sourceRefs = [...spec.sceneRefs, spec.timelineRef, spec.rightsRef,
     ...spec.outputProfileRefs, spec.purposeRef];
   const resolved: ResolvedSource[] = [];
+  const resolvedByRef = new Map<string, ResolvedSource>();
   for (const ref of sourceRefs) {
     const source = resolver.resolve(ref);
     if (!source || source.eligibility === "UNRESOLVED") {
+      if (resolvedByRef.has(ref)) {
+        throw new ProductionPlanError(
+          "REVISION_MISMATCH", `resolver changed its result for a repeated source: ${ref}`);
+      }
       throw new ProductionPlanError(
         "CAPTURE_SOURCE_UNRESOLVED",
         `source ref has no existing immutable revision: ${ref}`);
@@ -134,6 +139,12 @@ export async function compileProductionPlan(
     if (source.sourceRef !== ref) {
       throw new ProductionPlanError(
         "REVISION_MISMATCH", `resolver returned a different source for: ${ref}`);
+    }
+    const priorResolution = resolvedByRef.get(ref);
+    if (priorResolution && (priorResolution.immutableRevision !== source.immutableRevision
+      || priorResolution.eligibility !== source.eligibility)) {
+      throw new ProductionPlanError(
+        "REVISION_MISMATCH", `resolver returned conflicting revisions for a repeated source: ${ref}`);
     }
     if (source.eligibility === "PROTECTED") {
       throw new ProductionPlanError(
@@ -146,8 +157,10 @@ export async function compileProductionPlan(
         "CAPTURE_SOURCE_UNRESOLVED", `source ref has no admitted immutable revision: ${ref}`);
     }
     // Snapshot the trusted resolver response: it may reuse or mutate its objects.
-    resolved.push({ sourceRef: ref, immutableRevision: source.immutableRevision,
-      eligibility: source.eligibility });
+    const snapshot = { sourceRef: ref, immutableRevision: source.immutableRevision,
+      eligibility: source.eligibility };
+    resolved.push(snapshot);
+    resolvedByRef.set(ref, snapshot);
   }
 
   // Deterministic ordered plan: validate → capture per scene → compose → render.
