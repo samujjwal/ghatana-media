@@ -65,4 +65,17 @@ class TtsServerLaunchSmokeTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("requires TLS certificate chain and private key");
     }
+
+    @Test
+    @DisplayName("shared Media TLS configuration is accepted by the TTS server consumer")
+    void sharedMediaTlsPairConfiguresTlsTransport() {
+        var security = TtsGrpcServer.transportSecurity(Map.of(
+                "TTS_ENVIRONMENT", "production",
+                "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+
+        assertThat(security.tlsEnabled()).isTrue();
+        assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
+        assertThat(security.privateKey().toString()).endsWith("media-key.pem");
+    }
 }

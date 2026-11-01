@@ -53,4 +53,16 @@ class SttGrpcServerTransportSecurityTest {
         assertThat(security.certificateChain().toString()).endsWith("stt-cert.pem");
         assertThat(security.privateKey().toString()).endsWith("stt-key.pem");
     }
+
+    @Test
+    void sharedMediaTlsPairRemainsCompatibleWithSttServerConsumer() {
+        var security = SttGrpcServer.transportSecurity(Map.of(
+                "STT_ENVIRONMENT", "production",
+                "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+
+        assertThat(security.tlsEnabled()).isTrue();
+        assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
+        assertThat(security.privateKey().toString()).endsWith("media-key.pem");
+    }
 }

@@ -26,6 +26,9 @@ import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +45,26 @@ class MultimodalGrpcServerProductionBootstrapTest {
 
     private Server server;
     private ManagedChannel channel;
+
+    @Test
+    void sharedMediaTlsPairConfiguresTheMultimodalServerConsumer() {
+        var security = MultimodalGrpcServer.transportSecurity(Map.of(
+                "MULTIMODAL_ENVIRONMENT", "production",
+                "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+
+        assertThat(security.tlsEnabled()).isTrue();
+        assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
+        assertThat(security.privateKey().toString()).endsWith("media-key.pem");
+    }
+
+    @Test
+    void productionMultimodalServerConsumerFailsClosedWithoutTlsMaterial() {
+        assertThatThrownBy(() -> MultimodalGrpcServer.transportSecurity(
+                        Map.of("MULTIMODAL_ENVIRONMENT", "production")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Production-like MULTIMODAL gRPC requires TLS");
+    }
 
     @AfterEach
     void tearDown() {
@@ -82,10 +105,11 @@ class MultimodalGrpcServerProductionBootstrapTest {
                 MediaSourceAuthorizationContracts.Status.DENIED, null);
         startServer(port);
 
-        assertThatThrownBy(() -> stub().processMultimodal(validRequest("sha256:" + "a".repeat(64))))
+        assertThatThrownBy(() -> stub().processMultimodal(validRequest()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
                         .isEqualTo(Status.Code.PERMISSION_DENIED));
+        assertThat(port.resolutions.get()).isEqualTo(1);
         assertThat(port.submissions.get()).isZero();
     }
 
@@ -96,10 +120,11 @@ class MultimodalGrpcServerProductionBootstrapTest {
                 MediaSourceAuthorizationContracts.Status.REVOKED, null);
         startServer(port);
 
-        assertThatThrownBy(() -> stub().processMultimodal(validRequest("sha256:" + "a".repeat(64))))
+        assertThatThrownBy(() -> stub().processMultimodal(validRequest()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
                         .isEqualTo(Status.Code.PERMISSION_DENIED));
+        assertThat(port.resolutions.get()).isEqualTo(1);
         assertThat(port.submissions.get()).isZero();
     }
 
@@ -110,10 +135,11 @@ class MultimodalGrpcServerProductionBootstrapTest {
                 MediaSourceAuthorizationContracts.Status.UNAVAILABLE, null);
         startServer(port);
 
-        assertThatThrownBy(() -> stub().processMultimodal(validRequest("sha256:" + "a".repeat(64))))
+        assertThatThrownBy(() -> stub().processMultimodal(validRequest()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
                         .isEqualTo(Status.Code.UNAVAILABLE));
+        assertThat(port.resolutions.get()).isEqualTo(1);
         assertThat(port.submissions.get()).isZero();
     }
 
@@ -145,7 +171,7 @@ class MultimodalGrpcServerProductionBootstrapTest {
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
                 .usePlaintext().directExecutor().build();
 
-        assertThatThrownBy(() -> stub().processMultimodal(validRequest("sha256:" + "a".repeat(64))))
+        assertThatThrownBy(() -> stub().processMultimodal(validRequest()))
                 .isInstanceOf(StatusRuntimeException.class)
                 .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
                         .isEqualTo(Status.Code.UNAUTHENTICATED));
@@ -168,6 +194,18 @@ class MultimodalGrpcServerProductionBootstrapTest {
 
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub stub() {
         return MultimodalServiceGrpc.newBlockingStub(channel);
+    }
+
+    private static MultimodalRequest validRequest() {
+        return validRequest(sourceVersionFor(new byte[] {0x01, 0x02}));
+    }
+
+    private static String sourceVersionFor(byte[] sourceBytes) {
+        try {
+            return "sha256:" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(sourceBytes));
+        } catch (NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
     }
 
     private static MultimodalRequest validRequest(String sourceVersion) {

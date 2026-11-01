@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +21,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class VisionGrpcServerReadinessTest {
+
+    @Test
+    void sharedMediaTlsPairConfiguresTheVisionServerConsumer() {
+        var security = VisionGrpcServer.transportSecurity(Map.of(
+                "VISION_ENVIRONMENT", "production",
+                "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
+                "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem"));
+
+        assertThat(security.tlsEnabled()).isTrue();
+        assertThat(security.certificateChain().toString()).endsWith("media-cert.pem");
+        assertThat(security.privateKey().toString()).endsWith("media-key.pem");
+    }
+
+    @Test
+    void productionVisionServerConsumerFailsClosedWithoutTlsMaterial() {
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                        VisionGrpcServer.transportSecurity(Map.of("VISION_ENVIRONMENT", "production")))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Production-like VISION gRPC requires TLS");
+    }
 
     @Test
     void readinessAndVisionHealthTrackDetectorStateAndShutdown() {
