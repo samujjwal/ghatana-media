@@ -1,5 +1,7 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.audio.streaming.AudioStreamSession;
+import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
 import com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ConsentDecision;
@@ -102,6 +104,10 @@ class MediaConsentRevocationTest {
                     provider.providerId(), StreamState.CONNECTED, -1, 0, 128, 1,
                     now.plusSeconds(30), now, now, null, metadata, 1),
                     tokenHash(connectedToken));
+            CanonicalStreamFramePort audioPort = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", connectedId, connectedToken);
+            var audioBinding = audioPort.currentBinding("tenant-a", connectedId, "principal-a").orElseThrow();
+            var audioFrame = new AudioStreamSession.DecodedFrame(0, 0L, new byte[] {1, 2, 3});
 
             var openBeforeReconnect = runtime.stream("tenant-a", id).orElseThrow();
             assertThatThrownBy(() -> runtime.connectStream("tenant-a", id, token))
@@ -132,16 +138,65 @@ class MediaConsentRevocationTest {
             assertThat(provider.acceptedFrames()).isZero();
             assertThat(authority.verifications()).isEqualTo(4);
 
+            // This legacy connected session lets the test isolate the consent refresh seam. New
+            // external sessions remain NOT_ADMITTED by the source-rights gate above.
+            authority.expire();
+            var connectedBeforeExpiredReconnect = runtime.stream("tenant-a", connectedId).orElseThrow();
+            assertThatThrownBy(() -> runtime.connectStream("tenant-a", connectedId, connectedToken))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+            assertThat(runtime.stream("tenant-a", connectedId).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(connectedBeforeExpiredReconnect.version());
+                        assertThat(current.reconnectCount())
+                                .isEqualTo(connectedBeforeExpiredReconnect.reconnectCount());
+                        assertThat(current.state()).isEqualTo(StreamState.CONNECTED);
+                    });
+
+            var connectedBeforeExpiredFrame = runtime.stream("tenant-a", connectedId).orElseThrow();
+            assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
+                    "tenant-a", connectedId, connectedToken, 0,
+                    "expired-consent-frame".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+            assertThat(runtime.stream("tenant-a", connectedId).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(connectedBeforeExpiredFrame.version());
+                        assertThat(current.lastSequence()).isEqualTo(-1);
+                        assertThat(current.inFlightSequence()).isNull();
+                    });
+            assertThat(audioPort.offer(audioBinding, audioFrame).disposition())
+                    .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.acceptedFrames()).isZero();
+            assertThat(authority.verifications()).isEqualTo(7);
+
             authority.revoke();
             assertThatThrownBy(() -> runtime.connectStream(
                     "tenant-a", id, token))
                     .isInstanceOf(MediaCapabilityNotAdmittedException.class)
                     .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
                             .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+            var connectedBeforeRevokedFrame = runtime.stream("tenant-a", connectedId).orElseThrow();
+            assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
+                    "tenant-a", connectedId, connectedToken, 0,
+                    "revoked-consent-frame".getBytes(StandardCharsets.UTF_8), false, Instant.now())))
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.POLICY_DENIED));
+            assertThat(runtime.stream("tenant-a", connectedId).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(connectedBeforeRevokedFrame.version());
+                        assertThat(current.lastSequence()).isEqualTo(-1);
+                        assertThat(current.inFlightSequence()).isNull();
+                    });
+            assertThat(audioPort.offer(audioBinding, audioFrame).disposition())
+                    .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
             assertThat(provider.acceptedFrames()).isZero();
             assertThat(provider.closed()).isFalse();
             assertThat(runtime.stream("tenant-a", id).orElseThrow().state()).isEqualTo(StreamState.OPEN);
-            assertThat(authority.verifications()).isEqualTo(5);
+            assertThat(authority.verifications()).isEqualTo(10);
 
             var closed = runtime.closeStream("tenant-a", connectedId, connectedToken);
             assertThat(closed.state()).isEqualTo(StreamState.CLOSED);
@@ -150,7 +205,7 @@ class MediaConsentRevocationTest {
             assertThat(provider.terminationUsedVerifiedConsent()).isTrue();
             assertThat(authority.verifications())
                     .as("resource termination reuses prior evidence and performs no new disclosure")
-                    .isEqualTo(5);
+                    .isEqualTo(10);
         } finally {
             runtime.close();
         }
@@ -158,6 +213,7 @@ class MediaConsentRevocationTest {
 
     private static final class MutableConsentAuthority implements MediaConsentAuthority {
         private final AtomicBoolean active = new AtomicBoolean(true);
+        private final AtomicBoolean expired = new AtomicBoolean();
         private final AtomicInteger verifications = new AtomicInteger();
 
         @Override public String authorityId() { return "mutable-consent-authority"; }
@@ -172,12 +228,13 @@ class MediaConsentRevocationTest {
                 String operation) {
             verifications.incrementAndGet();
             if (!active.get()) return ConsentDecision.unverified();
+            Instant now = Instant.now();
             return new ConsentDecision(
                     true,
                     authorityId(),
                     governance.consentId(),
-                    Instant.now(),
-                    Instant.now().plusSeconds(60),
+                    expired.get() ? now.minusSeconds(10) : now,
+                    expired.get() ? now.minusSeconds(1) : now.plusSeconds(60),
                     Set.of(governance.purpose()),
                     Set.of("us-west-2"),
                     true,
@@ -185,6 +242,7 @@ class MediaConsentRevocationTest {
         }
 
         void revoke() { active.set(false); }
+        void expire() { expired.set(true); }
         int verifications() { return verifications.get(); }
     }
 
