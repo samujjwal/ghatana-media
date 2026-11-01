@@ -499,3 +499,18 @@ ordered stream frames, and no buffer growth beyond the configured bound.
 - Local stores are non-durable and local providers are diagnostic. They do not
   validate real media quality, remote cancellation truth, S3/PostgreSQL
   failover, Event Plane delivery, or production erasure guarantees.
+
+### Isolated persistence PostgreSQL integration
+
+Run the legacy JPA persistence integration tests explicitly when Docker is
+available:
+
+```bash
+./gradlew :services:media:modules:infrastructure:persistence:integrationTest \
+  --no-daemon --max-workers=2
+```
+
+This task uses a disposable PostgreSQL Testcontainer and Hibernate-created
+schema. It does not verify the canonical applied Flyway history, the live
+legacy writer, or production cutover. The regular persistence `test` task
+continues to exclude Docker-dependent integration classes.

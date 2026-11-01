@@ -48,3 +48,15 @@ tasks.test {
     // Exclude integration tests as they require Docker/Testcontainers
     exclude("**/*IT.class", "**/*IT$*.class", "**/*IntegrationTest.class", "**/*IntegrationTest$*.class")
 }
+
+// Explicit, isolated PostgreSQL/Testcontainers qualification; kept separate
+// from the fast unit task so its Docker dependency and scope remain visible.
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs persistence integration tests against isolated PostgreSQL containers."
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    include("**/*IT.class", "**/*IntegrationTest.class")
+    shouldRunAfter(tasks.test)
+}

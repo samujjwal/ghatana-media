@@ -92,6 +92,89 @@ class PersistenceIntegrationTest {
     }
 
     @Test
+    @DisplayName("PostgreSQL rejects cross-tenant audio and transcription ID reuse")
+    void postgresRejectsCrossTenantIdReuse() {
+        String owner = "owner-" + UUID.randomUUID();
+        String attacker = "attacker-" + UUID.randomUUID();
+        AudioFileEntity audio = createAudioFile(owner, "original.wav");
+        audioFileRepository.save(owner, audio);
+        TranscriptionEntity transcript = new TranscriptionEntity(
+                UUID.randomUUID(), owner, audio.getId(), UUID.randomUUID(), "original text", "en");
+        transcriptionRepository.save(owner, transcript);
+        entityManager.clear();
+
+        AudioFileEntity forgedAudio = new AudioFileEntity(audio.getId(), attacker, audio.getUserId(),
+                "overwritten.wav", "/forged.wav", "wav");
+        TranscriptionEntity forgedTranscript = new TranscriptionEntity(transcript.getId(), attacker,
+                audio.getId(), UUID.randomUUID(), "overwritten text", "en");
+        assertThatThrownBy(() -> audioFileRepository.save(attacker, forgedAudio))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> transcriptionRepository.save(attacker, forgedTranscript))
+                .isInstanceOf(IllegalArgumentException.class);
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(owner, audio.getId()).orElseThrow().getFileName())
+                .isEqualTo("original.wav");
+        assertThat(transcriptionRepository.findById(owner, transcript.getId()).orElseThrow().getText())
+                .isEqualTo("original text");
+        assertThat(audioFileRepository.findById(attacker, audio.getId())).isEmpty();
+        assertThat(transcriptionRepository.findById(attacker, transcript.getId())).isEmpty();
+
+        // An already managed entity must not auto-flush an altered tenant before
+        // the repository reads and locks the persisted owner.
+        entityManager.getTransaction().begin();
+        AudioFileEntity managed = audioFileRepository.findById(owner, audio.getId()).orElseThrow();
+        managed.setTenantId(attacker);
+        managed.setFileName("managed-overwrite.wav");
+        assertThatThrownBy(() -> audioFileRepository.save(attacker, managed))
+                .isInstanceOf(IllegalArgumentException.class);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(owner, audio.getId()).orElseThrow().getFileName())
+                .isEqualTo("original.wav");
+        assertThat(audioFileRepository.findById(attacker, audio.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("PostgreSQL primary key prevents concurrent tenant overwrite on a new ID")
+    void postgresConcurrentInsertCannotOverwriteAnotherTenant() throws Exception {
+        UUID sharedId = UUID.randomUUID();
+        String tenantA = "race-a-" + UUID.randomUUID();
+        String tenantB = "race-b-" + UUID.randomUUID();
+        var start = new java.util.concurrent.CountDownLatch(1);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var results = new java.util.ArrayList<java.util.concurrent.Future<Boolean>>();
+            for (String tenant : java.util.List.of(tenantA, tenantB)) {
+                results.add(pool.submit(() -> {
+                    try (EntityManager worker = emf.createEntityManager()) {
+                        var repo = new JpaAudioFileRepository(worker);
+                        start.await();
+                        try {
+                            repo.save(tenant, new AudioFileEntity(sharedId, tenant, UUID.randomUUID(),
+                                    tenant + ".wav", "/race.wav", "wav"));
+                            return true;
+                        } catch (RuntimeException rejected) {
+                            return false;
+                        }
+                    }
+                }));
+            }
+            start.countDown();
+            boolean first = results.get(0).get(20, java.util.concurrent.TimeUnit.SECONDS);
+            boolean second = results.get(1).get(20, java.util.concurrent.TimeUnit.SECONDS);
+            assertThat(first).isNotEqualTo(second);
+            entityManager.clear();
+            String winningTenant = first ? tenantA : tenantB;
+            String losingTenant = first ? tenantB : tenantA;
+            assertThat(audioFileRepository.findById(winningTenant, sharedId).orElseThrow().getFileName())
+                    .isEqualTo(winningTenant + ".wav");
+            assertThat(audioFileRepository.findById(losingTenant, sharedId)).isEmpty();
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
     @DisplayName("GIVEN audio file WHEN saved THEN can be retrieved from PostgreSQL")
     void testAudioFilePersistence() { 
         // GIVEN
