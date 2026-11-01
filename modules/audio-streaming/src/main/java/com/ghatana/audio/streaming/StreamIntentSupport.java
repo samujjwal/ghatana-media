@@ -67,7 +67,7 @@ public final class StreamIntentSupport {
             implemented("media.stream.buffer.bound"),
             implemented("media.stream.backpressure.apply"),
             notAdmitted("media.stream.lease.renew",
-                    "store CAS exists; canonical route, source and clock proof, current authority and replay receipt are not admitted"),
+                    "store CAS exists; canonical route is absent, request schema does not require session generation or current consent/rights refs, and no replay receipt or authoritative renewed-expiry result exists"),
             delegated("media.stream.recording.integrate",
                     "media.recording surface owner"),
             delegated("media.stream.live-processing.integrate",

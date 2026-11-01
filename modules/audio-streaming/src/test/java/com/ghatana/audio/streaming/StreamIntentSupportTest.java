@@ -86,6 +86,21 @@ class StreamIntentSupportTest {
     }
 
     @Test
+    @DisplayName("lease renewal stays unadmitted until its owner contract binds authority and replay")
+    void leaseRenewalNamesMissingOwnerEvidence() {
+        IntentDisposition renewal = StreamIntentSupport.dispositionOf("media.stream.lease.renew");
+
+        assertThat(renewal.support()).isEqualTo(Support.NOT_ADMITTED);
+        assertThat(renewal.basis())
+                .contains("canonical route is absent")
+                .contains("session generation")
+                .contains("current consent/rights refs")
+                .contains("replay receipt")
+                .contains("authoritative renewed-expiry result");
+        assertThat(StreamIntentSupport.admittedHere("media.stream.lease.renew")).isFalse();
+    }
+
+    @Test
     @DisplayName("recording, live-processing and caption intents are delegated to owners")
     void delegatedIntentsNamed() {
         for (String intentId : Set.of(
