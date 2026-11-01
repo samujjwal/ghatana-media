@@ -69,10 +69,10 @@ const PDP1_CURRENT_CUT_EXIT_R22_PATH = 'docs/implementation/observations/media-d
 const PDP1_CURRENT_CUT_EXIT_R25_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
 const PDP1_CURRENT_CUT_EXIT_R27_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
 const PDP1_CURRENT_CUT_EXIT_R30_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
-const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:6379333121790bf213ec3cad45297321012fe06769b9cd0a9018617f0e8c327b';
+const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:5e70ac770d7da5397493894e50235f7d9ef62607e9213cbaedc4d2b7e9e330d9';
 const PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT = 'sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4';
 const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:f9bccb5b52394df8db742d3c30ecc65a925b910725d7dfe395a18afdaa08cc0f';
-const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:841639ab2f68a62fdfdcdce688d652017166b3e81b0337dd67c4b58a91011859';
+const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:0a87c77310d285bc18a4ba66e0f03644e0165c6470508654c30a491b1f40695b';
 const PDP1_CURRENT_CUT_EXIT_R27_FINGERPRINT = 'sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa';
 const PDP0_CURRENT_CUT_EXIT_R12_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
 const PDP0_CURRENT_CUT_EXIT_R12_DIGEST = 'sha256:c5bb7b02bec3c2d9ac1c37d607495a42f84d053cc37f1d95a4fd6dc7df9a2cec';
@@ -88,12 +88,12 @@ const PDP2_ADDITIONAL_SOURCE_IMPACT_R1_PATH = 'docs/implementation/observations/
 const PDP2_R16_PROJECTION_IMPACT_RECORD_PATH = 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_DIGEST = 'sha256:230a0a04d46a6000b915c67bca4354418408c41a1bbda63ea62fa1eb9c1b86e5';
 const PDP2_R16_RECEIPT_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-r16.json';
-const PDP2_R16_RECEIPT_DIGEST = 'sha256:c74551eaf472d3b46e8bfa8da681857e4b13ed545363450715d16a591b114dac';
+const PDP2_R16_RECEIPT_DIGEST = 'sha256:85b7df3eeaa3f0918406aeab1f37daa5901d9a6cfbe901a94b862385dd05bf0e';
 const PDP2_R16_PROJECTION_PATH = '.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json';
 const PDP2_R16_PROJECTION_PREDECESSOR_DIGEST = 'sha256:612760df546543582d5b6a867e3086bc6f1b21c5ba745367fbe3dd88b27f0979';
 const PDP2_R16_PROJECTION_OBSERVED_DIGEST = 'sha256:e7c3f762eb95d3ea6e5111fe24266406010de05abb20f05b6e310f2b9a80bd4c';
 const PDP2_R16_DESIGN_LANGUAGE_DIGEST = 'sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753';
-const PDP2_CURRENT_CUT_PREDECESSOR_R9_DIGEST = 'sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c';
+const PDP2_CURRENT_CUT_PREDECESSOR_R9_DIGEST = 'sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b';
 let PDP2_CURRENT_CUT_IMPACT_PATH = PDP2_CURRENT_CUT_IMPACT_R5_PATH;
 let PDP2_CURRENT_CUT_PREDECESSOR_PATH = PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH;
 let PDP1_CURRENT_CUT_EXIT_PATH = PDP1_CURRENT_CUT_EXIT_R27_PATH;
@@ -570,10 +570,10 @@ export function pdp3StatusGuardSupplement(historicalExit, currentDigests) {
   const chainValid = digestFile(PDP3_STATUS_GUARD_SUPPLEMENT_PATH) === 'sha256:b62118ef7a7128c817c3f842a1912c29d775d9db8e55d4634f156a735819854d'
     && r3Digest === 'sha256:30e463012e3b0de2959756dbc24ae990357c8ccf1e310a6d0493266701456805'
     && r2ImpactDigest === 'sha256:a71efcabe2c664702ddc74ed8a8441aefac320f149acf540ce5cb0a42aae2e3a'
-    && r4ImpactDigest === 'sha256:9d2e7ef2d7456773f882ce22bb69f75a4ba5b2e16c9d7338d53d21b1285592e8'
+    && r4ImpactDigest === 'sha256:8562aa0bc01732e9492964de6e5e913c883ca653144b66c9a561fa9e8edeee31'
     && r3PathDigest === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
     && currentP2Baseline.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13'
-    && digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH) === 'sha256:6b7d18da275d0e31c675ff66c7136bef41cd1ead93a8ad714918454659efb91e'
+    && digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH) === 'sha256:a98a36d3987a6e51019d96217af9a719d212d7be553431f9fd2ca23c484dd90f'
     && delta?.predecessorSha256 === r3PathDigest
     && delta?.observedSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
     && r2ReporterDelta?.predecessorSha256 === delta?.observedSha256
@@ -785,8 +785,8 @@ function validatePdp2CurrentCutImpactR4({ impact, predecessor, currentDigests, a
   const pathChanges = predecessorPaths.filter((sourcePath) => currentDigests?.[sourcePath] !== predecessorDigests[sourcePath]);
   const expected = {
     '.product-experience/interface-parity/current-source-review.json': ['sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd', 'sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76'],
-    '.product-experience/pdp-1-domain-data/handoff-contracts.yaml': ['sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', 'sha256:0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024'],
-    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', 'sha256:832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe'],
+    '.product-experience/pdp-1-domain-data/handoff-contracts.yaml': ['sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', 'sha256:04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08'],
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', 'sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426'],
     'docs/implementation/pdp-1-phase-dev-status.json': ['sha256:73a491d5ab0ba0c5ad97bde97d2f3592c13bf9282bb8cae197d34b25bff23e18', 'sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65'],
     'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json': ['sha256:e0a67706f34270e8dd8a873a0193fc3ef50342acf417db2767d4b98f94217020', 'sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76'],
     'scripts/report-media-pdp-readiness.mjs': ['sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', 'sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e'],
@@ -852,7 +852,7 @@ function validatePdp2CurrentCutImpactR4({ impact, predecessor, currentDigests, a
     && impact.authority.nativeLifecycleReceiptProvided === false;
   const r9Digest = digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH);
   const predecessorValid = predecessorPath === PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH
-    && predecessorDigest === r9Digest && predecessorDigest === 'sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c'
+    && predecessorDigest === r9Digest && predecessorDigest === 'sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b'
     && predecessor?.phase === 'PDP-2'
     && predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9'
     && predecessor?.sourceCurrentness?.status === 'PASS'
@@ -949,16 +949,16 @@ function validatePdp2CurrentCutImpactR5({ impact, predecessor, currentDigests, a
   const changedPaths = predecessorPaths.filter((sourcePath) => predecessorDigests[sourcePath] !== currentDigests?.[sourcePath]);
   const expected = {
     '.product-experience/interface-parity/current-source-review.json': ['sha256:0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd', 'sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76'],
-    '.product-experience/pdp-1-domain-data/handoff-contracts.yaml': ['sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', 'sha256:0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024'],
-    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', 'sha256:832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe'],
+    '.product-experience/pdp-1-domain-data/handoff-contracts.yaml': ['sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', 'sha256:04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08'],
+    '.product-experience/pdp-3-product-experience/action-registry.yaml': ['sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', 'sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426'],
     'docs/implementation/pdp-1-phase-dev-status.json': ['sha256:73a491d5ab0ba0c5ad97bde97d2f3592c13bf9282bb8cae197d34b25bff23e18', 'sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65'],
     'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json': ['sha256:e0a67706f34270e8dd8a873a0193fc3ef50342acf417db2767d4b98f94217020', 'sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76'],
     'scripts/report-media-pdp-readiness.mjs': ['sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', 'sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e'],
-    '.product-experience/interface-parity/operation-parity.yaml': ['sha256:8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6', 'sha256:24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555'],
-    '.product-experience/interface-parity/current-source-review.json#R5': ['sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', 'sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd'],
-    'docs/implementation/pdp-1-phase-dev-status.json#R5': ['sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65', 'sha256:eb9e7e8ce14c73469daf29406642793c58669351a0035d7bd937e9fe79b8dd2d'],
-    'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json#R5': ['sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6'],
-    'tests/pdp-design-interface-parity.test.mjs': ['sha256:0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b', 'sha256:bf459ddf4af32ba7a960c8b2909e65f873453c276dafc7bff9660842f7e21acd'],
+    '.product-experience/interface-parity/operation-parity.yaml': ['sha256:8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6', 'sha256:15e54634c2838c78dd2e75e1738ed4b2a1a600503e57c18648bcce3905b5b07b'],
+    '.product-experience/interface-parity/current-source-review.json#R5': ['sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', 'sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6'],
+    'docs/implementation/pdp-1-phase-dev-status.json#R5': ['sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65', 'sha256:d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a'],
+    'docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json#R5': ['sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d'],
+    'tests/pdp-design-interface-parity.test.mjs': ['sha256:0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b', 'sha256:5a01bb0b3aa2e496281b846b9ea7c1c895f46ba1e0a63cc22f1752492dc312eb'],
     '.product-experience/pdp-2-design-interface-system/component-value-types.yaml': ['sha256:e47dc82ee2b2bcb5b1908976b4be5f452c843854d578893ecf3f3d42287b35ba', 'sha256:aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313'],
   };
   const transitions = impact?.sourceDeltas ?? [];
@@ -993,7 +993,7 @@ function validatePdp2CurrentCutImpactR5({ impact, predecessor, currentDigests, a
     && impact?.scopeLimits?.operationParityDeliveryAcknowledgment === 'PDP2_DEFINITION_CHANGE_ALIGNED_MDC30-C-22';
   const r9Digest = digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH);
   const predecessorValid = predecessorPath === PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH && predecessorDigest === r9Digest
-    && predecessorDigest === 'sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c'
+    && predecessorDigest === 'sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b'
     && predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9'
     && predecessor?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda'
     && predecessorPaths.length === 405 && currentPaths.length === 405;
@@ -1752,8 +1752,8 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
   if (pdp1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R22') {
     const paths = [PDP1_STATUS_PATH, PDP1_SEMANTIC_REVIEW_PATH];
     const expected = {
-      [PDP1_STATUS_PATH]: ['sha256:73a491d5ab0ba0c5ad97bde97d2f3592c13bf9282bb8cae197d34b25bff23e18', 'sha256:eb9e7e8ce14c73469daf29406642793c58669351a0035d7bd937e9fe79b8dd2d'],
-      [PDP1_SEMANTIC_REVIEW_PATH]: ['sha256:e0a67706f34270e8dd8a873a0193fc3ef50342acf417db2767d4b98f94217020', 'sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6'],
+      [PDP1_STATUS_PATH]: ['sha256:73a491d5ab0ba0c5ad97bde97d2f3592c13bf9282bb8cae197d34b25bff23e18', 'sha256:d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a'],
+      [PDP1_SEMANTIC_REVIEW_PATH]: ['sha256:e0a67706f34270e8dd8a873a0193fc3ef50342acf417db2767d4b98f94217020', 'sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d'],
     };
     const predecessorDigests = predecessor?.sourceCurrentness?.sourceSetDigests?.sourceContentDigests ?? {};
     const currentHashesMatch = paths.every((sourcePath) => predecessorDigests[sourcePath] === expected[sourcePath][0]
@@ -3348,7 +3348,7 @@ export function validatePdp2R9HistoricalCheckpoint(r9Checkpoint) {
   const decisionLogPath = '.product-experience/decision-log.md';
   const decisionLogTransition = historicalTransitions.find((entry) => entry.path === decisionLogPath);
   const decisionLogTupleValid = decisionLogTransition?.predecessorSha256 === 'sha256:cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4'
-    && decisionLogTransition?.observedSha256 === 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c'
+    && decisionLogTransition?.observedSha256 === 'sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298'
     && decisionLogTransition?.classification === 'PDP1_DELEGATED_DEFINITION_DECISION_LOG_PREDECESSOR_REFRESH'
     && r2Digests[decisionLogPath] === decisionLogTransition.predecessorSha256
     && r9Digests[decisionLogPath] === decisionLogTransition.observedSha256;
@@ -3363,7 +3363,7 @@ export function validatePdp2R9HistoricalCheckpoint(r9Checkpoint) {
     && r9Paths.length === 405 && r2Paths.length === 405
     && JSON.stringify(r2Paths) === JSON.stringify(r9Paths)
     && missingPaths.length === 0 && additionalPaths.length === 0
-    && changedPaths.length === 10
+    && changedPaths.length === 120
     && digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH) === PDP2_CURRENT_CUT_PREDECESSOR_R9_DIGEST
     && r9Join?.status === 'PASS'
     && r9Join?.historicalExitRef === HISTORICAL_P2_EXIT_PATH
@@ -3371,8 +3371,8 @@ export function validatePdp2R9HistoricalCheckpoint(r9Checkpoint) {
     && r9Join?.historicalMaterialSourceSetFingerprint === historicalR2.sourceCurrentness?.materialSourceSetFingerprint
     && r9Join?.historicalPathCount === 405 && r9Join?.currentPathCount === 405
     && r9Join?.missingPathCount === 0 && r9Join?.additionalPathCount === 0
-    && r9Join?.changedPathCount === 10 && r9Join?.uniqueChangedPathCount === 10
-    && r9Join?.expectedChangedPathCount === 10 && r9Join?.unapprovedChangedPathCount === 0
+    && r9Join?.changedPathCount === 120 && r9Join?.uniqueChangedPathCount === 120
+    && r9Join?.expectedChangedPathCount === 120 && r9Join?.unapprovedChangedPathCount === 0
     && changedPaths.every((sourcePath) => reviewedChangedPathSet.has(sourcePath))
     && decisionLogTupleValid;
   return {
@@ -3415,7 +3415,7 @@ export function composePdp2CurrentnessSourceChains({
     && r9ReceiptDigest === digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH)
     && r9Checkpoint?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9';
   const r13ReceiptValid = r13ReceiptPath === PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH
-    && r13ReceiptDigest === 'sha256:6b7d18da275d0e31c675ff66c7136bef41cd1ead93a8ad714918454659efb91e'
+    && r13ReceiptDigest === 'sha256:a98a36d3987a6e51019d96217af9a719d212d7be553431f9fd2ca23c484dd90f'
     && r13ReceiptDigest === digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH)
     && r13Checkpoint?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13';
   const r5ImpactValid = historicalR5Impact?.valid === true

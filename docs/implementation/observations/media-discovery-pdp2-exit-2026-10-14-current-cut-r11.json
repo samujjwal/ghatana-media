@@ -54,12 +54,12 @@
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "sha256": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "sha256": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
-      "sha256": "sha256:9d2e7ef2d7456773f882ce22bb69f75a4ba5b2e16c9d7338d53d21b1285592e8",
+      "sha256": "sha256:8562aa0bc01732e9492964de6e5e913c883ca653144b66c9a561fa9e8edeee31",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2AdditionalSourceImpact": null,
@@ -438,7 +438,7 @@
     "pdp2ScopedImpact": {
       "valid": false,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
       "predecessorDigest": "sha256:7b9230c45c65e53638d3addb0e8ccb5844376e18f4aa6d035001ada4b6d4a08d",
       "predecessorMaterialSourceSetFingerprint": null,
@@ -1141,7 +1141,7 @@
     "pdp2ScopedImpact": {
       "valid": false,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
       "predecessorDigest": "sha256:7b9230c45c65e53638d3addb0e8ccb5844376e18f4aa6d035001ada4b6d4a08d",
       "predecessorMaterialSourceSetFingerprint": null,

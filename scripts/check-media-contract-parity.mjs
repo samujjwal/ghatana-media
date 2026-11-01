@@ -485,31 +485,34 @@ function routeDispositionKey({ source, method, path }) {
 }
 
 export function parseNotAdmittedSdkRoutes(parityMatrix) {
-  const start = parityMatrix.indexOf("compatibilityRouteFindings:\n");
-  if (start < 0) return [];
-  const end = parityMatrix.indexOf("\ntypedUiActionDispositions:\n", start);
-  const block = parityMatrix.slice(start, end < 0 ? undefined : end);
-  if (!/^compatibilityRouteFindings:\n  disposition: NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST/mu.test(block)) return [];
-  return [...block.matchAll(/^    - \{source: ([^,]+), method: ([A-Z]+), path: '([^']+)'\}$/gmu)]
-    .map((match) => ({ source: match[1].trim(), method: match[2], path: match[3], disposition: "NOT_ADMITTED" }));
+  let document;
+  try {
+    document = parseYamlSource(parityMatrix);
+  } catch {
+    return [];
+  }
+  const findings = document?.compatibilityRouteFindings;
+  if (!findings?.disposition?.startsWith("NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST")) return [];
+  return (Array.isArray(findings.sourceFindings) ? findings.sourceFindings : [])
+    .filter((entry) => entry?.source && entry?.method && entry?.path)
+    .map((entry) => ({ source: String(entry.source).trim(), method: entry.method, path: entry.path, disposition: "NOT_ADMITTED" }));
 }
 
 export function parseSdkOpenApiDispositions(parityMatrix) {
-  const start = parityMatrix.indexOf("typedMethodDispositions:\n");
-  if (start < 0) return [];
-  const end = parityMatrix.indexOf("\ntypedInterfaceIdentityDispositions:\n", start);
-  const section = parityMatrix.slice(start, end < 0 ? undefined : end);
-  return section.split(/(?=^- identity: )/mu).flatMap((record) => {
-    const identity = record.match(/^- identity: ([^\n]+)/mu)?.[1]?.trim();
-    if (!identity) return [];
-    return [{
-      identity,
-      type: record.match(/^  type: ([A-Z_]+)$/mu)?.[1],
-      operationId: record.match(/^  openApiOperationId: ([A-Za-z0-9]+)$/mu)?.[1],
-      ownerDecisionRef: record.match(/^  ownerDecisionRef: (.+)$/mu)?.[1],
-      disposition: record.match(/^  openApiBindingDisposition: ([A-Z_]+)$/mu)?.[1],
-    }];
-  })
+  let document;
+  try {
+    document = parseYamlSource(parityMatrix);
+  } catch {
+    return [];
+  }
+  const records = Array.isArray(document?.typedMethodDispositions) ? document.typedMethodDispositions : [];
+  return records.map((record) => ({
+    identity: typeof record?.identity === "string" ? record.identity.trim() : record?.identity,
+    type: record?.type,
+    operationId: record?.openApiOperationId,
+    ownerDecisionRef: record?.ownerDecisionRef,
+    disposition: record?.openApiBindingDisposition,
+  }))
     .filter((entry) => entry.identity && entry.disposition);
 }
 

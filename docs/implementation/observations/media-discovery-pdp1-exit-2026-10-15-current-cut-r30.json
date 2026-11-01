@@ -675,7 +675,7 @@
         "predecessorAuthorization": {
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R5",
-          "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+          "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
           "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
           "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "authorized": true

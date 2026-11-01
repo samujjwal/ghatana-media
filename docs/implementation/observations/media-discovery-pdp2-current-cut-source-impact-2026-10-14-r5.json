@@ -35,12 +35,12 @@
           {
             "path": ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
             "predecessorSha256": "sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338",
-            "observedSha256": "sha256:0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024"
+            "observedSha256": "sha256:04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08"
           },
           {
             "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
             "predecessorSha256": "sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
-            "observedSha256": "sha256:832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe"
+            "observedSha256": "sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426"
           },
           {
             "path": "docs/implementation/pdp-1-phase-dev-status.json",
@@ -74,27 +74,27 @@
           {
             "path": ".product-experience/interface-parity/operation-parity.yaml",
             "predecessorSha256": "sha256:8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6",
-            "observedSha256": "sha256:24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555"
+            "observedSha256": "sha256:15e54634c2838c78dd2e75e1738ed4b2a1a600503e57c18648bcce3905b5b07b"
           },
           {
             "path": ".product-experience/interface-parity/current-source-review.json",
             "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
-            "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd"
+            "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6"
           },
           {
             "path": "docs/implementation/pdp-1-phase-dev-status.json",
             "predecessorSha256": "sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65",
-            "observedSha256": "sha256:eb9e7e8ce14c73469daf29406642793c58669351a0035d7bd937e9fe79b8dd2d"
+            "observedSha256": "sha256:d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a"
           },
           {
             "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
             "predecessorSha256": "sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76",
-            "observedSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6"
+            "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d"
           },
           {
             "path": "tests/pdp-design-interface-parity.test.mjs",
             "predecessorSha256": "sha256:0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b",
-            "observedSha256": "sha256:bf459ddf4af32ba7a960c8b2909e65f873453c276dafc7bff9660842f7e21acd"
+            "observedSha256": "sha256:5a01bb0b3aa2e496281b846b9ea7c1c895f46ba1e0a63cc22f1752492dc312eb"
           }
         ],
         "scope": "Only these exact five R9-to-live transitions; operation-parity carries PDP-2 delivery-ack evidence binding aligned to MDC30-C-22, while fallback inventory is a PDP-3 projection."
@@ -115,13 +115,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R4",
-    "sha256": "sha256:9d2e7ef2d7456773f882ce22bb69f75a4ba5b2e16c9d7338d53d21b1285592e8",
+    "sha256": "sha256:8562aa0bc01732e9492964de6e5e913c883ca653144b66c9a561fa9e8edeee31",
     "reason": "R4 is immutable history for its earlier R9-to-live transitions and PDP-1 R19. R5 preserves those dispositions and binds the newly authorized exact transitions and PDP-1 R22."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
+    "receiptSha256": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -155,7 +155,7 @@
       "path": ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338",
-      "observedSha256": "sha256:0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024",
+      "observedSha256": "sha256:04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08",
       "classification": "PDP1_OWNER_OPERATION_HANDOFF_POPULATION_REFRESH",
       "changeSummary": "Updates the PDP-1 owner-defined operation inventory for fallback confirmation; the existing PDP-2 request, result, confirmation, and finality grammars remain applicable.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -166,7 +166,7 @@
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
-      "observedSha256": "sha256:832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+      "observedSha256": "sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
       "classification": "PDP3_ACTION_REGISTRY_MEANING_WITHOUT_PDP2_MEANING",
       "changeSummary": "Adds the fallback-confirmation action to the PDP-3 registry. This is PDP-3 action meaning; PDP-2 impact was reviewed against the existing generic confirmation/finality grammar.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -210,7 +210,7 @@
       "path": ".product-experience/interface-parity/operation-parity.yaml",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6",
-      "observedSha256": "sha256:24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555",
+      "observedSha256": "sha256:15e54634c2838c78dd2e75e1738ed4b2a1a600503e57c18648bcce3905b5b07b",
       "classification": "PDP2_DELIVERY_ACK_EVIDENCE_BINDING_WITH_PDP3_PROJECTION",
       "changeSummary": "Adds the delivery-acknowledgment evidence binding aligned with MDC30-C-22 as a PDP-2 interface parity definition change. The fallback inventory portion is a PDP-3 projection.",
       "meaningChange": "PDP2_DEFINITION_CHANGE_LIMITED_TO_MDC30_C22_DELIVERY_ACK_EVIDENCE_BINDING",
@@ -223,7 +223,7 @@
       "path": ".product-experience/interface-parity/current-source-review.json",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
-      "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
+      "observedSha256": "sha256:d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
       "classification": "PDP2_INTERFACE_CURRENT_SOURCE_REVIEW_REFRESH",
       "changeSummary": "Refreshes the interface current-source review for the current source cut.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -234,7 +234,7 @@
       "path": "docs/implementation/pdp-1-phase-dev-status.json",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65",
-      "observedSha256": "sha256:eb9e7e8ce14c73469daf29406642793c58669351a0035d7bd937e9fe79b8dd2d",
+      "observedSha256": "sha256:d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
       "classification": "PDP1_PHASE_STATUS_AND_CURRENTNESS_REFRESH",
       "changeSummary": "Refreshes the PDP-1 status/currentness evidence; does not add PDP-2 meaning.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -245,7 +245,7 @@
       "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76",
-      "observedSha256": "sha256:e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6",
+      "observedSha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
       "classification": "PDP1_SEMANTIC_REVIEW_EVIDENCE_REFRESH",
       "changeSummary": "Refreshes PDP-1 semantic review evidence; no additional PDP-2 meaning.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -256,7 +256,7 @@
       "path": "tests/pdp-design-interface-parity.test.mjs",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b",
-      "observedSha256": "sha256:bf459ddf4af32ba7a960c8b2909e65f873453c276dafc7bff9660842f7e21acd",
+      "observedSha256": "sha256:5a01bb0b3aa2e496281b846b9ea7c1c895f46ba1e0a63cc22f1752492dc312eb",
       "classification": "PDP2_CURRENT_SOURCE_IMPACT_TEST_EVIDENCE_ONLY",
       "changeSummary": "Adds focused regression evidence for the exact operation-parity source impact.",
       "meaningChange": "TEST_ONLY",

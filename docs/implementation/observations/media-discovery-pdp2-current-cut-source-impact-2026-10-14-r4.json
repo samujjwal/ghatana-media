@@ -82,7 +82,7 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
+    "receiptSha256": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -118,7 +118,7 @@
       "path": ".product-experience/pdp-1-domain-data/handoff-contracts.yaml",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338",
-      "observedSha256": "sha256:0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024",
+      "observedSha256": "sha256:04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08",
       "classification": "PDP1_OWNER_OPERATION_HANDOFF_POPULATION_REFRESH",
       "changeSummary": "Updates the PDP-1 owner-defined operation inventory for fallback confirmation; the existing PDP-2 request, result, confirmation, and finality grammars remain applicable.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",
@@ -129,7 +129,7 @@
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
       "phase": "PDP-2",
       "predecessorSha256": "sha256:da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2",
-      "observedSha256": "sha256:832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe",
+      "observedSha256": "sha256:53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426",
       "classification": "PDP3_ACTION_REGISTRY_MEANING_WITHOUT_PDP2_MEANING",
       "changeSummary": "Adds the fallback-confirmation action to the PDP-3 registry. This is PDP-3 action meaning; PDP-2 impact was reviewed against the existing generic confirmation/finality grammar.",
       "meaningChange": "NO_ADDITIONAL_PDP2_MEANING",

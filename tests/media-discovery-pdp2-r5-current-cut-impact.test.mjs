@@ -28,20 +28,20 @@ const r22 = read(r22Path);
 
 const r4Transitions = [
   ['.product-experience/interface-parity/current-source-review.json', '0ce764d11912596ee39057db9bd0f2dfbf3c85f6269d55632bda3b3e6e4ad0dd', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76'],
-  ['.product-experience/pdp-1-domain-data/handoff-contracts.yaml', '3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', '0055cb68ee08825d8936763353e011ffa5e3979562c42685566d525a6a074024'],
-  ['.product-experience/pdp-3-product-experience/action-registry.yaml', 'da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', '832beaf50f03f9e3c4d8bf0f7e5f47ffe38b570c3e4864bef04c7362352180fe'],
+  ['.product-experience/pdp-1-domain-data/handoff-contracts.yaml', '3605ff3a216e8187acad158666be6e0a13801ee947099a7e657e3e29c59e9338', '04a59b9f6ace1c037938635fca84e0760ba7dedacf6e52874319889dc2b9dc08'],
+  ['.product-experience/pdp-3-product-experience/action-registry.yaml', 'da420ef9636484039f64963219e8f361e1e4c35ed05fee61a6fbccc92a9ea4c2', '53633fcf162cc0cd3abc98c6f2f17e26465081154dbb1d5298ebda2957952426'],
   ['docs/implementation/pdp-1-phase-dev-status.json', '73a491d5ab0ba0c5ad97bde97d2f3592c13bf9282bb8cae197d34b25bff23e18', '5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65'],
   ['docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json', 'e0a67706f34270e8dd8a873a0193fc3ef50342acf417db2767d4b98f94217020', '610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76'],
-  ['scripts/report-media-pdp-readiness.mjs', 'ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', '4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f'],
+  ['scripts/report-media-pdp-readiness.mjs', 'ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573', 'b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e'],
   ['.product-experience/pdp-2-design-interface-system/component-value-types.yaml', 'e47dc82ee2b2bcb5b1908976b4be5f452c843854d578893ecf3f3d42287b35ba', 'aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313'],
   ['tests/pdp-design-interface-component-contracts.test.mjs', '338e06f661d423cc2cfc8ca5f2a71dce3957e947be45aad95a59273e1918ac4a', '0242344bcc4c4880ee7242466acd00333f8d5402658987f4bd98fbab15331062'],
 ];
 const r5Transitions = [
-  ['.product-experience/interface-parity/operation-parity.yaml', '8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6', '24e4699d42dd1a2a0363628387fdf2a12c539f8ac697a0b8771277bbd4aa8555'],
-  ['.product-experience/interface-parity/current-source-review.json', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', '866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd'],
-  ['docs/implementation/pdp-1-phase-dev-status.json', '5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65', 'eb9e7e8ce14c73469daf29406642793c58669351a0035d7bd937e9fe79b8dd2d'],
-  ['docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json', '610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'e9350fb4424fceeca2f13b93f756231e5b648904bb002de11d3d9659a0b994b6'],
-  ['tests/pdp-design-interface-parity.test.mjs', '0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b', 'bf459ddf4af32ba7a960c8b2909e65f873453c276dafc7bff9660842f7e21acd'],
+  ['.product-experience/interface-parity/operation-parity.yaml', '8b95782fe47cb7e44ec159c168399f78a674dbc1c6f72065881c278f7e3c13d6', '15e54634c2838c78dd2e75e1738ed4b2a1a600503e57c18648bcce3905b5b07b'],
+  ['.product-experience/interface-parity/current-source-review.json', '90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76', 'd813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6'],
+  ['docs/implementation/pdp-1-phase-dev-status.json', '5e78da9588c880c497eb5e3e2a632910501ea722af05c1938c02bc5f64431e65', 'd9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a'],
+  ['docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json', '610a7eb85ab8be0c127f4e66361803496a784c01b53e8b0534d402cb75548b76', 'a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d'],
+  ['tests/pdp-design-interface-parity.test.mjs', '0a62ff64736fa6f8a4965a9ba10dffb4213b22c22a6c23e02b681da225a16d6b', '5a01bb0b3aa2e496281b846b9ea7c1c895f46ba1e0a63cc22f1752492dc312eb'],
 ];
 
 function r5Impact(candidate = r5) {
@@ -161,7 +161,7 @@ test('the reporter source chain preserves status-guard history and the R4-to-R5 
   ]);
   assert.deepEqual([r4Hop.predecessorSha256, r4Hop.observedSha256], [
     'sha256:ca59f6c4e1313bd58387f91b41eb51fc1a10ac04b2db01faed30b9edcc9b2573',
-    'sha256:4f0400c142d2f3df39c4497839925dad80f1ac90584573b390af386e491faa0f',
+    'sha256:b8404b9dd1ae981aa01294f8979bd829fb562bd075ba2cc9505b74c7cb43aa1e',
   ]);
   assert.deepEqual([r5Hop.predecessorSha256, r5Hop.observedSha256], [r4Hop.predecessorSha256, r4Hop.observedSha256]);
   assert.equal(r5Impact().valid, true);
@@ -175,14 +175,16 @@ test('the active owner join uses the exact R9 checkpoint and R5 R9-to-live trans
   const currentDigests = Object.fromEntries(Object.keys(sourceMap).map((sourcePath) => [sourcePath, sha(sourcePath)]));
   const checkpoint = validatePdp2R9HistoricalCheckpoint(r9);
   const result = currentnessOwnerStatusJoin(historicalR2, currentDigests, ownerReview,
-    'sha256:current-test-material-fingerprint', { r9Checkpoint: r9 });
+    'sha256:current-test-material-fingerprint', { r9Checkpoint: r9,
+      pdp2CurrentCutOptions: { pdp1ExitPath: r22Path,
+        additionalSourceImpactPath: 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json' } });
 
   assert.equal(checkpoint.valid, true, JSON.stringify(checkpoint));
   assert.equal(checkpoint.historicalJoinStatus, 'PASS');
   assert.deepEqual(checkpoint.decisionLogCheckpoint, {
     path: '.product-experience/decision-log.md',
     predecessorSha256: 'sha256:cdea20d6fa57cc4d7bbea866d911c03685eeb74e0bfdb4e0a5df0c90ded56db4',
-    observedSha256: 'sha256:9831b03ecd3f30d2cbfd7a1db62d934035ba20cf1482bb5e621d166eacdb9b4c',
+    observedSha256: 'sha256:0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298',
     classification: 'PDP1_DELEGATED_DEFINITION_DECISION_LOG_PREDECESSOR_REFRESH',
     valid: true,
   });

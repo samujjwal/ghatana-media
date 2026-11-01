@@ -54,7 +54,7 @@
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "sha256": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "sha256": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
@@ -681,7 +681,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
       "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
       "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
@@ -902,7 +902,7 @@
       "historicalR5Impact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-        "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+        "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
         "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
         "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
@@ -23149,7 +23149,7 @@
       "historicalR9CheckpointJoin": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-        "digest": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
+        "digest": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
         "historicalExitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
         "historicalExitDigest": "sha256:e6b2a2e6484d529da7b671953dfbd67fe7ca6e20062bc3a538433ac7d24f0e29",
         "historicalJoinStatus": "PASS",
@@ -25924,7 +25924,7 @@
     "checkpointHistoricalR2Join": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-      "digest": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
+      "digest": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
       "historicalExitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
       "historicalExitDigest": "sha256:e6b2a2e6484d529da7b671953dfbd67fe7ca6e20062bc3a538433ac7d24f0e29",
       "historicalJoinStatus": "PASS",
@@ -26490,7 +26490,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+      "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
       "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
       "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
@@ -26711,7 +26711,7 @@
       "historicalR5Impact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-        "digest": "sha256:9ca06c5804cdb7c637b29ebfafbb937ea87f42ab46b51e18be359cd6175c2106",
+        "digest": "sha256:7af359c49f9f97809f8173dd52625b25e413feedf0c2a70ac4d3e4247bf77e14",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
         "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
         "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
@@ -48958,7 +48958,7 @@
       "historicalR9CheckpointJoin": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-        "digest": "sha256:c30423cf689b584d1633a0145119d92fa9ab8342edbc403ca9519ded572c984c",
+        "digest": "sha256:45ac16f0034f5e8d7c7a3ab2f77ecc13b4bc2e2aed3b4a415df136c6d8ceb98b",
         "historicalExitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-13-r2.json",
         "historicalExitDigest": "sha256:e6b2a2e6484d529da7b671953dfbd67fe7ca6e20062bc3a538433ac7d24f0e29",
         "historicalJoinStatus": "PASS",
