@@ -134,6 +134,22 @@ class WhisperOnnxSttProviderTest {
     }
 
     @Test
+    void omitsTimingThatExceedsTheDeclaredSourceDuration() {
+        Map<String, Object> shortClock = clockMetadata(48_000, 47_999);
+        assertThat(WhisperOnnxSttProvider.sourceTickObservations(
+                16_000, 16_000, shortClock)).isEmpty();
+        assertThat(WhisperOnnxSttProvider.sourceTickSegment(
+                "decoded text", 16_000, 16_000, shortClock)).isNull();
+
+        // The exact declared upper bound remains usable.
+        Map<String, Object> exactClock = clockMetadata(48_000, 48_000);
+        assertThat(WhisperOnnxSttProvider.sourceTickObservations(
+                16_000, 16_000, exactClock)).hasSize(1);
+        assertThat(WhisperOnnxSttProvider.sourceTickSegment(
+                "decoded text", 16_000, 16_000, exactClock)).isNotNull();
+    }
+
+    @Test
     void declaredSpanBecomesOneSourceTicksTranscriptSegment() {
         Map<String, Object> segment = WhisperOnnxSttProvider.sourceTickSegment(
                 "decoded text", 16_000, 16_000, clockMetadata(48_000, 96_000));

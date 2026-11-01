@@ -366,7 +366,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         var clock = declared.orElseThrow();
         Long end = MultimodalOperationSpec.mapExtentToSourceTicks(
                 decodedSamples, decodedSampleRate, clock.ticksPerSecond());
-        if (end == null || end <= 0) return List.of();
+        if (end == null || end <= 0 || end > clock.durationTicks()) return List.of();
         return List.of(MultimodalOperationSpec.timedObservation(
                 "transcript-span", 0, end, clock.clockId(), clock.ticksPerSecond()));
     }
@@ -385,7 +385,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         var clock = declared.orElseThrow();
         Long end = MultimodalOperationSpec.mapExtentToSourceTicks(
                 decodedSamples, decodedSampleRate, clock.ticksPerSecond());
-        if (end == null || end <= 0) return null;
+        if (end == null || end <= 0 || end > clock.durationTicks()) return null;
         Map<String, Object> timing = new LinkedHashMap<>();
         timing.put("tag", "SOURCE_TICKS");
         timing.put("startTick", 0L);
