@@ -41,6 +41,7 @@ export {
 export type { RuntimeParser } from "./http-core.js";
 
 import {
+  MediaClientError,
   MediaOperationAmbiguousError,
   MediaOperationNotAdmittedError,
 } from "./http-core.js";
@@ -837,6 +838,7 @@ export class MediaOperationClient {
     signal?: AbortSignal,
   ): Promise<MediaOperationHandle<T>> {
     let accepted: OperationAccepted;
+    let dispatched = false;
     try {
       accepted = await this.transport.request(
         "POST",
@@ -845,13 +847,15 @@ export class MediaOperationClient {
         OperationAcceptedSchema,
         signal,
         { "Idempotency-Key": idempotencyKey },
+        () => { dispatched = true; },
       );
     } catch (failure) {
-      // An abort/timeout surfacing here means the job may already exist
-      // server-side — the outcome is ambiguous and must stay UNKNOWN, never
-      // a fabricated clean failure that invites a duplicate retry.
-      if (failure instanceof DOMException
-          && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      // Once fetch is entered, the job may already exist server-side. A
+      // transport failure, server failure, or unusable acknowledgement cannot
+      // prove no effect; preserve UNKNOWN so callers reconcile before replay.
+      const definitiveClientRejection = failure instanceof MediaClientError
+        && [400, 401, 403].includes(failure.statusCode ?? 0);
+      if (dispatched && !definitiveClientRejection) {
         throw new MediaOperationAmbiguousError(path, failure);
       }
       throw failure;

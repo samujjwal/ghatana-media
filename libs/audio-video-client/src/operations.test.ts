@@ -625,6 +625,55 @@ describe("MediaOperationClient", () => {
     }
   });
 
+  it.each([
+    ["network rejection", async () => { throw new TypeError("fetch failed"); }],
+    ["server error response", async () => jsonResponse({
+      error: { code: "SERVICE_UNAVAILABLE", message: "Unavailable", retryable: true },
+      meta: { correlationId: "correlation-503" },
+    }, 503)],
+    ["corrupted success JSON", async () => new Response("{", {
+      status: 202,
+      headers: { "Content-Type": "application/json" },
+    })],
+  ] as const)("preserves OUTCOME_UNKNOWN for %s after submit dispatch", async (_label, response) => {
+    const fetchImpl = vi.fn(response) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+    });
+
+    await expect(client.transcribe({
+      artifactId: "art-1",
+      punctuation: true,
+      wordTimestamps: false,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE",
+      idempotencyKey: "submit-ambig-2",
+    })).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/media/transcriptions",
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([401, 403])("preserves definitive HTTP %i submit rejection", async (status) => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({
+      error: { code: status === 401 ? "UNAUTHENTICATED" : "FORBIDDEN", message: "Denied", retryable: false },
+      meta: { correlationId: `correlation-${status}` },
+    }, status)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+    });
+
+    await expect(client.transcribe({
+      artifactId: "art-1",
+      punctuation: true,
+      wordTimestamps: false,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE",
+      idempotencyKey: "submit-denied-1",
+    })).rejects.toMatchObject({ name: "MediaClientError", statusCode: status });
+  });
+
   it("submits with tenant and idempotency identity, reports progress, and returns a validated result", async () => {
     const calls: Array<{ url: string; init?: RequestInit }> = [];
     const fetchImpl = vi.fn(

@@ -216,6 +216,7 @@ export class MediaHttpTransport {
     parser: RuntimeParser<T>,
     signal?: AbortSignal,
     additionalHeaders: Readonly<Record<string, string>> = {},
+    onDispatch?: () => void,
   ): Promise<T> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
@@ -226,6 +227,9 @@ export class MediaHttpTransport {
     try {
       const headers = await this.headers(additionalHeaders);
       if (body !== undefined) headers.set("Content-Type", "application/json");
+      // Callers that perform mutations can distinguish local setup failures
+      // from failures after the request may have crossed the network boundary.
+      onDispatch?.();
       const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method,
         headers,
