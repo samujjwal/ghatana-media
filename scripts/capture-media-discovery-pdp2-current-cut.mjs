@@ -69,31 +69,31 @@ const PDP1_CURRENT_CUT_EXIT_R22_PATH = 'docs/implementation/observations/media-d
 const PDP1_CURRENT_CUT_EXIT_R25_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
 const PDP1_CURRENT_CUT_EXIT_R27_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
 const PDP1_CURRENT_CUT_EXIT_R30_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
-const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:18ac1cb3631ef545c6790f1ea55038ecdd609264a61276ae10dae8d6304d967e';
+const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:3f27d4eea311f18f24dad17dd4260dd6d90090ad2cc8d86ee621fdd1ec647b98';
 const PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT = 'sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4';
-const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e';
-const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e';
+const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:199de6eab67febeda4218fc65b8daffdc80d8e40c19be55956b67a8d45fa10b9';
+const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:7e5563cacdfaa7c39bc27603ea4ade36755b4b71adc86cb2fded25544c5b6cc5';
 const PDP1_CURRENT_CUT_EXIT_R27_FINGERPRINT = 'sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa';
 const PDP0_CURRENT_CUT_EXIT_R12_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
-const PDP0_CURRENT_CUT_EXIT_R12_DIGEST = 'sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5';
+const PDP0_CURRENT_CUT_EXIT_R12_DIGEST = 'sha256:c5bb7b02bec3c2d9ac1c37d607495a42f84d053cc37f1d95a4fd6dc7df9a2cec';
 const PDP0_CURRENT_CUT_EXIT_R12_FINGERPRINT = 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94';
 const PDP0_CURRENT_CUT_EXIT_R15_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json';
-const PDP0_CURRENT_CUT_EXIT_R15_DIGEST = 'sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a';
+const PDP0_CURRENT_CUT_EXIT_R15_DIGEST = 'sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4';
 const PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT = 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95';
 const PDP2_R17_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
-const PDP2_R17_DIGEST = 'sha256:e08981102312364aad0ebe4282680e20b6d5fcf2db4e70e41a43880b2712d64d';
+const PDP2_R17_DIGEST = 'sha256:e58ff466d0d63d5cf81d1ff5268b61b7ed1f4813417e546c729f199c89503514';
 const PDP2_R17_FINGERPRINT = 'sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd';
 const PDP2_R17_TO_R30_IMPACT_PATH = 'docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json';
 const PDP2_ADDITIONAL_SOURCE_IMPACT_R1_PATH = 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_RECORD_PATH = 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_DIGEST = 'sha256:230a0a04d46a6000b915c67bca4354418408c41a1bbda63ea62fa1eb9c1b86e5';
 const PDP2_R16_RECEIPT_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-r16.json';
-const PDP2_R16_RECEIPT_DIGEST = 'sha256:b4f02281caad96c2de36c66138d500a7d4ab3d0faebeb5b07f6600e414e42f84';
+const PDP2_R16_RECEIPT_DIGEST = 'sha256:9cb754e68f75a84b225833191cdeec6895603535667f73ca716bb7d48124d158';
 const PDP2_R16_PROJECTION_PATH = '.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json';
 const PDP2_R16_PROJECTION_PREDECESSOR_DIGEST = 'sha256:612760df546543582d5b6a867e3086bc6f1b21c5ba745367fbe3dd88b27f0979';
 const PDP2_R16_PROJECTION_OBSERVED_DIGEST = 'sha256:e7c3f762eb95d3ea6e5111fe24266406010de05abb20f05b6e310f2b9a80bd4c';
 const PDP2_R16_DESIGN_LANGUAGE_DIGEST = 'sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753';
-const PDP2_CURRENT_CUT_PREDECESSOR_R9_DIGEST = 'sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0';
+const PDP2_CURRENT_CUT_PREDECESSOR_R9_DIGEST = 'sha256:59eae1bce8652103c60311b1ea45157bf69befbf83929c8aef51607c98a58822';
 let PDP2_CURRENT_CUT_IMPACT_PATH = PDP2_CURRENT_CUT_IMPACT_R5_PATH;
 let PDP2_CURRENT_CUT_PREDECESSOR_PATH = PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH;
 let PDP1_CURRENT_CUT_EXIT_PATH = PDP1_CURRENT_CUT_EXIT_R27_PATH;
@@ -567,13 +567,13 @@ export function pdp3StatusGuardSupplement(historicalExit, currentDigests) {
   const r3Digest = digestFile(PDP2_SUPPLEMENT_CUT_PATH);
   const r2ImpactDigest = digestFile(PDP2_CURRENT_CUT_IMPACT_R2_PATH);
   const r4ImpactDigest = digestFile(PDP2_CURRENT_CUT_IMPACT_R4_PATH);
-  const chainValid = digestFile(PDP3_STATUS_GUARD_SUPPLEMENT_PATH) === 'sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7'
-    && r3Digest === 'sha256:589d9648f69c141a11fb357f0aed9a50dfc983dcbc22df5f078c29d60ada4d61'
-    && r2ImpactDigest === 'sha256:c5f732f18aede780ecb1f1a30efbbc34b8676b10c94b763685e8519cefd3ecd4'
-    && r4ImpactDigest === 'sha256:7b9230c45c65e53638d3addb0e8ccb5844376e18f4aa6d035001ada4b6d4a08d'
+  const chainValid = digestFile(PDP3_STATUS_GUARD_SUPPLEMENT_PATH) === 'sha256:b62118ef7a7128c817c3f842a1912c29d775d9db8e55d4634f156a735819854d'
+    && r3Digest === 'sha256:30e463012e3b0de2959756dbc24ae990357c8ccf1e310a6d0493266701456805'
+    && r2ImpactDigest === 'sha256:0727ca2f3c17d5b41a5e93f433c34c7cc3295f48cfbb9ab1804bd6b57c1c358d'
+    && r4ImpactDigest === 'sha256:9a52591e00ee426db0ca7d2cec1c49f15e567506870d27f22bf232a8f007ef84'
     && r3PathDigest === 'sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c'
     && currentP2Baseline.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13'
-    && digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH) === 'sha256:e594080519407b78027389e4b9e09669663de6451cedeb2e17dd9db8c5cfcaae'
+    && digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH) === 'sha256:9035cc90130d13f5afd67ed7ea2e9bba2b42eccd30aa0772fb7c5ee58f43079b'
     && delta?.predecessorSha256 === r3PathDigest
     && delta?.observedSha256 === 'sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1'
     && r2ReporterDelta?.predecessorSha256 === delta?.observedSha256
@@ -3290,14 +3290,14 @@ export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0, {
   const r30Bound = r30Bridge?.valid === true;
   const r25Bound = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R25_PATH
     && exit.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R25'
-    && digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH) === 'sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e'
+    && digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH) === 'sha256:199de6eab67febeda4218fc65b8daffdc80d8e40c19be55956b67a8d45fa10b9'
     && exit.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e'
     && matrix.currentCut?.pdp1PhaseExit === p1ExitPath
     && matrix.currentCut?.pdp1CurrentnessObservation === `${p1ExitPath}#sourceCurrentness`
     && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === exit.developmentStatus?.currentMaterialSourceSetFingerprint;
   const r22Bound = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R22_PATH
     && exit.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R22'
-    && digestFile(PDP1_CURRENT_CUT_EXIT_R22_PATH) === 'sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303'
+    && digestFile(PDP1_CURRENT_CUT_EXIT_R22_PATH) === 'sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4'
     && exit.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:66bbc971734f92ae8f51446582f4a1118704168acac3c0e33783efbb208a5a0b';
   const valid = exit.schemaVersion === 'media.discovery-pdp1-currentness-observation.v1'
     && exit.phase === 'PDP-1'
@@ -3414,7 +3414,7 @@ export function composePdp2CurrentnessSourceChains({
     && r9ReceiptDigest === digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH)
     && r9Checkpoint?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9';
   const r13ReceiptValid = r13ReceiptPath === PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH
-    && r13ReceiptDigest === 'sha256:e594080519407b78027389e4b9e09669663de6451cedeb2e17dd9db8c5cfcaae'
+    && r13ReceiptDigest === 'sha256:425c3c34d2371da5d025bb666444c3864e5b9810a34b36415dee47f210df8781'
     && r13ReceiptDigest === digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R13_PATH)
     && r13Checkpoint?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13';
   const r5ImpactValid = historicalR5Impact?.valid === true

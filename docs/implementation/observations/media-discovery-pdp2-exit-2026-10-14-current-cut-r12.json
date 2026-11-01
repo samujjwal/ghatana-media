@@ -54,12 +54,12 @@
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "sha256": "sha256:dcaf5422aeb29623b7e0b0bd1e75a6965a9608b47bc9814946a2c2bf8bc1df41",
+      "sha256": "sha256:135c021c2ce566023ecf5b496a681bd9dfc226c7c5dfed884c920a23f97f47f4",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-      "sha256": "sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17",
+      "sha256": "sha256:59eae1bce8652103c60311b1ea45157bf69befbf83929c8aef51607c98a58822",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2AdditionalSourceImpact": null,
@@ -377,7 +377,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:dcaf5422aeb29623b7e0b0bd1e75a6965a9608b47bc9814946a2c2bf8bc1df41",
+      "digest": "sha256:135c021c2ce566023ecf5b496a681bd9dfc226c7c5dfed884c920a23f97f47f4",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
       "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
       "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
@@ -700,7 +700,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
-      "digest": "sha256:dcaf5422aeb29623b7e0b0bd1e75a6965a9608b47bc9814946a2c2bf8bc1df41",
+      "digest": "sha256:135c021c2ce566023ecf5b496a681bd9dfc226c7c5dfed884c920a23f97f47f4",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
       "predecessorDigest": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
       "predecessorMaterialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",

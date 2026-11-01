@@ -115,13 +115,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R4",
-    "sha256": "sha256:9a52591e00ee426db0ca7d2cec1c49f15e567506870d27f22bf232a8f007ef84",
+    "sha256": "sha256:a4573b5735e27f5712418c6900761cea5c18f542868c06fe007bf211f641102e",
     "reason": "R4 is immutable history for its earlier R9-to-live transitions and PDP-1 R19. R5 preserves those dispositions and binds the newly authorized exact transitions and PDP-1 R22."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17",
+    "receiptSha256": "sha256:59eae1bce8652103c60311b1ea45157bf69befbf83929c8aef51607c98a58822",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -267,17 +267,17 @@
   "reviewedPdp2Sources": [
     {
       "path": ".product-experience/pdp-2-design-interface-system/DESIGN-LANGUAGE.md",
-      "sha256": "sha256:76287b8d49b3aff679b1d5cf4b26352544bfdc9eee5a7dee86d75f14f7d59753",
+      "sha256": "sha256:0dee51af433c88216a4bcd7e3e8c1e60577893f99cf0c55d0ec21595c6577822",
       "selector": "PDP-2 responsibility boundary: does not add capabilities or redefine domain states"
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/cli-language.yaml",
-      "sha256": "sha256:33b468a1ba56455bd2d8e828f3e24c5fc4d5075337ee396f512533d0c91cded8",
+      "sha256": "sha256:a13291c9ac45189e4dc9a2d0f59f85594de779995bc276a086e333785da44b03",
       "selector": "speech dub command and media.speech.synthesis.dub operation references"
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/semantic-state-grammar.yaml",
-      "sha256": "sha256:fd5309a68670064d51303d61d28fec7ab07e328c1388404979e4b024809a7483",
+      "sha256": "sha256:0a8a425548c73399b64190706224ea2524a8117a55fcff6c003f51241086b795",
       "selector": "job state, finality, result availability, and safe recovery distinctions"
     },
     {
@@ -287,12 +287,12 @@
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/action-finality-grammar.yaml",
-      "sha256": "sha256:d9637bb9ddfbce9231a8b15d7186c795f4737426d44097ad1c5453368b720ec3",
+      "sha256": "sha256:97a781fdc65ac5a10ff7a9a530fb36677a4077ef6227bfbbc045ea6f5a42bb78",
       "selector": "request acknowledgement remains separate from execution, output, approval, and finality"
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml",
-      "sha256": "sha256:588674e4bd5bcbe876b2ec8c9a53fe4772bb85a082ec26dd711cada73fa798c6",
+      "sha256": "sha256:b075498ea2b5bda537f2d20b30b5fb6fdc457b50ca04fc8b2394eac6f93b4af1",
       "selector": "caption/dubbing source version, locale, and approval distinctions"
     },
     {
@@ -307,7 +307,7 @@
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
-      "sha256": "sha256:565221f86b49e84c013b4478a16ca5a6ab52ba399ead159719012b586ca7feb4",
+      "sha256": "sha256:8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
       "selector": "typed request/result and channel interface grammar"
     },
     {

@@ -22,7 +22,7 @@
     "phase": "PDP-2",
     "observationRef": "docs/implementation/observations/media-discovery-pdp2-exit-r16.json",
     "observationId": "MEDIA-PDP2-CURRENTNESS-R16",
-    "receiptSha256": "sha256:c46a6eceab2f1b52129c73b16ff3b4ed2d220a9adca73264e2ffcea08479dd06",
+    "receiptSha256": "sha256:9cb754e68f75a84b225833191cdeec6895603535667f73ca716bb7d48124d158",
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
   },
   "sourceDeltas": [

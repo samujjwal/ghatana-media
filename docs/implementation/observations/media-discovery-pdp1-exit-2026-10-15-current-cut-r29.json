@@ -573,7 +573,7 @@
       "valid": true,
       "recordRef": "docs/implementation/observations/media-discovery-pdp1-r27-successor-source-impact-2026-10-15-r1.json",
       "recordId": "MEDIA-DISCOVERY-PDP1-R27-SUCCESSOR-SOURCE-IMPACT-2026-10-15-R1",
-      "recordDigest": "sha256:ae230a9a9f85d1644aae56e11deb47e6862200df6495a36455e667fa647cf3bf",
+      "recordDigest": "sha256:00f095f18ae26a20a2d02f719207af255438d2098aa8026abe484d7e9753249b",
       "predecessorPdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r15.json",
       "predecessorPdp0ExitDigest": "sha256:d36a318fc159b5060bdca65d4b1e6527b7616bf31c3609854aaa07947e80fa4a",
       "predecessorPdp0CurrentnessRef": "docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r15.json",
@@ -674,7 +674,7 @@
         "predecessorAuthorization": {
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R5",
-          "digest": "sha256:dcaf5422aeb29623b7e0b0bd1e75a6965a9608b47bc9814946a2c2bf8bc1df41",
+          "digest": "sha256:135c021c2ce566023ecf5b496a681bd9dfc226c7c5dfed884c920a23f97f47f4",
           "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
           "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "authorized": true
@@ -683,7 +683,7 @@
           "valid": true,
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1",
-          "digest": "sha256:7e39000c99522733c7447164057ed2a3399db64b2f5c4858dd177c124d4b34b6",
+          "digest": "sha256:5da0cb3d78d992c1ed90abb902c433db260f76f97a646147d0e60642d174223a",
           "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
           "matchingDeltaCount": 1,
