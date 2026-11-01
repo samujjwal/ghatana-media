@@ -17,6 +17,50 @@ import {
 const timestamp = "2026-08-05T12:00:00.000Z";
 
 describe("media contracts", () => {
+  it("roundtrips every canonical logical job state through the JSON observation and job projections", () => {
+    const jobBase = {
+      id: "job-1",
+      tenantId: "tenant-1",
+      kind: "TRANSCRIBE" as const,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      correlationId: "correlation-1",
+      inputArtifactIds: ["artifact-1"],
+      cancellable: true,
+      retryable: false,
+    };
+    const jobs = [
+      { ...jobBase, state: "QUEUED", progress: 0 },
+      { ...jobBase, state: "RUNNING", progress: 25, startedAt: timestamp },
+      { ...jobBase, state: "RETRY_PENDING", progress: 25, retryReason: "transient failure" },
+      { ...jobBase, state: "OUTCOME_UNKNOWN", progress: 25, outcomeUnknownSince: timestamp },
+      { ...jobBase, state: "RECONCILING", progress: 25, reconciliationStartedAt: timestamp },
+      { ...jobBase, state: "COMPLETED", progress: 100, completedAt: timestamp },
+      {
+        ...jobBase,
+        state: "PARTIALLY_SUCCEEDED",
+        progress: 75,
+        completedAt: timestamp,
+        error: { code: "PARTIAL", message: "one output unresolved", retryable: false },
+      },
+      {
+        ...jobBase,
+        state: "FAILED",
+        progress: 0,
+        completedAt: timestamp,
+        error: { code: "FAILED", message: "processing failed", retryable: false },
+      },
+      { ...jobBase, state: "CANCELLED", progress: 0, completedAt: timestamp },
+    ] as const;
+
+    expect(jobs.map((job) => job.state)).toEqual(MediaJobStateSchema.options);
+    for (const job of jobs) {
+      const observation = observeMediaJobState(job.state);
+      expect(MediaJobStateObservationSchema.parse(JSON.parse(JSON.stringify(observation)))).toEqual(observation);
+      expect(MediaProcessingJobSchema.parse(JSON.parse(JSON.stringify(job)))).toMatchObject(job);
+    }
+  });
+
   it.each(["CANCELLING", "RETRYING"] as const)("retains legacy job state %s without unsafe canonical coercion", (state) => {
     const observation = observeMediaJobState(state);
     expect(observation).toEqual({
