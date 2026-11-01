@@ -4,7 +4,13 @@ const IdentifierSchema = z.string().min(1).max(256);
 const IsoTimestampSchema = z.string().datetime({ offset: true });
 const ConfidenceSchema = z.number().min(0).max(1);
 const PercentageSchema = z.number().min(0).max(100);
-const NonNegativeIntegerSchema = z.number().int().nonnegative();
+// JSON numbers cannot represent every int64 exactly. Keep the existing numeric
+// wire shape, but reject values that JavaScript would silently round.
+const NonNegativeIntegerSchema = z
+  .number()
+  .int()
+  .nonnegative()
+  .max(Number.MAX_SAFE_INTEGER);
 
 export const MediaClassificationSchema = z.enum([
   "PUBLIC",
@@ -359,6 +365,14 @@ export const TranscriptionResultSchema = z
           endMs: NonNegativeIntegerSchema,
           confidence: ConfidenceSchema,
           speakerId: IdentifierSchema.optional(),
+        }).superRefine((word, context) => {
+          if (word.endMs < word.startMs) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["endMs"],
+              message: "endMs cannot precede startMs",
+            });
+          }
         }),
       )
       .max(200_000)

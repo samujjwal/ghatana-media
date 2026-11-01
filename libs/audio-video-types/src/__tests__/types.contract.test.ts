@@ -22,6 +22,7 @@ import {
   parseDetectionResult,
   parseMultimodalResult,
 } from '../index';
+import { TranscriptionResultSchema } from '../contracts';
 
 // ─── DEFAULT_AUDIO_FORMAT ─────────────────────────────────────────────────────
 
@@ -128,6 +129,40 @@ describe('STTResult contract shape', () => {
       language: 'en-US',
       model: 'whisper-large',
     }).text).toBe('Hello world');
+  });
+});
+
+describe('TranscriptionResultSchema time and integer boundaries', () => {
+  const validResult = {
+    artifactId: 'source-1',
+    transcriptArtifactId: 'transcript-1',
+    text: 'hello',
+    languageTag: 'en',
+    confidence: 0.9,
+    words: [{ text: 'hello', startMs: 0, endMs: 125, confidence: 0.9 }],
+    providerId: 'provider-1',
+    modelId: 'model-1',
+    modelVersion: '1',
+    processingTimeMs: 125,
+  };
+
+  it('accepts exact safe-integer millisecond values and zero-duration words', () => {
+    expect(TranscriptionResultSchema.parse({
+      ...validResult,
+      words: [{ text: 'hello', startMs: Number.MAX_SAFE_INTEGER, endMs: Number.MAX_SAFE_INTEGER, confidence: 1 }],
+      processingTimeMs: Number.MAX_SAFE_INTEGER,
+    }).words[0]?.startMs).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it.each([
+    ['fractional timestamp', { startMs: 0.5, endMs: 1 }],
+    ['unsafe timestamp', { startMs: Number.MAX_SAFE_INTEGER + 1, endMs: Number.MAX_SAFE_INTEGER + 1 }],
+    ['reversed interval', { startMs: 10, endMs: 9 }],
+  ])('rejects %s instead of rounding or accepting an invalid interval', (_case, interval) => {
+    expect(() => TranscriptionResultSchema.parse({
+      ...validResult,
+      words: [{ text: 'hello', ...interval, confidence: 0.9 }],
+    })).toThrow();
   });
 });
 
