@@ -9,6 +9,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @doc.type class
@@ -79,6 +80,73 @@ class AudioConverterTest {
         assertThat(wavMetadata.bitsPerSample()).isEqualTo(16); 
         assertThat(wavMetadata.sampleCount()).isEqualTo(4); 
         assertThat(wavMetadata.containerFormat()).isEqualTo("WAV");
+    }
+
+    @Test
+    @DisplayName("WAV metadata parser rejects unsigned lengths outside the RIFF buffer")
+    void wavParserRejectsUnsignedChunkAndContainerOverflow() {
+        byte[] oversizedRiff = createWavBytes(16000, 1, 16, 4);
+        oversizedRiff[4] = (byte) 0xFF;
+        oversizedRiff[5] = (byte) 0xFF;
+        oversizedRiff[6] = (byte) 0xFF;
+        oversizedRiff[7] = (byte) 0xFF;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(oversizedRiff))
+                .isInstanceOf(ValidationError.class);
+
+        byte[] oversizedChunk = createWavBytes(16000, 1, 16, 4);
+        // The first chunk-size field is a little-endian uint at byte offset 16.
+        oversizedChunk[16] = (byte) 0xFF;
+        oversizedChunk[17] = (byte) 0xFF;
+        oversizedChunk[18] = (byte) 0xFF;
+        oversizedChunk[19] = (byte) 0xFF;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(oversizedChunk))
+                .isInstanceOf(ValidationError.class);
+    }
+
+    @Test
+    @DisplayName("WAV metadata parser rejects incomplete PCM frames and unsupported encodings")
+    void wavParserRejectsMalformedFrameAndCodecShape() {
+        byte[] incompleteFrame = createWavBytes(16000, 2, 16, 3);
+        // A 10-byte payload is not divisible by the 4-byte stereo frame size.
+        incompleteFrame[40] = 10;
+        incompleteFrame[41] = 0;
+        incompleteFrame[42] = 0;
+        incompleteFrame[43] = 0;
+        // Keep RIFF chunk structure valid by shortening payload to 10 bytes and
+        // setting the container length to include its required even boundary.
+        byte[] shortened = java.util.Arrays.copyOf(incompleteFrame, 54);
+        shortened[4] = 46;
+        shortened[5] = 0;
+        shortened[6] = 0;
+        shortened[7] = 0;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(shortened))
+                .isInstanceOf(ValidationError.class);
+
+        byte[] compressedEncoding = createWavBytes(16000, 1, 16, 4);
+        compressedEncoding[20] = 3;
+        compressedEncoding[21] = 0;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(compressedEncoding))
+                .isInstanceOf(ValidationError.class);
+    }
+
+    @Test
+    @DisplayName("PCM WAV metadata rejects inconsistent block alignment and byte rate")
+    void wavParserRejectsInconsistentPcmLayout() {
+        byte[] wrongByteRate = createWavBytes(16000, 2, 16, 4);
+        wrongByteRate[28] = 1;
+        wrongByteRate[29] = 0;
+        wrongByteRate[30] = 0;
+        wrongByteRate[31] = 0;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(wrongByteRate))
+                .isInstanceOf(ValidationError.class)
+                .hasMessageContaining("byte rate or block alignment");
+
+        byte[] wrongBlockAlign = createWavBytes(16000, 2, 16, 4);
+        wrongBlockAlign[32] = 2;
+        wrongBlockAlign[33] = 0;
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(wrongBlockAlign))
+                .isInstanceOf(ValidationError.class)
+                .hasMessageContaining("byte rate or block alignment");
     }
 
     private static org.assertj.core.data.Offset<Float> within(float value) { 
