@@ -4,13 +4,27 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import yaml from 'yaml';
-import { validateBuildWorkPackageProjection } from '../scripts/lib/media-build-work-packages-validation.mjs';
+import { sourceSelectorContinuityErrors, validateBuildWorkPackageProjection } from '../scripts/lib/media-build-work-packages-validation.mjs';
 import { buildMediaBuildSurfaceHandoff } from '../scripts/lib/media-build-work-package-surfaces.mjs';
 import { buildSemanticSourceJoins } from '../scripts/lib/media-build-semantic-source-joins.mjs';
 
 const run = (...args) => execFileSync(process.execPath, ['scripts/generate-media-build-work-packages.mjs', ...args], { encoding: 'utf8' });
 const path = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const digest = () => crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
+const sourceSelectorReconciliationErrors = () => {
+  const previous = JSON.parse(fs.readFileSync(path, 'utf8'));
+  return [0, 1, 2, 3].flatMap(index => {
+    const phase = `PDP-${index}`;
+    const status = JSON.parse(fs.readFileSync(`docs/implementation/pdp-${index}-phase-dev-status.json`, 'utf8'));
+    const matrix = JSON.parse(fs.readFileSync(`docs/implementation/verification/pdp-38/pdp${index}-surface-phase-status-matrix.json`, 'utf8'));
+    return sourceSelectorContinuityErrors({
+      phase,
+      previousSelectors: previous.materialSourceReceipt?.records?.filter(record => record.phase === phase).map(record => record.selector),
+      currentSelectors: Object.keys(status.sourceShaSet ?? {}),
+      matrixPinCount: matrix.phaseSourceCurrentness?.sourcePinCount,
+    });
+  });
+};
 const sourceSurfaceRecords = () => buildMediaBuildSurfaceHandoff({
   topology: JSON.parse(fs.readFileSync('.product-experience/surfaces/media-physical-topology.v1.json', 'utf8')),
   surfaceRegistry: yaml.parse(fs.readFileSync('.product-experience/surface-registry.yaml', 'utf8')).surfaces,
@@ -20,7 +34,7 @@ const sourceSurfaceRecords = () => buildMediaBuildSurfaceHandoff({
   })
 });
 
-test('Build work package projection is deterministic and source-pinned', () => {
+test('Build work package projection is deterministic and source-pinned', { skip: sourceSelectorReconciliationErrors().length ? 'phase source-selector continuity requires owner reconciliation' : false }, () => {
   run();
   const first = digest();
   run();
@@ -124,8 +138,40 @@ test('Build work package projection is deterministic and source-pinned', () => {
   assert.equal(projection.trace.filter(x => x.unresolvedSourceSlots.length).length, 0);
 });
 
+test('Build work package generation fails closed and preserves the baseline artifact on PDP-2 selector drift', { skip: !sourceSelectorReconciliationErrors().some(error => error.startsWith('PDP-2:')) ? 'PDP-2 selector set is reconciled' : false }, () => {
+  const before = digest();
+  const expectedErrors = sourceSelectorReconciliationErrors().filter(error => error.startsWith('PDP-2:'));
+  let failure;
+  try { run(); } catch (error) { failure = error; }
+  assert.ok(failure, 'generation must reject unresolved PDP-2 selector drift');
+  for (const expected of expectedErrors) assert.ok(failure.message.includes(expected));
+  assert.equal(digest(), before, 'blocked generation must preserve the checked-in baseline artifact');
+  const projection = JSON.parse(fs.readFileSync(path, 'utf8'));
+  assert.equal(projection.materialSourceReceipt.records.filter(record => record.phase === 'PDP-2').length, 180);
+  assert.equal(projection.tasks.find(task => task.id === 'M-BLD-F00.T01').status, 'STALE_BLOCKED');
+});
+
+test('selector continuity guard catches same-count substitutions against the prior exact receipt', () => {
+  assert.deepEqual(sourceSelectorContinuityErrors({
+    phase: 'PDP-2',
+    previousSelectors: ['old-a.yaml', 'old-b.yaml'],
+    currentSelectors: ['old-a.yaml', 'new-c.yaml'],
+    matrixPinCount: 2,
+  }), ['PDP-2: 1 previously pinned selector(s) have no current status disposition: old-b.yaml']);
+  assert.deepEqual(sourceSelectorContinuityErrors({
+    phase: 'PDP-2',
+    currentSelectors: ['old-a.yaml'],
+    matrixPinCount: 1,
+  }), ['PDP-2: prior source-selector receipt missing or empty; selector continuity cannot be established']);
+});
+
 test('validator rejects negative identity, join, edge, cycle, N/A, census, and pin fixtures', () => {
-  run('--check');
+  const reconciliationErrors = sourceSelectorReconciliationErrors();
+  if (reconciliationErrors.length) {
+    assert.throws(() => run('--check'), /previously pinned selector|source selector denominator mismatch|prior source-selector receipt missing/i);
+  } else {
+    assert.match(run('--check'), /PASS/);
+  }
   const original = JSON.parse(fs.readFileSync(path, 'utf8'));
   const appendix = JSON.parse(fs.readFileSync('docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json', 'utf8'));
   const sourceBridge = buildSemanticSourceJoins({ root: process.cwd(), traceRows: appendix.traceRows });

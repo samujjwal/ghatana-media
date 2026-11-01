@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import yaml from 'yaml';
-import { validateBuildWorkPackageProjection } from './lib/media-build-work-packages-validation.mjs';
+import { sourceSelectorContinuityErrors, validateBuildWorkPackageProjection } from './lib/media-build-work-packages-validation.mjs';
 import { buildMediaBuildSurfaceHandoff } from './lib/media-build-work-package-surfaces.mjs';
 import { buildSemanticSourceJoins } from './lib/media-build-semantic-source-joins.mjs';
 import { pdp0PhaseScopedSourcePins } from './report-media-pdp-readiness.mjs';
@@ -15,6 +15,7 @@ const sha = p => {
   return shaCache.get(p);
 };
 const planPath = 'docs/implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md';
+const buildWorkPackagePath = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
 const tracePath = 'docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json';
 const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
 const topology = json(topologyPath);
@@ -88,7 +89,8 @@ const statusPaths = [0, 1, 2, 3].map(i => `docs/implementation/pdp-${i}-phase-de
 const matrixPaths = [0, 1, 2, 3].map(i => `docs/implementation/verification/pdp-38/pdp${i}-surface-phase-status-matrix.json`);
 const statuses = statusPaths.map(p => {
   const x = json(p);
-  return { path: p, status: x.status, outstandingDefinitionTaskIds: x.outstandingDefinitionTaskIds ?? x.remainingDevelopmentTaskIds ?? [] };
+  const phase = x.phase;
+  return { path: p, phase, status: x.status, sourceSelectors: Object.keys(x.sourceShaSet ?? {}), sourcePinCount: Object.keys(x.sourceShaSet ?? {}).length, outstandingDefinitionTaskIds: x.outstandingDefinitionTaskIds ?? x.remainingDevelopmentTaskIds ?? [] };
 });
 const phasePins = pdp0PhaseScopedSourcePins();
 const materialSources = statusPaths.flatMap((p, i) => {
@@ -100,6 +102,25 @@ const materialSources = statusPaths.flatMap((p, i) => {
 });
 const staleMaterialSources = materialSources.filter(x => x.status !== 'CURRENT');
 const matrixDocuments = matrixPaths.map(path => ({ path, matrix: json(path) }));
+const previousProjection = fs.existsSync(`${root}/${buildWorkPackagePath}`) ? json(buildWorkPackagePath) : null;
+const previousSelectorsByPhase = new Map([0, 1, 2, 3].map(index => {
+  const phase = `PDP-${index}`;
+  const selectors = (previousProjection?.materialSourceReceipt?.records ?? [])
+    .filter(record => record.phase === phase)
+    .map(record => record.selector);
+  return [phase, selectors];
+}));
+for (const { path, matrix } of matrixDocuments) {
+  const phase = matrix?.campaign?.phase;
+  const status = statuses.find(record => record.phase === phase);
+  const selectorErrors = sourceSelectorContinuityErrors({
+    phase,
+    previousSelectors: previousSelectorsByPhase.get(phase),
+    currentSelectors: status?.sourceSelectors ?? [],
+    matrixPinCount: matrix?.phaseSourceCurrentness?.sourcePinCount,
+  });
+  if (selectorErrors.length) throw new Error(`${path}: ${selectorErrors.join('\n')}`);
+}
 const matrices = matrixDocuments.map(({ path, matrix }) => {
   const ids = matrix.surfaces.map(x => x.surfaceId);
   if (ids.length !== 54 || new Set(ids).size !== 54 || matrix.campaign?.status !== 'DEV_COMPLETE' || matrix.phaseSourceCurrentness?.status !== 'CURRENT') throw new Error(`${path}: expected 54 unique CURRENT DEV_COMPLETE surface rows`);
@@ -306,7 +327,7 @@ const validNAIdentities = new Set(rows.filter(row => row.primaryPackageId === 'N
 const surfaceCounts = { physical: surfaces.filter(x => x.type === 'physical').length, compositions: surfaces.filter(x => x.type === 'composition').length, logical: surfaces.filter(x => x.type === 'logical').length, total: surfaces.length };
 const validationErrors = validateBuildWorkPackageProjection(projection, { traceIdentityKeys: expectedTraceIdentityKeys, traceCount: expectedTraceIdentityKeys.length, tracePopulations: authoritativePopulations, packageIds: packages.map(x => x.id), packageDependencies: expectedPackageDependencies, wipPolicy, validNAIdentities, joinsByIdentity: expectedJoinsByIdentity, edgeIds: channel.edges.map(x => x.id), surfaceCounts, surfaceIds: [...matrixBoundSurfaceIds], surfaceRecords: surfaces, sourcePins: Object.fromEntries(sourcePaths.map(p => [p, sha(p)])), materialSources, matrixPaths });
 if (validationErrors.length) throw new Error(validationErrors.join('\n'));
-const output = 'docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json';
+const output = buildWorkPackagePath;
 const text = JSON.stringify(projection, null, 2) + '\n';
 if (process.argv.includes('--check')) {
   if (!fs.existsSync(`${root}/${output}`) || read(output) !== text) { console.error(`${output} is stale; run generator`); process.exit(1); }

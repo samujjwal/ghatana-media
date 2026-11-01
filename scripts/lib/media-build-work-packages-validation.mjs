@@ -1,3 +1,18 @@
+export function sourceSelectorContinuityErrors({ phase, previousSelectors, currentSelectors = [], matrixPinCount }) {
+  const errors = [];
+  if (!Array.isArray(previousSelectors) || previousSelectors.length === 0) {
+    errors.push(`${phase}: prior source-selector receipt missing or empty; selector continuity cannot be established`);
+  }
+  const previous = new Set(previousSelectors);
+  const current = new Set(currentSelectors);
+  const removed = [...previous].filter(selector => !current.has(selector)).sort();
+  if (removed.length) errors.push(`${phase}: ${removed.length} previously pinned selector(s) have no current status disposition: ${removed.join(', ')}`);
+  if (!Number.isInteger(matrixPinCount) || current.size !== matrixPinCount) {
+    errors.push(`${phase}: source selector denominator mismatch (status=${current.size}, matrix=${matrixPinCount ?? 'unknown'})`);
+  }
+  return errors;
+}
+
 export function validateBuildWorkPackageProjection(projection, expected = {}) {
   const errors = [];
   const canonicalJson = value => JSON.stringify(value, (key, item) => item && !Array.isArray(item) && typeof item === 'object' ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
