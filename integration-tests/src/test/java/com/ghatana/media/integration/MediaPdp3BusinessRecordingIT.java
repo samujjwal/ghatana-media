@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +58,7 @@ class MediaPdp3BusinessRecordingIT {
                 "tenant-demo",
                 "media.demo.j03",
                 "media.demo.j03.corrected-captions.v1",
-                "REAL_CAPTURE",
+                "PDP_SYNTHETIC_FIXTURE",
                 "purpose/demo-recording/v1",
                 J03_SCENES.stream().map(s -> "scene/" + s + "@curated-v1").toList(),
                 "timeline/j03@v1",
@@ -74,6 +76,7 @@ class MediaPdp3BusinessRecordingIT {
         var compiler = new MediaProductionSpecCompiler();
         CompiledPlan plan = compiler.compile(j03Spec());
         assertThat(plan.projectRevision()).isEqualTo("media.demo.j03.corrected-captions.v1");
+        assertThat(plan.originClass()).isEqualTo("PDP_SYNTHETIC_FIXTURE");
         assertThat(compiler.compile(j03Spec()).planFingerprint()).isEqualTo(plan.planFingerprint());
         assertThat(plan.nodes()).hasSize(7 + 5);
         var rightsGate = plan.nodes().stream().filter(n -> n.stepId().equals("rights-review"))
@@ -95,24 +98,40 @@ class MediaPdp3BusinessRecordingIT {
     }
 
     @Test
-    void replayOfTheRunIsIdempotentAndUnknownNeverDuplicates() {
-        var coordinator = new MediaProductionRunCoordinator(new InMemoryLedger());
+    void curatedFixtureCannotBeProducedAsRealCaptureWithoutDurableHostClaim() {
+        var ledger = new MediaProductionRunCoordinator.StepLedger() {
+            @Override public Optional<StepRecord> find(String runId, String stepId) {
+                return Optional.empty();
+            }
+            @Override public void record(String runId, StepRecord record) {
+                throw new AssertionError("an unclaimed fixture must not be recorded as product output");
+            }
+            // Use the source contract's default NOT_ADMITTED claim: no canonical durable host is bound.
+        };
+        var coordinator = new MediaProductionRunCoordinator(ledger);
         var step = new ProductionStep(
                 "capture-source-0", OriginClass.REAL_CAPTURE,
                 "scene/s01@curated-v1", "rights/internal-demo-evidence/v1", false);
-        var first = coordinator.executeStep("run-j03-2", "sha256:" + "a".repeat(64), step,
-                (id, s) -> curatedBytes(id));
-        assertThat(first.outcome()).isEqualTo(StepOutcome.PRODUCED);
-        var replay = coordinator.executeStep("run-j03-2", "sha256:" + "a".repeat(64), step,
-                (id, s) -> { throw new AssertionError("executor must not re-run"); });
-        assertThat(replay.outcome()).isEqualTo(StepOutcome.PRODUCED);
-        assertThat(replay.output()).containsSame(first.output().orElseThrow());
+        var effectAttempted = new java.util.concurrent.atomic.AtomicBoolean();
+        var result = coordinator.executeStep("run-j03-fixture", "sha256:" + "a".repeat(64), step,
+                (id, requested) -> {
+                    effectAttempted.set(true);
+                    return curatedBytes(id);
+                });
+        assertThat(result.outcome()).isEqualTo(StepOutcome.NOT_ADMITTED);
+        assertThat(result.output()).isEmpty();
+        assertThat(effectAttempted).isFalse();
     }
 
     @Test
-    void explorerStaticCounterpartStaysLabeledNotProductExecuted() {
-        // The PDP-3 fixture marks the Explorer capture as simulated evidence —
-        // this IT pins the label so no report can relabel it as product output.
-        assertThat("EXPLORER_SIMULATED").isNotEqualTo("PRODUCT_EXECUTED");
+    void explorerStaticCounterpartStaysLabeledNotProductExecuted() throws Exception {
+        String standard = Files.readString(Path.of("..", ".product-experience", "pdp-3-product-experience",
+                "demo-recording-standard.yaml"));
+        assertThat(standard)
+                .contains("scenarioId: media.demo.j03.corrected-captions.v1")
+                .contains("orderedSceneIds: [s01, s02, s03, s04, s05, s06, s07]")
+                .contains("truthLabel: EXPLORER_SIMULATED")
+                .contains("status: NOT_RECORDED")
+                .contains("persistentSimulationDisclosure: EVIDENCE-ONLY OVERLAY | SIMULATED FIXTURE | NO LIVE PRODUCT OPERATIONS");
     }
 }
