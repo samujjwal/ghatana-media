@@ -8,11 +8,11 @@
   },
   "predecessor": {
     "v7CandidateRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v7.json",
-    "v7CandidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+    "v7CandidateSha256": "899aebeaf29dfc97be7b486fd2eff1065ed90ca271f7b990ce94573b2883ede0",
     "v7ManifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v7-freeze-manifest.v1.json",
-    "v7ManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+    "v7ManifestSha256": "aeaf31af22956712d358ea50baedd597aa9cde2778431bbd7d85724d9cb90268",
     "correctedPeerRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-v7-quality-extension-independent-peer.v2.json",
-    "correctedPeerSha256": "fe1f0d98b7835f12a9aa7e31b511854ae0996e3242ed5866874b4d1cc7381db1",
+    "correctedPeerSha256": "0a8c57fe4c748ed8c0a3de16b091ced2aca758ab25ecb8f3aacf04865a015333",
     "predecessorQualityUnknownPreservedInV7": true
   },
   "sourceChoice": {
@@ -26,7 +26,7 @@
   "proposedDecisionSection": {
     "decisionId": "PXD-227",
     "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-pxd227-section-candidate.v1.md",
-    "sha256": "21fc1803e7a778e3f7e5f65e6df84bac673c2dfa4a12a24040c757710917bca2"
+    "sha256": "f1bdbe6830cef690124668ef85d5c72790bacef464e4a3281bb3d3cc1237f8b0"
   },
   "targetOrder": [
     ".product-experience/decision-log.md",
@@ -38,7 +38,7 @@
       "preimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-decision-log-postimage.v6.md",
       "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-decision-log-postimage.v2.md",
       "preimageSha256": "e1f5acd296785b8f820d6b3cdc1582842e6956831d3220d354e6c4ba1a2cc60d",
-      "postimageSha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+      "postimageSha256": "bf4356a21ccb1dda217eac7d9ba5284613778fb492ff0c6e714eed6b28156f4e"
     },
     {
       "targetRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
@@ -48,7 +48,7 @@
       "postimageSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
     }
   ],
-  "candidatePostimageSha256": "a7a292b33f1571a487bc2fa5b68ffcb636956a5096a3fa24247f21487eac62d4",
+  "candidatePostimageSha256": "3529cd8e3d9f365e913c3d53682af4c0f2ccc5786d36121c3fe85c75fe30aa1d",
   "population": {
     "historicalRowsPreserved": 462,
     "currentExtensionRows": 1,

@@ -7,7 +7,7 @@
     "manifestRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-v6-freeze-manifest.v1.json",
     "manifestSha256": "89982f72fe43c5b4d2dd4ee39e1064c1fcdd3ecf909de5e9c2852946bdc44826"
   },
-  "candidateSha256": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
+  "candidateSha256": "899aebeaf29dfc97be7b486fd2eff1065ed90ca271f7b990ce94573b2883ede0",
   "candidatePostimageSha256": "d1e0b9b8cea7e7f23aa339fd4a12cde29fc9d14b52e821e8a00f8f113fb8d187",
   "candidateSchemaSha256": "2887bedd61318ac1496bcaacd277a944524d88939385902545e48dfad2d46b3b",
   "sourceAmendmentSha256": "1830716b9c61f0ec7135232a797b27ebb7e7f68ae233c90d0f7deb0bfd48a6c6",

@@ -36,11 +36,11 @@
       "qualityOptions": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-applicability-options.v1.json"
     },
     "exactCutSha256": {
-      "v7Candidate": "c7f510c6cf3f17be31c8fb50e36f06ea92db7f64337dbd91ee7f8273f4014dcc",
-      "v7Manifest": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54",
+      "v7Candidate": "899aebeaf29dfc97be7b486fd2eff1065ed90ca271f7b990ce94573b2883ede0",
+      "v7Manifest": "aeaf31af22956712d358ea50baedd597aa9cde2778431bbd7d85724d9cb90268",
       "v7Amendment": "1830716b9c61f0ec7135232a797b27ebb7e7f68ae233c90d0f7deb0bfd48a6c6",
       "qualityCandidate": "98e156dc880564b81b2525b756fc7b45318d5aeeb413fcc2ca43797304f51df3",
-      "qualityManifest": "bfc2257f7dba63b3adf04baca5a7841b27174b7bf396f8ba152042c7e6a6afe1",
+      "qualityManifest": "39e2fcec7008f54dd6c55df4f13ab0c3d383b22c439096025207756760250b61",
       "qualityPostimage": "1fde3bbb3137d1ae3f00926b117abc0564ede328f14a5f19d42ba58a6f11a284",
       "rootChoice": "f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228",
       "qualityOptions": "8f9ddb76bd05628b81a3400910378fef210c17cf99e414ef38870a5b1e7e476a"
