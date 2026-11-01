@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @doc.type class
@@ -21,22 +20,40 @@ import java.util.concurrent.Executors;
  * @doc.layer infrastructure
  * @doc.pattern Service
  */
-public class AudioFileService {
+public class AudioFileService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AudioFileService.class);
 
     private final AudioFileRepository repository;
     private final Eventloop eventloop;
     private final ExecutorService dbExecutor;
+    private final boolean ownsDbExecutor;
 
     public AudioFileService(AudioFileRepository repository, Eventloop eventloop) {
-        this(repository, eventloop, Executors.newVirtualThreadPerTaskExecutor());
+        this(repository, eventloop, PersistenceExecutors.newDatabaseExecutor("audio-file"), true);
     }
 
     public AudioFileService(AudioFileRepository repository, Eventloop eventloop, ExecutorService dbExecutor) {
+        this(repository, eventloop, dbExecutor, false);
+    }
+
+    AudioFileService(AudioFileRepository repository, Eventloop eventloop, ExecutorService dbExecutor,
+                     boolean ownsDbExecutor) {
         this.repository = repository;
         this.eventloop = eventloop;
         this.dbExecutor = dbExecutor;
+        this.ownsDbExecutor = ownsDbExecutor;
+    }
+
+    /** Initiates graceful shutdown of an owned executor without waiting on the caller/eventloop. */
+    @Override
+    public void close() {
+        if (!ownsDbExecutor) {
+            return;
+        }
+        // shutdown() stops admission but drains already accepted tasks. Do not await or interrupt here:
+        // callers may be on the eventloop, and Promise.ofBlocking needs accepted tasks to complete.
+        dbExecutor.shutdown();
     }
 
     /**

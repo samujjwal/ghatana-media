@@ -5,6 +5,7 @@ import com.ghatana.audio.video.infrastructure.persistence.repository.AudioFileRe
 import com.ghatana.testing.activej.EventloopTestBase;
 import io.activej.eventloop.Eventloop;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,11 +37,25 @@ class AudioFileServiceTest extends EventloopTestBase {
     private AudioFileRepository repository;
 
     private AudioFileService service;
+    private ExecutorService injectedExecutor;
 
     @BeforeEach
     void setUp() { 
         Eventloop eventloop = Eventloop.create(); 
-        service = new AudioFileService(repository, eventloop, Executors.newSingleThreadExecutor()); 
+        injectedExecutor = Executors.newSingleThreadExecutor();
+        service = new AudioFileService(repository, eventloop, injectedExecutor);
+    }
+
+    @AfterEach
+    void tearDown() {
+        service.close();
+        assertThat(injectedExecutor.isShutdown()).isFalse();
+        try {
+            assertThat(injectedExecutor.submit(() -> 17).get()).isEqualTo(17);
+        } catch (Exception failure) {
+            throw new AssertionError("injected executor should remain usable after service close", failure);
+        }
+        injectedExecutor.shutdownNow();
     }
 
     @Test
