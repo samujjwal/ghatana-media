@@ -10,6 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -233,6 +237,34 @@ class FileSystemModelStoreTest {
     void getActiveModel_noneLoaded_empty() { 
         Optional<ModelMetadata> active = store.getActiveModel(ModelMetadata.ModelType.VISION); 
         assertThat(active).isEmpty(); 
+    }
+
+    @Test
+    @DisplayName("getActiveModel: concurrent reads and cache mutations remain safe")
+    void getActiveModel_concurrentCacheAccessIsSafe() throws Exception {
+        for (String id : List.of("a", "b", "c", "d")) {
+            store.register(buildMeta(id, ModelMetadata.ModelType.STT));
+        }
+        ExecutorService workers = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> cacheMutations = workers.submit(() -> {
+                for (int i = 0; i < 500; i++) {
+                    String id = List.of("a", "b", "c", "d").get(i % 4);
+                    store.load(id);
+                    store.unload(id);
+                }
+            });
+            Future<?> activeReads = workers.submit(() -> {
+                for (int i = 0; i < 2_000; i++) {
+                    store.getActiveModel(ModelMetadata.ModelType.STT);
+                }
+            });
+
+            cacheMutations.get(5, TimeUnit.SECONDS);
+            activeReads.get(5, TimeUnit.SECONDS);
+        } finally {
+            workers.shutdownNow();
+        }
     }
 
     // ── helpers ─────────────────────────────────────────────────────────────

@@ -28,7 +28,7 @@ class VideoStreamSessionFrameTest {
 
     @Test
     void legitimateFramesRoundTripAtBoundaries() {
-        for (int size : new int[]{0, 1, VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES - 1}) {
+        for (int size : new int[]{0, 1, VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES}) {
             byte[] payload = new byte[size];
             Arrays.fill(payload, (byte) 0x3c);
             var decoded = session.decodeFrame(
@@ -102,6 +102,15 @@ class VideoStreamSessionFrameTest {
                 .hasMessageContaining("sequence");
         assertThat(session.decodeFrame(header(Integer.MAX_VALUE, 0, 0L, 0)).sequenceNumber())
                 .isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Test
+    void encodedWireSizeCannotExceedHeaderPlusMaximumPayload() {
+        byte[] oversized = new byte[
+                VideoStreamSession.FRAME_HEADER_BYTES + VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1];
+        assertThatThrownBy(() -> session.decodeFrame(oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("bounded wire size");
     }
 
     @Test

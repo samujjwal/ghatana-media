@@ -347,6 +347,104 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             created, tokenHash, Instant.now().plusSeconds(60));
                     assertThat(connected.state()).isEqualTo(StreamState.CONNECTED);
                     assertThat(connected.reconnectCount()).isEqualTo(1);
+
+                    StreamSession leaseConnected = createConnectedStream(
+                            streams, "stream-renew", tokenHash, now);
+                    assertThatThrownBy(() -> streams.renewLease(
+                            leaseConnected, "0".repeat(64), 0, Instant.now().plusSeconds(600)))
+                            .isInstanceOf(SecurityException.class)
+                            .hasMessageContaining("Invalid media stream connection token");
+                    assertThatThrownBy(() -> streams.renewLease(
+                            leaseConnected, tokenHash, 1, Instant.now().plusSeconds(600)))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("exact next sequence");
+                    assertThatThrownBy(() -> streams.renewLease(
+                            leaseConnected, tokenHash, 0, leaseConnected.leaseExpiresAt().plusNanos(1)))
+                            .isInstanceOf(IllegalArgumentException.class);
+                    StreamSession renewed = streams.renewLease(
+                            leaseConnected, tokenHash, 0, leaseConnected.leaseExpiresAt().plusSeconds(300));
+                    assertThat(renewed.leaseExpiresAt()).isAfter(leaseConnected.leaseExpiresAt());
+                    assertThat(renewed.version()).isEqualTo(leaseConnected.version() + 1);
+                    assertThat(renewed.lastSequence()).isEqualTo(leaseConnected.lastSequence());
+                    assertThat(renewed.acknowledgementRevision())
+                            .isEqualTo(leaseConnected.acknowledgementRevision());
+                    try (PostgresqlMediaStreamSessionStore restartedStreams =
+                                 new PostgresqlMediaStreamSessionStore()) {
+                        assertThat(restartedStreams.find("tenant-a", "stream-renew")).contains(renewed);
+                    }
+                    assertThatThrownBy(() -> streams.renewLease(
+                            renewed, tokenHash, 0, Instant.now().plus(Duration.ofHours(2))))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("bounded horizon");
+
+                    StreamSession expiredLease = createConnectedStream(
+                            streams, "stream-expired-lease", tokenHash, now);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var update = connection.prepareStatement(
+                                 "UPDATE media_stream_sessions SET lease_expires_at=? WHERE tenant_id=? AND session_id=?")) {
+                        update.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                        update.setString(2, expiredLease.tenantId());
+                        update.setString(3, expiredLease.sessionId());
+                        assertThat(update.executeUpdate()).isEqualTo(1);
+                    }
+                    StreamSession expiredLeaseReadback = streams
+                            .find(expiredLease.tenantId(), expiredLease.sessionId()).orElseThrow();
+                    assertThatThrownBy(() -> streams.renewLease(
+                            expiredLeaseReadback, tokenHash, 0, Instant.now().plusSeconds(600)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("Expired Media stream lease");
+
+                    StreamSession unresolvedLease = createConnectedStream(
+                            streams, "stream-unresolved-lease", tokenHash, now);
+                    StreamSession unresolvedPending = streams.beginFrame(
+                            unresolvedLease, 0, "attempt-unresolved-lease");
+                    assertThatThrownBy(() -> streams.renewLease(
+                            unresolvedPending, tokenHash, 0, Instant.now().plusSeconds(600)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("terminal or unresolved frame state");
+
+                    StreamSession contestedLease = createConnectedStream(
+                            streams, "stream-contested-lease", tokenHash, now);
+                    CountDownLatch leaseReady = new CountDownLatch(2);
+                    CountDownLatch leaseStart = new CountDownLatch(1);
+                    ExecutorService leasePool = Executors.newFixedThreadPool(2);
+                    try {
+                        var contenders = java.util.stream.IntStream.range(0, 2).mapToObj(index -> leasePool.submit(() -> {
+                            leaseReady.countDown();
+                            leaseStart.await();
+                            try {
+                                return streams.renewLease(contestedLease, tokenHash, 0,
+                                        contestedLease.leaseExpiresAt().plusSeconds(300 + index));
+                            } catch (IllegalStateException stale) {
+                                return null;
+                            }
+                        })).toList();
+                        assertThat(leaseReady.await(5, TimeUnit.SECONDS)).isTrue();
+                        leaseStart.countDown();
+                        var contenderResults = contenders.stream()
+                                .map(future -> {
+                                    try {
+                                        return future.get(10, TimeUnit.SECONDS);
+                                    } catch (Exception failure) {
+                                        throw new RuntimeException(failure);
+                                    }
+                                }).toList();
+                        assertThat(contenderResults.stream().filter(java.util.Objects::nonNull).count()).isEqualTo(1);
+                        assertThat(contenderResults.stream().filter(java.util.Objects::isNull).count()).isEqualTo(1);
+                    } finally {
+                        leaseStart.countDown();
+                        leasePool.shutdownNow();
+                    }
+                    StreamSession contestedReadback = streams
+                            .find(contestedLease.tenantId(), contestedLease.sessionId()).orElseThrow();
+                    assertThatThrownBy(() -> streams.renewLease(
+                            contestedLease, tokenHash, 0, contestedLease.leaseExpiresAt().plusSeconds(600)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("version or ownership changed");
+                    assertThat(contestedReadback.lastSequence()).isEqualTo(contestedLease.lastSequence());
+                    assertThat(contestedReadback.acknowledgementRevision())
+                            .isEqualTo(contestedLease.acknowledgementRevision());
+
                     StreamSession frameZeroPending = streams.beginFrame(connected, 0, "attempt-frame-0");
                     assertThat(frameZeroPending.inFlightSequence()).isZero();
                     assertThat(frameZeroPending.inFlightAttemptId()).isEqualTo("attempt-frame-0");
@@ -460,6 +558,16 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 }
             }
         }
+    }
+
+    private static StreamSession createConnectedStream(
+            PostgresqlMediaStreamSessionStore streams, String sessionId, String tokenHash, Instant createdAt) {
+        StreamSession opened = new StreamSession(
+                "tenant-a", sessionId, "principal-a", StreamKind.VIDEO,
+                "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
+                null, createdAt, createdAt, null, Map.of(), 1);
+        StreamSession created = streams.create(opened, tokenHash);
+        return streams.connect(created, tokenHash, Instant.now().plusSeconds(120));
     }
 
     private static void verifiesPhysicalRetentionDeletesBlobsAndDerivedRuntimeState(

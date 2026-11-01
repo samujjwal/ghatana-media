@@ -117,7 +117,7 @@ public final class FileSystemModelStore implements ModelRegistry {
         return Optional.ofNullable(registry.get(modelId));
     }
     @Override
-    public Optional<ModelMetadata> getActiveModel(ModelMetadata.ModelType type) {
+    public synchronized Optional<ModelMetadata> getActiveModel(ModelMetadata.ModelType type) {
         return lruCache.values().stream()
                 .filter(m -> type == null || m.type() == type)
                 .reduce((first, second) -> second);

@@ -145,21 +145,32 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
         }
 
         AtomicBoolean permitReleased = new AtomicBoolean();
+        Runnable releasePermit = () -> {
+            if (permitReleased.compareAndSet(false, true)) {
+                concurrencySemaphore.release();
+            }
+        };
         ServerCall<ReqT, RespT> wrappedCall = new io.grpc.ForwardingServerCall.SimpleForwardingServerCall<>(call) {
             @Override
             public void close(Status status, Metadata trailers) {
-                if (permitReleased.compareAndSet(false, true)) {
-                    concurrencySemaphore.release();
-                }
+                releasePermit.run();
                 super.close(status, trailers);
             }
         };
         try {
-            return next.startCall(wrappedCall, headers);
+            ServerCall.Listener<ReqT> listener = next.startCall(wrappedCall, headers);
+            return new io.grpc.ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
+                @Override
+                public void onCancel() {
+                    try {
+                        super.onCancel();
+                    } finally {
+                        releasePermit.run();
+                    }
+                }
+            };
         } catch (RuntimeException | Error failure) {
-            if (permitReleased.compareAndSet(false, true)) {
-                concurrencySemaphore.release();
-            }
+            releasePermit.run();
             throw failure;
         }
     }

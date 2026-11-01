@@ -67,7 +67,7 @@ public final class StreamIntentSupport {
             implemented("media.stream.buffer.bound"),
             implemented("media.stream.backpressure.apply"),
             notAdmitted("media.stream.lease.renew",
-                    "no stream lease primitive exists in this module"),
+                    "store CAS exists; canonical route, source and clock proof, current authority and replay receipt are not admitted"),
             delegated("media.stream.recording.integrate",
                     "media.recording surface owner"),
             delegated("media.stream.live-processing.integrate",

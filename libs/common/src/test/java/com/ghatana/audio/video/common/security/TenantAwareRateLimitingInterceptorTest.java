@@ -16,6 +16,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -249,6 +252,33 @@ class TenantAwareRateLimitingInterceptorTest {
         verify(next, times(21)).startCall(any(), eq(headers));
     }
 
+    @Test
+    @DisplayName("Client cancellation releases the concurrency permit")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void shouldReleasePermitWhenClientCancels() {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(50.0, Map.of());
+        Metadata headers = new Metadata();
+        List<ServerCall.Listener<String>> listeners = new ArrayList<>();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+
+        for (int i = 0; i < 20; i++) {
+            listeners.add(interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next,
+                    "tenant-" + i));
+        }
+
+        ServerCall<String, String> saturated = createServerCall("av.STT/Transcribe");
+        interceptAs(interceptor, saturated, headers, next, "saturated-tenant");
+        verify(saturated).close(argThat(status -> status.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
+
+        listeners.get(0).onCancel();
+
+        ServerCall<String, String> afterCancel = createServerCall("av.STT/Transcribe");
+        interceptAs(interceptor, afterCancel, headers, next, "after-cancel-tenant");
+        verify(next, times(21)).startCall(any(), eq(headers));
+    }
+
     // ── helpers ────────────────────────────────────────────────────────────
 
     private static Metadata withTenantId(String tenantId) {
@@ -257,15 +287,17 @@ class TenantAwareRateLimitingInterceptorTest {
         return headers;
     }
 
-    private static <ReqT, RespT> void interceptAs(
+    private static <ReqT, RespT> ServerCall.Listener<ReqT> interceptAs(
             TenantAwareRateLimitingInterceptor interceptor,
             ServerCall<ReqT, RespT> call,
             Metadata headers,
             ServerCallHandler<ReqT, RespT> next,
             String tenantId) {
+        AtomicReference<ServerCall.Listener<ReqT>> listener = new AtomicReference<>();
         Context.current().withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
                 new JwtServerInterceptor.VerifiedIdentity("user", tenantId)).run(
-                        () -> interceptor.interceptCall(call, headers, next));
+                        () -> listener.set(interceptor.interceptCall(call, headers, next)));
+        return listener.get();
     }
 
     @SuppressWarnings("unchecked")

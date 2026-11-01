@@ -2065,6 +2065,23 @@ public final class MediaRuntimeContracts {
         StreamSession create(StreamSession session, String connectionTokenHash);
         Optional<StreamSession> find(String tenantId, String sessionId);
         StreamSession connect(StreamSession expected, String connectionTokenHash, Instant leaseExpiresAt);
+        /**
+         * Compare-and-set primitive for extending the current connected lease.
+         *
+         * <p>This storage primitive does not admit the public
+         * {@code media.stream.lease.renew} operation. Its caller must first
+         * recheck the source version, clock evidence, current consent and
+         * provider eligibility, and must supply the operation's replay
+         * identity through the owning adapter. It only fences concurrent
+         * session updates and retains the exact next frame sequence.</p>
+         */
+        default StreamSession renewLease(
+                StreamSession expected,
+                String connectionTokenHash,
+                long sequenceStart,
+                Instant leaseExpiresAt) {
+            throw new UnsupportedOperationException("Stream lease renewal is unavailable");
+        }
         /** Claims exactly the next sequence durably before any provider effect is dispatched. */
         default StreamSession beginFrame(StreamSession expected, long sequence, String attemptId) {
             throw new UnsupportedOperationException("Durable stream frame reservation is unavailable");

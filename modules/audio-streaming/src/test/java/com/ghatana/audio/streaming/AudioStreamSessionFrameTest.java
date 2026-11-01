@@ -69,6 +69,13 @@ class AudioStreamSessionFrameTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.decodeFrame(header(1, 0L, Integer.MAX_VALUE)))
                 .isInstanceOf(IllegalArgumentException.class);
+        // The wire-size guard also rejects an oversized buffer even when its
+        // header advertises an otherwise valid empty payload.
+        byte[] oversizedWireFrame = Arrays.copyOf(
+                header(1, 0L, 0), AudioStreamSession.FRAME_HEADER_BYTES
+                        + AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1);
+        assertThatThrownBy(() -> session.decodeFrame(oversizedWireFrame))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.decodeFrame(header(-1, 0L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");

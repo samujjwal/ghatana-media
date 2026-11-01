@@ -121,6 +121,109 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         return updated;
     }
 
+    @Override
+    public StreamSession renewLease(
+            StreamSession expected,
+            String tokenHash,
+            long sequenceStart,
+            Instant leaseExpiresAt) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(expected, "expected");
+        java.util.Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
+        requireHash(tokenHash);
+        Instant now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+        Instant persistedLeaseExpiry = persistedMillis(leaseExpiresAt, "leaseExpiresAt");
+        try (Connection connection = state.connection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                StreamRow currentRow = read(connection, expected.tenantId(), expected.sessionId(), false);
+                if (currentRow == null || !currentRow.session().equals(expected)) {
+                    throw new IllegalStateException("Media stream lease version or ownership changed");
+                }
+                if (!MessageDigest.isEqual(
+                        currentRow.tokenHash().getBytes(StandardCharsets.UTF_8),
+                        tokenHash.getBytes(StandardCharsets.UTF_8))) {
+                    throw new SecurityException("Invalid media stream connection token");
+                }
+                validateLeaseRenewal(currentRow.session(), sequenceStart, persistedLeaseExpiry, now);
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE media_stream_sessions SET lease_expires_at=?,updated_at=?,version=version+1 "
+                                + "WHERE tenant_id=? AND session_id=? AND principal_id=? AND version=? "
+                                + "AND state IN ('CONNECTED','DEGRADED') AND last_sequence=? "
+                                + "AND in_flight_sequence IS NULL AND finality='NONE' "
+                                + "AND connection_token_hash=? AND lease_expires_at>?")) {
+                    statement.setLong(1, persistedLeaseExpiry.toEpochMilli());
+                    statement.setLong(2, now.toEpochMilli());
+                    statement.setString(3, expected.tenantId());
+                    statement.setString(4, expected.sessionId());
+                    statement.setString(5, expected.principalId());
+                    statement.setLong(6, expected.version());
+                    statement.setLong(7, expected.lastSequence());
+                    statement.setString(8, tokenHash);
+                    statement.setLong(9, now.toEpochMilli());
+                    if (statement.executeUpdate() != 1) {
+                        throw new IllegalStateException("Media stream lease version or ownership changed");
+                    }
+                }
+                StreamRow renewed = read(connection, expected.tenantId(), expected.sessionId(), false);
+                if (renewed == null) {
+                    throw new IllegalStateException("Media stream session disappeared during lease renewal");
+                }
+                connection.commit();
+                return renewed.session();
+            } catch (SQLException | RuntimeException failure) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+                throw failure;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("renew Media stream lease", failure);
+        }
+    }
+
+    private static void validateLeaseRenewal(
+            StreamSession current, long sequenceStart, Instant leaseExpiresAt, Instant now) {
+        if (current.state() != StreamState.CONNECTED && current.state() != StreamState.DEGRADED) {
+            throw new IllegalStateException("Only a connected Media stream lease can be renewed");
+        }
+        if (current.leaseExpiresAt() == null || !current.leaseExpiresAt().isAfter(now)) {
+            throw new IllegalStateException("Expired Media stream lease cannot be renewed");
+        }
+        if (current.finality() != StreamFinality.NONE || current.inFlightSequence() != null) {
+            throw new IllegalStateException("Media stream with terminal or unresolved frame state cannot renew");
+        }
+        if (current.lastSequence() == Long.MAX_VALUE || sequenceStart != current.lastSequence() + 1) {
+            throw new IllegalArgumentException("Media stream renewal sequence must be the exact next sequence");
+        }
+        if (!leaseExpiresAt.isAfter(current.leaseExpiresAt())) {
+            throw new IllegalArgumentException("Renewed Media stream lease must extend the current expiry");
+        }
+        try {
+            if (!leaseExpiresAt.isAfter(now)
+                    || java.time.Duration.between(now, leaseExpiresAt)
+                            .compareTo(java.time.Duration.ofHours(1)) > 0
+                    || leaseExpiresAt.isAfter(current.createdAt().plus(java.time.Duration.ofHours(24)))) {
+                throw new IllegalArgumentException("Renewed Media stream lease exceeds its bounded horizon");
+            }
+        } catch (java.time.DateTimeException | ArithmeticException overflow) {
+            throw new IllegalArgumentException("Renewed Media stream lease exceeds its bounded horizon", overflow);
+        }
+    }
+
+    private static Instant persistedMillis(Instant value, String field) {
+        try {
+            return Instant.ofEpochMilli(value.toEpochMilli());
+        } catch (ArithmeticException overflow) {
+            throw new IllegalArgumentException(field + " is outside the supported epoch-millisecond range", overflow);
+        }
+    }
+
     private boolean sameUnknownReservation(StreamSession expected) {
         StreamSession current = find(expected.tenantId(), expected.sessionId()).orElse(null);
         return current != null

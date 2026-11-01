@@ -1049,6 +1049,59 @@ public final class LocalMediaRuntimeSupport {
             replace(expected, updated, tokenHash);
             return updated;
         }
+        @Override public StreamSession renewLease(
+                StreamSession expected, String tokenHash, long sequenceStart, Instant leaseExpiresAt) {
+            java.util.Objects.requireNonNull(expected, "expected");
+            java.util.Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
+            requireToken(expected, tokenHash);
+            Instant now = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+            Instant persistedLeaseExpiry;
+            try {
+                persistedLeaseExpiry = Instant.ofEpochMilli(leaseExpiresAt.toEpochMilli());
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException(
+                        "leaseExpiresAt is outside the supported epoch-millisecond range", overflow);
+            }
+            validateLeaseRenewal(expected, sequenceStart, persistedLeaseExpiry, now);
+            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
+                    expected.principalId(), expected.streamKind(), expected.providerId(), expected.state(),
+                    expected.lastSequence(), expected.bufferedBytes(), expected.maximumBufferedBytes(),
+                    expected.reconnectCount(), persistedLeaseExpiry, expected.createdAt(), now,
+                    expected.closedAt(), expected.metadata(), expected.version() + 1,
+                    expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
+                    expected.inFlightSequence(), expected.inFlightAttemptId());
+            StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
+            replace(expected, updated, current == null ? "" : current.tokenHash());
+            return updated;
+        }
+        private static void validateLeaseRenewal(
+                StreamSession current, long sequenceStart, Instant leaseExpiresAt, Instant now) {
+            if (current.state() != StreamState.CONNECTED && current.state() != StreamState.DEGRADED) {
+                throw new IllegalStateException("Only a connected Media stream lease can be renewed");
+            }
+            if (current.leaseExpiresAt() == null || !current.leaseExpiresAt().isAfter(now)) {
+                throw new IllegalStateException("Expired Media stream lease cannot be renewed");
+            }
+            if (current.finality() != StreamFinality.NONE || current.inFlightSequence() != null) {
+                throw new IllegalStateException("Media stream with terminal or unresolved frame state cannot renew");
+            }
+            if (current.lastSequence() == Long.MAX_VALUE || sequenceStart != current.lastSequence() + 1) {
+                throw new IllegalArgumentException("Media stream renewal sequence must be the exact next sequence");
+            }
+            if (!leaseExpiresAt.isAfter(current.leaseExpiresAt())) {
+                throw new IllegalArgumentException("Renewed Media stream lease must extend the current expiry");
+            }
+            try {
+                if (!leaseExpiresAt.isAfter(now)
+                        || java.time.Duration.between(now, leaseExpiresAt)
+                                .compareTo(java.time.Duration.ofHours(1)) > 0
+                        || leaseExpiresAt.isAfter(current.createdAt().plus(java.time.Duration.ofHours(24)))) {
+                    throw new IllegalArgumentException("Renewed Media stream lease exceeds its bounded horizon");
+                }
+            } catch (java.time.DateTimeException | ArithmeticException overflow) {
+                throw new IllegalArgumentException("Renewed Media stream lease exceeds its bounded horizon", overflow);
+            }
+        }
         @Override public StreamSession beginFrame(StreamSession expected, long sequence, String attemptId) {
             if (expected.state() != StreamState.CONNECTED && expected.state() != StreamState.DEGRADED) {
                 throw new IllegalStateException("Media stream must be connected before reserving a frame");

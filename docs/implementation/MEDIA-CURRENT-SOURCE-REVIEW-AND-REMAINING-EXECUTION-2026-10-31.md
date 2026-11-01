@@ -549,3 +549,26 @@ This pulse ran against local `main@2287867b` with a dirty implementation worktre
 
 The original Wave 2 denominator remains **22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL**. This pulse did not change those 58 states or the 96 W3/H accounting. Still-open work includes lawful en/hi/ne model gold and voice rights, authentic STT provider-to-job/outbox/transcript restart readback, real stream transports and capacity, Ghatana #252/#254 public consumers, the real J-03 product host, and the separately governed PDP/gtool/deployment/release track. Local bounded tests above do not substitute for those effects.
 
+## 21. Local Track A continuation readback (2026-11-01, fourth pulse)
+
+This pulse continued on local `main` at `a1138fa0` with OpenJDK 27.0.1 / Gradle 9.8.2 on macOS ARM64. The worktree remains development-only evidence; no original R8 status or Track B record was changed.
+
+| Original work unit | Local implementation/readback | Remaining bound |
+| --- | --- | --- |
+| **AS-02 / audio frame boundary** | Existing decoder already rejects malformed, short, trailing, negative, wrapped, and oversized frames before payload allocation. Added an explicit regression for a wire array above header + 8 MiB whose header declares an empty payload. Focused `AudioStreamSessionFrameTest` passed 3/3. | Deterministic framing cases only; no fuzz campaign or real transport/host qualification. |
+| **VS-02 / video frame boundary** | Existing decoder already enforces the 16 MiB payload cap and rejects malformed flags, length, truncation, trailing bytes, and sequence wrap. Added exact-cap roundtrip and one-byte-over-wire-size regressions. Full video-streaming module passed 50/50. | Codec/width/height are not fields in this legacy frame envelope; real transport/codec tests remain separate. |
+| **JC-03 / common quota and model store** | Cancellation and `startCall` failure now release a bounded concurrency permit exactly once; concurrent model load/unload and active-model reads share one monitor. Focused limiter, retry, and model-store selections passed 49/49. | Concurrency remains process-global; no hard in-flight timeout, TLS rotation, or model qualification evidence was added. JC-03 remains partial. |
+| **media.stream.lease.renew / storage CAS primitive** | Added `MediaStreamSessionStore.renewLease` to the existing local and PostgreSQL-backed store implementations. It CASes the expected session version and token, requires CONNECTED/DEGRADED with no in-flight or terminal frame, checks exact `lastSequence + 1`, and advances expiry at millisecond precision within a one-hour renewal and 24-hour session horizon. Local tests passed 7/7; the PostgreSQL-store integration selector passed 1/1 using H2 PostgreSQL-compat mode and LocalStack, including stale contenders and restart readback. A read-only review found and fixed sub-millisecond truncation that could otherwise report a no-op renewal as success. | The one-hour cap reuses the existing explicit stream lease-duration bound; 24 hours reuses the source operation's maximum timeline bound. The canonical request does not define renewal duration, and the public route/SDK has no renewal operation or replay receipt. This is a low-level store primitive only: source/version, clock, current rights/consent, operation idempotency and guarded audio/video-session binding remain absent. `StreamIntentSupport` therefore remains `NOT_ADMITTED`; no HTTP route or public client operation was added. |
+
+Focused verification commands on this host:
+
+```bash
+./gradlew :services:media:launcher:test --tests com.ghatana.media.launcher.MediaStreamLeaseRenewalTest
+./gradlew :services:media:providers:aws-postgresql:test --tests com.ghatana.media.provider.aws.MediaAwsPostgresqlRuntimeStateTest
+./gradlew :services:media:modules:audio-streaming:test --tests com.ghatana.audio.streaming.AudioStreamSessionFrameTest
+./gradlew :services:media:modules:video-streaming:test
+./gradlew :services:media:libs:common:test --tests com.ghatana.audio.video.common.security.TenantAwareRateLimitingInterceptorTest --tests com.ghatana.audio.video.common.resilience.RetryPolicyTest --tests com.ghatana.audio.video.common.model.FileSystemModelStoreTest
+```
+
+The PostgreSQL-backed store test uses the local H2 compatibility fixture rather than a PostgreSQL server. Linux ARM64 reruns, authentic source/clock/consent and lease-renew replay handling, all five real stream transports, and AS-07/VS-07 remain open. The canonical denominator remains **58 Wave 2 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL** plus **96 W3/H**; this pulse promoted no task or lifecycle state.
+
