@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
- * must migrate forward through V010–V027 without checksum conflicts, row loss or phantom state;
+ * must migrate forward through V010–V029 without checksum conflicts, row loss or phantom state;
  * a repeated migrate pass must be a no-op and the V009-era column surface must remain readable.
  */
 class MediaMigrationLineageFixtureTest {
