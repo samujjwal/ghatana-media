@@ -477,11 +477,14 @@ pub fn slice_audio_buffer(
     let clamped_end = frame_boundary(end_time);
     let start_index = clamped_start * channels;
     let end_index = clamped_end * channels;
+    let slice = &buffer.samples[start_index..end_index];
+    let mut samples = Vec::new();
+    samples.try_reserve_exact(slice.len()).map_err(|error| {
+        SpeechAudioError::ResourceLimit(format!("cannot reserve sliced audio: {error}"))
+    })?;
+    samples.extend_from_slice(slice);
 
-    Ok(AudioBuffer::new(
-        buffer.samples[start_index..end_index].to_vec(),
-        buffer.config,
-    ))
+    Ok(AudioBuffer::new(samples, buffer.config))
 }
 
 pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer> {
@@ -502,6 +505,11 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
         ));
     }
     let reference = buffers[0].config;
+    if reference.sample_rate == 0 {
+        return Err(SpeechAudioError::InvalidInput(
+            "mix sample rate must be positive".to_string(),
+        ));
+    }
     for buffer in buffers.iter() {
         if buffer.config != reference {
             return Err(SpeechAudioError::InvalidInput(
@@ -1943,6 +1951,37 @@ mod tests {
     }
 
     #[test]
+    fn mix_audio_preserves_stereo_pan_loudness_and_shorter_track_timing() {
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        // The first track is panned left and lasts two frames; the second is
+        // panned right and lasts one. Summation preserves gain (including
+        // values above unity) and pads the shorter track with silence.
+        let left = AudioBuffer::new(vec![0.8, 0.0, 0.8, 0.0], config);
+        let right = AudioBuffer::new(vec![0.0, -0.6], config);
+        let mixed = mix_audio(&[left, right], &[2.0, 2.0]).unwrap();
+        assert_eq!(mixed.samples, vec![1.6, -1.2, 1.6, 0.0]);
+        assert_eq!(mixed.frame_count(), 2);
+    }
+
+    #[test]
+    fn mix_audio_rejects_zero_sample_rate() {
+        let invalid_config = AudioConfig {
+            sample_rate: 0,
+            channels: 1,
+            sample_format: SampleFormat::F32,
+        };
+        let input = AudioBuffer::new(vec![0.5], invalid_config);
+        assert!(matches!(
+            mix_audio(&[input], &[1.0]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
     fn mix_audio_rejects_unrepresentable_finite_sum_without_clipping() {
         let config = AudioConfig {
             sample_rate: 16000,
@@ -1990,6 +2029,34 @@ mod tests {
             .iter()
             .zip(&buffer.samples)
             .all(|(actual, expected)| (actual - expected).abs() <= 1e-7));
+    }
+
+    #[test]
+    fn write_wav_float_roundtrip_is_byte_deterministic_without_clipping() {
+        let temp = tempdir().unwrap();
+        let first_path = temp.path().join("float-first.wav");
+        let replay_path = temp.path().join("float-replay.wav");
+        let buffer = AudioBuffer::new(
+            vec![-1.25, 1.5, 0.0, -0.75],
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        write_wav(&first_path, &buffer).unwrap();
+        write_wav(&replay_path, &buffer).unwrap();
+        let first_bytes = std::fs::read(&first_path).unwrap();
+        let replay_bytes = std::fs::read(&replay_path).unwrap();
+        assert_eq!(first_bytes, replay_bytes);
+
+        let decoded = load_audio_buffer(&first_path).unwrap();
+        assert_eq!(decoded.config.sample_rate, 48_000);
+        assert_eq!(decoded.config.channels, 2);
+        assert_eq!(decoded.frame_count(), 2);
+        assert_eq!(decoded.samples, buffer.samples);
+        assert!(decoded.samples.iter().any(|sample| sample.abs() > 1.0));
     }
 
     fn bytes_at_wav_data(path: &Path) -> Vec<u8> {
