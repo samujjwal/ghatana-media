@@ -58,20 +58,50 @@ class RunLedgerProjectionTest {
         List<RunLedger> written = new ArrayList<>();
         RunLedgerProjection projection = new RunLedgerProjection(written::add);
 
-        projection.project(ledger("r1", JobExecutionState.RUNNING, null, 2, 200, 0));
+        RunLedger currentAttempt = ledger("r1", JobExecutionState.RUNNING, null, 2, 200, 0);
+        projection.project(currentAttempt);
         var olderAttempt = projection.project(
                 ledger("r1", JobExecutionState.RUNNING, null, 1, 300, 0));
         assertThat(olderAttempt.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
+        assertThat(olderAttempt.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
 
-        projection.project(ledger("r2", JobExecutionState.COMPLETED,
-                ExecutionOutcome.SUCCEEDED, 1, 100, 150));
+        RunLedger terminal = ledger("r2", JobExecutionState.COMPLETED,
+                ExecutionOutcome.SUCCEEDED, 1, 100, 150);
+        projection.project(terminal);
         var staleOpen = projection.project(ledger("r2", JobExecutionState.RUNNING, null, 1, 400, 0));
         assertThat(staleOpen.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
 
         var olderTimestamp = projection.project(ledger("r2", JobExecutionState.COMPLETED,
                 ExecutionOutcome.SUCCEEDED, 1, 50, 60));
         assertThat(olderTimestamp.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
-        assertThat(written).hasSize(2);
+        assertThat(written).containsExactly(currentAttempt, terminal);
+    }
+
+    @Test
+    @DisplayName("Delayed prior-attempt replay cannot replace newer attempt truth")
+    void delayedPriorAttemptCannotOverwriteNewerAttempt() {
+        List<RunLedger> written = new ArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(written::add);
+        RunLedger firstAttempt = ledger("delayed-attempt-run", JobExecutionState.RUNNING,
+                null, 1, 100, 0);
+        RunLedger secondAttempt = ledger("delayed-attempt-run", JobExecutionState.RUNNING,
+                null, 2, 200, 0);
+        // The old attempt's timestamp is later because it arrived late. Attempt
+        // identity is the stronger fence and must win over arrival timestamps.
+        RunLedger delayedAttempt = ledger("delayed-attempt-run", JobExecutionState.RUNNING,
+                null, 1, 500, 0);
+
+        assertThat(projection.project(firstAttempt).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+        assertThat(projection.project(secondAttempt).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+        assertThat(projection.project(secondAttempt).disposition())
+                .isEqualTo(RunLedgerProjection.Disposition.REPLAYED);
+
+        var delayed = projection.project(delayedAttempt);
+        assertThat(delayed.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
+        assertThat(delayed.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(written).containsExactly(firstAttempt, secondAttempt);
     }
 
     @Test
@@ -128,6 +158,8 @@ class RunLedgerProjectionTest {
 
         var failed = projection.project(record);
         assertThat(failed.store()).isEqualTo(RunLedgerProjection.StoreResult.UNAVAILABLE);
+        assertThat(failed.disposition()).isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+        assertThat(written).isEmpty();
 
         // The failed projection must not poison ordering — a retry delivers it.
         down.set(false);
