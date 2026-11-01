@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// Public package entry point for the source-defined PDP-1 headless values.
+// The parsers validate shape only; every corresponding descriptor remains
+// runtime NOT_ADMITTED until its owner admission path is implemented.
+export * from './production.js';
+
 /**
  * @doc.type types
  * @doc.purpose Shared TypeScript interfaces for audio-video application

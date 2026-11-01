@@ -73,6 +73,30 @@ describe('TY-04 headless declarative parsers', () => {
     expect(AnimationSpecSchema.safeParse({ ...anim, code: 'return fetch(...)' }).success).toBe(false);
     expect(AnimationSpecSchema.safeParse({ ...anim, shader: 'void main() {}' }).success).toBe(false);
   });
+  it('requires exact positive integer seconds-per-tick and rejects numeric approximations', () => {
+    const anim = {
+      schemaVersion: 'media.declarative.value.animation-spec.v1',
+      sceneGraphRef: ref, animationGraphRef: ref, operatorTreeRef: ref,
+      assetsRef: ref, propertyCurveRefs: [], tStoryRef: storyClock, renderingRef: ref,
+    };
+    expect(AnimationSpecSchema.safeParse(anim).success).toBe(true);
+    expect(AnimationSpecSchema.safeParse({
+      ...anim,
+      tStoryRef: { ...storyClock, timeBase: { numerator: 1, denominator: '90000' } },
+    }).success).toBe(false);
+    expect(AnimationSpecSchema.safeParse({
+      ...anim,
+      tStoryRef: { ...storyClock, timeBase: { numerator: '0', denominator: '90000' } },
+    }).success).toBe(false);
+    expect(AnimationSpecSchema.safeParse({
+      ...anim,
+      tStoryRef: { ...storyClock, timeBase: { numerator: '1', denominator: '0' } },
+    }).success).toBe(false);
+    expect(AnimationSpecSchema.safeParse({
+      ...anim,
+      tStoryRef: { ...storyClock, timeBase: { numerator: '9223372036854775808', denominator: '90000' } },
+    }).success).toBe(false);
+  });
   it('preserves exact int64 as canonical decimal strings — never a number', () => {
     expect(SignedInt64DecimalSchema.safeParse('-9223372036854775808').success).toBe(true);
     expect(SignedInt64DecimalSchema.safeParse('9223372036854775807').success).toBe(true);
