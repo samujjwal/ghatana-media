@@ -3,6 +3,7 @@ package com.ghatana.audio.video.common.resilience;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +33,25 @@ class RetryPolicyTest {
         assertThat(policy).isNotNull(); 
     }
 
+    @Test
+    @DisplayName("defaults: ambiguous failure is attempted once")
+    void defaults_ambiguousFailureIsNotRetried() {
+        AtomicInteger calls = new AtomicInteger();
+
+        assertThatThrownBy(() -> RetryPolicy.defaults().executeWithResult(() -> {
+            calls.incrementAndGet();
+            throw new IllegalStateException("outcome unknown");
+        }))
+            .isInstanceOf(RetryPolicy.RetryExhaustedException.class)
+            .satisfies(ex -> {
+                RetryPolicy.RetryExhaustedException retryEx = (RetryPolicy.RetryExhaustedException) ex;
+                assertThat(retryEx.getAttemptsMade()).isEqualTo(1);
+                assertThat(retryEx.getCause()).isInstanceOf(IllegalStateException.class);
+            });
+
+        assertThat(calls.get()).isEqualTo(1);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // executeWithResult — success on first attempt
     // ─────────────────────────────────────────────────────────────────────────
@@ -58,6 +78,8 @@ class RetryPolicyTest {
             .maxAttempts(3) 
             .initialDelay(Duration.ofMillis(1)) 
             .jitterFactor(0) 
+            // The injected failures model a known no-effect transient operation.
+            .retryOn(t -> true)
             .build(); 
 
         String result = policy.executeWithResult(() -> { 
@@ -83,6 +105,8 @@ class RetryPolicyTest {
             .maxAttempts(3) 
             .initialDelay(Duration.ofMillis(1)) 
             .jitterFactor(0) 
+            // The injected failures model a known no-effect transient operation.
+            .retryOn(t -> true)
             .build(); 
 
         assertThatThrownBy(() -> policy.executeWithResult(() -> { 
@@ -108,6 +132,8 @@ class RetryPolicyTest {
             .initialDelay(Duration.ofSeconds(1))
             .maxElapsed(Duration.ofMillis(10))
             .jitterFactor(0)
+            // The injected failure is known to have had no effect; only the budget is under test.
+            .retryOn(t -> true)
             .build();
 
         assertThatThrownBy(() -> policy.executeWithResult(() -> {
@@ -136,15 +162,14 @@ class RetryPolicyTest {
 
         assertThatThrownBy(() -> policy.executeWithResult(() -> { 
             calls.incrementAndGet(); 
-            throw new IllegalArgumentException("not retryable");
+            throw new IOException("not retryable");
         }))
             .isInstanceOf(RetryPolicy.RetryExhaustedException.class) 
             .satisfies(ex -> { 
                 RetryPolicy.RetryExhaustedException retryEx = (RetryPolicy.RetryExhaustedException) ex; 
-                // IllegalArgumentException is a RuntimeException, so it will be retried
-                // Let's verify with a non-RuntimeException instead
-                assertThat(retryEx.getAttemptsMade()).isGreaterThanOrEqualTo(1); 
+                assertThat(retryEx.getAttemptsMade()).isEqualTo(1);
             });
+        assertThat(calls.get()).isEqualTo(1);
     }
 
     @Test
@@ -192,6 +217,8 @@ class RetryPolicyTest {
             .maxAttempts(2) 
             .initialDelay(Duration.ofMillis(1)) 
             .jitterFactor(0) 
+            // The injected failures model a known no-effect transient operation.
+            .retryOn(t -> true)
             .build(); 
 
         assertThatThrownBy(() -> policy.execute(() -> { 

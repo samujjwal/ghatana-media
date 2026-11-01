@@ -22,6 +22,7 @@ import java.util.function.Predicate;
  *   <li>Max delay: 5 000 ms (5 s)</li>
  *   <li>Multiplier: 2.0 (doubles each attempt)</li>
  *   <li>Jitter: 10% of computed delay</li>
+ *   <li>Retry predicate: no exceptions are retried unless explicitly allowed</li>
  * </ul>
  *
  * <h3>Usage</h3>
@@ -65,7 +66,9 @@ public final class RetryPolicy {
     }
 
     /**
-     * Returns a sensible default retry policy suitable for transient I/O errors.
+     * Returns the default policy configuration. It performs one attempt unless the builder is
+     * configured with a retry predicate that explicitly identifies failures known to have had no
+     * effect. An exception alone does not establish that retrying an operation is safe.
      *
      * @return default retry policy instance
      */
@@ -232,7 +235,8 @@ public final class RetryPolicy {
         private long maxElapsedMs = 30_000L;
         private double multiplier = 2.0;
         private double jitterFactor = 0.1;
-        private Predicate<Throwable> retryOn = t -> true; // retry on all exceptions by default
+        // A thrown exception may follow an externally effective operation. Retrying is opt-in.
+        private Predicate<Throwable> retryOn = t -> false;
 
         private Builder() {}
 
@@ -308,8 +312,10 @@ public final class RetryPolicy {
         }
 
         /**
-         * Predicate to decide whether a given exception should trigger a retry.
-         * Return {@code true} to retry, {@code false} to propagate immediately.
+         * Predicate to decide whether a given exception should trigger a retry. Return
+         * {@code true} only when the operation's semantics and this failure prove that the
+         * attempt had no effect and is safe to repeat; an ambiguous outcome must not be retried.
+         * Without an explicit predicate, failures are not retried.
          *
          * @param retryOn predicate; must not be {@code null}
          * @return this builder
@@ -321,7 +327,9 @@ public final class RetryPolicy {
         }
 
         /**
-         * Convenience method: retry only on exceptions that are subtypes of {@code type}.
+         * Convenience method: retry only on exceptions that are subtypes of {@code type}. Use
+         * this only when those failures prove that the operation had no effect and is safe to
+         * repeat; the exception type by itself may not establish that for every operation.
          *
          * @param type the exception type to retry on
          * @return this builder
