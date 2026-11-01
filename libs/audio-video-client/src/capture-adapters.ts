@@ -109,18 +109,22 @@ export async function captureWithAdmission(
     throw new CaptureNotAdmittedError(admittedRequest.kind, decision);
   }
   const frame = await adapter.capture(admittedRequest);
-  if (!frame || typeof frame !== "object" || !(frame.bytes instanceof Uint8Array)
-    || frame.bytes.byteLength < 1 || frame.bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
+  if (!frame || typeof frame !== "object") {
+    throw new TypeError("captured frame must be an object");
+  }
+  // Read each provider-owned field once, then detach the byte storage. The
+  // adapter may reuse or mutate its result after this promise resolves.
+  const { sourceIdentity, frameClockRef, bytes, capturedAtEpochMillis } = frame;
+  if (!(bytes instanceof Uint8Array)
+    || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
     throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
   }
-  if (!Number.isSafeInteger(frame.capturedAtEpochMillis) || frame.capturedAtEpochMillis < 0) {
+  if (!Number.isSafeInteger(capturedAtEpochMillis) || capturedAtEpochMillis < 0) {
     throw new TypeError("captured frame timestamp must be a non-negative safe integer");
   }
-  // A captured frame must bind the exact requested source and clock — an
-  // adapter returning bytes for another source is rejected, not relabeled.
-  if (frame.sourceIdentity !== admittedRequest.sourceIdentity
-    || frame.frameClockRef !== admittedRequest.frameClockRef) {
+  if (sourceIdentity !== admittedRequest.sourceIdentity
+    || frameClockRef !== admittedRequest.frameClockRef) {
     throw new TypeError("captured frame does not bind the requested source identity and clock");
   }
-  return frame;
+  return { sourceIdentity, frameClockRef, bytes: Uint8Array.from(bytes), capturedAtEpochMillis };
 }

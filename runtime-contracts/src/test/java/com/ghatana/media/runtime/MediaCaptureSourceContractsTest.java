@@ -2,6 +2,7 @@ package com.ghatana.media.runtime;
 
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.AdapterEligibility;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.CaptureRequest;
+import com.ghatana.media.runtime.MediaCaptureSourceContracts.CapturedBytes;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.CaptureSourceKind;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.Eligibility;
 import org.junit.jupiter.api.Test;
@@ -36,4 +37,23 @@ class MediaCaptureSourceContractsTest {
                     .isInstanceOf(IllegalArgumentException.class);
         }
     }
+    @Test
+    void captureBytesAreBoundedAndDoNotShareMutableArrays() {
+        byte[] source = {1, 2};
+        var frame = new CapturedBytes("src-1", "clock/30hz", source, 1);
+        source[0] = 9;
+        byte[] read = frame.bytes();
+        assertThat(read).containsExactly(1, 2);
+        read[1] = 9;
+        assertThat(frame.bytes()).containsExactly(1, 2);
+        assertThatThrownBy(() -> new CapturedBytes("src-1", "clock", new byte[0], 1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CapturedBytes("src-1", "clock", new byte[1], -1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CapturedBytes("src-1", "clock", new byte[1], 9_007_199_254_740_992L))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CaptureRequest(CaptureSourceKind.CAMERA, " src-1", "p", "v", "s", "c"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
 }

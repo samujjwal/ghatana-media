@@ -41,6 +41,18 @@ describe("captureWithAdmission", () => {
     expect(adapter.calls()).toBe(1);
   });
 
+  it("detaches captured bytes from the adapter-owned frame", async () => {
+    const source = new Uint8Array([1, 2]);
+    const frame = await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning({
+      sourceIdentity: request.sourceIdentity, frameClockRef: request.frameClockRef,
+      bytes: source, capturedAtEpochMillis: 1,
+    }), request);
+    source[0] = 9;
+    expect(frame.bytes).toEqual(new Uint8Array([1, 2]));
+    frame.bytes[1] = 8;
+    expect(source).toEqual(new Uint8Array([9, 2]));
+  });
+
   it.each([["NOT_ADMITTED"], ["UNAVAILABLE"]] as const)(
     "rejects before capture when eligibility is %s", async (decision) => {
       const adapter = adapterReturning({

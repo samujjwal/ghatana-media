@@ -20,6 +20,9 @@ import java.util.Objects;
  */
 public final class MediaCaptureSourceContracts {
 
+    public static final int MAX_CAPTURED_FRAME_BYTES = 64 * 1024 * 1024;
+    private static final long MAX_SAFE_TIMESTAMP_MILLIS = 9_007_199_254_740_991L;
+
     private MediaCaptureSourceContracts() {
     }
 
@@ -54,9 +57,7 @@ public final class MediaCaptureSourceContracts {
             Objects.requireNonNull(kind, "kind");
             for (String field : new String[]{
                     sourceIdentity, purposeRef, sourceVersionRef, secretsRef, frameClockRef}) {
-                if (field == null || field.isBlank() || field.length() > 384) {
-                    throw new IllegalArgumentException("capture request field is required and bounded");
-                }
+                requireCaptureField(field);
             }
         }
     }
@@ -68,9 +69,26 @@ public final class MediaCaptureSourceContracts {
             byte[] bytes,
             long capturedAtEpochMillis) {
         public CapturedBytes {
-            Objects.requireNonNull(sourceIdentity, "sourceIdentity");
-            Objects.requireNonNull(frameClockRef, "frameClockRef");
+            requireCaptureField(sourceIdentity);
+            requireCaptureField(frameClockRef);
             Objects.requireNonNull(bytes, "bytes");
+            if (bytes.length == 0 || bytes.length > MAX_CAPTURED_FRAME_BYTES) {
+                throw new IllegalArgumentException("captured bytes must be non-empty and bounded");
+            }
+            if (capturedAtEpochMillis < 0 || capturedAtEpochMillis > MAX_SAFE_TIMESTAMP_MILLIS) {
+                throw new IllegalArgumentException("capture timestamp must be a non-negative safe integer");
+            }
+            bytes = bytes.clone();
+        }
+
+        @Override public byte[] bytes() {
+            return bytes.clone();
+        }
+    }
+
+    private static void requireCaptureField(String field) {
+        if (field == null || field.isBlank() || field.length() > 384 || !field.equals(field.strip())) {
+            throw new IllegalArgumentException("capture field is required, canonical and bounded");
         }
     }
 
