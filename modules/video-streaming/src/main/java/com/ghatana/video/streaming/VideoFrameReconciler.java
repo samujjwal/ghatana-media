@@ -68,13 +68,16 @@ public final class VideoFrameReconciler {
     private int nextExpected;
     private long pendingBytes;
     private int lastKeyFrameSequence = -1;
+    private int lastDeliveredSequence = -1;
     private long lastDeliveredPts = Long.MIN_VALUE;
+    private String lastDeliveredDiscontinuity;
 
     private VideoFrameReconciler(SessionIdentity identity, int lastAckedSequence,
             int lastKeyFrameSequence, long lastDeliveredPts) {
         this.identity = identity;
         this.nextExpected = lastAckedSequence + 1;
         this.lastKeyFrameSequence = lastKeyFrameSequence;
+        this.lastDeliveredSequence = lastAckedSequence;
         this.lastDeliveredPts = lastDeliveredPts;
     }
 
@@ -133,11 +136,11 @@ public final class VideoFrameReconciler {
             return Disposition.DUPLICATE;
         }
         if (sequence == nextExpected) {
+            rememberDelivery(frame);
             nextExpected = sequence + 1;
             if (frame.keyFrame()) {
                 lastKeyFrameSequence = sequence;
             }
-            lastDeliveredPts = frame.timestampMillis();
             return Disposition.DELIVERED;
         }
         if (pending.containsKey(sequence)) {
@@ -161,16 +164,27 @@ public final class VideoFrameReconciler {
     public Delivery deliveryOf(VideoStreamSession.DecodedFrame frame) {
         boolean decodable = frame.keyFrame()
                 || (lastKeyFrameSequence >= 0 && lastKeyFrameSequence <= frame.sequenceNumber());
-        String discontinuity = null;
-        if (lastDeliveredPts != Long.MIN_VALUE) {
-            long pts = frame.timestampMillis();
-            if (pts < lastDeliveredPts) {
-                discontinuity = "PTS_BACKWARDS";
-            } else if (exceedsForwardJumpBound(lastDeliveredPts, pts)) {
-                discontinuity = "PTS_JUMP";
-            }
-        }
+        String discontinuity = frame.sequenceNumber() == lastDeliveredSequence
+                ? lastDeliveredDiscontinuity
+                : discontinuityFrom(lastDeliveredPts, frame.timestampMillis());
         return new Delivery(frame, decodable, discontinuity);
+    }
+
+    /** Records uncertainty against the previous source PTS before advancing the cursor. */
+    private void rememberDelivery(VideoStreamSession.DecodedFrame frame) {
+        lastDeliveredDiscontinuity = discontinuityFrom(lastDeliveredPts, frame.timestampMillis());
+        lastDeliveredSequence = frame.sequenceNumber();
+        lastDeliveredPts = frame.timestampMillis();
+    }
+
+    private static String discontinuityFrom(long previousPts, long currentPts) {
+        if (previousPts == Long.MIN_VALUE) {
+            return null;
+        }
+        if (currentPts < previousPts) {
+            return "PTS_BACKWARDS";
+        }
+        return exceedsForwardJumpBound(previousPts, currentPts) ? "PTS_JUMP" : null;
     }
 
     /** Compares non-negative distance without overflowing when source clocks span the long range. */
@@ -190,10 +204,10 @@ public final class VideoFrameReconciler {
         var frame = pending.pollFirstEntry().getValue();
         pendingBytes -= frame.payload().length;
         nextExpected = head.getKey() + 1;
+        rememberDelivery(frame);
         if (frame.keyFrame()) {
             lastKeyFrameSequence = frame.sequenceNumber();
         }
-        lastDeliveredPts = frame.timestampMillis();
         return frame;
     }
 

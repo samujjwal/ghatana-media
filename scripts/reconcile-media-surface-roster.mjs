@@ -18,7 +18,7 @@ const result = reconcileMediaSurfaceRoster({ topology, matrices });
 const record = {
   schemaVersion: ROSTER_RECONCILIATION_SCHEMA,
   authority: 'Generated Track A roster reconciliation; not PDP status, Lifecycle admission, or closure authority.',
-  claimsBoundary: 'Matrix-bound rows keep their existing source-owned phase status. Delta rows have no phase status until their owning matrix generators are extended; no N/A, DEV_COMPLETE or receipt is inferred here.',
+  claimsBoundary: 'All current topology identities are represented by the four phase matrices. Matrix rows project their source-owned applicability, status and currentness; this roster does not infer owner approval, phase acceptance, closure, or receipt.',
   sourcePins: Object.fromEntries([TOPOLOGY_PATH, ...MATRIX_PATHS].map(path => [path, sha(path)])),
   ...result
 };
@@ -28,8 +28,8 @@ if (process.argv.includes('--check')) {
     console.error(`${ROSTER_RECONCILIATION_PATH} is stale; run node scripts/reconcile-media-surface-roster.mjs`);
     process.exit(1);
   }
-  console.log(`PASS ${ROSTER_RECONCILIATION_PATH} current (${result.census.total} identities, ${result.census.matrixBound} matrix-bound, ${result.census.matrixDelta} declared delta)`);
+  console.log(`PASS ${ROSTER_RECONCILIATION_PATH} current (${result.census.total} identities, ${result.census.matrixBound} matrix-bound, ${result.census.matrixDelta} unbound)`);
 } else {
   fs.writeFileSync(`${root}/${ROSTER_RECONCILIATION_PATH}`, text);
-  console.log(`Wrote ${ROSTER_RECONCILIATION_PATH} (${result.census.total} identities, ${result.census.matrixBound} matrix-bound, ${result.census.matrixDelta} declared delta)`);
+  console.log(`Wrote ${ROSTER_RECONCILIATION_PATH} (${result.census.total} identities, ${result.census.matrixBound} matrix-bound, ${result.census.matrixDelta} unbound)`);
 }

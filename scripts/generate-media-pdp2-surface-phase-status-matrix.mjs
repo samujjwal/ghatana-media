@@ -211,7 +211,7 @@ function makeSurfaceRows({ root, sourceFingerprints, topologyRows, nativeStatus,
       nextLegalAction: !predecessorReady && nativePdp2Ready
         ? 'PDP-2 native development status is source-current and complete; retain it while the PDP-0/PDP-1 predecessor barrier is resolved. PDP-3 may proceed only after the full predecessor and PDP-2 barriers are current.'
         : nextStatus === 'DEV_COMPLETE' || nextStatus === 'NOT_APPLICABLE' || nextStatus === 'NOT_ACTIVE_ARCHIVED'
-        ? 'PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.'
+        ? 'PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 56-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.'
         : 'Resolve the source-current PDP-2 status and any unassigned direct-development blockers before advancing to PDP-3.',
       ...topologyFields,
     };

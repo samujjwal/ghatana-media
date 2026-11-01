@@ -52,11 +52,31 @@ class VideoFrameReconcilerTest {
         assertThat(rec.deliveryOf(frame(1, false, 50_000)).discontinuity())
                 .isEqualTo("PTS_JUMP");
         rec.offer(frame(1, false, 50_000));
+        assertThat(rec.deliveryOf(frame(1, false, 50_000)).discontinuity())
+                .isEqualTo("PTS_JUMP");
         // Scene cut rewinds PTS → PTS_BACKWARDS, still delivered.
         assertThat(rec.deliveryOf(frame(2, true, 0)).discontinuity())
                 .isEqualTo("PTS_BACKWARDS");
         rec.offer(frame(2, true, 0));
+        assertThat(rec.deliveryOf(frame(2, true, 0)).discontinuity())
+                .isEqualTo("PTS_BACKWARDS");
         assertThat(rec.nextAck()).isEqualTo(2); // uncertainty never blocks delivery
+    }
+
+    @Test
+    @DisplayName("reordered frame readback retains PTS discontinuity from the previous delivered frame")
+    void reorderedDeliveryRetainsDiscontinuity() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        VideoStreamSession.DecodedFrame first = frame(0, true, 10_000);
+        VideoStreamSession.DecodedFrame held = frame(2, false, 5_000);
+        rec.offer(first);
+        assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
+        assertThat(rec.offer(frame(1, false, 20_000))).isEqualTo(Disposition.DELIVERED);
+
+        VideoStreamSession.DecodedFrame released = rec.takeDelivered();
+        assertThat(released.sequenceNumber()).isEqualTo(2);
+        assertThat(rec.deliveryOf(released).discontinuity()).isEqualTo("PTS_BACKWARDS");
+        assertThat(rec.lastDeliveredPts()).isEqualTo(5_000);
     }
 
     @Test

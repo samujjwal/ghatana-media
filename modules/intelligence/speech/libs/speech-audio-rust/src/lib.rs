@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::ErrorKind;
+use std::io::{ErrorKind, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 
 use hound::{SampleFormat as WavSampleFormat, WavSpec, WavWriter};
@@ -92,6 +92,8 @@ pub type Result<T> = std::result::Result<T, SpeechAudioError>;
  */
 #[derive(Debug, Clone, Copy)]
 pub struct DecodeLimits {
+    /// Maximum encoded source bytes inspected by the decoder.
+    pub max_input_bytes: u64,
     /// Maximum decoded interleaved samples retained in memory (~384 MiB of f32).
     pub max_decoded_samples: usize,
     /// Maximum channel count accepted from container metadata.
@@ -102,13 +104,18 @@ pub struct DecodeLimits {
 
 impl DecodeLimits {
     pub const DEFAULT: Self = Self {
+        max_input_bytes: 512 * 1024 * 1024,
         max_decoded_samples: 96_000_000,
         max_channels: 8,
         max_sample_rate: 768_000,
     };
 
     fn validate(&self) -> Result<()> {
-        if self.max_decoded_samples == 0 || self.max_channels == 0 || self.max_sample_rate == 0 {
+        if self.max_input_bytes == 0
+            || self.max_decoded_samples == 0
+            || self.max_channels == 0
+            || self.max_sample_rate == 0
+        {
             return Err(SpeechAudioError::InvalidInput(
                 "decode limits must be positive".to_string(),
             ));
@@ -226,7 +233,7 @@ impl Resampler {
             ));
         }
         let channels = buffer.config.channels as usize;
-        if buffer.samples.len() % channels != 0 {
+        if !buffer.samples.len().is_multiple_of(channels) {
             return Err(SpeechAudioError::InvalidInput(
                 "interleaved sample count must be divisible by channel count".to_string(),
             ));
@@ -400,8 +407,11 @@ pub fn slice_audio_buffer(
     start_time: f64,
     end_time: f64,
 ) -> Result<AudioBuffer> {
-    if !start_time.is_finite() || !end_time.is_finite()
-        || start_time < 0.0 || end_time < 0.0 || end_time < start_time
+    if !start_time.is_finite()
+        || !end_time.is_finite()
+        || start_time < 0.0
+        || end_time < 0.0
+        || end_time < start_time
     {
         return Err(SpeechAudioError::InvalidInput(
             "slice times must be finite and non-negative, and end must be >= start".to_string(),
@@ -521,6 +531,28 @@ fn decode_audio(path: &Path) -> Result<DecodedAudio> {
     decode_audio_bounded(path, DecodeLimits::DEFAULT)
 }
 
+fn has_exact_frame_count_container(file: &mut File) -> Result<bool> {
+    let mut header = [0u8; 12];
+    let read_result = file.read_exact(&mut header);
+    file.seek(SeekFrom::Start(0))?;
+    match read_result {
+        Ok(()) => Ok(
+            matches!(&header[0..4], b"RIFF" | b"RF64") && &header[8..12] == b"WAVE"
+                || &header[0..4] == b"FORM" && matches!(&header[8..12], b"AIFF" | b"AIFC"),
+        ),
+        Err(error) if error.kind() == ErrorKind::UnexpectedEof => Ok(false),
+        Err(error) => Err(SpeechAudioError::Io(error)),
+    }
+}
+
+fn trusted_expected_frames(n_frames: Option<u64>, has_exact_frame_count: bool) -> Option<u64> {
+    if has_exact_frame_count {
+        n_frames
+    } else {
+        None
+    }
+}
+
 fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudio> {
     limits.validate()?;
     if !path.exists() {
@@ -533,7 +565,18 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         .unwrap_or("")
         .to_ascii_lowercase();
 
-    let file = File::open(path)?;
+    let mut file = File::open(path)?;
+    let input_bytes = file.metadata()?.len();
+    if input_bytes > limits.max_input_bytes {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "encoded audio is {input_bytes} bytes, exceeding the {} byte source budget",
+            limits.max_input_bytes
+        )));
+    }
+    // Only WAVE/AIFF container headers provide frame counts that this decoder
+    // can treat as exact. Some codec probes (notably ADTS/AAC) estimate
+    // `n_frames` from sampled bitrate, which is not a truncation boundary.
+    let has_exact_frame_count = has_exact_frame_count_container(&mut file)?;
     let source = MediaSourceStream::new(Box::new(file), Default::default());
     let mut hint = Hint::new();
     if !extension.is_empty() {
@@ -554,6 +597,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         .ok_or_else(|| SpeechAudioError::UnsupportedFormat(path.display().to_string()))?;
     let track_id = track.id;
     let codec_params = track.codec_params.clone();
+    let expected_frames = trusted_expected_frames(codec_params.n_frames, has_exact_frame_count);
 
     let sample_rate = codec_params
         .sample_rate
@@ -574,12 +618,26 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             limits.max_channels
         )));
     }
+    if let Some(expected_frames) = expected_frames {
+        let expected_samples = expected_frames
+            .checked_mul(u64::from(channels))
+            .ok_or_else(|| {
+                SpeechAudioError::ResourceLimit("declared audio sample count overflow".to_string())
+            })?;
+        if expected_samples > limits.max_decoded_samples as u64 {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "container declares {expected_samples} samples, exceeding the {} sample budget",
+                limits.max_decoded_samples
+            )));
+        }
+    }
 
     let mut decoder = get_codecs()
         .make(&codec_params, &DecoderOptions::default())
         .map_err(map_decode_error)?;
 
     let mut samples = Vec::new();
+    let mut decoded_frames = 0u64;
 
     loop {
         let packet = match format.next_packet() {
@@ -644,6 +702,11 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         if packet_frames == 0 {
             continue;
         }
+        decoded_frames = decoded_frames
+            .checked_add(packet_frames as u64)
+            .ok_or_else(|| {
+                SpeechAudioError::ResourceLimit("decoded frame count overflow".to_string())
+            })?;
         let mut interleaved = SampleBuffer::<f32>::new(packet_frames as u64, spec);
         interleaved.copy_interleaved_ref(decoded);
         let decoded_samples = interleaved.samples();
@@ -661,6 +724,14 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
                 ))
             })?;
         samples.extend_from_slice(decoded_samples);
+    }
+
+    if let Some(expected_frames) = expected_frames {
+        if decoded_frames < expected_frames {
+            return Err(SpeechAudioError::Decode(format!(
+                "truncated audio: container declares {expected_frames} frames but only {decoded_frames} were decoded"
+            )));
+        }
     }
 
     Ok(DecodedAudio {
@@ -1076,8 +1147,14 @@ mod tests {
             },
         );
 
-        assert_eq!(slice_audio_buffer(&buffer, 1.5, 10.0).unwrap().samples, vec![0.6]);
-        assert!(slice_audio_buffer(&buffer, 10.0, 11.0).unwrap().samples.is_empty());
+        assert_eq!(
+            slice_audio_buffer(&buffer, 1.5, 10.0).unwrap().samples,
+            vec![0.6]
+        );
+        assert!(slice_audio_buffer(&buffer, 10.0, 11.0)
+            .unwrap()
+            .samples
+            .is_empty());
     }
 
     #[test]
@@ -1190,6 +1267,122 @@ mod tests {
     }
 
     #[test]
+    fn decode_budget_rejects_oversized_encoded_input_before_probe() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("encoded-budget.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.25; 32],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+
+        assert!(matches!(
+            load_audio_buffer_bounded(
+                &path,
+                DecodeLimits {
+                    max_input_bytes: 1,
+                    ..DecodeLimits::DEFAULT
+                }
+            ),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        assert!(matches!(
+            load_audio_buffer_bounded(
+                &path,
+                DecodeLimits {
+                    max_input_bytes: 0,
+                    ..DecodeLimits::DEFAULT
+                }
+            ),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn estimated_codec_frame_counts_do_not_become_truncation_bounds() {
+        let temp = tempdir().unwrap();
+        let aac_path = temp.path().join("estimated.aac");
+        // ADTS starts with a syncword; its probe derives n_frames from sampled
+        // bitrate rather than an exact container frame count.
+        std::fs::write(&aac_path, b"\xff\xf1\x50\x80\x00\x1f\xfc\x00").unwrap();
+        let mut aac_file = File::open(&aac_path).unwrap();
+        assert!(!has_exact_frame_count_container(&mut aac_file).unwrap());
+        assert_eq!(trusted_expected_frames(Some(96_000), false), None);
+
+        let wav_path = temp.path().join("exact.wav");
+        write_wav(
+            &wav_path,
+            &AudioBuffer::new(
+                vec![0.0; 16],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let mut wav_file = File::open(&wav_path).unwrap();
+        assert!(has_exact_frame_count_container(&mut wav_file).unwrap());
+        assert_eq!(trusted_expected_frames(Some(16), true), Some(16));
+    }
+
+    #[test]
+    fn malformed_and_truncated_audio_inputs_fail_without_panicking() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("hostile.wav");
+
+        // Inputs that fail during container identification or metadata parsing.
+        for bytes in [
+            vec![],
+            vec![0xff; 7],
+            b"RIFF\x24\x00\x00\x00WAVEfmt ".to_vec(),
+            b"RIFF\xff\xff\xff\xffWAVEdata".to_vec(),
+        ] {
+            std::fs::write(&path, bytes).unwrap();
+            let outcome = std::panic::catch_unwind(|| load_audio_buffer(&path));
+            assert!(outcome.is_ok(), "decoder panicked on malformed bytes");
+            assert!(outcome.unwrap().is_err(), "malformed input was accepted");
+        }
+
+        // Truncated valid WAVE files must not escape the decoder as a partial
+        // success. Probe several chunk/header/data boundaries deterministically.
+        let complete_path = temp.path().join("complete.wav");
+        write_wav(
+            &complete_path,
+            &AudioBuffer::new(
+                vec![0.125; 4_096],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let complete = std::fs::read(&complete_path).unwrap();
+        for cut in [1, 4, 8, 12, 36, 43, complete.len() / 2, complete.len() - 1] {
+            std::fs::write(&path, &complete[..cut]).unwrap();
+            let outcome = std::panic::catch_unwind(|| load_audio_buffer(&path));
+            assert!(
+                outcome.is_ok(),
+                "decoder panicked with WAVE truncated at {cut}"
+            );
+            assert!(
+                outcome.unwrap().is_err(),
+                "truncated WAVE input was accepted at {cut} bytes"
+            );
+        }
+    }
+
+    #[test]
     fn extract_waveform_uses_requested_bucket_count() {
         let temp = tempdir().unwrap();
         let path = temp.path().join("waveform.wav");
@@ -1243,7 +1436,7 @@ mod tests {
         let nan_buffer = AudioBuffer::new(vec![0.5, f32::NAN], config);
 
         assert!(matches!(
-            mix_audio(&[good.clone()], &[f32::NAN]),
+            mix_audio(std::slice::from_ref(&good), &[f32::NAN]),
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert!(matches!(

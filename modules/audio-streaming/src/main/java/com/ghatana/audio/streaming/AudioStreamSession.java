@@ -23,6 +23,9 @@ public final class AudioStreamSession {
      * [sequenceNumber:int][timestampMillis:long][payloadLength:int][payload:bytes].
      */
     public byte[] encodeFrame(int sequenceNumber, long timestampMillis, byte[] payload) {
+        if (sequenceNumber < 0) {
+            throw new IllegalArgumentException("audio frame sequence must be nonnegative");
+        }
         if (payload == null || payload.length > MAX_FRAME_PAYLOAD_BYTES) {
             throw new IllegalArgumentException("audio frame payload is outside the bounded size");
         }
@@ -48,6 +51,9 @@ public final class AudioStreamSession {
         }
         ByteBuffer buffer = ByteBuffer.wrap(encodedFrame);
         int sequence = buffer.getInt();
+        if (sequence < 0) {
+            throw new IllegalArgumentException("audio frame sequence must be nonnegative");
+        }
         long timestamp = buffer.getLong();
         int length = buffer.getInt();
         if (length < 0 || length > MAX_FRAME_PAYLOAD_BYTES || buffer.remaining() != length) {

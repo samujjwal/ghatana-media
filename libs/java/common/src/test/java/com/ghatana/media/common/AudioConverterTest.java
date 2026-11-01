@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,6 +83,25 @@ class AudioConverterTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> AudioConverter.pcmToFloatSamples(new byte[] {1, 2, 3}, 16))
                 .withMessageContaining("complete samples");
+    }
+
+    @Test
+    @DisplayName("PCM decoding rejects sample counts above the bounded conversion limit")
+    void rejectsPcmDecodeAboveSampleBoundBeforeAllocatingOutput() {
+        byte[] oversized = new byte[AudioConverter.MAX_CONVERTED_SAMPLES + 1];
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AudioConverter.pcmToFloatSamples(oversized, 8))
+                .withMessageContaining("conversion limit");
+    }
+
+    @Test
+    @DisplayName("Sample clock durations use exact integer rational rounding")
+    void sampleClockUsesRationalRounding() {
+        AudioData oneFrame = AudioConverter.fromFloatSamples(new float[] {0.0f}, 3, 1);
+        AudioData twoFrames = AudioConverter.fromFloatSamples(new float[] {0.0f, 0.0f}, 3, 1);
+
+        assertThat(oneFrame.duration()).isEqualTo(Duration.ofNanos(333_333_333L));
+        assertThat(twoFrames.duration()).isEqualTo(Duration.ofNanos(666_666_667L));
     }
 
     @Test

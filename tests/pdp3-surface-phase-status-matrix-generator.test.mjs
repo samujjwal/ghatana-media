@@ -72,6 +72,12 @@ test('PDP-3 matrix binds all current physical, composite, and logical identities
     assert.ok(row.sourceRefs.every((ref) => ref in matrix.sourceFingerprints || ref.includes('*') || fs.existsSync(path.join(root, ref)) && fs.statSync(path.join(root, ref)).isDirectory()));
   }
   assert.equal(matrix.surfaces.filter(({ developmentStatus }) => developmentStatus === 'NOT_ACTIVE_ARCHIVED').length, 1);
+  const agentTools = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-agent-tools-media');
+  const dataCloud = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-data-cloud-media');
+  assert.equal(agentTools.topologyDisposition, 'SUPPORT_ONLY');
+  assert.equal(agentTools.applicability.disposition, 'TOOLING_OR_SUPPORT');
+  assert.equal(dataCloud.topologyDisposition, 'PHYSICAL');
+  assert.equal(dataCloud.applicability.disposition, 'CONSUMER_CONTRACT');
 });
 
 test('stale channel-edge status tasks remain visibly stale until the PDP-3 projection is regenerated', () => {

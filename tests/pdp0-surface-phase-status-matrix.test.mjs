@@ -15,18 +15,26 @@ test('PDP-0 surface matrix accounts for source-pinned phase work without assigni
   const failedCriteria = Object.entries(status.directDevelopmentCriteria)
     .filter(([, criterion]) => criterion.testStatus === 'FAIL');
 
-  assert.equal(matrix.surfaces.length, 54);
+  assert.equal(matrix.surfaces.length, 56);
+  assert.equal(matrix.summary.totalSurfaceIdentities, 56);
   assert.equal(matrix.campaign.status, status.status);
   assert.equal(matrix.campaign.sourceBaselineCommit, status.mainSha);
-  assert.equal(matrix.summary.nativeDevCompleteCells, 45);
-  assert.equal(matrix.summary.inProgressCells, 0);
+  assert.equal(matrix.summary.nativeDevCompleteCells, 0);
+  assert.equal(matrix.summary.inProgressCells, 46);
   assert.deepEqual(matrix.surfaces.reduce((counts, { developmentStatus }) => {
     counts[developmentStatus] = (counts[developmentStatus] ?? 0) + 1;
     return counts;
-  }, {}), { NOT_APPLICABLE: 8, DEV_COMPLETE: 45, NOT_ACTIVE_ARCHIVED: 1 });
-  assert.equal(matrix.summary.remainingPhaseLocalTaskCount,
-    failedCriteria.length + status.outstandingMeaningIds.length);
-  assert.equal(matrix.summary.remainingPhaseLocalSurfaceCount, 0);
+  }, {}), { NOT_APPLICABLE: 9, IN_PROGRESS: 46, NOT_ACTIVE_ARCHIVED: 1 });
+  const agentTools = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-agent-tools-media');
+  const dataCloud = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-data-cloud-media');
+  assert.equal(agentTools.applicability.disposition, 'NOT_APPLICABLE_SUPPORT');
+  assert.equal(agentTools.developmentStatus, 'NOT_APPLICABLE');
+  assert.equal(dataCloud.applicability.disposition, 'APPLICABLE');
+  assert.equal(dataCloud.developmentStatus, 'IN_PROGRESS');
+  assert.equal(dataCloud.sourceCurrent, false);
+  assert.equal(matrix.summary.remainingPhaseLocalTaskCount, null);
+  assert.equal(matrix.summary.remainingPhaseLocalTaskCountKnown, false);
+  assert.equal(matrix.summary.remainingPhaseLocalSurfaceCount, 46);
   assert.deepEqual(matrix.unassignedPhaseLevelWork.failedCriteria.map(({ criterionId }) => criterionId),
     failedCriteria.map(([criterionId]) => criterionId));
   assert.deepEqual(matrix.unassignedPhaseLevelWork.outstandingMeaningTasks.map(({ taskId }) => taskId),
@@ -42,5 +50,5 @@ test('PDP-0 surface matrix accounts for source-pinned phase work without assigni
   assert.ok(matrix.surfaces.every((surface) => !surface.sourceRefs.includes('.product-experience/decision-log.md')));
   assert.ok(matrix.surfaces.every((surface) => Object.hasOwn(surface.sourceFingerprints, '.product-experience/decision-log.md#PXD-207-section')));
   assert.ok(matrix.surfaces.every((surface) => surface.sourceCurrent === (matrix.phaseSourceCurrentness.status === 'CURRENT')));
-  assert.ok(matrix.surfaces.every((surface) => surface.remainingPhaseLocalTaskIds.length === 0));
+  assert.ok(matrix.surfaces.every((surface) => surface.remainingPhaseLocalTaskIds === null || surface.remainingPhaseLocalTaskIds.length === 0));
 });

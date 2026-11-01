@@ -603,4 +603,49 @@ class AudioVideoRunLedgerAdapterTest {
                 now, now, null, "provider rate limit exceeded", "provider", "provider-job", "t", "c");
         assertThat(ordinary.failureReason()).isEqualTo("provider rate limit exceeded");
     }
+
+    @Test
+    @DisplayName("Typed ledger projection preserves rights classification and drops PII biometric and provider metadata")
+    void testTypedLedgerProjectionDisclosureBoundary() {
+        long now = System.currentTimeMillis();
+        Map<String, String> params = new java.util.HashMap<>();
+        params.put("classification", "BIOMETRIC");
+        params.put("rightsRef", "rights:consent-42");
+        params.put("purpose", "voiceprint of Alice Example");
+        params.put("language", "person@example.com");
+        params.put("format", "https://private.invalid/source?token=abc");
+        params.put("frameCount", "999999999999999999999");
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-typed", "VIDEO", "VISION_ANALYSIS", "collection-1", "artifact-source",
+                params, "PROCESSING", now, now, null, null, "provider@example.com",
+                "provider-account-voiceprint-123", "trace", "correlation");
+
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("classification", "BIOMETRIC")
+                .containsEntry("rightsRef", "rights:consent-42")
+                .containsEntry("sanitizedParamsDropped", "4")
+                .doesNotContainKeys("purpose", "language", "format", "frameCount");
+        assertThat(ledger.attributes()).doesNotContainKey("provider");
+        assertThat(ledger.toString()).doesNotContain(
+                "Alice Example", "person@example.com", "private.invalid", "token=abc",
+                "provider@example.com", "provider-account-voiceprint-123");
+        assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
+
+        RunLedger provider = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-provider-typed", "artifact-source", "provider-name", "provider-secret-id",
+                "COMPLETED", Map.of(
+                        "mediaType", "VIDEO", "processingType", "STT",
+                        "duration", "120", "words_processed", "5000",
+                        "biometric_confidence", "0.998", "face_embedding", "1234",
+                        "person@example.com", "789"),
+                now - 10_000, now - 9_000, "trace", "correlation");
+
+        assertThat(provider.outputs().metrics())
+                .containsEntry("duration", 120L)
+                .containsEntry("words_processed", 5000L)
+                .doesNotContainKeys("biometric_confidence", "face_embedding", "person@example.com");
+        assertThat(provider.toString()).doesNotContain(
+                "provider-secret-id", "biometric_confidence", "face_embedding", "person@example.com");
+    }
 }

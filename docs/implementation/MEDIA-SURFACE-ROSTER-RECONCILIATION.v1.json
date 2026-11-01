@@ -1,21 +1,21 @@
 {
   "schemaVersion": "media.surface-roster-reconciliation.v1",
   "authority": "Generated Track A roster reconciliation; not PDP status, Lifecycle admission, or closure authority.",
-  "claimsBoundary": "Matrix-bound rows keep their existing source-owned phase status. Delta rows have no phase status until their owning matrix generators are extended; no N/A, DEV_COMPLETE or receipt is inferred here.",
+  "claimsBoundary": "All current topology identities are represented by the four phase matrices. Matrix rows project their source-owned applicability, status and currentness; this roster does not infer owner approval, phase acceptance, closure, or receipt.",
   "sourcePins": {
-    ".product-experience/surfaces/media-physical-topology.v1.json": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "542e6058b3148646aad42e44716bedaa1371849cabba167e39b7f5cc1ab7126c",
-    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480",
-    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
+    ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "a2bd195d5e9a8648a26d1b5aa77e526100fde49683da1b6322dd5bc5c3beea6a",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "328359468a0870713bffe530c9b70cafb0f907d70a90ddeaf60832670a119b5e",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "937995792ae5f46b80565d8dc53637a078433722d734b30f9343bde67fe406d1",
+    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "f5d8e4640a382842bf1d8fa400dfaf8c0acc8fd53797b9c63bf2d6867ce763f3"
   },
   "census": {
     "physical": 28,
     "compositions": 7,
     "logical": 21,
     "total": 56,
-    "matrixBound": 54,
-    "matrixDelta": 2,
+    "matrixBound": 56,
+    "matrixDelta": 0,
     "byLifecycleState": {
       "ACTIVE": 39,
       "ARCHIVED": 1,
@@ -25,6 +25,8 @@
     }
   },
   "matrixBoundIds": [
+    "media.physical.adapters-agent-tools-media",
+    "media.physical.adapters-data-cloud-media",
     "media.physical.adapters-ledger",
     "media.physical.apps-media-experience-explorer",
     "media.physical.audio-video-observability",
@@ -80,24 +82,7 @@
     "media.surface.production-studio",
     "media.surface.interactive-demo-player"
   ],
-  "delta": [
-    {
-      "id": "media.physical.adapters-agent-tools-media",
-      "disposition": "MATRIX_EXTENSION_REQUIRED",
-      "lifecycleState": "SUPPORT",
-      "expectedTopologyDisposition": "SUPPORT_ONLY",
-      "rationale": "Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.",
-      "nextAction": "Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows."
-    },
-    {
-      "id": "media.physical.adapters-data-cloud-media",
-      "disposition": "MATRIX_EXTENSION_REQUIRED",
-      "lifecycleState": "ACTIVE",
-      "expectedTopologyDisposition": "PHYSICAL",
-      "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
-      "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
-    }
-  ],
+  "delta": [],
   "roster": [
     {
       "id": "media.physical.adapters-agent-tools-media",
@@ -105,12 +90,7 @@
       "sourcePath": "adapters/agent-tools-media",
       "topologyDisposition": "SUPPORT_ONLY",
       "lifecycleState": "SUPPORT",
-      "matrixBound": false,
-      "matrixDelta": {
-        "disposition": "MATRIX_EXTENSION_REQUIRED",
-        "rationale": "Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.",
-        "nextAction": "Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows."
-      }
+      "matrixBound": true
     },
     {
       "id": "media.physical.adapters-data-cloud-media",
@@ -118,12 +98,7 @@
       "sourcePath": "adapters/data-cloud-media",
       "topologyDisposition": "PHYSICAL",
       "lifecycleState": "ACTIVE",
-      "matrixBound": false,
-      "matrixDelta": {
-        "disposition": "MATRIX_EXTENSION_REQUIRED",
-        "rationale": "Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.",
-        "nextAction": "Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit."
-      }
+      "matrixBound": true
     },
     {
       "id": "media.physical.adapters-ledger",

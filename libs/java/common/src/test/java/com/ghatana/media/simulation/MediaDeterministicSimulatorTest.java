@@ -92,6 +92,21 @@ class MediaDeterministicSimulatorTest {
     }
 
     @Test
+    void unstableFiniteModelAbstainsBeforePublishingNonFiniteState() {
+        var simulator = new MediaDeterministicSimulator();
+        ModelSpec overflowingAcceleration = new ModelSpec(
+                "constant-force", "1.0.0", "SI", Double.MIN_VALUE,
+                Double.MAX_VALUE, 0.5, 10, 1e-9);
+
+        SimulationResult result = simulator.run(
+                overflowingAcceleration, new InitialState(0, 0), 17L);
+
+        assertThat(result.verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(result.abstainReason()).contains("solver diverged");
+        assertThat(result.checkpoints()).isEmpty();
+    }
+
+    @Test
     void invalidModelParametersAreRejectedBeforeAnyStep() {
         assertThatThrownBy(() -> new ModelSpec("s", "1", "SI", -1.0, 6.0, 0.5, 10, 1e-9))
                 .isInstanceOf(IllegalArgumentException.class);

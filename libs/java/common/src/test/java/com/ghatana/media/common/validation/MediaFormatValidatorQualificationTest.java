@@ -167,12 +167,27 @@ class MediaFormatValidatorQualificationTest {
 
     @Test
     void pngSpecificBoundsDoNotChangeOtherImageHeaderHandling() {
-        byte[] jpegHeader = new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0,
-                0, 0, 0, 0};
+        byte[] jpegHeader = jpegHeader(640, 480);
         var result = MediaFormatValidator.validateImage(jpegHeader, "JPEG");
         assertThat(result.valid).isTrue();
-        assertThat(result.width).isZero();
-        assertThat(result.height).isZero();
+        assertThat(result.width).isEqualTo(640);
+        assertThat(result.height).isEqualTo(480);
+        assertThat(MediaFormatValidator.validateImage(jpegHeader(4001, 4000), "JPEG").errorMessage)
+                .contains("supported image bounds");
+        assertThat(MediaFormatValidator.validateImage(
+                new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 4, 0, 0}, "JPEG").errorMessage)
+                .contains("valid dimensions");
+    }
+
+    @Test
+    void rejectsOversizedGifCanvasAndTruncatedGifDimensions() {
+        byte[] oversized = gifHeader(4001, 4000);
+        assertThat(MediaFormatValidator.validateImage(oversized, "GIF").errorMessage)
+                .contains("supported image bounds");
+
+        byte[] truncated = new byte[] {'G', 'I', 'F', '8', '9', 'a', 1, 0};
+        assertThat(MediaFormatValidator.validateImage(truncated, "GIF").errorMessage)
+                .contains("image dimensions");
     }
 
     @Test
@@ -214,6 +229,22 @@ class MediaFormatValidatorQualificationTest {
         buffer.put(new byte[] {8, 2, 0, 0, 0});
         buffer.putInt(0); // CRC is outside this header-only validator's current qualification.
         return buffer.array();
+    }
+
+    private static byte[] gifHeader(int width, int height) {
+        byte[] header = new byte[10];
+        putAscii(header, 0, "GIF89a");
+        header[6] = (byte) width;
+        header[7] = (byte) (width >>> 8);
+        header[8] = (byte) height;
+        header[9] = (byte) (height >>> 8);
+        return header;
+    }
+
+    private static byte[] jpegHeader(int width, int height) {
+        return new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xC0,
+                0, 11, 8, (byte) (height >>> 8), (byte) height,
+                (byte) (width >>> 8), (byte) width, 1, 1, 0x11, 0};
     }
 
     private static void putAscii(byte[] bytes, int offset, String text) {

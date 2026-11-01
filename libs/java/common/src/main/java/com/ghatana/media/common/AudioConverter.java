@@ -13,6 +13,9 @@ import java.util.Objects;
  */
 public final class AudioConverter {
 
+    /** Maximum samples materialized by the common PCM conversion helpers. */
+    static final int MAX_CONVERTED_SAMPLES = 16_000_000;
+
     private AudioConverter() {}
 
     /** Convert signed PCM bytes into normalised float samples in the range [-1, 1]. */
@@ -28,6 +31,9 @@ public final class AudioConverter {
             throw new IllegalArgumentException("PCM data must contain complete samples");
         }
         int numSamples = data.length / bytesPerSample;
+        if (numSamples > MAX_CONVERTED_SAMPLES) {
+            throw new IllegalArgumentException("PCM sample count exceeds the supported conversion limit");
+        }
         float[] floats = new float[numSamples];
         float maxAmplitude = (float) Math.scalb(1.0d, bitsPerSample - 1);
 
@@ -48,6 +54,9 @@ public final class AudioConverter {
     /** Convert normalised float samples into 16-bit PCM bytes. */
     public static byte[] floatSamplesToPcm16(float[] samples) {
         Objects.requireNonNull(samples, "samples cannot be null");
+        if (samples.length > MAX_CONVERTED_SAMPLES) {
+            throw new IllegalArgumentException("sample count exceeds the supported conversion limit");
+        }
         if (samples.length > Integer.MAX_VALUE / 2) {
             throw new IllegalArgumentException("sample count exceeds the PCM16 byte array limit");
         }
@@ -79,13 +88,15 @@ public final class AudioConverter {
         }
 
         long frameCount = samples.length / channels;
-        long durationNanos = Math.round((frameCount * 1_000_000_000d) / sampleRate);
+        long wholeSeconds = frameCount / sampleRate;
+        long remainingFrames = frameCount % sampleRate;
+        long fractionalNanos = (remainingFrames * 1_000_000_000L + sampleRate / 2L) / sampleRate;
         return AudioData.builder()
             .data(floatSamplesToPcm16(samples))
             .sampleRate(sampleRate)
             .channels(channels)
             .bitsPerSample(16)
-            .duration(Duration.ofNanos(Math.max(0L, durationNanos)))
+            .duration(Duration.ofSeconds(wholeSeconds, fractionalNanos))
             .format(AudioFormat.PCM)
             .build();
     }

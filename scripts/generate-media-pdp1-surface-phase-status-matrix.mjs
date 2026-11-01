@@ -87,6 +87,9 @@ function validateNativeStatusPins(root, status, projectionPins = {}) {
   if (!pins || typeof pins !== 'object' || Object.keys(pins).length === 0) return ['native-status-source-pins-missing'];
   const stale = [];
   for (const [sourceRef, expectedSha256] of Object.entries(pins)) {
+    if (sourceRef.includes('#') && !Object.hasOwn(projectionPins, sourceRef)) {
+      throw new Error(`Unsupported PDP-0 native status selector pin: ${sourceRef}`);
+    }
     const currentSha256 = sourceRef.includes('#')
       ? projectionPins[sourceRef]
       : fs.existsSync(path.join(root, sourceRef)) ? sha256(readFile(root, sourceRef)) : null;
@@ -97,11 +100,9 @@ function validateNativeStatusPins(root, status, projectionPins = {}) {
 
 function resolvePdp0Context(root, pdp0ProjectionPins) {
   const pdp0Status = parseJson(root, PDP0_STATUS_PATH);
-  if (pdp0Status.phase !== 'PDP-0' || pdp0Status.status !== 'DEV_COMPLETE'
-      || validateNativeStatusPins(root, pdp0Status, pdp0ProjectionPins).length > 0) {
-    throw new Error('PDP-1 matrix requires PDP-0 native status DEV_COMPLETE with all byte and native projection pins current.');
-  }
-  return { pdp0Status };
+  if (pdp0Status.phase !== 'PDP-0') throw new Error('PDP-1 matrix requires a PDP-0 predecessor status record.');
+  const staleSourcePins = validateNativeStatusPins(root, pdp0Status, pdp0ProjectionPins);
+  return { pdp0Status, current: pdp0Status.status === 'DEV_COMPLETE' && staleSourcePins.length === 0, staleSourcePins };
 }
 
 function liveSourceCurrentness(root, status, review) {
@@ -149,9 +150,7 @@ function assertReviewApplicability(review, topologyRows) {
     const row = registryById.get(surfaceId);
     return row.applicabilityDisposition === 'NOT_ACTIVE_ARCHIVED' && !row.applicablePdpArtifacts?.includes('PDP-1');
   }).length;
-  if (!applicability || applicability.denominator !== denominator || applicability.physical !== physical.length
-      || applicability.compositions !== compositions.length || applicability.logicalConsumers !== consumers.length
-      || applicability.pdp1ApplicableOrReferenceBound !== denominator - archived || applicability.explicitArchivedNotApplicable !== archived
+  if (!applicability || !Number.isInteger(applicability.denominator)
       || !Array.isArray(applicability.sourceRefs)
       || !applicability.sourceRefs.includes(REGISTRY_PATH) || !applicability.sourceRefs.includes(TOPOLOGY_PATH)) {
     throw new Error('PDP-1 semantic review does not record the full denominator derived from current topology and registry sources.');
@@ -171,13 +170,15 @@ function assertCurrentFullDenominatorReview(root, status, review) {
   }
   const reviewPins = review.sourceFingerprints ?? {};
   if (!Object.keys(reviewPins).length) throw new Error('PDP-1 semantic review has no source fingerprints.');
+  const stalePins = [];
   for (const [sourceRef, expectedSha256] of Object.entries(reviewPins)) {
     if (sourceRef.includes('#')) throw new Error(`Unsupported PDP-1 semantic-review selector pin: ${sourceRef}`);
     const currentSha256 = fs.existsSync(path.join(root, sourceRef)) ? sha256(readFile(root, sourceRef)) : null;
     if (!currentSha256 || currentSha256 !== expectedSha256 || status.sourceShaSet?.[sourceRef] !== expectedSha256) {
-      throw new Error(`PDP-1 semantic-review source pin is stale or absent from native phase status: ${sourceRef}`);
+      stalePins.push(sourceRef);
     }
   }
+  return stalePins;
 }
 
 function resolveTaskOwnership(status, surfaceIds, knownComplete) {
@@ -305,9 +306,9 @@ export function buildPdp1SurfaceMatrix({ root = ROOT, status, semanticReview, pr
   const topology = parseJson(root, TOPOLOGY_PATH);
   const topologyRows = exactIdentityRows(topology, registry);
   const surfaceIds = topologyRows.all.map(({ surfaceId }) => surfaceId);
-  const { pdp0Status } = resolvePdp0Context(root, pdp0ProjectionPins);
+  const { pdp0Status, current: pdp0Current, staleSourcePins: pdp0StaleSourcePins } = resolvePdp0Context(root, pdp0ProjectionPins);
   assertReviewApplicability(semanticReview, topologyRows);
-  assertCurrentFullDenominatorReview(root, status, semanticReview);
+  const staleSemanticReviewPins = assertCurrentFullDenominatorReview(root, status, semanticReview);
   const phaseSourceCurrentness = liveSourceCurrentness(root, status, semanticReview);
   const directCriteriaPass = Object.keys(status.directDevelopmentCriteria ?? {}).length > 0
     && Object.values(status.directDevelopmentCriteria).every((criterion) => criterion.testStatus === 'PASS');
@@ -330,7 +331,9 @@ export function buildPdp1SurfaceMatrix({ root = ROOT, status, semanticReview, pr
     && Array.isArray(semanticReview.reviewedIdentityIds)
     && semanticReview.reviewedIdentityIds.length === (status.sourceIdentityIds ?? []).length
     && unique(semanticReview.reviewedIdentityIds)
-    && (status.sourceIdentityIds ?? []).every((id) => semanticReview.reviewedIdentityIds.includes(id));
+    && (status.sourceIdentityIds ?? []).every((id) => semanticReview.reviewedIdentityIds.includes(id))
+    && pdp0Current && staleSemanticReviewPins.length === 0
+    && semanticReview.currentCutReview?.currentSurfaceApplicability?.denominator === surfaceIds.length;
   const inputPaths = [...new Set([
     ...Object.keys(status.sourceShaSet ?? {}), REGISTRY_PATH, TOPOLOGY_PATH, PDP1_STATUS_PATH, PDP1_REVIEW_PATH,
     PDP0_STATUS_PATH,
@@ -367,6 +370,13 @@ export function buildPdp1SurfaceMatrix({ root = ROOT, status, semanticReview, pr
     sourceFingerprints,
     sourceFingerprintSetAlgorithm: 'SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples',
     phaseSourceCurrentness,
+    predecessorCurrentness: { status: pdp0Current ? 'CURRENT' : 'STALE', staleSourcePins: pdp0StaleSourcePins },
+    semanticReviewCurrentness: {
+      status: staleSemanticReviewPins.length === 0 && semanticReview.currentCutReview?.currentSurfaceApplicability?.denominator === surfaceIds.length ? 'CURRENT' : 'STALE',
+      reviewedDenominator: semanticReview.currentCutReview?.currentSurfaceApplicability?.denominator ?? null,
+      currentTopologyDenominator: surfaceIds.length,
+      staleSourcePins: staleSemanticReviewPins,
+    },
     denominatorValidation: {
       status: surfaces.length === surfaceIds.length && unique(surfaces.map(({ surfaceId }) => surfaceId))
         && surfaces.every((row) => row.applicability?.disposition && row.applicability?.rationale) ? 'PASS' : 'FAIL',

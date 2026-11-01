@@ -43,6 +43,33 @@ import static org.mockito.Mockito.when;
 class ProductionTtsGrpcServiceConfigTest {
 
     @Test
+    void exactEnglishHindiAndNepaliProfilesMatchWithoutCrossLocaleSubstitution() {
+        for (var profile : Map.of(
+                "en-US", "piper-en-us",
+                "hi-IN", "piper-hi-in",
+                "ne-NP", "piper-ne-np").entrySet()) {
+            var requestedLocale = java.util.Locale.forLanguageTag(profile.getKey());
+            assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                    profile.getValue(), profile.getKey(), profile.getValue(), requestedLocale))
+                    .as("exact configured locale %s is eligible for its own profile", profile.getKey())
+                    .isTrue();
+            assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                    profile.getValue(), profile.getKey(), profile.getValue(),
+                    java.util.Locale.forLanguageTag(switch (profile.getKey()) {
+                        case "en-US" -> "hi-IN";
+                        case "hi-IN" -> "ne-NP";
+                        default -> "en-US";
+                    })))
+                    .as("locale %s cannot use another locale's profile", profile.getKey())
+                    .isFalse();
+            assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                    profile.getValue(), profile.getKey(), "another-voice", requestedLocale))
+                    .as("locale %s cannot use another voice's profile", profile.getKey())
+                    .isFalse();
+        }
+    }
+
+    @Test
     void requiresExplicitProviderAndFailsClosedWhenNoProfileIsAdmitted() {
         assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(Map.of()))
                 .isInstanceOf(IllegalStateException.class)

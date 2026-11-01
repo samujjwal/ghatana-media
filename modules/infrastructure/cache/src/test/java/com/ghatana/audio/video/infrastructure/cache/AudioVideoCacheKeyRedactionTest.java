@@ -49,7 +49,8 @@ class AudioVideoCacheKeyRedactionTest {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
         String baseline = cache.buildKey("a:audio", "123e4567-e89b-12d3-a456-426614174000");
 
-        assertThat(baseline).matches("transcription:v2:[0-9a-f]{64}");
+        assertThat(baseline).matches("av2-[0-9a-f]{64}");
+        assertThat(baseline).doesNotContain(":", "*", "?");
         assertThat(baseline).isEqualTo(cache.buildKey("a:audio",
                 "123e4567-e89b-12d3-a456-426614174000"));
         assertThat(cache.buildKey("a", "audio:123e4567-e89b-12d3-a456-426614174000"))
@@ -86,8 +87,8 @@ class AudioVideoCacheKeyRedactionTest {
                 new AudioVideoCache<>(service, "transcription");
         try (LogCapture logs = capture(AudioVideoCache.class)) {
             assertOperationFails(() -> cache.get(key));
-            assertOperationFails(() -> cache.getOrLoad(key,
-                    ignored -> AsyncOperation.success("unused")));
+            assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(key,
+                    ignored -> AsyncOperation.success("source-value")))).isEqualTo("source-value");
             assertOperationFails(() -> cache.put(key, "value"));
             assertOperationFails(cache::invalidateAll);
             assertOperationFails(() -> serviceCache.invalidate(key));

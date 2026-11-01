@@ -1,16 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { validateMediaBuildPlanTaskClosure } from '../scripts/lib/media-build-plan-task-closure-validation.mjs';
 
 const root = process.cwd();
 const base = JSON.parse(fs.readFileSync('docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json', 'utf8'));
 const clone = () => structuredClone(base);
+const sourceDigest = path => crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex');
 const validFixture = () => ({
-  sourcePins: {}, census: { packageCount: 1, traceIdentityCount: 1, surfaces: { total: 1 } },
+  sourcePins: { 'package.json': sourceDigest('package.json') }, census: { packageCount: 1, traceIdentityCount: 1, surfaces: { total: 1 } },
   packages: [{ id: 'P1', dependencies: [], taskIds: ['P1.T1'] }],
   tasks: [{ id: 'P1.T1', packageId: 'P1', title: 't', status: 'ASSIGNED_UNVERIFIED', priority: 'NORMAL', packageDependencyScope: 'FULL_PACKAGE', outcome: 'outcome', joinedSourceIdentities: [{ phase: 'PDP-0', kind: 'capability', id: 'C1', joins: { requirement: 'R1' }, unresolvedSourceSlots: [], unresolvedSourceBlockers: [] }], ownership: { role: 'engineering' }, fingerprints: { sourcePins: [] }, predecessorTaskIds: [], actions: ['edit'], tests: { positiveTestIds: ['t.pos'], adversarialTestIds: ['t.neg'] }, expectedResult: 'result', finality: 'finality', environmentPrerequisites: ['none'], actionableBlocker: 'none', rollbackFencingCleanup: 'rollback', constraints: ['constraints'], evidence: ['evidence'], reviewerRole: 'reviewer', approverRole: 'approver' }],
-  surfaces: [{ id: 'S1', type: 'physical' }], trace: [{ phase: 'PDP-0', kind: 'capability', identity: 'C1', primaryPackageId: 'P1' }], wipPolicy: { source: { section: '11B' }, limits: { maxSimultaneouslyEditedPackagesPerLane: 2, maxActiveChangeWritersPerSharedFileOrSchemaOwner: 1 } }
+  surfaces: [{ id: 'S1', type: 'physical' }], trace: [{ phase: 'PDP-0', kind: 'capability', identity: 'C1', primaryPackageId: 'P1' }],
+  materialSourceReceipt: { status: 'CURRENT', staleCount: 0, count: 0, records: [] },
+  wipPolicy: { source: { section: '11B' }, limits: { maxSimultaneouslyEditedPackagesPerLane: 2, maxActiveChangeWritersPerSharedFileOrSchemaOwner: 1 } }
 });
 
 test('accepts a complete source-bound structural fixture without asserting approval', () => {
@@ -20,22 +24,29 @@ test('accepts a complete source-bound structural fixture without asserting appro
   assert.equal(r.planReady, 'PENDING');
 });
 
-test('source-complete projection keeps task closure and Plan Ready pending without approval', () => {
+test('checked-in projection retains stale source and owner-currentness blockers without approval', () => {
   const report = validateMediaBuildPlanTaskClosure(base, { root });
-  assert.equal(report.structuralStatus, 'PASS');
-  assert.deepEqual(report.unresolvedBlockerTaskIds, []);
+  assert.equal(report.structuralStatus, 'FAIL');
+  assert(report.errors.some(error => error.includes('task source pin disagrees with projection')));
+  assert(report.sourceBlockers.some(blocker => blocker.includes('stale or inconsistent material source receipt')));
+  assert(report.sourceBlockers.includes('material source receipt is missing, stale, or has a count mismatch'));
+  assert.deepEqual(report.unresolvedBlockerTaskIds, ['M-BLD-F00.T01']);
   assert.equal(report.taskClosure, 'PENDING');
   assert.equal(report.planReady, 'PENDING');
-  assert.equal(report.errors.length, 0);
-  assert.equal(report.sourceBlockers.length, 0);
+  assert.equal(report.approvalEvidenceStatus, 'MISSING');
 });
 
-test('fragment and section selectors are validated against exact receipt records', () => {
-  const x = clone();
-  const fragments = x.tasks.find(t => t.id === 'M-BLD-F00.T01').joinedSourceIdentities.filter(r => r.selector?.includes('#'));
-  assert.ok(fragments.length > 0);
-  assert.ok(fragments.every(r => x.materialSourceReceipt.records.some(m => m.phase === r.phase && m.selector === r.selector && m.expectedSha256 === r.expectedSha256 && m.status === 'CURRENT')));
-  assert.equal(validateMediaBuildPlanTaskClosure(x, { root }).sourceBlockers.length, 0);
+test('fragment and section selectors are validated against exact isolated fixture receipt records', () => {
+  const x = validFixture();
+  const selector = 'package.json#name';
+  const sha256 = x.sourcePins['package.json'];
+  const row = x.tasks[0].joinedSourceIdentities[0];
+  Object.assign(row, { selector, expectedSha256: sha256, currentSha256: sha256, status: 'CURRENT' });
+  const record = { phase: row.phase, selector, expectedSha256: sha256, currentSha256: sha256, status: 'CURRENT' };
+  x.materialSourceReceipt = { status: 'CURRENT', staleCount: 0, count: 1, records: [record] };
+  const report = validateMediaBuildPlanTaskClosure(x, { root });
+  assert.equal(report.structuralStatus, 'PASS');
+  assert.deepEqual(report.sourceBlockers, []);
 });
 
 test('reports stale and missing exact material receipt records as source blockers', () => {

@@ -15,6 +15,8 @@ import { z } from "zod";
 const OPAQUE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const SIGNED_INT64_DECIMAL_RE = /^(0|-[1-9][0-9]*|[1-9][0-9]*)$/;
 const POSITIVE_INT64_DECIMAL_RE = /^[1-9][0-9]*$/;
+const INT64_MIN = -(1n << 63n);
+const INT64_MAX = (1n << 63n) - 1n;
 
 export const OpaqueIdSchema = z.string().min(1).max(128).regex(OPAQUE_ID_RE);
 /** Opaque versioned reference — never a raw URI to fetch; it names a stored revision. */
@@ -41,8 +43,15 @@ export const VersionRefListSchema = z.array(VersionRefSchema).refine(
 export const NonEmptyVersionRefListSchema = VersionRefListSchema.min(1);
 
 /** Canonical int64 text preserves exact 64-bit values — never a JS number. */
-export const SignedInt64DecimalSchema = z.string().regex(SIGNED_INT64_DECIMAL_RE);
-export const PositiveInt64DecimalSchema = z.string().regex(POSITIVE_INT64_DECIMAL_RE);
+export const SignedInt64DecimalSchema = z.string().refine((value) => {
+  if (value.length > 20 || !SIGNED_INT64_DECIMAL_RE.test(value)) return false;
+  const integer = BigInt(value);
+  return integer >= INT64_MIN && integer <= INT64_MAX;
+}, "must be a canonical signed int64 decimal");
+export const PositiveInt64DecimalSchema = z.string().refine((value) => {
+  if (value.length > 19 || !POSITIVE_INT64_DECIMAL_RE.test(value)) return false;
+  return BigInt(value) <= INT64_MAX;
+}, "must be a canonical positive int64 decimal");
 
 export const DigestSchema = z.object({
   algorithmRef: VersionRefSchema,
@@ -50,12 +59,16 @@ export const DigestSchema = z.object({
   subjectVersionRef: VersionRefSchema,
 }).strict();
 
+// PDP-1 declares positive integer resource bounds but leaves their maximum
+// unspecified. Preserve the JSON number wire shape and cap values at the
+// largest integer JavaScript can represent exactly instead of accepting rounding.
+const PositiveSafeIntegerSchema = z.number().int().min(1).max(Number.MAX_SAFE_INTEGER);
 export const ResourceBoundsSchema = z.object({
-  stepLimit: z.number().int().min(1),
-  wallClockBudgetMs: z.number().int().min(1),
-  memoryBudgetBytes: z.number().int().min(1),
-  workloadLimit: z.number().int().min(1),
-  recursionLimit: z.number().int().min(1),
+  stepLimit: PositiveSafeIntegerSchema,
+  wallClockBudgetMs: PositiveSafeIntegerSchema,
+  memoryBudgetBytes: PositiveSafeIntegerSchema,
+  workloadLimit: PositiveSafeIntegerSchema,
+  recursionLimit: PositiveSafeIntegerSchema,
 }).strict();
 
 export const PositiveRationalSchema = z.object({

@@ -5,6 +5,7 @@
 package com.ghatana.audio.video.tools;
 
 import com.ghatana.agent.framework.tools.ToolContract;
+import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
@@ -21,9 +22,10 @@ import java.util.Set;
 /**
  * {@link ToolHandler} adapter for the Audio-Video Multimodal Inference service.
  *
- * <p>Wraps the multimodal fusion pipeline as a platform tool. A concrete delegate
- * must be supplied by the service composition layer. Without one, the handler
- * fails closed so Data Cloud receives an honest provider-unavailable result.
+ * <p>A configured delegate does not establish source authorization, version,
+ * temporal provenance, modality eligibility, consent, or cancellation
+ * finality. Until an admitted public Media operation binds those inputs,
+ * inference fails closed before dispatch.
  *
  * @doc.type class
  * @doc.purpose ToolHandler adapter for the Multimodal Inference capability
@@ -35,14 +37,12 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
     private static final Logger log = LoggerFactory.getLogger(MultimodalInferenceToolHandler.class);
     public static final String TOOL_ID = "av.multimodal-inference";
 
-    private final ToolHandler delegate;
-
     public MultimodalInferenceToolHandler() {
         this(null);
     }
 
-    public MultimodalInferenceToolHandler(ToolHandler delegate) {
-        this.delegate = delegate;
+    /** Compatibility constructor; a delegate cannot provide admission authority. */
+    public MultimodalInferenceToolHandler(ToolHandler ignoredDelegate) {
     }
 
     @Override
@@ -80,18 +80,19 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
-        if (delegate == null) return providerUnavailable(envelope, start);
-        return AgentToolInput.dispatch(delegate, envelope, contract);
+        // A generic ToolHandler is not an admission or provenance authority.
+        // The current public operation contract does not bind source version,
+        // temporal region, rights/consent, or durable cancellation/finality.
+        return notAdmitted(envelope, start);
     }
 
-    private Promise<ToolExecutionResult> providerUnavailable(ToolExecutionEnvelope envelope, Instant start) {
+    private Promise<ToolExecutionResult> notAdmitted(ToolExecutionEnvelope envelope, Instant start) {
         Instant end = Instant.now();
         return Promise.of(ToolExecutionResult.failed(
                 envelope.invocationId(),
-                "Audio-Video Multimodal provider unavailable: no multimodal inference service delegate configured",
-                envelope.invocationId(),
-                end,
-                Duration.between(start, end)));
+                new ToolExecutionFailure(ToolExecutionFailure.Kind.UNAVAILABLE,
+                        ToolExecutionFailure.Stage.ADMISSION, "MULTIMODAL_NOT_ADMITTED", false, end),
+                envelope.invocationId(), end, Duration.between(start, end)));
     }
 
     private String requireString(Map<String, Object> input, String key) {

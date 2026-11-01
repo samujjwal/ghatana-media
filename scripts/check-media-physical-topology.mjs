@@ -10,9 +10,9 @@ const existsRef = (root, ref) => fs.existsSync(path.join(root, sourcePath(ref)))
 const ids = (p) => new Set([...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]));
 const idList = (p) => [...source(p).matchAll(/^\s*-?\s*id:\s*['"]?([^\s,'"]+)/gm)].map((m) => m[1]);
 const manifestNames = new Set(['package.json', 'build.gradle', 'build.gradle.kts', 'Cargo.toml']);
-const ignoredManifestDirectories = new Set(['.git', 'node_modules', 'build', 'dist', '.gradle', '.vite', 'target']);
+const ignoredManifestDirectories = new Set(['.git', 'node_modules', 'build', 'dist', 'dist-cjs', 'dist-esm', '.gradle', '.vite', 'target']);
 
-function activeBuildManifests(root) {
+export function activeBuildManifests(root) {
   const refs = [];
   const roots = ['apps', 'libs', 'modules', 'adapters', 'providers', 'launcher', 'runtime-contracts', 'audio-video-observability', 'integration-tests'];
   const walk = (directory) => {

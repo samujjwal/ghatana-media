@@ -45,7 +45,7 @@ class AudioFileServiceLifecycleTest extends EventloopTestBase {
         });
         ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
             new ArrayBlockingQueue<>(1), new ThreadPoolExecutor.AbortPolicy());
-        AudioFileService service = new AudioFileService(repository, Eventloop.create(), executor, true);
+        AudioFileService service = new AudioFileService(repository, Eventloop.create(), executor, ExecutorOwnership.SERVICE);
         AtomicReference<AudioFileEntity> firstResult = new AtomicReference<>();
         AtomicReference<Exception> rejectedFailure = new AtomicReference<>();
 

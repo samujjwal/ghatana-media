@@ -5257,7 +5257,7 @@
    "path": "adapters/ocr-compat/build.gradle.kts",
    "disposition": "RETIRED",
    "retirementRef": ".product-experience/pdp-0-product-truth/ocr-ownership.yaml#media.ocr.kernel-adapter",
-   "rationale": "Legacy Kernel OCR compatibility adapter deleted as an actual Build migration to the DI-owned DiOcrProvider (kernel#99); generic Media OCR remains unowned and must not be reintroduced."
+   "rationale": "The Media legacy OCR compatibility module is retired under OCR-M03. This source retirement does not establish a replacement Kernel provider: the DI-backed provider and installed consumer remain unverified. Generic Media OCR must not be reintroduced."
   }
  ]
 }

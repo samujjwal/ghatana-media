@@ -6,6 +6,7 @@ package com.ghatana.audio.video.tools;
 
 import com.ghatana.agent.framework.tools.ToolContract;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
+import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
 import io.activej.promise.Promise;
@@ -21,9 +22,9 @@ import java.util.Set;
 /**
  * {@link ToolHandler} adapter for the Audio-Video Text-to-Speech service.
  *
- * <p>Wraps the AV TTS gRPC endpoint as a platform tool. A concrete delegate must
- * be supplied by the service composition layer. Without one, the handler fails
- * closed so callers see provider unavailability instead of an empty audio payload.
+ * <p>Wraps the AV TTS gRPC endpoint as a platform tool. A configured delegate
+ * does not establish an admitted operation, qualified voice, consent or output
+ * receipt; until those bindings are available, synthesis fails closed before dispatch.
  *
  * @doc.type class
  * @doc.purpose ToolHandler adapter for the TTS gRPC capability
@@ -35,14 +36,15 @@ public final class TextToSpeechToolHandler implements ToolHandler {
     private static final Logger log = LoggerFactory.getLogger(TextToSpeechToolHandler.class);
     static final String TOOL_ID = "av.text-to-speech";
 
-    private final ToolHandler delegate;
-
     public TextToSpeechToolHandler() {
         this(null);
     }
 
-    public TextToSpeechToolHandler(ToolHandler delegate) {
-        this.delegate = delegate;
+    /**
+     * Compatibility constructor. The delegate is intentionally not invoked
+     * until Media supplies an admitted operation, voice, and consent binding.
+     */
+    public TextToSpeechToolHandler(ToolHandler ignoredDelegate) {
     }
 
     @Override
@@ -82,26 +84,20 @@ public final class TextToSpeechToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
-        if (delegate == null) return providerUnavailable(envelope, start);
-        return AgentToolInput.dispatch(delegate, envelope, contract);
+        // A configured delegate alone does not establish an admitted synthesis
+        // operation, qualified voice/model, consent or immutable output receipt.
+        // Until those Media-owned bindings exist, reject before any provider or
+        // artifact-storage side effect.
+        return notAdmitted(envelope, start);
     }
 
-    private Promise<ToolExecutionResult> providerUnavailable(ToolExecutionEnvelope envelope, Instant start) {
+    private Promise<ToolExecutionResult> notAdmitted(ToolExecutionEnvelope envelope, Instant start) {
         Instant end = Instant.now();
         return Promise.of(ToolExecutionResult.failed(
                 envelope.invocationId(),
-                "Audio-Video TTS provider unavailable: no text-to-speech service delegate configured",
-                envelope.invocationId(),
-                end,
-                Duration.between(start, end)));
-    }
-
-    private String requireString(Map<String, Object> input, String key) {
-        Object val = input.get(key);
-        if (!(val instanceof String s) || s.isBlank()) {
-            throw new IllegalArgumentException("Required input field '" + key + "' is missing or blank");
-        }
-        return s;
+                new ToolExecutionFailure(ToolExecutionFailure.Kind.UNAVAILABLE,
+                        ToolExecutionFailure.Stage.ADMISSION, "TTS_NOT_ADMITTED", false, end),
+                envelope.invocationId(), end, Duration.between(start, end)));
     }
 
     private String optionalString(Map<String, Object> input, String key, String fallback, int max) {

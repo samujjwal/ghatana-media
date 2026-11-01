@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -57,8 +56,13 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     private ToolContract contractFor(ToolExecutionEnvelope envelope, Map<String, Object> outputSchema) {
+        return contractFor(envelope, Map.of(), outputSchema);
+    }
+
+    private ToolContract contractFor(ToolExecutionEnvelope envelope, Map<String, Object> inputSchema,
+            Map<String, Object> outputSchema) {
         return new ToolContract(envelope.toolId(), envelope.toolVersion(), "Test Tool", "description",
-                envelope.actionClass(), false, true, Map.of(), outputSchema, Set.of(),
+                envelope.actionClass(), false, true, inputSchema, outputSchema, Set.of(),
                 ToolTransport.IN_PROCESS, null, Map.of());
     }
 
@@ -74,27 +78,6 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                 envelope.invocationId(),
                 Instant.now(),
                 Duration.ZERO));
-    }
-
-    private void assertForwardsOriginalEnvelopeAndContract(
-            ToolExecutionEnvelope envelope,
-            Function<com.ghatana.toolruntime.ToolHandler, com.ghatana.toolruntime.ToolHandler> wrap) {
-        AtomicReference<ToolExecutionEnvelope> receivedEnvelope = new AtomicReference<>();
-        AtomicReference<ToolContract> receivedContract = new AtomicReference<>();
-        Promise<ToolExecutionResult> delegatedPromise = Promise.of(ToolExecutionResult.succeeded(
-                envelope.invocationId(), Map.of(), Map.of(), envelope.invocationId(), Instant.now(), Duration.ZERO));
-        com.ghatana.toolruntime.ToolHandler delegate = (actualEnvelope, actualContract) -> {
-            receivedEnvelope.set(actualEnvelope);
-            receivedContract.set(actualContract);
-            return delegatedPromise;
-        };
-
-        Promise<ToolExecutionResult> returnedPromise = wrap.apply(delegate).handle(envelope, contractFor(envelope));
-
-        assertThat(returnedPromise).isNotSameAs(delegatedPromise);
-        assertThat(await(returnedPromise).invocationId()).isEqualTo(envelope.invocationId());
-        assertThat(receivedEnvelope.get()).isSameAs(envelope);
-        assertThat(receivedContract.get()).isEqualTo(contractFor(envelope));
     }
 
     @Test
@@ -178,6 +161,47 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         assertThat(AgentToolInput.isSupportedJsonNumber(new BigInteger("9007199254740993"))).isTrue();
     }
 
+    @Test
+    @DisplayName("validates registered input schema before a Media tool can interpret or dispatch input")
+    void validatesRegisteredInputSchemaBeforeDispatch() {
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("languageCode", "en-US"));
+        Map<String, Object> schema = Map.of(
+                "type", "object",
+                "required", List.of("languageCode"),
+                "additionalProperties", false,
+                "properties", Map.of("languageCode", Map.of("type", "string", "maxLength", 8)));
+
+        assertThat(AgentToolInput.checked(env, contractFor(env, schema, Map.of()),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+                .containsEntry("languageCode", "en-US");
+
+        ToolExecutionEnvelope wrongType = envelope("av.speech-to-text", Map.of("languageCode", 7));
+        assertThatThrownBy(() -> AgentToolInput.checked(wrongType,
+                contractFor(wrongType, schema, Map.of()), SpeechToTextToolHandler.TOOL_ID,
+                Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+
+        ToolExecutionEnvelope tooLong = envelope("av.speech-to-text", Map.of("languageCode", "en-US-extra"));
+        assertThatThrownBy(() -> AgentToolInput.checked(tooLong,
+                contractFor(tooLong, schema, Map.of()), SpeechToTextToolHandler.TOOL_ID,
+                Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+    }
+
+    @Test
+    @DisplayName("rejects remote schema references without a fetch or tool dispatch")
+    void rejectsRemoteInputSchemaReferences() {
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("languageCode", "en-US"));
+        Map<String, Object> schema = Map.of("$ref", "https://invalid.example/schema.json");
+
+        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env, schema, Map.of()),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+    }
+
     // =========================================================================
     // SpeechToTextToolHandler
     // =========================================================================
@@ -198,21 +222,23 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("succeeds with mediaArtifactId in audioSource")
-        void succeedsWithArtifactSource() {
+        @DisplayName("returns typed admission failure for mediaArtifactId without source authority")
+        void artifactSourceRemainsNotAdmittedWithoutSourceAuthority() {
             Map<String, Object> audioSource = Map.of("mediaArtifactId", "artifact-42");
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", audioSource));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         }
 
         @Test
-        @DisplayName("succeeds with audioBytes in audioSource")
-        void succeedsWithBytesSource() {
+        @DisplayName("returns typed admission failure for audioBytes without source authority")
+        void bytesSourceRemainsNotAdmittedWithoutSourceAuthority() {
             Map<String, Object> audioSource = Map.of("audioBytes", "AQID");
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", audioSource));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         }
 
         @Test
@@ -226,8 +252,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("rejects malformed transcript segment fields against registered output types")
-        void rejectsMalformedTranscriptSegmentFields() {
+        @DisplayName("does not observe unqualified transcript output")
+        void doesNotObserveUnqualifiedTranscriptOutput() {
             SpeechToTextToolHandler invalid = new SpeechToTextToolHandler(delegateReturning(Map.of(
                     "transcript", "hello", "segments", List.of(Map.of("startMs", "zero")))));
             ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("audioSource", Map.of("mediaArtifactId", "a-1")));
@@ -235,9 +261,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                     "transcript", Map.of("type", "string"),
                     "segments", Map.of("type", "array", "items", Map.of("type", "object", "properties", Map.of(
                             "text", Map.of("type", "string"), "startMs", Map.of("type", "integer"), "endMs", Map.of("type", "integer"))))));
-            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
-                    .status()).isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+            ToolExecutionResult result = await(invalid.handle(env, contractFor(env, schema)));
+            assertThat(result.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         }
 
         @Test
@@ -263,7 +288,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
-            assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(result.failure().code()).isEqualTo("STT_NOT_ADMITTED");
         }
     }
 
@@ -305,55 +330,56 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     @Test
-    @DisplayName("each handler forwards the original envelope and contract unchanged")
-    void handlersForwardOriginalInvocationToDelegate() {
-        assertForwardsOriginalEnvelopeAndContract(
-                envelope("av.speech-to-text", Map.of("audioSource", Map.of("mediaArtifactId", "a"))),
-                SpeechToTextToolHandler::new);
-        assertForwardsOriginalEnvelopeAndContract(
-                envelope("av.text-to-speech", Map.of("text", "hello")),
-                TextToSpeechToolHandler::new);
-        assertForwardsOriginalEnvelopeAndContract(
-                envelope("av.vision-analysis", Map.of("mediaSource", Map.of("mediaArtifactId", "a"))),
-                VisionAnalysisToolHandler::new);
-        assertForwardsOriginalEnvelopeAndContract(
-                envelope("av.multimodal-inference", Map.of("mediaArtifactId", "a")),
-                MultimodalInferenceToolHandler::new);
+    @DisplayName("Vision and multimodal inputs do not imply source or rights admission")
+    void visionAndMultimodalInputsRemainNotAdmittedWithoutAuthority() {
+        AtomicReference<Integer> dispatches = new AtomicReference<>(0);
+        com.ghatana.toolruntime.ToolHandler delegate = (env, contract) -> {
+            dispatches.set(dispatches.get() + 1);
+            return Promise.of(ToolExecutionResult.succeeded(env.invocationId(), Map.of(), Map.of(),
+                    env.invocationId(), Instant.now(), Duration.ZERO));
+        };
+        ToolExecutionEnvelope vision = envelope("av.vision-analysis", Map.of(
+                "mediaSource", Map.of("mediaArtifactId", "a"), "analysisTypes", List.of("OBJECT_DETECTION")));
+        ToolExecutionEnvelope multimodal = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "a"));
+
+        assertNotAdmitted(await(new VisionAnalysisToolHandler(delegate).handle(vision, contractFor(vision))),
+                "VISION_NOT_ADMITTED");
+        assertNotAdmitted(await(new MultimodalInferenceToolHandler(delegate)
+                .handle(multimodal, contractFor(multimodal))), "MULTIMODAL_NOT_ADMITTED");
+        assertThat(dispatches.get()).isZero();
     }
 
     @Test
-    @DisplayName("all delegates preserve ambiguous post-dispatch failures and reject mismatched result identity")
-    void delegatedAmbiguityAndIdentityMismatchRemainNonfinal() {
-        List<Map.Entry<ToolExecutionEnvelope, Function<com.ghatana.toolruntime.ToolHandler, com.ghatana.toolruntime.ToolHandler>>> cases = List.of(
-                Map.entry(envelope("av.speech-to-text", Map.of("audioSource", Map.of("mediaArtifactId", "a"))), SpeechToTextToolHandler::new),
-                Map.entry(envelope("av.text-to-speech", Map.of("text", "hello")), TextToSpeechToolHandler::new),
-                Map.entry(envelope("av.vision-analysis", Map.of("mediaSource", Map.of("mediaArtifactId", "a"))), VisionAnalysisToolHandler::new),
-                Map.entry(envelope("av.multimodal-inference", Map.of("mediaArtifactId", "a")), MultimodalInferenceToolHandler::new));
+    @DisplayName("invalid Vision and multimodal inputs fail before admission")
+    void invalidVisionAndMultimodalInputsRemainValidationFailures() {
+        AtomicReference<Integer> dispatches = new AtomicReference<>(0);
+        com.ghatana.toolruntime.ToolHandler delegate = (env, contract) -> {
+            dispatches.set(dispatches.get() + 1);
+            return Promise.of(ToolExecutionResult.succeeded(env.invocationId(), Map.of(), Map.of(),
+                    env.invocationId(), Instant.now(), Duration.ZERO));
+        };
+        ToolExecutionEnvelope vision = envelope("av.vision-analysis", Map.of(
+                "mediaSource", Map.of("mediaArtifactId", "a"), "analysisTypes", List.of("UNSUPPORTED")));
+        ToolExecutionEnvelope multimodal = envelope("av.multimodal-inference", Map.of(
+                "mediaArtifactId", "a", "samplingRateMs", 1));
 
-        for (var entry : cases) {
-            var input = entry.getKey();
-            var wrap = entry.getValue();
-            var syncThrow = wrap.apply((e, c) -> { throw new IllegalStateException("dispatch-ambiguous"); });
-            assertThatThrownBy(() -> await(syncThrow.handle(input, contractFor(input))))
-                    .hasMessage("dispatch-ambiguous");
+        assertThat(await(new VisionAnalysisToolHandler(delegate).handle(vision, contractFor(vision)))
+                .failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+        assertThat(await(new MultimodalInferenceToolHandler(delegate).handle(multimodal, contractFor(multimodal)))
+                .failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+        assertThat(dispatches.get()).isZero();
+    }
 
-            var asyncReject = wrap.apply((e, c) -> Promise.ofException(new IllegalStateException("async-ambiguous")));
-            assertThatThrownBy(() -> await(asyncReject.handle(input, contractFor(input))))
-                    .hasMessage("async-ambiguous");
-
-            var nullPromise = wrap.apply((e, c) -> null);
-            assertThatThrownBy(() -> await(nullPromise.handle(input, contractFor(input))))
-                    .hasMessage("delegate returned null promise");
-
-            var wrongIdentity = wrap.apply((e, c) -> Promise.of(ToolExecutionResult.succeeded(
-                    "other-invocation", Map.of(), Map.of(), "other-invocation", Instant.now(), Duration.ZERO)));
-            assertThatThrownBy(() -> await(wrongIdentity.handle(input, contractFor(input))))
-                    .hasMessage("DELEGATE_INVOCATION_IDENTITY_MISMATCH");
-        }
+    private void assertNotAdmitted(ToolExecutionResult result, String code) {
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.failure().kind()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
+        assertThat(result.failure().stage()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.ADMISSION);
+        assertThat(result.failure().code()).isEqualTo(code);
+        assertThat(result.output()).isNull();
     }
 
     @Test
-    @DisplayName("TTS accepts ordinary comparison and emoticon characters as plain text")
+    @DisplayName("TTS validates ordinary text before returning its admission disposition")
     void ttsAcceptsAngleBracketsAsOrdinaryText() {
         AtomicReference<Boolean> dispatched = new AtomicReference<>(false);
         ToolExecutionEnvelope input = envelope("av.text-to-speech", Map.of("text", "2 < 3 :) and a > b"));
@@ -362,8 +388,10 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
             return Promise.of(ToolExecutionResult.succeeded(e.invocationId(), Map.of(), Map.of(),
                     e.invocationId(), Instant.now(), Duration.ZERO));
         });
-        assertThat(await(handler.handle(input, contractFor(input))).status()).isEqualTo(ToolExecutionStatus.SUCCESS);
-        assertThat(dispatched.get()).isTrue();
+        ToolExecutionResult result = await(handler.handle(input, contractFor(input)));
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
+        assertThat(dispatched.get()).isFalse();
     }
 
     @Test
@@ -453,11 +481,12 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("succeeds with valid text")
-        void succeedsWithValidText() {
+        @DisplayName("returns typed admission failure for valid text while no qualified voice is installed")
+        void validTextRemainsNotAdmittedWithoutQualifiedVoice() {
             ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "Hello world"));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
         }
 
         @Test
@@ -471,8 +500,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("validates declared output fields without proving artifact storage")
-        void validatesOutputFieldsWithoutProvingArtifactStorage() {
+        @DisplayName("does not claim delegate output or artifact storage without admission")
+        void doesNotClaimDelegateOutputWithoutAdmission() {
             Map<String, Object> input = Map.of("text", "Synthesize this", "storeAsArtifact", true);
             ToolExecutionEnvelope env = envelope("av.text-to-speech", input);
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
@@ -480,23 +509,20 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                     "audioEncoding", Map.of("type", "string"),
                     "durationMs", Map.of("type", "integer", "minimum", 0)));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
-            @SuppressWarnings("unchecked")
-            Map<String, Object> output = (Map<String, Object>) result.output();
-            assertThat(output).isEqualTo(Map.of(
-                    "mediaArtifactId", "tts-artifact-1", "audioEncoding", "MP3", "durationMs", 1200, "voiceId", "en-US-default"));
+            assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
+            assertThat(result.output()).isNull();
         }
 
         @Test
-        @DisplayName("rejects malformed successful delegate output on the ambiguous result channel")
-        void rejectsMalformedSuccessfulOutput() {
+        @DisplayName("unqualified delegate output is not observed or accepted")
+        void doesNotObserveUnqualifiedDelegateOutput() {
             TextToSpeechToolHandler invalid = new TextToSpeechToolHandler(delegateReturning(Map.of("durationMs", "long")));
             ToolExecutionEnvelope env = envelope("av.text-to-speech", Map.of("text", "Synthesize this"));
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
                     "durationMs", Map.of("type", "integer", "minimum", 0)));
-            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
-                    .status()).isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+            ToolExecutionResult result = await(invalid.handle(env, contractFor(env, schema)));
+            assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
         }
 
         @Test
@@ -509,7 +535,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
-            assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
         }
     }
 
@@ -533,14 +559,14 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("succeeds with mediaArtifactId source")
-        void succeedsWithArtifact() {
+        @DisplayName("valid mediaArtifactId remains not admitted without source authority")
+        void validArtifactRemainsNotAdmittedWithoutAuthority() {
             Map<String, Object> input = Map.of(
                     "mediaSource", Map.of("mediaArtifactId", "img-artifact-1"),
                     "analysisTypes", List.of("OBJECT_DETECTION"));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", input);
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+            assertNotAdmitted(result, "VISION_NOT_ADMITTED");
         }
 
         @Test
@@ -554,8 +580,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("accepts structurally valid delegate output while preserving open schema fields")
-        void returnsDelegateVisionOutputWithoutSchemaValidation() {
+        @DisplayName("valid analysis options still fail closed before delegate output is observed")
+        void doesNotObserveVisionDelegateOutputWithoutAdmission() {
             Map<String, Object> input = Map.of(
                     "mediaSource", Map.of("mediaArtifactId", "img-42"),
                     "analysisTypes", List.of("OBJECT_DETECTION", "OCR"));
@@ -567,15 +593,12 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                     "objects", Map.of("type", "array", "items", objectSchema),
                     "texts", Map.of("type", "array")));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
-            @SuppressWarnings("unchecked")
-            Map<String, Object> output = (Map<String, Object>) result.output();
-            assertThat(output).isEqualTo(Map.of(
-                    "objects", List.of(), "texts", List.of(), "maxResults", 10, "confidenceThreshold", 0.5));
+            assertNotAdmitted(result, "VISION_NOT_ADMITTED");
         }
 
         @Test
-        @DisplayName("rejects nested malformed finding fields")
-        void rejectsNestedMalformedFindingFields() {
+        @DisplayName("does not inspect or expose delegate findings before admission")
+        void doesNotObserveMalformedVisionDelegateFindings() {
             VisionAnalysisToolHandler invalid = new VisionAnalysisToolHandler(delegateReturning(Map.of(
                     "objects", List.of(Map.of("label", 42)))));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", Map.of(
@@ -583,9 +606,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
                     "objects", Map.of("type", "array", "items", Map.of("type", "object", "properties", Map.of(
                             "label", Map.of("type", "string"))))));
-            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
-                    .status()).isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+            ToolExecutionResult result = await(invalid.handle(env, contractFor(env, schema)));
+            assertNotAdmitted(result, "VISION_NOT_ADMITTED");
         }
 
         @Test
@@ -599,7 +621,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
-            assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(result.failure().code()).isEqualTo("VISION_NOT_ADMITTED");
         }
     }
 
@@ -622,12 +644,12 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("succeeds with mediaArtifactId")
-        void succeedsWithArtifact() {
+        @DisplayName("valid mediaArtifactId remains not admitted without source authority")
+        void validArtifactRemainsNotAdmittedWithoutAuthority() {
             Map<String, Object> input = Map.of("mediaArtifactId", "video-artifact-1");
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
-            assertThat(result.status()).isEqualTo(ToolExecutionStatus.SUCCESS);
+            assertNotAdmitted(result, "MULTIMODAL_NOT_ADMITTED");
         }
 
         @Test
@@ -639,8 +661,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("validates declared multimodal output structure")
-        void returnsDelegateMultimodalOutputWithoutComponentValidation() {
+        @DisplayName("does not observe multimodal delegate output without admission")
+        void doesNotObserveMultimodalDelegateOutputWithoutAdmission() {
             Map<String, Object> input = Map.of("mediaArtifactId", "v-1", "inferenceMode", "FULL");
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
@@ -649,24 +671,20 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                     "processingMetadata", Map.of("type", "object", "properties", Map.of(
                             "framesAnalyzed", Map.of("type", "integer"), "audioSegments", Map.of("type", "integer")))));
             ToolExecutionResult result = await(handler.handle(env, contractFor(env, schema)));
-            @SuppressWarnings("unchecked")
-            Map<String, Object> output = (Map<String, Object>) result.output();
-            assertThat(output).isEqualTo(Map.of(
-                    "summary", "summary", "processingMetadata", Map.of("framesAnalyzed", 12, "audioSegments", 3), "confidence", 0.9));
+            assertNotAdmitted(result, "MULTIMODAL_NOT_ADMITTED");
         }
 
         @Test
-        @DisplayName("rejects malformed processing metadata without manufacturing a terminal result")
-        void rejectsMalformedProcessingMetadata() {
+        @DisplayName("does not observe malformed multimodal delegate metadata before admission")
+        void doesNotObserveMalformedMultimodalDelegateMetadata() {
             MultimodalInferenceToolHandler invalid = new MultimodalInferenceToolHandler(delegateReturning(Map.of(
                     "processingMetadata", Map.of("framesAnalyzed", "many"))));
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "v-1"));
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
                     "processingMetadata", Map.of("type", "object", "properties", Map.of(
                             "framesAnalyzed", Map.of("type", "integer")))));
-            assertThatThrownBy(() -> await(invalid.handle(env, contractFor(env, schema)))
-                    .status()).isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+            ToolExecutionResult result = await(invalid.handle(env, contractFor(env, schema)));
+            assertNotAdmitted(result, "MULTIMODAL_NOT_ADMITTED");
         }
 
         @Test
@@ -679,7 +697,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
 
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
             assertThat(result.failure()).isNotNull();
-            assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+            assertThat(result.failure().code()).isEqualTo("MULTIMODAL_NOT_ADMITTED");
         }
     }
 

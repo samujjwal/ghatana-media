@@ -153,6 +153,25 @@ class MediaClockMappingTest {
     }
 
     @Test
+    void mappedTimestampOverflowBecomesUnknownInsteadOfWrappingOrThrowing() {
+        MediaClockTimestamp sourceAtLongBoundary = new MediaClockTimestamp(
+                MediaClockTimestamp.Status.KNOWN,
+                Long.MAX_VALUE,
+                1L,
+                1_000L,
+                MediaClockTimestamp.ClockDomain.SOURCE,
+                "video-a",
+                null);
+
+        MediaClockTimestamp mapped = new MediaClockMapping(1, 1, 1, 1)
+                .map(sourceAtLongBoundary, null);
+
+        assertThat(mapped.status()).isEqualTo(MediaClockTimestamp.Status.UNKNOWN);
+        assertThat(mapped.unknownReason()).isEqualTo("MAPPED_TIMESTAMP_OUT_OF_RANGE");
+        assertThat(mapped.toMilliseconds()).isNull();
+    }
+
+    @Test
     void missingPtsRemainsUnknownAndCannotBeMappedToZero() {
         MediaClockTimestamp unknown = MediaClockTimestamp.fromSource(SourceMediaTimestamp.unknown("NO_SOURCE_PTS"));
         MediaClockTimestamp mapped = new MediaClockMapping(1, 1, 0, 0).map(unknown, null);

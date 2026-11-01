@@ -5,6 +5,7 @@
 package com.ghatana.audio.video.tools;
 
 import com.ghatana.agent.framework.tools.ToolContract;
+import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
 import com.ghatana.toolruntime.ToolHandler;
@@ -22,9 +23,10 @@ import java.util.Set;
 /**
  * {@link ToolHandler} adapter for the Audio-Video Vision Analysis service.
  *
- * <p>Wraps the AV Vision gRPC endpoint as a platform tool. A concrete delegate
- * must be supplied by the service composition layer. Without one, the handler
- * fails closed so provider availability feeds Runtime Truth accurately.
+ * <p>A configured delegate does not establish source authorization, version,
+ * temporal provenance, model eligibility, consent, or cancellation finality.
+ * Until an admitted public Media operation binds those inputs, analysis fails
+ * closed before dispatch.
  *
  * @doc.type class
  * @doc.purpose ToolHandler adapter for the Vision Analysis gRPC capability
@@ -36,14 +38,12 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
     private static final Logger log = LoggerFactory.getLogger(VisionAnalysisToolHandler.class);
     public static final String TOOL_ID = "av.vision-analysis";
 
-    private final ToolHandler delegate;
-
     public VisionAnalysisToolHandler() {
         this(null);
     }
 
-    public VisionAnalysisToolHandler(ToolHandler delegate) {
-        this.delegate = delegate;
+    /** Compatibility constructor; a delegate cannot provide admission authority. */
+    public VisionAnalysisToolHandler(ToolHandler ignoredDelegate) {
     }
 
     @Override
@@ -83,18 +83,19 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
-        if (delegate == null) return providerUnavailable(envelope, start);
-        return AgentToolInput.dispatch(delegate, envelope, contract);
+        // A generic ToolHandler is not an admission or provenance authority.
+        // The current public operation contract does not bind source version,
+        // temporal region, rights/consent, or durable cancellation/finality.
+        return notAdmitted(envelope, start);
     }
 
-    private Promise<ToolExecutionResult> providerUnavailable(ToolExecutionEnvelope envelope, Instant start) {
+    private Promise<ToolExecutionResult> notAdmitted(ToolExecutionEnvelope envelope, Instant start) {
         Instant end = Instant.now();
         return Promise.of(ToolExecutionResult.failed(
                 envelope.invocationId(),
-                "Audio-Video Vision provider unavailable: no vision analysis service delegate configured",
-                envelope.invocationId(),
-                end,
-                Duration.between(start, end)));
+                new ToolExecutionFailure(ToolExecutionFailure.Kind.UNAVAILABLE,
+                        ToolExecutionFailure.Stage.ADMISSION, "VISION_NOT_ADMITTED", false, end),
+                envelope.invocationId(), end, Duration.between(start, end)));
     }
 
     private String resolveMediaSource(Map<String, Object> input) {

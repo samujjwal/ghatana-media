@@ -3,7 +3,7 @@ package com.ghatana.audio.video.common;
 import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import com.ghatana.audio.video.common.observability.TracingServerInterceptor;
 import com.ghatana.audio.video.common.resilience.CircuitBreakerServerInterceptor;
-import com.ghatana.audio.video.common.resilience.RateLimitingServerInterceptor;
+import com.ghatana.audio.video.common.resilience.TenantAwareRateLimitingInterceptor;
 import com.ghatana.audio.video.common.security.AudioVideoRequestContextInterceptor;
 import com.ghatana.audio.video.common.security.InputValidationServerInterceptor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
@@ -18,7 +18,7 @@ import java.util.List;
  * gRPC applies interceptors in reverse-list order (last = outermost), so the chain
  * as seen by an incoming request is:
  * <pre>
- *   Tracing → Metrics → RateLimiter → CircuitBreaker → JWT → RBAC/audit
+ *   Tracing → Metrics → CircuitBreaker → JWT → TenantRateLimiter → RBAC/audit
  *       → InputValidation → Service
  * </pre>
  *
@@ -48,15 +48,16 @@ public final class GrpcInterceptorChain {
      *
      * <p>Actual execution order (outermost → innermost → service):
      * <pre>
-     *   Tracing → Metrics → RateLimiter → CircuitBreaker
-     *       → JWT → RbacAudit → InputValidation
+ *   Tracing → Metrics → CircuitBreaker → JWT
+ *       → TenantRateLimiter → RbacAudit → InputValidation
      *       → Service
      * </pre>
      *
-     * <p><b>Ordering invariant</b>: {@link AudioVideoRequestContextInterceptor} (RBAC)
-     * must be <em>more inner</em> than {@link JwtServerInterceptor} (lower index) so that
-     * JWT has already validated the token and set {@code CTX_SUBJECT}/{@code CTX_TENANT}
-     * in the gRPC context before RBAC reads them.
+     * <p><b>Ordering invariant</b>: JWT must be outer to the tenant limiter, and the
+     * tenant limiter must be outer to {@link AudioVideoRequestContextInterceptor} (RBAC).
+     * Since the returned list is innermost-first, JWT has the higher index and runs first;
+     * it establishes the verified identity before the limiter reads it, and RBAC runs
+     * after quota.
      *
      * @return list of interceptors in application order (innermost first for gRPC)
      */
@@ -64,9 +65,9 @@ public final class GrpcInterceptorChain {
         return List.of(
                 new InputValidationServerInterceptor(),               // index 0 — innermost
                 AudioVideoRequestContextInterceptor.loggingOnly(),    // index 1 — RBAC (after JWT)
-                new JwtServerInterceptor(),                           // index 2 — validates token first
-                new CircuitBreakerServerInterceptor(),                // index 3
-                new RateLimitingServerInterceptor(),                  // index 4
+                new TenantAwareRateLimitingInterceptor(),             // index 2 — verified tenant, after JWT
+                new JwtServerInterceptor(),                           // index 3 — validates before tenant limiter
+                new CircuitBreakerServerInterceptor(),                // index 4
                 MetricsServerInterceptor.getInstance(),               // index 5
                 new TracingServerInterceptor()                        // index 6 — outermost
         );

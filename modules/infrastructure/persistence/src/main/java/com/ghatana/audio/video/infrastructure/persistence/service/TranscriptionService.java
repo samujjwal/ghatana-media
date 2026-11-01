@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -27,28 +28,32 @@ public class TranscriptionService implements AutoCloseable {
     private final TranscriptionRepository repository;
     private final Eventloop eventloop;
     private final ExecutorService dbExecutor;
-    private final boolean ownsDbExecutor;
+    private final ExecutorOwnership executorOwnership;
 
     public TranscriptionService(TranscriptionRepository repository, Eventloop eventloop) {
-        this(repository, eventloop, PersistenceExecutors.newDatabaseExecutor("transcription"), true);
+        this(repository, eventloop, PersistenceExecutors.newDatabaseExecutor("transcription"), ExecutorOwnership.SERVICE);
     }
 
     public TranscriptionService(TranscriptionRepository repository, Eventloop eventloop, ExecutorService dbExecutor) {
-        this(repository, eventloop, dbExecutor, false);
+        this(repository, eventloop, dbExecutor, ExecutorOwnership.CALLER);
     }
 
-    TranscriptionService(TranscriptionRepository repository, Eventloop eventloop, ExecutorService dbExecutor,
-                         boolean ownsDbExecutor) {
+    /**
+     * Injects an executor with explicit shutdown ownership. Caller-owned executors can be shared
+     * across persistence services; service-owned executors are shut down by {@link #close()}.
+     */
+    public TranscriptionService(TranscriptionRepository repository, Eventloop eventloop, ExecutorService dbExecutor,
+                                ExecutorOwnership executorOwnership) {
         this.repository = repository;
         this.eventloop = eventloop;
-        this.dbExecutor = dbExecutor;
-        this.ownsDbExecutor = ownsDbExecutor;
+        this.dbExecutor = Objects.requireNonNull(dbExecutor, "dbExecutor");
+        this.executorOwnership = Objects.requireNonNull(executorOwnership, "executorOwnership");
     }
 
     /** Initiates graceful shutdown of an owned executor without waiting on the caller/eventloop. */
     @Override
     public void close() {
-        if (!ownsDbExecutor) {
+        if (executorOwnership != ExecutorOwnership.SERVICE) {
             return;
         }
         // shutdown() stops admission but drains already accepted tasks. Do not await or interrupt here:

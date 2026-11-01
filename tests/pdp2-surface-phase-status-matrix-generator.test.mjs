@@ -48,6 +48,8 @@ test('PDP-2 matrix binds the current topology denominator without hiding stale s
   const dataCloud = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-data-cloud-media');
   assert.equal(agentTools.applicability.disposition, 'NOT_APPLICABLE');
   assert.equal(dataCloud.applicability.disposition, 'HEADLESS_CONTRACT');
+  assert.equal(agentTools.topologyDisposition, 'SUPPORT_ONLY');
+  assert.equal(dataCloud.topologyDisposition, 'PHYSICAL');
 });
 
 test('failed native criteria remain unassigned and block applicable PDP-2 rows', () => {

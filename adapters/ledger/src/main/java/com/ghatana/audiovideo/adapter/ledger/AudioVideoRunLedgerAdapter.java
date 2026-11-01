@@ -130,8 +130,9 @@ public final class AudioVideoRunLedgerAdapter {
         } else if (mappedOutcome == ExecutionOutcome.DEGRADED) {
             attributes.put("effectFinality", "PARTIAL");
         }
-        if (providerName != null && !providerName.isBlank()) {
-            attributes.put("provider", providerName);
+        String safeProviderName = safeProviderName(providerName);
+        if (safeProviderName != null) {
+            attributes.put("provider", safeProviderName);
         }
         if (providerJobId != null && !providerJobId.isBlank()) {
             // Provider job identifiers may embed tenant or account material —
@@ -188,7 +189,8 @@ public final class AudioVideoRunLedgerAdapter {
                 + "|\\b(?:sk|pk|ghp|gho|glpat|akia)[-_][a-z0-9_-]{8,}\\b)");
     private static final java.util.regex.Pattern SENSITIVE_FAILURE_DETAIL =
         java.util.regex.Pattern.compile(
-            "(?i)([a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}|\\b\\+?[0-9][0-9 ()-]{8,}[0-9]\\b)");
+            "(?i)([a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}|\\b\\+?[0-9][0-9 ()-]{8,}[0-9]\\b"
+                + "|\\b(?:biometric|voiceprint|speaker\\s+identity|face\\s+identity)\\b)");
     private static final String REDACTED_FAILURE_DETAIL = "Failure details omitted by ledger safety filter";
     private static final String REDACTED_POLICY_DETAIL = "Policy detail omitted by ledger safety filter";
     private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
@@ -200,11 +202,29 @@ public final class AudioVideoRunLedgerAdapter {
         "extract-text", "detect-faces", "detect-objects", "detect-scenes",
         "transcribe", "translate", "summarize", "redact", "targetLanguage",
         "quality", "profile", "preset", "outputFormat", "outputMimeType",
-        "policyId", "policyAllowed", "policyReason",
-        "policyConstraints", "policyDecision", "policyDecisionReason",
+        "policyId", "policyAllowed",
+        "policyConstraints", "policyDecision",
         "policyDecisionId", "policyCheckpointId", "policyTimestampMs", "allowed",
-        "reason", "constraints", "providerPolicyId", "providerPolicyDecision",
-        "providerPolicyReason", "providerPolicyEvaluatedAtMs");
+        "constraints", "providerPolicyId", "providerPolicyDecision",
+        "providerPolicyEvaluatedAtMs");
+
+    private static final Set<String> ENUM_PARAMETER_KEYS = Set.of(
+        "codec", "format", "mimeType", "mediaType", "processingType", "classification",
+        "purpose", "quality", "profile", "preset", "outputFormat", "outputMimeType",
+        "extract-text", "detect-faces", "detect-objects", "detect-scenes", "transcribe",
+        "translate", "summarize", "redact", "policyAllowed", "providerPolicyDecision",
+        "policyDecision", "allowed");
+    private static final Set<String> IDENTIFIER_PARAMETER_KEYS = Set.of(
+        "rightsRef", "policyId", "policyDecisionId", "policyCheckpointId", "providerPolicyId");
+    private static final Set<String> NUMERIC_PARAMETER_KEYS = Set.of(
+        "bitrate", "sampleRate", "channels", "fps", "width", "height", "durationMs",
+        "frameCount", "policyTimestampMs", "providerPolicyEvaluatedAtMs");
+    private static final java.util.regex.Pattern SAFE_ENUM =
+        java.util.regex.Pattern.compile("[A-Za-z][A-Za-z0-9_.-]{0,63}");
+    private static final java.util.regex.Pattern SAFE_IDENTIFIER =
+        java.util.regex.Pattern.compile("[A-Za-z0-9][A-Za-z0-9:._/-]{0,127}");
+    private static final java.util.regex.Pattern SAFE_NUMBER =
+        java.util.regex.Pattern.compile("(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,3})?");
 
     /**
      * LD-03: the serialized ledger keeps only a typed whitelist of bounded
@@ -227,8 +247,10 @@ public final class AudioVideoRunLedgerAdapter {
                 continue;
             }
             String value = entry.getValue() == null ? "" : entry.getValue();
-            if (value.length() > MAX_LEDGER_VALUE_CHARS || containsSensitiveLedgerValue(value)
-                    || isPolicyMetadataKey(key) && containsSensitiveLedgerText(value)) {
+            boolean typedClassification = key.equals("classification") && isSafeClassification(value);
+            if (value.length() > MAX_LEDGER_VALUE_CHARS
+                    || containsSensitiveLedgerText(value) && !typedClassification
+                    || !isSafeParameterValue(key, value)) {
                 dropped++;
                 continue;
             }
@@ -238,6 +260,57 @@ public final class AudioVideoRunLedgerAdapter {
             clean.put("sanitizedParamsDropped", String.valueOf(dropped));
         }
         return Map.copyOf(clean);
+    }
+
+    /** Validate value shape as well as key name; a whitelist alone is not a type boundary. */
+    private static boolean isSafeParameterValue(String key, String value) {
+        if (key.equals("classification")) {
+            return isSafeClassification(value);
+        }
+        if (Set.of("extract-text", "detect-faces", "detect-objects", "detect-scenes",
+                "transcribe", "translate", "summarize", "redact", "policyAllowed",
+                "providerPolicyDecision", "policyDecision", "allowed").contains(key)) {
+            return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")
+                    || key.endsWith("Decision") && Set.of("ALLOW", "ALLOWED", "APPROVE", "APPROVED",
+                            "DENY", "DENIED").contains(value.toUpperCase(Locale.ENGLISH));
+        }
+        if (key.equals("bitrate")) {
+            return value.matches("(?:0|[1-9][0-9]{0,8})[kKmM]?");
+        }
+        if (key.equals("mimeType") || key.equals("outputMimeType")) {
+            return value.matches("[A-Za-z0-9.+-]{1,64}/[A-Za-z0-9.+-]{1,64}");
+        }
+        if (key.equals("purpose")) {
+            return Set.of("TRANSCODING", "TRANSCRIPTION", "SPEECH_TO_TEXT", "TEXT_TO_SPEECH",
+                    "ANALYSIS", "ACCESSIBILITY", "MODERATION", "TRANSLATION", "SUMMARIZATION",
+                    "INDEXING", "PREVIEW", "STORAGE")
+                    .contains(value.toUpperCase(Locale.ENGLISH));
+        }
+        if (ENUM_PARAMETER_KEYS.contains(key)) {
+            return SAFE_ENUM.matcher(value).matches();
+        }
+        if (IDENTIFIER_PARAMETER_KEYS.contains(key)) {
+            return SAFE_IDENTIFIER.matcher(value).matches();
+        }
+        if (NUMERIC_PARAMETER_KEYS.contains(key)) {
+            return SAFE_NUMBER.matcher(value).matches();
+        }
+        if (key.equals("language") || key.equals("languageTag") || key.equals("targetLanguage")) {
+            return value.length() <= 35 && value.matches("[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*");
+        }
+        if (key.equals("resolution")) {
+            return value.matches("[0-9]{1,5}x[0-9]{1,5}");
+        }
+        if (key.equals("policyConstraints") || key.equals("constraints")) {
+            return value.matches("[A-Z][A-Z0-9_,-]{0,127}");
+        }
+        return value.matches("[A-Za-z0-9][A-Za-z0-9_.:/+-]{0,127}");
+    }
+
+    private static boolean isSafeClassification(String value) {
+        return Set.of("PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED", "PERSONAL",
+                "SENSITIVE", "BIOMETRIC", "PII", "PHI")
+                .contains(value.toUpperCase(Locale.ENGLISH));
     }
 
     /**
@@ -264,15 +337,6 @@ public final class AudioVideoRunLedgerAdapter {
 
     private static boolean containsSensitiveLedgerText(String value) {
         return containsSensitiveLedgerValue(value) || SENSITIVE_FAILURE_DETAIL.matcher(value).find();
-    }
-
-    private static boolean isPolicyMetadataKey(String key) {
-        return key.equals("policyId") || key.equals("policyCheckpointId")
-                || key.equals("policyDecisionId") || key.equals("providerPolicyId")
-                || key.equals("policyReason") || key.equals("policyDecisionReason")
-                || key.equals("providerPolicyReason") || key.equals("reason")
-                || key.equals("policyConstraints") || key.equals("constraints")
-                || key.equals("policyDecision");
     }
 
     /** Bounded deterministic reference for identifiers that must not be serialized raw. */
@@ -367,7 +431,7 @@ public final class AudioVideoRunLedgerAdapter {
         InputSnapshot inputs = new InputSnapshot(
             Map.of("mediaArtifactId", mediaArtifactId),
             null,
-            Map.of("provider", providerName,
+            Map.of("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"),
                    "providerJobIdRef", ledgerFingerprint(providerJobId)),
             "system",
             createdAtMs
@@ -407,15 +471,13 @@ public final class AudioVideoRunLedgerAdapter {
         }
 
         Map<String, String> attributes = new HashMap<>();
-        attributes.put("provider", providerName);
+        attributes.put("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"));
         attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
         attributes.put("mediaArtifactId", mediaArtifactId);
         attributes.put("mediaType", providerMetadata != null
-            ? providerMetadata.getOrDefault("mediaType", "UNKNOWN")
-            : "UNKNOWN");
+            ? safeMetadataToken(providerMetadata.get("mediaType"), "UNKNOWN") : "UNKNOWN");
         attributes.put("processingType", providerMetadata != null
-            ? providerMetadata.getOrDefault("processingType", "PROVIDER_STATUS")
-            : "PROVIDER_STATUS");
+            ? safeMetadataToken(providerMetadata.get("processingType"), "PROVIDER_STATUS") : "PROVIDER_STATUS");
         Optional<WorkflowPolicySnapshot> policyDecision = extractPolicyDecision(providerMetadata, createdAtMs);
         policyDecision.ifPresent(decision -> {
             attributes.put("policyId", decision.policyId());
@@ -562,20 +624,43 @@ public final class AudioVideoRunLedgerAdapter {
             return Map.of();
         }
         Map<String, Number> metrics = new LinkedHashMap<>();
+        // These are bounded operational counters. Provider-defined metric names
+        // may contain tenant data, biometric scores, or opaque identifiers.
+        Set<String> allowedMetrics = Set.of("duration", "durationMs", "words_processed", "frame_count");
         metadata.forEach((key, value) -> {
-            if (key == null || key.length() > MAX_LEDGER_KEY_CHARS
-                    || value == null || value.isBlank()) {
+            if (key == null || !allowedMetrics.contains(key) || value == null
+                    || !value.matches("(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,3})?")) {
                 return;
             }
             try {
-                metrics.put(key, value.contains(".")
-                    ? Double.parseDouble(value)
-                    : Long.parseLong(value));
+                double parsed = Double.parseDouble(value);
+                if (Double.isFinite(parsed) && parsed <= 1_000_000_000_000d) {
+                    if (value.contains(".")) {
+                        metrics.put(key, parsed);
+                    } else {
+                        metrics.put(key, Long.parseLong(value));
+                    }
+                }
             } catch (NumberFormatException ignored) {
                 // Provider metadata remains in attributes; only numeric values are metrics.
             }
         });
         return Map.copyOf(metrics);
+    }
+
+    private static String safeProviderName(String providerName) {
+        if (providerName == null || providerName.length() > 64
+                || !providerName.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}")
+                || containsSensitiveLedgerText(providerName)) {
+            return null;
+        }
+        return providerName;
+    }
+
+    private static String safeMetadataToken(String value, String fallback) {
+        return value != null && value.length() <= 64
+                && SAFE_ENUM.matcher(value).matches() && !containsSensitiveLedgerText(value)
+                ? value : fallback;
     }
 
     private static long parsePositiveLong(String rawValue, long fallback) {

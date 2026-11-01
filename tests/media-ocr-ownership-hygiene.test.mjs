@@ -14,6 +14,19 @@ test('retired Media OCR implementations remain absent', () => {
   ]) assert.equal(existsSync(resolve(root, source)), false, `${source} must remain retired`);
 });
 
+test('Media OCR source retirement does not claim an admitted Kernel or DI replacement', () => {
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  const retired = topology.retiredManifestLocations.find(entry => entry.path === 'adapters/ocr-compat/build.gradle.kts');
+  assert.match(retired.rationale, /does not establish a replacement Kernel provider/u);
+  const retirement = JSON.parse(read('docs/implementation/media-ocr-compat-retirement-decision.v1.json'));
+  assert.equal(retirement.decision, 'RETIRED_SOURCE_REPLACEMENT_NOT_ADMITTED');
+  assert.equal(retirement.currentState.mediaSource, 'RETIRED');
+  assert.equal(retirement.currentState.replacementProvider, 'NOT_ADMITTED');
+  assert.match(retirement.currentState.closure, /separately from OCR-K01/u);
+  assert.equal(retirement.sourceImpact.candidatePresentOnKernelOriginMain, false);
+  assert.equal(retirement.sourceImpact.kernelOriginMain, '209921dea4f13c756deaa0a945580df4587ffbf3');
+});
+
 test('legacy OCR is not an automatically selected provider', () => {
   const manifest = JSON.parse(read('config/provider-manifest.json'));
   assert.equal(manifest.conformance.automaticSelectionEligible, false);
@@ -53,7 +66,7 @@ test('development consumer migration accounts for every DI-only adoption and ret
     'OCR-K01', 'OCR-M03', 'OCR-X01',
   ]);
   assert.match(matrix, /source-free DI-backed capability conformance/iu);
-  assert.match(matrix, /After OCR-M01\/M02\/K01 prove their replacement/u);
+  assert.match(matrix, /OCR-M03 source removal is already recorded/u);
   assert.match(matrix, /No callable Media generic OCR implementation remains/u);
   assert.match(matrix, /swap the adapter\/model \*\*inside Document Intelligence\*\*/u);
   assert.match(matrix, /Ghatana #252/u);

@@ -199,6 +199,18 @@ class TranscriptionServiceTest extends EventloopTestBase {
         assertThat(result).isEqualTo(3L); 
     }
 
+    @Test
+    void callerOwnedExecutorCanBeReusedAfterServiceClose() {
+        String tenantId = "tenant-reuse";
+        TranscriptionEntity entity = createTestTranscription(tenantId);
+        when(repository.save(tenantId, entity)).thenReturn(entity);
+
+        service.close();
+        assertThat(injectedExecutor.isShutdown()).isFalse();
+
+        assertThat(runPromise(() -> service.save(tenantId, entity))).isSameAs(entity);
+    }
+
     // Helper methods
 
     private TranscriptionEntity createTestTranscription(String tenantId) { 

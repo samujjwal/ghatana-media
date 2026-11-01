@@ -5,27 +5,11 @@ export const PHASE_IDS = ['PDP-0', 'PDP-1', 'PDP-2', 'PDP-3'];
 export const MATRIX_PATHS = [0, 1, 2, 3].map(i => `docs/implementation/verification/pdp-38/pdp${i}-surface-phase-status-matrix.json`);
 
 /**
- * Owner-reviewed dispositions for topology identities that are not rows of the
- * frozen 54-identity PDP phase matrices. Every delta must be declared here; an
- * undeclared or stale declaration fails the reconciliation. These dispositions
- * never assert PDP status: they say what source action is required next.
+ * No current topology identities are missing from the phase matrices. Keep the
+ * declared-delta input as an extension point so a future topology-only identity
+ * must still have an explicit owner disposition before reconciliation passes.
  */
-export const DECLARED_MATRIX_DELTA = {
-  'media.physical.adapters-agent-tools-media': {
-    disposition: 'MATRIX_EXTENSION_REQUIRED',
-    lifecycleState: 'SUPPORT',
-    expectedTopologyDisposition: 'SUPPORT_ONLY',
-    rationale: 'Optional Tools SPI adapter added to topology after the 54-row matrices were frozen. Topology proposes support-only N/A for PDP-0/2 and referenced-only PDP-1; the four phase matrices need an impacted one-row extension through their generators before any phase status may be claimed.',
-    nextAction: 'Extend pdp0..pdp3 surface-phase-status matrix generators with this support row (owner-reviewed N/A rationale); do not reopen the 54 unchanged rows.'
-  },
-  'media.physical.adapters-data-cloud-media': {
-    disposition: 'MATRIX_EXTENSION_REQUIRED',
-    lifecycleState: 'ACTIVE',
-    expectedTopologyDisposition: 'PHYSICAL',
-    rationale: 'Physical Data Cloud MediaProcessorPort adapter added to topology after the matrices were frozen. Topology marks PDP-0 APPLICABLE under DEP-DATA-CLOUD; Data Cloud is an optional downstream integration (MDI-001/PDP0-003-D4) and must not gate Media processing.',
-    nextAction: 'Owner-review PDP-0 DEP-DATA-CLOUD obligations for this row, then extend all four phase matrices through their generators; keep optional-dependency negative cases explicit.'
-  }
-};
+export const DECLARED_MATRIX_DELTA = Object.freeze({});
 
 /**
  * Retired surface declarations: identities removed from topology together with
@@ -35,7 +19,7 @@ export const DECLARED_MATRIX_DELTA = {
 export const RETIRED_MATRIX_DELTA = {
   'media.physical.adapters-ocr-compat': {
     disposition: 'RETIRED_UNDER_OCR_M03',
-    rationale: 'Legacy Kernel OCR compatibility adapter deleted as an actual Build migration to the DI-owned Kernel DiOcrProvider (kernel#99); module, topology manifest candidate and this declaration were removed together per the declared next action.',
+    rationale: 'Legacy Media OCR adapter source is retired under OCR-M03. This source disposition does not establish a DI-backed Kernel provider or installed consumer replacement.',
     removedInCommits: ['f212cf6b', '0613884a']
   }
 };
@@ -59,7 +43,7 @@ function lifecycleStateOf({ row, type }) {
 }
 
 /**
- * Reconcile current topology identities with the four frozen phase matrices.
+ * Reconcile current topology identities with the four owner-generated phase matrices.
  * Returns the full classified roster plus the declared matrix delta, or throws
  * on duplicates, matrix-only ghosts, inconsistent matrices, or undeclared drift.
  */

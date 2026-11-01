@@ -27,7 +27,12 @@ class AudioStreamSessionFrameTest {
 
     @Test
     void legitimateFramesRoundTripAtBoundaries() {
-        for (int size : new int[]{0, 1, AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES - 1}) {
+        for (int size : new int[]{
+                0,
+                1,
+                AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES - 1,
+                AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES
+        }) {
             byte[] payload = new byte[size];
             Arrays.fill(payload, (byte) 0x5a);
             var decoded = session.decodeFrame(
@@ -36,10 +41,10 @@ class AudioStreamSessionFrameTest {
             assertThat(decoded.timestampMillis()).isEqualTo(1_700_000_000_000L);
             assertThat(decoded.payload()).isEqualTo(payload);
         }
-        // Sequence values near the 32-bit wrap are carried exactly.
-        var wrapped = session.decodeFrame(session.encodeFrame(
+        // The largest nonnegative sequence is valid on the legacy wire format.
+        var lastSequence = session.decodeFrame(session.encodeFrame(
                 Integer.MAX_VALUE, 0L, new byte[]{1}));
-        assertThat(wrapped.sequenceNumber()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(lastSequence.sequenceNumber()).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
@@ -64,8 +69,14 @@ class AudioStreamSessionFrameTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.decodeFrame(header(1, 0L, Integer.MAX_VALUE)))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.decodeFrame(header(-1, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
         // Declared length larger than the bytes actually present.
         assertThatThrownBy(() -> session.decodeFrame(header(1, 0L, 4)))
+                .isInstanceOf(IllegalArgumentException.class);
+        // A partial payload cannot be accepted even when the total wire size is bounded.
+        assertThatThrownBy(() -> session.decodeFrame(Arrays.copyOf(valid, valid.length - 1)))
                 .isInstanceOf(IllegalArgumentException.class);
         // Trailing garbage after a complete payload is rejected.
         byte[] trailing = Arrays.copyOf(valid, valid.length + 1);
@@ -76,6 +87,9 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.encodeFrame(
                         1, 0L, new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1]))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.encodeFrame(-1, 0L, new byte[0]))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
         assertThatThrownBy(() -> session.encodeFrame(1, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }

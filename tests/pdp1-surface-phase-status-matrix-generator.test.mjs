@@ -153,7 +153,7 @@ test('identity, applicability and authority inconsistencies fail closed', () => 
   } finally { g.cleanup(); }
 });
 
-test('unsupported selector pins and stale native PDP-0 status pins fail closed', () => {
+test('unsupported selector pins fail closed and stale PDP-0 pins remain explicit in the projection', () => {
   const f = fixture();
   try {
     const selectorStatus = structuredClone(f.status);
@@ -165,6 +165,9 @@ test('unsupported selector pins and stale native PDP-0 status pins fail closed',
     const projected = buildPdp1SurfaceMatrix({ root: f.root, status: f.status, semanticReview: f.review, pdp0ProjectionPins: { 'authority/pdp0-input.yaml#PDP-0-projection': 'projection-fingerprint' } });
     assert.equal(projected.campaign.status, 'DEV_COMPLETE');
     write(f.root, 'authority/pdp0-input.yaml', 'changed PDP-0 source');
-    assert.throws(() => buildPdp1SurfaceMatrix({ root: f.root, status: f.status, semanticReview: f.review, pdp0ProjectionPins: { 'authority/pdp0-input.yaml#PDP-0-projection': 'projection-fingerprint' } }), /PDP-0 native status DEV_COMPLETE with all byte and native projection pins current/);
+    const stale = buildPdp1SurfaceMatrix({ root: f.root, status: f.status, semanticReview: f.review, pdp0ProjectionPins: { 'authority/pdp0-input.yaml#PDP-0-projection': 'projection-fingerprint' } });
+    assert.equal(stale.campaign.status, 'IN_PROGRESS');
+    assert.equal(stale.predecessorCurrentness.status, 'STALE');
+    assert.ok(stale.predecessorCurrentness.staleSourcePins.includes('authority/pdp0-input.yaml'));
   } finally { f.cleanup(); }
 });

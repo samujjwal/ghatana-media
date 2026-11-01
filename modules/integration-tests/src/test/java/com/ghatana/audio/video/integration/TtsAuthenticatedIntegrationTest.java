@@ -90,7 +90,7 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
             .forName(serverName)
             .directExecutor()
             .addService(service)
-            .intercept(new TestJwtServerInterceptor())
+            .intercept(new JwtServerInterceptor())
             .build()
             .start();
 
@@ -219,6 +219,52 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
         // Verify persistence was never called
         verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("GIVEN blank JWT subject WHEN synthesize THEN request fails before provider or storage effects")
+    void jwtBlankSubject_failsUnauthenticatedWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, "  ");
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        SynthesizeRequest request = SynthesizeRequest.newBuilder()
+            .setText("subject authorization negative test")
+            .setVoiceId("en-US-Neural2-A")
+            .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                .setSpeed(1.0f).setPitch(1.0f).setLanguage("en").build())
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
+        assertThat(exception.getStatus().getDescription()).contains("Missing subject claim");
+        verifyNoInteractions(audioFileService, ttsEngine);
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("GIVEN forged JWT WHEN synthesize THEN request fails with no provider or storage effects")
+    void forgedJwt_failsUnauthenticatedWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        String forgedJwt = jwt.substring(0, jwt.length() - 1) + (jwt.endsWith("A") ? "B" : "A");
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + forgedJwt);
+        SynthesizeRequest request = SynthesizeRequest.newBuilder()
+            .setText("authorization negative test")
+            .setVoiceId("en-US-Neural2-A")
+            .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                .setSpeed(1.0f).setPitch(1.0f).setLanguage("en").build())
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
+        verifyNoInteractions(audioFileService, ttsEngine);
     }
 
     @Test

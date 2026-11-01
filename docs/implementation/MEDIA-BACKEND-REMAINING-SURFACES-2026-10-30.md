@@ -23,7 +23,7 @@
 3. `modules/infrastructure/cache/AudioVideoCache.java` currently logs generic cache keys and `TranscriptionCacheService` serializes cached transcription entities. Review identity scope, rights, source version, revocation/erasure invalidation and redacted telemetry, and reuse Shared `DistributedCachePort`.
 4. `modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs` supports decode/resample/mix/WAV primitives; linear resampling and whole-file decoding require fidelity qualification and byte/CPU budgets before being advertised as high-quality or streaming.
 5. `adapters/data-cloud-media/MediaSemanticObservationProjector.java` is explicit that its locally validated projection **does not authenticate source/rights/provider evidence or itself authorize publication**. Data Cloud publication needs actual admitted policy/owner receipts, not a wrapper that treats nonblank strings as authority.
-6. `adapters/ocr-compat/KernelOcrProviderAdapter.java` was retired under OCR-M03 (`f212cf6b`); OCR executes only through Document Intelligence (`DocumentIntelligenceHttpClient` + `SceneTextRecognitionService`, Kernel `DiOcrProvider` `ghatana-kernel` `f30264795`). Do not revive a generic Media OCR engine; Media owns only scene-text region/time semantics on top of the DI public client.
+6. `adapters/ocr-compat/KernelOcrProviderAdapter.java` was retired under OCR-M03 (`f212cf6b`, `0613884a`). Media's `DocumentIntelligenceHttpClient` + `SceneTextRecognitionService` are a bounded consumer seam, not proof of a published client or real worker. The reviewed Kernel `main` lacks the proposed `DiOcrProvider`, and `f30264795` is not an admitted replacement. Do not revive a generic Media OCR engine; Media owns only scene-text region/time semantics over the DI public contract.
 7. `libs/audio-video-client/src/cli.ts` currently has **one source-bound production-like read-only command** (`media.cli.artifact.inspect`), while `libs/media-experience-simulation/src/cli.ts` exposes 11 *fixture-only* commands. Do not claim the latter are production CLI operations.
 8. `libs/java/common` owns currently used Whisper/Piper/vision runtime engine implementations but is topologically **SUBSUMED**, and Wave 2 still has active proof work. Prevent simultaneous edits with Wave 2 in the same engine files; this plan owns only previously unselected common/compatibility responsibilities and waits for release of shared files.
 9. The PDP-1 declarative production/recorder contracts are **source-authored, not runtime admission**. Build backend spec compiler, capture/orchestration, deterministic animation/simulation from existing domain types; never treat Explorer fixtures as a qualified solver or real product operation.
@@ -179,10 +179,10 @@
 
 The original OC-01..OC-04 task scope was superseded and executed as the actual OCR-M03 retirement, not re-run as the compatibility-shim plan originally written:
 
-- `OcrService`, `KernelOcrProviderAdapter` and the whole `adapters/ocr-compat` module were deleted and rebound to Document Intelligence (`f212cf6b`): OCR executes only through `DocumentIntelligenceHttpClient` + `SceneTextRecognitionService`; missing DI contract/credentials/rights stays fail-closed `NOT_ADMITTED`; no Media-owned generic OCR engine may be reintroduced (OC-01/OC-02 scope).
+- `OcrService`, `KernelOcrProviderAdapter` and the whole `adapters/ocr-compat` module were deleted (`f212cf6b`, `0613884a`): the remaining `DocumentIntelligenceHttpClient` + `SceneTextRecognitionService` are a fail-closed DI consumer seam, not an installed client or real worker qualification; missing DI contract/credentials/rights stays `NOT_ADMITTED`; no Media-owned generic OCR engine may be reintroduced (OC-01/OC-02 source disposition).
 - Vision scene-text contract coverage now proves bounded source pixels, ROI/PTS correlation, cross-tenant and outage negatives against the DI seam (`c9aee4d4`); legacy adapter tests were excised with the module (OC-03 scope).
-- The Kernel `media.ocr` provider is the DI-owned `DiOcrProvider` (`ghatana-kernel` `f30264795`, kernel#99); the stale adapter source, its `build.gradle.kts` and service registration were deleted and the topology manifest candidate plus this declaration retired together (`0613884a`) — the OC-04 retirement outcome. The owner-reported `f082efa5` compat-shim guard is superseded by actual module deletion.
-- Remaining external proof: a real qualified DI worker plus source-free public-consumer qualification (Ghatana #252) — tracked as external, not as local OC tasks.
+- Kernel's `media.ocr` provider remains external and unverified: the reviewed Kernel `main` lacks the proposed `DiOcrProvider`, and `f30264795` is not an admitted replacement. The stale Media adapter source, its `build.gradle.kts` and service registration were deleted and the topology candidate retired (`0613884a`); this is OC source retirement, not OC-04/OCR-K01 provider acceptance. The owner-reported `f082efa5` compat-shim guard is historical evidence superseded by source deletion.
+- Remaining external proof: a real qualified DI worker, an owner-qualified Kernel provider, and installed source-free public consumers (Ghatana #252, Kernel #99) — tracked separately from the local OC source-retirement disposition.
 
 ### AT — media.physical.adapters-agent-tools-media (adapters/agent-tools-media)
 
@@ -531,7 +531,7 @@ The pre-report remote already contains `c353df29` bounded audio/video `decodeFra
 | AS | 7 | 2 | 5 | AS-05, AS-06 |
 | VS | 7 | 3 | 4 | VS-04, VS-05, VS-06 |
 | DC | 6 | 3 | 3 | DC-04, DC-05, DC-06 |
-| OC | 4 | 1 | 0 | OC-04 reported (`f082efa5`); OC-01..OC-03 subsequently executed under OCR-M03 retirement (`f212cf6b`, `0613884a`; `ghatana-kernel` `f30264795`) |
+| OC | 4 | 0 | 0 | Media source retirement is present (`f212cf6b`, `0613884a`); do not count it as an admitted Kernel/DI replacement or original whole-row acceptance. |
 | AT | 6 | 2 | 4 | AT-05, AT-06 |
 | SK | 8 | 6 | 2 | SK-03, SK-04, SK-05, SK-06, SK-07, SK-08 |
 | CT | 5 | 0 | 5 | — |

@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1.0.0",
-  "decision": "RETAIN_COMPAT_SHIM",
-  "decidedAt": "2026-10-30",
-  "task": "OC-04",
+  "decision": "RETIRED_SOURCE_REPLACEMENT_NOT_ADMITTED",
+  "decidedAt": "2026-11-01",
+  "task": "OC-01..OC-04 / OCR-M03",
   "adapter": "adapters/ocr-compat/src/main/java/com/ghatana/audio/video/vision/ocr/KernelOcrProviderAdapter.java",
-  "rationale": "Exact Document Intelligence owner adoption has not occurred: no admitted public DI contract is wired into this repository. Retiring the Kernel adapter now would prematurely break the legacy ProductRuntimeFacets.OcrProvider consumer shape; replacing it with a Media-owned executor would be an unqualified OCR claim.",
-  "retirementPreconditions": {
-    "diOwnerAdoption": "An admitted Document Intelligence public client is wired and proven — external owner: Ghatana #252",
-    "consumerMigration": "Every registered consumer of ProductRuntimeFacets.OcrProvider has a verified migration path to the DI-owned capability",
-    "proofArtifacts": "Migration/consumer proof recorded before adapter source is removed"
+  "rationale": "The earlier retain-shim decision was superseded by the Media source retirement recorded in f212cf6b and 0613884a. That deletion is not evidence that a replacement DI-backed Kernel provider, installed consumer, or real OCR worker was admitted.",
+  "historicalDecision": {
+    "decision": "RETAIN_COMPAT_SHIM",
+    "decidedAt": "2026-10-30",
+    "supersededBy": "Media OCR source retirement under OCR-M03"
+  },
+  "sourceImpact": {
+    "recordId": "MEDIA-OCR-KERNEL-PROVIDER-SOURCE-IMPACT-2026-11-01",
+    "predecessorObservationRef": "docs/implementation/observations/media-discovery-topology-56-surface-successor-2026-10-31.json#sourceDeltas/media.physical.adapters-ocr-compat",
+    "reviewedMediaHead": "2287867bd74332a77216d83d3b9a3b566ab5a4d9",
+    "kernelOriginMain": "209921dea4f13c756deaa0a945580df4587ffbf3",
+    "kernelLocalCandidate": "f3026479515e471285015e032f965f5d2ccfb58f",
+    "candidatePresentOnKernelOriginMain": false,
+    "disposition": "MEDIA_OCR_SOURCE_RETIRED_KERNEL_DI_PROVIDER_NOT_ADMITTED"
   },
   "currentState": {
-    "claim": "No OCR capability is claimed. extract()/status()/cancel() return bounded terminal failures only; the legacy constructor shape and provider interface are preserved for consumer compatibility.",
-    "closure": "Closure is limited to fail-closed compatibility; no retirement commit may land without the preconditions above."
+    "mediaSource": "RETIRED",
+    "replacementProvider": "NOT_ADMITTED",
+    "installedConsumerCompatibility": "NOT_VERIFIED",
+    "claim": "Media does not execute generic OCR. The Vision scene-text path is a fail-closed consumer seam for the Document Intelligence v1 protocol; local wire fixtures do not prove a real worker, provider result, or rights admission.",
+    "closure": "OC source retirement is recorded separately from OCR-K01 and real DI provider acceptance."
   },
   "externalOwner": {
     "work": "Document Intelligence public contract",

@@ -235,7 +235,18 @@ export function validateBuildWorkPackageProjection(projection, expected = {}) {
   }
   if (expected.matrixPaths) {
     const matrices = projection.census?.matrixRows ?? [];
-    if (matrices.length !== expected.matrixPaths.length || expected.matrixPaths.some(path => !matrices.some(matrix => matrix.path === path && matrix.rowCount === 54 && matrix.sourceCurrentness === 'CURRENT' && matrix.status === 'DEV_COMPLETE' && matrix.surfaceIds?.length === 54 && (!expected.surfaceIds || expected.surfaceIds.every(id => matrix.surfaceIds.includes(id)))))) errors.push('phase matrix census is incomplete or not current');
+    const expectedSurfaceIds = expected.surfaceIds;
+    const expectedSurfaceCount = Array.isArray(expectedSurfaceIds) ? new Set(expectedSurfaceIds).size : null;
+    if (!Number.isInteger(expectedSurfaceCount) || expectedSurfaceCount !== expectedSurfaceIds.length
+      || matrices.length !== expected.matrixPaths.length
+      || expected.matrixPaths.some(path => !matrices.some(matrix => matrix.path === path
+        && matrix.rowCount === expectedSurfaceCount
+        && matrix.sourceCurrentness === 'CURRENT'
+        && matrix.status === 'DEV_COMPLETE'
+        && matrix.surfaceIds?.length === expectedSurfaceCount
+        && expectedSurfaceIds.every(id => matrix.surfaceIds.includes(id))))) {
+      errors.push('phase matrix census is incomplete, mismatched, or not current');
+    }
   }
   return errors;
 }

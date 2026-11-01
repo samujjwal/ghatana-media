@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
@@ -20,9 +24,13 @@ public class AudioVideoCache<K, V> {
     
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoCache.class);
     private static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
+    private static final int MAX_IN_FLIGHT_KEYS = 1_024;
     
     private final DistributedCachePort<K, V> cachePort;
     private final String namespace;
+    /** Bounded, process-local coordination only; this is not a distributed lock. */
+    private final ConcurrentMap<K, CompletableFuture<V>> inFlightLoads = new ConcurrentHashMap<>();
+    private final AtomicInteger inFlightReservations = new AtomicInteger();
     
     public AudioVideoCache(DistributedCachePort<K, V> cachePort, String namespace) {
         this.cachePort = Objects.requireNonNull(cachePort, "cachePort cannot be null");
@@ -86,7 +94,8 @@ public class AudioVideoCache<K, V> {
         Objects.requireNonNull(value, "value cannot be null");
         Objects.requireNonNull(ttl, "ttl cannot be null");
         
-        return observePut(cachePort.put(key, value, ttl), key, ttl);
+        Duration boundedTtl = boundedTtl(ttl);
+        return observePut(cachePort.put(key, value, boundedTtl), key, boundedTtl);
     }
     
     /**
@@ -95,23 +104,103 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<V> getOrLoad(K key, Function<K, AsyncOperation<V>> loader) {
         Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(loader, "loader cannot be null");
-        
-        return cachePort.get(key).flatMap(cached -> {
-            if (cached.isPresent()) {
-                return AsyncOperation.success(cached.get());
-            }
-            return loader.apply(key).flatMap(loaded -> {
-                if (loaded == null) {
-                    return AsyncOperation.success(null);
+
+        CompletableFuture<V> existing = inFlightLoads.get(key);
+        if (existing != null) return AsyncOperation.from(existing);
+        if (!reserveInFlightSlot()) {
+            existing = inFlightLoads.get(key);
+            if (existing != null) return AsyncOperation.from(existing);
+            LOG.warn("Cache load coordination capacity reached: namespace={}", namespace);
+            return loadWithoutCache(key, loader);
+        }
+
+        CompletableFuture<V> candidate = new CompletableFuture<>();
+        existing = inFlightLoads.putIfAbsent(key, candidate);
+        if (existing != null) {
+            inFlightReservations.decrementAndGet();
+            return AsyncOperation.from(existing);
+        }
+
+        CompletableFuture<V> operationFuture = new CompletableFuture<>();
+        operationFuture.whenComplete((value, error) -> {
+            if (error == null) candidate.complete(value);
+            else candidate.completeExceptionally(error);
+            inFlightLoads.remove(key, candidate);
+            inFlightReservations.decrementAndGet();
+        });
+
+        try {
+            AsyncOperation<Optional<V>> cacheRead = cachePort.get(key);
+            cacheRead.whenComplete((cached, readError) -> {
+                if (readError != null) {
+                    LOG.warn("Cache get failed; loading from source: namespace={}, keyRef={}, causeType={}",
+                            namespace, keyReference(key), failureType(readError));
+                    completeFrom(loadWithoutCache(key, loader), operationFuture);
+                } else if (cached != null && cached.isPresent()) {
+                    operationFuture.complete(cached.get());
+                } else {
+                    completeFrom(loadAndCache(key, loader), operationFuture);
                 }
-                return cachePort.put(key, loaded, DEFAULT_TTL).map(ignored -> loaded);
             });
-        }).whenComplete((ignored, error) -> {
+        } catch (RuntimeException cacheFailure) {
+            LOG.warn("Cache get failed; loading from source: namespace={}, keyRef={}, causeType={}",
+                    namespace, keyReference(key), failureType(cacheFailure));
+            completeFrom(loadWithoutCache(key, loader), operationFuture);
+        }
+        return AsyncOperation.from(candidate).whenComplete((ignored, error) -> {
             if (error != null) {
                 LOG.error("Cache load error: namespace={}, keyRef={}, causeType={}",
                         namespace, keyReference(key), failureType(error));
             }
         });
+    }
+
+    private boolean reserveInFlightSlot() {
+        while (true) {
+            int current = inFlightReservations.get();
+            if (current >= MAX_IN_FLIGHT_KEYS) return false;
+            if (inFlightReservations.compareAndSet(current, current + 1)) return true;
+        }
+    }
+
+    private AsyncOperation<V> loadAndCache(K key, Function<K, AsyncOperation<V>> loader) {
+        CompletableFuture<V> result = new CompletableFuture<>();
+        loadWithoutCache(key, loader).whenComplete((value, loadError) -> {
+            if (loadError != null) {
+                result.completeExceptionally(loadError);
+            } else if (value == null) {
+                result.complete(null);
+            } else {
+                try {
+                    cachePort.put(key, value, DEFAULT_TTL).whenComplete((ignored, putError) -> {
+                        if (putError != null) LOG.warn(
+                                "Cache put failed; returning source value: namespace={}, keyRef={}, causeType={}",
+                                namespace, keyReference(key), failureType(putError));
+                        result.complete(value);
+                    });
+                } catch (RuntimeException cacheFailure) {
+                    LOG.warn("Cache put failed; returning source value: namespace={}, keyRef={}, causeType={}",
+                            namespace, keyReference(key), failureType(cacheFailure));
+                    result.complete(value);
+                }
+            }
+        });
+        return AsyncOperation.from(result);
+    }
+
+    private static <T> void completeFrom(AsyncOperation<T> operation, CompletableFuture<T> target) {
+        operation.whenComplete((value, error) -> {
+            if (error == null) target.complete(value);
+            else target.completeExceptionally(error);
+        });
+    }
+
+    private AsyncOperation<V> loadWithoutCache(K key, Function<K, AsyncOperation<V>> loader) {
+        try {
+            return Objects.requireNonNull(loader.apply(key), "loader returned null operation");
+        } catch (RuntimeException loaderFailure) {
+            return AsyncOperation.failure(loaderFailure);
+        }
     }
     
     /**
@@ -150,20 +239,22 @@ public class AudioVideoCache<K, V> {
     }
     
     /**
-     * Build a collision-safe tenant/id cache key. The v2 format preserves the
-     * namespace prefix while hashing the length-prefixed UTF-16 code units of
-     * tenant and id, so separators inside either value cannot alias another
-     * pair. Old delimiter-format entries are intentionally treated as misses;
-     * cache data is ephemeral and will repopulate from the source of truth.
+     * Build a collision-safe tenant/id cache key. The v2 format uses a
+     * Shared-compatible hyphen separator and hashes the length-prefixed
+     * UTF-16 code units of namespace, tenant and id, so separators inside any
+     * value cannot alias another tuple. Old delimiter-format entries are
+     * intentionally treated as misses; cache data is ephemeral and repopulates
+     * from the source of truth.
      */
     public String buildKey(String tenantId, String id) {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
         Objects.requireNonNull(id, "id cannot be null");
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            updateFramedUtf16(digest, namespace);
             updateFramedUtf16(digest, tenantId);
             updateFramedUtf16(digest, id);
-            StringBuilder key = new StringBuilder(namespace).append(":v2:");
+            StringBuilder key = new StringBuilder("av2-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))
                         .append(Character.forDigit(value & 0xf, 16));
@@ -193,6 +284,13 @@ public class AudioVideoCache<K, V> {
                         namespace, keyReference(key), failureType(error));
             }
         });
+    }
+
+    private static Duration boundedTtl(Duration ttl) {
+        if (ttl.isZero() || ttl.isNegative()) {
+            throw new IllegalArgumentException("ttl must be positive");
+        }
+        return ttl.compareTo(DEFAULT_TTL) > 0 ? DEFAULT_TTL : ttl;
     }
 
     /** Never render backend exception messages or stack traces in cache diagnostics. */

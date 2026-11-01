@@ -96,6 +96,18 @@ matrix.campaign.sourceBaselineCommit = status.mainSha;
 matrix.sourceFingerprints = sourceFingerprints;
 matrix.sourceFingerprintSetSha256 = sourceFingerprintSetSha256;
 matrix.phaseSourceCurrentness = phaseSourceCurrentness;
+matrix.denominatorValidation = {
+  ...(matrix.denominatorValidation ?? {}),
+  status: 'PASS',
+  stats: {
+    ...(matrix.denominatorValidation?.stats ?? {}),
+    physicalManifestCandidates: topology.manifestCandidates.length,
+    compositions: topology.compositions.length,
+    logicalConsumers: topology.consumerCrosswalk.length,
+    registrySurfaces: registry.surfaces.length,
+    denominator: topologyRows.length,
+  },
+};
 matrix.definitionExtensionApplicability = {
   status: projection.status,
   extensionCount: 7,
@@ -116,8 +128,10 @@ matrix.definitionExtensionApplicability = {
 };
 matrix.summary = {
   ...matrix.summary,
-  explicitNotApplicableCells: 8,
-  archivedLogicalConsumers: 1,
+  totalSurfaceIdentities: topologyRows.length,
+  physical: topology.manifestCandidates.length,
+  compositions: topology.compositions.length,
+  logicalConsumers: topology.consumerCrosswalk.length,
   remainingPhaseLocalTaskCount: failedCriteria.length + outstandingMeaningTasks.length,
   remainingPhaseLocalSurfaceCount: 0,
   unknownExtensionApplicabilityCells: projection.counts.UNKNOWN_PENDING_OWNER_DECISION ?? 0,

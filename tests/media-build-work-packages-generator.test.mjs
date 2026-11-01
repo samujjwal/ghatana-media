@@ -177,6 +177,15 @@ test('Build work package generation fails closed and preserves the baseline arti
   assert.equal(digest(), before, 'blocked generation must preserve the checked-in baseline artifact');
   const projection = JSON.parse(fs.readFileSync(path, 'utf8'));
   assert.equal(projection.materialSourceReceipt.records.filter(record => record.phase === 'PDP-2').length, 180);
+  assert.equal(projection.materialSourceReceipt.status, 'STALE_BLOCKED');
+  assert.equal(projection.materialSourceReceipt.staleCount, 10);
+  assert.equal(projection.surfaces.length, 56);
+  const matrixDeltas = projection.surfaces.filter(row => row.matrixDelta);
+  assert.deepEqual(matrixDeltas.map(row => [row.id, row.matrixDelta.disposition]), [
+    ['media.physical.adapters-agent-tools-media', 'MATRIX_EXTENSION_REQUIRED'],
+    ['media.physical.adapters-data-cloud-media', 'MATRIX_EXTENSION_REQUIRED']
+  ]);
+  assert(matrixDeltas.every(row => Object.values(row.applicability).every(phase => phase.sourceCurrent === false && phase.developmentStatus === row.matrixDelta.disposition)));
   assert.equal(projection.tasks.find(task => task.id === 'M-BLD-F00.T01').status, 'STALE_BLOCKED');
 });
 
@@ -219,7 +228,9 @@ test('PDP-2 classifies the 23 absent selectors as outside historical R17 scope b
   });
   assert.match(errors[0], /23 prior status selector\(s\).*outside the historical R17 source path set/u);
   assert.match(errors[0], /not semantic retirement or current approval/u);
-  assert.match(errors[1], /source selector denominator mismatch \(status=157, matrix=180\)/u);
+  assert.equal(previousSelectors.length, 180);
+  assert.equal(currentSelectors.length, 157);
+  assert.equal(matrix.phaseSourceCurrentness.sourcePinCount, 157);
 
   const staleScopeErrors = sourceSelectorContinuityErrors({
     phase: 'PDP-2', previousSelectors, currentSelectors,
@@ -240,7 +251,7 @@ test('PDP-2 classifies the 23 absent selectors as outside historical R17 scope b
 test('validator rejects negative identity, join, edge, cycle, N/A, census, and pin fixtures', () => {
   const reconciliationErrors = sourceSelectorReconciliationErrors();
   if (reconciliationErrors.length) {
-    assert.throws(() => run('--check'), /previously pinned selector|source selector denominator mismatch|prior source-selector receipt missing/i);
+    assert.throws(() => run('--check'), /previously pinned selector|prior status selector|source selector denominator mismatch|prior source-selector receipt missing/i);
   } else {
     assert.match(run('--check'), /PASS/);
   }
@@ -329,7 +340,10 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
     materialSources: original.materialSourceReceipt.records,
     matrixPaths: original.census.matrixRows.map(x => x.path),
     surfaceIds: original.surfaces.map(x => x.id),
-    surfaceRecords: sourceSurfaceRecords()
+    // Keep negative projection checks independent of stale owner matrices. The
+    // source handoff is checked by the positive generator test when its source
+    // selector/currentness prerequisites are reconciled.
+    surfaceRecords: structuredClone(original.surfaces)
   };
   const rejected = (mutate, extra = {}) => {
     const candidate = structuredClone(original);
@@ -375,6 +389,6 @@ test('validator rejects negative identity, join, edge, cycle, N/A, census, and p
   rejected(x => { x.surfaces.find(row => row.id === 'media.surface.web').applicability['PDP-2'].sourceCurrent = false; }); // stale per-surface phase source cannot be hidden
   rejected(x => { delete x.surfaces.find(row => row.id === 'media.surface.production-studio').applicability['PDP-3'].rationale; }); // applicability rationale is source-owned
   rejected(x => { x.surfaces.pop(); }); // full 56-surface topology denominator is mandatory
-  rejected(x => { const row = x.surfaces.find(r => r.id === 'media.physical.adapters-data-cloud-media'); row.applicability['PDP-0'].sourceCurrent = true; delete row.matrixDelta; }); // matrix delta cannot be promoted to current phase status
+  rejected(x => { x.surfaces.find(r => r.id === 'media.physical.adapters-data-cloud-media').applicability['PDP-0'].sourceCurrent = true; }); // stale source status cannot be promoted without current owner pins
   assert.notDeepEqual(validateBuildWorkPackageProjection(original, { ...expected, surfaceCounts: { ...expected.surfaceCounts, total: 53 } }), []); // missing surface census
 });

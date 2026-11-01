@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
   ModelExecutionSpecSchema, SimulationStateSchema, SignedInt64DecimalSchema,
-  StoryTimeSchema,
+  PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema,
 } from './production';
 
 const ref = 'media://revision/abc123';
@@ -48,11 +48,31 @@ describe('TY-04 headless declarative parsers', () => {
     }).success).toBe(false); // floats never accepted
   });
   it('preserves exact int64 as canonical decimal strings — never a number', () => {
+    expect(SignedInt64DecimalSchema.safeParse('-9223372036854775808').success).toBe(true);
     expect(SignedInt64DecimalSchema.safeParse('9223372036854775807').success).toBe(true);
     expect(SignedInt64DecimalSchema.safeParse('-9007199254740993').success).toBe(true);
+    expect(SignedInt64DecimalSchema.safeParse('-9223372036854775809').success).toBe(false);
+    expect(SignedInt64DecimalSchema.safeParse('9223372036854775808').success).toBe(false);
+    expect(SignedInt64DecimalSchema.safeParse('9'.repeat(100_000)).success).toBe(false);
     expect(SignedInt64DecimalSchema.safeParse(9223372036854775807).success).toBe(false);
     expect(SignedInt64DecimalSchema.safeParse('1.5e10').success).toBe(false);
     expect(SignedInt64DecimalSchema.safeParse('00').success).toBe(false);
+    expect(PositiveInt64DecimalSchema.safeParse('9223372036854775807').success).toBe(true);
+    expect(PositiveInt64DecimalSchema.safeParse('9223372036854775808').success).toBe(false);
+    expect(PositiveInt64DecimalSchema.safeParse('9'.repeat(100_000)).success).toBe(false);
+    expect(PositiveInt64DecimalSchema.safeParse('0').success).toBe(false);
+  });
+  it('accepts exact positive resource bounds through MAX_SAFE_INTEGER and rejects precision loss', () => {
+    const bounds = {
+      stepLimit: Number.MAX_SAFE_INTEGER,
+      wallClockBudgetMs: 1,
+      memoryBudgetBytes: 1,
+      workloadLimit: 1,
+      recursionLimit: 1,
+    };
+    expect(ResourceBoundsSchema.parse(bounds).stepLimit).toBe(Number.MAX_SAFE_INTEGER);
+    expect(ResourceBoundsSchema.safeParse({ ...bounds, stepLimit: Number.MAX_SAFE_INTEGER + 1 }).success).toBe(false);
+    expect(ResourceBoundsSchema.safeParse({ ...bounds, stepLimit: 1.5 }).success).toBe(false);
   });
   const execSpec = {
     schemaVersion: 'media.declarative.value.model-execution-spec.v1',

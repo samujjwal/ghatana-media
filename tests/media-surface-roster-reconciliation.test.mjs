@@ -14,17 +14,20 @@ const load = () => ({
   matrices: MATRIX_PATHS.map(path => ({ path, matrix: JSON.parse(fs.readFileSync(path, 'utf8')) }))
 });
 
-test('current topology reconciles to 54 matrix-bound identities plus exactly the declared delta', () => {
+test('current topology identities are all represented in the four phase matrices', () => {
   const result = reconcileMediaSurfaceRoster(load());
   assert.deepEqual(
     { physical: result.census.physical, compositions: result.census.compositions, logical: result.census.logical, total: result.census.total, matrixBound: result.census.matrixBound, matrixDelta: result.census.matrixDelta },
-    { physical: 28, compositions: 7, logical: 21, total: 56, matrixBound: 54, matrixDelta: 2 }
+    { physical: 28, compositions: 7, logical: 21, total: 56, matrixBound: 56, matrixDelta: 0 }
   );
-  assert.deepEqual(result.delta.map(row => row.id).sort(), Object.keys(DECLARED_MATRIX_DELTA).sort());
+  assert.deepEqual(result.delta, []);
+  assert.deepEqual(Object.keys(DECLARED_MATRIX_DELTA), []);
   assert.equal(result.roster.find(row => row.id === 'media.surface.desktop-archive').lifecycleState, 'ARCHIVED');
   assert.equal(result.roster.some(row => row.id === 'media.physical.adapters-ocr-compat'), false);
   assert.equal(result.roster.find(row => row.id === 'media.composition.repository-root').lifecycleState, 'ROOT');
-  assert(result.roster.filter(row => row.matrixDelta).every(row => row.matrixBound === false));
+  assert.equal(result.roster.find(row => row.id === 'media.physical.adapters-agent-tools-media').topologyDisposition, 'SUPPORT_ONLY');
+  assert.equal(result.roster.find(row => row.id === 'media.physical.adapters-data-cloud-media').topologyDisposition, 'PHYSICAL');
+  assert(result.roster.every(row => row.matrixBound));
 });
 
 test('generated reconciliation record is current', () => {
@@ -41,7 +44,15 @@ test('rejects undeclared drift, stale declarations, ghosts, duplicates and incon
   assert.throws(() => reconcileMediaSurfaceRoster(undeclared), /undeclared topology identities/);
 
   const staleDeclaration = clone();
-  assert.throws(() => reconcileMediaSurfaceRoster({ ...staleDeclaration, declaredDelta: { ...DECLARED_MATRIX_DELTA, 'media.physical.gone': DECLARED_MATRIX_DELTA['media.physical.adapters-data-cloud-media'] } }), /stale delta declarations/);
+  assert.throws(() => reconcileMediaSurfaceRoster({ ...staleDeclaration, declaredDelta: {
+    'media.physical.adapters-agent-tools-media': {
+      disposition: 'MATRIX_EXTENSION_REQUIRED',
+      lifecycleState: 'SUPPORT',
+      expectedTopologyDisposition: 'SUPPORT_ONLY',
+      rationale: 'stale historical delta',
+      nextAction: 'already projected'
+    }
+  } }), /stale delta declarations/);
 
   const ghost = clone();
   for (const { matrix } of ghost.matrices) matrix.surfaces.push({ surfaceId: 'media.physical.ghost' });
@@ -59,7 +70,7 @@ test('rejects undeclared drift, stale declarations, ghosts, duplicates and incon
   countDrift.topology.activeManifestCandidateCount = 26;
   assert.throws(() => reconcileMediaSurfaceRoster(countDrift), /activeManifestCandidateCount/);
 
-  const dispositionDrift = clone();
-  dispositionDrift.topology.manifestCandidates.find(row => row.surfaceId === 'media.physical.adapters-agent-tools-media').disposition = 'PHYSICAL';
-  assert.throws(() => reconcileMediaSurfaceRoster(dispositionDrift), /differs from declared/);
+  const incompleteCensus = clone();
+  incompleteCensus.matrices.forEach(({ matrix }) => matrix.surfaces.pop());
+  assert.throws(() => reconcileMediaSurfaceRoster(incompleteCensus), /undeclared topology identities missing from phase matrices/);
 });

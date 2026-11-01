@@ -23,6 +23,7 @@ public final class VideoStreamSession {
      * [sequenceNumber:int][keyFrame:boolean as byte][timestampMillis:long][payloadLength:int][payload:bytes].
      */
     public byte[] encodeFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload) {
+        requireSequenceNumber(sequenceNumber);
         if (payload == null || payload.length > MAX_FRAME_PAYLOAD_BYTES) {
             throw new IllegalArgumentException("video frame payload is outside the bounded size");
         }
@@ -50,6 +51,7 @@ public final class VideoStreamSession {
         }
         ByteBuffer buffer = ByteBuffer.wrap(encodedFrame);
         int sequence = buffer.getInt();
+        requireSequenceNumber(sequence);
         byte keyFlag = buffer.get();
         if (keyFlag != 0 && keyFlag != 1) {
             throw new IllegalArgumentException("video frame keyframe flag is invalid");
@@ -73,10 +75,16 @@ public final class VideoStreamSession {
     }
 
     public int expectedNextFrameAfterReconnect(int lastRenderedFrame) {
-        if (lastRenderedFrame == Integer.MAX_VALUE) {
+        if (lastRenderedFrame < -1 || lastRenderedFrame == Integer.MAX_VALUE) {
             throw new IllegalStateException("video stream sequence exhausted; reconnect requires a new stream");
         }
         return lastRenderedFrame + 1;
+    }
+
+    private static void requireSequenceNumber(int sequenceNumber) {
+        if (sequenceNumber < 0) {
+            throw new IllegalArgumentException("video frame sequence must be nonnegative");
+        }
     }
 
     public List<Integer> restoreFrameOrder(List<Integer> receivedFrames) {

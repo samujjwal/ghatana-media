@@ -30,6 +30,10 @@ import java.util.Set;
 /** Shared fail-closed validation for the four Media Agent Tool adapters. */
 final class AgentToolInput {
     private static final int MAX_SCHEMA_JSON_CHARS = 262_144;
+    // Inline audio is bounded by the handlers at 20 MiB after base64 decode.
+    // This estimate allows its encoded representation while retaining a finite
+    // total input ceiling. The tree walker conservatively budgets escaped text.
+    private static final int MAX_INPUT_ESTIMATED_CHARS = 180_000_000;
     private static final int MAX_OUTPUT_JSON_CHARS = 1_048_576;
     private static final int MAX_SCHEMA_OR_OUTPUT_NODES = 20_000;
     private static final int MAX_SCHEMA_OR_OUTPUT_DEPTH = 64;
@@ -73,7 +77,45 @@ final class AgentToolInput {
         // fail closed before any provider call rather than run unattributed.
         if (envelope.tenantId() == null || envelope.tenantId().isBlank())
             throw new IllegalArgumentException("MISSING_TENANT_CONTEXT");
+        validateInputSchema(contract.inputSchema(), envelope.input());
         return envelope.input();
+    }
+
+    /**
+     * Validate the registered input contract before the handler interprets a
+     * field or delegates an effect. Empty schemas remain explicitly unresolved
+     * for compatibility with source contracts that have not been installed.
+     */
+    private static void validateInputSchema(Map<String, Object> schema, Object input) {
+        if (schema.isEmpty()) return;
+        try {
+            if (!withinTreeBounds(input, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
+                    MAX_INPUT_ESTIMATED_CHARS)
+                    || !withinTreeBounds(schema, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
+                            MAX_SCHEMA_JSON_CHARS)
+                    || !usesSupportedSchemaKeywords(schema)) {
+                throw inputSchemaViolation();
+            }
+            Object declaredDialect = schema.get("$schema");
+            if (declaredDialect != null
+                    && !SpecificationVersion.DRAFT_2020_12.getDialectId().equals(declaredDialect)) {
+                throw inputSchemaViolation();
+            }
+            String schemaJson = JSON.writeValueAsString(schema);
+            String inputJson = JSON.writeValueAsString(input);
+            if (schemaJson.length() > MAX_SCHEMA_JSON_CHARS
+                    || inputJson.length() > MAX_INPUT_ESTIMATED_CHARS) {
+                throw inputSchemaViolation();
+            }
+            Schema compiled = LOCAL_SCHEMA_REGISTRY.getSchema(schemaJson, InputFormat.JSON);
+            if (!compiled.validate(inputJson, InputFormat.JSON).isEmpty()) throw inputSchemaViolation();
+        } catch (InputSchemaViolation invalidInput) {
+            throw invalidInput;
+        } catch (RuntimeException invalidSchemaOrInput) {
+            // Remote/unresolved references, unsupported dialects, malformed
+            // schemas and non-JSON values fail before any delegate effect.
+            throw inputSchemaViolation();
+        }
     }
 
     /**
@@ -225,6 +267,16 @@ final class AgentToolInput {
 
     private static OutputSchemaViolation outputSchemaViolation() {
         return new OutputSchemaViolation();
+    }
+
+    private static InputSchemaViolation inputSchemaViolation() {
+        return new InputSchemaViolation();
+    }
+
+    private static final class InputSchemaViolation extends IllegalArgumentException {
+        private InputSchemaViolation() {
+            super("TOOL_INPUT_SCHEMA_VIOLATION");
+        }
     }
 
     private static final class OutputSchemaViolation extends IllegalStateException {

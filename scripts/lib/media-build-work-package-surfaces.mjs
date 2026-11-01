@@ -34,8 +34,8 @@ function matrixDeltaApplicability({ row, id, phase, delta, topologySelector }) {
 /**
  * Build the surface handoff from topology, explicit logical-consumer registry
  * dispositions, and the four source-pinned phase matrices. Topology identities
- * not yet present in the frozen matrices must be declared in the roster
- * reconciliation; they are carried with source-unknown phase status.
+ * not yet present in a phase matrix must be explicitly declared in the roster
+ * reconciliation; current topology identities are expected to appear in all four.
  */
 export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matrices }) {
   const topologyRows = [
@@ -46,8 +46,8 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
   const reconciliation = reconcileMediaSurfaceRoster({ topology, matrices });
   const matrixBoundIds = reconciliation.matrixBoundIds;
   const deltaById = new Map(reconciliation.delta.map(row => [row.id, row]));
-  if (matrixBoundIds.length !== 54) {
-    throw new Error(`expected 54 matrix-bound topology surface identities, got ${matrixBoundIds.length}`);
+  if (matrixBoundIds.length !== topologyRows.length) {
+    throw new Error(`expected every topology surface identity to be matrix-bound (${topologyRows.length}), got ${matrixBoundIds.length}`);
   }
 
   const logicalIds = new Set(topologyRows.filter(item => item.type === 'logical').map(item => item.row.surfaceId));
@@ -67,12 +67,12 @@ export function buildMediaBuildSurfaceHandoff({ topology, surfaceRegistry, matri
     if (!phaseIds.includes(phase) || matrixByPhase.has(phase)) throw new Error(`phase matrix is duplicate or unknown: ${phase ?? '<missing>'}`);
     const rows = entry.matrix.surfaces ?? [];
     const ids = rows.map(row => row.surfaceId);
-    if (ids.length !== 54 || new Set(ids).size !== 54 || matrixBoundIds.some(id => !ids.includes(id))) {
-      throw new Error(`${entry.path}: surface membership differs from the 54-identity topology`);
+    if (ids.length !== topologyRows.length || new Set(ids).size !== topologyRows.length || matrixBoundIds.some(id => !ids.includes(id))) {
+      throw new Error(`${entry.path}: surface membership differs from the ${topologyRows.length}-identity topology`);
     }
     matrixByPhase.set(phase, { path: entry.path, byId: new Map(rows.map(row => [row.surfaceId, row])) });
   }
-  if (matrixByPhase.size !== phaseIds.length) throw new Error('all four PDP phase matrices are required for the 54-surface handoff');
+  if (matrixByPhase.size !== phaseIds.length) throw new Error('all four PDP phase matrices are required for the current topology handoff');
 
   const records = topologyRows.map(({ row, type, fragment }) => {
     const id = requireText(row.surfaceId, `${type} topology identity`);

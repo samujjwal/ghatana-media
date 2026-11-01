@@ -48,31 +48,11 @@ public class TranscriptionCacheService {
     public AsyncOperation<Optional<TranscriptionEntity>> getTranscription(String tenantId, UUID transcriptionId) {
         if (!hasTenantId(tenantId)) return AsyncOperation.failure(invalidTenantId());
         if (transcriptionId == null) return AsyncOperation.failure(requiredIdentifier("transcriptionId"));
-        String key = buildKey(tenantId, transcriptionId.toString());
-
-        return cache.get(key)
-            .flatMap(optJson -> {
-                if (optJson.isPresent()) {
-                    if (!withinSerializedEntryLimit(optJson.get())) {
-                        LOG.warn("Oversized transcription cache entry; treating as a miss");
-                        return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-                    }
-                    try {
-                        TranscriptionEntity entity = objectMapper.readValue(optJson.get(), TranscriptionEntity.class);
-                        if (matchesIdentity(entity, tenantId, transcriptionId) && !entity.isDeleted()) {
-                            LOG.debug("Cache hit for transcription");
-                            return AsyncOperation.success(Optional.of(entity));
-                        }
-                        LOG.debug("Ignoring transcription cache entry with invalid identity or deletion state");
-                        return AsyncOperation.success(Optional.empty());
-                    } catch (Exception e) {
-                        LOG.warn("Failed to deserialize cached transcription; treating it as a miss");
-                        return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-                    }
-                }
-                LOG.debug("Cache miss for transcription");
-                return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-            });
+        // Tenant and entity identity do not prove that consent, retention, source
+        // revision, or transcript revision are still current. The cache contract
+        // has no trusted authority for those facts, so a hit is not safe to expose.
+        LOG.debug("Transcription cache hit cannot be revalidated; treating as a miss");
+        return AsyncOperation.success(Optional.empty());
     }
 
     /**
@@ -137,42 +117,36 @@ public class TranscriptionCacheService {
         String key = buildKey(tenantId, transcriptionId.toString());
 
         Objects.requireNonNull(loader, "loader cannot be null");
-        return cache.get(key).flatMap(cached -> {
-            if (cached.isPresent()) {
-                if (!withinSerializedEntryLimit(cached.get())) {
-                    LOG.warn("Oversized transcription cache entry; loading from source");
-                } else {
-                    try {
-                        TranscriptionEntity entity = objectMapper.readValue(cached.get(), TranscriptionEntity.class);
-                        if (matchesIdentity(entity, tenantId, transcriptionId) && !entity.isDeleted()) {
-                            return AsyncOperation.success(entity);
-                        }
-                        LOG.debug("Ignoring transcription cache entry with invalid identity or deletion state");
-                    } catch (Exception malformed) {
-                        LOG.warn("Failed to deserialize cached transcription; loading from source");
-                    }
-                }
+        // Always consult the caller's current source/authorization path. A cached
+        // entity contains no trusted current scope, consent, retention, source
+        // version, or immutable transcript revision to validate before exposure.
+        return loadCurrentTranscription(tenantId, transcriptionId, key, loader);
+    }
+
+    private AsyncOperation<TranscriptionEntity> loadCurrentTranscription(
+            String tenantId,
+            UUID transcriptionId,
+            String key,
+            Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
+        return loader.apply(transcriptionId).flatMap(source -> {
+            if (source.isEmpty() || source.get() == null || source.get().isDeleted()) {
+                return AsyncOperation.success(null);
             }
-            return loader.apply(transcriptionId).flatMap(source -> {
-                if (source.isEmpty() || source.get() == null || source.get().isDeleted()) {
-                    return AsyncOperation.success(null);
-                }
-                if (!matchesIdentity(source.get(), tenantId, transcriptionId)) {
-                    return AsyncOperation.failure(identityMismatch());
-                }
-                TranscriptionEntity entity = source.get();
-                try {
-                    String json = serializeBounded(entity);
-                    return cache.put(key, json).map(ignored -> entity);
-                } catch (Exception serializationFailure) {
-                    if (isOversizedSerializationFailure(serializationFailure)) {
-                        LOG.warn("Oversized source transcription; skipping cache write");
-                        return AsyncOperation.success(entity);
-                    }
-                    LOG.warn("Failed to serialize loaded transcription for caching; returning source value");
+            if (!matchesIdentity(source.get(), tenantId, transcriptionId)) {
+                return AsyncOperation.failure(identityMismatch());
+            }
+            TranscriptionEntity entity = source.get();
+            try {
+                String json = serializeBounded(entity);
+                return cache.put(key, json).map(ignored -> entity);
+            } catch (Exception serializationFailure) {
+                if (isOversizedSerializationFailure(serializationFailure)) {
+                    LOG.warn("Oversized source transcription; skipping cache write");
                     return AsyncOperation.success(entity);
                 }
-            });
+                LOG.warn("Failed to serialize loaded transcription for caching; returning source value");
+                return AsyncOperation.success(entity);
+            }
         });
     }
 
@@ -237,31 +211,10 @@ public class TranscriptionCacheService {
 
         if (!hasTenantId(tenantId)) return AsyncOperation.failure(invalidTenantId());
         if (audioFileId == null) return AsyncOperation.failure(requiredIdentifier("audioFileId"));
-        String key = buildKey(tenantId, "audio:" + audioFileId.toString());
-
-        return cache.get(key)
-            .flatMap(optJson -> {
-                if (optJson.isPresent()) {
-                    if (!withinSerializedEntryLimit(optJson.get())) {
-                        LOG.warn("Oversized audio transcription cache entry; treating as a miss");
-                        return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-                    }
-                    try {
-                        TranscriptionEntity entity = objectMapper.readValue(optJson.get(), TranscriptionEntity.class);
-                        if (Objects.equals(entity.getTenantId(), tenantId)
-                                && Objects.equals(entity.getAudioFileId(), audioFileId)
-                                && !entity.isDeleted()) {
-                            return AsyncOperation.success(Optional.of(entity));
-                        }
-                        LOG.debug("Ignoring audio transcription cache entry with invalid identity or deletion state");
-                        return AsyncOperation.success(Optional.empty());
-                    } catch (Exception e) {
-                        LOG.warn("Failed to deserialize audio transcription cache entry; treating it as a miss");
-                        return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-                    }
-                }
-                return AsyncOperation.success(Optional.<TranscriptionEntity>empty());
-            });
+        // Audio identity does not establish current consent, retention, or source
+        // and transcript revisions. Do not deserialize or expose a cache hit.
+        LOG.debug("Audio transcription cache hit cannot be revalidated; treating as a miss");
+        return AsyncOperation.success(Optional.empty());
     }
 
     private String buildKey(String tenantId, String id) {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { validateTopology } from '../scripts/check-media-physical-topology.mjs';
+import { activeBuildManifests, validateTopology } from '../scripts/check-media-physical-topology.mjs';
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const topology = JSON.parse(fs.readFileSync(path.join(repo, '.product-experience/surfaces/media-physical-topology.v1.json'), 'utf8'));
@@ -11,6 +11,12 @@ const copy = () => structuredClone(topology);
 
 test('physical topology is deterministic and source-backed', () => {
   assert.deepEqual(validateTopology(topology), []);
+});
+
+test('generated CommonJS and ESM package outputs are not authored physical surfaces', () => {
+  const manifests = activeBuildManifests(repo);
+  assert.ok(!manifests.some((manifest) => manifest.startsWith('libs/audio-video-types/dist-cjs/')));
+  assert.ok(!manifests.some((manifest) => manifest.startsWith('libs/audio-video-types/dist-esm/')));
 });
 
 test('rejects an active authored public build module missing from the topology', () => {

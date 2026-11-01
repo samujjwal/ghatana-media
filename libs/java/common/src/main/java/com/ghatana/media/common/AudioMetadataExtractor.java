@@ -19,10 +19,19 @@ public final class AudioMetadataExtractor {
     /** Extract metadata from canonical AudioData. */
     public static AudioMetadata fromAudioData(AudioData audio) {
         Objects.requireNonNull(audio, "audio cannot be null");
-        long sampleCount = audio.getSampleCount();
+        int bytesPerSample = audio.bitsPerSample() / 8;
+        if (audio.bitsPerSample() % 8 != 0 || bytesPerSample == 0) {
+            throw new ValidationError("Audio bit depth must use complete bytes");
+        }
+        long bytesPerFrame = (long) audio.channels() * bytesPerSample;
+        long dataLength = audio.data().length;
+        if (bytesPerFrame <= 0 || dataLength % bytesPerFrame != 0) {
+            throw new ValidationError("Audio data must contain complete sample frames");
+        }
+        long sampleCount = dataLength / bytesPerFrame;
         Duration duration = audio.duration() != null
             ? audio.duration()
-            : Duration.ofNanos(Math.round((sampleCount * 1_000_000_000d) / audio.sampleRate()));
+            : durationForFrames(sampleCount, audio.sampleRate());
         return new AudioMetadata(
             audio.sampleRate(),
             audio.channels(),
@@ -132,15 +141,21 @@ public final class AudioMetadataExtractor {
             throw new ValidationError("WAV PCM data must contain complete nonempty sample frames");
         }
         long sampleCount = dataSize / bytesPerFrame;
-        long durationNanos = Math.round((sampleCount * 1_000_000_000d) / sampleRate);
         return new AudioMetadata(
             sampleRate,
             channels,
             bitsPerSample,
             sampleCount,
-            Duration.ofNanos(Math.max(0L, durationNanos)),
+            durationForFrames(sampleCount, sampleRate),
             "WAV"
         );
+    }
+
+    private static Duration durationForFrames(long frames, int sampleRate) {
+        long wholeSeconds = frames / sampleRate;
+        long remainingFrames = frames % sampleRate;
+        long fractionalNanos = (remainingFrames * 1_000_000_000L + sampleRate / 2L) / sampleRate;
+        return Duration.ofSeconds(wholeSeconds, fractionalNanos);
     }
 
     private static boolean matches(byte[] data, int offset, String expected) {

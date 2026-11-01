@@ -41,7 +41,7 @@ class TranscriptionCacheServiceTest {
     private final TranscriptionCacheService cacheService = new TranscriptionCacheService(cachePort, objectMapper);
 
     @Test
-    void returnsCacheHitOnlyWhenTenantAndTranscriptionIdentityMatch() throws Exception {
+    void treatsMatchingCacheEntryAsMissWhenCurrentAuthorizationCannotBeRevalidated() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity entry = entity("tenant-a", transcriptionId, false);
         when(cachePort.get(key("tenant-a", transcriptionId.toString())))
@@ -49,9 +49,8 @@ class TranscriptionCacheServiceTest {
 
         Optional<TranscriptionEntity> result = await(cacheService.getTranscription("tenant-a", transcriptionId));
 
-        assertThat(result).isPresent();
-        assertThat(result.orElseThrow().getTenantId()).isEqualTo(entry.getTenantId());
-        assertThat(result.orElseThrow().getId()).isEqualTo(entry.getId());
+        assertThat(result).isEmpty();
+        verify(cachePort, never()).get(any());
     }
 
     @Test
@@ -64,7 +63,7 @@ class TranscriptionCacheServiceTest {
         Optional<TranscriptionEntity> result = await(cacheService.getTranscription("tenant-a", id));
 
         assertThat(result).isEmpty();
-        verify(cachePort).get(currentKey);
+        verify(cachePort, never()).get(any());
         verify(cachePort, never()).get(legacyKey);
     }
 
@@ -85,7 +84,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void sameIdForTwoTenantsReadsDistinctPortEntries() throws Exception {
+    void sameIdForTwoTenantsNeverExposesUnrevalidatedCacheEntries() throws Exception {
         UUID id = UUID.randomUUID();
         String tenantAKey = key("tenant-a", id.toString());
         String tenantBKey = key("tenant-b", id.toString());
@@ -99,12 +98,9 @@ class TranscriptionCacheServiceTest {
         Optional<TranscriptionEntity> tenantAResult = await(cacheService.getTranscription("tenant-a", id));
         Optional<TranscriptionEntity> tenantBResult = await(cacheService.getTranscription("tenant-b", id));
 
-        assertThat(tenantAResult).isPresent();
-        assertThat(tenantAResult.orElseThrow().getTenantId()).isEqualTo("tenant-a");
-        assertThat(tenantBResult).isPresent();
-        assertThat(tenantBResult.orElseThrow().getTenantId()).isEqualTo("tenant-b");
-        verify(cachePort).get(tenantAKey);
-        verify(cachePort).get(tenantBKey);
+        assertThat(tenantAResult).isEmpty();
+        assertThat(tenantBResult).isEmpty();
+        verify(cachePort, never()).get(any());
     }
 
     @Test
@@ -127,13 +123,11 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void getOrLoadFallsBackToSourceForMismatchedCacheAndWritesOnlyMatchingLiveResult() throws Exception {
+    void getOrLoadUsesCurrentSourceEvenWhenCacheContainsValueAndWritesOnlyMatchingResult() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity poisoned = entity("tenant-b", transcriptionId, false);
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        when(cachePort.get(key)).thenReturn(
-                AsyncOperation.success(Optional.of(objectMapper.writeValueAsString(poisoned))));
         when(cachePort.put(eq(key), any(), any(Duration.class)))
                 .thenReturn(AsyncOperation.success(null));
         AtomicInteger loads = new AtomicInteger();
@@ -146,6 +140,7 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
+        verify(cachePort, never()).get(any());
         verify(cachePort).put(eq(key), any(), any(Duration.class));
     }
 
@@ -178,6 +173,47 @@ class TranscriptionCacheServiceTest {
 
         assertThat(absent).isNull();
         assertThat(deleted).isNull();
+    }
+
+    @Test
+    void revokedOrExpiredCurrentSourceWinsOverPreviouslyCachedProtectedTranscript() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity cached = entity("tenant-a", transcriptionId, false);
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(cached))));
+
+        for (int currentSourceState = 0; currentSourceState < 2; currentSourceState++) {
+            int state = currentSourceState;
+            TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                    id -> state == 0
+                            ? AsyncOperation.success(Optional.empty())
+                            : AsyncOperation.success(Optional.of(entity("tenant-a", id, true)))));
+            assertThat(result).isNull();
+        }
+
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void changedCurrentTranscriptRevisionIsReturnedInsteadOfCachedRevision() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity cached = entity("tenant-a", transcriptionId, false);
+        cached.setText("stale protected revision");
+        TranscriptionEntity current = entity("tenant-a", transcriptionId, false);
+        current.setText("current authorized revision");
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(cached))));
+        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+
+        TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(current))));
+
+        assertThat(result.getText()).isEqualTo("current authorized revision");
+        verify(cachePort, never()).get(any());
+        verify(cachePort).put(eq(key), any(), any(Duration.class));
     }
 
     @Test
@@ -290,7 +326,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void oversizedCachedJsonIsRejectedBeforeDeserializationOnBothReadPaths() {
+    void cachedJsonIsNeverDeserializedWithoutCurrentRevalidationOnEitherReadPath() {
         @SuppressWarnings("unchecked")
         DistributedCachePort<String, String> isolatedPort = mock(DistributedCachePort.class);
         ObjectMapper isolatedMapper = mock(ObjectMapper.class);
@@ -299,24 +335,23 @@ class TranscriptionCacheServiceTest {
         UUID audioFileId = UUID.randomUUID();
         String transcriptionKey = key("tenant-a", transcriptionId.toString());
         String audioKey = key("tenant-a", "audio:" + audioFileId);
-        String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
+        String cachedJson = "{ protected transcript }";
         when(isolatedPort.get(transcriptionKey)).thenReturn(
-                AsyncOperation.success(Optional.of(oversizedJson)));
-        when(isolatedPort.get(audioKey)).thenReturn(AsyncOperation.success(Optional.of(oversizedJson)));
+                AsyncOperation.success(Optional.of(cachedJson)));
+        when(isolatedPort.get(audioKey)).thenReturn(AsyncOperation.success(Optional.of(cachedJson)));
 
         assertThat(await(isolatedService.getTranscription("tenant-a", transcriptionId))).isEmpty();
         assertThat(await(isolatedService.getTranscriptionByAudioFileId("tenant-a", audioFileId))).isEmpty();
 
+        verify(isolatedPort, never()).get(any());
         verifyNoInteractions(isolatedMapper);
     }
 
     @Test
-    void oversizedCacheHitFallsBackToValidSourceValue() {
+    void cachedValueCannotShortCircuitCurrentSourceLoad() {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());
-        String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.of(oversizedJson)));
         when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
         AtomicInteger loads = new AtomicInteger();
 
@@ -328,6 +363,7 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
+        verify(cachePort, never()).get(any());
     }
 
     @Test

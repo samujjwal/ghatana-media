@@ -220,6 +220,27 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(4)
+    @DisplayName("GIVEN forged JWT WHEN transcribe THEN request fails with no provider or storage effects")
+    void forgedJwt_failsUnauthenticatedWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        String forgedJwt = jwt.substring(0, jwt.length() - 1) + (jwt.endsWith("A") ? "B" : "A");
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + forgedJwt);
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+            .setAudioData(com.google.protobuf.ByteString.copyFrom(buildMinimalWavBytes()))
+            .setSampleRate(16000)
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
+        verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
+    }
+
+    @Test
+    @Order(5)
     @DisplayName("GIVEN JWT with tenant A and no STT admission WHEN transcribe THEN NOT_ADMITTED without effects")
     void crossTenantRequestWithoutAdmission_failsClosed() {
         // Given

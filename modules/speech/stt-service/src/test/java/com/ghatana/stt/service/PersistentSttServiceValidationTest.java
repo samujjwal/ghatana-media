@@ -174,6 +174,46 @@ class PersistentSttServiceValidationTest {
     }
 
     @Test
+    @DisplayName("direct artifact requests require verified tenant identity before source lookup")
+    void directArtifactRequestRequiresVerifiedTenantIdentity() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        assertThatThrownBy(() -> Context.ROOT.call(() -> auditedService.transcribe(
+                "artifact-1", TENANT, "en", java.util.Map.of())))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_REQUIRED");
+        assertThatThrownBy(() -> auditedService.transcribe(
+                "artifact-1", "other-tenant", "en", java.util.Map.of()))
+                .isInstanceOf(SecurityException.class)
+                .hasMessageContaining("STT_IDENTITY_MISMATCH");
+
+        verifyNoInteractions(audioFileService, transcriptionService, library, auditService);
+    }
+
+    @Test
+    @DisplayName("direct artifact request stays not admitted and emits only a minimal trusted audit")
+    void directArtifactRequestStaysNotAdmittedWithMinimalAudit() {
+        PersistentSttService auditedService = new PersistentSttService(
+                library, audioFileService, transcriptionService, new SimpleMeterRegistry(), auditService);
+
+        Promise<String> result = auditedService.transcribe(
+                "artifact-1", TENANT, "en", java.util.Map.of("sensitive", "must-not-be-audited"));
+
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure = new java.util.concurrent.atomic.AtomicReference<>();
+        result.whenException(failure::set);
+        assertThat(failure.get())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageStartingWith("STT_SOURCE_AUTHORITY_NOT_ADMITTED:");
+        verify(auditService).record(argThat((AuditEvent event) ->
+                TENANT.equals(event.getTenantId())
+                        && USER.toString().equals(event.getPrincipal())
+                        && "stt.transcribe".equals(event.getEventType())
+                        && !event.getDetails().toString().contains("sensitive")));
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
     @DisplayName("direct service rejects mismatched tenant and principal claims before work")
     void mismatchedIdentityClaimsRejectBeforeWork() {
         PersistentSttService auditedService = new PersistentSttService(

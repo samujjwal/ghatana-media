@@ -39,9 +39,12 @@ class VideoStreamSessionFrameTest {
             assertThat(decoded.payload()).isEqualTo(payload);
         }
         var delta = session.decodeFrame(session.encodeFrame(
-                Integer.MIN_VALUE, false, 0L, new byte[]{2}));
+                Integer.MAX_VALUE - 1, false, 0L, new byte[]{2}));
         assertThat(delta.keyFrame()).isFalse();
-        assertThat(delta.sequenceNumber()).isEqualTo(Integer.MIN_VALUE);
+        assertThat(delta.sequenceNumber()).isEqualTo(Integer.MAX_VALUE - 1);
+        var terminal = session.decodeFrame(session.encodeFrame(
+                Integer.MAX_VALUE, false, 1L, new byte[]{3}));
+        assertThat(terminal.sequenceNumber()).isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
@@ -85,11 +88,32 @@ class VideoStreamSessionFrameTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.encodeFrame(1, false, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.encodeFrame(-1, false, 0L, new byte[]{1}))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.encodeFrame(Integer.MIN_VALUE, false, 0L, new byte[]{1}))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.decodeFrame(header(-1, 0, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.decodeFrame(header(Integer.MIN_VALUE, 0, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThat(session.decodeFrame(header(Integer.MAX_VALUE, 0, 0L, 0)).sequenceNumber())
+                .isEqualTo(Integer.MAX_VALUE);
     }
 
     @Test
     void reconnectFrameDoesNotWrapIntoAnAmbiguousStreamOrder() {
         assertThat(session.expectedNextFrameAfterReconnect(41)).isEqualTo(42);
+        assertThat(session.expectedNextFrameAfterReconnect(-1)).isZero();
+        assertThat(session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE - 2))
+                .isEqualTo(Integer.MAX_VALUE - 1);
+        assertThat(session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE - 1))
+                .isEqualTo(Integer.MAX_VALUE);
+        assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(-2))
+                .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("new stream");

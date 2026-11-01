@@ -352,9 +352,22 @@ public final class MediaFormatValidator {
                 return ImageValidationResult.error(pngHeaderError);
             }
         }
+        if ("GIF".equals(detectedFormat) && data.length < 10) {
+            return ImageValidationResult.error("GIF data is too small to contain image dimensions");
+        }
 
         // Extract dimensions based on format
         ImageDimensions dims = extractImageDimensions(data, detectedFormat);
+        if (dims.width < 0 || dims.height < 0) {
+            return ImageValidationResult.error("Image header does not contain valid dimensions");
+        }
+        if ((dims.width > 0 || dims.height > 0)
+                && (dims.width < 1 || dims.height < 1
+                || dims.width > MAX_SUPPORTED_IMAGE_DIMENSION
+                || dims.height > MAX_SUPPORTED_IMAGE_DIMENSION
+                || (long) dims.width * dims.height > MAX_SUPPORTED_IMAGE_PIXELS)) {
+            return ImageValidationResult.error("Image dimensions exceed the supported image bounds");
+        }
 
         return ImageValidationResult.success(detectedFormat, data.length, dims.width, dims.height);
     }
@@ -392,9 +405,7 @@ public final class MediaFormatValidator {
             }
 
             if ("JPEG".equals(format)) {
-                // JPEG dimensions require parsing segments
-                // Simplified: return unknown
-                return new ImageDimensions(0, 0);
+                return extractJpegDimensions(data);
             }
 
             if ("GIF".equals(format) && data.length >= 10) {
@@ -408,6 +419,38 @@ public final class MediaFormatValidator {
         }
 
         return new ImageDimensions(0, 0);
+    }
+
+    private static ImageDimensions extractJpegDimensions(byte[] data) {
+        int offset = 2;
+        while (offset < data.length) {
+            if ((data[offset] & 0xFF) != 0xFF) return new ImageDimensions(-1, -1);
+            while (offset < data.length && (data[offset] & 0xFF) == 0xFF) offset++;
+            if (offset >= data.length) return new ImageDimensions(-1, -1);
+            int marker = data[offset++] & 0xFF;
+            if (marker == 0xD9 || marker == 0xDA) return new ImageDimensions(-1, -1);
+            if (marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7)) continue;
+            if (offset + 2 > data.length) return new ImageDimensions(-1, -1);
+            int segmentLength = ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
+            if (segmentLength < 2 || (long) offset + segmentLength > data.length) {
+                return new ImageDimensions(-1, -1);
+            }
+            if (isJpegStartOfFrame(marker)) {
+                if (segmentLength < 8) return new ImageDimensions(-1, -1);
+                int height = ((data[offset + 3] & 0xFF) << 8) | (data[offset + 4] & 0xFF);
+                int width = ((data[offset + 5] & 0xFF) << 8) | (data[offset + 6] & 0xFF);
+                return new ImageDimensions(width, height);
+            }
+            offset += segmentLength;
+        }
+        return new ImageDimensions(-1, -1);
+    }
+
+    private static boolean isJpegStartOfFrame(int marker) {
+        return (marker >= 0xC0 && marker <= 0xC3)
+                || (marker >= 0xC5 && marker <= 0xC7)
+                || (marker >= 0xC9 && marker <= 0xCB)
+                || (marker >= 0xCD && marker <= 0xCF);
     }
 
     private static boolean matchesMagic(byte[] data, int offset, byte[] magic) {

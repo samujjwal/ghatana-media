@@ -198,10 +198,39 @@ public class PersistentSttService {
             String tenantId,
             String languageCode,
             Map<String, String> parameters) {
-        requireTenantId(tenantId);
+        JwtServerInterceptor.VerifiedIdentity identity = requireAuthenticatedTenantIdentity(tenantId);
+        emitSttAudit(
+                identity.tenantId(),
+                identity.subject(),
+                "stt.transcribe",
+                "NOT_ADMITTED",
+                Map.of("failureType", "SOURCE_PURPOSE_RIGHTS_AUTHORITY_UNAVAILABLE"));
         return Promise.ofException(new IllegalStateException(
-                "Artifact-backed STT requires a MediaArtifactRepository-backed adapter; "
-                        + "PersistentSttService cannot transcribe artifact IDs without loading artifact bytes"));
+                "STT_SOURCE_AUTHORITY_NOT_ADMITTED: artifact-backed transcription requires trusted source, "
+                        + "purpose and rights authorization before loading artifact bytes"));
+    }
+
+    /**
+     * Bind direct artifact requests to the identity created by the trusted gRPC security boundary.
+     * This compatibility entry point has no principal argument, so caller-supplied tenant text
+     * cannot authorize it and no source or provider effect is allowed without the source authority.
+     */
+    private static JwtServerInterceptor.VerifiedIdentity requireAuthenticatedTenantIdentity(String tenantId) {
+        JwtServerInterceptor.VerifiedIdentity identity = JwtServerInterceptor.verifiedIdentity();
+        if (identity == null || identity.tenantId() == null || identity.tenantId().isBlank()
+                || identity.subject() == null || identity.subject().isBlank()) {
+            throw new SecurityException("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required");
+        }
+        try {
+            UUID.fromString(identity.subject());
+        } catch (IllegalArgumentException invalidSubject) {
+            throw new SecurityException(
+                    "STT_IDENTITY_INVALID: authenticated subject is not a supported principal identifier");
+        }
+        if (tenantId == null || !identity.tenantId().equals(tenantId)) {
+            throw new SecurityException("STT_IDENTITY_MISMATCH: request tenant does not match authenticated tenant");
+        }
+        return identity;
     }
 
     public void setDegradedMode(boolean degraded, String reason) {
