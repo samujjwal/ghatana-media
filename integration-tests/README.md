@@ -1,176 +1,34 @@
-# Media Integration Tests
+# Media integration test inventory
 
-These tests cover Media service contracts and cross-module behavior in the prepared runtime source tree. Their execution and environmental prerequisites vary; file presence does not establish a deployed service, customer-visible journey, production recovery, or release readiness. Integration against the currently authoritative runtime remains a Build-stage concern.
+The executable IT-01 inventory is [`media-integration-test-census.v1.json`](../docs/implementation/media-integration-test-census.v1.json). It classifies every Java test source under this module and records runnable selectors, owning source paths, JUnit/Gradle profile, infrastructure, input assets, prerequisites, safety boundaries, and evidence limits. `MediaTestHarnessCatalogTest` checks that the inventory remains aligned with source files and JUnit selectors.
 
-**Source inventory:** `AudioVideoIntegrationTest`, `FullWorkflowIntegrationTest`, `ErrorScenarioIntegrationTest`, `PerformanceIntegrationTest`, `AudioVideoDataCloudAepIntegrationJourneyTest`, `AudioVideoDataCloudAepAgentE2ETest`, `MediaServicesIntegrationTest` and `MediaProviderJobLifecycleE2ETest` are tracked test suites; do not infer that all are runnable without their required dependencies.
+## How the Gradle task selects tests
 
-## Test Structure
-
-```
-integration-tests/
-├── src/test/java/com/ghatana/audio/video/integration/
-│   ├── AudioVideoIntegrationTest.java     # Basic service integration
-│   └── FullWorkflowIntegrationTest.java    # Complete workflow testing
-└── README.md
-```
-
-## Test Coverage
-
-### AudioVideoIntegrationTest
-
-- Service health and readiness
-- Network communication between services
-- Environment configuration validation
-- Concurrent request handling
-- Health maintenance under load
-
-### FullWorkflowIntegrationTest
-
-- Complete STT workflow (audio → text)
-- Complete TTS workflow (text → audio)
-- Bidirectional workflow testing
-- Network communication verification
-- Load testing with concurrent access
-
-## Running Tests
-
-### Prerequisites
-
-- Docker and Docker Compose installed
-- Testcontainers configuration
-- Sufficient memory for container orchestration
-
-### Environment Variables
+Run from the repository root. The `:services:media:integration-tests:test` task includes only JUnit tests tagged `integration`; passing a class selector does not include an untagged or `@Disabled` scaffold. Container suites use `IntegrationImagesCondition` and report a skip when their selected images are absent. Image variables are `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE`; defaults are mutable `:latest` tags and are not qualification inputs.
 
 ```bash
-# Service images (optional, defaults shown)
-STT_IMAGE=ghatana/stt-service:latest
-TTS_IMAGE=ghatana/tts-service:latest
+# Inventory contract only; no Docker or provider/model execution
+./gradlew :services:media:integration-tests:test \
+  --tests com.ghatana.media.integration.MediaTestHarnessCatalogTest
 
-# Test configuration
-TEST_TIMEOUT=180
-CONCURRENT_REQUESTS=10
+# Local fixture selectors (synthetic/local state only)
+./gradlew :services:media:integration-tests:test \
+  --tests com.ghatana.media.integration.MediaProviderJobLifecycleE2ETest \
+  --tests com.ghatana.media.integration.MediaPdp3BusinessRecordingIT
+
+# Isolated Docker-backed Postgres/LocalStack or H2/LocalStack profiles
+./gradlew :services:media:integration-tests:test \
+  --tests com.ghatana.media.integration.MediaLauncherEndToEndIT \
+  --tests com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT \
+  --tests com.ghatana.media.launcher.MediaMultimodalParentChildRestartPostgresIT \
+  --tests com.ghatana.media.launcher.MediaProviderPolicyDeniedFinalityPostgresIT \
+  --tests com.ghatana.media.launcher.MediaSttTranscriptCommitFenceIT
 ```
 
-### Running Tests
+These fixture profiles use generated or test-authored payloads and isolated databases, buckets, and keys. Never point them at the active legacy Media store. H2 compatibility mode is not PostgreSQL-engine evidence; LocalStack is not AWS-production evidence; fixture providers do not establish model quality, rights, or provider effects. The child-process PostgreSQL metrics variant is separately run with `./gradlew :services:media:integration-tests:postgresWorkflowProcessRestart`.
 
-```bash
-# Run all integration tests
-./gradlew integrationTest
+The `MediaAuthorizedSttTranscriptRestartIT` is an external qualification profile, not part of routine local fixture execution. It requires separately reviewed `GHATANA_MEDIA_WHISPER_PROFILE`, `GHATANA_MEDIA_WHISPER_AUDIO`, and `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT` inputs plus independently verified rights for both model and source audio. The repository contains no such licensed corpus or profile. Do not copy customer/private inputs into the repository or test reports; missing inputs are not grounds to weaken the admission gate.
 
-# Run specific test class
-./gradlew integrationTest --tests "*AudioVideoIntegrationTest"
+The Compose startup-refusal selectors require `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` pinned by owner-approved digest and Docker Compose. A passing refusal test proves only typed startup refusal, not a successful provider operation. Previously recorded Wave 2 Compose results are tracked separately and are not changed by this inventory.
 
-# Run with custom configuration
-STT_IMAGE=custom-stt:latest ./gradlew integrationTest
-```
-
-## Test Configuration
-
-### Testcontainers Setup
-
-- Uses Docker containers for real service testing
-- Network isolation for service communication
-- Health check validation
-- Automatic cleanup
-
-### Service Configuration
-
-- STT Service: Port 50051 (gRPC), 8080 (HTTP)
-- TTS Service: Port 50052 (gRPC), 8080 (HTTP)
-- Shared network for inter-service communication
-- Configurable models and voices
-
-## Test Data
-
-### Audio Data
-
-- Simplified test audio generation
-- WAV format compatibility
-- Configurable sample rates
-
-### Text Data
-
-- Multi-language support
-- Variable length texts
-- Special character handling
-
-## Expected Outcomes
-
-### Success Criteria
-
-- All services start and become healthy
-- Services can communicate over network
-- Basic STT/TTS operations complete
-- Services handle concurrent requests
-- Health maintained under load
-
-### Failure Handling
-
-- Graceful degradation for missing services
-- Proper error logging and reporting
-- Container cleanup on failure
-- Timeout handling for long-running operations
-
-## Integration with CI/CD
-
-### GitLab CI Integration
-
-```yaml
-integration-test:
-  stage: test
-  image: openjdk:21-jdk
-  services:
-    - docker:dind
-  script:
-    - ./gradlew integrationTest
-  artifacts:
-    reports:
-      junit: "integration-tests/build/test-results/integrationTest/TEST-*.xml"
-  tags:
-    - docker
-```
-
-### Local Development
-
-- Use Docker Compose for local testing
-- Configure service images appropriately
-- Monitor container logs for debugging
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Container Startup Timeout**: Increase `TEST_TIMEOUT`
-2. **Network Communication**: Verify network alias configuration
-3. **Memory Constraints**: Allocate sufficient Docker memory
-4. **Port Conflicts**: Ensure ports are available
-
-### Debugging
-
-- Check container logs: `docker logs <container-id>`
-- Verify network connectivity: `docker network inspect`
-- Monitor resource usage: `docker stats`
-
-## Future Enhancements
-
-### Additional Test Scenarios
-
-- Real audio file processing
-- Multi-language support testing
-- Performance benchmarking
-- Chaos engineering tests
-- Security integration testing
-
-### Test Data Management
-
-- External test data sets
-- Automated audio generation
-- Speech synthesis validation
-- Accuracy measurement
-
-### Monitoring Integration
-
-- Metrics collection during tests
-- Performance baseline tracking
-- Alert integration for test failures
+Other modules own additional integration suites: `:services:media:modules:integration-tests`, `:services:media:providers:aws-postgresql`, and `:services:media:audio-video-observability`. They are outside this module's selector and are listed as unrepresented source areas in the canonical census.
