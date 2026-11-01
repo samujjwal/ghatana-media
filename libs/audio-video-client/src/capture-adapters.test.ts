@@ -88,6 +88,38 @@ describe("captureWithAdmission", () => {
     expect(adapter.calls()).toBe(0);
   });
 
+  it("rejects non-canonical request references before eligibility or capture", async () => {
+    let eligibilityCalls = 0;
+    const adapter = adapterReturning({
+      sourceIdentity: request.sourceIdentity,
+      frameClockRef: request.frameClockRef,
+      bytes: new Uint8Array([1]),
+      capturedAtEpochMillis: 0,
+    });
+    for (const field of ["sourceIdentity", "purposeRef", "sourceVersionRef",
+      "secretsRef", "frameClockRef"] as const) {
+      await expect(captureWithAdmission({
+        check: () => { eligibilityCalls++; return "ADMITTED"; },
+      }, adapter, { ...request, [field]: ` ${request[field]} ` }))
+        .rejects.toThrow(/canonical/u);
+    }
+    expect(eligibilityCalls).toBe(0);
+    expect(adapter.calls()).toBe(0);
+  });
+
+  it("rejects an invalid runtime eligibility result without attempting capture", async () => {
+    const adapter = adapterReturning({
+      sourceIdentity: request.sourceIdentity,
+      frameClockRef: request.frameClockRef,
+      bytes: new Uint8Array([1]),
+      capturedAtEpochMillis: 0,
+    });
+    await expect(captureWithAdmission({
+      check: () => "MAYBE" as "ADMITTED",
+    }, adapter, request)).rejects.toThrow(/unsupported decision/u);
+    expect(adapter.calls()).toBe(0);
+  });
+
   it("rejects an unrecognized runtime source kind before eligibility or capture", async () => {
     let eligibilityCalls = 0;
     const adapter = adapterReturning({

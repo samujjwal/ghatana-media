@@ -57,8 +57,8 @@ export class CaptureNotAdmittedError extends Error {
 
 function requireRequestField(value: string | undefined, field: string): string {
   if (value === undefined || typeof value !== "string"
-    || value.trim().length === 0 || value.length > 384) {
-    throw new TypeError(`capture request ${field} is required and bounded`);
+    || value.trim().length === 0 || value.length > 384 || value !== value.trim()) {
+    throw new TypeError(`capture request ${field} is required, canonical and bounded`);
   }
   return value;
 }
@@ -102,6 +102,9 @@ export async function captureWithAdmission(
   requireRequestField(admittedRequest.secretsRef, "secretsRef");
   requireRequestField(admittedRequest.frameClockRef, "frameClockRef");
   const decision = eligibility.check(admittedRequest);
+  if (decision !== "ADMITTED" && decision !== "NOT_ADMITTED" && decision !== "UNAVAILABLE") {
+    throw new TypeError("capture eligibility returned an unsupported decision");
+  }
   if (decision !== "ADMITTED") {
     throw new CaptureNotAdmittedError(admittedRequest.kind, decision);
   }
