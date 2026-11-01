@@ -54,17 +54,17 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 : readPersistedTenantForUpdate(entity.getId());
             if (entity.getTenantId() != null && !tenantId.equals(entity.getTenantId())) {
                 restoreManagedEntityIfPresent(entity, persistedTenant);
-                throw new IllegalArgumentException("Transcription tenant does not match save tenant");
+                throw new TenantScopeException("Transcription tenant does not match save tenant");
             }
             if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
                 restoreManagedEntityIfPresent(entity, persistedTenant);
-                throw new IllegalArgumentException("Transcription does not belong to save tenant");
+                throw new TenantScopeException("Transcription does not belong to save tenant");
             }
 
             TranscriptionEntity saved;
             if (entity.getId() == null || persistedTenant == null) {
                 if (entity.getId() != null && entityManager.contains(entity)) {
-                    throw new IllegalArgumentException("Managed Transcription with no persisted row cannot be saved");
+                    throw new TenantScopeException("Managed Transcription with no persisted row cannot be saved");
                 }
                 entity.setTenantId(tenantId);
                 entityManager.persist(entity);
@@ -77,13 +77,19 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (began) tx.commit();
             LOG.debug("Transcription saved: tenantId={}, id={}", tenantId, saved.getId());
             return saved;
-        } catch (RuntimeException e) {
+        } catch (TenantScopeException e) {
             if (began && tx.isActive()) tx.rollback();
             throw e;
         } catch (Exception e) {
             if (began && tx.isActive()) tx.rollback();
             LOG.error("Failed to save Transcription: tenantId={}", tenantId, e);
             throw new RuntimeException("Failed to save Transcription: " + e.getMessage(), e);
+        }
+    }
+
+    private static final class TenantScopeException extends IllegalArgumentException {
+        private TenantScopeException(String message) {
+            super(message);
         }
     }
 
