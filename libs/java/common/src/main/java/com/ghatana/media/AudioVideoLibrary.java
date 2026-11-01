@@ -20,6 +20,7 @@ import java.util.EnumMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**
@@ -137,17 +138,11 @@ public final class AudioVideoLibrary implements AutoCloseable {
         EnumMap<MediaCapabilityInventory.Capability, MediaCapabilityInventory.Status> values =
                 new EnumMap<>(MediaCapabilityInventory.Capability.class);
         values.put(MediaCapabilityInventory.Capability.STT,
-                isSttEnabled()
-                        ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
-                        : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
+                engineCapabilityStatus(ownedSttEngine == null ? null : ownedSttEngine::getStatus));
         values.put(MediaCapabilityInventory.Capability.TTS,
-                isTtsEnabled()
-                        ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
-                        : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
+                engineCapabilityStatus(ownedTtsEngine == null ? null : ownedTtsEngine::getStatus));
         values.put(MediaCapabilityInventory.Capability.OBJECT_DETECTION,
-                isVisionEnabled()
-                        ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
-                        : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
+                engineCapabilityStatus(ownedVisionEngine == null ? null : ownedVisionEngine::getStatus));
         values.put(MediaCapabilityInventory.Capability.CLASSIFICATION,
                 MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         values.put(MediaCapabilityInventory.Capability.CAPTION,
@@ -165,6 +160,21 @@ public final class AudioVideoLibrary implements AutoCloseable {
         values.put(MediaCapabilityInventory.Capability.MULTIMODAL,
                 MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
         return new MediaCapabilityInventory(values);
+    }
+
+    private static MediaCapabilityInventory.Status engineCapabilityStatus(
+            Supplier<EngineStatus> statusSupplier) {
+        if (statusSupplier == null) {
+            return MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
+        }
+        try {
+            EngineStatus engineStatus = statusSupplier.get();
+            return engineStatus != null && engineStatus.isHealthy()
+                    ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
+                    : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
+        } catch (RuntimeException unavailable) {
+            return MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
+        }
     }
 
     public LibraryStatus getStatus() {

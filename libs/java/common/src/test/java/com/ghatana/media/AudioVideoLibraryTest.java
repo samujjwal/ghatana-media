@@ -4,7 +4,10 @@ import com.ghatana.media.common.AudioChunk;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.common.ValidationError;
+import com.ghatana.media.capability.MediaCapabilityInventory;
+import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.config.TtsConfig;
+import com.ghatana.media.config.VisionConfig;
 import com.ghatana.media.tts.api.CloneOptions;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
@@ -77,6 +80,57 @@ class AudioVideoLibraryTest {
         assertThat(library.isTtsEnabled()).isTrue();
         assertThat(library.isSttEnabled()).isFalse();
         assertThat(library.isVisionEnabled()).isFalse();
+    }
+
+    @Test
+    void publicCapabilityInventoryTracksOnlyHealthyConfiguredEngines() {
+        try (AudioVideoLibrary consumerLibrary = AudioVideoLibrary.builder()
+                .withSttConfig(SttConfig.builder()
+                        .modelPath(tempDirectory.resolve("missing-stt.onnx"))
+                        .allowSyntheticFallback(true)
+                        .build())
+                .withTtsConfig(TtsConfig.builder()
+                        .voiceModelPath(tempDirectory.resolve("missing-tts.onnx"))
+                        .defaultVoiceId("test-voice")
+                        .allowSyntheticFallback(true)
+                        .build())
+                .withVisionConfig(VisionConfig.builder()
+                        .modelPath(tempDirectory.resolve("missing-vision.onnx"))
+                        .allowSyntheticFallback(true)
+                        .build())
+                .build()) {
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.STT);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.TTS);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION);
+
+            assertCapabilityMatchesEngine(
+                    consumerLibrary, MediaCapabilityInventory.Capability.STT,
+                    consumerLibrary.getSttEngine().getStatus());
+            assertCapabilityMatchesEngine(
+                    consumerLibrary, MediaCapabilityInventory.Capability.TTS,
+                    consumerLibrary.getTtsEngine().getStatus());
+            assertCapabilityMatchesEngine(
+                    consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION,
+                    consumerLibrary.getVisionEngine().getStatus());
+        }
+    }
+
+    private static void assertCapabilityNotReady(
+            AudioVideoLibrary consumerLibrary, MediaCapabilityInventory.Capability capability) {
+        assertThat(consumerLibrary.capabilityInventory().status(capability))
+                .isEqualTo(MediaCapabilityInventory.Status.PROVIDER_OPTIONAL);
+    }
+
+    private static void assertCapabilityMatchesEngine(
+            AudioVideoLibrary consumerLibrary,
+            MediaCapabilityInventory.Capability capability,
+            EngineStatus engineStatus) {
+        MediaCapabilityInventory.Status expected = engineStatus.isHealthy()
+                ? MediaCapabilityInventory.Status.RUNTIME_SUPPORTED
+                : MediaCapabilityInventory.Status.PROVIDER_OPTIONAL;
+        assertThat(consumerLibrary.capabilityInventory().status(capability)).isEqualTo(expected);
+        assertThat(consumerLibrary.capabilityInventory().available(capability))
+                .isEqualTo(engineStatus.isHealthy());
     }
 
     @Test
