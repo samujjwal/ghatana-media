@@ -99,6 +99,13 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
     }
 
     private String resolveMediaSource(Map<String, Object> input) {
+        Object rawSource = input.get("mediaSource");
+        if (rawSource instanceof Map<?, ?> source && source.containsKey("imageBytes")) {
+            // The canonical adapter contract requires a separately admitted
+            // upload/staging operation for inline frames. Reject before the
+            // shared source validator decodes or allocates the supplied bytes.
+            throw new IllegalArgumentException("INLINE_IMAGE_NOT_ADMITTED");
+        }
         return AgentToolInput.source(input, "mediaSource", "imageBytes", 20 * 1024 * 1024, true);
     }
 

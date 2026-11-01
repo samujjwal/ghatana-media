@@ -55,6 +55,53 @@ class VisionMultimodalAdmissionTest extends EventloopTestBase {
         assertThat(calls).hasValue(0);
     }
 
+    @Test
+    void visionRejectsUnboundSourceVersionAndRegionBeforeAnyDelegateCall() {
+        AtomicInteger calls = new AtomicInteger();
+        ToolHandler delegate = delegateReturningSuccess(calls);
+        VisionAnalysisToolHandler handler = new VisionAnalysisToolHandler(delegate);
+
+        ToolExecutionEnvelope staleVersion = envelope(VisionAnalysisToolHandler.TOOL_ID,
+                Map.of("mediaSource", Map.of("mediaArtifactId", "asset-1", "versionId", "stale-version")));
+        ToolExecutionEnvelope unboundRegion = envelope(VisionAnalysisToolHandler.TOOL_ID,
+                Map.of("mediaSource", Map.of("mediaArtifactId", "asset-1", "region", Map.of("x", 1, "y", 2))));
+
+        ToolExecutionResult staleResult = runPromise(() -> handler.handle(staleVersion, contract(staleVersion)));
+        ToolExecutionResult regionResult = runPromise(() -> handler.handle(unboundRegion, contract(unboundRegion)));
+
+        assertPreDispatchFailure(staleResult);
+        assertPreDispatchFailure(regionResult);
+        assertThat(calls).hasValue(0);
+    }
+
+    @Test
+    void visionRefusesInlineFrameBeforeBase64DecodeAndDoesNotExposeIt() {
+        AtomicInteger calls = new AtomicInteger();
+        String rawFrameSentinel = "cHJpdmF0ZS1mcmFtZS1zZW50aW5lbA==";
+        ToolExecutionEnvelope envelope = envelope(VisionAnalysisToolHandler.TOOL_ID,
+                Map.of("mediaSource", Map.of("imageBytes", rawFrameSentinel)));
+
+        ToolExecutionResult result = runPromise(() -> new VisionAnalysisToolHandler(delegateReturningSuccess(calls))
+                .handle(envelope, contract(envelope)));
+
+        assertPreDispatchFailure(result);
+        assertThat(result.failure().code()).isNotEqualTo("VISION_NOT_ADMITTED");
+        assertThat(calls).hasValue(0);
+    }
+
+    @Test
+    void multimodalRejectsUnsupportedTensorInputBeforeAnyDelegateCall() {
+        AtomicInteger calls = new AtomicInteger();
+        ToolExecutionEnvelope envelope = envelope(MultimodalInferenceToolHandler.TOOL_ID,
+                Map.of("mediaArtifactId", "asset-1", "tensor", "unadmitted-tensor"));
+
+        ToolExecutionResult result = runPromise(() -> new MultimodalInferenceToolHandler(delegateReturningSuccess(calls))
+                .handle(envelope, contract(envelope)));
+
+        assertPreDispatchFailure(result);
+        assertThat(calls).hasValue(0);
+    }
+
     private static void assertNotAdmitted(ToolExecutionResult result, String code,
             ToolExecutionEnvelope envelope) {
         assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
@@ -63,6 +110,12 @@ class VisionMultimodalAdmissionTest extends EventloopTestBase {
         assertThat(result.failure().kind()).isEqualTo(ToolExecutionFailure.Kind.UNAVAILABLE);
         assertThat(result.failure().stage()).isEqualTo(ToolExecutionFailure.Stage.ADMISSION);
         assertThat(result.failure().code()).isEqualTo(code);
+    }
+
+    private static void assertPreDispatchFailure(ToolExecutionResult result) {
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.output()).isNull();
+        assertThat(result.failure()).isNotNull();
     }
 
     private static ToolHandler delegateReturningSuccess(AtomicInteger calls) {
