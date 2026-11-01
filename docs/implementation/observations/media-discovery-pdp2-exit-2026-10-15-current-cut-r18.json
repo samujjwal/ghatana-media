@@ -15,7 +15,7 @@
     "valid": true,
     "phase": "PDP-1",
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-    "exitDigest": "sha256:41c1009e3f8938829eb05e281ef23c49fd6d7895eaf965b5f9270e092ecba7f6",
+    "exitDigest": "sha256:e651777d76761b5a6a1f6debfc964eafdc5db91b4af78b1461a61cd2cdf3af3c",
     "materialSourceSetFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-15-CURRENT-CUT-R30",
     "cellCount": 50,
@@ -53,7 +53,7 @@
   "decisionInputs": {
     "p1Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-      "sha256": "sha256:41c1009e3f8938829eb05e281ef23c49fd6d7895eaf965b5f9270e092ecba7f6",
+      "sha256": "sha256:e651777d76761b5a6a1f6debfc964eafdc5db91b4af78b1461a61cd2cdf3af3c",
       "materialSourceSetFingerprint": "sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4"
     },
     "p0Exit": {
@@ -83,18 +83,18 @@
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json",
-      "sha256": "sha256:5b9e4ed22c1492fe27749689c9dea12fd6f34e2abcd2380ff86b274511d79544",
+      "sha256": "sha256:972321f62467d7bc39d8377f251921fbfa61c52668fd44cdae938f26088e2069",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-      "sha256": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+      "sha256": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2AdditionalSourceImpact": null,
     "pdp1EvidenceRefresh": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-      "sha256": "sha256:41c1009e3f8938829eb05e281ef23c49fd6d7895eaf965b5f9270e092ecba7f6",
+      "sha256": "sha256:e651777d76761b5a6a1f6debfc964eafdc5db91b4af78b1461a61cd2cdf3af3c",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp1StatusEvidence": {
@@ -547,7 +547,7 @@
         "valid": true,
         "classification": "PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "predecessorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "predecessorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "materialPathCount": 405,
         "changedPathCount": 3,
         "changedPaths": [
@@ -624,7 +624,7 @@
         "classification": "PDP1_R30_CURRENT_SOURCE_SUCCESSOR_WITH_EXACT_PDP2_SOURCE_IMPACT_BRIDGE",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
         "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-        "successorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "successorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "paths": [],
         "currentPathCount": 405,
         "predecessorPathCount": 405,
@@ -640,7 +640,7 @@
           "valid": true,
           "classification": "PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING",
           "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-          "predecessorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+          "predecessorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
           "materialPathCount": 405,
           "changedPathCount": 3,
           "changedPaths": [
@@ -1176,7 +1176,7 @@
         "valid": false,
         "classification": "PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "predecessorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "predecessorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "materialPathCount": 405,
         "changedPathCount": 15,
         "changedPaths": [
@@ -1282,7 +1282,7 @@
         "classification": "PDP1_R30_CURRENT_SOURCE_SUCCESSOR_WITH_EXACT_PDP2_SOURCE_IMPACT_BRIDGE",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
         "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-        "successorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "successorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "paths": [],
         "currentPathCount": 405,
         "predecessorPathCount": 405,
@@ -1298,7 +1298,7 @@
           "valid": false,
           "classification": "PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING",
           "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-          "predecessorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+          "predecessorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
           "materialPathCount": 405,
           "changedPathCount": 15,
           "changedPaths": [
@@ -1493,7 +1493,7 @@
       "classification": "PDP1_R30_CURRENT_SOURCE_SUCCESSOR_WITH_EXACT_PDP2_SOURCE_IMPACT_BRIDGE",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
       "successorRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json",
-      "successorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+      "successorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
       "paths": [],
       "currentPathCount": 405,
       "predecessorPathCount": 405,
@@ -1509,7 +1509,7 @@
         "valid": false,
         "classification": "PDP2_R17_TO_R30_EXACT_SOURCE_SUCCESSOR_IMPACT_NO_ADDITIONAL_MEANING",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "predecessorDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "predecessorDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "materialPathCount": 405,
         "changedPathCount": 15,
         "changedPaths": [

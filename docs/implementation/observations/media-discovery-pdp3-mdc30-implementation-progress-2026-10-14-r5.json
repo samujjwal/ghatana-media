@@ -129,7 +129,7 @@
       {
         "phase": "PDP-1",
         "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-        "fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
+        "fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217",
         "status": "PASS_AT_CAPTURED_SOURCE_CUT",
         "developmentStatus": "DEV_COMPLETE",
         "exactCutOwnerAcceptance": "NOT_RECORDED_OR_NOT_CLAIMED"
@@ -138,7 +138,7 @@
         "phase": "PDP-2",
         "exitRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
         "fingerprint": "sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd",
-        "receiptDigest": "sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56",
+        "receiptDigest": "sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979",
         "status": "PASS_AT_CAPTURED_SOURCE_CUT",
         "developmentStatus": "DEV_COMPLETE",
         "exactCutOwnerAcceptance": "NOT_RECORDED_OR_NOT_CLAIMED"

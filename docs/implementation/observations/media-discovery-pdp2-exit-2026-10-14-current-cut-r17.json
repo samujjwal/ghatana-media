@@ -15,8 +15,8 @@
     "valid": true,
     "phase": "PDP-1",
     "exitRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-    "exitDigest": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
-    "materialSourceSetFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa",
+    "exitDigest": "sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e",
+    "materialSourceSetFingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R27",
     "cellCount": 50,
     "r27SourceMapBridge": {
@@ -30,16 +30,16 @@
       "currentPathsMatch": true,
       "r25PathCount": 329,
       "r27PathCount": 329,
-      "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-      "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+      "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+      "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
     },
     "status": "PASS"
   },
   "decisionInputs": {
     "p1Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "sha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
-      "materialSourceSetFingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+      "sha256": "sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e",
+      "materialSourceSetFingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
     },
     "p0Exit": {
       "ref": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
@@ -79,7 +79,7 @@
     "pdp2AdditionalSourceImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
-      "sha256": "sha256:8daee6006e62a49f8745eb97dd924042f806a0d39afed613fcf6305512dd23f9",
+      "sha256": "sha256:4dfc8d68a90bc9b311dfb16106474f9e85a84abb5e3014b44b536c6c192b90da",
       "paths": [
         ".product-experience/decision-log.md",
         ".product-experience/interface-parity/current-source-review.json",
@@ -116,7 +116,7 @@
     },
     "pdp1EvidenceRefresh": {
       "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-      "sha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
+      "sha256": "sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp1StatusEvidence": {
@@ -23634,7 +23634,7 @@
       "additionalSourceImpact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
-        "sha256": "sha256:8daee6006e62a49f8745eb97dd924042f806a0d39afed613fcf6305512dd23f9",
+        "sha256": "sha256:4dfc8d68a90bc9b311dfb16106474f9e85a84abb5e3014b44b536c6c192b90da",
         "paths": [
           ".product-experience/decision-log.md",
           ".product-experience/interface-parity/current-source-review.json",
@@ -23672,9 +23672,9 @@
       "r16ProjectionImpact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json",
-        "digest": "sha256:50802b2f31dca6892ac4899d1dfdaddb50e60955cd70c62fb1633b3dd42f9227",
+        "digest": "sha256:9e017cfb435a5c7364f6a162a05b2cd13e28d9d044dcda3b31598dd9203c0279",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-r16.json",
-        "predecessorDigest": "sha256:50802b2f31dca6892ac4899d1dfdaddb50e60955cd70c62fb1633b3dd42f9227",
+        "predecessorDigest": "sha256:9e017cfb435a5c7364f6a162a05b2cd13e28d9d044dcda3b31598dd9203c0279",
         "paths": [
           ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json"
         ],
@@ -23702,8 +23702,8 @@
         "currentPathsMatch": true,
         "r25PathCount": 329,
         "r27PathCount": 329,
-        "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-        "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+        "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+        "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
       },
       "predecessorEvidenceRefresh": {
         "valid": true,
@@ -26037,8 +26037,8 @@
           "currentPathsMatch": true,
           "r25PathCount": 329,
           "r27PathCount": 329,
-          "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-          "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+          "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+          "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
         }
       },
       "combinedSourceRefresh": {
@@ -49657,7 +49657,7 @@
       "additionalSourceImpact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
-        "sha256": "sha256:8daee6006e62a49f8745eb97dd924042f806a0d39afed613fcf6305512dd23f9",
+        "sha256": "sha256:4dfc8d68a90bc9b311dfb16106474f9e85a84abb5e3014b44b536c6c192b90da",
         "paths": [
           ".product-experience/decision-log.md",
           ".product-experience/interface-parity/current-source-review.json",
@@ -49695,9 +49695,9 @@
       "r16ProjectionImpact": {
         "valid": true,
         "ref": "docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json",
-        "digest": "sha256:50802b2f31dca6892ac4899d1dfdaddb50e60955cd70c62fb1633b3dd42f9227",
+        "digest": "sha256:9e017cfb435a5c7364f6a162a05b2cd13e28d9d044dcda3b31598dd9203c0279",
         "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-r16.json",
-        "predecessorDigest": "sha256:50802b2f31dca6892ac4899d1dfdaddb50e60955cd70c62fb1633b3dd42f9227",
+        "predecessorDigest": "sha256:9e017cfb435a5c7364f6a162a05b2cd13e28d9d044dcda3b31598dd9203c0279",
         "paths": [
           ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json"
         ],
@@ -49725,8 +49725,8 @@
         "currentPathsMatch": true,
         "r25PathCount": 329,
         "r27PathCount": 329,
-        "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-        "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+        "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+        "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
       },
       "predecessorEvidenceRefresh": {
         "valid": true,
@@ -52060,8 +52060,8 @@
           "currentPathsMatch": true,
           "r25PathCount": 329,
           "r27PathCount": 329,
-          "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-          "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+          "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+          "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
         }
       },
       "combinedSourceRefresh": {
@@ -54421,8 +54421,8 @@
         "currentPathsMatch": true,
         "r25PathCount": 329,
         "r27PathCount": 329,
-        "r25Fingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
-        "r27Fingerprint": "sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa"
+        "r25Fingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
+        "r27Fingerprint": "sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217"
       }
     },
     "meaningIdCount": 1

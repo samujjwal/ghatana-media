@@ -69,11 +69,11 @@ const PDP1_CURRENT_CUT_EXIT_R22_PATH = 'docs/implementation/observations/media-d
 const PDP1_CURRENT_CUT_EXIT_R25_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json';
 const PDP1_CURRENT_CUT_EXIT_R27_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json';
 const PDP1_CURRENT_CUT_EXIT_R30_PATH = 'docs/implementation/observations/media-discovery-pdp1-exit-2026-10-15-current-cut-r30.json';
-const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:41c1009e3f8938829eb05e281ef23c49fd6d7895eaf965b5f9270e092ecba7f6';
+const PDP1_CURRENT_CUT_EXIT_R30_DIGEST = 'sha256:e651777d76761b5a6a1f6debfc964eafdc5db91b4af78b1461a61cd2cdf3af3c';
 const PDP1_CURRENT_CUT_EXIT_R30_FINGERPRINT = 'sha256:34f90853f894e4e244e5e0c76643ebd94f6f2455c6a012c4dd4073bb5d62a4f4';
-const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:3d657bf907ecfcd766010f032f353f2b77af7d390965dd2a762fbe2254a3af19';
-const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6';
-const PDP1_CURRENT_CUT_EXIT_R27_FINGERPRINT = 'sha256:2c982c15803a00a22a873d9874e1d00de89b1e80addc97ae984bffc578bef3aa';
+const PDP1_CURRENT_CUT_EXIT_R25_DIGEST = 'sha256:35ee38174262965a2322dcabf0e3e33368e7ace5fde2ac164dde56ac28fc8754';
+const PDP1_CURRENT_CUT_EXIT_R27_DIGEST = 'sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e';
+const PDP1_CURRENT_CUT_EXIT_R27_FINGERPRINT = 'sha256:1f5d26be9831cd4adf3dd70a8e4eb2478ab16200ba3a211646d0dfdfe6ac9217';
 const PDP0_CURRENT_CUT_EXIT_R12_PATH = 'docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json';
 const PDP0_CURRENT_CUT_EXIT_R12_DIGEST = 'sha256:c5bb7b02bec3c2d9ac1c37d607495a42f84d053cc37f1d95a4fd6dc7df9a2cec';
 const PDP0_CURRENT_CUT_EXIT_R12_FINGERPRINT = 'sha256:1a121cf988ba4a34f6b603b1f230fd0494160a3c6142c064d8d5cc2a6aa45f94';
@@ -81,14 +81,14 @@ const PDP0_CURRENT_CUT_EXIT_R15_PATH = 'docs/implementation/observations/media-d
 const PDP0_CURRENT_CUT_EXIT_R15_DIGEST = 'sha256:47c82d6ac218cd07586c78da60067d77f2ce8d256f325b12eea0a58dc78cf9c4';
 const PDP0_CURRENT_CUT_EXIT_R15_FINGERPRINT = 'sha256:eff717cf2537a285cd7a1c1a72b44a75766a0a7e6eef6ea97edbc2befa2e1a95';
 const PDP2_R17_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json';
-const PDP2_R17_DIGEST = 'sha256:0cf24dec7a806423c691cc2612b4add18e20e00a6c35ea937aaf3e090196da56';
+const PDP2_R17_DIGEST = 'sha256:85718edf27578a4daf54bc01f726af5659da86b535135659b0c324658b842979';
 const PDP2_R17_FINGERPRINT = 'sha256:a4c43f03c44a5f1844fba5039f146473f7390c02b3a06ce582c095fc5d9e74bd';
 const PDP2_R17_TO_R30_IMPACT_PATH = 'docs/implementation/observations/media-discovery-pdp2-r17-to-r30-source-impact-2026-10-15-r1.json';
 const PDP2_ADDITIONAL_SOURCE_IMPACT_R1_PATH = 'docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json';
 const PDP2_R16_PROJECTION_IMPACT_RECORD_PATH = 'docs/implementation/observations/media-discovery-pdp2-r16-projection-impact-2026-10-14-r1.json';
-const PDP2_R16_PROJECTION_IMPACT_DIGEST = 'sha256:50802b2f31dca6892ac4899d1dfdaddb50e60955cd70c62fb1633b3dd42f9227';
+const PDP2_R16_PROJECTION_IMPACT_DIGEST = 'sha256:9e017cfb435a5c7364f6a162a05b2cd13e28d9d044dcda3b31598dd9203c0279';
 const PDP2_R16_RECEIPT_PATH = 'docs/implementation/observations/media-discovery-pdp2-exit-r16.json';
-const PDP2_R16_RECEIPT_DIGEST = 'sha256:2dc750f2431ca3b31e52a024bda82d4685913c4c50fa682236b8cf2a3159c7b2';
+const PDP2_R16_RECEIPT_DIGEST = 'sha256:9fcac75cbca1f449fd214b2ece7045218b94e8c25b23ca66adc3255991aa51fc';
 const PDP2_R16_PROJECTION_PATH = '.product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json';
 const PDP2_R16_PROJECTION_PREDECESSOR_DIGEST = 'sha256:612760df546543582d5b6a867e3086bc6f1b21c5ba745367fbe3dd88b27f0979';
 const PDP2_R16_PROJECTION_OBSERVED_DIGEST = 'sha256:31b3ba5c760888b992a53e4f4ecb507643e9e6198e982cf390758a0a3aeff51b';
@@ -1391,7 +1391,7 @@ export function validatePdp2AdditionalSourceImpact({ record, recordPath, predece
       && record.pdp1Predecessor?.receiptRef === PDP1_CURRENT_CUT_EXIT_R25_PATH
       && record.pdp1Predecessor?.receiptSha256 === digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH)
       && record.pdp1Predecessor?.sourceFingerprint === r25?.sourceCurrentness?.materialSourceSetFingerprint
-      && record.pdp1Predecessor?.sourceFingerprint === 'sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e'
+      && record.pdp1Predecessor?.sourceFingerprint === 'sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76'
       && record.pdp1Predecessor?.status === 'PASS'
       && record.pdp1Predecessor?.sourceCurrentness === 'PASS'
       && record.pdp1Predecessor?.sourceCurrent === true
@@ -1409,7 +1409,7 @@ export function validatePdp2AdditionalSourceImpact({ record, recordPath, predece
       predecessorId: predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13',
       predecessorCount: Object.keys(predecessorDigests).length,
       pdp1Receipt: record.pdp1Predecessor?.receiptSha256 === digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH),
-      pdp1Fingerprint: record.pdp1Predecessor?.sourceFingerprint === 'sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e',
+      pdp1Fingerprint: record.pdp1Predecessor?.sourceFingerprint === 'sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76',
       transitionValid, authorizationValid, noDownstreamClaims,
     } };
     return {
@@ -1726,13 +1726,13 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     const valid = predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-2026-10-14-CURRENT-CUT-R13'
       && predecessor?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:abc297017aa3d332e0bca990cc9f5756dc2a68e66b2e6510f9087f6461063938'
       && pdp1ExitPath === PDP1_CURRENT_CUT_EXIT_R25_PATH
-      && pdp1ExitDigest === 'sha256:3d657bf907ecfcd766010f032f353f2b77af7d390965dd2a762fbe2254a3af19'
+      && pdp1ExitDigest === 'sha256:35ee38174262965a2322dcabf0e3e33368e7ace5fde2ac164dde56ac28fc8754'
       && pdp1ExitDigest === digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH)
       && pdp1Exit?.phaseExit?.status === 'PASS' && pdp1Exit?.phaseExit?.sourceCurrentness === 'PASS'
       && pdp1Exit?.developmentStatus?.status === 'DEV_COMPLETE'
       && pdp1Exit?.developmentStatus?.outstandingMeaningIds?.length === 0
       && pdp1Exit?.sourceCurrentness?.status === 'PASS' && pdp1Exit?.sourceCurrentness?.sourceCurrent === true
-      && pdp1Exit?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e'
+      && pdp1Exit?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76'
       && pdp1Exit?.sourceCurrentness?.materialPathDenominator?.uniquePaths === 329
       && cells.length === 50 && cells.every((cell) => cell.sourceCurrentness === 'CURRENT' && (cell.blockers?.length ?? 0) === 0)
       && Object.keys(predecessorDigests).length === 405 && allSuccessorPinsMatch;
@@ -3291,8 +3291,8 @@ export function validatePdp1Predecessor(exit, matrix, p1ExitPath, pairedP0, {
   const r30Bound = r30Bridge?.valid === true;
   const r25Bound = p1ExitPath === PDP1_CURRENT_CUT_EXIT_R25_PATH
     && exit.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R25'
-    && digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH) === 'sha256:3d657bf907ecfcd766010f032f353f2b77af7d390965dd2a762fbe2254a3af19'
-    && exit.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e'
+    && digestFile(PDP1_CURRENT_CUT_EXIT_R25_PATH) === 'sha256:35ee38174262965a2322dcabf0e3e33368e7ace5fde2ac164dde56ac28fc8754'
+    && exit.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76'
     && matrix.currentCut?.pdp1PhaseExit === p1ExitPath
     && matrix.currentCut?.pdp1CurrentnessObservation === `${p1ExitPath}#sourceCurrentness`
     && matrix.currentCut?.pdp1MaterialSourceSetFingerprint === exit.developmentStatus?.currentMaterialSourceSetFingerprint;

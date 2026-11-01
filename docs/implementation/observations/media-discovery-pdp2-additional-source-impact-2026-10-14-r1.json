@@ -14,8 +14,8 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json",
-    "receiptSha256": "sha256:3d657bf907ecfcd766010f032f353f2b77af7d390965dd2a762fbe2254a3af19",
-    "sourceFingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
+    "receiptSha256": "sha256:35ee38174262965a2322dcabf0e3e33368e7ace5fde2ac164dde56ac28fc8754",
+    "sourceFingerprint": "sha256:6aebb80270f658979be0bfc29d30c3e1f721d0d75949ecc26c233c0bc9fcef76",
     "status": "PASS",
     "sourceCurrentness": "PASS",
     "sourceCurrent": true,

@@ -39,10 +39,10 @@
     "phase": "PDP-1",
     "status": "PASS",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-    "receiptSha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
+    "receiptSha256": "sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e",
     "sourceCurrentness": "PASS",
     "predecessorExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
-    "predecessorExitSha256": "sha256:d341830cfb827dfcdaa34a8ea661a260797741a30ed2ec87d1e750717ef894e6",
+    "predecessorExitSha256": "sha256:d2d0e7d30e960837768c42732ce20654827f25cd13241c14b3e784af402b0a4e",
     "relationshipToCurrentPredecessor": "HISTORICAL_PDP1_RECEIPT_NOT_CHAINED_TO_PDP0_R15; FRESH_PDP1_CAPTURE_REQUIRED"
   },
   "pdp0AntecedentDispositions": [
