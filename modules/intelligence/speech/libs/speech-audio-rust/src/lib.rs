@@ -400,9 +400,11 @@ pub fn slice_audio_buffer(
     start_time: f64,
     end_time: f64,
 ) -> Result<AudioBuffer> {
-    if start_time < 0.0 || end_time < 0.0 || end_time < start_time {
+    if !start_time.is_finite() || !end_time.is_finite()
+        || start_time < 0.0 || end_time < 0.0 || end_time < start_time
+    {
         return Err(SpeechAudioError::InvalidInput(
-            "slice times must be non-negative and end must be >= start".to_string(),
+            "slice times must be finite and non-negative, and end must be >= start".to_string(),
         ));
     }
 
@@ -1035,6 +1037,47 @@ mod tests {
         let sliced = slice_audio_buffer(&buffer, 1.0, 2.0).unwrap();
 
         assert_eq!(sliced.samples, vec![0.4, 0.6]);
+    }
+
+    #[test]
+    fn slice_audio_buffer_rejects_non_finite_times_instead_of_coercing_indices() {
+        let buffer = AudioBuffer::new(
+            vec![0.0, 0.2, 0.4, 0.6],
+            AudioConfig {
+                sample_rate: 2,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        for (start, end) in [
+            (f64::NAN, 1.0),
+            (f64::INFINITY, 1.0),
+            (f64::NEG_INFINITY, 1.0),
+            (0.0, f64::NAN),
+            (0.0, f64::INFINITY),
+            (0.0, f64::NEG_INFINITY),
+        ] {
+            assert!(matches!(
+                slice_audio_buffer(&buffer, start, end),
+                Err(SpeechAudioError::InvalidInput(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn slice_audio_buffer_keeps_finite_out_of_range_times_clamped() {
+        let buffer = AudioBuffer::new(
+            vec![0.0, 0.2, 0.4, 0.6],
+            AudioConfig {
+                sample_rate: 2,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        assert_eq!(slice_audio_buffer(&buffer, 1.5, 10.0).unwrap().samples, vec![0.6]);
+        assert!(slice_audio_buffer(&buffer, 10.0, 11.0).unwrap().samples.is_empty());
     }
 
     #[test]
