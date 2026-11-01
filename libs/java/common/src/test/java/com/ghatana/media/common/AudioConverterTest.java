@@ -63,6 +63,36 @@ class AudioConverterTest {
     }
 
     @Test
+    @DisplayName("PCM conversion supports exact 8 through 32 bit widths and scales 32 bit safely")
+    void pcmWidthsHaveCorrectSignedScaling() {
+        assertThat(AudioConverter.pcmToFloatSamples(new byte[] {(byte) 0x80, 0x7f}, 8))
+                .containsExactly(-1.0f, 127 / 128.0f);
+        assertThat(AudioConverter.pcmToFloatSamples(new byte[] {
+                0, 0, 0, (byte) 0x80, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x7f}, 32))
+                .containsExactly(-1.0f, 2147483647 / 2147483648.0f);
+    }
+
+    @Test
+    @DisplayName("Unsupported widths and partial PCM samples are rejected")
+    void rejectsUnsupportedPcmWidthsAndPartialSamples() {
+        for (int bitsPerSample : new int[] {0, 1, 7, 12, 40, 64}) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> AudioConverter.pcmToFloatSamples(new byte[8], bitsPerSample));
+        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AudioConverter.pcmToFloatSamples(new byte[] {1, 2, 3}, 16))
+                .withMessageContaining("complete samples");
+    }
+
+    @Test
+    @DisplayName("Interleaved conversion rejects incomplete channel frames")
+    void rejectsIncompleteMultichannelFrame() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> AudioConverter.fromFloatSamples(new float[] {0.25f}, 16000, 2))
+                .withMessageContaining("complete channel frames");
+    }
+
+    @Test
     @DisplayName("Audio metadata is extracted from AudioData and WAV bytes")
     void extractsAudioMetadata() { 
         AudioData audioData = AudioConverter.fromFloatSamples(new float[]{0.0f, 0.5f, -0.5f, 0.25f}, 16000, 1); 

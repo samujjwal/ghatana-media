@@ -18,14 +18,18 @@ public final class AudioConverter {
     /** Convert signed PCM bytes into normalised float samples in the range [-1, 1]. */
     public static float[] pcmToFloatSamples(byte[] data, int bitsPerSample) {
         Objects.requireNonNull(data, "data cannot be null");
-        if (bitsPerSample <= 0 || bitsPerSample % 8 != 0) {
-            throw new IllegalArgumentException("bitsPerSample must be a positive multiple of 8");
+        if (bitsPerSample != 8 && bitsPerSample != 16
+                && bitsPerSample != 24 && bitsPerSample != 32) {
+            throw new IllegalArgumentException("bitsPerSample must be one of 8, 16, 24, or 32");
         }
 
         int bytesPerSample = bitsPerSample / 8;
+        if (data.length % bytesPerSample != 0) {
+            throw new IllegalArgumentException("PCM data must contain complete samples");
+        }
         int numSamples = data.length / bytesPerSample;
         float[] floats = new float[numSamples];
-        float maxAmplitude = (float) (1 << (bitsPerSample - 1));
+        float maxAmplitude = (float) Math.scalb(1.0d, bitsPerSample - 1);
 
         for (int sampleIndex = 0; sampleIndex < numSamples; sampleIndex++) {
             int sample = 0;
@@ -44,6 +48,9 @@ public final class AudioConverter {
     /** Convert normalised float samples into 16-bit PCM bytes. */
     public static byte[] floatSamplesToPcm16(float[] samples) {
         Objects.requireNonNull(samples, "samples cannot be null");
+        if (samples.length > Integer.MAX_VALUE / 2) {
+            throw new IllegalArgumentException("sample count exceeds the PCM16 byte array limit");
+        }
         byte[] bytes = new byte[samples.length * 2];
         for (int index = 0; index < samples.length; index++) {
             float value = samples[index];
@@ -65,6 +72,10 @@ public final class AudioConverter {
         }
         if (channels <= 0) {
             throw new IllegalArgumentException("channels must be positive");
+        }
+        Objects.requireNonNull(samples, "samples cannot be null");
+        if (samples.length % channels != 0) {
+            throw new IllegalArgumentException("interleaved samples must contain complete channel frames");
         }
 
         long frameCount = samples.length / channels;
