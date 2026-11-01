@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{ErrorKind, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
+use std::time::{Duration, Instant};
 
 use hound::{SampleFormat as WavSampleFormat, WavSpec, WavWriter};
 use symphonia::core::audio::SampleBuffer;
@@ -84,11 +85,22 @@ pub enum SpeechAudioError {
 
 pub type Result<T> = std::result::Result<T, SpeechAudioError>;
 
+/// Maximum cooperative wall time spent decoding one audio file.
+///
+/// The Symphonia API decodes packets synchronously and does not expose
+/// cancellation for an in-flight codec call. The decoder checks this budget
+/// before and after every probe/read/decode operation, so work stops between
+/// operations when the deadline expires. Callers that need a hard kill of a
+/// potentially stuck native codec must isolate decoding in a worker process.
+const MAX_DECODE_TIME: Duration = Duration::from_secs(60);
+
 /**
  * Finite decode budget protecting against decoded-memory bombs. Container
  * metadata is validated before any sample allocation, and decoding stops with
  * [`SpeechAudioError::ResourceLimit`] once the sample bound is exceeded —
- * a small compressed file can never expand into an unbounded buffer.
+ * a small compressed file can never expand into an unbounded buffer. The
+ * in-process decoder also has a cooperative 60-second wall-time budget checked
+ * between codec operations; one synchronous codec call cannot be interrupted.
  */
 #[derive(Debug, Clone, Copy)]
 pub struct DecodeLimits {
@@ -655,7 +667,22 @@ fn trusted_expected_frames(n_frames: Option<u64>, has_exact_frame_count: bool) -
 }
 
 fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudio> {
+    decode_audio_bounded_with_time_budget(path, limits, MAX_DECODE_TIME)
+}
+
+fn decode_audio_bounded_with_time_budget(
+    path: &Path,
+    limits: DecodeLimits,
+    max_decode_time: Duration,
+) -> Result<DecodedAudio> {
+    let started_at = Instant::now();
     limits.validate()?;
+    if max_decode_time.is_zero() {
+        return Err(SpeechAudioError::InvalidInput(
+            "decode time budget must be positive".to_string(),
+        ));
+    }
+    ensure_decode_time(started_at, max_decode_time)?;
     if !path.exists() {
         return Err(SpeechAudioError::FileNotFound(path.display().to_string()));
     }
@@ -668,6 +695,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
 
     let mut file = File::open(path)?;
     let input_bytes = file.metadata()?.len();
+    ensure_decode_time(started_at, max_decode_time)?;
     if input_bytes > limits.max_input_bytes {
         return Err(SpeechAudioError::ResourceLimit(format!(
             "encoded audio is {input_bytes} bytes, exceeding the {} byte source budget",
@@ -694,6 +722,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             &MetadataOptions::default(),
         )
         .map_err(map_probe_error)?;
+    ensure_decode_time(started_at, max_decode_time)?;
     let mut format = probe.format;
     let track = format
         .default_track()
@@ -738,11 +767,13 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
     let mut decoder = get_codecs()
         .make(&codec_params, &DecoderOptions::default())
         .map_err(map_decode_error)?;
+    ensure_decode_time(started_at, max_decode_time)?;
 
     let mut samples = Vec::new();
     let mut decoded_frames = 0u64;
 
     loop {
+        ensure_decode_time(started_at, max_decode_time)?;
         let packet = match format.next_packet() {
             Ok(packet) => packet,
             Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
@@ -755,6 +786,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             }
             Err(error) => return Err(map_decode_error(error)),
         };
+        ensure_decode_time(started_at, max_decode_time)?;
 
         if packet.track_id() != track_id {
             continue;
@@ -768,6 +800,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             Err(SymphoniaError::DecodeError(_)) => continue,
             Err(error) => return Err(map_decode_error(error)),
         };
+        ensure_decode_time(started_at, max_decode_time)?;
 
         // Bound the exact decoded packet before allocating SampleBuffer or
         // growing the accumulated output. Decoder capacity can be much larger
@@ -841,6 +874,7 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             )));
         }
     }
+    ensure_decode_time(started_at, max_decode_time)?;
 
     Ok(DecodedAudio {
         path: path.to_path_buf(),
@@ -852,6 +886,15 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
         },
         format: extension,
     })
+}
+
+fn ensure_decode_time(started_at: Instant, budget: Duration) -> Result<()> {
+    if started_at.elapsed() > budget {
+        return Err(SpeechAudioError::ResourceLimit(
+            "audio decode exceeded its wall-time budget".to_string(),
+        ));
+    }
+    Ok(())
 }
 
 /// Validate ordinary RIFF/WAVE chunk boundaries before handing the file to a
@@ -2321,6 +2364,37 @@ mod tests {
     }
 
     #[test]
+    fn decode_budget_enforces_cooperative_wall_time() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("time-budget.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.25; 32],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+
+        assert!(matches!(
+            decode_audio_bounded_with_time_budget(
+                &path,
+                DecodeLimits::DEFAULT,
+                Duration::from_nanos(1),
+            ),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+        assert!(matches!(
+            decode_audio_bounded_with_time_budget(&path, DecodeLimits::DEFAULT, Duration::ZERO,),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
     fn estimated_codec_frame_counts_do_not_become_truncation_bounds() {
         let temp = tempdir().unwrap();
         let aac_path = temp.path().join("estimated.aac");
@@ -2394,6 +2468,24 @@ mod tests {
                 outcome.unwrap().is_err(),
                 "truncated WAVE input was accepted at {cut} bytes"
             );
+        }
+
+        // Deterministically mutate chunk headers and payload positions. A
+        // mutation may still describe valid audio, but it must never panic or
+        // escape the normal decoded-sample/finiteness budget.
+        for index in (0..complete.len()).step_by((complete.len() / 32).max(1)) {
+            let mut mutated = complete.clone();
+            mutated[index] ^= 0xff;
+            std::fs::write(&path, &mutated).unwrap();
+            let outcome = std::panic::catch_unwind(|| load_audio_buffer(&path));
+            assert!(
+                outcome.is_ok(),
+                "decoder panicked with byte {index} mutated"
+            );
+            if let Ok(decoded) = outcome.unwrap() {
+                assert!(decoded.samples.len() <= DecodeLimits::DEFAULT.max_decoded_samples);
+                assert!(decoded.samples.iter().all(|sample| sample.is_finite()));
+            }
         }
     }
 
