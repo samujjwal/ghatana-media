@@ -52,18 +52,23 @@ public final class InProcessVideoTransport {
      * corrupted frame is never read back as valid.
      */
     public VideoStreamSession.DecodedFrame receive() {
-        byte[] encoded = inFlight.pollFirst();
+        byte[] encoded = inFlight.peekFirst();
         if (encoded == null) {
             return null;
         }
-        return wire.decodeFrame(encoded);
+        VideoStreamSession.DecodedFrame decoded = wire.decodeFrame(encoded);
+        inFlight.removeFirst();
+        return decoded;
     }
 
     /** Drains all in-flight frames in order for capture sealing. */
     public void drainInto(List<VideoStreamSession.DecodedFrame> sink) {
-        VideoStreamSession.DecodedFrame frame;
-        while ((frame = receive()) != null) {
+        Objects.requireNonNull(sink, "sink");
+        while (!inFlight.isEmpty()) {
+            byte[] encoded = inFlight.peekFirst();
+            VideoStreamSession.DecodedFrame frame = wire.decodeFrame(encoded);
             sink.add(frame);
+            inFlight.removeFirst();
         }
     }
 

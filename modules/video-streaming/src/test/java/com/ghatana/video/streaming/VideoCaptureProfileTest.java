@@ -115,4 +115,27 @@ class VideoCaptureProfileTest {
                 .isFalse();
         assertThat(transport.inFlightCount()).isEqualTo(InProcessVideoTransport.MAX_IN_FLIGHT);
     }
+
+    @Test
+    @DisplayName("failed drain destination leaves queued frames available for readback")
+    void failedDrainDoesNotConsumeQueuedFrame() {
+        InProcessVideoTransport nullSinkTransport = new InProcessVideoTransport();
+        var expected = frame(0, true, (byte) 0x4A);
+        assertThat(nullSinkTransport.send(expected)).isTrue();
+        assertThatThrownBy(() -> nullSinkTransport.drainInto(null))
+                .isInstanceOf(NullPointerException.class);
+        assertThat(nullSinkTransport.inFlightCount()).isEqualTo(1);
+        assertThat(nullSinkTransport.receive())
+                .extracting(VideoStreamSession.DecodedFrame::payload)
+                .isEqualTo(expected.payload());
+
+        InProcessVideoTransport immutableSinkTransport = new InProcessVideoTransport();
+        assertThat(immutableSinkTransport.send(expected)).isTrue();
+        assertThatThrownBy(() -> immutableSinkTransport.drainInto(List.of()))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThat(immutableSinkTransport.inFlightCount()).isEqualTo(1);
+        assertThat(immutableSinkTransport.receive())
+                .extracting(VideoStreamSession.DecodedFrame::payload)
+                .isEqualTo(expected.payload());
+    }
 }
