@@ -10,8 +10,10 @@ import com.ghatana.datacloud.delivery.ledger.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -647,5 +649,67 @@ class AudioVideoRunLedgerAdapterTest {
                 .doesNotContainKeys("biometric_confidence", "face_embedding", "person@example.com");
         assertThat(provider.toString()).doesNotContain(
                 "provider-secret-id", "biometric_confidence", "face_embedding", "person@example.com");
+    }
+
+    @Test
+    @DisplayName("Measures bounded seeded 10k adapter projections and keeps sensitive values out of ledger output")
+    void testSeededTenThousandRecordProjectionMeasurement() {
+        final int recordCount = 10_000;
+        final long seed = 0x4c443035L;
+        final long baseTimeMs = 1_700_000_000_000L;
+        final String[] sourceStates = {"SUBMITTED", "PROCESSING", "COMPLETED", "FAILED"};
+        final JobExecutionState[] expectedStates = {
+                JobExecutionState.PENDING, JobExecutionState.RUNNING,
+                JobExecutionState.COMPLETED, JobExecutionState.COMPLETED
+        };
+        final ExecutionOutcome[] expectedOutcomes = {
+                null, null, ExecutionOutcome.SUCCEEDED, ExecutionOutcome.FAILED
+        };
+        Random seeded = new Random(seed);
+        long[] elapsedNanos = new long[recordCount];
+        int maxSerializedChars = 0;
+
+        for (int i = 0; i < recordCount; i++) {
+            int stateIndex = i % sourceStates.length;
+            String sourceToken = "https://media.invalid/source?token=seeded-secret-" + i;
+            String privateEmail = "person-" + i + "@example.invalid";
+            String providerJobId = "provider-private-account-job-" + i;
+            int bitrate = 64_000 + seeded.nextInt(128_001);
+            long createdAtMs = baseTimeMs + i;
+            String outputId = stateIndex >= 2 ? "output-" + i : null;
+
+            long startedNanos = System.nanoTime();
+            RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "ld05-job-" + i, "AUDIO", "STT", "ld05-collection", "ld05-source-" + i,
+                    Map.of("bitrate", String.valueOf(bitrate), "codec", "aac",
+                            "sourceToken", sourceToken, "purpose", privateEmail),
+                    sourceStates[stateIndex], createdAtMs, createdAtMs + 1,
+                    outputId, stateIndex == 3 ? "voiceprint subject@example.invalid" : null,
+                    "whisper", providerJobId, "ld05-trace", "ld05-correlation");
+            elapsedNanos[i] = System.nanoTime() - startedNanos;
+
+            assertThat(ledger.state()).isEqualTo(expectedStates[stateIndex]);
+            assertThat(ledger.outcome()).isEqualTo(expectedOutcomes[stateIndex]);
+            assertThat(ledger.attributes()).containsEntry("jobState", sourceStates[stateIndex]);
+            assertThat(ledger.inputs().parameters())
+                    .containsEntry("bitrate", String.valueOf(bitrate))
+                    .containsEntry("codec", "aac")
+                    .containsEntry("sanitizedParamsDropped", "2")
+                    .doesNotContainKeys("sourceToken", "purpose");
+            assertThat(ledger.inputs().parameters()).hasSizeLessThanOrEqualTo(3);
+            assertThat(ledger.attributes().size()).isLessThanOrEqualTo(10);
+            assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
+            String serialized = ledger.toString();
+            maxSerializedChars = Math.max(maxSerializedChars, serialized.length());
+            assertThat(serialized).doesNotContain(sourceToken, privateEmail, providerJobId,
+                    "voiceprint subject", "example.invalid");
+            assertThat(serialized.length()).isLessThanOrEqualTo(4_096);
+        }
+
+        Arrays.sort(elapsedNanos);
+        long p50Micros = elapsedNanos[(recordCount - 1) / 2] / 1_000;
+        long p95Micros = elapsedNanos[(int) Math.ceil(recordCount * 0.95) - 1] / 1_000;
+        System.out.printf("LD-05 seeded adapter projection: records=%d seed=%d p50=%d us p95=%d us maxSerializedChars=%d%n",
+                recordCount, seed, p50Micros, p95Micros, maxSerializedChars);
     }
 }
