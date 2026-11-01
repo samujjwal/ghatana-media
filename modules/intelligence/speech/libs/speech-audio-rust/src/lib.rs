@@ -450,7 +450,11 @@ struct DecodedAudio {
 
 impl DecodedAudio {
     fn duration_seconds(&self) -> f64 {
-        AudioBuffer::new(self.samples.clone(), self.config).duration_seconds()
+        if self.config.sample_rate == 0 || self.config.channels == 0 {
+            return 0.0;
+        }
+        let frames = self.samples.len() / self.config.channels as usize;
+        frames as f64 / self.config.sample_rate as f64
     }
 }
 
@@ -545,20 +549,59 @@ fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudi
             Err(error) => return Err(map_decode_error(error)),
         };
 
-        // Every packet is interleaved into a fresh SampleBuffer and appended;
-        // multi-channel F32 buffers must never clear previously decoded history.
+        // Bound the exact decoded packet before allocating SampleBuffer or
+        // growing the accumulated output. Decoder capacity can be much larger
+        // than the remaining budget, so it is not a safe allocation size.
         let spec = *decoded.spec();
-        let capacity = decoded.capacity() as u64;
-        let mut interleaved = SampleBuffer::<f32>::new(capacity, spec);
-        interleaved.copy_interleaved_ref(decoded);
-        samples.extend_from_slice(interleaved.samples());
-
-        if samples.len() > limits.max_decoded_samples {
+        let packet_channels = spec.channels.count();
+        if packet_channels == 0 || packet_channels > limits.max_channels as usize {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "decoded channel count {packet_channels} is outside the bounded range 1..={}",
+                limits.max_channels
+            )));
+        }
+        if spec.rate == 0 || spec.rate > limits.max_sample_rate || spec.rate != sample_rate {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "decoded sample rate {} does not match the bounded track rate {sample_rate}",
+                spec.rate
+            )));
+        }
+        if packet_channels != channels as usize {
+            return Err(SpeechAudioError::Decode(format!(
+                "decoded channel layout changed from {channels} to {packet_channels}"
+            )));
+        }
+        let packet_frames = decoded.frames();
+        let packet_samples = packet_frames.checked_mul(packet_channels).ok_or_else(|| {
+            SpeechAudioError::ResourceLimit("decoded packet sample count overflow".to_string())
+        })?;
+        let remaining_samples = limits.max_decoded_samples.saturating_sub(samples.len());
+        if packet_samples > remaining_samples {
             return Err(SpeechAudioError::ResourceLimit(format!(
                 "decoded audio exceeds the {} sample budget",
                 limits.max_decoded_samples
             )));
         }
+        if packet_frames == 0 {
+            continue;
+        }
+        let mut interleaved = SampleBuffer::<f32>::new(packet_frames as u64, spec);
+        interleaved.copy_interleaved_ref(decoded);
+        let decoded_samples = interleaved.samples();
+        if decoded_samples.len() > remaining_samples {
+            return Err(SpeechAudioError::ResourceLimit(format!(
+                "decoded audio exceeds the {} sample budget",
+                limits.max_decoded_samples
+            )));
+        }
+        samples
+            .try_reserve(decoded_samples.len())
+            .map_err(|error| {
+                SpeechAudioError::ResourceLimit(format!(
+                    "cannot reserve bounded decoded sample output: {error}"
+                ))
+            })?;
+        samples.extend_from_slice(decoded_samples);
     }
 
     Ok(DecodedAudio {
@@ -596,6 +639,32 @@ fn map_decode_error(error: SymphoniaError) -> SpeechAudioError {
 mod tests {
     use super::*;
     use tempfile::tempdir;
+
+    #[test]
+    fn decoded_duration_matches_buffer_formula_without_requiring_valid_rates() {
+        let decoded = DecodedAudio {
+            path: PathBuf::new(),
+            samples: vec![0.0; 10],
+            config: AudioConfig {
+                sample_rate: 4,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+            format: "wav".to_string(),
+        };
+        let equivalent = AudioBuffer::new(decoded.samples.clone(), decoded.config);
+        assert_eq!(decoded.duration_seconds(), 1.25);
+        assert_eq!(decoded.duration_seconds(), equivalent.duration_seconds());
+
+        let mut zero_rate = decoded;
+        zero_rate.config.sample_rate = 0;
+        assert_eq!(zero_rate.duration_seconds(), 0.0);
+
+        let mut zero_channels = zero_rate;
+        zero_channels.config.sample_rate = 4;
+        zero_channels.config.channels = 0;
+        assert_eq!(zero_channels.duration_seconds(), 0.0);
+    }
 
     #[test]
     fn resampler_changes_frame_count() {
@@ -885,7 +954,7 @@ mod tests {
         let temp = tempdir().unwrap();
         let path = temp.path().join("budget.wav");
         let buffer = AudioBuffer::new(
-            vec![0.1; 32],
+            vec![0.1; 65_536],
             AudioConfig {
                 sample_rate: 16000,
                 channels: 1,
@@ -914,6 +983,18 @@ mod tests {
             load_audio_buffer_bounded(&path, limited),
             Err(SpeechAudioError::ResourceLimit(_))
         ));
+        // The exact interleaved sample budget is admitted at the boundary.
+        let exact_boundary = DecodeLimits {
+            max_decoded_samples: buffer.samples.len(),
+            ..DecodeLimits::DEFAULT
+        };
+        assert_eq!(
+            load_audio_buffer_bounded(&path, exact_boundary)
+                .unwrap()
+                .samples
+                .len(),
+            buffer.samples.len()
+        );
         // A sample-rate bound rejects this 16kHz source before allocation.
         let rate_limited = DecodeLimits {
             max_sample_rate: 8000,
@@ -934,7 +1015,7 @@ mod tests {
             ),
             Err(SpeechAudioError::InvalidInput(_))
         ));
-        assert_eq!(load_audio_buffer(&path).unwrap().samples.len(), 32);
+        assert_eq!(load_audio_buffer(&path).unwrap().samples.len(), 65_536);
     }
 
     #[test]
