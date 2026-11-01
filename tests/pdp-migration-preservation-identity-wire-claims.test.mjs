@@ -15,17 +15,23 @@ const actorsPath = ".product-experience/pdp-0-product-truth/actors-responsibilit
 const qualityPath = ".product-experience/pdp-0-product-truth/quality-policy.yaml";
 const glossaryPath = ".product-experience/pdp-0-product-truth/glossary.yaml";
 const interfaceParityPath = ".product-experience/interface-parity/operation-parity.yaml";
+const routeManifest = JSON.parse(readFileSync(resolve(root, "config/route-manifest.json"), "utf8"));
 const currentObservationPath = "docs/implementation/verification/pdp-38/pending-locator-current-source-observations.json";
 const sourceImpactPath = "docs/implementation/verification/pdp-38/migration-frozen-source-deltas.json";
 const currentP0ObservationPath = "docs/implementation/verification/pdp-38/migration-p0-current-source-observations.json";
 const frozenSourceCommit = "11eb14ea9059045ca4d983383d36c01f9a08bc8f";
 const historicalQuality = parse(execFileSync("git", ["show", `${frozenSourceCommit}:${qualityPath}`], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }));
+const historicalInterfaceParityCommit = "5476e2ef61ad124546bf3b177510514514c13e3d";
+const historicalInterfaceParity = parse(execFileSync("git", ["show", `${historicalInterfaceParityCommit}:${interfaceParityPath}`], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 }));
 const owners = new Map([
   [actorsPath, parseYaml(actorsPath)],
   [qualityPath, parseYaml(qualityPath)],
   [glossaryPath, parseYaml(glossaryPath)],
   [interfaceParityPath, parseYaml(interfaceParityPath)],
 ]);
+const compatibilityRouteFindings = owners.get(interfaceParityPath).compatibilityRouteFindings;
+const missingCandidateRoutes = compatibilityRouteFindings.sourceFindings.filter(({ method, path }) =>
+  !routeManifest.routes.some((route) => route.method === method && route.path === path));
 const targets = new Map([
   ["MPSEM-0023-C002", `${interfaceParityPath}#compatibilityRouteFindings/currentComparison`],
   ["MPSEM-0023-C003", `${actorsPath}#wireCompatibilityPreservationRule`],
@@ -35,7 +41,7 @@ const targets = new Map([
   ["MPSEM-0354-C001", `${glossaryPath}#/terms/@id=media.term.privacy-axes`],
 ]);
 const predicates = new Map([
-  ["MPSEM-0023-C002", ["14-of-14 observed legacy/candidate SDK paths", "absent from the 27-route active manifest", "proves non-admission", "does not choose a replacement route"]],
+  ["MPSEM-0023-C002", [`${compatibilityRouteFindings.sourceFindings.length}-of-${compatibilityRouteFindings.sourceFindings.length} observed legacy/candidate SDK paths`, "absent from the 27-route active manifest", "proves non-admission", "does not choose a replacement route"]],
   ["MPSEM-0023-C003", ["request and result field identity, type, presence and bounds", "units and time bases", "authority and delegation", "idempotency, cancellation and finality", "compatibility tests", "before admitting a new public contract", "explicit compatibility gap"]],
   ["MPSEM-0023-C004", ["canonical operation through an explicit adapter", "compatibility tests", "before admitting a new public contract", "field, unit, authority or outcome"]],
   ["MPSEM-0187-C002", ["is an inference, not an established fact about a person", "method/model identity and version", "evidence/reference", "applicable scope", "uncertainty", "Do not assert ground truth"]],
@@ -61,7 +67,8 @@ function resolveRef(ref) {
 
 function resolveHistoricalQualityRef(ref) {
   const [source, pointer] = ref.split("#", 2);
-  let value = source === qualityPath ? historicalQuality : owners.get(source);
+  let value = source === qualityPath ? historicalQuality
+    : source === interfaceParityPath ? historicalInterfaceParity : owners.get(source);
   assert.ok(value, `historical/current source resolves: ${source}`);
   for (const raw of pointer.split("/").filter(Boolean)) {
     const segment = raw.replaceAll("~1", "/").replaceAll("~0", "~");
@@ -100,6 +107,16 @@ test("privacy, preservation, person-inference and wire-compatibility claims bind
       assert.equal(claim.semanticReviewRef, "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json#/records/@claimId=MPSEM-0354-C001");
     }
   }
+});
+
+test("MPSEM-0023-C002 route summary derives absence and denominator from the active manifest", () => {
+  const findings = compatibilityRouteFindings.sourceFindings;
+  assert.ok(findings.length > 0, "the source has explicit legacy/candidate SDK path observations");
+  assert.equal(missingCandidateRoutes.length, findings.length,
+    "each observed candidate path remains absent from the current active route manifest");
+  const expected = `${findings.length}-of-${findings.length} observed legacy/candidate SDK paths are absent from the ${routeManifest.routes.length}-route active manifest; this proves non-admission and does not choose a replacement route.`;
+  assert.equal(compatibilityRouteFindings.currentComparison, expected,
+    "summary uses the current source finding count and live route-manifest denominator");
 });
 
 test("PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source", () => {

@@ -2079,7 +2079,7 @@ compatibilityRouteFindings:
     runtime route manifest; a client path, canonical-route constant, or test
     stub alone does not admit a runtime route.
   currentComparison: 14-of-14 observed legacy/candidate SDK paths are absent from
-    the 27-route active manifest; this proves non-admission and does not choose
+    the 30-route active manifest; this proves non-admission and does not choose
     a replacement route.
   sourceFindings:
     - {

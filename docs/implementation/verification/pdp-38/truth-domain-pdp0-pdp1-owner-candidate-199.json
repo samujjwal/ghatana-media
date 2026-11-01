@@ -622,11 +622,25 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "b7e0f4d430f3f9a47deac94ad568ec140ff123901eb6433aa81dd102e55a94ad",
-        "currentSourceFileSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
+        "currentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
         "priorTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValuePreview": "14-of-14 observed legacy/candidate SDK paths are absent from the 27-route active manifest; this proves non-admission and does not choose a replacement route.",
-        "reason": "Live owner source changed or was re-observed after the earlier candidate snapshot. Historical pins above are preserved; this current observation is a pending semantic delta and does not imply acceptance."
+        "reason": "The operation-parity source summary was corrected against the current route manifest. The prior 27-route source/value pins remain preserved above; the new summary is recorded as a pending current-value-drift observation. This observation does not imply acceptance, semantic parity, owner approval, runtime admission, or release.",
+        "previousCurrentSourceFileSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
+        "supersededCurrentSourceFileSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
+        "sourceFileSha256History": [
+          "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a"
+        ],
+        "currentValueDriftObservation": {
+          "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+          "ref": ".product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings/currentComparison",
+          "recordedTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
+          "observedTargetValueSha256": "a7d96ddd4381e79d03add69eb021176f1a2ecbadb3abb32bcd4e86eb90f19313",
+          "observedTargetValuePreview": "14-of-14 observed legacy/candidate SDK paths are absent from the 30-route active manifest; this proves non-admission and does not choose a replacement route.",
+          "acceptanceEffect": "none",
+          "reason": "The owning operation-parity source summary was corrected after recomputing every exact observed method/path against the current 30-route active manifest: all 14 remain absent. The prior 27-route summary and value digest are preserved above; this changed source observation remains pending coordinator material review and does not imply acceptance, semantic parity, owner approval, or runtime admission."
+        }
       },
       "ownerSemanticReview": {
         "disposition": "SOURCE_RULE_CONTENT_SUPPORTS_CLAIM_AT_DEFINITION_LEVEL",
