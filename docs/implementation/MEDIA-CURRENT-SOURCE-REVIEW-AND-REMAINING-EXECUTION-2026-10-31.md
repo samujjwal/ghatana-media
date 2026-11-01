@@ -821,3 +821,15 @@ This pulse started from Media `main@b0fd7605`, 177 commits ahead of `origin/main
 
 Wave 2 remains **58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL**; W3 remains **84**, and H remains **8**. No status was promoted. Real model/voice/gold evidence, authorized durable STT, real stream transport and 1/16/64 host capacity, #252/#254 public artifacts, product-host J-03, protected Lifecycle/Work Planner authority, legacy-writer cutover, and UI/Recorder/Studio/Player work remain open.
 
+## 32. Local Track A continuation readback (2026-11-01, fourteenth pulse)
+
+This pulse started from Media `main@6b6ab74c`, 179 commits ahead of `origin/main`. It reused existing Media and Data Cloud seams and made no external-owner, rights, release, or Track B claim.
+
+| Work unit | Exact change or readback | Verification and remaining bound |
+| --- | --- | --- |
+| **MM-08 / parent cancellation finality** | `MediaCanonicalOperationExecutor` now preserves a durable parent `CANCELLED` status through fusion instead of normalizing it to `FAILED`. Added regressions for cancelled parent and child rejection and for a single successful STT child not completing an STT+Vision family. Existing code rejects UNKNOWN, failed, malformed, duplicate, and missing child results before success. | `CanonicalOperationsFinalityTest` and `MediaCanonicalOperationExecutorTest` passed **20** tests. MM-08 remains `PARTIAL` pending real authorized STT+Vision child effects, durable provider/attempt linkage, restart/readback/cancellation-fault evidence, and qualified capacity tests. |
+| **LD-04 / ledger replay projection** | No code change was needed. Existing `RunLedgerProjection` covers duplicate replay, attempt order, stale open-after-terminal, immutable terminal conflicts, concurrent projection, pre-dispatch `UNAVAILABLE`, and post-dispatch `OUTCOME_UNKNOWN` fenced pending exact readback. The guard is process-local. | Focused adapter/projection suite passed **29** tests. No admitted Data Cloud writer/readback client is wired to the Media job/outbox path; restart/multi-instance protection requires the owner’s durable idempotency/order/readback contract. Fixture outage tests do not establish Event Plane/Data Cloud operation. |
+| **TTS-09 / durable synthesis path** | Read-only review found `PersistentTtsService.synthesizeAndPersist` returns typed `NOT_ADMITTED` before touching the injected legacy engine or audio store. Repeated denial verifies no audio or failure artifact; production gRPC composition likewise keeps its runtime port untouched when provider authorization is missing. | No source edit or test rerun was needed. Positive voice/provider rights and canonical job/artifact/outbox wiring with restart readback remain absent; TTS-09 stays `PARTIAL`. |
+
+The original denominator remains **Wave 2: 58 = 22 LOCALLY_VERIFIED / 30 PARTIAL / 6 OWNER_EXTERNAL; W3: 84; H: 8**. No task or status was promoted. External Data Cloud #254 writer/readback, real STT/Vision/TTS rights and effects, 1/16/64 host capacity, real stream transports, product-host J-03, protected lifecycle authority, migration cutover and UI/Recorder/Studio/Player work remain open.
+
