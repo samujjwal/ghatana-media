@@ -105,6 +105,25 @@ class TtsVoiceConsentNegativeTest {
     }
 
     @Test
+    @DisplayName("same principal in another tenant cannot reuse a tenant-owned voice")
+    void foreignTenantVoiceIsDeniedBeforeSynthesis() throws Exception {
+        start(request -> "tenant-owner".equals(request.identity().tenantId())
+                && OWNER_SUBJECT.equals(request.identity().subject())
+                ? TtsRequestAuthorization.Decision.ADMITTED
+                : TtsRequestAuthorization.Decision.DENIED, "tenant-owned-voice");
+
+        var blocking = stub(OWNER_SUBJECT, "tenant-attacker");
+        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
+                        .setText("hello").setVoiceId("tenant-owned-voice").build()),
+                Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_DENIED");
+        assertThat(observed).singleElement().satisfies(request -> {
+            assertThat(request.identity().subject()).isEqualTo(OWNER_SUBJECT);
+            assertThat(request.identity().tenantId()).isEqualTo("tenant-attacker");
+        });
+        verifyNoInteractions(guardedLibrary, engine);
+    }
+
+    @Test
     @DisplayName("purpose-restricted voice denies a mismatched purpose before synthesis")
     void purposeRestrictedVoiceIsDeniedBeforeSynthesis() throws Exception {
         // The voice is registered for streaming narration only; a one-shot SYNTHESIZE
@@ -192,9 +211,13 @@ class TtsVoiceConsentNegativeTest {
     }
 
     private TTSServiceGrpc.TTSServiceBlockingStub stub(String subject) throws Exception {
+        return stub(subject, "tenant-test");
+    }
+
+    private TTSServiceGrpc.TTSServiceBlockingStub stub(String subject, String tenantId) throws Exception {
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
-                "Bearer " + jwt(subject, "tenant-test"));
+                "Bearer " + jwt(subject, tenantId));
         return TTSServiceGrpc.newBlockingStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
     }
