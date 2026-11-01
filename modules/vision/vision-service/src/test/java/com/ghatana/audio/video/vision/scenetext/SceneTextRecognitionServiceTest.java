@@ -34,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,6 +120,38 @@ class SceneTextRecognitionServiceTest {
                 "\"operationGeneration\":\"" + parseGenerationHeader.get() + "\"", "name=\"file\"");
         assertThat(body).contains(new String(CROP, StandardCharsets.ISO_8859_1));
         assertThat(parseGenerationHeader.get()).matches("[0-9a-f]{32}");
+    }
+
+    @Test
+    void sourceRightsRevokedAfterCatalogPreventDiParse() {
+        AtomicInteger checks = new AtomicInteger();
+        SourceAuthority revokedAfterCatalog = check -> checks.incrementAndGet() == 1
+                ? new Decision(SourceStatus.ADMITTED, check.sourceVersion(), ORIGINAL_SHA, "decision-1")
+                : Decision.of(SourceStatus.DENIED);
+
+        Outcome outcome = service(revokedAfterCatalog).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.SOURCE_DENIED);
+        assertThat(checks).hasValue(2);
+        assertThat(calls).containsExactly("providers");
+        assertThat(parseEntered.getCount()).isEqualTo(1);
+    }
+
+    @Test
+    void missingExternalConsentRevalidatorPreventsDiParse() {
+        AtomicInteger checks = new AtomicInteger();
+        SourceAuthority noExternalConsentRevalidator = check -> checks.incrementAndGet() == 1
+                ? new Decision(SourceStatus.ADMITTED, check.sourceVersion(), ORIGINAL_SHA, "decision-1")
+                : Decision.of(SourceStatus.NOT_ADMITTED);
+
+        Outcome outcome = service(noExternalConsentRevalidator).recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.SOURCE_DENIED);
+        assertThat(checks).hasValue(2);
+        assertThat(calls).containsExactly("providers");
+        assertThat(parseEntered.getCount()).isEqualTo(1);
     }
 
     @Test

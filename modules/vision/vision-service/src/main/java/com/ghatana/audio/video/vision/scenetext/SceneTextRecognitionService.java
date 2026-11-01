@@ -104,7 +104,15 @@ public final class SceneTextRecognitionService {
     public record CropRefused(SourceStatus status) implements CropOutcome { }
 
     public record SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
-                              String sourceVersion, String frameId, String originalFrameSha256) { }
+                              String sourceVersion, String frameId, String originalFrameSha256,
+                              String dispatchProviderRef, String dispatchProviderVersion) {
+        /** Legacy callers carry no DI destination authority and therefore fail closed in runtime bindings. */
+        public SourceCheck(String tenantId, String principalId, String purposeRef, String sourceArtifactId,
+                           String sourceVersion, String frameId, String originalFrameSha256) {
+            this(tenantId, principalId, purposeRef, sourceArtifactId, sourceVersion, frameId,
+                    originalFrameSha256, null, null);
+        }
+    }
 
     public enum SourceStatus { ADMITTED, DENIED, NOT_ADMITTED, UNAVAILABLE }
 
@@ -205,16 +213,9 @@ public final class SceneTextRecognitionService {
 
     private Outcome recognizeAdmitted(FrameRequest request, Cancellation cancellation) {
         if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
-        Decision decision = sourceAuthority.verify(new SourceCheck(request.tenantId(), request.principalId(),
-                request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
-                request.originalFrameSha256()));
-        if (decision == null || decision.status() == SourceStatus.DENIED || decision.status() == SourceStatus.NOT_ADMITTED) {
-            return Rejected.of(Code.SOURCE_DENIED);
-        }
-        if (decision.status() != SourceStatus.ADMITTED) return Rejected.of(Code.SOURCE_UNAVAILABLE);
-        if (!request.sourceVersion().equals(decision.sourceVersion())) return Rejected.of(Code.SOURCE_VERSION_MISMATCH);
-        if (!request.originalFrameSha256().equals(decision.originalFrameSha256())) return Rejected.of(Code.SOURCE_DIGEST_MISMATCH);
-        if (decision.decisionRef() == null || !IDENTITY.matcher(decision.decisionRef()).matches()) return Rejected.of(Code.SOURCE_DENIED);
+        Decision decision = verifySource(request);
+        Code sourceProblem = sourceProblem(request, decision);
+        if (sourceProblem != null) return Rejected.of(sourceProblem);
         CropOutcome cropOutcome = resolveTrustedCrop(request);
         if (cropOutcome == null) return Rejected.of(Code.CROP_RESOLVER_NOT_CONFIGURED);
         if (cropOutcome instanceof CropRefused refused) return refusedOutcome(refused);
@@ -242,6 +243,13 @@ public final class SceneTextRecognitionService {
             ProviderCatalog catalog = di.providers(cancellation);
             Code catalogProblem = checkCatalog(catalog, request);
             if (catalogProblem != null) return Rejected.of(catalogProblem);
+            // Rights can be revoked while crop derivation and the DI catalog request are in flight.
+            // Re-resolve the exact source immediately before the external parse effect.
+            if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
+            Decision dispatchDecision = verifySource(request);
+            Code dispatchProblem = sourceProblem(request, dispatchDecision);
+            if (dispatchProblem != null) return Rejected.of(dispatchProblem);
+            if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
             ParsedDocument parsed = di.parse(new DocumentIntelligenceV1.ParseRequest(request.operationId(), generation,
                     policy.providerRef(), resolved.mediaType(), request.languageHint(), policy.timeoutMs(),
                     policy.workerLimits(), resolved.pixels()), cancellation);
@@ -249,7 +257,7 @@ public final class SceneTextRecognitionService {
                 di.cancel(request.operationId(), generation);
                 return Rejected.of(Code.CANCELLED);
             }
-            return map(request, decision, parsed);
+            return map(request, dispatchDecision, parsed);
         } catch (DocumentIntelligenceException failure) {
             return switch (failure.kind()) {
                 case CANCELLED -> Rejected.of(Code.CANCELLED);
@@ -259,6 +267,28 @@ public final class SceneTextRecognitionService {
                 case SOURCE_TOO_LARGE -> Rejected.of(Code.INVALID_REQUEST);
             };
         }
+    }
+
+    private Decision verifySource(FrameRequest request) {
+        try {
+            return sourceAuthority.verify(new SourceCheck(request.tenantId(), request.principalId(),
+                    request.purposeRef(), request.sourceArtifactId(), request.sourceVersion(), request.frameId(),
+                    request.originalFrameSha256(), policy.providerRef(), policy.providerVersion()));
+        } catch (RuntimeException unavailable) {
+            return Decision.of(SourceStatus.UNAVAILABLE);
+        }
+    }
+
+    private static Code sourceProblem(FrameRequest request, Decision decision) {
+        if (decision == null || decision.status() == SourceStatus.DENIED
+                || decision.status() == SourceStatus.NOT_ADMITTED) return Code.SOURCE_DENIED;
+        if (decision.status() != SourceStatus.ADMITTED) return Code.SOURCE_UNAVAILABLE;
+        if (!request.sourceVersion().equals(decision.sourceVersion())) return Code.SOURCE_VERSION_MISMATCH;
+        if (!request.originalFrameSha256().equals(decision.originalFrameSha256())) return Code.SOURCE_DIGEST_MISMATCH;
+        if (decision.decisionRef() == null || !IDENTITY.matcher(decision.decisionRef()).matches()) {
+            return Code.SOURCE_DENIED;
+        }
+        return null;
     }
 
     /**

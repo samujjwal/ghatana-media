@@ -691,6 +691,50 @@ class VideoFrameExtractorProcessTest {
     }
 
     @Test
+    void exactFrameSelectorRequiresFrameIdentityAndUnroundedSourcePtsTimebase() {
+        var first = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("first.png"),
+                SourceMediaTimestamp.fromPts("90000", "1/90000"), 0);
+        var second = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("second.png"),
+                SourceMediaTimestamp.fromPts("121500", "1/90000"), 1);
+        var reordered = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("reordered.png"),
+                SourceMediaTimestamp.fromPts("81000", "1/90000"), 2);
+        List<VideoFrameExtractor.ExtractedFrame> frames = List.of(first, second, reordered);
+
+        var selected = VideoFrameExtractor.selectExactFrame(frames, 2, 81000, 1, 90000);
+        assertThat(selected.status()).isEqualTo(VideoFrameExtractor.FrameSelectionStatus.FOUND);
+        assertThat(selected.frame()).isSameAs(reordered);
+        assertThat(VideoFrameExtractor.selectExactFrame(frames, 1, 81000, 1, 90000).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+        assertThat(VideoFrameExtractor.selectExactFrame(frames, 2, 900, 1, 1000).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+        assertThat(VideoFrameExtractor.selectExactFrameAtUs(frames, 2, 900_000).frame())
+                .isSameAs(reordered);
+        assertThat(VideoFrameExtractor.selectExactFrameAtUs(frames, 2, 900_001).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+    }
+
+    @Test
+    void exactFrameSelectorRejectsUnknownAndAmbiguousIdentities() {
+        var known = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("known.png"),
+                SourceMediaTimestamp.fromPts("12", "1/25"), 3);
+        var unknown = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("unknown.png"),
+                SourceMediaTimestamp.unknown("MISSING_PTS"), 4);
+        assertThat(VideoFrameExtractor.selectExactFrame(List.of(unknown), 4, 0, 1, 25).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.UNKNOWN_TIMESTAMP);
+
+        var duplicateIdentity = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("duplicate.png"),
+                SourceMediaTimestamp.fromPts("12", "1/25"), 3);
+        assertThat(VideoFrameExtractor.selectExactFrame(List.of(known, duplicateIdentity), 3, 12, 1, 25).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.AMBIGUOUS);
+        assertThat(VideoFrameExtractor.selectExactFrame(List.of(known), 3, 12, 1, 1000).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+        var subMicrosecond = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("sub-microsecond.png"),
+                SourceMediaTimestamp.fromPts("1", "1/3"), 5);
+        assertThat(VideoFrameExtractor.selectExactFrameAtUs(List.of(subMicrosecond), 5, 333_333).status())
+                .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+    }
+
+    @Test
     void collectedFramesPreserveEmissionSequenceGapsAndExactSourcePts() throws Exception {
         Path output = Files.createDirectory(tempDir.resolve("sequence-gap"));
         Files.write(output.resolve("frame_0001.jpg"), new byte[] {1});

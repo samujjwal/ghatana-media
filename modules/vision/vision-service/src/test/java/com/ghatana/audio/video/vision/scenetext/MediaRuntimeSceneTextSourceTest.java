@@ -40,7 +40,7 @@ class MediaRuntimeSceneTextSourceTest {
     private static final String PRINCIPAL = "principal-1";
 
     @Test
-    void authorityAdmitsOnlyAllowedEvidenceAndMapsOtherStatuses() throws Exception {
+    void sourceProbeDoesNotAuthorizeDiEgressAndMapsOtherStatuses() throws Exception {
         FakePort port = new FakePort();
         MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
         SourceCheck check = check("sha256:" + "a".repeat(64));
@@ -60,11 +60,74 @@ class MediaRuntimeSceneTextSourceTest {
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
                 evidence(check));
         Decision admitted = source.verify(check);
-        assertThat(admitted.status()).isEqualTo(SourceStatus.ADMITTED);
-        assertThat(admitted.sourceVersion()).isEqualTo(check.sourceVersion());
-        assertThat(admitted.decisionRef()).isEqualTo("decision-1");
+        assertThat(admitted.status()).isEqualTo(SourceStatus.NOT_ADMITTED);
 
         assertThat(source.verify(check("v3")).status()).isEqualTo(SourceStatus.DENIED);
+    }
+
+    @Test
+    void authorityRejectsAllowedEvidenceForDifferentArtifactVersionOrPrincipal() throws Exception {
+        FakePort port = new FakePort();
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+        SourceCheck requested = check("sha256:" + "a".repeat(64));
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(check("sha256:" + "b".repeat(64))));
+        assertThat(source.verify(requested).status()).isEqualTo(SourceStatus.DENIED);
+
+        SourceCheck foreign = new SourceCheck("tenant-other", PRINCIPAL, "caption", "artifact-1",
+                requested.sourceVersion(), "0", "a".repeat(64), "di.ocr.en", "2.4.1");
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(requested));
+        assertThat(source.verify(foreign).status()).isEqualTo(SourceStatus.DENIED);
+    }
+
+    @Test
+    void authorityRejectsExpiredOrWrongOperationEvidence() throws Exception {
+        FakePort port = new FakePort();
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+        SourceCheck check = check("sha256:" + "a".repeat(64));
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(check, "vision.scene-text", Instant.now().minusSeconds(60), Instant.now().plusSeconds(300)));
+        assertThat(source.verify(check).status()).isEqualTo(SourceStatus.DENIED);
+
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(check, "VISION", Instant.now().minusSeconds(600), Instant.now().minusSeconds(300)));
+        assertThat(source.verify(check).status()).isEqualTo(SourceStatus.DENIED);
+    }
+
+    @Test
+    void authorityRejectsEvidenceForDifferentDiProviderOrLocalBoundary() throws Exception {
+        FakePort port = new FakePort();
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+        SourceCheck check = check("sha256:" + "a".repeat(64));
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(check, "VISION", Instant.now(), Instant.now().plusSeconds(300), "other-provider",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.EXTERNAL));
+        assertThat(source.verify(check).status()).isEqualTo(SourceStatus.DENIED);
+
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED,
+                evidence(check, "VISION", Instant.now(), Instant.now().plusSeconds(300), "di.ocr.en",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.LOCAL));
+        assertThat(source.verify(check).status()).isEqualTo(SourceStatus.DENIED);
+    }
+
+    @Test
+    void legacySourceCheckWithoutDiDestinationFailsClosed() throws Exception {
+        FakePort port = new FakePort();
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+        SourceCheck current = check("sha256:" + "a".repeat(64));
+        SourceCheck legacy = new SourceCheck(TENANT, PRINCIPAL, "caption", "artifact-1",
+                current.sourceVersion(), "0", "a".repeat(64));
+        port.authDecision = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision(
+                com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Status.ALLOWED, evidence(current));
+
+        assertThat(source.verify(legacy).status()).isEqualTo(SourceStatus.DENIED);
     }
 
     @Test
@@ -125,8 +188,37 @@ class MediaRuntimeSceneTextSourceTest {
                 .isEqualTo(SourceStatus.UNAVAILABLE);
     }
 
+    @Test
+    void resolverRejectsContentReceiptForAnotherImmutableVersion() throws Exception {
+        byte[] png = image(100, 60);
+        String sha = sha256(png);
+        FakePort port = new FakePort();
+        port.content = png;
+        port.receiptSha = "b".repeat(64);
+        port.receiptVersion = new ArtifactVersion("sha256:" + "b".repeat(64));
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+
+        assertThat(((CropRefused) source.resolve(cropRequest(sha, "0", 0, 100, 60, new Roi(0, 0, 10, 10))))
+                .status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+    }
+
+    @Test
+    void resolverBoundsBytesEvenWhenPortIgnoresMaximum() throws Exception {
+        FakePort port = new FakePort();
+        port.writePastLimit = true;
+        MediaRuntimeSceneTextSource source = new MediaRuntimeSceneTextSource(port);
+
+        CropOutcome outcome = source.resolve(cropRequest("a".repeat(64), "0", 0, 100, 60,
+                new Roi(0, 0, 10, 10)));
+
+        assertThat(outcome).isInstanceOf(CropRefused.class);
+        assertThat(((CropRefused) outcome).status()).isEqualTo(SourceStatus.NOT_ADMITTED);
+        assertThat(port.acceptedBytes).isEqualTo(port.maxBytesObserved);
+    }
+
     private static SourceCheck check(String sourceVersion) {
-        return new SourceCheck(TENANT, PRINCIPAL, "caption", "artifact-1", sourceVersion, "0", "a".repeat(64));
+        return new SourceCheck(TENANT, PRINCIPAL, "caption", "artifact-1", sourceVersion, "0", "a".repeat(64),
+                "di.ocr.en", "2.4.1");
     }
 
     private static CropRequest cropRequest(String artifactSha, String frameId, long ptsUs,
@@ -136,19 +228,29 @@ class MediaRuntimeSceneTextSourceTest {
     }
 
     private static Evidence evidence(SourceCheck check) {
-        String sha = check.sourceVersion().substring("sha256:".length());
         Instant now = Instant.now();
+        return evidence(check, "VISION", now, now.plusSeconds(300));
+    }
+
+    private static Evidence evidence(SourceCheck check, String operation, Instant verifiedAt, Instant expiresAt) {
+        return evidence(check, operation, verifiedAt, expiresAt, check.dispatchProviderRef(),
+                com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.EXTERNAL);
+    }
+
+    private static Evidence evidence(SourceCheck check, String operation, Instant verifiedAt, Instant expiresAt,
+                                     String providerId,
+                                     com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary boundary) {
+        String sha = check.sourceVersion().substring("sha256:".length());
         return new Evidence("authority-1", "decision-1", TENANT, PRINCIPAL, PRINCIPAL, "artifact-1",
-                new ArtifactVersion(check.sourceVersion()), sha, "vision.scene-text", "caption",
-                "di.ocr.en", "2.4.1",
-                com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.EXTERNAL, "local",
+                new ArtifactVersion(check.sourceVersion()), sha, operation, "caption",
+                providerId, check.dispatchProviderVersion(), boundary, "local",
                 com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE,
-                Set.of("vision.scene-text"), Set.of("*"),
+                Set.of("VISION", "vision.scene-text"), Set.of("*"),
                 Set.of(com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE),
                 "rights-1", "policy-1", "policy-v1",
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
-                "", "clock-1", 0, now, now.plusSeconds(300));
+                "", "clock-1", 0, verifiedAt, expiresAt);
     }
 
     private static byte[] image(int width, int height) throws Exception {
@@ -165,7 +267,11 @@ class MediaRuntimeSceneTextSourceTest {
     private static final class FakePort implements MediaProcessingRuntimePort {
         byte[] content;
         String receiptSha;
+        ArtifactVersion receiptVersion;
         boolean ioFailure;
+        boolean writePastLimit;
+        long acceptedBytes;
+        long maxBytesObserved;
         com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision authDecision;
 
         @Override public ProcessingJob submit(ProcessingJobRequest request) {
@@ -184,9 +290,23 @@ class MediaRuntimeSceneTextSourceTest {
                 String tenantId, String principalId, String artifactId, ArtifactVersion expectedVersion,
                 OutputStream target, long maxBytes) throws IOException {
             if (ioFailure) throw new IOException("fixture io failure");
+            maxBytesObserved = maxBytes;
+            if (writePastLimit) {
+                byte[] chunk = new byte[64 * 1024];
+                long remaining = maxBytes + 1;
+                while (remaining > 0) {
+                    int next = (int) Math.min(chunk.length, remaining);
+                    target.write(chunk, 0, next);
+                    acceptedBytes += next;
+                    remaining -= next;
+                }
+                return Optional.empty();
+            }
             if (content == null || content.length > maxBytes) return Optional.empty();
             target.write(content);
-            return Optional.of(new ArtifactContentReadReceipt(expectedVersion, receiptSha, content.length));
+            acceptedBytes = content.length;
+            return Optional.of(new ArtifactContentReadReceipt(
+                    receiptVersion == null ? expectedVersion : receiptVersion, receiptSha, content.length));
         }
 
         @Override public com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Decision resolveSourceAuthorization(

@@ -80,6 +80,7 @@ public class VideoFrameExtractor {
     /** Bound cleanup bookkeeping even if a compromised child creates a large process tree. */
     private static final int MAX_OBSERVED_CHILD_PROCESSES = 256;
     private static final int MAX_OUTPUT_ENTRIES = 4096;
+    private static final int MAX_SELECTABLE_FRAMES = 10_000;
     private static final java.util.Set<String> ALLOWED_VIDEO_EXTENSIONS =
             java.util.Set.of("mp4", "mov", "mkv", "avi", "webm");
 
@@ -199,6 +200,84 @@ public class VideoFrameExtractor {
         public Long getTimestampMs() { return sourceTimestamp.timestampMs(); }
         public SourceMediaTimestamp getSourceTimestamp() { return sourceTimestamp; }
         public int getFrameNumber() { return frameNumber; }
+    }
+
+    /**
+     * Selects a frame only when both its emitted frame number and exact source PTS/timebase match.
+     * The selector deliberately does not convert milliseconds or infer a frame from a timestamp.
+     */
+    public static FrameSelection selectExactFrame(List<ExtractedFrame> frames, int frameNumber,
+                                                   long pts, long timeBaseNumerator,
+                                                   long timeBaseDenominator) {
+        if (frames == null || frames.isEmpty() || frames.size() > MAX_SELECTABLE_FRAMES
+                || frameNumber < 0 || timeBaseNumerator <= 0 || timeBaseDenominator <= 0) {
+            return new FrameSelection(FrameSelectionStatus.INVALID_REQUEST, null);
+        }
+        ExtractedFrame identityMatch = null;
+        int identityMatches = 0;
+        int exactMatches = 0;
+        for (ExtractedFrame frame : frames) {
+            if (frame == null || frame.getFrameNumber() != frameNumber) continue;
+            identityMatches++;
+            SourceMediaTimestamp timestamp = frame.getSourceTimestamp();
+            if (!timestamp.isKnown()) {
+                return new FrameSelection(FrameSelectionStatus.UNKNOWN_TIMESTAMP, null);
+            }
+            if (timestamp.pts() == pts
+                    && timestamp.timeBaseNumerator() == timeBaseNumerator
+                    && timestamp.timeBaseDenominator() == timeBaseDenominator) {
+                identityMatch = frame;
+                exactMatches++;
+            }
+        }
+        if (identityMatches > 1 || exactMatches > 1) {
+            return new FrameSelection(FrameSelectionStatus.AMBIGUOUS, null);
+        }
+        if (exactMatches == 1) return new FrameSelection(FrameSelectionStatus.FOUND, identityMatch);
+        return new FrameSelection(FrameSelectionStatus.NOT_FOUND, null);
+    }
+
+    /**
+     * Selects by the protobuf microsecond timestamp only when it is exactly representable by the
+     * extracted source PTS/timebase. No rounded millisecond or microsecond comparison is used.
+     */
+    public static FrameSelection selectExactFrameAtUs(List<ExtractedFrame> frames, int frameNumber,
+                                                        long ptsUs) {
+        if (frames == null || frames.isEmpty() || frames.size() > MAX_SELECTABLE_FRAMES
+                || frameNumber < 0 || ptsUs < 0) {
+            return new FrameSelection(FrameSelectionStatus.INVALID_REQUEST, null);
+        }
+        ExtractedFrame exactMatch = null;
+        int identityMatches = 0;
+        for (ExtractedFrame frame : frames) {
+            if (frame == null || frame.getFrameNumber() != frameNumber) continue;
+            identityMatches++;
+            SourceMediaTimestamp timestamp = frame.getSourceTimestamp();
+            if (!timestamp.isKnown()) {
+                return new FrameSelection(FrameSelectionStatus.UNKNOWN_TIMESTAMP, null);
+            }
+            java.math.BigInteger ptsMicrosNumerator = java.math.BigInteger.valueOf(timestamp.pts())
+                    .multiply(java.math.BigInteger.valueOf(timestamp.timeBaseNumerator()))
+                    .multiply(java.math.BigInteger.valueOf(1_000_000L));
+            java.math.BigInteger requestedMicrosDenominator = java.math.BigInteger.valueOf(ptsUs)
+                    .multiply(java.math.BigInteger.valueOf(timestamp.timeBaseDenominator()));
+            if (ptsMicrosNumerator.equals(requestedMicrosDenominator)) exactMatch = frame;
+        }
+        if (identityMatches > 1) return new FrameSelection(FrameSelectionStatus.AMBIGUOUS, null);
+        return exactMatch == null
+                ? new FrameSelection(FrameSelectionStatus.NOT_FOUND, null)
+                : new FrameSelection(FrameSelectionStatus.FOUND, exactMatch);
+    }
+
+    public enum FrameSelectionStatus { FOUND, NOT_FOUND, AMBIGUOUS, UNKNOWN_TIMESTAMP, INVALID_REQUEST }
+
+    public record FrameSelection(FrameSelectionStatus status, ExtractedFrame frame) {
+        public FrameSelection {
+            java.util.Objects.requireNonNull(status, "status");
+            if ((status == FrameSelectionStatus.FOUND) != (frame != null)) {
+                throw new IllegalArgumentException("only a unique exact frame selection carries a frame");
+            }
+        }
     }
 
     /**
