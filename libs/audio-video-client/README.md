@@ -146,3 +146,14 @@ currentness, completion finality, rights, artifact availability, or permission
 to replay a mutation. A 404 preserves `UPLOAD_NOT_FOUND` and its correlation
 identity and means only that the upload was not visible in the supplied tenant
 and principal scope.
+
+## Production plan fingerprints
+
+The effect-free client planner binds each resolver result to the requested
+reference and a bounded immutable revision. Unknown eligibility is rejected.
+Its fingerprint includes tenant and project identity. Previously generated
+client plan fingerprints omitted these identities and will change: recompile
+and reconcile an existing plan before using it in a downstream workflow; do
+not treat an old fingerprint as evidence for a newly compiled plan. The Java
+runtime compiler uses its own plan representation and fingerprints; these
+values are not an interchangeability claim between the two compilers.

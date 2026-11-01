@@ -75,4 +75,50 @@ class MediaProductionSpecCompilerTest {
                 List.of("s@v1"), "t", "r", List.of("o")))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+    @Test
+    void tenantAndProjectAreBoundToPlanAndNodeFingerprints() {
+        var compiler = new MediaProductionSpecCompiler();
+        var first = compiler.compile(spec());
+        var otherTenant = compiler.compile(new ProductionSpec(
+                "tenant-2", "project-1", "rev-7", "REAL_CAPTURE", "purpose/v1",
+                List.of("scene/1@v3", "scene/2@v1"), "timeline/main@v2",
+                "rights/standard@v1", List.of("profile/1080p@v4")));
+        var otherProject = compiler.compile(new ProductionSpec(
+                "tenant-1", "project-2", "rev-7", "REAL_CAPTURE", "purpose/v1",
+                List.of("scene/1@v3", "scene/2@v1"), "timeline/main@v2",
+                "rights/standard@v1", List.of("profile/1080p@v4")));
+        assertThat(otherTenant.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(otherProject.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(otherTenant.invalidatedAgainst(first)).hasSize(first.nodes().size());
+        assertThat(otherProject.invalidatedAgainst(first)).hasSize(first.nodes().size());
+    }
+
+    @Test
+    void malformedOrDuplicateReferencesAndUnknownOriginAreRejected() {
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose", List.of(" scene"), "t", "r", List.of("o")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose", List.of("scene"), "t", "r", List.of("o", "o")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "UNKNOWN", "purpose", List.of("scene"), "t", "r", List.of("o")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ProductionSpec(
+                "other tenant", "p", "r", "REAL_CAPTURE", "purpose", List.of("scene"), "t", "r", List.of("o")))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void removedNodesAreIncludedInInvalidation() {
+        var compiler = new MediaProductionSpecCompiler();
+        var before = compiler.compile(spec());
+        var after = compiler.compile(new ProductionSpec(
+                "tenant-1", "project-1", "rev-7", "REAL_CAPTURE", "purpose/v1",
+                List.of("scene/1@v3"), "timeline/main@v2", "rights/standard@v1",
+                List.of("profile/1080p@v4")));
+        assertThat(after.invalidatedAgainst(before)).contains("capture-source-1", "rights-review");
+        assertThat(after.invalidatedAgainst(before)).doesNotContain("capture-source-0", "validate-spec");
+    }
+
 }

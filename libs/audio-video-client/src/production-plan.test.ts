@@ -82,6 +82,44 @@ describe("compileProductionPlan", () => {
     expect(d.planFingerprint).not.toBe(a.planFingerprint);
   });
 
+  it("binds the plan fingerprint to its tenant and project", async () => {
+    const initial = await compileProductionPlan(spec(), resolver(admitted(allRefs)));
+    const otherTenant = await compileProductionPlan(spec({ tenantId: "tenant-2" }), resolver(admitted(allRefs)));
+    const otherProject = await compileProductionPlan(spec({ projectId: "project-2" }), resolver(admitted(allRefs)));
+    expect(otherTenant.planFingerprint).not.toBe(initial.planFingerprint);
+    expect(otherProject.planFingerprint).not.toBe(initial.planFingerprint);
+  });
+
+  it("rejects mismatched, malformed and unrecognized resolver results", async () => {
+    for (const malformed of [
+      { sourceRef: "different-source", immutableRevision: "sealed@v1", eligibility: "LOCAL_ADMITTED" },
+      { sourceRef: "scene/1@v3", immutableRevision: "", eligibility: "LOCAL_ADMITTED" },
+      { sourceRef: "scene/1@v3", immutableRevision: "unsealed version", eligibility: "LOCAL_ADMITTED" },
+      { sourceRef: "scene/1@v3", immutableRevision: "sealed@v1", eligibility: "UNKNOWN" },
+    ]) {
+      const valid = resolver(admitted(allRefs));
+      const result = compileProductionPlan(spec(), {
+        resolve: (ref) => ref === "scene/1@v3"
+          ? malformed as ResolvedSource : valid.resolve(ref),
+      });
+      await expect(result).rejects.toBeInstanceOf(ProductionPlanError);
+    }
+  });
+
+  it("snapshots resolver values when a resolver reuses an object", async () => {
+    const shared = { sourceRef: "", immutableRevision: "", eligibility: "LOCAL_ADMITTED" } as ResolvedSource;
+    const plan = await compileProductionPlan(spec(), {
+      resolve: (ref) => {
+        Object.assign(shared, { sourceRef: ref, immutableRevision: `${ref}#sealed` });
+        return shared;
+      },
+    });
+    expect(plan.resolvedSources.map((item) => item.sourceRef)).toEqual([
+      "scene/1@v3", "scene/2@v1", "timeline/main@v2", "rights/standard@v1",
+      "profile/1080p@v4", "purpose/v1",
+    ]);
+  });
+
   it("rejects a protected capture source — no headless plan from live-admission sources", async () => {
     const table = admitted(allRefs);
     table["scene/1@v3"] = "PROTECTED";

@@ -1,5 +1,6 @@
 import {
   ProductionSpecSchema,
+  VersionRefSchema,
   type ProductionSpec,
 } from "@audio-video/types/production";
 
@@ -125,17 +126,28 @@ export async function compileProductionPlan(
   const resolved: ResolvedSource[] = [];
   for (const ref of sourceRefs) {
     const source = resolver.resolve(ref);
-    if (source === null || source.eligibility === "UNRESOLVED") {
+    if (!source || source.eligibility === "UNRESOLVED") {
       throw new ProductionPlanError(
         "CAPTURE_SOURCE_UNRESOLVED",
         `source ref has no existing immutable revision: ${ref}`);
+    }
+    if (source.sourceRef !== ref) {
+      throw new ProductionPlanError(
+        "REVISION_MISMATCH", `resolver returned a different source for: ${ref}`);
     }
     if (source.eligibility === "PROTECTED") {
       throw new ProductionPlanError(
         "CAPTURE_SOURCE_PROTECTED",
         `capture source requires external admission and cannot enter a headless plan: ${ref}`);
     }
-    resolved.push(source);
+    if (source.eligibility !== "LOCAL_ADMITTED"
+      || !VersionRefSchema.safeParse(source.immutableRevision).success) {
+      throw new ProductionPlanError(
+        "CAPTURE_SOURCE_UNRESOLVED", `source ref has no admitted immutable revision: ${ref}`);
+    }
+    // Snapshot the trusted resolver response: it may reuse or mutate its objects.
+    resolved.push({ sourceRef: ref, immutableRevision: source.immutableRevision,
+      eligibility: source.eligibility });
   }
 
   // Deterministic ordered plan: validate → capture per scene → compose → render.
@@ -172,6 +184,8 @@ export async function compileProductionPlan(
 
   const projection = {
     schemaVersion: "media.production-plan.v1" as const,
+    tenantId: spec.tenantId,
+    projectId: spec.projectId,
     projectRevision: spec.revisionId,
     originClass: spec.originClass,
     purposeRef: spec.purposeRef,

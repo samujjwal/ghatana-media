@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.Set;
 
 /**
  * H-02: compile a typed production spec into a deterministic DAG of Media
@@ -46,10 +47,18 @@ public final class MediaProductionSpecCompiler {
         public ProductionSpec {
             sceneRefs = List.copyOf(Objects.requireNonNull(sceneRefs, "sceneRefs"));
             outputProfileRefs = List.copyOf(Objects.requireNonNull(outputProfileRefs, "outputProfileRefs"));
-            for (String field : List.of(tenantId, projectId, revisionId, originClass,
-                    purposeRef, timelineRef, rightsRef)) {
-                requireText(field, "spec field");
+            requireIdentifier(tenantId, "tenantId");
+            requireIdentifier(projectId, "projectId");
+            requireIdentifier(revisionId, "revisionId");
+            if (originClass == null || !Set.of("REAL_CAPTURE", "DECLARATIVE_ANIMATION", "MODEL_SIMULATION",
+                    "GENERATIVE_MEDIA", "PDP_SYNTHETIC_FIXTURE").contains(originClass)) {
+                throw new IllegalArgumentException("unsupported originClass");
             }
+            requireVersionRef(purposeRef, "purposeRef");
+            requireVersionRef(timelineRef, "timelineRef");
+            requireVersionRef(rightsRef, "rightsRef");
+            sceneRefs.forEach(ref -> requireVersionRef(ref, "sceneRef"));
+            outputProfileRefs.forEach(ref -> requireVersionRef(ref, "outputProfileRef"));
             if (sceneRefs.isEmpty() || sceneRefs.size() > MAX_SCENES) {
                 throw new IllegalArgumentException("sceneRefs must contain 1.." + MAX_SCENES + " refs");
             }
@@ -59,6 +68,9 @@ public final class MediaProductionSpecCompiler {
             if (outputProfileRefs.isEmpty() || outputProfileRefs.size() > MAX_OUTPUT_PROFILES) {
                 throw new IllegalArgumentException(
                         "outputProfileRefs must contain 1.." + MAX_OUTPUT_PROFILES + " refs");
+            }
+            if (new TreeSet<>(outputProfileRefs).size() != outputProfileRefs.size()) {
+                throw new IllegalArgumentException("outputProfileRefs must not contain duplicates");
             }
         }
     }
@@ -91,7 +103,7 @@ public final class MediaProductionSpecCompiler {
             nodes = List.copyOf(nodes);
         }
 
-        /** The nodes whose fingerprints differ from a prior compile — affected descendants only. */
+        /** Changed or removed nodes relative to a prior compile, including affected descendants. */
         public List<String> invalidatedAgainst(CompiledPlan prior) {
             Map<String, String> priorPrints = new LinkedHashMap<>();
             for (PlanNode node : prior.nodes()) {
@@ -99,10 +111,12 @@ public final class MediaProductionSpecCompiler {
             }
             List<String> invalidated = new ArrayList<>();
             for (PlanNode node : nodes) {
-                if (!node.nodeFingerprint().equals(priorPrints.get(node.stepId()))) {
+                if (!node.nodeFingerprint().equals(priorPrints.remove(node.stepId()))) {
                     invalidated.add(node.stepId());
                 }
             }
+            // Outputs belonging to deleted nodes must not remain reusable.
+            invalidated.addAll(priorPrints.keySet());
             return invalidated;
         }
     }
@@ -120,7 +134,8 @@ public final class MediaProductionSpecCompiler {
         List<PlanNode> nodes = new ArrayList<>();
 
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
-                List.of(), List.of(spec.revisionId(), spec.purposeRef()));
+                List.of(), List.of(spec.revisionId(), spec.purposeRef()),
+                List.of(spec.tenantId(), spec.projectId(), spec.originClass()));
         List<String> captureIds = new ArrayList<>();
         for (int i = 0; i < spec.sceneRefs().size(); i++) {
             String id = "capture-source-" + i;
@@ -142,17 +157,27 @@ public final class MediaProductionSpecCompiler {
         addNode(nodes, fingerprints, "publish-review", "publish-review", ExecutionMode.MANUAL_GATE,
                 renderIds, List.of(spec.revisionId()));
 
-        String projection = spec.revisionId() + "|" + spec.originClass() + "|"
-                + spec.purposeRef() + "|" + spec.rightsRef();
+        // Length framing makes the digest unambiguous even when a reference
+        // itself contains punctuation used by prior delimiter-based projections.
+        StringBuilder projection = new StringBuilder();
+        appendField(projection, "media.production-plan.v1");
+        appendField(projection, spec.tenantId());
+        appendField(projection, spec.projectId());
+        appendField(projection, spec.revisionId());
+        appendField(projection, spec.originClass());
+        appendField(projection, spec.purposeRef());
+        appendField(projection, spec.rightsRef());
+        appendField(projection, Integer.toString(nodes.size()));
         for (PlanNode node : nodes) {
-            projection += "|" + node.stepId() + ":" + node.nodeFingerprint();
+            appendField(projection, node.stepId());
+            appendField(projection, node.nodeFingerprint());
         }
         return new CompiledPlan(
                 "media.production-plan.v1",
                 spec.revisionId(),
                 spec.originClass(),
                 nodes,
-                "sha256:" + sha256(projection));
+                "sha256:" + sha256(projection.toString()));
     }
 
     private static void addNode(
@@ -163,21 +188,51 @@ public final class MediaProductionSpecCompiler {
             ExecutionMode mode,
             List<String> dependsOn,
             List<String> versionRefs) {
-        StringBuilder fingerprintInput = new StringBuilder(kind).append('|').append(mode);
+        addNode(nodes, fingerprints, stepId, kind, mode, dependsOn, versionRefs, List.of());
+    }
+
+    private static void addNode(
+            List<PlanNode> nodes,
+            Map<String, String> fingerprints,
+            String stepId,
+            String kind,
+            ExecutionMode mode,
+            List<String> dependsOn,
+            List<String> versionRefs,
+            List<String> fingerprintContext) {
+        StringBuilder fingerprintInput = new StringBuilder();
+        appendField(fingerprintInput, kind);
+        appendField(fingerprintInput, mode.name());
+        appendField(fingerprintInput, Integer.toString(fingerprintContext.size()));
+        for (String value : fingerprintContext) appendField(fingerprintInput, value);
+        appendField(fingerprintInput, Integer.toString(dependsOn.size()));
         for (String dep : dependsOn) {
-            fingerprintInput.append('|').append(dep).append(':').append(fingerprints.get(dep));
+            appendField(fingerprintInput, dep);
+            appendField(fingerprintInput, Objects.requireNonNull(fingerprints.get(dep), "dependency fingerprint"));
         }
+        appendField(fingerprintInput, Integer.toString(versionRefs.size()));
         for (String ref : versionRefs) {
-            fingerprintInput.append('|').append(ref);
+            appendField(fingerprintInput, ref);
         }
         String nodeFingerprint = "sha256:" + sha256(fingerprintInput.toString());
         fingerprints.put(stepId, nodeFingerprint);
         nodes.add(new PlanNode(stepId, kind, mode, dependsOn, versionRefs, nodeFingerprint));
     }
 
-    private static void requireText(String value, String field) {
-        if (value == null || value.isBlank() || value.length() > 384 || !value.equals(value.trim())) {
-            throw new IllegalArgumentException(field + " is required, bounded and canonical");
+    private static void appendField(StringBuilder target, String value) {
+        target.append(value.length()).append(':').append(value);
+    }
+
+    private static void requireIdentifier(String value, String field) {
+        if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
+            throw new IllegalArgumentException(field + " must be a bounded opaque identifier");
+        }
+    }
+
+    private static void requireVersionRef(String value, String field) {
+        if (value == null || value.length() > 384 || value.isEmpty()
+                || value.codePoints().anyMatch(ch -> Character.isWhitespace(ch) || Character.isSpaceChar(ch))) {
+            throw new IllegalArgumentException(field + " must be a bounded version reference");
         }
     }
 

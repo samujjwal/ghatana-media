@@ -16,3 +16,10 @@ Set `VISION_CAPABILITY_PROFILE=OCR_ONLY` and the required `DI_*` endpoint/provid
 The current runtime-backed scene-text source does not admit DI pixel dispatch: the source-rights probe does not expose the separate external-processing consent revalidation or bind trusted boundary, region and retention facts for the exact DI destination. The server can start, but an OCR request remains denied until the owning runtime supplies that authority. The current frame source also handles still images only; video-frame OCR remains unqualified.
 
 The Vision module's own `installDist` remains a development-only distribution and does not contain the launcher factory. Use the launcher distribution when starting Vision as a standalone process that requires the canonical Media runtime port.
+
+Production plan fingerprints from the Java H-02 compiler now include tenant,
+project, and origin identity and use length-framed inputs. Earlier fingerprints
+will change. Existing plan or run records must be reconciled against their
+original inputs before further effects; a newly compiled fingerprint does not
+rewrite an existing run or authorize replay. The compiler produces a plan,
+not a rights decision or provider admission.
