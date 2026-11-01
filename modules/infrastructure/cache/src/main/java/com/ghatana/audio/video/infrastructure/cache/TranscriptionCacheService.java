@@ -18,8 +18,9 @@ import java.util.function.Function;
 
 /**
  * @doc.type class
- * @doc.purpose Cache service for transcription results.
- *              Provides tenant-scoped caching with Redis backend.
+ * @doc.purpose Best-effort write-through cache for transcription snapshots.
+ *              The source loader remains authoritative for mutable job,
+ *              deletion, consent, retention, and revision state.
  * @doc.layer infrastructure
  * @doc.pattern Cache Service
  */
@@ -28,7 +29,6 @@ public class TranscriptionCacheService {
     private static final Logger LOG = LoggerFactory.getLogger(TranscriptionCacheService.class);
 
     private static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
-    private static final Duration LONG_TTL = Duration.ofHours(2);
     // No cache-specific ceiling is defined; keep entries well below the existing 8 MiB HTTP body default.
     static final int MAX_SERIALIZED_ENTRY_BYTES = 1024 * 1024;
 

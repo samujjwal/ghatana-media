@@ -251,6 +251,26 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void cachedCompletedJobSnapshotCannotOverrideCurrentProcessingState() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity cachedCompleted = entity("tenant-a", transcriptionId, false);
+        cachedCompleted.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
+        TranscriptionEntity currentProcessing = entity("tenant-a", transcriptionId, false);
+        currentProcessing.setStatus(TranscriptionEntity.TranscriptionStatus.PROCESSING);
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(cachedCompleted))));
+        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+
+        TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(currentProcessing))));
+
+        assertThat(result.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PROCESSING);
+        verify(cachePort, never()).get(any());
+        verify(cachePort).put(eq(key), any(), any(Duration.class));
+    }
+
+    @Test
     void rejectsCrossTenantWritesBeforeSerializationOrCacheCall() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity otherTenant = entity("tenant-b", transcriptionId, false);
