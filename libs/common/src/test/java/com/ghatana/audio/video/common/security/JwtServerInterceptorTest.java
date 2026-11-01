@@ -388,6 +388,62 @@ class JwtServerInterceptorTest {
         }
 
         @Test
+        @DisplayName("forged identity and tenant metadata cause no effect across all four provider services")
+        void forgedMetadataCannotReachProviderHandlers() throws Exception {
+            JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+            AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+            List<String> providerMethods = List.of(
+                    "com.ghatana.audio.video.stt.grpc.STTService/Transcribe",
+                    "com.ghatana.audio.video.tts.grpc.TTSService/Synthesize",
+                    "com.ghatana.audio.video.vision.grpc.VisionService/AnalyzeImage",
+                    "com.ghatana.audio.video.multimodal.grpc.MultimodalService/ProcessMultimodal");
+
+            for (String method : providerMethods) {
+                ServerCall<Object, Object> call = mockCall(method);
+                ServerCallHandler<Object, Object> backend = mock(ServerCallHandler.class);
+                Metadata headers = authorizationHeader(
+                        signedToken("trusted-user", "tenant-a", List.of("av:user"), 300));
+                headers.put(Metadata.Key.of("x-user-id", Metadata.ASCII_STRING_MARSHALLER), "forged-user");
+                headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:admin");
+                headers.put(com.ghatana.security.tenant.TenantGrpcInterceptor.TENANT_ID_KEY, "tenant-b");
+
+                jwt.interceptCall(call, headers,
+                        (authenticatedCall, authenticatedHeaders) ->
+                                rbac.interceptCall(authenticatedCall, authenticatedHeaders, backend));
+
+                ArgumentCaptor<Status> denied = ArgumentCaptor.forClass(Status.class);
+                verify(call).close(denied.capture(), any());
+                assertThat(denied.getValue().getCode()).as(method).isEqualTo(Status.Code.PERMISSION_DENIED);
+                verify(backend, never()).startCall(any(), any());
+            }
+        }
+
+        @Test
+        @DisplayName("revoked gateway identity is rejected before backend dispatch")
+        void revokedGatewayIdentityCannotReachBackend() throws Exception {
+            ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
+            when(processor.process(any(SignedJWT.class), eq(null))).thenThrow(new JOSEException("gateway token"));
+            JwtServerInterceptor.TokenValidator revokedIdentity = mock(JwtServerInterceptor.TokenValidator.class);
+            when(revokedIdentity.isEnabled()).thenReturn(true);
+            when(revokedIdentity.validate(any(), eq("tenant-a"))).thenReturn(
+                    new com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult(
+                            false, null, null, null));
+            JwtServerInterceptor jwt = new JwtServerInterceptor(processor, revokedIdentity);
+            ServerCall<Object, Object> call = mockCall(
+                    "com.ghatana.audio.video.stt.grpc.STTService/Transcribe");
+            ServerCallHandler<Object, Object> backend = mock(ServerCallHandler.class);
+
+            jwt.interceptCall(call,
+                    authorizationHeader(signedToken("user-before-revocation", "tenant-a")), backend);
+
+            ArgumentCaptor<Status> denied = ArgumentCaptor.forClass(Status.class);
+            verify(call).close(denied.capture(), any());
+            assertThat(denied.getValue().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+            verify(revokedIdentity).validate(any(), eq("tenant-a"));
+            verify(backend, never()).startCall(any(), any());
+        }
+
+        @Test
         @DisplayName("role claim bounds and unrecognized role vocabulary fail closed")
         void malformedAndUnrecognizedSignedRolesDoNotGrantAccess() throws Exception {
             JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
