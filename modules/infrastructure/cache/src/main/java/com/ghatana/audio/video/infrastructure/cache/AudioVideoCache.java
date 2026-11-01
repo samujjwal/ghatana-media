@@ -150,10 +150,37 @@ public class AudioVideoCache<K, V> {
     }
     
     /**
-     * Build tenant-scoped key
+     * Build a collision-safe tenant/id cache key. The v2 format preserves the
+     * namespace prefix while hashing the length-prefixed UTF-16 code units of
+     * tenant and id, so separators inside either value cannot alias another
+     * pair. Old delimiter-format entries are intentionally treated as misses;
+     * cache data is ephemeral and will repopulate from the source of truth.
      */
     public String buildKey(String tenantId, String id) {
-        return namespace + ":" + tenantId + ":" + id;
+        Objects.requireNonNull(tenantId, "tenantId cannot be null");
+        Objects.requireNonNull(id, "id cannot be null");
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            updateFramedUtf16(digest, tenantId);
+            updateFramedUtf16(digest, id);
+            StringBuilder key = new StringBuilder(namespace).append(":v2:");
+            for (byte value : digest.digest()) {
+                key.append(Character.forDigit((value >>> 4) & 0xf, 16))
+                        .append(Character.forDigit(value & 0xf, 16));
+            }
+            return key.toString();
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
+    }
+
+    private static void updateFramedUtf16(java.security.MessageDigest digest, String value) {
+        digest.update(java.nio.ByteBuffer.allocate(Integer.BYTES).putInt(value.length()).array());
+        for (int index = 0; index < value.length(); index++) {
+            char codeUnit = value.charAt(index);
+            digest.update((byte) (codeUnit >>> 8));
+            digest.update((byte) codeUnit);
+        }
     }
 
     private AsyncOperation<Void> observePut(AsyncOperation<Void> operation, K key, Duration ttl) {

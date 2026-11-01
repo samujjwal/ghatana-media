@@ -44,6 +44,30 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void cacheKeyFramesTenantAndIdWithoutExposingTheirValues() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        String baseline = cache.buildKey("a:audio", "123e4567-e89b-12d3-a456-426614174000");
+
+        assertThat(baseline).matches("transcription:v2:[0-9a-f]{64}");
+        assertThat(baseline).isEqualTo(cache.buildKey("a:audio",
+                "123e4567-e89b-12d3-a456-426614174000"));
+        assertThat(cache.buildKey("a", "audio:123e4567-e89b-12d3-a456-426614174000"))
+                .isNotEqualTo(baseline);
+        assertThat(baseline).doesNotContain("a:audio", "123e4567");
+    }
+
+    @Test
+    void cacheKeyHashFramesDistinctMalformedUtf16CodeUnits() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        String highSurrogateA = cache.buildKey("tenant", "\uD800");
+        String highSurrogateB = cache.buildKey("tenant", "\uD801");
+
+        assertThat(highSurrogateA).isNotEqualTo(highSurrogateB);
+    }
+
+    @Test
     void backendFailureLogsNeverRenderRawKeyOrThrowableMessage() {
         String key = "media-cache:tenant-987-secret:transcript-654-private";
         String exceptionMarker = "backend failure for " + key + " secret-cache-material";

@@ -32,13 +32,13 @@ class AudioVideoCacheTest {
     private DistributedCachePort<String, String> cachePort;
 
     @Test
-    @DisplayName("buildKey composes namespace tenant and id")
-    void buildKeyComposesNamespaceAndTenant() {
+    @DisplayName("buildKey preserves namespace and emits versioned bounded key")
+    void buildKeyPreservesNamespaceAndEmitsVersionedKey() {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
 
         String key = cache.buildKey("tenant-1", "id-1");
 
-        assertThat(key).isEqualTo("transcription:tenant-1:id-1");
+        assertThat(key).matches("transcription:v2:[0-9a-f]{64}");
     }
 
     @Test

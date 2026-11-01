@@ -2,6 +2,7 @@ package com.ghatana.audio.video.infrastructure.cache;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import com.ghatana.cache.DistributedCachePort;
+import com.ghatana.cache.DistributedCacheService;
 import com.ghatana.core.async.AsyncOperation;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
@@ -43,7 +44,7 @@ class TranscriptionCacheServiceTest {
     void returnsCacheHitOnlyWhenTenantAndTranscriptionIdentityMatch() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity entry = entity("tenant-a", transcriptionId, false);
-        when(cachePort.get("transcription:tenant-a:" + transcriptionId))
+        when(cachePort.get(key("tenant-a", transcriptionId.toString())))
                 .thenReturn(AsyncOperation.success(Optional.of(objectMapper.writeValueAsString(entry))));
 
         Optional<TranscriptionEntity> result = await(cacheService.getTranscription("tenant-a", transcriptionId));
@@ -54,6 +55,59 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void v2KeyTreatsLegacyEntryAsMiss() throws Exception {
+        UUID id = UUID.randomUUID();
+        String legacyKey = "transcription:tenant-a:" + id;
+        String currentKey = key("tenant-a", id.toString());
+        when(cachePort.get(currentKey)).thenReturn(AsyncOperation.success(Optional.empty()));
+
+        Optional<TranscriptionEntity> result = await(cacheService.getTranscription("tenant-a", id));
+
+        assertThat(result).isEmpty();
+        verify(cachePort).get(currentKey);
+        verify(cachePort, never()).get(legacyKey);
+    }
+
+    @Test
+    void tenantScopeKeysRemainIsolatedAndInvalidateUsesTheSameV2Key() {
+        UUID id = UUID.randomUUID();
+        String tenantAKey = key("tenant-a", id.toString());
+        String tenantBKey = key("tenant-b", id.toString());
+        assertThat(tenantAKey).isNotEqualTo(tenantBKey);
+        DistributedCacheService servicePort = mock(DistributedCacheService.class);
+        when(servicePort.invalidateAsync(tenantAKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService isolated = new TranscriptionCacheService(servicePort, objectMapper);
+
+        await(isolated.invalidateTranscription("tenant-a", id));
+
+        verify(servicePort).invalidateAsync(tenantAKey);
+        verify(servicePort, never()).invalidateAsync(tenantBKey);
+    }
+
+    @Test
+    void sameIdForTwoTenantsReadsDistinctPortEntries() throws Exception {
+        UUID id = UUID.randomUUID();
+        String tenantAKey = key("tenant-a", id.toString());
+        String tenantBKey = key("tenant-b", id.toString());
+        TranscriptionEntity tenantAValue = entity("tenant-a", id, false);
+        TranscriptionEntity tenantBValue = entity("tenant-b", id, false);
+        when(cachePort.get(tenantAKey)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(tenantAValue))));
+        when(cachePort.get(tenantBKey)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(tenantBValue))));
+
+        Optional<TranscriptionEntity> tenantAResult = await(cacheService.getTranscription("tenant-a", id));
+        Optional<TranscriptionEntity> tenantBResult = await(cacheService.getTranscription("tenant-b", id));
+
+        assertThat(tenantAResult).isPresent();
+        assertThat(tenantAResult.orElseThrow().getTenantId()).isEqualTo("tenant-a");
+        assertThat(tenantBResult).isPresent();
+        assertThat(tenantBResult.orElseThrow().getTenantId()).isEqualTo("tenant-b");
+        verify(cachePort).get(tenantAKey);
+        verify(cachePort).get(tenantBKey);
+    }
+
+    @Test
     void treatsCrossTenantWrongIdAndDeletedEntriesAsMisses() throws Exception {
         UUID requestedId = UUID.randomUUID();
         TranscriptionEntity[] poisoned = {
@@ -61,7 +115,7 @@ class TranscriptionCacheServiceTest {
             entity("tenant-a", UUID.randomUUID(), false),
             entity("tenant-a", requestedId, true)
         };
-        String key = "transcription:tenant-a:" + requestedId;
+        String key = key("tenant-a", requestedId.toString());
         AtomicInteger reads = new AtomicInteger();
         when(cachePort.get(key)).thenAnswer(invocation -> AsyncOperation.success(
                 Optional.of(objectMapper.writeValueAsString(poisoned[reads.getAndIncrement()]))));
@@ -75,7 +129,7 @@ class TranscriptionCacheServiceTest {
     @Test
     void getOrLoadFallsBackToSourceForMismatchedCacheAndWritesOnlyMatchingLiveResult() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String key = "transcription:tenant-a:" + transcriptionId;
+        String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity poisoned = entity("tenant-b", transcriptionId, false);
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
         when(cachePort.get(key)).thenReturn(
@@ -98,7 +152,7 @@ class TranscriptionCacheServiceTest {
     @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String key = "transcription:tenant-a:" + transcriptionId;
+        String key = key("tenant-a", transcriptionId.toString());
         when(cachePort.get(key)).thenAnswer(invocation -> AsyncOperation.success(Optional.empty()));
 
         for (TranscriptionEntity mismatched : new TranscriptionEntity[] {
@@ -114,7 +168,7 @@ class TranscriptionCacheServiceTest {
     @Test
     void absentAndDeletedSourceResultsRemainNull() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = "transcription:tenant-a:" + transcriptionId;
+        String key = key("tenant-a", transcriptionId.toString());
         when(cachePort.get(key)).thenAnswer(invocation -> AsyncOperation.success(Optional.empty()));
 
         TranscriptionEntity absent = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
@@ -156,7 +210,7 @@ class TranscriptionCacheServiceTest {
 
         TranscriptionEntity matching = entity("tenant-a", UUID.randomUUID(), false);
         matching.setAudioFileId(audioId);
-        String key = "transcription:tenant-a:audio:" + audioId;
+        String key = key("tenant-a", "audio:" + audioId);
         when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
         await(cacheService.cacheTranscriptionByAudioFileId("tenant-a", audioId, matching));
@@ -198,7 +252,7 @@ class TranscriptionCacheServiceTest {
     void nonblankTenantVocabularyIsPreservedForCacheWrites() {
         String tenantId = "legacy:tenant/v1";
         TranscriptionEntity entity = entity(tenantId, UUID.randomUUID(), false);
-        String key = "transcription:" + tenantId + ":" + entity.getId();
+        String key = key(tenantId, entity.getId().toString());
         when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
         await(cacheService.cacheTranscription(tenantId, entity));
@@ -243,8 +297,8 @@ class TranscriptionCacheServiceTest {
         TranscriptionCacheService isolatedService = new TranscriptionCacheService(isolatedPort, isolatedMapper);
         UUID transcriptionId = UUID.randomUUID();
         UUID audioFileId = UUID.randomUUID();
-        String transcriptionKey = "transcription:tenant-a:" + transcriptionId;
-        String audioKey = "transcription:tenant-a:audio:" + audioFileId;
+        String transcriptionKey = key("tenant-a", transcriptionId.toString());
+        String audioKey = key("tenant-a", "audio:" + audioFileId);
         String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
         when(isolatedPort.get(transcriptionKey)).thenReturn(
                 AsyncOperation.success(Optional.of(oversizedJson)));
@@ -259,7 +313,7 @@ class TranscriptionCacheServiceTest {
     @Test
     void oversizedCacheHitFallsBackToValidSourceValue() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = "transcription:tenant-a:" + transcriptionId;
+        String key = key("tenant-a", transcriptionId.toString());
         String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
         when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.of(oversizedJson)));
@@ -279,7 +333,7 @@ class TranscriptionCacheServiceTest {
     @Test
     void oversizedSourceValueIsReturnedButNotSerializedBeyondTheCacheBoundOrLogged() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = "transcription:tenant-a:" + transcriptionId;
+        String key = key("tenant-a", transcriptionId.toString());
         String marker = "oversized-source-private-marker";
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
         source.setText(marker + "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES * 3));
@@ -319,6 +373,10 @@ class TranscriptionCacheServiceTest {
         }
 
         verifyNoInteractions(cachePort);
+    }
+
+    private String key(String tenant, String id) {
+        return new AudioVideoCache<String, String>(cachePort, "transcription").buildKey(tenant, id);
     }
 
     private static TranscriptionEntity entity(String tenant, UUID id, boolean deleted) {
