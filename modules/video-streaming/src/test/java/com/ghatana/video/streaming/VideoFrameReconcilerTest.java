@@ -64,6 +64,37 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("VFR-like wire timestamps and keyframes survive reorder without timebase inference")
+    void preservesVfrWireValuesWithoutInferringSourceTime() {
+        VideoStreamSession wire = new VideoStreamSession();
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        long[] irregularWireTimes = {100, 141, 142, 260};
+        boolean[] keyframes = {true, false, false, true};
+
+        // These irregular values exercise preservation only. The wire has no
+        // clock, source stream, origin, or retained source-map binding.
+        VideoStreamSession.DecodedFrame[] decoded = new VideoStreamSession.DecodedFrame[4];
+        for (int i = 0; i < decoded.length; i++) {
+            decoded[i] = wire.decodeFrame(wire.encodeFrame(
+                    i, keyframes[i], irregularWireTimes[i], new byte[]{(byte) i}));
+        }
+
+        assertThat(rec.offer(decoded[0])).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.offer(decoded[3])).isEqualTo(Disposition.HELD);
+        assertThat(rec.offer(decoded[1])).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.offer(decoded[2])).isEqualTo(Disposition.DELIVERED);
+        VideoStreamSession.DecodedFrame released = rec.takeDelivered();
+
+        assertThat(released.sequenceNumber()).isEqualTo(3);
+        assertThat(released.keyFrame()).isTrue();
+        assertThat(released.timestampMillis()).isEqualTo(260);
+        assertThat(rec.deliveryOf(released).decodable()).isTrue();
+        assertThat(rec.deliveryOf(released).discontinuity())
+                .isEqualTo("SOURCE_TIME_MAPPING_NOT_ADMITTED");
+        assertThat(rec.lastDeliveredPts()).isEqualTo(Long.MIN_VALUE);
+    }
+
+    @Test
     @DisplayName("out-of-order frames hold until the gap fills, keyframe deps tracked")
     void outOfOrderHoldsWithKeyframeTracking() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
