@@ -82,6 +82,30 @@ describe("compileProductionPlan", () => {
     expect(d.planFingerprint).not.toBe(a.planFingerprint);
   });
 
+  it("rejects malformed reference Unicode before resolver effects and preserves valid supplementary refs", async () => {
+    const spy = resolver(admitted(allRefs));
+    await expect(compileProductionPlan(
+      spec({ sceneRefs: ["scene/\uD800"] }), spy,
+    )).rejects.toMatchObject({ code: "INVALID_PRODUCTION_SPEC" });
+    expect(spy.seen).toEqual([]);
+
+    const unicodeScene = "scene/🚀@v3";
+    const unicodeSpec = spec({ sceneRefs: [unicodeScene] });
+    const unicodeResolver = resolver(admitted(["purpose/v1", unicodeScene,
+      "timeline/main@v2", "rights/standard@v1", "profile/1080p@v4"]));
+    const first = await compileProductionPlan(unicodeSpec, unicodeResolver);
+    const second = await compileProductionPlan(unicodeSpec, unicodeResolver);
+    expect(second.planFingerprint).toBe(first.planFingerprint);
+
+    await expect(compileProductionPlan(spec(), {
+      resolve: (sourceRef) => ({
+        sourceRef,
+        immutableRevision: sourceRef === "scene/1@v3" ? "sealed/\uD800" : `${sourceRef}#sealed`,
+        eligibility: "LOCAL_ADMITTED",
+      }),
+    })).rejects.toMatchObject({ code: "CAPTURE_SOURCE_UNRESOLVED" });
+  });
+
   it("binds the plan fingerprint to its tenant and project", async () => {
     const initial = await compileProductionPlan(spec(), resolver(admitted(allRefs)));
     const otherTenant = await compileProductionPlan(spec({ tenantId: "tenant-2" }), resolver(admitted(allRefs)));

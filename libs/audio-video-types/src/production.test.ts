@@ -28,6 +28,11 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, originClass: 'BOGUS' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, tenantId: 'bad id!' }).success).toBe(false);
   });
+  it('rejects malformed UTF-16 references and accepts valid supplementary Unicode', () => {
+    expect(ProductionSpecSchema.safeParse({ ...spec, purposeRef: 'purpose/\uD800' }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: ['scene/\uDC00'] }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, purposeRef: 'purpose/🚀' }).success).toBe(true);
+  });
   it('rejects the wrong clock kind — a story clock is not a simulation clock', () => {
     const anim = {
       schemaVersion: 'media.declarative.value.animation-spec.v1',

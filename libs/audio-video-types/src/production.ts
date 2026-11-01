@@ -18,7 +18,21 @@ const POSITIVE_INT64_DECIMAL_RE = /^[1-9][0-9]*$/;
 
 export const OpaqueIdSchema = z.string().min(1).max(128).regex(OPAQUE_ID_RE);
 /** Opaque versioned reference — never a raw URI to fetch; it names a stored revision. */
-export const VersionRefSchema = z.string().min(1).max(384).regex(/^\S+$/);
+function hasWellFormedUtf16(value: string): boolean {
+  for (let index = 0; index < value.length; index++) {
+    const current = value.charCodeAt(index);
+    if (current >= 0xd800 && current <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (index + 1 >= value.length || next < 0xdc00 || next > 0xdfff) return false;
+      index++;
+    } else if (current >= 0xdc00 && current <= 0xdfff) {
+      return false;
+    }
+  }
+  return true;
+}
+export const VersionRefSchema = z.string().min(1).max(384).regex(/^\S+$/)
+  .refine(hasWellFormedUtf16, "must contain well-formed Unicode");
 export const NullableVersionRefSchema = VersionRefSchema.nullable();
 export const VersionRefListSchema = z.array(VersionRefSchema).refine(
   (list) => new Set(list).size === list.length,

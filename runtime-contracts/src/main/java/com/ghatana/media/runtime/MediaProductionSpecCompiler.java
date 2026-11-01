@@ -232,9 +232,26 @@ public final class MediaProductionSpecCompiler {
 
     private static void requireVersionRef(String value, String field) {
         if (value == null || value.length() > 384 || value.isEmpty()
+                || !hasWellFormedUtf16(value)
                 || value.codePoints().anyMatch(ch -> Character.isWhitespace(ch) || Character.isSpaceChar(ch))) {
             throw new IllegalArgumentException(field + " must be a bounded version reference");
         }
+    }
+
+    /** Reject malformed UTF-16 so UTF-8 hashing cannot collapse distinct references. */
+    private static boolean hasWellFormedUtf16(String value) {
+        for (int index = 0; index < value.length(); index++) {
+            char current = value.charAt(index);
+            if (Character.isHighSurrogate(current)) {
+                if (index + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(index + 1))) {
+                    return false;
+                }
+                index++;
+            } else if (Character.isLowSurrogate(current)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static String sha256(String input) {

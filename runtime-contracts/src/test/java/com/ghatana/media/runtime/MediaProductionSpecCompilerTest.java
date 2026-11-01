@@ -112,6 +112,27 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
+    void malformedSurrogatesAreRejectedBeforeFingerprintingButValidSupplementaryRefsRemainSupported() {
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose/\uD800",
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purposeRef");
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose/v1",
+                List.of("scene/\uDC00"), "timeline/v1", "rights/v1", List.of("output/v1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneRef");
+
+        ProductionSpec validUnicodeRef = new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose/\uD83D\uDE80",
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1"));
+        var compiler = new MediaProductionSpecCompiler();
+        assertThat(compiler.compile(validUnicodeRef).planFingerprint())
+                .isEqualTo(compiler.compile(validUnicodeRef).planFingerprint());
+    }
+
+    @Test
     void removedNodesAreIncludedInInvalidation() {
         var compiler = new MediaProductionSpecCompiler();
         var before = compiler.compile(spec());
