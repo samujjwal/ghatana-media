@@ -62,11 +62,12 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  *   <li>V06/V07 local transform → completed job → logicalStatus read: covered.</li>
  *   <li>V08 outbox commit/ACK kill points: covered by provider outbox tests;
  *       asserted here at DB level that terminal state committed with outbox rows.</li>
- *   <li>V09 cross-tenant isolation + forged principal header scrub: covered.
+ *   <li>V09 cross-tenant artifact isolation + forged principal header scrub: covered.
  *       Cross-principal isolation is not exercisable at HTTP level in the local
  *       profile — all unauthenticated callers resolve to the same synthetic
  *       principal by design; principal scoping is covered by launcher/provider
- *       unit tests.</li>
+ *       unit tests. V02 additionally checks that a job created for one tenant
+ *       reads as the same not-found response from another tenant.</li>
  *   <li>V10 historical lineage migration: covered by
  *       {@code MediaMigrationLineageFixtureTest}.</li>
  * </ul>
@@ -243,6 +244,18 @@ class MediaLauncherEndToEndIT {
                 .POST(HttpRequest.BodyPublishers.ofString(body)));
         assertThat(first.statusCode()).isEqualTo(202);
         String jobId = MAPPER.readTree(first.body()).get("jobId").asText();
+
+        // The persisted job identifier must not disclose a job across tenants.
+        // Compare against a genuinely absent identifier so the denial stays
+        // customer-neutral at the HTTP boundary.
+        HttpResponse<String> crossTenant = send(request(
+                "GET", "tenant-other", "/api/v1/jobs/" + jobId));
+        HttpResponse<String> absent = send(request(
+                "GET", "tenant-other", "/api/v1/jobs/absent-v02-job"));
+        assertThat(crossTenant.statusCode()).isEqualTo(404);
+        assertThat(MAPPER.readTree(crossTenant.body()).path("error"))
+                .isEqualTo(MAPPER.readTree(absent.body()).path("error"));
+        assertThat(crossTenant.body()).doesNotContain(jobId);
 
         // Identical replay — one logical command, same jobId, zero additional effect.
         HttpResponse<String> replay = send(request("POST", "tenant-v02", "/api/v1/jobs")
