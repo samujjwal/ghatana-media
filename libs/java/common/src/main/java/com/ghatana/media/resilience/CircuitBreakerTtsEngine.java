@@ -135,14 +135,12 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
                 () -> { delegate.synthesizeStreaming(text, options, chunkConsumer); return null; }
             );
         } catch (CircuitBreaker.CircuitBreakerOpenException e) {
-            LOG.log(Level.WARNING, "Circuit breaker open - streaming synthesis degraded", e);
-            // Send empty chunk to signal degraded mode
-            chunkConsumer.accept(new AudioChunk(
-                new byte[0],
-                0,
-                true,
-                0L
-            ));
+            LOG.log(Level.WARNING, "Circuit breaker open - streaming synthesis was not attempted", e);
+            // An empty terminal chunk looks like a successfully completed stream
+            // to callers. Preserve the unavailable outcome instead of fabricating
+            // provider completion or a successful empty audio artifact.
+            throw new InferenceError(
+                "TTS circuit breaker is open; streaming synthesis was not attempted", e, true);
         } catch (InferenceError e) {
             throw e;
         } catch (Exception e) {
