@@ -108,6 +108,14 @@ public class AudioVideoServiceRegistry {
         return pool.borrow();
     }
 
+    /** Borrows an STT engine through a tokenized, idempotently closed lease. */
+    public EnginePool.Lease<SttEngine> borrowSttEngineLease(String poolName)
+            throws EnginePool.PoolExhaustedException {
+        EnginePool<SttEngine> pool = sttPools.get(poolName);
+        if (pool == null) throw new IllegalArgumentException("STT pool not found: " + poolName);
+        return pool.borrowLease();
+    }
+
     /**
      * Returns an STT engine to its pool.
      *
@@ -134,6 +142,14 @@ public class AudioVideoServiceRegistry {
             throw new IllegalArgumentException("TTS pool not found: " + poolName);
         }
         return pool.borrow();
+    }
+
+    /** Borrows a TTS engine through a tokenized, idempotently closed lease. */
+    public EnginePool.Lease<TtsEngine> borrowTtsEngineLease(String poolName)
+            throws EnginePool.PoolExhaustedException {
+        EnginePool<TtsEngine> pool = ttsPools.get(poolName);
+        if (pool == null) throw new IllegalArgumentException("TTS pool not found: " + poolName);
+        return pool.borrowLease();
     }
 
     /**

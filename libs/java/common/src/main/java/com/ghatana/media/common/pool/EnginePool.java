@@ -40,7 +40,10 @@ public class EnginePool<T> implements AutoCloseable {
     private static final Logger LOG = Logger.getLogger(EnginePool.class.getName());
 
     private final BlockingQueue<PooledEngine<T>> available;
-    private final ConcurrentMap<T, PooledEngine<T>> inUse;
+    private final ConcurrentMap<IdentityKey<T>, PooledEngine<T>> inUse;
+    private final Object lifecycleLock = new Object();
+    private final Set<IdentityKey<T>> ownedEngines = ConcurrentHashMap.newKeySet();
+    private final Map<IdentityKey<T>, Object> leaseTokens = new HashMap<>();
     private final Supplier<T> factory;
     private final Function<T, Boolean> healthCheck;
     private final Function<T, Void> destroyer;
@@ -52,6 +55,7 @@ public class EnginePool<T> implements AutoCloseable {
 
     private final AtomicInteger totalCreated = new AtomicInteger(0);
     private final AtomicInteger totalDestroyed = new AtomicInteger(0);
+    private final AtomicLong failedDestructions = new AtomicLong(0);
     private final AtomicInteger activeEngines = new AtomicInteger(0);
     private final AtomicLong totalBorrowed = new AtomicLong(0);
     private final AtomicLong totalReturned = new AtomicLong(0);
@@ -84,9 +88,11 @@ public class EnginePool<T> implements AutoCloseable {
             Function<T, Void> destroyer,
             PoolConfig config) {
 
-        this.factory = factory;
-        this.healthCheck = healthCheck;
-        this.destroyer = destroyer;
+        Objects.requireNonNull(config, "config");
+        config.validate();
+        this.factory = Objects.requireNonNull(factory, "factory");
+        this.healthCheck = Objects.requireNonNull(healthCheck, "healthCheck");
+        this.destroyer = Objects.requireNonNull(destroyer, "destroyer");
         this.minSize = config.minSize;
         this.maxSize = config.maxSize;
         this.idleTimeout = config.idleTimeout;
@@ -144,6 +150,10 @@ public class EnginePool<T> implements AutoCloseable {
      * @throws IllegalStateException if pool is closed
      */
     public T borrow() throws PoolExhaustedException {
+        return borrowInternal(null);
+    }
+
+    private T borrowInternal(Object leaseToken) throws PoolExhaustedException {
         if (closed) {
             throw new IllegalStateException("Pool is closed");
         }
@@ -158,23 +168,41 @@ public class EnginePool<T> implements AutoCloseable {
 
         // Try to get from available queue
         PooledEngine<T> pooled = available.poll();
+        boolean createdFresh = false;
 
         // If none available and under max, create new
         if (pooled == null) {
             T engine = createEngineIfCapacity();
             if (engine != null) {
                 pooled = new PooledEngine<>(engine, Instant.now());
+                createdFresh = true;
             }
         }
 
         // If still none, wait with timeout
         if (pooled == null) {
+            long waitNanos = borrowTimeout.toNanos();
+            long started = System.nanoTime();
             try {
-                pooled = available.poll(borrowTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                while (pooled == null && !closed && waitNanos > 0) {
+                    pooled = available.poll(Math.min(waitNanos, TimeUnit.MILLISECONDS.toNanos(100)),
+                            TimeUnit.NANOSECONDS);
+                    if (pooled == null && !closed) {
+                        T replacement = createEngineIfCapacity();
+                        if (replacement != null) {
+                            pooled = new PooledEngine<>(replacement, Instant.now());
+                            createdFresh = true;
+                        }
+                    }
+                    waitNanos = borrowTimeout.toNanos() - (System.nanoTime() - started);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new PoolExhaustedException("Interrupted while waiting for engine");
             }
+        }
+        if (pooled == null && closed) {
+            throw new IllegalStateException("Pool is closed");
         }
 
         if (pooled == null) {
@@ -193,50 +221,118 @@ public class EnginePool<T> implements AutoCloseable {
                 throw new PoolExhaustedException("Failed to create replacement engine");
             }
             pooled = new PooledEngine<>(replacement, Instant.now());
+            createdFresh = true;
         }
 
-        pooled.lastBorrowed = Instant.now();
-        inUse.put(pooled.engine, pooled);
-        cleanupCollectedBorrowEntries();
-
-        // Track borrow for leak detection
-        borrowTracking.put(new IdentityWeakReference<>(pooled.engine, borrowTrackingQueue), new BorrowInfo(
-            pooled.engine,
-            Instant.now(),
-            Thread.currentThread().getStackTrace()
-        ));
-
-        return pooled.engine;
+        synchronized (lifecycleLock) {
+            IdentityKey<T> key = new IdentityKey<>(pooled.engine);
+            if (inUse.containsKey(key)) {
+                // A broken factory returned an already borrowed instance. Never
+                // destroy it: that would terminate another borrower's engine.
+                if (createdFresh) activeEngines.decrementAndGet();
+                throw new IllegalStateException("Engine factory returned an already borrowed instance");
+            }
+            if (!closed) {
+                pooled.lastBorrowed = Instant.now();
+                inUse.put(key, pooled);
+                if (leaseToken != null) leaseTokens.put(key, leaseToken);
+                cleanupCollectedBorrowEntries();
+                borrowTracking.put(new IdentityWeakReference<>(pooled.engine, borrowTrackingQueue), new BorrowInfo(
+                    pooled.engine, Instant.now(), Thread.currentThread().getStackTrace()));
+                return pooled.engine;
+            }
+        }
+        // Destroyer is caller-supplied and must not hold the lifecycle lock.
+        destroyEngine(pooled.engine);
+        throw new IllegalStateException("Pool is closed");
     }
 
     /**
      * Returns an engine to the pool.
      *
      * @param engine engine to return
+     *
+     * <p>The legacy API carries no lease token: a stale caller holding the same
+     * raw engine reference after it has been returned and reborrowed cannot be
+     * distinguished from the current borrower. Callers must return each borrow
+     * exactly once; use of this API does not establish cross-worker fencing.
      */
     public void returnEngine(T engine) {
+        returnBorrow(engine, null);
+    }
+
+    private void returnBorrow(T engine, Object token) {
         if (engine == null) return;
+        final PooledEngine<T> pooled;
+        synchronized (lifecycleLock) {
+            IdentityKey<T> key = new IdentityKey<>(engine);
+            Object currentToken = leaseTokens.get(key);
+            if (token == null && currentToken != null) {
+                throw new IllegalStateException("Engine belongs to a tokenized lease; close the lease instead");
+            }
+            if (token != null && currentToken != token) return;
+            if (token != null) leaseTokens.remove(key);
+            pooled = inUse.remove(key);
+            if (pooled == null) {
+                LOG.warning("Returning engine not currently borrowed from this pool");
+                return;
+            }
+            cleanupCollectedBorrowEntries();
+            borrowTracking.remove(new IdentityWeakReference<>(engine));
+            totalReturned.incrementAndGet();
+        }
+        // Health checks and destruction may block or call external code. A
+        // returning engine is neither available nor borrowed while checked.
+        boolean healthy = !closed && isHealthy(engine);
+        boolean destroy;
+        synchronized (lifecycleLock) {
+            destroy = closed || !healthy;
+            if (!destroy) {
+                pooled.lastReturned = Instant.now();
+                destroy = !available.offer(pooled);
+            }
+        }
+        if (destroy) destroyEngine(engine);
+    }
 
-        PooledEngine<T> pooled = inUse.remove(engine);
-        if (pooled == null) {
-            LOG.warning("Returning engine not from this pool");
-            destroyEngine(engine);
-            return;
+    /**
+     * Borrows an engine through an idempotent tokenized lease. Raw returns of a
+     * leased handle are rejected; closing a stale lease cannot return a later borrow.
+     */
+    public Lease<T> borrowLease() throws PoolExhaustedException {
+        Object token = new Object();
+        // Register the token in the same critical section as the borrow, so a
+        // stale raw holder cannot return this engine before its lease is bound.
+        T engine = borrowInternal(token);
+        return new Lease<>(engine, () -> releaseLease(engine, token));
+    }
+
+    private void releaseLease(T engine, Object token) {
+        returnBorrow(engine, token);
+    }
+
+    /**
+     * A single borrow; close returns it at most once. The holder must finish
+     * using the engine before closing it; a retained raw reference is not fenced.
+     */
+    public static final class Lease<T> implements AutoCloseable {
+        private final T engine;
+        private final Runnable release;
+        private final java.util.concurrent.atomic.AtomicBoolean returned = new java.util.concurrent.atomic.AtomicBoolean();
+
+        private Lease(T engine, Runnable release) {
+            this.engine = engine;
+            this.release = release;
         }
 
-        // Remove from leak tracking
-        cleanupCollectedBorrowEntries();
-        borrowTracking.remove(new IdentityWeakReference<>(engine));
-
-        totalReturned.incrementAndGet();
-
-        if (closed || !isHealthy(engine)) {
-            destroyEngine(engine);
-            return;
+        public T engine() {
+            if (returned.get()) throw new IllegalStateException("Engine lease is closed");
+            return engine;
         }
 
-        pooled.lastReturned = Instant.now();
-        available.offer(pooled);
+        @Override public void close() {
+            if (returned.compareAndSet(false, true)) release.run();
+        }
     }
 
     /**
@@ -249,11 +345,8 @@ public class EnginePool<T> implements AutoCloseable {
      * @throws PoolExhaustedException if no engines available
      */
     public <R> R execute(Function<T, R> action) throws PoolExhaustedException {
-        T engine = borrow();
-        try {
-            return action.apply(engine);
-        } finally {
-            returnEngine(engine);
+        try (Lease<T> lease = borrowLease()) {
+            return action.apply(lease.engine());
         }
     }
 
@@ -273,6 +366,11 @@ public class EnginePool<T> implements AutoCloseable {
             backpressureEvents.get(),
             closed
         );
+    }
+
+    /** Number of engine destruction attempts that failed and retained their capacity reservation. */
+    public long getFailedDestructionCount() {
+        return failedDestructions.get();
     }
 
     /**
@@ -318,46 +416,41 @@ public class EnginePool<T> implements AutoCloseable {
 
     @Override
     public void close() {
-        closed = true;
+        List<PooledEngine<T>> idle = new ArrayList<>();
+        synchronized (lifecycleLock) {
+            if (closed) return;
+            closed = true;
+            available.drainTo(idle);
+        }
         evictionExecutor.shutdown();
         leakDetectionExecutor.shutdown();
-
-        // Destroy all engines
-        available.forEach(p -> destroyEngine(p.engine));
-        inUse.keySet().forEach(this::destroyEngine);
-
-        available.clear();
-        inUse.clear();
+        // Borrowed engines remain usable until their owner returns them. Their
+        // eventual return destroys them because the pool is already closed.
+        idle.forEach(p -> destroyEngine(p.engine));
 
         try {
-            if (!evictionExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                evictionExecutor.shutdownNow();
-            }
-            if (!leakDetectionExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                leakDetectionExecutor.shutdownNow();
-            }
+            if (!evictionExecutor.awaitTermination(5, TimeUnit.SECONDS)) evictionExecutor.shutdownNow();
+            if (!leakDetectionExecutor.awaitTermination(5, TimeUnit.SECONDS)) leakDetectionExecutor.shutdownNow();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             evictionExecutor.shutdownNow();
             leakDetectionExecutor.shutdownNow();
         }
-
-        // Log any remaining leaks
-        if (!borrowTracking.isEmpty()) {
-            LOG.warning("Pool closed with " + borrowTracking.size() + " engines still borrowed (potential leaks)");
+        if (!inUse.isEmpty()) {
+            LOG.warning("Pool closed with " + inUse.size() + " engines still borrowed; cleanup deferred until return");
         }
-
-        borrowTracking.clear();
-
         LOG.info("Engine pool closed. Total created: " + totalCreated.get());
     }
 
     private T createEngine() {
         try {
             T engine = factory.get();
-            if (engine != null) {
-                totalCreated.incrementAndGet();
+            if (engine == null) return null;
+            if (!ownedEngines.add(new IdentityKey<>(engine))) {
+                LOG.warning("Engine factory returned an instance already owned by this pool");
+                return null;
             }
+            totalCreated.incrementAndGet();
             return engine;
         } catch (Exception e) {
             LOG.severe("Failed to create engine: " + e.getMessage());
@@ -376,22 +469,30 @@ public class EnginePool<T> implements AutoCloseable {
             }
         }
 
-        T engine = createEngine();
-        if (engine != null) {
-            return engine;
+        try {
+            T engine = createEngine();
+            if (engine != null) return engine;
+            activeEngines.decrementAndGet();
+            return null;
+        } catch (Error fatal) {
+            // No engine was admitted to the pool; release only the reservation
+            // and preserve the fatal failure for the caller.
+            activeEngines.decrementAndGet();
+            throw fatal;
         }
-
-        activeEngines.decrementAndGet();
-        return null;
     }
 
     private void destroyEngine(T engine) {
         try {
             destroyer.apply(engine);
+            ownedEngines.remove(new IdentityKey<>(engine));
             totalDestroyed.incrementAndGet();
             activeEngines.updateAndGet(current -> Math.max(0, current - 1));
         } catch (Exception e) {
-            LOG.warning("Error destroying engine: " + e.getMessage());
+            // Destruction is unconfirmed. Keep the capacity reservation rather
+            // than creating another engine over a potentially live resource.
+            failedDestructions.incrementAndGet();
+            LOG.warning("Engine destruction failed; capacity remains reserved");
         }
     }
 
@@ -491,6 +592,15 @@ public class EnginePool<T> implements AutoCloseable {
         }
     }
 
+    private static final class IdentityKey<T> {
+        private final T value;
+        private IdentityKey(T value) { this.value = value; }
+        @Override public int hashCode() { return System.identityHashCode(value); }
+        @Override public boolean equals(Object other) {
+            return other instanceof IdentityKey<?> key && value == key.value;
+        }
+    }
+
     private static final class IdentityWeakReference<T> extends WeakReference<T> {
         private final int identityHash;
 
@@ -570,6 +680,21 @@ public class EnginePool<T> implements AutoCloseable {
         public PoolConfig leakDetectionThreshold(Duration threshold) {
             this.leakDetectionThreshold = threshold;
             return this;
+        }
+
+        private void validate() {
+            if (minSize < 0 || maxSize <= 0 || minSize > maxSize) {
+                throw new IllegalArgumentException("pool size must satisfy 0 <= min <= max and max > 0");
+            }
+            try {
+                if (idleTimeout == null || idleTimeout.toMillis() < 2
+                        || borrowTimeout == null || borrowTimeout.toNanos() <= 0
+                        || leakDetectionThreshold == null || leakDetectionThreshold.toMillis() < 1) {
+                    throw new IllegalArgumentException("pool timeouts must be positive and schedulable");
+                }
+            } catch (ArithmeticException overflow) {
+                throw new IllegalArgumentException("pool timeout exceeds supported range", overflow);
+            }
         }
 
         public static PoolConfig defaults() {
