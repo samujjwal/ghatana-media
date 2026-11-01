@@ -1,6 +1,10 @@
 package com.ghatana.media.common.pool;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -166,16 +170,20 @@ class EnginePoolLifecycleTest {
     void blockingDestroyerDoesNotBlockOtherBorrowRegistration() throws Exception {
         Engine first = new Engine();
         Engine second = new Engine();
-        var count = new AtomicInteger();
+        var factoryEngines = new ConcurrentLinkedQueue<>(List.of(first, second));
+        Set<Engine> firstEngineIdentity = Collections.newSetFromMap(new IdentityHashMap<>());
+        firstEngineIdentity.add(first);
         var healthy = new java.util.concurrent.atomic.AtomicBoolean(true);
         var entered = new CountDownLatch(1);
         var release = new CountDownLatch(1);
-        var pool = new EnginePool<>(() -> count.getAndIncrement() == 0 ? first : second,
-                engine -> engine != first || healthy.get(), engine -> {
-                    if (engine == first) {
+        var pool = new EnginePool<>(factoryEngines::remove,
+                engine -> !firstEngineIdentity.contains(engine) || healthy.get(), engine -> {
+                    if (firstEngineIdentity.contains(engine)) {
                         entered.countDown();
                         try {
-                            if (!release.await(3, TimeUnit.SECONDS)) throw new IllegalStateException("destroy timeout");
+                            if (!release.await(3, TimeUnit.SECONDS)) {
+                                throw new IllegalStateException("destroy timeout");
+                            }
                         } catch (InterruptedException interrupted) {
                             Thread.currentThread().interrupt();
                             throw new IllegalStateException(interrupted);
@@ -205,10 +213,12 @@ class EnginePoolLifecycleTest {
     void waitingBorrowCreatesReplacementWhenReturnedEngineIsUnhealthy() throws Exception {
         Engine first = new Engine();
         Engine replacement = new Engine();
-        var created = new AtomicInteger();
+        var factoryEngines = new ConcurrentLinkedQueue<>(List.of(first, replacement));
+        Set<Engine> firstEngineIdentity = Collections.newSetFromMap(new IdentityHashMap<>());
+        firstEngineIdentity.add(first);
         var healthy = new java.util.concurrent.atomic.AtomicBoolean(true);
-        var pool = new EnginePool<>(() -> created.getAndIncrement() == 0 ? first : replacement,
-                engine -> engine != first || healthy.get(),
+        var pool = new EnginePool<>(factoryEngines::remove,
+                engine -> !firstEngineIdentity.contains(engine) || healthy.get(),
                 engine -> { engine.closes.incrementAndGet(); return null; }, config().maxSize(1));
         Engine held = pool.borrow();
         try (var executor = Executors.newSingleThreadExecutor()) {
