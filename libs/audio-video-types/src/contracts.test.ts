@@ -82,6 +82,58 @@ describe("media contracts", () => {
     ).toThrow();
   });
 
+  it("rejects fractional, negative, and unsafe byte counts without rounding", () => {
+    const artifact = {
+      id: "artifact-1",
+      tenantId: "tenant-1",
+      kind: "AUDIO",
+      status: "AVAILABLE",
+      fileName: "source.wav",
+      mimeType: "audio/wav",
+      sizeBytes: 0,
+      checksumSha256: "a".repeat(64),
+      classification: "CONFIDENTIAL",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      ownerId: "user-1",
+      provenance: { sourceArtifactIds: [] },
+      metadata: {},
+    };
+    for (const sizeBytes of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+      expect(() => MediaArtifactSchema.parse({ ...artifact, sizeBytes })).toThrow();
+    }
+    expect(MediaArtifactSchema.parse({ ...artifact, sizeBytes: Number.MAX_SAFE_INTEGER }).sizeBytes)
+      .toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it("keeps upload byte counters exact and enforces the declared part-size ceiling", () => {
+    const session = {
+      id: "upload-1",
+      artifactId: "artifact-1",
+      state: "UPLOADING",
+      partSizeBytes: 1024,
+      uploadedBytes: 0,
+      totalBytes: 0,
+      expiresAt: timestamp,
+      checksumRequired: true,
+      retryable: true,
+    };
+    expect(UploadSessionSchema.parse({
+      ...session,
+      partSizeBytes: 5_368_709_120,
+      uploadedBytes: Number.MAX_SAFE_INTEGER,
+      totalBytes: Number.MAX_SAFE_INTEGER,
+    }).uploadedBytes).toBe(Number.MAX_SAFE_INTEGER);
+    for (const uploadedBytes of [-1, 0.25, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(() => UploadSessionSchema.parse({
+        ...session, uploadedBytes, totalBytes: Number.MAX_SAFE_INTEGER,
+      })).toThrow();
+    }
+    expect(() => UploadSessionSchema.parse({
+      ...session, partSizeBytes: 5_368_709_121,
+    })).toThrow();
+  });
+
   it("rejects impossible upload progress", () => {
     expect(() =>
       UploadSessionSchema.parse({
@@ -195,6 +247,42 @@ describe("media contracts", () => {
       state: "AVAILABLE", supportedMimeTypes: Array.from({ length: 513 }, (_, i) => `a/${i}`),
       supportedLanguages: [], streamingSupported: false, cancellationSupported: true,
       lastCheckedAt: "2026-10-29T00:00:00Z",
+    })).toThrow();
+  });
+
+  it("rejects rounded or non-finite duration and time values", () => {
+    const result = {
+      artifactId: "a1", transcriptArtifactId: "t1", text: "ok",
+      languageTag: "en", confidence: 0.9,
+      words: [{ text: "word", startMs: 0, endMs: 1, confidence: 0.9 }],
+      providerId: "p", modelId: "m", modelVersion: "v1", processingTimeMs: 0,
+    };
+    for (const startMs of [-1, 0.1, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+      expect(() => TranscriptionResultSchema.parse({
+        ...result, words: [{ ...result.words[0], startMs, endMs: startMs }],
+      })).toThrow();
+    }
+    for (const processingTimeMs of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1, Infinity, NaN]) {
+      expect(() => TranscriptionResultSchema.parse({ ...result, processingTimeMs })).toThrow();
+    }
+  });
+
+  it("rejects unknown enum values and unknown fields instead of coalescing them", () => {
+    expect(() => MultimodalAnalysisRequestSchema.parse({
+      sources: [{ kind: "TEXT", text: "hello" }],
+      intent: "summarize", outputFormat: "UNKNOWN", idempotencyKey: "key-1",
+    })).toThrow();
+    expect(() => MultimodalAnalysisRequestSchema.parse({
+      sources: [{ kind: "TEXT", text: "hello" }],
+      intent: "summarize", outputFormat: "TEXT", idempotencyKey: "key-1",
+      providerMode: "fallback",
+    })).toThrow();
+    expect(() => MediaArtifactSchema.parse({
+      id: "a", tenantId: "t", kind: "UNKNOWN", status: "AVAILABLE",
+      fileName: "a.wav", mimeType: "audio/wav", sizeBytes: 0,
+      checksumSha256: "a".repeat(64), classification: "CONFIDENTIAL",
+      createdAt: timestamp, updatedAt: timestamp, ownerId: "u",
+      provenance: { sourceArtifactIds: [] }, metadata: {},
     })).toThrow();
   });
 });
