@@ -450,7 +450,7 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("processMultimodal: denied mixed rights do not egress to either child gateway")
+    @DisplayName("processMultimodal: denied video rights in mixed input prevent all child egress")
     void processMultimodal_deniedMixedRightsPreventSttAndVisionGatewayCalls() {
         AtomicInteger sttCalls = new AtomicInteger();
         AtomicInteger imageCalls = new AtomicInteger();
@@ -477,7 +477,11 @@ class MultimodalGrpcServiceTest {
             MultimodalGrpcService denied = new MultimodalGrpcService(engine, mockAdapter,
                     MediaProcessingMetrics.noop(), request -> {
                         captured.set(request);
-                        return SourceAuthorization.Decision.NOT_ADMITTED;
+                        // The audio child is allowed, but video rights are revoked. The
+                        // combined operation must be denied before either child is fanned out.
+                        return request.modalities().contains(SourceAuthorization.Modality.VIDEO)
+                                ? SourceAuthorization.Decision.DENIED
+                                : SourceAuthorization.Decision.ADMITTED;
                     });
             CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
             MultimodalRequest request = MultimodalRequest.newBuilder()
@@ -495,7 +499,7 @@ class MultimodalGrpcServiceTest {
             withContext(TENANT_ID, () -> denied.processMultimodal(request, observer));
 
             assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
-                    .isEqualTo(Status.UNAVAILABLE.getCode());
+                    .isEqualTo(Status.PERMISSION_DENIED.getCode());
             assertThat(captured.get().tenantId()).isEqualTo(TENANT_ID);
             assertThat(captured.get().principalId()).isEqualTo(java.util.UUID.fromString(SUBJECT_ID));
             assertThat(captured.get().modalities()).isEqualTo(Set.of(
@@ -504,6 +508,52 @@ class MultimodalGrpcServiceTest {
             assertThat(captured.get().artifactId()).isEqualTo("caller-source-ref");
             assertThat(captured.get().artifactVersion()).isEqualTo("source-v17");
             assertThat(captured.get().consentReference()).isNull();
+            assertThat(sttCalls).hasValue(0);
+            assertThat(imageCalls).hasValue(0);
+            assertThat(videoCalls).hasValue(0);
+        }
+    }
+
+    @Test
+    @DisplayName("processMultimodal: not-admitted mixed rights prevent all child egress")
+    void processMultimodal_notAdmittedMixedRightsPreventSttAndVisionGatewayCalls() {
+        AtomicInteger sttCalls = new AtomicInteger();
+        AtomicInteger imageCalls = new AtomicInteger();
+        AtomicInteger videoCalls = new AtomicInteger();
+        MultimodalMediaGateway gateway = new MultimodalMediaGateway() {
+            @Override public AudioResult transcribe(byte[] audioData) {
+                sttCalls.incrementAndGet();
+                return AudioResult.builder().transcription("fixture").build();
+            }
+            @Override public VisualResult analyseImage(byte[] imageData) {
+                imageCalls.incrementAndGet();
+                return VisualResult.builder().sceneDescription("fixture").build();
+            }
+            @Override public VisualResult analyseVideo(byte[] videoData, int sampleFps, int maxFrames) {
+                videoCalls.incrementAndGet();
+                return VisualResult.builder().sceneDescription("fixture").build();
+            }
+            @Override public String backendName() { return "test-fixture"; }
+            @Override public boolean metricsEnabled() { return false; }
+            @Override public void close() { }
+        };
+        try (MultimodalAnalysisEngine engine = new MultimodalAnalysisEngine(gateway)) {
+            MultimodalGrpcService unavailable = new MultimodalGrpcService(engine, mockAdapter,
+                    MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.NOT_ADMITTED);
+            CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+            MultimodalRequest request = MultimodalRequest.newBuilder()
+                    .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                    .setVideoData(ByteString.copyFrom(new byte[] {2}))
+                    .setOperationBinding(operationBinding(
+                            "media.multimodal.observe.source-grounded",
+                            "media.operation.capability.media-multimodal-observe-source-grounded",
+                            "mixed source analysis"))
+                    .build();
+
+            withContext(TENANT_ID, () -> unavailable.processMultimodal(request, observer));
+
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.UNAVAILABLE.getCode());
             assertThat(sttCalls).hasValue(0);
             assertThat(imageCalls).hasValue(0);
             assertThat(videoCalls).hasValue(0);
