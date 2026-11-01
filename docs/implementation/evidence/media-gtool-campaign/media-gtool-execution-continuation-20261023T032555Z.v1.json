@@ -6,12 +6,12 @@
     {
       "role": "immediate continuation baseline",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-followup-2026-10-23T024641Z.v1.json",
-      "sha256": "418529315a791967b9fb87cda87811d1a03e762dd8a85bc07e42e3cfbd2ea8ac"
+      "sha256": "7f5d3c77e364669720767320db8a0ee00c2343eaf2d2bfc4f8b0f189e7c7b3e0"
     },
     {
       "role": "campaign batch baseline",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-batch-2026-10-23.v1.json",
-      "sha256": "082e8db27d1801f8d22f79e0e88ff3db4f90808648275d0ec7addcf719c6b8d1"
+      "sha256": "3c3c11b5c228f29e37d9e1e6c51da5e8e43f8f3fc321c144d6ca6ae54b57e2b8"
     }
   ],
   "campaign": {

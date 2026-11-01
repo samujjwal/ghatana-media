@@ -550,7 +550,7 @@
       },
       {
         "path": "apps/media-experience-explorer/specification-artifacts.json",
-        "sha256": "sha256:2aadeeffe41ea354f43a0824a069b1e21bfef5a31052e4dca8ceb68da9bcfc75",
+        "sha256": "sha256:a7a616e098fa2459dda1716e4ed7db1072cb2c4459b881a28da9c5734b7cbb20",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
@@ -560,7 +560,7 @@
       },
       {
         "path": "config/route-manifest.json",
-        "sha256": "sha256:3942d885899323cc059044c8fbb7369f7fe9e24eff584f567aa02710dcb2df99",
+        "sha256": "sha256:aadbad036d79f92a3ee17a595bcbb82fd41b0129943726d258ebf81da4fad509",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
@@ -580,12 +580,12 @@
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-        "sha256": "sha256:7e5563cacdfaa7c39bc27603ea4ade36755b4b71adc86cb2fded25544c5b6cc5",
+        "sha256": "sha256:c822da70052a6862d96fde441442a9e9e2e88eac4392b7407edc2530aa453675",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "sha256": "sha256:e58ff466d0d63d5cf81d1ff5268b61b7ed1f4813417e546c729f199c89503514",
+        "sha256": "sha256:61f38f98e9f7ff989fc44dace0ae871874d55528e6a5132c091f1cd03eb36e3a",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
@@ -620,7 +620,7 @@
       },
       {
         "path": "libs/audio-video-client/package.json",
-        "sha256": "sha256:18065c9136078f8c3af19f19f68ddac0343cef2a4b68346ee9f14f00d067b797",
+        "sha256": "sha256:f18a3a27e01d6034d5b6f4e3aa3ca8b310e62edf95b29554cb5a8a44ca910c74",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
@@ -635,7 +635,7 @@
       },
       {
         "path": "libs/audio-video-types/package.json",
-        "sha256": "sha256:5fdb732d3eecf19a3423bb076fa4c57b84885c3cd626c3e49d68a8f222390c94",
+        "sha256": "sha256:91450389d73d1cf2fb97693e328c3ba74d18265870c5ccff73019b0a1d296c84",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {

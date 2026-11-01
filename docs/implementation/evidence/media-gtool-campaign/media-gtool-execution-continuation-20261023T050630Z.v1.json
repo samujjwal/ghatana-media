@@ -4,7 +4,7 @@
   "recordedAt": "2026-10-23T05:06:30Z",
   "predecessor": {
     "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T045800Z.v1.json",
-    "sha256": "sha256:36730fdae9014e788512a20dba49af447173d6aecd044f22aef670f22812c3ff"
+    "sha256": "sha256:d95ecea4366b6ccdd6ff1bdb882fd3787ebd68957266363c7916c35cf0468e1d"
   },
   "campaign": {
     "repository": "samujjwal/ghatana-media",

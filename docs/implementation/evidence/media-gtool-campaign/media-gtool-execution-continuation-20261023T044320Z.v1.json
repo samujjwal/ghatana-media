@@ -5,7 +5,7 @@
   "parentRecords": [
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T043837Z.v1.json",
-      "sha256": "sha256:65fb09d2a1ea74d9de49dc9ec0445bb8496446da07a5ccfdb84b2edc50644fb1",
+      "sha256": "sha256:225ad575abd42b640329e18b5bc7a8b7bf1a9d17bc87b133b5ed19c2c9a8d291",
       "relation": "PREVIOUS_CONTINUATION"
     },
     {
@@ -202,7 +202,7 @@
       "formalTaskAcceptance": "PENDING",
       "evidenceCandidate": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-        "sha256": "sha256:b990b2a4a75565af0657c3e9dcceada1040b7edf49e1ab4ac6191ac4ad1ee865",
+        "sha256": "sha256:37be99e010fd7bff70775fdb5385bc16987f5c9cca1c59c876d6f57f106fba0d",
         "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
         "taskAcceptance": "NOT_ESTABLISHED",
         "planReady": "NOT_PROVEN"

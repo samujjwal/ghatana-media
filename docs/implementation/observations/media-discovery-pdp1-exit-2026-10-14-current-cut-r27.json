@@ -630,7 +630,7 @@
         "predecessorAuthorization": {
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r5.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R5",
-          "digest": "sha256:135c021c2ce566023ecf5b496a681bd9dfc226c7c5dfed884c920a23f97f47f4",
+          "digest": "sha256:18bd7e73f9e29cd6ccde6dc596e31421adbc9bb32bfd5058bf927bbe4f4c9f67",
           "predecessorSha256": "sha256:90fc6830f99e26abd4c27222a6193f98b1756dfa48a9ac533b86c7de6ad2fa76",
           "observedSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "authorized": true
@@ -639,7 +639,7 @@
           "valid": true,
           "recordRef": "docs/implementation/observations/media-discovery-pdp2-additional-source-impact-2026-10-14-r1.json",
           "recordId": "MEDIA-DISCOVERY-PDP2-ADDITIONAL-SOURCE-IMPACT-2026-10-14-R1",
-          "digest": "sha256:5da0cb3d78d992c1ed90abb902c433db260f76f97a646147d0e60642d174223a",
+          "digest": "sha256:bf0d3871aeb631e623b25fdbe2ec8f8e0eb10bc94179327ca99613cc376e5dc5",
           "predecessorSha256": "sha256:866729bdb41448d7e1d08ca288e5e71300f999d26e85cd53d2e5377ecdf299bd",
           "observedSha256": "sha256:64796cfb0db909a36e030041b2d51d02fd19fc115d703cc16bca37116f92ed06",
           "matchingDeltaCount": 1,

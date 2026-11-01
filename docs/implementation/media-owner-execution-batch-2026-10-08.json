@@ -518,27 +518,27 @@
     },
     {
       "path": "config/closure/media-product-definition/l02-source-case-links.json",
-      "sha256": "85ab07c97ddc619b5fa18e92923c374a4f34c39c89851953a69cdc7b447aae58"
+      "sha256": "ee1d0a565d06673cd73c3e385165f51266324c301b1f5a0c0a09bd0973cddab3"
     },
     {
       "path": "config/closure/media-product-definition/l03-proof-route-candidates.json",
-      "sha256": "cc0c4fb7eb5851d8c71432bfa7fc2d95d904ed84c6162d77bdcf670675b9084e"
+      "sha256": "e0db313f18aa317e10cbfa622521b649270b02775596766b6ddcfc745e959639"
     },
     {
       "path": "config/closure/media-product-definition/obligations.json",
-      "sha256": "7e6fcaf6c99c9888dbde2f7c72f997868c5600b12f6fce21411016463da15797"
+      "sha256": "151c84229dbab108dbcb3103b76e185dc89569eea8497d51e2702bf8d5b7d2e5"
     },
     {
       "path": "config/closure/media-product-definition/phase-binding.json",
-      "sha256": "d5f59aad5590052ac9e73b61a854f6136ab5d46d0aa92787b5b85fd4cdaab907"
+      "sha256": "77fc74187c705a5f100cb75ceb73d3a690b6fc5b305920e837834a1db41cc154"
     },
     {
       "path": "config/closure/media-product-definition/phase-program.json",
-      "sha256": "440813bf281fb5520e5dac39e077120f31c4a6e3f00345c5d1160e80a31c9959"
+      "sha256": "4148b120ec8cfc65730bd2bbc57baf6f3d4f10d2096cb9031fbfcc61ab077e68"
     },
     {
       "path": "config/closure/media-product-definition/surface.json",
-      "sha256": "2807165d3e1540e620bb509f35e9be594f8133e8922f75f9e5e07f0baff04290"
+      "sha256": "196f8801df2f0240dadaaf3a47f4558dfa4346060f960377a2d05cf28670fad1"
     },
     {
       "path": "config/release/internal-validation-only.json",
@@ -582,7 +582,7 @@
     },
     {
       "path": "package.json",
-      "sha256": "535c9b88b668f9362f135e21850c6a0bfceaba6957d0faf76b7c8a1a5ea2233a"
+      "sha256": "c783961f0e1a5779ae29b292a23a46fa0331dd2cb7dcc090dbd54e853385fc10"
     },
     {
       "path": "scripts/generate-media-lifecycle-source-inputs.mjs",

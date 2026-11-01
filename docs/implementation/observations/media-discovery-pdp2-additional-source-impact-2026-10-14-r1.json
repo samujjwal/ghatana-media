@@ -9,7 +9,7 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json",
-    "receiptSha256": "sha256:9035cc90130d13f5afd67ed7ea2e9bba2b42eccd30aa0772fb7c5ee58f43079b"
+    "receiptSha256": "sha256:dee5cd3aa51d2c214de071723dc015666faedabe795d7ca95a46344b906d8377"
   },
   "pdp1Predecessor": {
     "phase": "PDP-1",

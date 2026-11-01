@@ -115,13 +115,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R4",
-    "sha256": "sha256:a4573b5735e27f5712418c6900761cea5c18f542868c06fe007bf211f641102e",
+    "sha256": "sha256:dd32bbee36953405203b2fa9bd4111fa9369f88f3db47c92ec5fa2f0ee142724",
     "reason": "R4 is immutable history for its earlier R9-to-live transitions and PDP-1 R19. R5 preserves those dispositions and binds the newly authorized exact transitions and PDP-1 R22."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:59eae1bce8652103c60311b1ea45157bf69befbf83929c8aef51607c98a58822",
+    "receiptSha256": "sha256:461b0b560b57b22b1244c854f4b92fe46ab6596d6f93a77dfe8bb856c65581da",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -309,11 +309,6 @@
       "path": ".product-experience/pdp-2-design-interface-system/interface-grammar.yaml",
       "sha256": "sha256:8f544bdd47a2b2c3bd3ca6c909a1adcb3e604c516e26c94419178c362a4013a9",
       "selector": "typed request/result and channel interface grammar"
-    },
-    {
-      "path": ".product-experience/pdp-2-design-interface-system/component-value-types.yaml",
-      "sha256": "sha256:aed62bda69a5d44bccee0873eb03bada142994d2256f515fbe1ea89af50d0313",
-      "selector": "Canonical action-intent identity projection; two enums must equal sorted action-registry actions plus owner-defined actions."
     }
   ],
   "scopeLimits": {

@@ -76,13 +76,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r3.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R3",
-    "sha256": "sha256:9324c7228cab5ee9ddaf4881b9173c9e4cfca13abe37136cddc014ee2431df40",
+    "sha256": "sha256:8a2c6b81d05f4633d37d1ecefdcc5efff42ddd4ba8424d9e6e647f41f5b10f14",
     "reason": "R3 remains immutable history bound to PDP-1 R16 and an earlier P2 cut. R4 binds the exact R9 historical baseline and the current PDP-1 R19 predecessor without changing prior records."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:59eae1bce8652103c60311b1ea45157bf69befbf83929c8aef51607c98a58822",
+    "receiptSha256": "sha256:461b0b560b57b22b1244c854f4b92fe46ab6596d6f93a77dfe8bb856c65581da",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"

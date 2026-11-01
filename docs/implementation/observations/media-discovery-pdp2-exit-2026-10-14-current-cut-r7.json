@@ -54,12 +54,12 @@
     },
     "pdp2ScopedImpact": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r2.json",
-      "sha256": "sha256:c4bc7bd550393b77497aacffa61e601550c01a4923415affb9a4bb66102577a3",
+      "sha256": "sha256:a71efcabe2c664702ddc74ed8a8441aefac320f149acf540ce5cb0a42aae2e3a",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2ImpactPredecessor": {
       "ref": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-      "sha256": "sha256:84243406ed9272d09a9bc74d10f3b52ce2f6b4dabad65cc763cb10d910cd0bcc",
+      "sha256": "sha256:5132a261f6d2c316098bea9675a046afd51524a635d53ce6570c02e95bdecabd",
       "includedIn405PathMaterialDenominator": false
     },
     "pdp2AdditionalSourceImpact": null,
@@ -319,7 +319,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r2.json",
-      "digest": "sha256:c4bc7bd550393b77497aacffa61e601550c01a4923415affb9a4bb66102577a3",
+      "digest": "sha256:a71efcabe2c664702ddc74ed8a8441aefac320f149acf540ce5cb0a42aae2e3a",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
       "predecessorDigest": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
       "predecessorMaterialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
@@ -586,7 +586,7 @@
     "pdp2ScopedImpact": {
       "valid": true,
       "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r2.json",
-      "digest": "sha256:c4bc7bd550393b77497aacffa61e601550c01a4923415affb9a4bb66102577a3",
+      "digest": "sha256:a71efcabe2c664702ddc74ed8a8441aefac320f149acf540ce5cb0a42aae2e3a",
       "predecessorRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
       "predecessorDigest": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
       "predecessorMaterialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",

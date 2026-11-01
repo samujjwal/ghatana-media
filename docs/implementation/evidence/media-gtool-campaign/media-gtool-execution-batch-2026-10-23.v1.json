@@ -1436,7 +1436,7 @@
       },
       {
         "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
-        "sha256": "sha256:448838966fd202f4d6c0fd5f3cfb5cf4193e826bae26a433f4925185d201e289",
+        "sha256": "sha256:6bad8c19f7df9c9502f3b3b75f3946e5c2e3ec6067d313cbb310ced80db33191",
         "changeScope": "campaign execution artifact"
       },
       {
@@ -1496,7 +1496,7 @@
       },
       {
         "path": "package.json",
-        "sha256": "sha256:72a2110dead800f4d412cf09fcd38cee5d4e1ad16f56715e23f9a1bfad1f7dfe",
+        "sha256": "sha256:c783961f0e1a5779ae29b292a23a46fa0331dd2cb7dcc090dbd54e853385fc10",
         "changeScope": "campaign execution artifact"
       }
     ],
@@ -1539,7 +1539,7 @@
       },
       {
         "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
-        "sha256": "sha256:448838966fd202f4d6c0fd5f3cfb5cf4193e826bae26a433f4925185d201e289"
+        "sha256": "sha256:6bad8c19f7df9c9502f3b3b75f3946e5c2e3ec6067d313cbb310ced80db33191"
       },
       {
         "path": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
@@ -1611,7 +1611,7 @@
       },
       {
         "path": "package.json",
-        "sha256": "sha256:72a2110dead800f4d412cf09fcd38cee5d4e1ad16f56715e23f9a1bfad1f7dfe"
+        "sha256": "sha256:c783961f0e1a5779ae29b292a23a46fa0331dd2cb7dcc090dbd54e853385fc10"
       }
     ],
     "currentDirtyWorktreePathsSinceHead": [
