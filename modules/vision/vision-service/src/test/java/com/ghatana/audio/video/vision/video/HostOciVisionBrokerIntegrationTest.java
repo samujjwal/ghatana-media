@@ -9,10 +9,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -121,6 +123,47 @@ class HostOciVisionBrokerIntegrationTest {
             assertThat(result.exitCode()).as(result.output()).isEqualTo(85);
             assertThat(result.output()).contains("HOST_OCI_PID_LIMIT_HIT");
         }
+    }
+
+    @Test
+    void brokerReportsKernelOomAndRejectsPartialOutput() throws Exception {
+        try (Fixture fixture = new Fixture()) {
+            Path input = fixture.stageSource("oom".getBytes());
+            Path outputFile = fixture.output.resolve("result.out");
+            List<String> command = List.of("ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                    "-i", input.toString(), "-y", outputFile.toString());
+            HostOciVisionWorkerSupervisor.LaunchPlan plan = HostOciVisionWorkerSupervisor.plan(
+                    command, fixture.workspace, fixture.output,
+                    System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV), "docker",
+                    null, null, UUID.randomUUID().toString(), 2_000_000L);
+            int imageIndex = plan.createCommand().indexOf(plan.imageDigest());
+            List<String> workerArgs = plan.createCommand().subList(imageIndex + 1, plan.createCommand().size());
+            MediaOciBrokerClient client = new MediaOciBrokerClient(
+                    Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV)),
+                    Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV)));
+
+            MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
+                    plan.imageDigest(), plan.containerName(), "ffmpeg", workerArgs,
+                    plan.source().toString(), sha256(plan.source()), plan.output().toString(),
+                    plan.uid(), plan.gid(), plan.outputFileLimit(), Duration.ofSeconds(60)));
+
+            assertThat(result.oomKilled())
+                    .as("the broker must report the OCI runtime's kernel OOMKilled state")
+                    .isTrue();
+            assertThat(result.timedOut()).as("OOM must not be misreported as a timeout").isFalse();
+            assertThat(result.exitCode()).as("an OOM-killed codec must not appear successful").isNotZero();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.outputTail()).doesNotContain("HOST_OCI_BOUNDARY_OK");
+            try (var files = Files.list(fixture.output)) {
+                assertThat(files).as("OOM must not publish a complete or partial output")
+                        .isEmpty();
+            }
+        }
+    }
+
+    private static String sha256(Path path) throws Exception {
+        return java.util.HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
     }
 
     private static final class Fixture implements AutoCloseable {
