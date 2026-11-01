@@ -128,6 +128,8 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         assertThatThrownBy(() -> runWithOutputSchema(Map.of("$ref", "https://invalid.example/schema.json"), Map.of()))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
+        assertThatThrownBy(() -> runWithOutputSchema(Map.of("$ref", "#"), Map.of()))
+                .isInstanceOf(IllegalStateException.class).hasMessage("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "not-a-json-schema-type"), Map.of()))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("DELEGATE_OUTPUT_SCHEMA_VIOLATION");
         assertThatThrownBy(() -> runWithOutputSchema(Map.of("type", "object", "unrecognizedSchemaKeyword", true), Map.of()))
@@ -159,6 +161,23 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         assertThat(AgentToolInput.isSupportedJsonNumber(hostile)).isFalse();
         assertThat(AgentToolInput.isSupportedJsonNumber(1)).isTrue();
         assertThat(AgentToolInput.isSupportedJsonNumber(new BigInteger("9007199254740993"))).isTrue();
+    }
+
+    @Test
+    @DisplayName("rejects malformed and decoded-oversized inline base64 before source dispatch")
+    void rejectsMalformedAndOversizedInlineBase64() {
+        Map<String, Object> malformed = Map.of("audioSource", Map.of("audioBytes", "AQ$D"));
+        Map<String, Object> oversized = Map.of("audioSource", Map.of("audioBytes",
+                java.util.Base64.getEncoder().encodeToString(new byte[]{1, 2, 3})));
+
+        assertThatThrownBy(() -> AgentToolInput.source(malformed, "audioSource", "audioBytes", 2, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("INVALID_AUDIOBYTES");
+        assertThatThrownBy(() -> AgentToolInput.source(oversized, "audioSource", "audioBytes", 2, false))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("INVALID_AUDIOBYTES");
+        assertThat(AgentToolInput.source(
+                Map.of("audioSource", Map.of("audioBytes", java.util.Base64.getEncoder()
+                        .encodeToString(new byte[]{1, 2}))),
+                "audioSource", "audioBytes", 2, false)).isEqualTo("bytes:inline");
     }
 
     @Test
@@ -197,6 +216,11 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         Map<String, Object> schema = Map.of("$ref", "https://invalid.example/schema.json");
 
         assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env, schema, Map.of()),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+
+        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env, Map.of("$ref", "#"), Map.of()),
                 SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");

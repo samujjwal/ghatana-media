@@ -116,6 +116,11 @@ final class AgentToolInput {
             if (!compiled.validate(inputJson, InputFormat.JSON).isEmpty()) throw inputSchemaViolation();
         } catch (InputSchemaViolation invalidInput) {
             throw invalidInput;
+        } catch (StackOverflowError recursiveSchema) {
+            // A local $ref cycle can recurse without consuming input depth.
+            // Do not let a malformed registered schema exhaust the caller's
+            // stack before an effect boundary.
+            throw inputSchemaViolation();
         } catch (RuntimeException invalidSchemaOrInput) {
             // Remote/unresolved references, unsupported dialects, malformed
             // schemas and non-JSON values fail before any delegate effect.
@@ -175,6 +180,11 @@ final class AgentToolInput {
             if (!compiled.validate(outputJson, InputFormat.JSON).isEmpty()) throw outputSchemaViolation();
         } catch (OutputSchemaViolation invalidResult) {
             throw invalidResult;
+        } catch (StackOverflowError recursiveSchema) {
+            // Match input handling for recursive output refs. The delegate
+            // outcome remains a failed validation, never an unbounded stack
+            // error or a successful unvalidated result.
+            throw outputSchemaViolation();
         } catch (RuntimeException invalidSchemaOrOutput) {
             // Malformed schemas, unresolved external references, unsupported
             // dialects and serialization errors fail closed without leaking data.
