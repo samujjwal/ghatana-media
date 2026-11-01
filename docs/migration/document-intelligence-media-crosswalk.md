@@ -41,8 +41,8 @@ code-point index.
 
 ## Runtime and qualification boundary
 
-The existing Media `KernelOcrProviderAdapter` is backed by Media's `OcrService`
-and maps a Media model result to the Kernel OCR contract. Replacing its model
+The historical Media `KernelOcrProviderAdapter` was backed by Media's `OcrService`
+and mapped a Media model result to the Kernel OCR contract; both are now retired. Replacing its model
 with a remote Document Intelligence call would introduce the unresolved
 bindings above and must not make generic worker code or Shared extraction
 schemas Media-owned. The observed TypeScript package is `0.1.0`, has a
@@ -78,7 +78,7 @@ contracts or activation state.
 - `services/document-intelligence/contracts/protocol-v1.md`
 - `services/document-intelligence/clients/typescript/src/{client,protocol,validators}.ts`
 - `services/document-intelligence/clients/typescript/package.json`
-- Media `modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/ocr/{OcrService,KernelOcrProviderAdapter}.java`
+- Historical Media `OcrService` and `adapters/ocr-compat/.../KernelOcrProviderAdapter.java` (retired)
 - Accepted boundary: `decisions/MDI-001-document-intelligence-ownership.md`
 - Source snapshot and publication/qualification limitations: `external-platform-contract-observation.json` (X-04)
 
@@ -88,8 +88,8 @@ The canonical MDI-001/PDP0-003-D4 decision makes DI the **sole** OCR gateway.
 `authorized-scene-text.ts` no longer takes a generic Media OCR recognizer;
 it takes the DI v1 public client and typed provider policy, performs Media-owned
 source rights/version/digest checks, and calls `DocumentIntelligenceSceneTextAdapter`
-only. Any old Media `OcrService`/Kernel facades remain fail-closed until
-consumer migration and deletion. The client package/version, real worker,
+only. The old Media `OcrService` and Kernel compatibility module have since
+been deleted, without establishing replacement consumer qualification. The client package/version, real worker,
 provider qualifications and installed end-to-end tests still need proof
 under Ghatana #252; no new wire protocol version was introduced.
 
