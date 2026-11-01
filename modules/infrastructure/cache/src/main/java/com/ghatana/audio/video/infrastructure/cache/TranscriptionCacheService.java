@@ -68,7 +68,7 @@ public class TranscriptionCacheService {
         try {
             String json = serializeBounded(entity);
             return cache.put(key, json, DEFAULT_TTL).thenRun(__ ->
-                LOG.debug("Cached transcription: tenantId={}, id={}", tenantId, entity.getId()));
+                LOG.debug("Cached transcription: scopeRef={}", scopeReference(tenantId, entity.getId().toString())));
         } catch (Exception e) {
             if (isOversizedSerializationFailure(e)) {
                 LOG.warn("Oversized transcription cache value; skipping cache write");
@@ -92,8 +92,8 @@ public class TranscriptionCacheService {
         try {
             String json = serializeBounded(entity);
             return cache.put(key, json, ttl).thenRun(__ ->
-                LOG.debug("Cached transcription with TTL {}s: tenantId={}, id={}",
-                    ttl.getSeconds(), tenantId, entity.getId()));
+                LOG.debug("Cached transcription with TTL {}s: scopeRef={}",
+                    ttl.getSeconds(), scopeReference(tenantId, entity.getId().toString())));
         } catch (Exception e) {
             if (isOversizedSerializationFailure(e)) {
                 LOG.warn("Oversized transcription cache value; skipping cache write");
@@ -158,7 +158,8 @@ public class TranscriptionCacheService {
         if (transcriptionId == null) return AsyncOperation.failure(requiredIdentifier("transcriptionId"));
         String key = buildKey(tenantId, transcriptionId.toString());
         return cache.invalidate(key).thenRun(__ ->
-            LOG.debug("Invalidated transcription cache: tenantId={}, id={}", tenantId, transcriptionId));
+            LOG.debug("Invalidated transcription cache: scopeRef={}",
+                    scopeReference(tenantId, transcriptionId.toString())));
     }
 
     /**
@@ -192,8 +193,8 @@ public class TranscriptionCacheService {
         try {
             String json = serializeBounded(entity);
             return cache.put(key, json, DEFAULT_TTL).thenRun(__ ->
-                LOG.debug("Cached transcription by audio file: tenantId={}, audioId={}",
-                    tenantId, audioFileId));
+                LOG.debug("Cached transcription by audio file: scopeRef={}",
+                    scopeReference(tenantId, "audio:" + audioFileId)));
         } catch (Exception e) {
             if (isOversizedSerializationFailure(e)) {
                 LOG.warn("Oversized transcription cache value; skipping cache write");
@@ -221,6 +222,10 @@ public class TranscriptionCacheService {
 
     private String buildKey(String tenantId, String id) {
         return cache.buildKey(tenantId, id);
+    }
+
+    private String scopeReference(String tenantId, String id) {
+        return AudioVideoCache.keyReference(buildKey(tenantId, id));
     }
 
     private static boolean matchesIdentity(TranscriptionEntity entity, String tenantId, UUID transcriptionId) {

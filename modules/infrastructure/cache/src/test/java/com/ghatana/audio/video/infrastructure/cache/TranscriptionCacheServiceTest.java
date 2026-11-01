@@ -84,6 +84,31 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void equalAudioIdentityAcrossTenantsUsesSeparateKeysAndNeverReadsAcrossScope() {
+        UUID sharedAudioId = UUID.randomUUID();
+        UUID transcriptAId = UUID.randomUUID();
+        UUID transcriptBId = UUID.randomUUID();
+        TranscriptionEntity tenantA = entity("tenant-private-a", transcriptAId, false);
+        tenantA.setAudioFileId(sharedAudioId);
+        TranscriptionEntity tenantB = entity("tenant-private-b", transcriptBId, false);
+        tenantB.setAudioFileId(sharedAudioId);
+        String keyA = key("tenant-private-a", "audio:" + sharedAudioId);
+        String keyB = key("tenant-private-b", "audio:" + sharedAudioId);
+        when(cachePort.put(eq(keyA), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        when(cachePort.put(eq(keyB), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+
+        await(cacheService.cacheTranscriptionByAudioFileId("tenant-private-a", sharedAudioId, tenantA));
+        await(cacheService.cacheTranscriptionByAudioFileId("tenant-private-b", sharedAudioId, tenantB));
+        assertThat(await(cacheService.getTranscriptionByAudioFileId("tenant-private-a", sharedAudioId))).isEmpty();
+        assertThat(await(cacheService.getTranscriptionByAudioFileId("tenant-private-b", sharedAudioId))).isEmpty();
+
+        assertThat(keyA).isNotEqualTo(keyB);
+        verify(cachePort).put(eq(keyA), any(), any(Duration.class));
+        verify(cachePort).put(eq(keyB), any(), any(Duration.class));
+        verify(cachePort, never()).get(any());
+    }
+
+    @Test
     void tenantWideInvalidationFailsClosedInsteadOfClearingEveryTenant() {
         assertThatThrownBy(() -> await(cacheService.invalidateAllForTenant("tenant-a")))
                 .hasRootCauseInstanceOf(UnsupportedOperationException.class)
@@ -420,6 +445,34 @@ class TranscriptionCacheServiceTest {
         verifyNoInteractions(cachePort);
     }
 
+    @Test
+    void diagnosticLogsRedactTenantTranscriptAndAudioIdentifiers() {
+        String tenant = "tenant-private-marker";
+        UUID transcriptId = UUID.randomUUID();
+        UUID audioId = UUID.randomUUID();
+        TranscriptionEntity entity = entity(tenant, transcriptId, false);
+        entity.setAudioFileId(audioId);
+        String transcriptKey = key(tenant, transcriptId.toString());
+        String audioKey = key(tenant, "audio:" + audioId);
+        DistributedCacheService servicePort = mock(DistributedCacheService.class);
+        TranscriptionCacheService isolatedService = new TranscriptionCacheService(servicePort, objectMapper);
+        when(servicePort.put(eq(transcriptKey), any(), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(servicePort.put(eq(audioKey), any(), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+        when(servicePort.invalidateAsync(transcriptKey)).thenReturn(AsyncOperation.success(null));
+
+        try (LogCapture logs = capture(TranscriptionCacheService.class)) {
+            await(isolatedService.cacheTranscription(tenant, entity));
+            await(isolatedService.cacheTranscription(tenant, entity, Duration.ofMinutes(5)));
+            await(isolatedService.cacheTranscriptionByAudioFileId(tenant, audioId, entity));
+            await(isolatedService.invalidateTranscription(tenant, transcriptId));
+
+            assertThat(logs.output()).contains("scopeRef=sha256:")
+                    .doesNotContain(tenant, transcriptId.toString(), audioId.toString());
+        }
+    }
+
     private String key(String tenant, String id) {
         return new AudioVideoCache<String, String>(cachePort, "transcription").buildKey(tenant, id);
     }
@@ -437,7 +490,7 @@ class TranscriptionCacheServiceTest {
         LogCapture appender = new LogCapture(logger, logger.getLevel());
         appender.start();
         logger.addAppender(appender);
-        logger.setLevel(Level.WARN);
+        logger.setLevel(Level.DEBUG);
         return appender;
     }
 
