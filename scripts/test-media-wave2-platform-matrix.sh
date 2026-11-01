@@ -130,18 +130,28 @@ import hashlib, json, pathlib, re, sys, xml.etree.ElementTree as ET
  native_runtime_profile, native_runtime_arch, native_runtime_sidecar_image,
  native_runtime_sidecar_digest, native_test_image_ref, native_test_image_id,
  native_preflight_log, native_image_build_log) = sys.argv[1:]
+
+def parse_attempts(log_text):
+    # The Linux runner can recover a cached-tool permission failure and retry.
+    # Only the last attempt determines the lane result; earlier output remains
+    # available in the complete gradle log for diagnostics.
+    retry_marker = 'Retrying once after correcting executable bits for cached Linux Gradle tools.'
+    return log_text.split(retry_marker)
+
 root = pathlib.Path(source)
 planned_projects = list(filter(None, test_projects.split(',')))
 log_file = pathlib.Path(run_log)
 log_text = log_file.read_text(errors='replace') if log_file.is_file() else ''
+attempt_logs = parse_attempts(log_text)
+final_attempt_log = attempt_logs[-1]
 failed_gradle_tasks = []
-for line in log_text.splitlines():
+for line in final_attempt_log.splitlines():
     match = re.match(r'^> Task (:\S+) FAILED\s*$', line)
     if match and match.group(1) not in failed_gradle_tasks:
         failed_gradle_tasks.append(match.group(1))
 what_went_wrong = []
 in_failure = False
-for line in log_text.splitlines():
+for line in final_attempt_log.splitlines():
     if line.strip() == '* What went wrong:':
         in_failure = True
         continue

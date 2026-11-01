@@ -79,7 +79,7 @@ class DocumentIntelligenceHttpClientTest {
     void oversizedUndeclaredResponseIsBoundedDuringReceipt() {
         declareLength = false;
         providersBody = new byte[33 * 1024 * 1024];
-        assertThatThrownBy(() -> client().providers(Cancellation.none()))
+        assertThatThrownBy(() -> client(Duration.ofSeconds(20)).providers(Cancellation.none()))
                 .isInstanceOfSatisfying(DocumentIntelligenceException.class,
                         failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
     }
@@ -161,8 +161,12 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     private DocumentIntelligenceHttpClient client() {
+        return client(Duration.ofSeconds(3));
+    }
+
+    private DocumentIntelligenceHttpClient client(Duration timeout) {
         return new DocumentIntelligenceHttpClient(
                 URI.create("http://127.0.0.1:" + server.getAddress().getPort()), HttpClient.newHttpClient(),
-                Duration.ofSeconds(3), 1024, EndpointPolicy.loopback("127.0.0.1"), 4);
+                timeout, 1024, EndpointPolicy.loopback("127.0.0.1"), 4);
     }
 }
