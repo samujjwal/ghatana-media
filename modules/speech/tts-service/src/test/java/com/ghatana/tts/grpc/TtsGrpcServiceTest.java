@@ -1963,6 +1963,27 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void boundedSpeedAndPitchControlsStillRequireAnAdmittedProfile() {
+        for (var supportedOptions : List.of(
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(0.5f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(2.0f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(-12.0f).build(),
+                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(12.0f).build())) {
+            CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+            service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                    .setOptions(supportedOptions).build(), observer);
+
+            assertStatus(observer, Status.Code.UNAVAILABLE);
+            assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                    .contains("TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile");
+            assertThat(observer.value).isNull();
+            assertThat(observer.completed).isFalse();
+        }
+        verify(engine, never()).synthesize(anyString(), any());
+        verify(library, never()).getTtsEngine();
+    }
+
+    @Test
     void prosodyControlsValidateUnitsAndRejectUnqualifiedEffectsBeforeDispatch() {
         for (var invalidOptions : List.of(
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(Float.NaN).build(),
@@ -1979,12 +2000,6 @@ class TtsGrpcServiceTest {
         }
 
         for (var unsupportedOptions : List.of(
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(0.5f).build(),
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(1.5f).build(),
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(2.0f).build(),
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(-12.0f).build(),
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(3.0f).build(),
-                com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(12.0f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEnergy(1.5f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEnergy(2.0f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setEmotion("happy").build())) {

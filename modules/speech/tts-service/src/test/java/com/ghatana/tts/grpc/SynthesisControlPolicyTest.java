@@ -78,6 +78,29 @@ class SynthesisControlPolicyTest {
     }
 
     @Test
+    void mapsBoundedSpeedDirectlyAndPitchSemitonesToRuntimeRatios() {
+        var lower = SynthesisControlPolicy.resolve(
+                SynthesizeRequest.newBuilder().setText("hello")
+                        .setOptions(SynthesisOptions.newBuilder().setSpeed(0.5f).setPitch(-12.0f).build())
+                        .build(), AudioFormat.PCM);
+        var upper = SynthesisControlPolicy.resolve(
+                SynthesizeRequest.newBuilder().setText("hello")
+                        .setOptions(SynthesisOptions.newBuilder().setSpeed(2.0f).setPitch(12.0f).build())
+                        .build(), AudioFormat.PCM);
+        var octaveFraction = SynthesisControlPolicy.resolve(
+                SynthesizeRequest.newBuilder().setText("hello")
+                        .setOptions(SynthesisOptions.newBuilder().setPitch(6.0f).build())
+                        .build(), AudioFormat.PCM);
+
+        assertThat(lower.speed()).isEqualTo(0.5);
+        assertThat(lower.pitch()).isEqualTo(0.5);
+        assertThat(upper.speed()).isEqualTo(2.0);
+        assertThat(upper.pitch()).isEqualTo(2.0);
+        assertThat(octaveFraction.pitch()).isCloseTo(Math.sqrt(2.0),
+                org.assertj.core.data.Offset.offset(1.0e-6));
+    }
+
+    @Test
     void rejectsNonFiniteAndOutOfRangeWireControlsAsInvalid() {
         for (SynthesisOptions options : new SynthesisOptions[] {
                 SynthesisOptions.newBuilder().setSpeed(Float.NaN).build(),
@@ -99,12 +122,8 @@ class SynthesisControlPolicyTest {
     }
 
     @Test
-    void finiteInRangeNonNeutralControlsAreTypedNotAdmitted() {
+    void controlsWithoutAnAdmittedMappingRemainTypedNotAdmitted() {
         for (SynthesisOptions options : new SynthesisOptions[] {
-                SynthesisOptions.newBuilder().setSpeed(0.5f).build(),
-                SynthesisOptions.newBuilder().setSpeed(2.0f).build(),
-                SynthesisOptions.newBuilder().setPitch(-12.0f).build(),
-                SynthesisOptions.newBuilder().setPitch(12.0f).build(),
                 SynthesisOptions.newBuilder().setEnergy(2.0f).build(),
                 SynthesisOptions.newBuilder().setEmotion("happy").build()
         }) {
@@ -118,11 +137,11 @@ class SynthesisControlPolicyTest {
     @Test
     void unsupportedBoundedControlReportsWhichEffectCannotBeApplied() {
         var request = SynthesizeRequest.newBuilder().setText("hello")
-                .setOptions(SynthesisOptions.newBuilder().setSpeed(0.5f).build()).build();
+                .setOptions(SynthesisOptions.newBuilder().setEnergy(1.5f).build()).build();
 
         assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
                 .isInstanceOfSatisfying(SynthesisControlPolicy.UnsupportedControlException.class, error ->
-                        assertThat(error.control()).isEqualTo("speed"))
+                        assertThat(error.control()).isEqualTo("energy"))
                 .hasMessageStartingWith("NOT_ADMITTED:");
     }
 

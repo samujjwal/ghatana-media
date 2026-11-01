@@ -27,6 +27,17 @@ class GrpcTransportSecurityPolicyTest {
     }
 
     @Test
+    void everyServiceAllowsPlaintextForAllDevelopmentProfilesWithoutTlsMaterial() {
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            for (String profile : new String[] {"local", "test", "development"}) {
+                var security = GrpcTransportSecurityPolicy.resolve(
+                        Map.of(service + "_ENVIRONMENT", profile), service);
+                assertThat(security.tlsEnabled()).as("%s profile %s", service, profile).isFalse();
+            }
+        }
+    }
+
+    @Test
     void absentOrNullProfilesDefaultToLocal() {
         assertThat(GrpcTransportSecurityPolicy.resolve(Map.of(), "STT").tlsEnabled()).isFalse();
         var environment = new java.util.HashMap<String, String>();
@@ -54,6 +65,18 @@ class GrpcTransportSecurityPolicyTest {
                             Map.of("GHATANA_DEPLOYMENT_PROFILE", profile), "VISION"))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("Production-like VISION gRPC requires TLS");
+        }
+    }
+
+    @Test
+    void everyServiceRejectsProductionLikeProfilesWithoutTlsMaterial() {
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            for (String profile : new String[] {"production", "staging", "sovereign"}) {
+                assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(
+                                Map.of(service + "_ENVIRONMENT", profile), service))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("Production-like " + service + " gRPC requires TLS");
+            }
         }
     }
 
@@ -92,6 +115,21 @@ class GrpcTransportSecurityPolicyTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("TTS_GRPC_TLS_CERT_CHAIN_PATH")
                 .hasMessageContaining("TTS_GRPC_TLS_PRIVATE_KEY_PATH");
+    }
+
+    @Test
+    void noServiceCanCompletePartialServiceTlsPairFromSharedPair() {
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(
+                            "MEDIA_ENVIRONMENT", "production",
+                            "MEDIA_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/media-cert.pem",
+                            "MEDIA_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/media-key.pem",
+                            service + "_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/service-cert.pem"),
+                            service))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining(service + "_GRPC_TLS_CERT_CHAIN_PATH")
+                    .hasMessageContaining(service + "_GRPC_TLS_PRIVATE_KEY_PATH");
+        }
     }
 
     @Test

@@ -8,7 +8,7 @@ import com.ghatana.tts.ssml.SsmlProcessor;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
 
-/** Validates wire prosody units and admits only neutral controls until effects are qualified. */
+/** Validates wire prosody units and maps only the speed and pitch controls supported by Piper. */
 final class SynthesisControlPolicy {
     private SynthesisControlPolicy() {}
 
@@ -32,13 +32,11 @@ final class SynthesisControlPolicy {
         } catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Unsupported emotion value", exception);
         }
-        if (speed != 1.0) throw unsupported("speed");
-        if (pitchSemitones != 0.0) throw unsupported("pitch");
         if (energy != 1.0) throw unsupported("energy");
         if (emotion != Emotion.NEUTRAL) throw unsupported("emotion");
 
-        // Only the neutral pitch is currently admitted; non-neutral values returned above.
-        double pitchRatio = 1.0;
+        // The wire uses semitones; SynthesisOptions and Piper consume a multiplicative ratio.
+        double pitchRatio = Math.pow(2.0, pitchSemitones / 12.0);
         String languageTag = wire.getLanguage();
         Locale language = languageTag.isBlank() ? null : parseLanguageTag(languageTag);
 
