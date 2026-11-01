@@ -10,6 +10,7 @@ import com.ghatana.datacloud.delivery.ledger.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
@@ -367,6 +368,73 @@ class AudioVideoRunLedgerAdapterTest {
             .isEqualTo("Provider disabled for tenant");
         assertThat(ledger.requiresBlockingAudit()).isFalse();
         assertThat(ledger.attributes()).containsEntry("policyAllowed", "false");
+    }
+
+    @Test
+    @DisplayName("Policy projection redacts unsafe free text while preserving decision and safe constraints")
+    void testPolicyProjectionRedactsUnsafeDetails() {
+        long now = System.currentTimeMillis();
+        String email = "person@example.com";
+        String signedUrl = "https://source.invalid/artifact?token=source-secret";
+        String credential = "bearer sk-live-policy-secret";
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-policy-private", "artifact-source", "provider", "provider-job",
+                "FAILED", Map.of(
+                        "policyCheckpointId", email,
+                        "policyDecision", "DENY",
+                        "policyReason", "Denied for " + email + " at " + signedUrl,
+                        "policyConstraints", "NO_CACHE, " + credential),
+                now - 1_000, now - 500, "trace", "correlation");
+
+        assertThat(ledger.policyCheckpointId()).startsWith("redacted:sha256:");
+        assertThat(ledger.policyDecision()).isPresent();
+        assertThat(ledger.policyDecision().orElseThrow().allowed()).isFalse();
+        assertThat(ledger.policyDecision().orElseThrow().reason())
+                .isEqualTo("Policy detail omitted by ledger safety filter");
+        assertThat(ledger.policyDecision().orElseThrow().constraints()).containsExactly("NO_CACHE");
+        assertThat(ledger.attributes()).containsEntry(
+                "policyReason", "Policy detail omitted by ledger safety filter");
+        assertThat(ledger.toString()).doesNotContain(email, signedUrl, "source-secret", credential,
+                "sk-live-policy-secret");
+
+        RunLedger oversizedConstraints = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-policy-large", "artifact-source", "provider", "provider-job",
+                "FAILED", Map.of(
+                        "policyCheckpointId", "av-policy-checkpoint",
+                        "policyDecision", "DENY",
+                        "policyConstraints", "C".repeat(100_000)),
+                now - 1_000, now - 500, "trace", "correlation");
+        assertThat(oversizedConstraints.policyDecision()).isPresent();
+        assertThat(oversizedConstraints.policyDecision().orElseThrow().allowed()).isFalse();
+        assertThat(oversizedConstraints.policyDecision().orElseThrow().constraints()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Missing or unknown policy decision is not projected as allow or deny")
+    void testPolicyProjectionRequiresRecognizedDecision() {
+        long now = System.currentTimeMillis();
+        Map<String, String> missingDecision = Map.of(
+                "policyCheckpointId", "av-policy-checkpoint",
+                "policyReason", "No decision returned");
+        Map<String, String> unknownDecision = Map.of(
+                "policyCheckpointId", "av-policy-checkpoint",
+                "policyDecision", "PENDING_REVIEW",
+                "policyReason", "Decision vocabulary not recognized");
+
+        RunLedger missing = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-policy-missing", "artifact-source", "provider", "provider-job",
+                "PROCESSING", missingDecision, now - 1_000, now, "trace", "correlation");
+        RunLedger unknown = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-policy-unknown", "artifact-source", "provider", "provider-job",
+                "PROCESSING", unknownDecision, now - 1_000, now, "trace", "correlation");
+
+        for (RunLedger ledger : List.of(missing, unknown)) {
+            assertThat(ledger.policyDecision()).isEmpty();
+            assertThat(ledger.policyCheckpointId()).isNull();
+            assertThat(ledger.attributes()).doesNotContainKeys(
+                    "policyId", "policyAllowed", "policyReason");
+        }
     }
 
     @Test

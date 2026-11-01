@@ -190,6 +190,7 @@ public final class AudioVideoRunLedgerAdapter {
         java.util.regex.Pattern.compile(
             "(?i)([a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}|\\b\\+?[0-9][0-9 ()-]{8,}[0-9]\\b)");
     private static final String REDACTED_FAILURE_DETAIL = "Failure details omitted by ledger safety filter";
+    private static final String REDACTED_POLICY_DETAIL = "Policy detail omitted by ledger safety filter";
     private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
         "bitrate", "codec", "format", "language", "languageTag", "sampleRate",
         "channels", "fps", "resolution", "width", "height", "durationMs",
@@ -226,8 +227,8 @@ public final class AudioVideoRunLedgerAdapter {
                 continue;
             }
             String value = entry.getValue() == null ? "" : entry.getValue();
-            if (value.length() > MAX_LEDGER_VALUE_CHARS
-                    || SENSITIVE_LEDGER_VALUE.matcher(value).find()) {
+            if (value.length() > MAX_LEDGER_VALUE_CHARS || containsSensitiveLedgerValue(value)
+                    || isPolicyMetadataKey(key) && containsSensitiveLedgerText(value)) {
                 dropped++;
                 continue;
             }
@@ -250,11 +251,28 @@ public final class AudioVideoRunLedgerAdapter {
             return null;
         }
         if (failureReason.length() > MAX_LEDGER_VALUE_CHARS
-                || SENSITIVE_LEDGER_VALUE.matcher(failureReason).find()
-                || SENSITIVE_FAILURE_DETAIL.matcher(failureReason).find()) {
+                || containsSensitiveLedgerText(failureReason)) {
             return REDACTED_FAILURE_DETAIL;
         }
         return failureReason;
+    }
+
+    /** Pattern-based safety filter; this is not a general-purpose DLP detector. */
+    private static boolean containsSensitiveLedgerValue(String value) {
+        return SENSITIVE_LEDGER_VALUE.matcher(value).find();
+    }
+
+    private static boolean containsSensitiveLedgerText(String value) {
+        return containsSensitiveLedgerValue(value) || SENSITIVE_FAILURE_DETAIL.matcher(value).find();
+    }
+
+    private static boolean isPolicyMetadataKey(String key) {
+        return key.equals("policyId") || key.equals("policyCheckpointId")
+                || key.equals("policyDecisionId") || key.equals("providerPolicyId")
+                || key.equals("policyReason") || key.equals("policyDecisionReason")
+                || key.equals("providerPolicyReason") || key.equals("reason")
+                || key.equals("policyConstraints") || key.equals("constraints")
+                || key.equals("policyDecision");
     }
 
     /** Bounded deterministic reference for identifiers that must not be serialized raw. */
@@ -453,10 +471,16 @@ public final class AudioVideoRunLedgerAdapter {
         if (policyId == null) {
             return Optional.empty();
         }
+        policyId = sanitizePolicyIdentifier(policyId);
 
         String decision = firstNonBlank(metadata, "providerPolicyDecision", "policyDecision", "policyAllowed", "allowed");
-        boolean allowed = decision == null || isAllowedDecision(decision);
-        String reason = firstNonBlank(metadata, "providerPolicyReason", "policyReason", "policyDecisionReason", "reason");
+        Optional<Boolean> allowedDecision = parsePolicyDecision(decision);
+        if (allowedDecision.isEmpty()) {
+            return Optional.empty();
+        }
+        boolean allowed = allowedDecision.orElseThrow();
+        String reason = sanitizePolicyDetail(firstNonBlank(
+                metadata, "providerPolicyReason", "policyReason", "policyDecisionReason", "reason"));
         Set<String> constraints = parseConstraints(firstNonBlank(metadata, "policyConstraints", "constraints"));
         long evaluatedAtMs = parsePositiveLong(
             firstNonBlank(metadata, "policyEvaluatedAtMs", "providerPolicyEvaluatedAtMs", "policyTimestampMs"),
@@ -475,6 +499,11 @@ public final class AudioVideoRunLedgerAdapter {
     private static String firstNonBlank(Map<String, String> values, String... keys) {
         for (String key : keys) {
             String value = values.get(key);
+            // Policy metadata may be supplied by a provider. Never copy an
+            // unbounded value merely to trim or inspect it downstream.
+            if (value != null && value.length() > MAX_LEDGER_VALUE_CHARS) {
+                return value.substring(0, MAX_LEDGER_VALUE_CHARS + 1);
+            }
             if (value != null && !value.isBlank()) {
                 return value.trim();
             }
@@ -482,28 +511,50 @@ public final class AudioVideoRunLedgerAdapter {
         return null;
     }
 
-    private static boolean isAllowedDecision(String decision) {
+    private static Optional<Boolean> parsePolicyDecision(String decision) {
+        if (decision == null || decision.isBlank() || decision.length() > MAX_LEDGER_VALUE_CHARS) {
+            return Optional.empty();
+        }
         String normalized = decision.trim().toUpperCase(Locale.ENGLISH);
-        return normalized.equals("TRUE")
-            || normalized.equals("ALLOW")
-            || normalized.equals("ALLOWED")
-            || normalized.equals("APPROVE")
-            || normalized.equals("APPROVED");
+        return switch (normalized) {
+            case "TRUE", "ALLOW", "ALLOWED", "APPROVE", "APPROVED" -> Optional.of(true);
+            case "FALSE", "DENY", "DENIED" -> Optional.of(false);
+            default -> Optional.empty();
+        };
     }
 
     private static Set<String> parseConstraints(String rawConstraints) {
-        if (rawConstraints == null || rawConstraints.isBlank()) {
+        if (rawConstraints == null || rawConstraints.isBlank()
+                || rawConstraints.length() > MAX_LEDGER_VALUE_CHARS) {
             return Set.of();
         }
 
         Set<String> constraints = new LinkedHashSet<>();
         for (String constraint : rawConstraints.split(",")) {
             String normalized = constraint.trim();
-            if (!normalized.isEmpty()) {
+            if (!normalized.isEmpty() && normalized.length() <= MAX_LEDGER_VALUE_CHARS
+                    && !containsSensitiveLedgerText(normalized)) {
                 constraints.add(normalized);
             }
         }
         return Set.copyOf(constraints);
+    }
+
+    private static String sanitizePolicyDetail(String detail) {
+        return detail == null || detail.length() <= MAX_LEDGER_VALUE_CHARS
+                && !containsSensitiveLedgerText(detail)
+                ? detail : REDACTED_POLICY_DETAIL;
+    }
+
+    /** Preserve decision state while replacing an unsafe or unbounded policy ID with a safe ref. */
+    private static String sanitizePolicyIdentifier(String policyId) {
+        if (policyId.length() > MAX_LEDGER_VALUE_CHARS) {
+            return "redacted:oversized";
+        }
+        if (policyId.length() > MAX_LEDGER_KEY_CHARS || containsSensitiveLedgerText(policyId)) {
+            return "redacted:" + ledgerFingerprint(policyId);
+        }
+        return policyId;
     }
 
     private static Map<String, Number> numericMetrics(Map<String, String> metadata) {
