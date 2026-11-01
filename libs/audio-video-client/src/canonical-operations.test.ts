@@ -249,6 +249,40 @@ describe("canonical parsers", () => {
       .toThrow(/bounded safe integer/u);
   });
 
+  it("ProcessingJob validates RFC 3339 instants without normalizing invalid dates", () => {
+    const validOffset = "2024-02-29T23:59:59.123456789+05:30";
+    const parsed = parseCanonicalProcessingJob(job({ createdAt: validOffset, startedAt: null }));
+    expect(parsed.createdAt).toBe(validOffset);
+    expect(parsed.startedAt).toBeNull();
+    expect(parseCanonicalProcessingJob(job({
+      createdAt: "2024-02-29t23:59:59.123456789z",
+    })).createdAt).toBe("2024-02-29t23:59:59.123456789z");
+    const highPrecisionFraction = "2024-02-29T23:59:59.12345678901234567890Z";
+    expect(parseCanonicalProcessingJob(job({ createdAt: highPrecisionFraction })).createdAt)
+      .toBe(highPrecisionFraction);
+    expect(parseCanonicalProcessingJob(job({
+      createdAt: "2016-12-31T23:59:60Z",
+    })).createdAt).toBe("2016-12-31T23:59:60Z");
+    expect(parseCanonicalProcessingJob(job({
+      createdAt: "2017-01-01T00:59:60+01:00",
+    })).createdAt).toBe("2017-01-01T00:59:60+01:00");
+    for (const invalid of [
+      "2026-02-30T12:00:00Z",
+      "2026-13-01T12:00:00Z",
+      "2026-01-01T25:00:00Z",
+      "2026-10-30T12:00:60Z",
+      "2016-12-31T22:59:60Z",
+      "2026-01-01T12:00:00.Z",
+      "not-a-date",
+      "2026-01-01T12:00:00",
+    ]) {
+      expect(() => parseCanonicalProcessingJob(job({ createdAt: invalid })))
+        .toThrow(/RFC 3339 date-time/u);
+    }
+    expect(() => parseCanonicalProcessingJob(job({ completedAt: "2026-04-31T12:00:00Z" })))
+      .toThrow(/RFC 3339 date-time/u);
+  });
+
   it("StreamSession is strict — unknown or missing fields reject", () => {
     expect(() => parseCanonicalStreamSession({ ...session(), sneak: 1 }))
       .toThrow(/do not match the runtime DTO/u);

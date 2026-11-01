@@ -142,6 +142,59 @@ function nullableText(value: Record<string, unknown>, key: string, dto: string):
   return field;
 }
 
+function requiredDateTime(value: unknown, label: string): string {
+  const match = typeof value === "string"
+    ? /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?([Zz]|[+-]\d{2}:\d{2})$/u.exec(value)
+    : null;
+  if (!match) throw new TypeError(`Canonical Media job ${label} must be an RFC 3339 date-time.`);
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const offset = match[8]!;
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysPerMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const offsetHour = offset === "Z" ? 0 : Number(offset.slice(1, 3));
+  const offsetMinute = offset === "Z" ? 0 : Number(offset.slice(4, 6));
+  if (month < 1 || month > 12 || day < 1 || day > (daysPerMonth[month - 1] ?? 0)
+    || hour > 23 || minute > 59 || second > 60
+    || offsetHour > 23 || offsetMinute > 59) {
+    throw new TypeError(`Canonical Media job ${label} must be an RFC 3339 date-time.`);
+  }
+  if (second === 60) {
+    // RFC 3339 leap seconds occur at the end of a UTC month. Convert the
+    // represented local second (using :59 as the preceding instant) by its
+    // numeric offset, then verify it is 23:59:59 on that month's final day.
+    // Whether a leap second was actually announced for a particular future
+    // month is deliberately not inferred by this syntax-only DTO parser.
+    const localSecond = new Date(0);
+    localSecond.setUTCFullYear(year, month - 1, day);
+    localSecond.setUTCHours(hour, minute, 59, 0);
+    const offsetSign = offset[0] === "-" ? -1 : 1;
+    const offsetMinutes = offset.toUpperCase() === "Z"
+      ? 0
+      : offsetSign * (offsetHour * 60 + offsetMinute);
+    localSecond.setTime(localSecond.getTime() - offsetMinutes * 60_000);
+    const utcMonth = localSecond.getUTCMonth();
+    const utcYear = localSecond.getUTCFullYear();
+    const utcLeapYear = utcYear % 4 === 0 && (utcYear % 100 !== 0 || utcYear % 400 === 0);
+    const utcDaysPerMonth = [31, utcLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (localSecond.getUTCHours() !== 23 || localSecond.getUTCMinutes() !== 59
+      || localSecond.getUTCSeconds() !== 59
+      || localSecond.getUTCDate() !== utcDaysPerMonth[utcMonth]) {
+      throw new TypeError(`Canonical Media job ${label} must be an RFC 3339 date-time.`);
+    }
+  }
+  return value as string;
+}
+
+function nullableDateTime(value: Record<string, unknown>, key: string): string | null {
+  const field = value[key];
+  return field === null ? null : requiredDateTime(field, key);
+}
+
 function requiredInt(value: Record<string, unknown>, key: string, min: number, dto: string, max?: number): number {
   const field = value[key];
   if (typeof field !== "number" || !Number.isSafeInteger(field) || field < min
@@ -197,9 +250,9 @@ export function parseCanonicalProcessingJob(input: unknown): CanonicalProcessing
     jobType: jobType as CanonicalJobType,
     providerId: nullableText(value, "providerId", "Canonical Media job"),
     status: status as CanonicalJobStatus,
-    createdAt: requiredText(value, "createdAt", "Canonical Media job"),
-    startedAt: nullableText(value, "startedAt", "Canonical Media job"),
-    completedAt: nullableText(value, "completedAt", "Canonical Media job"),
+    createdAt: requiredDateTime(value.createdAt, "createdAt"),
+    startedAt: nullableDateTime(value, "startedAt"),
+    completedAt: nullableDateTime(value, "completedAt"),
     result: requiredObject(value, "result", "Canonical Media job"),
     failureCode: nullableText(value, "failureCode", "Canonical Media job"),
     version: requiredInt(value, "version", 1, "Canonical Media job"),
