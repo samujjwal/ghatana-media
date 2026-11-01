@@ -88,6 +88,12 @@ class MediaSemanticObservationProjectorTest {
                 "observationType must be a token");
         assertCandidateRejected(builder -> builder.sourceSystem = " ",
                 "sourceSystem is required and bounded");
+        assertCandidateRejected(builder -> builder.consentRef = " ",
+                "consentRef is required and bounded");
+        assertCandidateRejected(builder -> builder.consentRef = "consent-" + "x".repeat(506),
+                "consentRef is required and bounded");
+        assertCandidateRejected(builder -> builder.consentRef = " consent-4",
+                "consentRef must not have surrounding whitespace");
         assertCandidateRejected(builder -> builder.providerId = "provider/id",
                 "providerId must be a token");
         assertCandidateRejected(builder -> builder.ownerId = null,
