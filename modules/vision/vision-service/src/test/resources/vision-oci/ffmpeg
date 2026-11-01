@@ -49,6 +49,86 @@ if [ "$mode" = "oom" ]; then
   exec /bin/bash -c 'x=x; i=0; while [ "$i" -lt 32 ]; do x="${x}${x}"; i=$((i + 1)); done; exit 86'
 fi
 
+# Exercise the configured two-CPU cgroup from inside this worker. Four busy
+# children remain inside this container; finish only after the kernel records
+# quota throttling, then stop and reap every child before returning success.
+if [ "$mode" = "cpu-quota" ]; then
+  before=$(awk '$1 == "nr_throttled" { print $2 }' /sys/fs/cgroup/cpu.stat)
+  load_pids=()
+  stop_load() {
+    for load_pid in "${load_pids[@]}"; do kill "$load_pid" 2>/dev/null || true; done
+    for load_pid in "${load_pids[@]}"; do wait "$load_pid" 2>/dev/null || true; done
+  }
+  for worker in 1 2 3 4; do ( while :; do :; done ) & load_pids+=("$!"); done
+  trap stop_load EXIT
+  throttled=0
+  for attempt in $(seq 1 50); do
+    after=$(awk '$1 == "nr_throttled" { print $2 }' /sys/fs/cgroup/cpu.stat)
+    if [ "$after" -gt "$before" ]; then throttled=1; break; fi
+    sleep 0.1
+  done
+  stop_load
+  trap - EXIT
+  [ "$throttled" -eq 1 ] || fail cpu-quota-throttling-not-observed
+  printf 'HOST_OCI_CPU_QUOTA_THROTTLED before=%s after=%s\n' "$before" "$after"
+fi
+
+# Fill only this worker's bounded 128 MiB /tmp tmpfs. `dd` must receive the
+# kernel's no-space rejection, after which the partial scratch file is removed
+# before the worker exits unsuccessfully. No host path is writable here.
+if [ "$mode" = "tmpfs-full" ]; then
+  scratch=/tmp/tmpfs-limit-probe.bin
+  if dd if=/dev/zero of="$scratch" bs=1M count=129 status=none; then
+    rm -f "$scratch"
+    fail tmpfs-limit-not-enforced
+  else
+    dd_exit=$?
+  fi
+  bytes_written=$(wc -c < "$scratch")
+  [ "$bytes_written" -gt 0 ] || fail tmpfs-probe-wrote-no-data
+  printf 'HOST_OCI_TMPFS_ENOSPC bytes=%s dd_exit=%s\n' "$bytes_written" "$dd_exit"
+  rm -f "$scratch"
+  [ ! -e "$scratch" ] || fail tmpfs-probe-cleanup-failed
+  exit 88
+fi
+
+# Open descriptors only inside this worker until Bash reports the kernel's
+# EMFILE condition. Close every descriptor before emitting the sentinel or
+# returning to the normal success path.
+if [ "$mode" = "nofile" ]; then
+  open_fds=()
+  emfile=0
+  while :; do
+    if exec {fd}<>/dev/null; then
+      open_fds+=("$fd")
+    else
+      emfile=1
+      break
+    fi
+  done
+  [ "$emfile" -eq 1 ] || fail nofile-limit-not-enforced
+  fd_count=${#open_fds[@]}
+  for descriptor in "${open_fds[@]}"; do exec {descriptor}>&-; done
+  [ "$fd_count" -gt 50 ] || fail nofile-open-count-too-low
+  printf 'HOST_OCI_NOFILE_EMFILE descriptors=%s\n' "$fd_count"
+fi
+
+# Attempt a single output-mount file larger than the request's existing
+# RLIMIT_FSIZE. Confirm the worker is interrupted at the kernel boundary and
+# exit unsuccessfully, leaving only the kernel-capped partial file for the
+# caller to reject. The test fixture removes it after checking the result.
+if [ "$mode" = "filesize" ]; then
+  if dd if=/dev/zero of="$output" bs=1M count=4 status=none; then
+    fail output-file-size-limit-not-enforced
+  else
+    dd_exit=$?
+  fi
+  bytes_written=$(wc -c < "$output")
+  [ "$bytes_written" -gt 0 ] || fail output-file-size-probe-wrote-no-data
+  printf 'HOST_OCI_FILESIZE_LIMIT_HIT bytes=%s dd_exit=%s\n' "$bytes_written" "$dd_exit"
+  exit 89
+fi
+
 # Try to exceed this container's 32-PID hard cgroup limit. Nothing runs outside
 # the worker; the init process kills remaining sleepers when the script exits.
 if [ "$mode" = "pid-limit" ]; then

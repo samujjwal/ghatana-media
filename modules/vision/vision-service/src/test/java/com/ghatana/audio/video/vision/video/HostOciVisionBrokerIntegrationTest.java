@@ -161,6 +161,85 @@ class HostOciVisionBrokerIntegrationTest {
         }
     }
 
+    @Test
+    void brokerCompletesOnlyAfterKernelCpuQuotaThrottlesWorker() throws Exception {
+        try (Fixture fixture = new Fixture()) {
+            Path input = fixture.stageSource("cpu-quota".getBytes());
+            Path output = fixture.output.resolve("result.out");
+            var result = VideoFrameExtractor.runProcess(List.of(
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                    "-i", input.toString(), "-y", output.toString()),
+                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
+
+            assertThat(result.exitCode()).as(result.output()).isZero();
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("HOST_OCI_CPU_QUOTA_THROTTLED");
+            assertThat(Files.readString(output)).isEqualTo("host-oci-limits-and-mounts-verified\n");
+        }
+    }
+
+    @Test
+    void brokerReportsTmpfsFullAndPublishesNoPartialOutput() throws Exception {
+        try (Fixture fixture = new Fixture()) {
+            Path input = fixture.stageSource("tmpfs-full".getBytes());
+            Path output = fixture.output.resolve("result.out");
+            var result = VideoFrameExtractor.runProcess(List.of(
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                    "-i", input.toString(), "-y", output.toString()),
+                    Duration.ofSeconds(30), 8192, fixture.output, 512L * 1024 * 1024);
+
+            assertThat(result.exitCode()).as(result.output()).isEqualTo(88);
+            assertThat(result.timedOut()).as("tmpfs exhaustion must not be mislabeled as a timeout").isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("No space left on device", "HOST_OCI_TMPFS_ENOSPC");
+            assertThat(result.output()).doesNotContain("HOST_OCI_BOUNDARY_OK");
+            try (var files = Files.list(fixture.output)) {
+                assertThat(files).as("failed tmpfs work must not publish a complete or partial output")
+                        .isEmpty();
+            }
+        }
+    }
+
+    @Test
+    void brokerReportsKernelNoFileLimitAndClosesDescriptors() throws Exception {
+        try (Fixture fixture = new Fixture()) {
+            Path input = fixture.stageSource("nofile".getBytes());
+            Path output = fixture.output.resolve("result.out");
+            var result = VideoFrameExtractor.runProcess(List.of(
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                    "-i", input.toString(), "-y", output.toString()),
+                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
+
+            assertThat(result.exitCode()).as(result.output()).isZero();
+            assertThat(result.timedOut()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("Too many open files", "HOST_OCI_NOFILE_EMFILE");
+            assertThat(Files.readString(output)).isEqualTo("host-oci-limits-and-mounts-verified\n");
+        }
+    }
+
+    @Test
+    void brokerRejectsOutputLargerThanKernelFileSizeLimitAndBoundsPartialArtifact() throws Exception {
+        try (Fixture fixture = new Fixture()) {
+            Path input = fixture.stageSource("filesize".getBytes());
+            Path output = fixture.output.resolve("result.out");
+            var result = VideoFrameExtractor.runProcess(List.of(
+                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
+                    "-i", input.toString(), "-y", output.toString()),
+                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
+
+            assertThat(result.exitCode()).as(result.output()).isEqualTo(89);
+            assertThat(result.timedOut()).as("file-size rejection must not be mislabeled as a timeout").isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.output()).contains("File size limit exceeded", "HOST_OCI_FILESIZE_LIMIT_HIT");
+            assertThat(result.output()).doesNotContain("HOST_OCI_BOUNDARY_OK");
+            assertThat(Files.exists(output)).isTrue();
+            assertThat(Files.size(output)).as("the failed worker's partial output must remain at or below RLIMIT_FSIZE")
+                    .isPositive().isLessThanOrEqualTo(2_000_000L);
+        }
+    }
+
     private static String sha256(Path path) throws Exception {
         return java.util.HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
