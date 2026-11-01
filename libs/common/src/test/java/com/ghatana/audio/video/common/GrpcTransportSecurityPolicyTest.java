@@ -18,6 +18,36 @@ class GrpcTransportSecurityPolicyTest {
     }
 
     @Test
+    void documentedDevelopmentProfilesRemainPlaintextWithoutTlsMaterial() {
+        for (String profile : new String[] {"local", "test", "development"}) {
+            var security = GrpcTransportSecurityPolicy.resolve(
+                    Map.of("STT_ENVIRONMENT", profile), "STT");
+            assertThat(security.tlsEnabled()).as(profile).isFalse();
+        }
+    }
+
+    @Test
+    void absentOrNullProfilesDefaultToLocal() {
+        assertThat(GrpcTransportSecurityPolicy.resolve(Map.of(), "STT").tlsEnabled()).isFalse();
+        var environment = new java.util.HashMap<String, String>();
+        environment.put("STT_ENVIRONMENT", null);
+        environment.put("MEDIA_ENVIRONMENT", null);
+        environment.put("GHATANA_DEPLOYMENT_PROFILE", null);
+        assertThat(GrpcTransportSecurityPolicy.resolve(environment, "STT").tlsEnabled()).isFalse();
+    }
+
+    @Test
+    void unknownExplicitProfileFailsClosedEvenWhenTlsPathsAreConfigured() {
+        assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(
+                        "STT_ENVIRONMENT", "prod",
+                        "STT_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/cert.pem",
+                        "STT_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/key.pem"), "STT"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Unsupported STT gRPC environment profile")
+                .hasMessageNotContaining("prod");
+    }
+
+    @Test
     void productionLikeProfilesRequireCompleteTlsPair() {
         for (String profile : new String[] {"production", "staging", "sovereign"}) {
             assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(

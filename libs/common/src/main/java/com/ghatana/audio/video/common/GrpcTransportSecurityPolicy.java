@@ -36,7 +36,9 @@ public final class GrpcTransportSecurityPolicy {
                 "local").toLowerCase(Locale.ROOT);
         boolean productionLike = switch (profile) {
             case "production", "staging", "sovereign" -> true;
-            default -> false;
+            case "local", "test", "development" -> false;
+            default -> throw new IllegalArgumentException(
+                    "Unsupported " + prefix + " gRPC environment profile");
         };
 
         String serviceCertificateKey = prefix + "_GRPC_TLS_CERT_CHAIN_PATH";
