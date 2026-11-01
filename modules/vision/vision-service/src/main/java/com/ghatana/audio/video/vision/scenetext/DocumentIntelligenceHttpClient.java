@@ -176,6 +176,9 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
 
     @Override
     public void cancel(String operationId, String operationGeneration) {
+        if (operationId == null || !IDENTIFIER.matcher(operationId).matches()) {
+            throw new IllegalArgumentException("invalid DI operation identity");
+        }
         if (!GENERATION.matcher(operationGeneration).matches()) throw new IllegalArgumentException("invalid generation");
         HttpRequest request = HttpRequest.newBuilder(baseUri.resolve(baseUri.getPath() + "/v1/operations/"
                         + URLEncoder.encode(operationId, StandardCharsets.UTF_8)))

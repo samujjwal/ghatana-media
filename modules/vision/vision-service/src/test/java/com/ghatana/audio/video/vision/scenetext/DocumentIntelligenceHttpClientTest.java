@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,7 @@ class DocumentIntelligenceHttpClientTest {
             .getBytes(StandardCharsets.UTF_8);
     private volatile boolean declareLength = true;
     private volatile CountDownLatch gate;
+    private final AtomicInteger cancelRequests = new AtomicInteger();
 
     @BeforeEach
     void start() throws IOException {
@@ -48,6 +50,11 @@ class DocumentIntelligenceHttpClientTest {
                 exchange.sendResponseHeaders(200, 0); // chunked, undeclared length
             }
             if (body.length > 0) exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        server.createContext("/v1/operations/", exchange -> {
+            cancelRequests.incrementAndGet();
+            exchange.sendResponseHeaders(204, -1);
             exchange.close();
         });
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
@@ -118,6 +125,17 @@ class DocumentIntelligenceHttpClientTest {
                 EndpointPolicy.loopback("127.0.0.1"), 1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("redirect");
+    }
+
+    @Test
+    void cancellationRejectsInvalidOperationIdsBeforeNetworkEffect() {
+        DocumentIntelligenceHttpClient client = client();
+        for (String operationId : new String[] {"", "../other-operation", "op?cancel=all", "a".repeat(257)}) {
+            assertThatThrownBy(() -> client.cancel(operationId, "a".repeat(32)))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("operation identity");
+        }
+        assertThat(cancelRequests).hasValue(0);
     }
 
     @Test
