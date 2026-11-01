@@ -67,7 +67,17 @@ public final class SsmlProcessor {
         Objects.requireNonNull(input, "ssml must not be null");
         if (input.length() > MAX_INPUT_CHARS) throw new IllegalArgumentException("SSML input exceeds maximum size");
         if (!input.stripLeading().startsWith("<")) return input.trim();
-        return parse(input).stream().map(SsmlSegment::text).filter(s -> !s.isBlank()).reduce((a, b) -> a + " " + b).orElse("").trim();
+        // Do not use reduce((left, right) -> left + " " + right): valid bounded SSML
+        // can contain many tiny segments, making repeated immutable concatenation
+        // quadratic in the total output size.
+        StringBuilder text = new StringBuilder();
+        for (SsmlSegment segment : parse(input)) {
+            String value = segment.text();
+            if (value.isBlank()) continue;
+            if (!text.isEmpty()) text.append(' ');
+            text.append(value);
+        }
+        return text.toString().trim();
     }
 
     private static void appendChildren(Element parent, List<SsmlSegment> out, int depth, long[] totalPause) {

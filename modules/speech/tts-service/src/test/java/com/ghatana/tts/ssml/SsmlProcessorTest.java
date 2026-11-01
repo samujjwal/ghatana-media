@@ -222,6 +222,15 @@ class SsmlProcessorTest {
         }
 
         @Test
+        @DisplayName("joins many bounded SSML text segments without changing spacing")
+        void toPlainTextJoinsManySegments() {
+            int segmentCount = 1_000;
+            String ssml = "<speak>" + "x<break time=\"0ms\"/>".repeat(segmentCount) + "</speak>";
+
+            assertThat(processor.toPlainText(ssml)).isEqualTo(String.join(" ", java.util.Collections.nCopies(segmentCount, "x")));
+        }
+
+        @Test
         @DisplayName("null ssml throws NullPointerException")
         void toPlainText_null_throwsNPE() { 
             assertThatNullPointerException() 
