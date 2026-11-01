@@ -6,11 +6,11 @@ import java.util.Objects;
  * Bounded source-frame decoding under a declared codec and timebase.
  *
  * <p>AS-04: raw audio is decoded only when the declared codec and rational
- * sample timebase are supported — PCM and Opus are the admitted wire
- * codecs; anything else returns {@link DecodeVerdict#UNAVAILABLE} rather
- * than a fabricated decode. Sample positions are exact rational ticks
- * (num/den within the declared timebase), never floating-point seconds
- * or wall clock. Decode is bounded: a session admits at most
+ * sample timebase are supported. PCM_S16LE is structurally decoded here;
+ * OPUS is recognized but returns {@link DecodeVerdict#UNAVAILABLE} until an
+ * actual Opus decoder is wired into this runtime. Sample positions are exact
+ * rational seconds calculated from source ticks and seconds-per-tick, never
+ * floating-point seconds or wall clock. Decode is bounded: a session admits at most
  * {@link SessionBudget#maxFrames} frames and
  * {@link SessionBudget#maxBytes} bytes before returning
  * {@link DecodeVerdict#BUDGET_EXCEEDED} — a producer faster than the
@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public final class BoundedAudioFrameDecoder {
 
-    /** Admitted wire codecs; anything else is UNAVAILABLE, never guessed. */
+    /** Recognized codec declarations; recognition alone does not mean a decoder is available. */
     public enum Codec { PCM_S16LE, OPUS }
 
     /** Result of one bounded decode attempt. */
@@ -37,9 +37,12 @@ public final class BoundedAudioFrameDecoder {
         MALFORMED
     }
 
-    /** Rational sample position inside the declared timebase — exact, never float. */
+    /** Rational source-media time in seconds — exact, never float. */
     public record SamplePosition(long numerator, long denominator) {
         public SamplePosition {
+            if (numerator < 0) {
+                throw new IllegalArgumentException("time numerator cannot be negative");
+            }
             if (denominator <= 0) {
                 throw new IllegalArgumentException("timebase denominator must be positive");
             }
@@ -60,6 +63,18 @@ public final class BoundedAudioFrameDecoder {
             Codec codec, byte[] payload, SamplePosition position,
             /** true when the frame carries a VAD/caption partial revision (not a final commit). */
             boolean partialRevision) {
+        public DecodedSourceFrame {
+            Objects.requireNonNull(codec, "codec");
+            Objects.requireNonNull(payload, "payload");
+            Objects.requireNonNull(position, "position");
+            payload = payload.clone();
+        }
+
+        /** Returns a copy so decoded source bytes cannot be changed after admission. */
+        @Override
+        public byte[] payload() {
+            return payload.clone();
+        }
     }
 
     /** The outcome of a bounded decode. */
@@ -82,14 +97,18 @@ public final class BoundedAudioFrameDecoder {
 
     /**
      * Declares a bounded decode session. {@code codecName} and the timebase
-     * must match an admitted codec/rational pair; an undeclared codec
-     * produces a session that reports UNAVAILABLE for every frame.
+     * must match a recognized codec/rational pair. Only PCM_S16LE decoding
+     * is currently implemented; a declared OPUS session reports UNAVAILABLE
+     * for every frame until a real decoder is wired in.
      */
     public static BoundedAudioFrameDecoder declare(
             String codecName, long timebaseNumerator, long timebaseDenominator,
             SessionBudget budget) {
         Objects.requireNonNull(codecName, "codecName");
         Objects.requireNonNull(budget, "budget");
+        if (timebaseNumerator <= 0) {
+            throw new IllegalArgumentException("timebase numerator must be positive");
+        }
         Codec codec;
         try {
             codec = Codec.valueOf(codecName.trim().toUpperCase(java.util.Locale.ROOT));
@@ -102,14 +121,19 @@ public final class BoundedAudioFrameDecoder {
 
     /**
      * Decodes one source frame. A frame carries its declared byte payload,
-     * its rational sample position within the timebase, and whether it is a
-     * partial (VAD/caption) revision. Undeclared codec, malformed shape, or
-     * a session over budget fail closed.
+     * its source tick position, and whether it is a partial (VAD/caption)
+     * revision. The output position is ticks * secondsPerTick as an exact
+     * rational number. Undeclared/unsupported codec, malformed shape, or a
+     * session over budget fail closed.
      */
     public Result decode(byte[] payload, long positionNumerator, boolean partialRevision) {
         if (codec == null) {
             return Result.fail(DecodeVerdict.UNAVAILABLE,
                     "codec is not declared for this session");
+        }
+        if (codec == Codec.OPUS) {
+            return Result.fail(DecodeVerdict.UNAVAILABLE,
+                    "OPUS decoder is not available in this runtime");
         }
         if (payload == null || payload.length == 0) {
             return Result.fail(DecodeVerdict.MALFORMED, "empty payload");
@@ -122,6 +146,13 @@ public final class BoundedAudioFrameDecoder {
             return Result.fail(DecodeVerdict.MALFORMED,
                     "sample position numerator cannot be negative");
         }
+        long exactTimeNumerator;
+        try {
+            exactTimeNumerator = Math.multiplyExact(positionNumerator, timebase.numerator());
+        } catch (ArithmeticException overflow) {
+            return Result.fail(DecodeVerdict.MALFORMED,
+                    "sample position exceeds the exact rational time range");
+        }
         if (frames >= budget.maxFrames() || bytes + payload.length > budget.maxBytes()) {
             return Result.fail(DecodeVerdict.BUDGET_EXCEEDED,
                     "session frame/byte budget exceeded");
@@ -129,7 +160,7 @@ public final class BoundedAudioFrameDecoder {
         frames++;
         bytes += payload.length;
         return Result.ok(new DecodedSourceFrame(
-                codec, payload, new SamplePosition(positionNumerator, timebase.denominator()),
+                codec, payload, new SamplePosition(exactTimeNumerator, timebase.denominator()),
                 partialRevision));
     }
 
