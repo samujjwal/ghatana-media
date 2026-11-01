@@ -9,49 +9,60 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc && node scripts/ensure-cli-executable.mjs",
+    "build": "pnpm --filter @audio-video/types build && tsc -p tsconfig.build.json && tsc -p tsconfig.cjs.json && node scripts/copy-cjs-package.mjs && node scripts/ensure-cli-executable.mjs",
     "typecheck": "tsc --noEmit",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist",
+    "clean": "node scripts/clean.mjs",
     "test": "pnpm build && vitest run",
+    "test:package": "pnpm build && node scripts/test-isolated-package-consumer.mjs",
+    "test:package:consumer": "node scripts/test-isolated-package-consumer.mjs",
     "test:watch": "vitest",
     "check": "pnpm typecheck && pnpm test && pnpm build"
   },
   "files": [
-    "dist"
+    "dist",
+    "dist-cjs"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist-cjs/index.js"
     },
     "./operations": {
       "types": "./dist/operations.d.ts",
-      "import": "./dist/operations.js"
+      "import": "./dist/operations.js",
+      "require": "./dist-cjs/operations.js"
     },
     "./canonical-routes": {
       "types": "./dist/canonical-routes.d.ts",
-      "import": "./dist/canonical-routes.js"
+      "import": "./dist/canonical-routes.js",
+      "require": "./dist-cjs/canonical-routes.js"
     },
     "./canonical-operations": {
       "types": "./dist/canonical-operations.d.ts",
-      "import": "./dist/canonical-operations.js"
+      "import": "./dist/canonical-operations.js",
+      "require": "./dist-cjs/canonical-operations.js"
     },
     "./http-core": {
       "types": "./dist/http-core.d.ts",
-      "import": "./dist/http-core.js"
+      "import": "./dist/http-core.js",
+      "require": "./dist-cjs/http-core.js"
     },
     "./capture-adapters": {
       "types": "./dist/capture-adapters.d.ts",
-      "import": "./dist/capture-adapters.js"
+      "import": "./dist/capture-adapters.js",
+      "require": "./dist-cjs/capture-adapters.js"
     },
     "./recorder-orchestrator": {
       "types": "./dist/recorder-orchestrator.d.ts",
-      "import": "./dist/recorder-orchestrator.js"
+      "import": "./dist/recorder-orchestrator.js",
+      "require": "./dist-cjs/recorder-orchestrator.js"
     },
     "./production-plan": {
       "types": "./dist/production-plan.d.ts",
-      "import": "./dist/production-plan.js"
+      "import": "./dist/production-plan.js",
+      "require": "./dist-cjs/production-plan.js"
     }
   },
   "dependencies": {

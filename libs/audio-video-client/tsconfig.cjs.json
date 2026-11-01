@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "noEmit": false,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "outDir": "./dist-cjs",
+    "rootDir": "./src",
+    "paths": {
+      "@audio-video/types": ["../audio-video-types/dist/index.d.ts"],
+      "@audio-video/types/contracts": ["../audio-video-types/dist/contracts.d.ts"],
+      "@audio-video/types/production": ["../audio-video-types/dist/production.d.ts"]
+    }
+  },
+  "include": [
+    "src/index.ts",
+    "src/operations.ts",
+    "src/canonical-routes.ts",
+    "src/canonical-operations.ts",
+    "src/http-core.ts",
+    "src/capture-adapters.ts",
+    "src/recorder-orchestrator.ts",
+    "src/production-plan.ts"
+  ],
+  "exclude": ["node_modules", "dist", "dist-cjs"]
+}

@@ -6,7 +6,12 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "@audio-video/types": ["../audio-video-types/dist/index.d.ts"],
+      "@audio-video/types/contracts": ["../audio-video-types/dist/contracts.d.ts"],
+      "@audio-video/types/production": ["../audio-video-types/dist/production.d.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts", "node_modules", "dist"]

@@ -566,7 +566,7 @@ export const defaultConfigs: Record<ServiceType, ServiceClientConfig> = {
   }
 };
 
-export { canonicalMediaHttpRoutes, legacyCompatibilityRoutes, mediaHttpRouteAuthority } from './canonical-routes';
+export { canonicalMediaHttpRoutes, legacyCompatibilityRoutes, mediaHttpRouteAuthority } from './canonical-routes.js';
 
 export {
   MediaSceneTextAdmissionError, recognizeAuthorizedMediaSceneText,

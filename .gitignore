@@ -15,6 +15,7 @@ node_modules/
 .pnpm-store/
 coverage/
 dist/
+dist-cjs/
 *.tsbuildinfo
 
 # Python environments and caches

@@ -13,7 +13,7 @@ import { dirname, resolve } from "node:path";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const packageJson = JSON.parse(readFileSync(resolve(packageRoot, "package.json"), "utf8")) as {
-  exports: Record<string, { types: string; import: string }>;
+  exports: Record<string, { types: string; import: string; require: string }>;
   files: string[];
   bin: Record<string, string>;
 };
@@ -21,7 +21,7 @@ const packageJson = JSON.parse(readFileSync(resolve(packageRoot, "package.json")
 describe("package surface", () => {
   it("every exports entry resolves to a built dist artifact with types", () => {
     for (const [subpath, entry] of Object.entries(packageJson.exports)) {
-      for (const artifact of [entry.import, entry.types]) {
+      for (const artifact of [entry.import, entry.require, entry.types]) {
         expect(existsSync(resolve(packageRoot, artifact)), `${subpath} → ${artifact}`)
           .toBe(true);
       }
@@ -32,7 +32,7 @@ describe("package surface", () => {
     }
   });
 
-  it("loads for both ESM and CJS consumers from the built artifacts", async () => {
+  it("loads public exports for ESM and CJS consumers from the built artifacts", async () => {
     const esm = await import("@audio-video/client/operations");
     expect(typeof esm.createMediaOperationClient).toBe("function");
     const canonical = await import("@audio-video/client/canonical-operations");
@@ -45,9 +45,9 @@ describe("package surface", () => {
     expect(typeof recorder.recaptureScenario).toBe("function");
     const production = await import("@audio-video/client/production-plan");
     expect(typeof production.compileProductionPlan).toBe("function");
-    // CJS consumers: Node ≥22 supports require() of ESM modules.
+    // The CJS files are emitted independently and keep Node <22 consumers supported.
     const require = createRequire(resolve(packageRoot, "package.json"));
-    const cjs = require("./dist/canonical-operations.js") as Record<string, unknown>;
+    const cjs = require("./dist-cjs/canonical-operations.js") as Record<string, unknown>;
     expect(typeof cjs.createMediaCanonicalClient).toBe("function");
   });
 
