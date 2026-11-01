@@ -45,6 +45,7 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     private final VisionEngine delegate;
     private final CircuitBreaker circuitBreaker;
     private final Eventloop eventloop;
+    private boolean delegateClosed;
 
     private static final int DEFAULT_FAILURE_THRESHOLD = 5;
     private static final int DEFAULT_SUCCESS_THRESHOLD = 2;
@@ -222,8 +223,14 @@ public class CircuitBreakerVisionEngine implements VisionEngine {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (delegateClosed) {
+            return;
+        }
+        // Mark closed only after the provider confirms cleanup. A failed close
+        // remains retryable by the owner instead of silently leaking a handle.
         delegate.close();
+        delegateClosed = true;
     }
 
     /** Returns the underlying circuit breaker for monitoring/testing. */

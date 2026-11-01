@@ -2,6 +2,7 @@ package com.ghatana.media.common.pool;
 
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -304,5 +305,114 @@ class EnginePoolLifecycleTest {
                 config().maxSize(0))).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new EnginePool<>(Engine::new, engine -> true, engine -> null,
                 config().idleTimeout(Duration.ofMillis(1)))).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void interruptedAcquisitionPreservesInterruptAndReleasesWaiter() throws Exception {
+        var pool = new EnginePool<>(Engine::new, engine -> true,
+                engine -> { engine.closes.incrementAndGet(); return null; }, config().maxSize(1));
+        var held = pool.borrowLease();
+        try (var executor = Executors.newSingleThreadExecutor()) {
+            var waiting = new CountDownLatch(1);
+            var pending = executor.submit(() -> {
+                waiting.countDown();
+                try {
+                    pool.borrow();
+                    return false;
+                } catch (EnginePool.PoolExhaustedException expected) {
+                    return Thread.currentThread().isInterrupted();
+                }
+            });
+            assertThat(waiting.await(1, TimeUnit.SECONDS)).isTrue();
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (pool.getStats().totalBorrowed < 2 && System.nanoTime() < deadline) {
+                Thread.yield();
+            }
+            assertThat(pool.getStats().totalBorrowed).isEqualTo(2);
+            executor.shutdownNow();
+            assertThat(pending.get(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(pool.getStats().inUse).isEqualTo(1);
+        } finally {
+            held.close();
+            pool.close();
+        }
+    }
+
+    @Test
+    void concurrentLeaseStressNeverSharesEngineAndReturnsAllCapacity() throws Exception {
+        final class StressEngine {
+            final AtomicInteger active = new AtomicInteger();
+            final AtomicInteger maxActive = new AtomicInteger();
+            final AtomicInteger closes = new AtomicInteger();
+        }
+        var pool = new EnginePool<>(StressEngine::new, engine -> true,
+                engine -> { engine.closes.incrementAndGet(); return null; },
+                config().maxSize(4).borrowTimeout(Duration.ofSeconds(3)));
+        int workers = 12;
+        int iterations = 150;
+        try (var executor = Executors.newFixedThreadPool(workers)) {
+            var start = new CountDownLatch(1);
+            var completed = new CountDownLatch(workers);
+            var failures = new ConcurrentLinkedQueue<Throwable>();
+            for (int i = 0; i < workers; i++) {
+                executor.submit(() -> {
+                    try {
+                        start.await();
+                        for (int n = 0; n < iterations; n++) {
+                            pool.execute(engine -> {
+                                int active = engine.active.incrementAndGet();
+                                engine.maxActive.accumulateAndGet(active, Math::max);
+                                try {
+                                    if (active != 1) throw new AssertionError("engine shared by concurrent leases");
+                                    Thread.yield();
+                                    return null;
+                                } finally {
+                                    engine.active.decrementAndGet();
+                                }
+                            });
+                        }
+                    } catch (Throwable failure) {
+                        failures.add(failure);
+                    } finally {
+                        completed.countDown();
+                    }
+                });
+            }
+            start.countDown();
+            assertThat(completed.await(10, TimeUnit.SECONDS)).isTrue();
+            assertThat(failures).isEmpty();
+            assertThat(pool.getStats().inUse).isZero();
+            assertThat(pool.getStats().available).isEqualTo(4);
+        } finally {
+            pool.close();
+        }
+    }
+
+    @Test
+    void idleExpiryDestroysReturnedEngineAndFreesCapacity() throws Exception {
+        var destroyed = new CountDownLatch(1);
+        var first = new Engine();
+        var second = new Engine();
+        var created = new AtomicInteger();
+        var pool = new EnginePool<>(() -> created.getAndIncrement() == 0 ? first : second,
+                resource -> true, resource -> {
+            resource.closes.incrementAndGet();
+            destroyed.countDown();
+            return null;
+        }, config().maxSize(1).idleTimeout(Duration.ofMillis(80)));
+        try {
+            try (var lease = pool.borrowLease()) {
+                assertThat(lease.engine()).isSameAs(first);
+            }
+            assertThat(destroyed.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(first.closes).hasValue(1);
+            assertThat(pool.getStats().available).isZero();
+            assertThat(pool.getStats().inUse).isZero();
+            try (var lease = pool.borrowLease()) {
+                assertThat(lease.engine()).isSameAs(second);
+            }
+        } finally {
+            pool.close();
+        }
     }
 }

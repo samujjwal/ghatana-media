@@ -46,6 +46,7 @@ public class CircuitBreakerSttEngine implements SttEngine {
     private final SttEngine delegate;
     private final CircuitBreaker circuitBreaker;
     private final Eventloop eventloop;
+    private boolean delegateClosed;
 
     // Default circuit breaker configuration for STT operations
     private static final int DEFAULT_FAILURE_THRESHOLD = 5;
@@ -189,8 +190,14 @@ public class CircuitBreakerSttEngine implements SttEngine {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (delegateClosed) {
+            return;
+        }
+        // Mark closed only after the provider confirms cleanup. A failed close
+        // remains retryable by the owner instead of silently leaking a handle.
         delegate.close();
+        delegateClosed = true;
     }
 
     @Override

@@ -46,6 +46,7 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
     private final TtsEngine delegate;
     private final CircuitBreaker circuitBreaker;
     private final Eventloop eventloop;
+    private boolean delegateClosed;
 
     // Default circuit breaker configuration for TTS operations
     private static final int DEFAULT_FAILURE_THRESHOLD = 5;
@@ -204,8 +205,14 @@ public class CircuitBreakerTtsEngine implements TtsEngine {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (delegateClosed) {
+            return;
+        }
+        // Mark closed only after the provider confirms cleanup. A failed close
+        // remains retryable by the owner instead of silently leaking a handle.
         delegate.close();
+        delegateClosed = true;
     }
 
     @Override
