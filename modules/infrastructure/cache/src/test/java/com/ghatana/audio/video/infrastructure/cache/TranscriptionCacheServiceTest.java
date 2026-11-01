@@ -3,14 +3,21 @@ package com.ghatana.audio.video.infrastructure.cache;
 import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import com.ghatana.cache.DistributedCachePort;
 import com.ghatana.core.async.AsyncOperation;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static com.ghatana.audio.video.infrastructure.cache.AsyncOperationTestSupport.await;
@@ -20,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -198,10 +206,163 @@ class TranscriptionCacheServiceTest {
         verify(cachePort).put(eq(key), any(), any(Duration.class));
     }
 
+    @Test
+    void serializedEntryLimitAcceptsAtLimitAndRejectsOneByteOver() {
+        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
+                "a".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES))).isTrue();
+        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
+                "a".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1))).isFalse();
+        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
+                "é".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES / 2 + 1))).isFalse();
+    }
+
+    @Test
+    void oversizedWritesAreSkippedWithoutLoggingTranscriptionContent() {
+        String marker = "oversized-private-transcript-marker";
+        TranscriptionEntity oversized = entity("tenant-a", UUID.randomUUID(), false);
+        oversized.setText(marker + "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES));
+
+        try (LogCapture logs = capture(TranscriptionCacheService.class)) {
+            await(cacheService.cacheTranscription("tenant-a", oversized));
+            await(cacheService.cacheTranscription("tenant-a", oversized, Duration.ofMinutes(5)));
+            oversized.setAudioFileId(UUID.randomUUID());
+            await(cacheService.cacheTranscriptionByAudioFileId(
+                    "tenant-a", oversized.getAudioFileId(), oversized));
+            assertThat(logs.output()).contains("Oversized transcription cache value")
+                    .doesNotContain(marker);
+        }
+
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void oversizedCachedJsonIsRejectedBeforeDeserializationOnBothReadPaths() {
+        @SuppressWarnings("unchecked")
+        DistributedCachePort<String, String> isolatedPort = mock(DistributedCachePort.class);
+        ObjectMapper isolatedMapper = mock(ObjectMapper.class);
+        TranscriptionCacheService isolatedService = new TranscriptionCacheService(isolatedPort, isolatedMapper);
+        UUID transcriptionId = UUID.randomUUID();
+        UUID audioFileId = UUID.randomUUID();
+        String transcriptionKey = "transcription:tenant-a:" + transcriptionId;
+        String audioKey = "transcription:tenant-a:audio:" + audioFileId;
+        String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
+        when(isolatedPort.get(transcriptionKey)).thenReturn(
+                AsyncOperation.success(Optional.of(oversizedJson)));
+        when(isolatedPort.get(audioKey)).thenReturn(AsyncOperation.success(Optional.of(oversizedJson)));
+
+        assertThat(await(isolatedService.getTranscription("tenant-a", transcriptionId))).isEmpty();
+        assertThat(await(isolatedService.getTranscriptionByAudioFileId("tenant-a", audioFileId))).isEmpty();
+
+        verifyNoInteractions(isolatedMapper);
+    }
+
+    @Test
+    void oversizedCacheHitFallsBackToValidSourceValue() {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = "transcription:tenant-a:" + transcriptionId;
+        String oversizedJson = "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1);
+        TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.of(oversizedJson)));
+        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
+        AtomicInteger loads = new AtomicInteger();
+
+        TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> {
+                    loads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(source));
+                }));
+
+        assertThat(result).isSameAs(source);
+        assertThat(loads.get()).isEqualTo(1);
+    }
+
+    @Test
+    void oversizedSourceValueIsReturnedButNotSerializedBeyondTheCacheBoundOrLogged() {
+        UUID transcriptionId = UUID.randomUUID();
+        String key = "transcription:tenant-a:" + transcriptionId;
+        String marker = "oversized-source-private-marker";
+        TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
+        source.setText(marker + "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES * 3));
+        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
+
+        try (LogCapture logs = capture(TranscriptionCacheService.class)) {
+            TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                    id -> AsyncOperation.success(Optional.of(source))));
+
+            assertThat(result).isSameAs(source);
+            assertThat(logs.output()).contains("Oversized source transcription; skipping cache write")
+                    .doesNotContain(marker);
+        }
+
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void serializationFailuresDoNotLogCauseMessageOrEntityIdentifiers() {
+        String marker = "serializer-leaked-secret-payload";
+        ObjectMapper mapper = mock(ObjectMapper.class);
+        TranscriptionCacheService isolatedService = new TranscriptionCacheService(cachePort, mapper);
+        TranscriptionEntity entry = entity("tenant-private-marker", UUID.randomUUID(), false);
+        entry.setAudioFileId(UUID.randomUUID());
+        doThrow(new IllegalStateException(marker)).when(mapper)
+                .writeValue(any(OutputStream.class), eq(entry));
+
+        try (LogCapture logs = capture(TranscriptionCacheService.class)) {
+            await(isolatedService.cacheTranscription("tenant-private-marker", entry));
+            await(isolatedService.cacheTranscription("tenant-private-marker", entry, Duration.ofMinutes(1)));
+            await(isolatedService.cacheTranscriptionByAudioFileId(
+                    "tenant-private-marker", entry.getAudioFileId(), entry));
+
+            assertThat(logs.output()).contains("cache write preparation failed")
+                    .doesNotContain(marker, "tenant-private-marker", entry.getId().toString(),
+                            entry.getAudioFileId().toString());
+        }
+
+        verifyNoInteractions(cachePort);
+    }
+
     private static TranscriptionEntity entity(String tenant, UUID id, boolean deleted) {
         TranscriptionEntity entity = new TranscriptionEntity(id, tenant, UUID.randomUUID(), UUID.randomUUID(),
                 "private transcript", "en");
         entity.setDeleted(deleted);
         return entity;
+    }
+
+    private static LogCapture capture(Class<?> loggerClass) {
+        LoggerContext context = (LoggerContext) org.apache.logging.log4j.LogManager.getContext(false);
+        org.apache.logging.log4j.core.Logger logger = context.getLogger(loggerClass.getName());
+        LogCapture appender = new LogCapture(logger, logger.getLevel());
+        appender.start();
+        logger.addAppender(appender);
+        logger.setLevel(Level.WARN);
+        return appender;
+    }
+
+    private static final class LogCapture extends AbstractAppender implements AutoCloseable {
+        private final org.apache.logging.log4j.core.Logger logger;
+        private final Level previousLevel;
+        private final List<String> messages = new ArrayList<>();
+
+        LogCapture(org.apache.logging.log4j.core.Logger logger, Level previousLevel) {
+            super("transcription-cache-size", null, null, true, Property.EMPTY_ARRAY);
+            this.logger = logger;
+            this.previousLevel = previousLevel;
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            messages.add(event.getMessage().getFormattedMessage());
+        }
+
+        String output() {
+            return String.join("\n", messages);
+        }
+
+        @Override
+        public void close() {
+            logger.removeAppender(this);
+            logger.setLevel(previousLevel);
+            stop();
+        }
     }
 }

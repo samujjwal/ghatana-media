@@ -29,6 +29,7 @@ provider state, provider clients, and gRPC transport policy — shares it.
 | --- | --- | --- |
 | Enablement | MEDIA_RUNTIME_ENABLED | false; must be true to bind HTTP |
 | HTTP/body | MEDIA_HTTP_PORT, MEDIA_MAX_BODY_BYTES, MEDIA_MAX_CHUNK_BYTES | Port 8093; body 8 MiB max 32 MiB; chunk 4 MiB and no larger than body |
+| Transcription cache | `modules/infrastructure/cache` | Serialized cache entry limit 1 MiB UTF-8; service bounds outgoing serialization and rejects oversized incoming values before decode, but the cache adapter may materialize an inbound string before this check |
 | Artifact/job bounds | MEDIA_MAX_ARTIFACT_BYTES, MEDIA_JOB_TIMEOUT_MS, MEDIA_MAX_CONCURRENT_JOBS | Artifact 10 GiB max 1 TiB; job timeout 900000 ms max 24h; concurrency 64 max 10000 |
 | Store selection | MEDIA_ARTIFACT_STORE_ID, MEDIA_JOB_STORE_ID, MEDIA_STREAM_STORE_ID | Required durable store IDs in production-like profiles (staging/production/prod/sovereign/integration/e2e) |
 | Local stores | MEDIA_LOCAL_STORES_ENABLED, MEDIA_LOCAL_PROVIDER_ENABLED, MEDIA_LOCAL_STORAGE_ROOT | Disabled by default; root build/media-runtime-local; local stores/providers are non-durable/non-production-eligible |
