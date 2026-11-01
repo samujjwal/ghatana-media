@@ -28,6 +28,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
@@ -51,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -253,6 +255,73 @@ class MediaSttTranscriptCommitFenceIT {
         }
     }
 
+    @Test
+    void confirmedCancellationPersistsOutboxAndRemainsTerminalAfterRestart() throws Exception {
+        AtomicBoolean providerRan = new AtomicBoolean();
+        AtomicInteger providerCancelCalls = new AtomicInteger();
+        Path root = Files.createTempDirectory("media-fence-cancel-");
+        AutoCloseable installed = TestAwsStateInstall.install(environment());
+        String jobId;
+        try {
+            try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(
+                         new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var administration = new PostgresqlMediaSourceRightsAdministration();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore,
+                         consentAuthority, authority, transcriptStore,
+                         List.of(blockingProvider(providerRan, CancellationOutcome.CONFIRMED,
+                                 providerCancelCalls)))) {
+                MediaArtifact artifact = upload(runtime, "cancel");
+                seedArtifactRow(artifact);
+                administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
+
+                var accepted = runtime.submit(jobRequest(artifact, "cancel"),
+                        authenticated("tenant-a", "principal-a"));
+                jobId = accepted.jobId();
+                for (int i = 0; i < 240 && !providerRan.get(); i++) {
+                    Thread.sleep(250);
+                }
+                assertThat(providerRan).as("provider attempt dispatched before cancel").isTrue();
+
+                var cancelled = runtime.cancel("tenant-a", "principal-a", jobId);
+                assertThat(cancelled.status()).isEqualTo(JobStatus.CANCELLED);
+                assertThat(providerCancelCalls).hasValue(1);
+                assertThat(transcriptStore.revisions(
+                        "tenant-a", "principal-a", "transcript:" + jobId)).isEmpty();
+            }
+
+            // The PostgreSQL row and outbox entry survive runtime/store close. Repeating
+            // cancellation after restart is an idempotent terminal read and never calls a
+            // provider again or creates a second cancellation event.
+            try (AutoCloseable reinstalled = TestAwsStateInstall.install(environment());
+                 var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(
+                         new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore,
+                         consentAuthority, authority, transcriptStore, List.of())) {
+                var persisted = runtime.job("tenant-a", "principal-a", jobId).orElseThrow();
+                assertThat(persisted.status()).isEqualTo(JobStatus.CANCELLED);
+                assertThat(runtime.cancel("tenant-a", "principal-a", jobId).status())
+                        .isEqualTo(JobStatus.CANCELLED);
+                assertThat(providerCancelCalls).hasValue(1);
+            }
+            // A cancellation must be represented in the durable lifecycle outbox along
+            // with its terminal state so downstream consumers can recover after restart.
+            assertThat(outboxEventCount("tenant-a", "principal-a", jobId,
+                    "MEDIA_JOB_CANCELLED")).isEqualTo(1);
+        } finally {
+            installed.close();
+        }
+    }
+
     private static MediaRuntime runtime(
             Path root,
             LocalMediaRuntimeSupport.FileArtifactStore artifactStore,
@@ -323,6 +392,11 @@ class MediaSttTranscriptCommitFenceIT {
     }
 
     private static MediaProcessingProvider blockingProvider(AtomicBoolean ran) {
+        return blockingProvider(ran, CancellationOutcome.UNSUPPORTED, new AtomicInteger());
+    }
+
+    private static MediaProcessingProvider blockingProvider(
+            AtomicBoolean ran, CancellationOutcome cancellationOutcome, AtomicInteger cancelCalls) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return "stt-fence-fixture"; }
             @Override public String providerVersion() { return "v1"; }
@@ -352,7 +426,35 @@ class MediaSttTranscriptCommitFenceIT {
                 ran.set(true);
                 return new CompletableFuture<>();
             }
+            @Override public CancellationOutcome cancel(
+                    String tenantId, String principalId, String correlationId, String jobId) {
+                cancelCalls.incrementAndGet();
+                return cancellationOutcome;
+            }
         };
+    }
+
+    private static int outboxEventCount(
+            String tenantId, String principalId, String jobId, String eventType) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT payload_json FROM media_lifecycle_outbox "
+                             + "WHERE tenant_id=? AND subject_id=? AND event_type=?")) {
+            statement.setString(1, tenantId);
+            statement.setString(2, principalId);
+            statement.setString(3, eventType);
+            try (var result = statement.executeQuery()) {
+                int matches = 0;
+                var mapper = new tools.jackson.databind.ObjectMapper();
+                while (result.next()) {
+                    if (jobId.equals(mapper.readTree(result.getString(1)).path("jobId").asString())) {
+                        matches++;
+                    }
+                }
+                return matches;
+            }
+        }
     }
 
     private static MediaArtifact upload(MediaRuntime runtime, String tag) throws Exception {
