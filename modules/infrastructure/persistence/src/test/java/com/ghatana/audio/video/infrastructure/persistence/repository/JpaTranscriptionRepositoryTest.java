@@ -125,6 +125,35 @@ class JpaTranscriptionRepositoryTest {
     }
 
     @Test
+    @DisplayName("GIVEN a stale transcript revision WHEN saved THEN it cannot overwrite the current tenant row")
+    void staleTranscriptionRevisionCannotOverwriteCurrentValue() {
+        String tenantId = "tenant-version-owner";
+        TranscriptionEntity original = createTestTranscription(tenantId);
+        original.setText("revision-zero transcript");
+        repository.save(tenantId, original);
+        entityManager.clear();
+
+        TranscriptionEntity stale = repository.findById(tenantId, original.getId()).orElseThrow();
+        entityManager.detach(stale);
+        TranscriptionEntity current = repository.findById(tenantId, original.getId()).orElseThrow();
+        current.setText("current transcript revision");
+        TranscriptionEntity savedCurrent = repository.save(tenantId, current);
+        assertThat(savedCurrent.getVersion()).isGreaterThan(stale.getVersion());
+
+        stale.setText("stale transcript overwrite");
+        assertThatThrownBy(() -> repository.save(tenantId, stale))
+            .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+
+        entityManager.clear();
+        assertThat(repository.findById(tenantId, original.getId()))
+            .get()
+            .satisfies(actual -> {
+                assertThat(actual.getTenantId()).isEqualTo(tenantId);
+                assertThat(actual.getText()).isEqualTo("current transcript revision");
+            });
+    }
+
+    @Test
     @DisplayName("GIVEN saved entity WHEN findById THEN returns entity")
     void testFindById() { 
         // GIVEN

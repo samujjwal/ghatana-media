@@ -127,6 +127,35 @@ class JpaAudioFileRepositoryTest {
     }
 
     @Test
+    @DisplayName("GIVEN a stale file revision WHEN saved THEN it cannot overwrite the current tenant row")
+    void staleAudioFileRevisionCannotOverwriteCurrentValue() {
+        String tenantId = "tenant-version-owner";
+        AudioFileEntity original = createTestAudioFile(tenantId);
+        original.setFileName("revision-zero.mp3");
+        repository.save(tenantId, original);
+        entityManager.clear();
+
+        AudioFileEntity stale = repository.findById(tenantId, original.getId()).orElseThrow();
+        entityManager.detach(stale);
+        AudioFileEntity current = repository.findById(tenantId, original.getId()).orElseThrow();
+        current.setFileName("current-revision.mp3");
+        AudioFileEntity savedCurrent = repository.save(tenantId, current);
+        assertThat(savedCurrent.getVersion()).isGreaterThan(stale.getVersion());
+
+        stale.setFileName("stale-overwrite.mp3");
+        assertThatThrownBy(() -> repository.save(tenantId, stale))
+            .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+
+        entityManager.clear();
+        assertThat(repository.findById(tenantId, original.getId()))
+            .get()
+            .satisfies(actual -> {
+                assertThat(actual.getTenantId()).isEqualTo(tenantId);
+                assertThat(actual.getFileName()).isEqualTo("current-revision.mp3");
+            });
+    }
+
+    @Test
     @DisplayName("GIVEN saved entity WHEN findById THEN returns entity")
     void testFindById() { 
         // GIVEN
