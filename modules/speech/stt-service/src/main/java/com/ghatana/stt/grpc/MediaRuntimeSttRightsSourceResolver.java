@@ -1,6 +1,7 @@
 package com.ghatana.stt.grpc;
 
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.HumanConsentDisposition;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
 
 import java.time.Clock;
@@ -96,6 +97,12 @@ final class MediaRuntimeSttRightsSourceResolver
             return new Resolution(Status.UNAVAILABLE, null);
         }
         MediaSourceRightsAdministration.SourceRecord record = current.get(0);
+        // Do not let a malformed authority projection turn an omitted human-consent
+        // decision into the nonhuman sentinel. RegisterRequest validates this shape,
+        // but persisted/plugin-provided current records are an independent trust boundary.
+        if (!hasValidConsentShape(record)) {
+            return new Resolution(Status.UNAVAILABLE, null);
+        }
         if (!record.principalId().equals(subject)
                 || !record.allowedOperations().contains(operationToken(request.operation()))) {
             return new Resolution(Status.DENIED, null);
@@ -110,6 +117,19 @@ final class MediaRuntimeSttRightsSourceResolver
                         : record.consentDecisionId(),
                 record.expiresAt(),
                 "epoch:" + record.revocationEpoch()));
+    }
+
+    private static boolean hasValidConsentShape(
+            MediaSourceRightsAdministration.SourceRecord record) {
+        return switch (record.sourceKind()) {
+            case ORIGINAL_NONHUMAN -> record.humanConsentDisposition()
+                    == HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT
+                    && record.consentDecisionId().isBlank();
+            case HUMAN_RECORDING, THIRD_PARTY -> record.humanConsentDisposition()
+                    == HumanConsentDisposition.REQUIRED
+                    && !record.consentDecisionId().isBlank();
+            case UNKNOWN -> false;
+        };
     }
 
     /** Maps the STT operation to the canonical registered operation scope token. */

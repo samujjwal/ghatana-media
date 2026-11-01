@@ -53,6 +53,31 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
+    void malformedHumanConsentProjectionIsUnavailableRatherThanNonhuman() throws Exception {
+        administration.add(recordWithConsent(
+                MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED, ""));
+
+        Resolution resolution = await(resolver.resolve(request(IDENTITY)));
+
+        assertThat(resolution.status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(resolution.facts()).isNull();
+    }
+
+    @Test
+    void humanSourceCarriesRegisteredConsentReferenceIntoPolicyFacts() throws Exception {
+        administration.add(recordWithConsent(
+                MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED,
+                "consent-decision-fixture"));
+
+        Resolution resolution = await(resolver.resolve(request(IDENTITY)));
+
+        assertThat(resolution.status()).isEqualTo(Status.ADMITTED);
+        assertThat(resolution.facts().consentReference()).isEqualTo("consent-decision-fixture");
+    }
+
+    @Test
     void wrongPrincipalIsDeniedBeforeAnyEffect() throws Exception {
         administration.add(record(NOW.instant().plusSeconds(600), null));
         var foreign = new JwtServerInterceptor.VerifiedIdentity(
@@ -194,6 +219,18 @@ class MediaRuntimeSttRightsSourceResolverTest {
                 "", Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
                 Set.of(ProviderDataRetention.NONE), "clock-evidence", "provenance://test/1",
                 PRINCIPAL, Instant.now(), expiresAt, 0, revokedAt);
+    }
+
+    private static MediaSourceRightsAdministration.SourceRecord recordWithConsent(
+            MediaSourceAuthorizationContracts.SourceKind kind,
+            MediaSourceAuthorizationContracts.HumanConsentDisposition disposition,
+            String consentDecisionId) {
+        return new MediaSourceRightsAdministration.SourceRecord(
+                TENANT, ARTIFACT, recordVersion(), "a".repeat(64), PRINCIPAL, PRINCIPAL,
+                kind, disposition, consentDecisionId, Set.of("speech_to_text"),
+                Set.of("transcription"), Set.of("local"), Set.of(ProviderDataRetention.NONE),
+                "clock-evidence", "provenance://test/1", PRINCIPAL, Instant.now(),
+                NOW.instant().plusSeconds(600), 0, null);
     }
 
     /** Minimal in-memory administration: every record read is fresh so revocation is visible. */
