@@ -4,11 +4,11 @@ JPA-based persistence layer for the Audio-Video platform.
 
 ## Purpose
 
-Provides repository interfaces and JPA entity mappings for audio files and transcription records. All persistence for STT and TTS output flows through this module.
+Provides legacy-compatible repository interfaces and JPA mappings for audio files and transcription records. The canonical Media job, artifact, and transcript authority remains the runtime/provider store; this adapter must not become a second active writer.
 
 ## Layer
 
-`infrastructure` — pure data-access adapter; no domain or business logic. Consumed by `stt-service`, `tts-service`, and `multimodal-service`.
+`infrastructure` — compatibility data-access adapter; it does not establish canonical job or transcription finality.
 
 ## Key Components
 
@@ -42,3 +42,15 @@ spring.jpa.hibernate.ddl-auto=validate
 ```
 
 Integration tests use Testcontainers with a PostgreSQL image.
+
+### Transaction and concurrency boundaries
+
+`saveWithTranscription` uses the tenant-checked transcription repository in the
+same transaction as the audio save. A failure rolls back a transaction it
+started or marks an existing transaction rollback-only. The JPA repositories
+hold a supplied `EntityManager`; that object is not safe for concurrent access.
+Hosts must provide isolated per-operation persistence contexts or serialize
+all use of a shared context, including across both service types. Bounded
+service executors alone do not make a shared `EntityManager` thread-safe.
+The PostgreSQL integration task uses an isolated generated schema and does not
+prove production migration history or a writer cutover.

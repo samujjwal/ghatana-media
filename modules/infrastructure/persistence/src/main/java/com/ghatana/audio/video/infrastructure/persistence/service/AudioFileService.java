@@ -163,6 +163,7 @@ public class AudioFileService implements AutoCloseable {
                                                           com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity transcription) {
         return Promise.ofBlocking(dbExecutor, () -> {
             var tx = repository.getEntityManager().getTransaction();
+            UUID originalAudioFileId = transcription == null ? null : transcription.getAudioFileId();
             boolean began = false;
             try {
                 if (!tx.isActive()) {
@@ -176,13 +177,11 @@ public class AudioFileService implements AutoCloseable {
                 // Save transcription if provided
                 if (transcription != null) {
                     transcription.setAudioFileId(savedAudioFile.getId());
-                    // Use the same EntityManager for transcription save
-                    jakarta.persistence.EntityManager em = repository.getEntityManager();
-                    if (transcription.getId() == null) {
-                        em.persist(transcription);
-                    } else {
-                        em.merge(transcription);
-                    }
+                    // Reuse the guarded tenant-aware repository on the same
+                    // EntityManager/transaction. Direct merge by global ID could
+                    // otherwise overwrite a different tenant's transcription.
+                    new com.ghatana.audio.video.infrastructure.persistence.repository.JpaTranscriptionRepository(
+                            repository.getEntityManager()).save(tenantId, transcription);
                 }
 
                 if (began) {
@@ -193,11 +192,13 @@ public class AudioFileService implements AutoCloseable {
                     tenantId, savedAudioFile.getId(), transcription != null ? transcription.getId() : "none");
                 return savedAudioFile;
             } catch (Exception e) {
-                if (began && tx.isActive()) {
-                    tx.rollback();
+                if (transcription != null) transcription.setAudioFileId(originalAudioFileId);
+                if (tx.isActive()) {
+                    if (began) tx.rollback();
+                    else tx.setRollbackOnly();
                 }
-                LOG.error("Failed to save audio file with transcription atomically: tenantId={}", tenantId, e);
-                throw new RuntimeException("Failed to save audio file with transcription: " + e.getMessage(), e);
+                LOG.error("Failed to save audio file with transcription atomically");
+                throw new RuntimeException("Failed to save audio file with transcription", e);
             }
         });
     }

@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -73,6 +74,24 @@ class AudioFileServiceTest extends EventloopTestBase {
         assertThat(result).isNotNull(); 
         assertThat(result.getId()).isEqualTo(entity.getId()); 
         verify(repository).save(tenantId, entity); 
+    }
+
+    @Test
+    @DisplayName("combined save marks a caller-owned transaction rollback-only on failure")
+    void combinedSaveMarksExistingTransactionRollbackOnly() {
+        var em = mock(jakarta.persistence.EntityManager.class);
+        var tx = mock(jakarta.persistence.EntityTransaction.class);
+        when(repository.getEntityManager()).thenReturn(em);
+        when(em.getTransaction()).thenReturn(tx);
+        when(tx.isActive()).thenReturn(true);
+        when(repository.save(eq("tenant-1"), any())).thenThrow(new IllegalArgumentException("rejected"));
+        var audio = createTestAudioFile("tenant-1");
+
+        assertThatThrownBy(() -> runPromise(() -> service.saveWithTranscription("tenant-1", audio, null)))
+                .hasRootCauseInstanceOf(IllegalArgumentException.class);
+        verify(tx).setRollbackOnly();
+        verify(tx, never()).commit();
+        verify(tx, never()).rollback();
     }
 
     @Test

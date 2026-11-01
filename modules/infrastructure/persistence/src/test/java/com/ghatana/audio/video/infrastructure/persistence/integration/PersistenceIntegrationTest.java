@@ -4,6 +4,9 @@ import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity
 import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import com.ghatana.audio.video.infrastructure.persistence.repository.JpaAudioFileRepository;
 import com.ghatana.audio.video.infrastructure.persistence.repository.JpaTranscriptionRepository;
+import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileService;
+import com.ghatana.testing.activej.EventloopTestBase;
+import io.activej.eventloop.Eventloop;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -31,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("Persistence Integration Tests")
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) 
-class PersistenceIntegrationTest {
+class PersistenceIntegrationTest extends EventloopTestBase {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>( 
@@ -88,6 +91,61 @@ class PersistenceIntegrationTest {
     void tearDownClass() { 
         if (emf != null && emf.isOpen()) { 
             emf.close(); 
+        }
+    }
+
+    @Test
+    @DisplayName("combined audio/transcription save preserves tenant ownership and rolls back on conflict")
+    void postgresCombinedSaveRejectsCrossTenantTranscriptionAndRollsBackAudio() {
+        String owner = "owner-" + UUID.randomUUID();
+        String attacker = "attacker-" + UUID.randomUUID();
+        AudioFileEntity originalAudio = createAudioFile(owner, "owner.wav");
+        audioFileRepository.save(owner, originalAudio);
+        TranscriptionEntity original = new TranscriptionEntity(UUID.randomUUID(), owner,
+                originalAudio.getId(), UUID.randomUUID(), "owner text", "en");
+        transcriptionRepository.save(owner, original);
+        entityManager.clear();
+
+        AudioFileEntity newAudio = createAudioFile(attacker, "new.wav");
+        UUID priorAudioId = UUID.randomUUID();
+        TranscriptionEntity forged = new TranscriptionEntity(original.getId(), attacker,
+                priorAudioId, UUID.randomUUID(), "forged text", "en");
+        var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+        var service = new AudioFileService(audioFileRepository, Eventloop.create(), executor);
+        try {
+            assertThatThrownBy(() -> runPromise(() -> service.saveWithTranscription(attacker, newAudio, forged)))
+                    .hasRootCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Transcription does not belong to save tenant");
+            assertThat(forged.getAudioFileId()).isEqualTo(priorAudioId);
+            entityManager.clear();
+            assertThat(audioFileRepository.findById(attacker, newAudio.getId())).isEmpty();
+            assertThat(transcriptionRepository.findById(owner, original.getId()).orElseThrow().getText())
+                    .isEqualTo("owner text");
+
+        } finally {
+            service.close();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    @DisplayName("combined audio/transcription save commits both records for an authorized tenant")
+    void postgresCombinedSavePersistsSameTenantRecords() {
+        String owner = "owner-" + UUID.randomUUID();
+        var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+        var service = new AudioFileService(audioFileRepository, Eventloop.create(), executor);
+        try {
+            AudioFileEntity admittedAudio = createAudioFile(owner, "admitted.wav");
+            TranscriptionEntity admitted = new TranscriptionEntity(UUID.randomUUID(), owner,
+                    admittedAudio.getId(), UUID.randomUUID(), "admitted text", "en");
+            runPromise(() -> service.saveWithTranscription(owner, admittedAudio, admitted));
+            entityManager.clear();
+            assertThat(audioFileRepository.findById(owner, admittedAudio.getId())).isPresent();
+            assertThat(transcriptionRepository.findById(owner, admitted.getId()).orElseThrow().getAudioFileId())
+                    .isEqualTo(admittedAudio.getId());
+        } finally {
+            service.close();
+            executor.shutdownNow();
         }
     }
 
