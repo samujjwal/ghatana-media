@@ -149,6 +149,122 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL records remain readable after closing and reopening the persistence factory")
+    void postgresReadbackSurvivesEntityManagerFactoryRestart() throws Throwable {
+        String databaseName = "media_restart_" + UUID.randomUUID().toString().replace("-", "");
+        String jdbcUrl = postgres.getJdbcUrl().substring(0, postgres.getJdbcUrl().lastIndexOf('/') + 1)
+                + databaseName;
+        EntityManagerFactory writingFactory = null;
+        EntityManagerFactory reopenedFactory = null;
+        EntityManager writingManager = null;
+        EntityManager reopenedManager = null;
+        Throwable primaryFailure = null;
+
+        try {
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE DATABASE \"" + databaseName + "\"");
+            }
+            try (var connection = DriverManager.getConnection(jdbcUrl, postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE SCHEMA audio_video");
+            }
+
+            Map<String, Object> properties = postgresPersistenceProperties(jdbcUrl, "create");
+            writingFactory = Persistence.createEntityManagerFactory("audio-video-test", properties);
+            writingManager = writingFactory.createEntityManager();
+            String tenantId = "restart-tenant-" + UUID.randomUUID();
+            AudioFileEntity audio = createAudioFile(tenantId, "restart.wav");
+            TranscriptionEntity transcript = new TranscriptionEntity(
+                    UUID.randomUUID(), tenantId, audio.getId(), UUID.randomUUID(), "restart transcript", "en");
+            new JpaAudioFileRepository(writingManager).save(tenantId, audio);
+            new JpaTranscriptionRepository(writingManager).save(tenantId, transcript);
+
+            writingManager.close();
+            writingManager = null;
+            writingFactory.close();
+            writingFactory = null;
+
+            reopenedFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", postgresPersistenceProperties(jdbcUrl, "validate"));
+            reopenedManager = reopenedFactory.createEntityManager();
+            assertThat(new JpaAudioFileRepository(reopenedManager).findById(tenantId, audio.getId()))
+                    .get()
+                    .satisfies(persisted -> {
+                        assertThat(persisted.getFileName()).isEqualTo("restart.wav");
+                        assertThat(persisted.getTenantId()).isEqualTo(tenantId);
+                    });
+            assertThat(new JpaTranscriptionRepository(reopenedManager).findById(tenantId, transcript.getId()))
+                    .get()
+                    .satisfies(persisted -> {
+                        assertThat(persisted.getText()).isEqualTo("restart transcript");
+                        assertThat(persisted.getAudioFileId()).isEqualTo(audio.getId());
+                    });
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            Throwable cleanupFailure = null;
+            cleanupFailure = closeTestEntityManager(reopenedManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(reopenedFactory, cleanupFailure);
+            cleanupFailure = closeTestEntityManager(writingManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(writingFactory, cleanupFailure);
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS \"" + databaseName + "\" WITH (FORCE)");
+            } catch (Throwable dropFailure) {
+                cleanupFailure = appendCleanupFailure(cleanupFailure, dropFailure);
+            }
+            if (cleanupFailure != null) {
+                if (primaryFailure != null) {
+                    primaryFailure.addSuppressed(cleanupFailure);
+                } else {
+                    throw cleanupFailure;
+                }
+            }
+        }
+    }
+
+    private static Throwable closeTestEntityManager(EntityManager manager, Throwable previousFailure) {
+        try {
+            if (manager != null && manager.isOpen()) manager.close();
+            return previousFailure;
+        } catch (Throwable closeFailure) {
+            return appendCleanupFailure(previousFailure, closeFailure);
+        }
+    }
+
+    private static Throwable closeTestFactory(EntityManagerFactory factory, Throwable previousFailure) {
+        try {
+            if (factory != null && factory.isOpen()) factory.close();
+            return previousFailure;
+        } catch (Throwable closeFailure) {
+            return appendCleanupFailure(previousFailure, closeFailure);
+        }
+    }
+
+    private static Throwable appendCleanupFailure(Throwable previousFailure, Throwable nextFailure) {
+        if (previousFailure == null) return nextFailure;
+        previousFailure.addSuppressed(nextFailure);
+        return previousFailure;
+    }
+
+    private Map<String, Object> postgresPersistenceProperties(String jdbcUrl, String schemaGeneration) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
+        properties.put("jakarta.persistence.jdbc.user", postgres.getUsername());
+        properties.put("jakarta.persistence.jdbc.password", postgres.getPassword());
+        properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.put("hibernate.hbm2ddl.auto", schemaGeneration);
+        properties.put("hibernate.default_schema", "audio_video");
+        properties.put("hibernate.show_sql", "false");
+        return properties;
+    }
+
+    @Test
     @DisplayName("PostgreSQL rejects cross-tenant audio and transcription ID reuse")
     void postgresRejectsCrossTenantIdReuse() {
         String owner = "owner-" + UUID.randomUUID();
