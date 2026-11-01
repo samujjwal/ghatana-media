@@ -136,7 +136,7 @@ public final class YoloXNanoAdapter implements VisionDetector, AutoCloseable {
     }
 
     static PreprocessedInput preprocess(Mat source) {
-        if (source == null || source.empty()) throw new IllegalArgumentException("Image must not be empty");
+        NativeVisionMatInput.validate(source);
         int size = YoloXNanoOutputParser.INPUT_SIZE;
         double scale = Math.min((double) size / source.rows(), (double) size / source.cols());
         int resizedWidth = Math.max(1, (int) (source.cols() * scale));
