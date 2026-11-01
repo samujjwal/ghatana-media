@@ -108,7 +108,14 @@ public class VisionGrpcServerRuntimePortFactoryTest {
 
     @Test
     void failedStandaloneBindClosesFactoryOwnedPort() throws Exception {
-        try (ServerSocket occupied = new ServerSocket(0)) {
+        int occupiedPort = freePort();
+        io.grpc.Server occupied = io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.forAddress(
+                        new java.net.InetSocketAddress(
+                                java.net.InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), occupiedPort))
+                .addService(io.grpc.ServerServiceDefinition.builder("test.PortOccupier").build())
+                .build()
+                .start();
+        try {
             MediaProcessingRuntimePort port = mock(MediaProcessingRuntimePort.class,
                     org.mockito.Mockito.withSettings().extraInterfaces(AutoCloseable.class));
             MediaProcessingRuntimePort composed = VisionGrpcServer.composeRuntimePort(Map.of(),
@@ -123,11 +130,14 @@ public class VisionGrpcServerRuntimePortFactoryTest {
             service.ownRuntimePort(composed);
             var readiness = VisionGrpcServer.createReadinessLifecycle(new SimpleMeterRegistry(), service::isProviderReady);
             service.setReadinessProbe(readiness::isServing);
-            var server = new VisionGrpcServer(occupied.getLocalPort(),
+            var server = new VisionGrpcServer(occupiedPort,
                     AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service, readiness);
             assertThatThrownBy(server::start).isInstanceOf(java.io.IOException.class);
             assertThat(server.isShutdown()).isTrue();
             verify((AutoCloseable) port).close();
+        } finally {
+            occupied.shutdownNow();
+            occupied.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS);
         }
     }
 
