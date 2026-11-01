@@ -92,6 +92,22 @@ export function TranscriptCaptionScreen({
   const alignAction = availableActions.get("media.action.align-caption-timing");
   const saveAction = availableActions.get("media.action.save-caption-version");
   const compareAction = availableActions.get("media.action.compare-caption-versions");
+  const availableCaptionVersionIds = new Set((transcript.versions ?? []).map((version) => version.id));
+  const leftCompareVersionId = transcript.leftCompareVersionId;
+  const rightCompareVersionId = transcript.rightCompareVersionId;
+  const comparePairIsDistinct = Boolean(leftCompareVersionId && rightCompareVersionId
+    && leftCompareVersionId !== rightCompareVersionId);
+  const comparePairIsAvailable = Boolean(leftCompareVersionId && rightCompareVersionId
+    && availableCaptionVersionIds.has(leftCompareVersionId)
+    && availableCaptionVersionIds.has(rightCompareVersionId));
+  const canCompareSelectedPair = comparePairIsDistinct && comparePairIsAvailable;
+  const comparePairMessage = !leftCompareVersionId || !rightCompareVersionId
+    ? undefined
+    : !comparePairIsDistinct
+      ? "Choose two distinct caption versions to compare."
+      : !comparePairIsAvailable
+        ? "Both selected caption versions must be available in this source projection."
+        : undefined;
   const payloadActions = new Set(["media.action.correct-caption", "media.action.align-caption-timing", "media.action.save-caption-version", "media.action.compare-caption-versions"]);
   const flowActions = actions.filter((action) => !payloadActions.has(action.id));
   const flowSafeActionIds = nextSafeActionIds.filter((id) => !payloadActions.has(id));
@@ -208,15 +224,16 @@ export function TranscriptCaptionScreen({
           <option value="">Choose a version</option>
           {transcript.versions?.map((version) => <option key={version.id} value={version.id}>{version.label} — {version.id}</option>)}
         </select>
-        <button type="button" className="media-action-button media-action-button--primary" disabled={!compareAction?.enabled || !transcript.leftCompareVersionId || !transcript.rightCompareVersionId || pendingPayloadAction !== undefined}
+        <button type="button" className="media-action-button media-action-button--primary" disabled={!compareAction?.enabled || !canCompareSelectedPair || pendingPayloadAction !== undefined}
           onClick={() => {
-            if (transcript.leftCompareVersionId && transcript.rightCompareVersionId) {
+            if (canCompareSelectedPair && leftCompareVersionId && rightCompareVersionId) {
               invokePayloadAction("media.action.compare-caption-versions", {
-                leftVersionId: transcript.leftCompareVersionId,
-                rightVersionId: transcript.rightCompareVersionId,
+                leftVersionId: leftCompareVersionId,
+                rightVersionId: rightCompareVersionId,
               }, [...transcriptSubjectRefs, transcript.leftCompareVersionId, transcript.rightCompareVersionId]);
             }
           }}>{compareAction?.label ?? "Compare selected versions"}</button>
+        {comparePairMessage && <p role="status">{comparePairMessage}</p>}
         {compareAction?.disabledReason && <p>{compareAction.disabledReason}</p>}
       </fieldset>}
       {transcript.view === "correct-captions" && <section aria-labelledby="caption-version-purpose-title">

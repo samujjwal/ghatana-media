@@ -201,5 +201,19 @@ describe("Shared control reuse in Media screens", () => {
     expect(compareHtml).toContain("Draft one — v1");
     expect(compareHtml).toContain('value="v1"');
     expect(onCompareVersionSelection).not.toHaveBeenCalled();
+
+    const sameVersionHtml = renderToStaticMarkup(React.createElement(TranscriptCaptionScreen, {
+      ...compareProps,
+      transcript: { ...compareProps.transcript, rightCompareVersionId: "v1" },
+    }));
+    expect(sameVersionHtml).toContain("Choose two distinct caption versions to compare.");
+    expect(sameVersionHtml).toMatch(/<button[^>]*disabled=""[^>]*>Compare versions<\/button>/u);
+
+    const staleVersionHtml = renderToStaticMarkup(React.createElement(TranscriptCaptionScreen, {
+      ...compareProps,
+      transcript: { ...compareProps.transcript, rightCompareVersionId: "v-stale" },
+    }));
+    expect(staleVersionHtml).toContain("Both selected caption versions must be available in this source projection.");
+    expect(staleVersionHtml).toMatch(/<button[^>]*disabled=""[^>]*>Compare versions<\/button>/u);
   });
 });
