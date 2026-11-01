@@ -20,6 +20,8 @@ class MediaCaptureSourceContractsTest {
     @Test
     void onlyAdmittedEligibilityPermitsCapture() {
         for (CaptureSourceKind kind : CaptureSourceKind.values()) {
+            assertThat(AdapterEligibility.none().check(request(kind)))
+                    .isEqualTo(Eligibility.NOT_ADMITTED);
             assertThat(MediaCaptureSourceContracts.mayCapture(
                     AdapterEligibility.none(), request(kind))).isFalse();
             assertThat(MediaCaptureSourceContracts.mayCapture(
