@@ -15,6 +15,10 @@ const preparationProfile = JSON.parse(readFileSync(
 const EXPECTED_DATASET_CONFIGS = Object.freeze(Object.fromEntries(
   Object.entries(preparationProfile.dataset.locales).map(([locale, source]) => [locale, source.datasetConfig]),
 ));
+const EXPECTED_SOURCE_SPLITS = Object.freeze({
+  training: preparationProfile.selection.trainingSplit,
+  holdout: preparationProfile.selection.holdoutSplit,
+});
 const PILOT_MAX_CLIPS_PER_LOCALE = STT_REFERENCE.qualityPilotClipsPerLocale;
 const QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE = STT_REFERENCE.qualityHoldoutMinimumPerLocale;
 const QUALIFICATION_MAX_CLIPS_PER_LOCALE = PILOT_MAX_CLIPS_PER_LOCALE + QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE;
@@ -61,6 +65,16 @@ export function editDistance(reference, hypothesis) {
 }
 
 export function scoreLocale(clips, predictions) {
+  assert(Array.isArray(clips), 'gold clips must be an array');
+  assert(Array.isArray(predictions), 'predictions must be an array');
+  for (const prediction of predictions) {
+    assert(prediction !== null && typeof prediction === 'object' && !Array.isArray(prediction),
+      'prediction must be an object');
+    assert(typeof prediction.clipId === 'string' && prediction.clipId.trim().length > 0,
+      'prediction clipId is required');
+    // An empty string is a valid measured model failure and scores as a full error.
+    assert(typeof prediction.text === 'string', `prediction text must be a string for ${prediction.clipId}`);
+  }
   const byId = new Map(predictions.map((item) => [item.clipId, item.text]));
   assert(byId.size === predictions.length, 'duplicate prediction clipId');
   let wordErrors = 0;
@@ -103,11 +117,16 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   }
   const clips = manifest.selection?.clips;
   assert(Array.isArray(clips), 'selection.clips must be an array');
+  assert(manifest.selection.trainingSplit === EXPECTED_SOURCE_SPLITS.training,
+    'training split does not match pinned source selection');
+  assert(manifest.selection.holdoutSplit === EXPECTED_SOURCE_SPLITS.holdout,
+    'holdout split does not match pinned source selection');
   const mode = manifest.selection?.mode ?? 'PILOT';
   assert(mode === 'PILOT' || mode === 'QUALIFICATION', 'invalid evaluation selection mode');
   if (requireFrozen) assert(manifest.status === 'FROZEN', 'manifest is not frozen; refusing to score');
   const ids = new Set();
   const sourceRows = new Set();
+  const sourceFiles = new Set();
   const audioDigests = new Set();
   const speakersByPartition = { training: new Set(), holdout: new Set() };
   const counts = Object.fromEntries([...LOCALES].map((locale) => [locale, 0]));
@@ -124,11 +143,16 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
     assert(typeof clip.sourceSplit === 'string' && clip.sourceSplit.length > 0, `sourceSplit required for ${clip.clipId}`);
     assert(clip.sourceSplit === (clip.partition === 'training' ? manifest.selection.trainingSplit : manifest.selection.holdoutSplit),
       `source split does not match partition for ${clip.clipId}`);
-    assert(Number.isInteger(clip.sourceRowId), `sourceRowId required for ${clip.clipId}`);
+    assert(Number.isSafeInteger(clip.sourceRowId) && clip.sourceRowId >= 0,
+      `sourceRowId must be a non-negative safe integer for ${clip.clipId}`);
     const sourceRowKey = `${clip.locale}:${clip.sourceSplit}:${clip.sourceRowId}`;
     assert(!sourceRows.has(sourceRowKey), `duplicate source row ${sourceRowKey}`);
     sourceRows.add(sourceRowKey);
-    assert(typeof clip.sourceFile === 'string' && clip.sourceFile.length > 0, `sourceFile required for ${clip.clipId}`);
+    assert(typeof clip.sourceFile === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(clip.sourceFile),
+      `sourceFile must be a safe single filename for ${clip.clipId}`);
+    const sourceFileKey = `${clip.locale}:${clip.sourceSplit}:${clip.sourceFile}`;
+    assert(!sourceFiles.has(sourceFileKey), `duplicate source file ${sourceFileKey}`);
+    sourceFiles.add(sourceFileKey);
     assert(typeof clip.transcript === 'string' && clip.transcript.trim().length > 0, `transcript required for ${clip.clipId}`);
     assert(Number.isFinite(clip.durationSeconds) && clip.durationSeconds > 0 && clip.durationSeconds <= MAX_CLIP_SECONDS,
       `duration must be in (0, ${MAX_CLIP_SECONDS}] for ${clip.clipId}`);
@@ -233,9 +257,12 @@ function speakerBootstrapWer(clips, predictions, locale) {
 
 export function evaluate(manifest, predictions) {
   validateManifest(manifest, { requireFrozen: true });
+  assert(Array.isArray(predictions), 'predictions must be an array');
   const holdout = manifest.selection.clips.filter((clip) => clip.partition === 'holdout');
   const predictionGroups = new Map();
   for (const prediction of predictions) {
+    assert(prediction !== null && typeof prediction === 'object' && !Array.isArray(prediction),
+      'prediction must be an object');
     assert(LOCALES.has(prediction.locale), `unsupported prediction locale ${prediction.locale}`);
     const group = predictionGroups.get(prediction.locale) ?? [];
     group.push(prediction);

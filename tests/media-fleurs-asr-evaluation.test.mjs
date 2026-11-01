@@ -92,6 +92,45 @@ test('frozen manifest binds each declared locale to the pinned FLEURS dataset co
   assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /dataset config mismatch for hin/);
 });
 
+test('frozen manifest cannot swap pinned training and holdout source splits', () => {
+  const manifest = frozenManifest();
+  manifest.selection.trainingSplit = 'dev';
+  manifest.selection.holdoutSplit = 'train';
+  for (const row of manifest.selection.clips) {
+    row.sourceSplit = row.partition === 'training' ? 'dev' : 'train';
+  }
+  assert.throws(() => validateManifest(manifest, { requireFrozen: true }),
+    /training split does not match pinned source selection/);
+});
+
+test('manifest source rows and filenames must be safe source identities', () => {
+  const negativeRow = frozenManifest();
+  negativeRow.selection.clips[0].sourceRowId = -1;
+  assert.throws(() => validateManifest(negativeRow), /non-negative safe integer/);
+
+  const unsafeRow = frozenManifest();
+  unsafeRow.selection.clips[0].sourceRowId = Number.MAX_SAFE_INTEGER + 1;
+  assert.throws(() => validateManifest(unsafeRow), /non-negative safe integer/);
+
+  const pathSource = frozenManifest();
+  pathSource.selection.clips[0].sourceFile = '../audio.wav';
+  assert.throws(() => validateManifest(pathSource), /safe single filename/);
+});
+
+test('manifest rejects duplicate pinned source row and filename identities', () => {
+  const duplicateRow = frozenManifest();
+  const extraTrainingClip = clip('eng', 'e3', 'training', 'e-speaker-3');
+  extraTrainingClip.sourceRowId = duplicateRow.selection.clips[0].sourceRowId;
+  duplicateRow.selection.clips.push(extraTrainingClip);
+  assert.throws(() => validateManifest(duplicateRow), /duplicate source row/);
+
+  const duplicateFile = frozenManifest();
+  const sameSplitClip = clip('eng', 'e3', 'training', 'e-speaker-3');
+  sameSplitClip.sourceFile = duplicateFile.selection.clips[0].sourceFile;
+  duplicateFile.selection.clips.push(sameSplitClip);
+  assert.throws(() => validateManifest(duplicateFile), /duplicate source file/);
+});
+
 test('rejects identical audio across distinct source rows and partitions, including uppercase digests', () => {
   const manifest = frozenManifest();
   manifest.selection.clips[1].audioSha256 = manifest.selection.clips[0].audioSha256.toUpperCase();
@@ -112,6 +151,16 @@ test('WER and CER scoring plumbing uses aggregate edit counts and requires exact
   }));
   assert.equal(evaluate(manifest, predictions).status, 'MEASURED_ON_FROZEN_HOLDOUT');
   assert.throws(() => evaluate(manifest, predictions.slice(0, 2)), /missing prediction/);
+});
+
+test('empty model failure text remains scoreable while malformed prediction text is rejected', () => {
+  const score = scoreLocale([{ clipId: '1', transcript: 'hello world' }], [{ clipId: '1', text: '' }]);
+  assert.equal(score.wordErrors, 2);
+  assert.equal(score.referenceWords, 2);
+  assert.throws(() => scoreLocale([{ clipId: '1', transcript: 'hello' }], [{ clipId: '1', text: null }]),
+    /prediction text must be a string/);
+  assert.throws(() => scoreLocale([{ clipId: '1', transcript: 'hello' }], [null]),
+    /prediction must be an object/);
 });
 
 
