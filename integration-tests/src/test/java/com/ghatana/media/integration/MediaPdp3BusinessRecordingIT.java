@@ -1,6 +1,7 @@
 package com.ghatana.media.integration;
 
 import com.ghatana.media.launcher.MediaProductionRunCoordinator;
+import com.ghatana.media.launcher.MediaProductionRunCoordinator.ClaimResult;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.OriginClass;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.ProducedOutput;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.ProductionStep;
@@ -49,8 +50,14 @@ class MediaPdp3BusinessRecordingIT {
         @Override public Optional<StepRecord> find(String runId, String stepId) {
             return Optional.ofNullable(records.get(runId + "/" + stepId));
         }
-        @Override public void record(String runId, StepRecord record) {
+        @Override public synchronized void record(String runId, StepRecord record) {
             records.put(runId + "/" + record.stepId(), record);
+        }
+        @Override public synchronized ClaimResult claim(String runId, StepRecord fence) {
+            String key = runId + "/" + fence.stepId();
+            if (records.containsKey(key)) return ClaimResult.ALREADY_CLAIMED;
+            records.put(key, fence);
+            return ClaimResult.CLAIMED;
         }
     }
 
