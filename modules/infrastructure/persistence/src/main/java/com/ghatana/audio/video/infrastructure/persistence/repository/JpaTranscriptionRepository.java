@@ -2,6 +2,8 @@ package com.ghatana.audio.video.infrastructure.persistence.repository;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -39,8 +41,6 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
         Objects.requireNonNull(entity, "entity cannot be null");
 
-        entity.setTenantId(tenantId);
-
         var tx = entityManager.getTransaction();
         boolean began = false;
         try {
@@ -49,21 +49,59 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 began = true;
             }
 
+            String persistedTenant = entity.getId() == null
+                ? null
+                : readPersistedTenantForUpdate(entity.getId());
+            if (entity.getTenantId() != null && !tenantId.equals(entity.getTenantId())) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new IllegalArgumentException("Transcription tenant does not match save tenant");
+            }
+            if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new IllegalArgumentException("Transcription does not belong to save tenant");
+            }
+
             TranscriptionEntity saved;
-            if (entity.getId() == null) {
+            if (entity.getId() == null || persistedTenant == null) {
+                if (entity.getId() != null && entityManager.contains(entity)) {
+                    throw new IllegalArgumentException("Managed Transcription with no persisted row cannot be saved");
+                }
+                entity.setTenantId(tenantId);
                 entityManager.persist(entity);
                 saved = entity;
             } else {
+                entity.setTenantId(tenantId);
                 saved = entityManager.merge(entity);
             }
 
             if (began) tx.commit();
             LOG.debug("Transcription saved: tenantId={}, id={}", tenantId, saved.getId());
             return saved;
+        } catch (RuntimeException e) {
+            if (began && tx.isActive()) tx.rollback();
+            throw e;
         } catch (Exception e) {
             if (began && tx.isActive()) tx.rollback();
             LOG.error("Failed to save Transcription: tenantId={}", tenantId, e);
             throw new RuntimeException("Failed to save Transcription: " + e.getMessage(), e);
+        }
+    }
+
+    private String readPersistedTenantForUpdate(UUID id) {
+        try {
+            return (String) entityManager.createNativeQuery(
+                    "SELECT tenant_id FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
+                .setParameter("id", id)
+                .setFlushMode(FlushModeType.COMMIT)
+                .getSingleResult();
+        } catch (jakarta.persistence.NoResultException missing) {
+            return null;
+        }
+    }
+
+    private void restoreManagedEntityIfPresent(TranscriptionEntity entity, String persistedTenant) {
+        if (persistedTenant != null && entityManager.contains(entity)) {
+            entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
         }
     }
 

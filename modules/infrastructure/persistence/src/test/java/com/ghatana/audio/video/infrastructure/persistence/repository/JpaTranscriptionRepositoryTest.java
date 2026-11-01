@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @doc.type class
@@ -67,6 +68,60 @@ class JpaTranscriptionRepositoryTest {
         assertThat(saved.getId()).isEqualTo(entity.getId()); 
         assertThat(saved.getTenantId()).isEqualTo(tenantId); 
         assertThat(saved.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PENDING); 
+    }
+
+    @Test
+    @DisplayName("GIVEN another tenant reuses an existing ID WHEN save THEN transcription ownership stays unchanged")
+    void testSaveCannotReassignExistingTranscriptionToAnotherTenant() {
+        TranscriptionEntity original = createTestTranscription("tenant-owner");
+        original.setText("owner transcript");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        TranscriptionEntity ownedUpdate = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        ownedUpdate.setText("owner transcript updated");
+        repository.save("tenant-owner", ownedUpdate);
+        entityManager.clear();
+
+        TranscriptionEntity forgedUpdate = new TranscriptionEntity(
+            original.getId(), "tenant-attacker", original.getAudioFileId(), original.getUserId(),
+            "overwritten transcript", "en");
+
+        assertThatThrownBy(() -> repository.save("tenant-attacker", forgedUpdate))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("does not belong to save tenant");
+
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId()))
+            .get()
+            .satisfies(transcription -> {
+                assertThat(transcription.getTenantId()).isEqualTo("tenant-owner");
+                assertThat(transcription.getText()).isEqualTo("owner transcript updated");
+            });
+        assertThat(repository.findById("tenant-attacker", original.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("GIVEN a managed transcription is retagged WHEN cross-tenant save is attempted THEN persisted owner is restored")
+    void testManagedTranscriptionCannotBeRetaggedAcrossTenants() {
+        TranscriptionEntity original = createTestTranscription("tenant-owner");
+        original.setText("owner transcript");
+        repository.save("tenant-owner", original);
+        entityManager.clear();
+
+        TranscriptionEntity managed = repository.findById("tenant-owner", original.getId()).orElseThrow();
+        managed.setTenantId("tenant-attacker");
+        managed.setText("overwritten transcript");
+
+        assertThatThrownBy(() -> repository.save("tenant-attacker", managed))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("does not belong to save tenant");
+
+        assertThat(managed.getTenantId()).isEqualTo("tenant-owner");
+        assertThat(managed.getText()).isEqualTo("owner transcript");
+        entityManager.clear();
+        assertThat(repository.findById("tenant-owner", original.getId())).get()
+            .extracting(TranscriptionEntity::getText).isEqualTo("owner transcript");
     }
 
     @Test

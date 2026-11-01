@@ -2,6 +2,8 @@ package com.ghatana.audio.video.infrastructure.persistence.repository;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -39,8 +41,6 @@ public class JpaAudioFileRepository implements AudioFileRepository {
         Objects.requireNonNull(tenantId, "tenantId cannot be null");
         Objects.requireNonNull(entity, "entity cannot be null");
 
-        entity.setTenantId(tenantId);
-
         var tx = entityManager.getTransaction();
         boolean began = false;
         try {
@@ -49,11 +49,28 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 began = true;
             }
 
+            String persistedTenant = entity.getId() == null
+                ? null
+                : readPersistedTenantForUpdate(entity.getId());
+            if (entity.getTenantId() != null && !tenantId.equals(entity.getTenantId())) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new IllegalArgumentException("AudioFile tenant does not match save tenant");
+            }
+            if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new IllegalArgumentException("AudioFile does not belong to save tenant");
+            }
+
             AudioFileEntity saved;
-            if (entity.getId() == null) {
+            if (entity.getId() == null || persistedTenant == null) {
+                if (entity.getId() != null && entityManager.contains(entity)) {
+                    throw new IllegalArgumentException("Managed AudioFile with no persisted row cannot be saved");
+                }
+                entity.setTenantId(tenantId);
                 entityManager.persist(entity);
                 saved = entity;
             } else {
+                entity.setTenantId(tenantId);
                 saved = entityManager.merge(entity);
             }
 
@@ -63,12 +80,35 @@ public class JpaAudioFileRepository implements AudioFileRepository {
 
             LOG.debug("AudioFile saved: tenantId={}, id={}", tenantId, saved.getId());
             return saved;
+        } catch (RuntimeException e) {
+            if (began && tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
         } catch (Exception e) {
             if (began && tx.isActive()) {
                 tx.rollback();
             }
             LOG.error("Failed to save AudioFile: tenantId={}", tenantId, e);
             throw new RuntimeException("Failed to save AudioFile: " + e.getMessage(), e);
+        }
+    }
+
+    private String readPersistedTenantForUpdate(UUID id) {
+        try {
+            return (String) entityManager.createNativeQuery(
+                    "SELECT tenant_id FROM audio_video.audio_files WHERE id = :id FOR UPDATE")
+                .setParameter("id", id)
+                .setFlushMode(FlushModeType.COMMIT)
+                .getSingleResult();
+        } catch (jakarta.persistence.NoResultException missing) {
+            return null;
+        }
+    }
+
+    private void restoreManagedEntityIfPresent(AudioFileEntity entity, String persistedTenant) {
+        if (persistedTenant != null && entityManager.contains(entity)) {
+            entityManager.refresh(entity, LockModeType.PESSIMISTIC_WRITE);
         }
     }
 
