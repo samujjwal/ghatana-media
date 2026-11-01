@@ -13,9 +13,9 @@ import java.util.TreeMap;
  * (streamId, tenantId, principalId, purposeRef, sessionRevision); a resume
  * with a different tenant or revision is denied, never silently merged.
  *
- * <p>Gap handling is bounded: out-of-order frames ahead of the next
- * expected sequence are held up to {@link #MAX_PENDING} then rejected, so
- * an unbounded reorder storm cannot exhaust memory.
+ * <p>Gap handling is bounded by both {@link #MAX_PENDING} frames and
+ * {@link #MAX_PENDING_BYTES} total payload bytes, so large frames cannot
+ * turn a bounded-count reorder storm into unbounded memory retention.
  *
  * @doc.type class
  * @doc.purpose Idempotent ordered frame/ACK reconciliation per stream session
@@ -25,6 +25,8 @@ import java.util.TreeMap;
 public final class StreamFrameReconciler {
 
     private static final int MAX_PENDING = 256;
+    /** Total retained reorder payload is capped at one maximum audio frame. */
+    private static final long MAX_PENDING_BYTES = AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES;
 
     /** What the reconciler did with one frame. */
     public enum Disposition {
@@ -56,6 +58,7 @@ public final class StreamFrameReconciler {
     private final SessionIdentity identity;
     private final TreeMap<Integer, AudioStreamSession.DecodedFrame> pending = new TreeMap<>();
     private int nextExpected; // first undelivered sequence (exclusive lower bound of the gap)
+    private long pendingBytes;
 
     /** @param lastAckedSequence the durable last-delivered sequence; -1 for a new session. */
     private StreamFrameReconciler(SessionIdentity identity, int lastAckedSequence) {
@@ -112,6 +115,10 @@ public final class StreamFrameReconciler {
         if (sequence < 0 || sequence == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("audio frame sequence is outside the supported range");
         }
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length > AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("audio frame payload is outside the bounded size");
+        }
         if (sequence < nextExpected) {
             return Disposition.DUPLICATE;
         }
@@ -126,7 +133,11 @@ public final class StreamFrameReconciler {
         if (pending.size() >= MAX_PENDING) {
             return Disposition.OVERFLOW;
         }
+        if (pendingBytes + payload.length > MAX_PENDING_BYTES) {
+            return Disposition.OVERFLOW;
+        }
         pending.put(sequence, frame);
+        pendingBytes += payload.length;
         return Disposition.HELD;
     }
 
@@ -140,7 +151,9 @@ public final class StreamFrameReconciler {
             return null;
         }
         advance(head.getKey());
-        return pending.pollFirstEntry().getValue();
+        AudioStreamSession.DecodedFrame delivered = pending.pollFirstEntry().getValue();
+        pendingBytes -= delivered.payload().length;
+        return delivered;
     }
 
     /** Read-only view of the next held frame eligible for release. */
@@ -152,6 +165,7 @@ public final class StreamFrameReconciler {
     /** Drops held frame payloads when the owning guarded session is cancelled. */
     void discardPending() {
         pending.clear();
+        pendingBytes = 0L;
     }
 
     /** The sequence the next ACK acknowledges — the last contiguous delivered. */
@@ -167,6 +181,11 @@ public final class StreamFrameReconciler {
     /** Currently held out-of-order frames awaiting a gap fill. */
     public int pendingCount() {
         return pending.size();
+    }
+
+    /** Total payload bytes retained behind a sequence gap. */
+    public long pendingBytes() {
+        return pendingBytes;
     }
 
     public SessionIdentity identity() {

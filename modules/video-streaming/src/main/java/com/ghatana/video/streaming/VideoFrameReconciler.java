@@ -15,7 +15,8 @@ import java.util.TreeMap;
  * timestamps mark a discontinuity (VFR, scene cut or timestamp jump) as
  * uncertainty — never an error, never smoothed over.
  *
- * <p>Pending out-of-order frames are bounded by {@link #MAX_PENDING}.
+ * <p>Pending out-of-order frames are bounded by both {@link #MAX_PENDING}
+ * and {@link #MAX_PENDING_BYTES} total payload bytes.
  *
  * @doc.type class
  * @doc.purpose Keyframe/PTS-aware ordered video frame reconciliation
@@ -25,6 +26,8 @@ import java.util.TreeMap;
 public final class VideoFrameReconciler {
 
     private static final int MAX_PENDING = 256;
+    /** Total retained reorder payload is capped at one maximum video frame. */
+    private static final long MAX_PENDING_BYTES = VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES;
     private static final long MAX_FORWARD_PTS_JUMP_MS = 30_000L;
 
     /** What the reconciler decided about one offered frame. */
@@ -63,6 +66,7 @@ public final class VideoFrameReconciler {
     private final SessionIdentity identity;
     private final TreeMap<Integer, VideoStreamSession.DecodedFrame> pending = new TreeMap<>();
     private int nextExpected;
+    private long pendingBytes;
     private int lastKeyFrameSequence = -1;
     private long lastDeliveredPts = Long.MIN_VALUE;
 
@@ -121,6 +125,10 @@ public final class VideoFrameReconciler {
         if (sequence < 0 || sequence == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("video frame sequence is outside the supported range");
         }
+        byte[] payload = frame.payload();
+        if (payload == null || payload.length > VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("video frame payload is outside the bounded size");
+        }
         if (sequence < nextExpected) {
             return Disposition.DUPLICATE;
         }
@@ -138,7 +146,11 @@ public final class VideoFrameReconciler {
         if (pending.size() >= MAX_PENDING) {
             return Disposition.OVERFLOW;
         }
+        if (pendingBytes + payload.length > MAX_PENDING_BYTES) {
+            return Disposition.OVERFLOW;
+        }
         pending.put(sequence, frame);
+        pendingBytes += payload.length;
         return Disposition.HELD;
     }
 
@@ -168,6 +180,7 @@ public final class VideoFrameReconciler {
             return null;
         }
         var frame = pending.pollFirstEntry().getValue();
+        pendingBytes -= frame.payload().length;
         nextExpected = head.getKey() + 1;
         if (frame.keyFrame()) {
             lastKeyFrameSequence = frame.sequenceNumber();
@@ -205,9 +218,15 @@ public final class VideoFrameReconciler {
         return pending.size();
     }
 
+    /** Total payload bytes retained behind a sequence gap. */
+    public long pendingBytes() {
+        return pendingBytes;
+    }
+
     /** Drops held frame payloads when the owning guarded session is cancelled. */
     void discardPending() {
         pending.clear();
+        pendingBytes = 0L;
     }
 
     public SessionIdentity identity() {

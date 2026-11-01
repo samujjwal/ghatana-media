@@ -118,6 +118,48 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("reorder storage applies an aggregate byte cap and releases capacity with the gap")
+    void reorderStorageIsByteBounded() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        assertThat(rec.offer(frame(0, true, 0))).isEqualTo(Disposition.DELIVERED);
+        VideoStreamSession.DecodedFrame largest = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES]);
+        assertThat(rec.offer(largest)).isEqualTo(Disposition.HELD);
+        assertThat(rec.pendingBytes()).isEqualTo(VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES);
+
+        assertThat(rec.offer(frame(3, false, 99L))).isEqualTo(Disposition.OVERFLOW);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES);
+        assertThat(rec.nextAck()).isZero();
+
+        assertThat(rec.offer(frame(1, false, 33L))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.takeDelivered()).isSameAs(largest);
+        assertThat(rec.pendingBytes()).isZero();
+        assertThat(rec.offer(frame(3, false, 99L))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("malformed contiguous video payload is rejected before advancing ACK")
+    void malformedContiguousPayloadDoesNotAdvanceAck() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        VideoStreamSession.DecodedFrame missingPayload = new VideoStreamSession.DecodedFrame(
+                0, true, 0L, null);
+        VideoStreamSession.DecodedFrame oversized = new VideoStreamSession.DecodedFrame(
+                0, true, 0L, new byte[VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1]);
+
+        assertThatThrownBy(() -> rec.offer(missingPayload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThatThrownBy(() -> rec.offer(oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.offer(frame(0, true, 0L))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isZero();
+    }
+
+    @Test
     @DisplayName("resume rejects impossible ACK and keyframe positions")
     void resumeRejectsImpossiblePositions() {
         SessionIdentity durable = identity("t1");

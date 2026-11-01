@@ -145,6 +145,50 @@ class StreamFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("reorder storage applies an aggregate byte cap and releases capacity with the gap")
+    void reorderStorageIsByteBounded() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        AudioStreamSession.DecodedFrame largest = new AudioStreamSession.DecodedFrame(
+                2, 2000L, new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES]);
+        assertThat(rec.offer(largest)).isEqualTo(Disposition.HELD);
+        assertThat(rec.pendingBytes()).isEqualTo(AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES);
+
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(3, 3000L, new byte[]{1})))
+                .isEqualTo(Disposition.OVERFLOW);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES);
+        assertThat(rec.nextAck()).isEqualTo(-1);
+
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.offer(frame(1))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.takeDelivered()).isSameAs(largest);
+        assertThat(rec.pendingBytes()).isZero();
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(3, 3000L, new byte[]{1})))
+                .isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("malformed contiguous audio payload is rejected before advancing ACK")
+    void malformedContiguousPayloadDoesNotAdvanceAck() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        AudioStreamSession.DecodedFrame missingPayload = new AudioStreamSession.DecodedFrame(
+                0, 0L, null);
+        AudioStreamSession.DecodedFrame oversized = new AudioStreamSession.DecodedFrame(
+                0, 0L, new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1]);
+
+        assertThatThrownBy(() -> rec.offer(missingPayload))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThatThrownBy(() -> rec.offer(oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload");
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isZero();
+    }
+
+    @Test
     @DisplayName("resume rejects ACK values outside the supported sequence range")
     void resumeRejectsInvalidAck() {
         SessionIdentity same = identity("t1");
