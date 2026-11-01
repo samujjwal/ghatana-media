@@ -192,6 +192,82 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL rejects rebinding a persisted audio file to another principal")
+    void postgresRejectsAudioFilePrincipalRebinding() {
+        String tenantId = "tenant-principal-" + UUID.randomUUID();
+        AudioFileEntity original = createAudioFile(tenantId, "principal-bound.wav");
+        UUID originalUserId = original.getUserId();
+        audioFileRepository.save(tenantId, original);
+        entityManager.clear();
+
+        AudioFileEntity forged = audioFileRepository.findById(tenantId, original.getId()).orElseThrow();
+        forged.setUserId(UUID.randomUUID());
+        forged.setFileName("rebound.wav");
+        assertThatThrownBy(() -> audioFileRepository.save(tenantId, forged))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principal ownership cannot be changed");
+
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(tenantId, original.getId())).get()
+                .satisfies(persisted -> {
+                    assertThat(persisted.getUserId()).isEqualTo(originalUserId);
+                    assertThat(persisted.getFileName()).isEqualTo("principal-bound.wav");
+                });
+    }
+
+    @Test
+    @DisplayName("PostgreSQL rejects rebinding a persisted transcription to another principal")
+    void postgresRejectsTranscriptionPrincipalRebinding() {
+        String tenantId = "tenant-principal-" + UUID.randomUUID();
+        TranscriptionEntity original = createTranscription(tenantId, "principal-bound transcript");
+        UUID originalUserId = original.getUserId();
+        UUID originalAudioFileId = original.getAudioFileId();
+        transcriptionRepository.save(tenantId, original);
+        entityManager.clear();
+
+        TranscriptionEntity forged = transcriptionRepository.findById(tenantId, original.getId()).orElseThrow();
+        forged.setUserId(UUID.randomUUID());
+        forged.setText("rebound transcript");
+        assertThatThrownBy(() -> transcriptionRepository.save(tenantId, forged))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principal and source audio ownership cannot be changed");
+
+        entityManager.clear();
+        assertThat(transcriptionRepository.findById(tenantId, original.getId())).get()
+                .satisfies(persisted -> {
+                    assertThat(persisted.getUserId()).isEqualTo(originalUserId);
+                    assertThat(persisted.getAudioFileId()).isEqualTo(originalAudioFileId);
+                    assertThat(persisted.getText()).isEqualTo("principal-bound transcript");
+                });
+    }
+
+    @Test
+    @DisplayName("PostgreSQL rejects rebinding a persisted transcription to another source audio ID")
+    void postgresRejectsTranscriptionSourceAudioRebinding() {
+        String tenantId = "tenant-source-" + UUID.randomUUID();
+        TranscriptionEntity original = createTranscription(tenantId, "source-bound transcript");
+        UUID originalUserId = original.getUserId();
+        UUID originalAudioFileId = original.getAudioFileId();
+        transcriptionRepository.save(tenantId, original);
+        entityManager.clear();
+
+        TranscriptionEntity forged = transcriptionRepository.findById(tenantId, original.getId()).orElseThrow();
+        forged.setAudioFileId(UUID.randomUUID());
+        forged.setText("transcript for another source");
+        assertThatThrownBy(() -> transcriptionRepository.save(tenantId, forged))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("principal and source audio ownership cannot be changed");
+
+        entityManager.clear();
+        assertThat(transcriptionRepository.findById(tenantId, original.getId())).get()
+                .satisfies(persisted -> {
+                    assertThat(persisted.getUserId()).isEqualTo(originalUserId);
+                    assertThat(persisted.getAudioFileId()).isEqualTo(originalAudioFileId);
+                    assertThat(persisted.getText()).isEqualTo("source-bound transcript");
+                });
+    }
+
+    @Test
     @DisplayName("PostgreSQL tenant-scoped mutations ignore retagged managed entities")
     void postgresMutationsCannotUseManagedTenantRetagging() {
         String owner = "owner-" + UUID.randomUUID();
