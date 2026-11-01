@@ -166,11 +166,19 @@ public final class VideoFrameReconciler {
             long pts = frame.timestampMillis();
             if (pts < lastDeliveredPts) {
                 discontinuity = "PTS_BACKWARDS";
-            } else if (pts - lastDeliveredPts > MAX_FORWARD_PTS_JUMP_MS) {
+            } else if (exceedsForwardJumpBound(lastDeliveredPts, pts)) {
                 discontinuity = "PTS_JUMP";
             }
         }
         return new Delivery(frame, decodable, discontinuity);
+    }
+
+    /** Compares non-negative distance without overflowing when source clocks span the long range. */
+    private static boolean exceedsForwardJumpBound(long previousPts, long currentPts) {
+        // The caller has already established currentPts >= previousPts. If adding
+        // the threshold would overflow, no representable current PTS can exceed it.
+        return previousPts <= Long.MAX_VALUE - MAX_FORWARD_PTS_JUMP_MS
+                && currentPts > previousPts + MAX_FORWARD_PTS_JUMP_MS;
     }
 
     /** A held frame released once its gap closes; re-check for further releases. */

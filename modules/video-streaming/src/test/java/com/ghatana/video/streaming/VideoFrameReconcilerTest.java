@@ -60,6 +60,27 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("PTS jump detection does not overflow across extreme source clock values")
+    void extremePtsDistanceDoesNotWrap() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        // Long.MIN_VALUE is the no-PTS sentinel, so use the adjacent value
+        // to exercise a near-full-range source clock distance.
+        rec.offer(frame(0, true, Long.MIN_VALUE + 1));
+
+        assertThat(rec.deliveryOf(frame(1, false, Long.MAX_VALUE)).discontinuity())
+                .isEqualTo("PTS_JUMP");
+        assertThat(rec.deliveryOf(frame(1, false, Long.MIN_VALUE + 30_001)).discontinuity())
+                .isNull();
+        assertThat(rec.deliveryOf(frame(1, false, Long.MAX_VALUE - 30_000)).discontinuity())
+                .isEqualTo("PTS_JUMP");
+
+        VideoFrameReconciler nearMaximum = VideoFrameReconciler.open(identity("t1"));
+        nearMaximum.offer(frame(0, true, Long.MAX_VALUE - 1));
+        assertThat(nearMaximum.deliveryOf(frame(1, false, Long.MAX_VALUE)).discontinuity())
+                .isNull();
+    }
+
+    @Test
     @DisplayName("out-of-order frames hold until the gap fills, keyframe deps tracked")
     void outOfOrderHoldsWithKeyframeTracking() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
