@@ -16,7 +16,7 @@ const json = (root, relativePath, value) => write(root, relativePath, `${JSON.st
 
 function fixture() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pdp1-matrix-'));
-  const physical = Array.from({ length: 26 }, (_, i) => ({
+  const physical = Array.from({ length: 28 }, (_, i) => ({
     surfaceId: `media.physical.${i}`,
     sourcePath: `modules/${i}`,
     manifestPath: `modules/${i}/build.gradle.kts`,
@@ -57,7 +57,7 @@ function fixture() {
     securityAuthorityModel: 'authority/domain.yaml',
   }));
   for (const relative of ['authority/domain.yaml', 'authority/operations.yaml']) write(root, relative, 'fixture: true\n');
-  json(root, TOPOLOGY_PATH, { activeManifestCandidateCount: 26, manifestCandidates: physical, compositions, consumerCrosswalk: consumers });
+  json(root, TOPOLOGY_PATH, { activeManifestCandidateCount: 28, manifestCandidates: physical, compositions, consumerCrosswalk: consumers });
   write(root, REGISTRY_PATH, `surfaces:\n${registry.map((row) => `  - surfaceId: ${row.surfaceId}\n    owners: [media-team]\n    consumers: [users]\n    canonicalDomainConcepts: [media.domain.artifact]\n    applicablePdpArtifacts: [${row.applicablePdpArtifacts.join(', ')}]\n    applicabilityDisposition: ${row.applicabilityDisposition}\n    applicabilityRationale: ${row.applicabilityRationale}\n    interactionModel: ${row.interactionModel}\n    contractAuthority: ${row.contractAuthority}\n    upstreamProductTruth: [authority/domain.yaml]\n    securityAuthorityModel: ${row.securityAuthorityModel}`).join('\n')}\n`);
   const pdp0SourceBytes = Buffer.from('current PDP-0 source');
   write(root, 'authority/pdp0-input.yaml', pdp0SourceBytes);
@@ -93,15 +93,15 @@ function fixture() {
   return { root, status, review, pdp0ProjectionPins: {}, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
 
-test('PDP-1 projection builds exact topology and registry denominator with source-derived N/A', () => {
+test('PDP-1 projection builds the expanded topology and registry denominator with source-derived N/A', () => {
   const f = fixture();
   try {
     const matrix = buildPdp1SurfaceMatrix({ root: f.root, status: f.status, semanticReview: f.review, pdp0ProjectionPins: f.pdp0ProjectionPins, generatedAt: 'fixture-time' });
-    assert.equal(matrix.surfaces.length, 54);
-    assert.equal(new Set(matrix.surfaces.map(({ surfaceId }) => surfaceId)).size, 54);
+    assert.equal(matrix.surfaces.length, 56);
+    assert.equal(new Set(matrix.surfaces.map(({ surfaceId }) => surfaceId)).size, 56);
     assert.equal(matrix.denominatorValidation.status, 'PASS');
     assert.equal(matrix.campaign.status, 'DEV_COMPLETE');
-    assert.equal(matrix.summary.sourceCurrentDevCompleteCells, 53);
+    assert.equal(matrix.summary.sourceCurrentDevCompleteCells, 55);
     assert.equal(matrix.summary.archivedLogicalConsumers, 1);
     assert.equal(matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.surface.20').developmentStatus, 'NOT_ACTIVE_ARCHIVED');
     assert.equal(matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.0').applicability.disposition, 'REFERENCED_ONLY');

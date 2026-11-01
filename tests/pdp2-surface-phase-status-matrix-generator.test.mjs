@@ -14,20 +14,21 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
-test('PDP-2 matrix binds the exact 54-surface denominator and source-current native status', () => {
+test('PDP-2 matrix binds the current topology denominator without hiding stale source pins', () => {
   const status = readJson(PDP2_STATUS_PATH);
   const previousMatrix = readJson(PDP2_MATRIX_PATH);
   const matrix = buildPdp2SurfaceMatrix({ root, status, previousMatrix, generatedAt: 'fixture-time' });
-  assert.equal(matrix.surfaces.length, 54);
-  assert.equal(new Set(matrix.surfaces.map(({ surfaceId }) => surfaceId)).size, 54);
+  assert.equal(matrix.surfaces.length, 56);
+  assert.equal(new Set(matrix.surfaces.map(({ surfaceId }) => surfaceId)).size, 56);
   assert.equal(matrix.denominatorValidation.status, 'PASS');
-  assert.equal(matrix.summary.physical, 26);
+  assert.equal(matrix.summary.physical, 28);
   assert.equal(matrix.summary.compositions, 7);
   assert.equal(matrix.summary.logicalConsumers, 21);
-  assert.equal(matrix.phaseSourceCurrentness.status, 'CURRENT');
-  assert.equal(matrix.campaign.status, status.status);
-  assert.equal(matrix.summary.sourceCurrentDevCompleteCells, 40);
-  assert.equal(matrix.summary.explicitNotApplicableCells, 14);
+  assert.equal(matrix.phaseSourceCurrentness.status, 'STALE');
+  assert.ok(matrix.phaseSourceCurrentness.staleSourcePinCount > 0);
+  assert.equal(matrix.campaign.status, 'IN_PROGRESS');
+  assert.equal(matrix.summary.sourceCurrentDevCompleteCells, 0);
+  assert.equal(matrix.summary.explicitNotApplicableCells, 15);
   assert.equal(matrix.summary.remainingPhaseLocalTaskCount, 0);
   assert.equal(matrix.claimsBoundary.nativeClosure, 'NOT_PERFORMED');
   assert.ok(matrix.sourceFingerprints['libs/audio-video-ui/vitest.config.ts'], 'authored package authority files remain fingerprinted');
@@ -43,6 +44,10 @@ test('PDP-2 matrix binds the exact 54-surface denominator and source-current nat
     }
   }
   assert.ok(matrix.surfaces.every((row) => row.applicability.disposition && row.applicability.rationale));
+  const agentTools = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-agent-tools-media');
+  const dataCloud = matrix.surfaces.find(({ surfaceId }) => surfaceId === 'media.physical.adapters-data-cloud-media');
+  assert.equal(agentTools.applicability.disposition, 'NOT_APPLICABLE');
+  assert.equal(dataCloud.applicability.disposition, 'HEADLESS_CONTRACT');
 });
 
 test('failed native criteria remain unassigned and block applicable PDP-2 rows', () => {
@@ -60,7 +65,7 @@ test('failed native criteria remain unassigned and block applicable PDP-2 rows',
   assert.ok(matrix.surfaces.filter((row) => ['NOT_APPLICABLE', 'NOT_ACTIVE_ARCHIVED'].includes(row.developmentStatus)).every((row) => row.remainingPhaseLocalTaskIds.length === 0));
 });
 
-test('a blocked predecessor barrier is distinct from PDP-2 native readiness', () => {
+test('stale source pins and blocked predecessor remain explicit PDP-2 barriers', () => {
   const status = readJson(PDP2_STATUS_PATH);
   const previousMatrix = readJson(PDP2_MATRIX_PATH);
   const matrix = buildPdp2SurfaceMatrix({
@@ -71,13 +76,13 @@ test('a blocked predecessor barrier is distinct from PDP-2 native readiness', ()
     predecessorInputs: { pdp1Status: { phase: 'PDP-1', status: 'IN_PROGRESS' } },
   });
   assert.equal(status.status, 'DEV_COMPLETE');
-  assert.equal(matrix.nativePdp2Readiness.status, 'READY');
+  assert.equal(matrix.nativePdp2Readiness.status, 'BLOCKED_OR_UNKNOWN');
   assert.equal(matrix.prerequisiteState.status, 'BLOCKED_OR_UNKNOWN');
   assert.equal(matrix.campaign.status, 'IN_PROGRESS');
   const applicableRow = matrix.surfaces.find((row) => row.applicability.disposition === 'APPLICABLE');
   assert.equal(applicableRow.developmentStatus, 'PENDING');
   assert.ok(applicableRow.blockerIds.includes('PDP0_PDP1_PREDECESSOR_BARRIER_NOT_READY'));
   assert.ok(!applicableRow.blockerIds.includes('PDP2_NATIVE_STATUS_NOT_DEV_COMPLETE'));
-  assert.equal(applicableRow.blockerOwner, 'PDP0_PDP1_PREDECESSOR_BARRIER');
+  assert.equal(applicableRow.blockerOwner, 'PDP-2_STATUS_AUTHORITY');
   assert.ok(matrix.predecessorStatusRefs.includes(PDP1_STATUS_PATH));
 });

@@ -310,7 +310,7 @@ export function buildPdp2SurfaceMatrix({ root = ROOT, status, previousMatrix, pr
       sourceCurrentness: phaseSourceCurrentness.status,
     },
     denominatorValidation: {
-      status: surfaces.length === 54 && unique(surfaces.map(({ surfaceId }) => surfaceId)) && surfaces.every((row) => row.applicability?.disposition && nonblank(row.applicability?.rationale)) ? 'PASS' : 'FAIL',
+      status: surfaces.length === topologyRows.all.length && unique(surfaces.map(({ surfaceId }) => surfaceId)) && surfaces.every((row) => row.applicability?.disposition && nonblank(row.applicability?.rationale)) ? 'PASS' : 'FAIL',
       stats: { physical: topologyRows.physical.length, compositions: topologyRows.compositions.length, logicalConsumers: topologyRows.consumers.length, denominator: surfaces.length, applicablePdp2: applicableCount, explicitNotApplicablePdp2: (counts.NOT_APPLICABLE ?? 0) + (counts.NOT_ACTIVE_ARCHIVED ?? 0) },
     },
     summary: {

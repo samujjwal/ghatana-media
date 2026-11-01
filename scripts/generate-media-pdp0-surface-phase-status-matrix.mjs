@@ -5,10 +5,12 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { projectPdp0DefinitionExtensionApplicability, readSources } from './check-media-pdp0-surface-denominator.mjs';
 import { pdp0PhaseScopedSourcePins } from './report-media-pdp-readiness.mjs';
+import { appendPdp0TopologyRows } from './lib/media-pdp0-surface-matrix-topology.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const matrixPath = 'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json';
 const statusPath = 'docs/implementation/pdp-0-phase-dev-status.json';
+const topologyPath = '.product-experience/surfaces/media-physical-topology.v1.json';
 const sourcePaths = [
   '.product-experience/surface-registry.yaml',
   '.product-experience/surfaces/media-physical-topology.v1.json',
@@ -24,9 +26,11 @@ const matrix = JSON.parse(read(matrixPath).toString('utf8'));
 const status = JSON.parse(read(statusPath).toString('utf8'));
 const { registry, topology, authority } = readSources(root);
 const projection = projectPdp0DefinitionExtensionApplicability(registry, topology, authority);
-if (!projection.ok || projection.records.length !== 4158 || projection.surfaceCellCount !== 378 || matrix.surfaces.length !== 54) {
-  throw new Error('PDP-0 surface matrix requires a valid 7 × 11 × 54 definition-extension projection over the exact denominator.');
+const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [sourcePath, sha256(sourcePath)]));
+if (!projection.ok || projection.records.length !== projection.surfaceCellCount * projection.channelCount) {
+  throw new Error('PDP-0 surface matrix requires valid channel-by-surface applicability over the current source topology.');
 }
+const { addedSurfaceIds, topologyRows } = appendPdp0TopologyRows(matrix, topology, sourceFingerprints, topologyPath);
 const extensionById = new Map((authority.campaignExtensions.currentDefinitionPopulation.records ?? []).map((row) => [row.capabilityId, row]));
 const cellBySurface = new Map();
 for (const cell of projection.records) {
@@ -47,7 +51,6 @@ const versionDecisionSectionPins = versionDecisionRefs.map((ref) => {
   if (!projectedPins[pin]) throw new Error(`Missing current PDP-0 section pin for ${ref}.`);
   return pin;
 });
-const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [sourcePath, sha256(sourcePath)]));
 sourceFingerprints[decisionSectionPin] = projectedPins[decisionSectionPin];
 for (const pin of versionDecisionSectionPins) sourceFingerprints[pin] = projectedPins[pin];
 const sourceFingerprintSetSha256 = digest(JSON.stringify(Object.entries(sourceFingerprints).sort(([a], [b]) => a.localeCompare(b))));
@@ -101,7 +104,7 @@ matrix.definitionExtensionApplicability = {
   futureVersionProposalCount: projection.versionDisposition.futureVersionProposalCount,
   futureVersionProposalCapabilityIds: projection.versionDisposition.futureVersionProposalCapabilityIds,
   versionDispositionDecisionRefs: projection.versionDisposition.decisionRefs,
-  surfaceIdentityCount: 54,
+  surfaceIdentityCount: topologyRows.length,
   channelCount: projection.channelCount,
   surfaceCellCount: projection.surfaceCellCount,
   cellCount: projection.records.length,
@@ -137,7 +140,7 @@ matrix.sourcePinImpactReview = {
     : priorStatusReview?.currentSha256 ?? matrix.statusRecordSha256,
   currentSha256: matrix.statusRecordSha256,
   disposition: 'PDP0_DEFINITION_EXTENSION_APPLICABILITY_MATRIX_REFRESH; PXD207_EXPLICIT_PARTITION_SOURCE_CURRENT',
-  impact: `The 54-surface matrix now carries all ${projection.records.length.toLocaleString('en-US')} channel-by-surface cells and ${projection.surfaceCellCount} extension-by-surface summaries. Counts: ${projection.counts.OWNER_DECIDED_APPLICABLE} direct proposal cells, ${projection.counts.DERIVED_AGGREGATE_OWNER_DECISION} derived aggregate proposal cells, ${projection.counts.NOT_APPLICABLE_OWNER_DECISION} explicit owner-decided N/A cells, ${projection.counts.NOT_APPLICABLE_SUPPORT} source-backed support-only N/A cells, and ${projection.counts.NOT_APPLICABLE_ARCHIVED} source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.`,
+  impact: `The ${topologyRows.length}-identity matrix carries all ${projection.records.length.toLocaleString('en-US')} channel-by-surface cells and ${projection.surfaceCellCount} extension-by-surface summaries. Counts: ${projection.counts.OWNER_DECIDED_APPLICABLE} direct proposal cells, ${projection.counts.DERIVED_AGGREGATE_OWNER_DECISION} derived aggregate proposal cells, ${projection.counts.NOT_APPLICABLE_OWNER_DECISION} explicit owner-decided N/A cells, ${projection.counts.NOT_APPLICABLE_SUPPORT} source-backed support-only N/A cells, and ${projection.counts.NOT_APPLICABLE_ARCHIVED} source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.`,
   pdp0Retest: status.status === 'DEV_COMPLETE' ? 'P0_TESTS_PASS; DISCOVERY_BARRIER_RECALCULATED' : 'P0_TESTS_RECORDED; PDP0_EXTENSION_APPLICABILITY_SOURCE_CURRENT',
   ownerApproval: 'NOT_CLAIMED',
   nativeClosure: 'NOT_PERFORMED',
@@ -204,8 +207,17 @@ for (const row of matrix.surfaces) {
     [decisionSectionPin]: sourceFingerprints[decisionSectionPin],
     ...Object.fromEntries(versionDecisionSectionPins.map((pin) => [pin, sourceFingerprints[pin]])),
   };
-  row.sourceCurrent = phaseSourceCurrentness.status === 'CURRENT';
-  row.sourceCurrentBasis = phaseSourceCurrentness.status === 'CURRENT'
+  row.sourceCurrent = phaseSourceCurrentness.status === 'CURRENT'
+    && !addedSurfaceIds.has(row.surfaceId)
+    && row.sourceOwnerReviewState !== 'PENDING'
+    && row.remainingPhaseLocalTaskIds !== null;
+  row.sourceCurrentBasis = row.sourceOwnerReviewState === 'PENDING'
+    ? 'This topology row still requires source-owner review; matching phase-wide byte pins cannot establish row currentness.'
+    : row.remainingPhaseLocalTaskIds === null
+    ? 'Exact phase-local task ownership is unknown for this row; matching phase-wide byte pins cannot establish row currentness.'
+    : addedSurfaceIds.has(row.surfaceId)
+      ? 'New topology identity remains pending current full-denominator owner review; phase-wide byte-pin currentness alone does not establish row review.'
+    : phaseSourceCurrentness.status === 'CURRENT'
     ? 'All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.'
     : `PDP-0 phase source currentness is STALE: ${staleSourcePins.length} of ${phaseSourceCurrentness.sourcePinCount} required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.`;
 }
@@ -225,7 +237,7 @@ for (const row of matrix.surfaces) {
     row.developmentStatus = 'NOT_APPLICABLE';
     continue;
   }
-  row.developmentStatus = phaseReady && row.sourceCurrent && row.remainingPhaseLocalTaskIds.length === 0
+  row.developmentStatus = phaseReady && row.sourceCurrent && Array.isArray(row.remainingPhaseLocalTaskIds) && row.remainingPhaseLocalTaskIds.length === 0
     ? 'DEV_COMPLETE'
     : 'IN_PROGRESS';
 }
@@ -233,17 +245,21 @@ const statusCounts = matrix.surfaces.reduce((counts, row) => {
   counts[row.developmentStatus] = (counts[row.developmentStatus] ?? 0) + 1;
   return counts;
 }, {});
-const allApplicableSurfacesComplete = (statusCounts.DEV_COMPLETE ?? 0) === 45;
+const allApplicableSurfaceCount = matrix.surfaces.filter((row) => !['NOT_ACTIVE_ARCHIVED', 'NOT_APPLICABLE'].includes(row.developmentStatus)).length;
+const allApplicableSurfacesComplete = (statusCounts.DEV_COMPLETE ?? 0) === allApplicableSurfaceCount;
 matrix.campaign.status = phaseReady && allApplicableSurfacesComplete ? 'DEV_COMPLETE' : 'IN_PROGRESS';
 matrix.summary.nativeDevCompleteCells = statusCounts.DEV_COMPLETE ?? 0;
 matrix.summary.inProgressCells = statusCounts.IN_PROGRESS ?? 0;
 matrix.summary.explicitNotApplicableCells = statusCounts.NOT_APPLICABLE ?? 0;
 matrix.summary.archivedLogicalConsumers = statusCounts.NOT_ACTIVE_ARCHIVED ?? 0;
-matrix.summary.remainingPhaseLocalTaskCount = new Set([
+const unknownPhaseLocalSurfaceCount = matrix.surfaces.filter((row) => row.remainingPhaseLocalTaskIds === null).length;
+matrix.summary.remainingPhaseLocalTaskCount = unknownPhaseLocalSurfaceCount > 0 ? null : new Set([
   ...failedCriteria.map((task) => task.taskId),
   ...outstandingMeaningTasks.map((task) => task.taskId),
-  ...matrix.surfaces.flatMap((row) => row.remainingPhaseLocalTaskIds),
+  ...matrix.surfaces.flatMap((row) => row.remainingPhaseLocalTaskIds ?? []),
 ]).size;
+matrix.summary.remainingPhaseLocalTaskCountKnown = unknownPhaseLocalSurfaceCount === 0;
+matrix.summary.unknownPhaseLocalSurfaceCount = unknownPhaseLocalSurfaceCount;
 matrix.summary.remainingPhaseLocalSurfaceCount = statusCounts.IN_PROGRESS ?? 0;
 for (const row of matrix.surfaces) {
   row.nextLegalAction = matrix.campaign.status === 'DEV_COMPLETE'

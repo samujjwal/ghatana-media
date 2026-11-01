@@ -7,12 +7,18 @@ import path from 'node:path';
 import os from 'node:os';
 import {createRequire} from 'node:module';
 import { buildMediaProductDefinitionResidualReport } from '../scripts/lib/media-product-definition-residuals.mjs';
+import { fingerprintPxdDecisionSection } from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
 const parseYaml=createRequire(path.resolve(process.cwd(),'../ghatana-tools/package.json'))('yaml').parse;
 const audit=JSON.parse(fs.readFileSync('docs/implementation/media-task-completion-blocker-report-2026-10-08.json','utf8'));
 const residual=buildMediaProductDefinitionResidualReport();
 const p0Only=process.env.PDP_DEV_PHASE==='PDP-0';
 const broadTest=p0Only?test.skip:test;
 const build=verification=>buildReadiness({audit,residual,verification,mainSha:'fixture',fingerprints:{}});
+test('PDP-0 source pins include the existing PXD-226 version-disposition decision section',()=>{
+ const decisionLog=fs.readFileSync('.product-experience/decision-log.md','utf8');
+ const pins=pdp0PhaseScopedSourcePins();
+ assert.equal(pins['.product-experience/decision-log.md#PXD-226-section'],fingerprintPxdDecisionSection(decisionLog,'PXD-226').sha256);
+});
 test('approved PDP-0 media decisions include only current direct and scoped corrective approvals',()=>{
  const reviews={
   'P0-01':{status:'APPROVED_DIRECT_DEFINITION_CRITERION',sourceCutCurrent:true,decisionRef:'direct-1',currentCorrectiveReview:{status:'APPROVED_CURRENT_CORRECTION',phaseScope:'PDP-0',decisionRef:'corrective-1'}},

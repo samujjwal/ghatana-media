@@ -60,6 +60,7 @@ export function pdp0PhaseScopedSourcePins() {
   addDecisionId('.product-experience/decision-log.md#PXD-222');
   addDecisionId('.product-experience/decision-log.md#PXD-223');
   addDecisionId('.product-experience/decision-log.md#PXD-225');
+  addDecisionId('.product-experience/decision-log.md#PXD-226');
   const pins = {
     [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
       parseYaml(read('.product-experience/source-manifest.yaml')),
