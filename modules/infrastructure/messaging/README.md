@@ -22,8 +22,15 @@ Provides producer and consumer implementations for the transcription job queue. 
 ```properties
 messaging.broker.url=amqp://localhost:5672
 messaging.queue.transcription=audio-video.transcription.jobs
-messaging.consumer.concurrency=4
 ```
+
+The callback-bound consumer currently uses a bounded executor with at most
+`min(8, available processors)` workers and a queue of 128 messages. When both
+are full, dispatch propagates callback rejection to the configured queue
+strategy. Whether that strategy retries, nacks, or acknowledges the delivery
+must be verified against the actual strategy and broker; the in-memory tests
+do not establish broker acknowledgement semantics. These executor limits are
+defaults in code, not yet wired to the `messaging.consumer.concurrency` setting.
 
 ## Dependencies
 

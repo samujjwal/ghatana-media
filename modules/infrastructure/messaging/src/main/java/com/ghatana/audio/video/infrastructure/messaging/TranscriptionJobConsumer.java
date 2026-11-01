@@ -16,6 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -111,16 +114,39 @@ public class TranscriptionJobConsumer {
             String queueName,
             Function<Consumer<EventEnvelope<?>>, QueueConsumerStrategy> consumerStrategyFactory,
             MetricsCollector metricsCollector) {
+        this(queueName, consumerStrategyFactory, metricsCollector, createBoundedProcessingExecutor());
+    }
+
+    TranscriptionJobConsumer(
+            String queueName,
+            Function<Consumer<EventEnvelope<?>>, QueueConsumerStrategy> consumerStrategyFactory,
+            MetricsCollector metricsCollector,
+            ExecutorService processingExecutor) {
         this.queueName = Objects.requireNonNull(queueName, "queueName cannot be null");
         this.metricsCollector = Objects.requireNonNull(metricsCollector, "metricsCollector cannot be null");
         this.objectMapper = createDefaultObjectMapper();
-        this.processingExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        this.processingExecutor = Objects.requireNonNull(processingExecutor, "processingExecutor cannot be null");
         Function<Consumer<EventEnvelope<?>>, QueueConsumerStrategy> checkedFactory =
             Objects.requireNonNull(consumerStrategyFactory, "consumerStrategyFactory cannot be null");
         this.consumerStrategy = Objects.requireNonNull(
             checkedFactory.apply(this::dispatchEnvelope),
             "consumerStrategyFactory cannot return null");
         this.handlerBoundAtConstruction = true;
+    }
+
+    private static ExecutorService createBoundedProcessingExecutor() {
+        int workers = Math.max(1, Math.min(8, Runtime.getRuntime().availableProcessors()));
+        return createBoundedProcessingExecutor(workers, 128);
+    }
+
+    static ExecutorService createBoundedProcessingExecutor(int workers, int queueCapacity) {
+        if (workers <= 0 || queueCapacity <= 0) {
+            throw new IllegalArgumentException("workers and queueCapacity must be positive");
+        }
+        return new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(queueCapacity),
+            Thread.ofVirtual().name("media-transcription-consumer-", 0).factory(),
+            new ThreadPoolExecutor.AbortPolicy());
     }
 
     private static ObjectMapper createDefaultObjectMapper() {

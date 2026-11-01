@@ -16,6 +16,12 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -200,6 +206,68 @@ class TranscriptionJobConsumerTest {
         registeredHandler.get().accept(produced.get());
 
         assertThat(processed.get()).isEqualTo(job.jobId());
+    }
+
+    @Test
+    @DisplayName("bounded processing rejects excess work so strategy can retry or nack")
+    void boundedProcessingRejectsWhenWorkersAndQueueAreFull() throws Exception {
+        AtomicReference<Consumer<EventEnvelope<?>>> registeredHandler = new AtomicReference<>();
+        ThreadPoolExecutor processing = (ThreadPoolExecutor)
+            TranscriptionJobConsumer.createBoundedProcessingExecutor(1, 1);
+        TranscriptionJobConsumer consumer = new TranscriptionJobConsumer("av.jobs", handler -> {
+            registeredHandler.set(handler);
+            return consumerStrategy;
+        }, metricsCollector, processing);
+        CountDownLatch firstStarted = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        consumer.setJobProcessor(job -> {
+            firstStarted.countDown();
+            try {
+                if (!release.await(2, TimeUnit.SECONDS)) {
+                    return AsyncOperation.failure(new IllegalStateException("processor release timed out"));
+                }
+                return AsyncOperation.success(null);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                return AsyncOperation.failure(interrupted);
+            }
+        });
+        when(consumerStrategy.start()).thenReturn(AsyncOperation.success(null));
+        when(consumerStrategy.stop()).thenReturn(AsyncOperation.success(null));
+        await(consumer.start());
+
+        try (ExecutorService callbacks = Executors.newFixedThreadPool(2)) {
+            var firstId = UUID.randomUUID();
+            var secondId = UUID.randomUUID();
+            var first = callbacks.submit(() -> registeredHandler.get().accept(
+                validEnvelope(firstId, "tenant-a")));
+            assertThat(firstStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            var second = callbacks.submit(() -> registeredHandler.get().accept(
+                validEnvelope(secondId, "tenant-a")));
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (processing.getQueue().size() != 1 && System.nanoTime() < deadline) {
+                Thread.onSpinWait();
+            }
+            assertThat(processing.getQueue()).hasSize(1);
+
+            assertThatThrownBy(() -> registeredHandler.get().accept(
+                validEnvelope(UUID.randomUUID(), "tenant-a")))
+                .isInstanceOf(RejectedExecutionException.class);
+
+            release.countDown();
+            first.get(1, TimeUnit.SECONDS);
+            second.get(1, TimeUnit.SECONDS);
+        } finally {
+            release.countDown();
+            await(consumer.stop());
+        }
+    }
+
+    private static EventEnvelope<String> validEnvelope(UUID jobId, String tenantId) {
+        String payload = "{\"jobId\":\"" + jobId + "\",\"tenantId\":\"" + tenantId
+            + "\",\"artifactId\":\"" + UUID.randomUUID()
+            + "\",\"consentStatus\":\"GRANTED\",\"submittedAt\":\"" + Instant.now() + "\"}";
+        return envelope(jobId, tenantId, payload, "media.transcription.job.submitted");
     }
 
     private static EventEnvelope<String> envelope(
