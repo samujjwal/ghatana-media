@@ -647,6 +647,7 @@ channelExperienceBindings:
     logicalConsumerSurfaceRefs:
       - media.surface.integrations
     physicalSurfaceRefs:
+      - media.physical.adapters-data-cloud-media
       - media.physical.adapters-ledger
       - media.physical.modules-infrastructure-cache
       - media.physical.modules-infrastructure-messaging
@@ -657,6 +658,7 @@ channelExperienceBindings:
       - media.composition.creation-composition-and-delivery
       - media.composition.governed-job-execution
       - media.composition.ingestion-and-versioned-artifacts
+      - media.composition.repository-root
     actor: media.developer-integrator
     entry: A product integrator maps its authorized caller context to the proposed integration scope; no active integration
       or invocation is asserted.

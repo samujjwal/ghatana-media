@@ -21,27 +21,16 @@ const digest = (value) => createHash('sha256').update(value).digest('hex');
 const readJson = (relativePath) => JSON.parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 const readYaml = (relativePath) => parse(fs.readFileSync(path.join(root, relativePath), 'utf8'));
 
-test('AUD-SPEC-020 J-31 bindings stay pending when their product-integration surface map is stale', () => {
+test('AUD-SPEC-020 J-31 bindings match current product-integration source resolution and gate negative cases', () => {
   const journey = readYaml(PDP3_RULE_MANAGEMENT_PROPOSAL_PATH);
   const p0 = readYaml(PDP0_CAMPAIGN_EXTENSIONS_PATH).records.find(({ id }) => id === 'AUD-SPEC-020');
   const proposedChannels = p0.channelApplicability.records[0].channelApplicability.filter(({ disposition }) => disposition === 'PROPOSED_APPLICABLE');
   const p2 = readYaml(PDP2_INTERFACE_GRAMMAR_PATH).ruleManagementProposalInterfaceBinding.channelProposalMappings.mappings;
   const inputs = { bindings: journey.channelExperienceBindings, proposedChannels, p2Mappings: p2, journey };
-  const sourceConsistentBindings = structuredClone(journey.channelExperienceBindings);
-  const currentProductIntegration = proposedChannels.find(({ channelRef }) => channelRef === 'media.channel.product-integration');
-  const fixtureProductIntegration = sourceConsistentBindings.find(({ channelRef }) => channelRef === 'media.channel.product-integration');
-  fixtureProductIntegration.physicalSurfaceRefs = [...currentProductIntegration.surfaceResolution.physicalSurfaceRefs];
-  fixtureProductIntegration.compositeSurfaceRefs = [...currentProductIntegration.surfaceResolution.compositeSurfaceRefs];
-  const positiveInputs = { ...inputs, bindings: sourceConsistentBindings };
-  assert.equal(isCompleteAudSpec020ChannelExperienceBindings(positiveInputs), true);
-  assert.equal(isCompleteAudSpec020ChannelExperienceBindings(inputs), false);
-  const productIntegration = journey.channelExperienceBindings.find(({ channelRef }) => channelRef === 'media.channel.product-integration');
-  const sourceProductIntegration = proposedChannels.find(({ channelRef }) => channelRef === 'media.channel.product-integration');
-  assert.notDeepEqual([...productIntegration.physicalSurfaceRefs].sort(), [...sourceProductIntegration.surfaceResolution.physicalSurfaceRefs].sort());
-  assert.notDeepEqual([...productIntegration.compositeSurfaceRefs].sort(), [...sourceProductIntegration.surfaceResolution.compositeSurfaceRefs].sort());
-  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...positiveInputs, bindings: sourceConsistentBindings.slice(0, 7) }), false);
-  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...positiveInputs, bindings: sourceConsistentBindings.map((binding) => binding.channelRef === 'media.channel.api' ? { ...binding, inheritsChannelRefs: ['media.channel.http-api'] } : binding) }), false);
-  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...positiveInputs, journey: { ...journey, status: 'proposal-bound-pdp-3-definition; owner-applicability-review-pending; runtime-not-admitted' } }), false);
+  assert.equal(isCompleteAudSpec020ChannelExperienceBindings(inputs), true);
+  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...inputs, bindings: journey.channelExperienceBindings.slice(0, 7) }), false);
+  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...inputs, bindings: journey.channelExperienceBindings.map((binding) => binding.channelRef === 'media.channel.api' ? { ...binding, inheritsChannelRefs: ['media.channel.http-api'] } : binding) }), false);
+  assert.equal(isCompleteAudSpec020ChannelExperienceBindings({ ...inputs, journey: { ...journey, status: 'proposal-bound-pdp-3-definition; owner-applicability-review-pending; runtime-not-admitted' } }), false);
 });
 
 test('PDP-3 matrix binds all current physical, composite, and logical identities to source fingerprints', () => {
@@ -117,7 +106,7 @@ test('stale channel-edge status tasks remain visibly stale until the PDP-3 proje
   assert.ok(phaseWide.acceptanceCriterion);
 
   const audTaskId = 'PDP3-DEFINITION:AUD-SPEC-020:proposal-bound-channel-experiences';
-  assert.equal(matrix.surfaceAssignedWork.tasks.some(({ taskId }) => taskId === audTaskId), true);
+  assert.equal(matrix.surfaceAssignedWork.tasks.some(({ taskId }) => taskId === audTaskId), false);
   const ownerDecision = matrix.externalDecisionHandoffs.find(({ handoffId }) => handoffId === 'PDP0-DECISION:AUD-SPEC-020:channel-applicability-disposition');
   assert.ok(ownerDecision);
   assert.equal(ownerDecision.status, 'PENDING_OWNER_DISPOSITION');
