@@ -87,11 +87,16 @@ final class AgentToolInput {
      * for compatibility with source contracts that have not been installed.
      */
     private static void validateInputSchema(Map<String, Object> schema, Object input) {
+        // Bounds apply even when the registry has not installed an input
+        // schema. An unresolved schema must not disable the generic parser
+        // and allocation limits for tool-controlled arguments.
+        if (!withinTreeBounds(input, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
+                MAX_INPUT_ESTIMATED_CHARS)) {
+            throw inputSchemaViolation();
+        }
         if (schema.isEmpty()) return;
         try {
-            if (!withinTreeBounds(input, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
-                    MAX_INPUT_ESTIMATED_CHARS)
-                    || !withinTreeBounds(schema, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
+            if (!withinTreeBounds(schema, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
                             MAX_SCHEMA_JSON_CHARS)
                     || !usesSupportedSchemaKeywords(schema)) {
                 throw inputSchemaViolation();

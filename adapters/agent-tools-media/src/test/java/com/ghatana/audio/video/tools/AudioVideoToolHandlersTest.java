@@ -202,6 +202,19 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                 .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
     }
 
+    @Test
+    @DisplayName("keeps generic input depth bounds when the registered schema is unresolved")
+    void boundsInputWithoutRegisteredSchema() {
+        Object nested = "leaf";
+        for (int depth = 0; depth < 70; depth++) nested = List.of(nested);
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("languageCode", nested));
+
+        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+    }
+
     // =========================================================================
     // SpeechToTextToolHandler
     // =========================================================================
