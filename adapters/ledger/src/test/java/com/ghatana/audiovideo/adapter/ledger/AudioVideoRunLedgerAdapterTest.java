@@ -506,4 +506,33 @@ class AudioVideoRunLedgerAdapterTest {
                 "sk-live-credential-value", "signed-source");
         assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
     }
+
+    @Test
+    @DisplayName("Provider failure details are bounded and redact personal or credential data")
+    void testFailureDetailDisclosureSanitization() {
+        long now = System.currentTimeMillis();
+        String sensitiveFailure = "rate limit for user@example.com; bearer sk-live-secret-value; "
+                + "https://source.invalid/signed?token=abc";
+
+        RunLedger redacted = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-error-private", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
+                now, now, null, sensitiveFailure, "provider", "provider-job", "t", "c");
+
+        assertThat(redacted.failureReason())
+                .isEqualTo("Failure details omitted by ledger safety filter");
+        assertThat(redacted.toString()).doesNotContain(
+                "user@example.com", "sk-live-secret-value", "source.invalid", "token=abc");
+
+        RunLedger bounded = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-error-long", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
+                now, now, null, "provider detail " + "x".repeat(300), "provider", "provider-job", "t", "c");
+        assertThat(bounded.failureReason())
+                .isEqualTo("Failure details omitted by ledger safety filter");
+        assertThat(bounded.failureReason().length()).isLessThanOrEqualTo(64);
+
+        RunLedger ordinary = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-error-safe", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
+                now, now, null, "provider rate limit exceeded", "provider", "provider-job", "t", "c");
+        assertThat(ordinary.failureReason()).isEqualTo("provider rate limit exceeded");
+    }
 }

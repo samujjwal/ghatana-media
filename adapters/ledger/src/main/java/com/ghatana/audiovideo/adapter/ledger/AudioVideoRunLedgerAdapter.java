@@ -70,6 +70,7 @@ public final class AudioVideoRunLedgerAdapter {
 
         JobExecutionState mappedState = mapProcessingJobState(jobState);
         ExecutionOutcome mappedOutcome = mapProcessingJobOutcome(jobState);
+        String ledgerFailureReason = sanitizeLedgerFailure(failureReason);
         long now = System.currentTimeMillis();
 
         InputSnapshot inputs = new InputSnapshot(
@@ -97,7 +98,7 @@ public final class AudioVideoRunLedgerAdapter {
         } else if (mappedOutcome == ExecutionOutcome.FAILED) {
             outputs = new OutputSnapshot(
                 500,
-                failureReason,
+                ledgerFailureReason,
                 Map.of(),
                 (startedAtMs > 0 ? now - startedAtMs : 0),
                 Map.of(),
@@ -158,7 +159,7 @@ public final class AudioVideoRunLedgerAdapter {
             isTerminal(mappedState) ? now : 0,
             inputs,
             outputs,
-            failureReason,
+            ledgerFailureReason,
             Optional.empty(),
             1,  // Audio-Video jobs don't retry internally (retry handled at collection level)
             0,
@@ -185,6 +186,10 @@ public final class AudioVideoRunLedgerAdapter {
         java.util.regex.Pattern.compile(
             "(?i)(https?://|\\bbearer\\s|(?:api[_ -]?key|secret|token|password|credential)\\s*[:=]"
                 + "|\\b(?:sk|pk|ghp|gho|glpat|akia)[-_][a-z0-9_-]{8,}\\b)");
+    private static final java.util.regex.Pattern SENSITIVE_FAILURE_DETAIL =
+        java.util.regex.Pattern.compile(
+            "(?i)([a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}|\\b\\+?[0-9][0-9 ()-]{8,}[0-9]\\b)");
+    private static final String REDACTED_FAILURE_DETAIL = "Failure details omitted by ledger safety filter";
     private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
         "bitrate", "codec", "format", "language", "languageTag", "sampleRate",
         "channels", "fps", "resolution", "width", "height", "durationMs",
@@ -232,6 +237,24 @@ public final class AudioVideoRunLedgerAdapter {
             clean.put("sanitizedParamsDropped", String.valueOf(dropped));
         }
         return Map.copyOf(clean);
+    }
+
+    /**
+     * Provider error messages are free-form and can contain source URLs,
+     * credentials, contact details, or arbitrarily large payload fragments.
+     * Preserve ordinary bounded diagnostics, but omit the whole detail when a
+     * known disclosure pattern or length cap is hit.
+     */
+    private static String sanitizeLedgerFailure(String failureReason) {
+        if (failureReason == null) {
+            return null;
+        }
+        if (failureReason.length() > MAX_LEDGER_VALUE_CHARS
+                || SENSITIVE_LEDGER_VALUE.matcher(failureReason).find()
+                || SENSITIVE_FAILURE_DETAIL.matcher(failureReason).find()) {
+            return REDACTED_FAILURE_DETAIL;
+        }
+        return failureReason;
     }
 
     /** Bounded deterministic reference for identifiers that must not be serialized raw. */
