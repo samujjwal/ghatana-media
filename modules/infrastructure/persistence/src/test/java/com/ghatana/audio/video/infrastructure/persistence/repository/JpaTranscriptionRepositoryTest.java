@@ -71,6 +71,54 @@ class JpaTranscriptionRepositoryTest {
     }
 
     @Test
+    @DisplayName("JPA cannot claim successful transcript finality without canonical provider binding")
+    void successfulTranscriptStatesCannotBeInsertedThroughJpa() {
+        for (TranscriptionEntity.TranscriptionStatus status : new TranscriptionEntity.TranscriptionStatus[] {
+                TranscriptionEntity.TranscriptionStatus.COMPLETED,
+                TranscriptionEntity.TranscriptionStatus.CORRECTED }) {
+            TranscriptionEntity entity = createTestTranscription("tenant-terminal");
+            entity.setStatus(status);
+
+            assertThatThrownBy(() -> repository.save("tenant-terminal", entity))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("successful transcript finality without canonical provider binding");
+
+            entityManager.clear();
+            assertThat(repository.findById("tenant-terminal", entity.getId())).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("JPA cannot rewrite a row already marked as successful transcript content")
+    void successfulTranscriptContentRowsCannotBeRewrittenThroughJpa() {
+        TranscriptionEntity historical = createTestTranscription("tenant-terminal");
+        historical.setText("historical completed text");
+        historical.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
+        entityManager.getTransaction().begin();
+        entityManager.persist(historical);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+
+        TranscriptionEntity managed = repository.findById("tenant-terminal", historical.getId()).orElseThrow();
+        managed.setText("caller replacement text");
+        managed.setStatus(TranscriptionEntity.TranscriptionStatus.PENDING);
+
+        assertThatThrownBy(() -> repository.save("tenant-terminal", managed))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("successful transcript content without canonical provider binding");
+
+        assertThat(managed.getText()).isEqualTo("historical completed text");
+        assertThat(managed.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.COMPLETED);
+        entityManager.clear();
+        assertThat(repository.findById("tenant-terminal", historical.getId()))
+            .get()
+            .satisfies(restored -> {
+                assertThat(restored.getText()).isEqualTo("historical completed text");
+                assertThat(restored.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.COMPLETED);
+            });
+    }
+
+    @Test
     @DisplayName("GIVEN another tenant reuses an existing ID WHEN save THEN transcription ownership stays unchanged")
     void testSaveCannotReassignExistingTranscriptionToAnotherTenant() {
         TranscriptionEntity original = createTestTranscription("tenant-owner");
@@ -234,25 +282,25 @@ class JpaTranscriptionRepositoryTest {
         // GIVEN
         String tenantId = "tenant-123";
 
-        TranscriptionEntity completed = createTestTranscription(tenantId); 
-        completed.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED); 
+        TranscriptionEntity processing = createTestTranscription(tenantId);
+        processing.setStatus(TranscriptionEntity.TranscriptionStatus.PROCESSING);
 
         TranscriptionEntity pending = createTestTranscription(tenantId); 
         pending.setStatus(TranscriptionEntity.TranscriptionStatus.PENDING); 
 
-        repository.save(tenantId, completed); 
+        repository.save(tenantId, processing);
         repository.save(tenantId, pending); 
 
         // WHEN
-        var completedTranscriptions = repository.findByStatus( 
+        var processingTranscriptions = repository.findByStatus(
             tenantId,
-            TranscriptionEntity.TranscriptionStatus.COMPLETED
+            TranscriptionEntity.TranscriptionStatus.PROCESSING
         );
 
         // THEN
-        assertThat(completedTranscriptions).hasSize(1); 
-        assertThat(completedTranscriptions.get(0).getStatus()).isEqualTo( 
-            TranscriptionEntity.TranscriptionStatus.COMPLETED
+        assertThat(processingTranscriptions).hasSize(1);
+        assertThat(processingTranscriptions.get(0).getStatus()).isEqualTo(
+            TranscriptionEntity.TranscriptionStatus.PROCESSING
         );
     }
 

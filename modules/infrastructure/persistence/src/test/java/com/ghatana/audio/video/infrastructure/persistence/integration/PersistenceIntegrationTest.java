@@ -285,7 +285,7 @@ class PersistenceIntegrationTest extends EventloopTestBase {
             "en"
         );
         transcription.setConfidence(0.95f); 
-        transcription.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED); 
+        transcription.setStatus(TranscriptionEntity.TranscriptionStatus.PROCESSING);
 
         // WHEN
         TranscriptionEntity saved = transcriptionRepository.save(tenantId, transcription); 
@@ -388,25 +388,25 @@ class PersistenceIntegrationTest extends EventloopTestBase {
         // GIVEN
         String tenantId = "tenant-123";
 
-        TranscriptionEntity completed = createTranscription(tenantId, "Completed text"); 
-        completed.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED); 
+        TranscriptionEntity processing = createTranscription(tenantId, "Processing text");
+        processing.setStatus(TranscriptionEntity.TranscriptionStatus.PROCESSING);
 
         TranscriptionEntity pending = createTranscription(tenantId, "Pending text"); 
         pending.setStatus(TranscriptionEntity.TranscriptionStatus.PENDING); 
 
-        transcriptionRepository.save(tenantId, completed); 
+        transcriptionRepository.save(tenantId, processing);
         transcriptionRepository.save(tenantId, pending); 
 
         // WHEN
-        var completedTranscriptions = transcriptionRepository.findByStatus( 
+        var processingTranscriptions = transcriptionRepository.findByStatus(
             tenantId,
-            TranscriptionEntity.TranscriptionStatus.COMPLETED
+            TranscriptionEntity.TranscriptionStatus.PROCESSING
         );
 
         // THEN
-        assertThat(completedTranscriptions).hasSize(1); 
-        assertThat(completedTranscriptions.get(0).getStatus()).isEqualTo( 
-            TranscriptionEntity.TranscriptionStatus.COMPLETED
+        assertThat(processingTranscriptions).hasSize(1);
+        assertThat(processingTranscriptions.get(0).getStatus()).isEqualTo(
+            TranscriptionEntity.TranscriptionStatus.PROCESSING
         );
     }
 

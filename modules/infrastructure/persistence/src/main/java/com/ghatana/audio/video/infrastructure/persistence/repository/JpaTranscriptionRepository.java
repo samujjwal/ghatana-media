@@ -49,9 +49,10 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 began = true;
             }
 
-            String persistedTenant = entity.getId() == null
+            PersistedTranscription persisted = entity.getId() == null
                 ? null
-                : readPersistedTenantForUpdate(entity.getId());
+                : readPersistedForUpdate(entity.getId());
+            String persistedTenant = persisted == null ? null : persisted.tenantId();
             if (entity.getTenantId() != null && !tenantId.equals(entity.getTenantId())) {
                 restoreManagedEntityIfPresent(entity, persistedTenant);
                 throw new TenantScopeException("Transcription tenant does not match save tenant");
@@ -59,6 +60,18 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (persistedTenant != null && !tenantId.equals(persistedTenant)) {
                 restoreManagedEntityIfPresent(entity, persistedTenant);
                 throw new TenantScopeException("Transcription does not belong to save tenant");
+            }
+            // The legacy JPA row has no canonical source-version or successful-attempt binding.
+            // Keep it from claiming provider-owned transcript finality.
+            if (claimsSuccessfulTranscriptFinality(entity.getStatus())) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new SuccessfulTranscriptWriteException(
+                    "JPA transcription storage cannot claim successful transcript finality without canonical provider binding");
+            }
+            if (persisted != null && claimsSuccessfulTranscriptFinality(persisted.status())) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new SuccessfulTranscriptWriteException(
+                    "JPA cannot rewrite rows marked as successful transcript content without canonical provider binding");
             }
 
             TranscriptionEntity saved;
@@ -80,6 +93,9 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
         } catch (TenantScopeException e) {
             if (began && tx.isActive()) tx.rollback();
             throw e;
+        } catch (SuccessfulTranscriptWriteException e) {
+            if (began && tx.isActive()) tx.rollback();
+            throw e;
         } catch (Exception e) {
             if (began && tx.isActive()) tx.rollback();
             LOG.error("Failed to save Transcription: tenantId={}", tenantId, e);
@@ -93,13 +109,28 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
         }
     }
 
-    private String readPersistedTenantForUpdate(UUID id) {
+    private static final class SuccessfulTranscriptWriteException extends IllegalArgumentException {
+        private SuccessfulTranscriptWriteException(String message) {
+            super(message);
+        }
+    }
+
+    private record PersistedTranscription(String tenantId, TranscriptionEntity.TranscriptionStatus status) { }
+
+    private static boolean claimsSuccessfulTranscriptFinality(TranscriptionEntity.TranscriptionStatus status) {
+        return status == TranscriptionEntity.TranscriptionStatus.COMPLETED
+            || status == TranscriptionEntity.TranscriptionStatus.CORRECTED;
+    }
+
+    private PersistedTranscription readPersistedForUpdate(UUID id) {
         try {
-            return (String) entityManager.createNativeQuery(
-                    "SELECT tenant_id FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
+            Object[] row = (Object[]) entityManager.createNativeQuery(
+                    "SELECT tenant_id, status FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
                 .setParameter("id", id)
                 .setFlushMode(FlushModeType.COMMIT)
                 .getSingleResult();
+            return new PersistedTranscription((String) row[0],
+                TranscriptionEntity.TranscriptionStatus.valueOf((String) row[1]));
         } catch (jakarta.persistence.NoResultException missing) {
             return null;
         }
