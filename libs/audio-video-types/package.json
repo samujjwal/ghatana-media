@@ -12,8 +12,9 @@
     "dev": "tsc --watch",
     "clean": "node scripts/clean.mjs",
     "test": "vitest run",
+    "test:package": "pnpm build && node scripts/check-emitted-contract-parity.mjs",
     "test:watch": "vitest",
-    "check": "pnpm typecheck && pnpm test && pnpm build"
+    "check": "pnpm typecheck && pnpm test && pnpm test:package"
   },
   "files": [
     "dist",

@@ -130,6 +130,21 @@ describe('STTResult contract shape', () => {
       model: 'whisper-large',
     }).text).toBe('Hello world');
   });
+
+  it('preserves fractional source times but rejects reversed intervals and unsafe milliseconds', () => {
+    const valid = {
+      text: 'hello', confidence: 0.9, processingTimeMs: 1,
+      language: 'en', model: 'model-1',
+      words: [{ word: 'hello', start: -0.25, end: 0.5, confidence: 0.9 }],
+    };
+    expect(parseSTTResult(valid).words?.[0]?.start).toBe(-0.25);
+    expect(() => parseSTTResult({
+      ...valid, words: [{ word: 'hello', start: 2, end: 1, confidence: 0.9 }],
+    })).toThrow();
+    for (const processingTimeMs of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(() => parseSTTResult({ ...valid, processingTimeMs })).toThrow();
+    }
+  });
 });
 
 describe('TranscriptionResultSchema time and integer boundaries', () => {
@@ -325,6 +340,36 @@ describe('DetectionResult runtime validation', () => {
       processingTimeMs: 20,
       imageSize: { width: 640, height: 480 },
     }).objects).toHaveLength(1);
+  });
+
+  it('preserves finite fractional and zero-area boxes without assuming coordinate origin', () => {
+    const parsed = parseDetectionResult({
+      objects: [{
+        class: 'edge-object',
+        confidence: 0.5,
+        bbox: { x: -0.5, y: 1.25, width: 0, height: 2.5 },
+      }],
+      confidence: 0.5,
+      processingTimeMs: 1,
+      imageSize: { width: 10.5, height: 20.25 },
+    });
+
+    expect(parsed.objects[0]?.bbox).toEqual({ x: -0.5, y: 1.25, width: 0, height: 2.5 });
+  });
+
+  it.each([
+    { label: 'negative width', bbox: { x: 0, y: 0, width: -1, height: 1 }, imageSize: { width: 10, height: 10 } },
+    { label: 'negative height', bbox: { x: 0, y: 0, width: 1, height: -1 }, imageSize: { width: 10, height: 10 } },
+    { label: 'infinite coordinate', bbox: { x: Number.POSITIVE_INFINITY, y: 0, width: 1, height: 1 }, imageSize: { width: 10, height: 10 } },
+    { label: 'zero image width', bbox: { x: 0, y: 0, width: 1, height: 1 }, imageSize: { width: 0, height: 10 } },
+    { label: 'negative image height', bbox: { x: 0, y: 0, width: 1, height: 1 }, imageSize: { width: 10, height: -1 } },
+  ])('rejects $label', ({ bbox, imageSize }) => {
+    expect(() => parseDetectionResult({
+      objects: [{ class: 'object', confidence: 0.5, bbox }],
+      confidence: 0.5,
+      processingTimeMs: 1,
+      imageSize,
+    })).toThrow();
   });
 
   it('rejects malformed detection payload', () => {
