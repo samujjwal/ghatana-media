@@ -5,6 +5,8 @@
 package com.ghatana.media.integration;
 
 import io.activej.promise.Promise;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * @doc.type class
@@ -21,6 +25,86 @@ import java.util.function.Supplier;
  * @doc.pattern TestFixture
  */
 public class MediaTestHarness implements AutoCloseable {
+
+    /**
+     * Execution boundary for the repository's reusable integration-test fixtures.
+     * A tier describes what a selected test can prove; it is not a qualification
+     * or provider-admission status.
+     */
+    public enum TestTier {
+        /** Local deterministic code paths, including explicitly simulated fixtures. */
+        LOCAL_FIXTURE,
+        /** Disposable local database, object-store, or Compose resources. */
+        ISOLATED_INTEGRATION,
+        /** Tests that need separately pinned images or rights-qualified model/source assets. */
+        EXTERNAL_QUALIFICATION
+    }
+
+    /** Read-only, consumer-facing inventory of test selection and fixture boundaries. */
+    public record TestProfile(
+            String id,
+            TestTier tier,
+            List<String> selectors,
+            List<String> sources,
+            List<String> resources,
+            List<String> prerequisites,
+            String assets,
+            String safety,
+            String evidenceLimit) {
+
+        public TestProfile {
+            Objects.requireNonNull(id, "id");
+            Objects.requireNonNull(tier, "tier");
+            selectors = List.copyOf(selectors);
+            sources = List.copyOf(sources);
+            resources = List.copyOf(resources);
+            prerequisites = List.copyOf(prerequisites);
+            Objects.requireNonNull(assets, "assets");
+            Objects.requireNonNull(safety, "safety");
+            Objects.requireNonNull(evidenceLimit, "evidenceLimit");
+        }
+
+        /** Gradle selection arguments for this profile, usable from the repo root. */
+        public List<String> gradleArguments() {
+            List<String> arguments = new ArrayList<>(List.of(":services:media:integration-tests:test"));
+            for (String selector : selectors) {
+                arguments.add("--tests");
+                arguments.add(selector);
+            }
+            return List.copyOf(arguments);
+        }
+    }
+
+    /**
+     * Loads the canonical repository census and projects its selection profiles
+     * for integration-test consumers. The JSON census remains the single registry.
+     */
+    public static List<TestProfile> testProfiles(Path repositoryRoot) throws IOException {
+        Path catalog = repositoryRoot.resolve("docs/implementation/media-integration-test-census.v1.json");
+        JsonNode profiles = new ObjectMapper().readTree(catalog.toFile()).path("profiles");
+        List<TestProfile> result = new ArrayList<>();
+        for (JsonNode profile : profiles) {
+            result.add(new TestProfile(
+                    profile.path("id").asString(),
+                    TestTier.valueOf(profile.path("tier").asString()),
+                    strings(profile.path("selectors")),
+                    strings(profile.path("sources")),
+                    strings(profile.path("resources")),
+                    strings(profile.path("prerequisites")),
+                    profile.path("assets").asString(),
+                    profile.path("safety").asString(),
+                    profile.path("evidenceLimit").asString()));
+        }
+        return List.copyOf(result);
+    }
+
+    private static List<String> strings(JsonNode array) {
+        List<String> values = new ArrayList<>();
+        for (JsonNode value : array) {
+            values.add(value.asString());
+        }
+        return List.copyOf(values);
+    }
 
     private final String tenantId;
     private final AtomicReference<Consumer<String>> auditEventListener;

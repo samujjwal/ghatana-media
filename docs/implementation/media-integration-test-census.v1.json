@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "purpose": "IT-01 census: classify every integration-tests surface. Only suites wired to real containers/channels count as integration evidence; literal/simulated stub tests are marked scaffold and disabled, never counted as passes.",
-  "module": "integration-tests (com.ghatana.audio.video.integration)",
+  "purpose": "IT-01 single registry: classify integration-tests surfaces and expose executable three-tier selectors, prerequisites, assets and safety boundaries. Only suites wired to real containers/channels count as integration evidence; literal/simulated stubs remain scaffold and disabled.",
+  "module": "services:media:integration-tests",
   "classification": {
     "CONTAINER_GATED_REAL_INTEGRATION": {
       "meaning": "extends AudioVideoContainerBase; IntegrationImagesCondition reports an honest skip when GH-90000 service images are absent",
@@ -32,6 +32,160 @@
     "observability": ["audio-video-observability tracing/instrumentation/health ITs"],
     "provider": ["providers/aws-postgresql MediaUploadCrashRecoveryIT, MediaDurableWorkerCrashIT, MediaSeededQueryPlanIT, MediaAwsPostgresqlRuntimeStateIntegrationTest"]
   },
+  "profiles": [
+    {
+      "id": "local-lifecycle-fixtures",
+      "tier": "LOCAL_FIXTURE",
+      "selectors": [
+        "com.ghatana.media.integration.MediaProviderJobLifecycleE2ETest",
+        "com.ghatana.media.integration.MediaPdp3BusinessRecordingIT",
+        "com.ghatana.audio.video.integration.AudioVideoContainerProcessTest",
+        "com.ghatana.media.integration.MediaTestHarnessCatalogTest"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaTestHarness.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaProviderJobLifecycleE2ETest.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaPdp3BusinessRecordingIT.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoContainerProcessTest.java",
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaTestHarnessCatalogTest.java"
+      ],
+      "resources": ["JUnit Jupiter", "AssertJ", "ActiveJ EventloopTestBase"],
+      "prerequisites": ["JDK/Gradle runtime; no Docker or external service is required by the selected local fixture tests"],
+      "assets": "In-memory maps, literal request values, test-authored bytes, and generated J03 strings; no model weights or licensed media are bundled.",
+      "safety": "Harness state is process-local and cleared by MediaTestHarness.close(); use synthetic tenant/principal identifiers only. Process tests use temporary PID files and terminate their child process.",
+      "evidenceLimit": "MediaTestHarness, MediaProviderJobLifecycleE2ETest, and MediaPdp3BusinessRecordingIT use simulated/local state. Their integration-named selectors are not proof of a real provider, database, object store, capture, or model effect."
+    },
+    {
+      "id": "disabled-legacy-scaffolds",
+      "tier": "LOCAL_FIXTURE",
+      "selectors": [
+        "com.ghatana.audio.video.integration.AudioVideoDataCloudAepAgentE2ETest",
+        "com.ghatana.audio.video.integration.AudioVideoDataCloudAepIntegrationJourneyTest"
+      ],
+      "sources": [
+        "docs/implementation/media-integration-test-census.v1.json",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/EndToEndWorkflowTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/ErrorScenarioIntegrationTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/LoadTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/PerformanceIntegrationTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoDataCloudAepAgentE2ETest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoDataCloudAepIntegrationJourneyTest.java"
+      ],
+      "resources": ["JUnit Jupiter only"],
+      "prerequisites": ["No external prerequisite; classes carry an explicit IT-01 @Disabled scaffold reason"],
+      "assets": "Literal values and local/synthetic fixtures only; no licensed model or source assets are bundled.",
+      "safety": "Scaffolds are disabled and must stay so until wired to actual services/containers/channels. Their names do not make them runnable integration evidence.",
+      "evidenceLimit": "The two listed selectors are disabled and execute zero scaffold assertions. EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, LoadTest.java, and PerformanceIntegrationTest.java also remain disabled scaffolds but lack @Tag(integration), so the integration task excludes them even when passed with --tests."
+    },
+    {
+      "id": "launcher-h2-localstack",
+      "tier": "ISOLATED_INTEGRATION",
+      "selectors": ["com.ghatana.media.integration.MediaLauncherEndToEndIT"],
+      "sources": ["integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherEndToEndIT.java"],
+      "resources": ["H2 in PostgreSQL compatibility mode", "Testcontainers LocalStack S3 (localstack/localstack:3.8)"],
+      "prerequisites": ["Docker daemon", "Gradle integration-tests test task"],
+      "assets": "WAV-shaped bytes are generated in test code; provider work uses the local fixture profile. No licensed corpus or model is bundled.",
+      "safety": "A unique in-memory H2 database and per-test LocalStack bucket are used; the test stops the server/runtime and Testcontainers after each run. No customer data or real AWS credentials are required.",
+      "evidenceLimit": "Exercises the real Media launcher and HTTP path against isolated H2/LocalStack. H2 does not establish PostgreSQL-engine behavior; LocalStack does not establish AWS production behavior or provider quality."
+    },
+    {
+      "id": "postgres-localstack-restart-and-policy",
+      "tier": "ISOLATED_INTEGRATION",
+      "selectors": [
+        "com.ghatana.media.integration.MediaRuntimePostgresWorkflowMetricsIT",
+        "com.ghatana.media.launcher.MediaMultimodalParentChildRestartPostgresIT",
+        "com.ghatana.media.launcher.MediaProviderPolicyDeniedFinalityPostgresIT"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/media/integration/MediaRuntimePostgresWorkflowMetricsIT.java",
+        "integration-tests/build.gradle.kts",
+        "integration-tests/src/test/java/com/ghatana/media/launcher/MediaMultimodalParentChildRestartPostgresIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/launcher/MediaProviderPolicyDeniedFinalityPostgresIT.java",
+        "integration-tests/src/test/java/com/ghatana/media/provider/aws/TestAwsStateInstall.java"
+      ],
+      "resources": ["Testcontainers PostgreSQL (postgres:16-alpine)", "Testcontainers LocalStack S3 (localstack/localstack:3.8)"],
+      "prerequisites": [
+        "Docker daemon",
+        "Gradle integration-tests test task",
+        "For the child-JVM metrics variant also select ./gradlew :services:media:integration-tests:postgresWorkflowProcessRestart"
+      ],
+      "assets": "Synthetic jobs, metadata, and in-test byte payloads; no licensed model/source assets are bundled.",
+      "safety": "Containers, schemas, buckets, and keys are test-scoped; generated names are isolated. Never point these tests at the active legacy Media store.",
+      "evidenceLimit": "Proves the selected PostgreSQL/LocalStack scenarios only; it does not cover every production database, AWS service, provider, or runtime deployment."
+    },
+    {
+      "id": "postgres-stt-fencing",
+      "tier": "ISOLATED_INTEGRATION",
+      "selectors": ["com.ghatana.media.launcher.MediaSttTranscriptCommitFenceIT"],
+      "sources": ["integration-tests/src/test/java/com/ghatana/media/launcher/MediaSttTranscriptCommitFenceIT.java"],
+      "resources": ["Testcontainers PostgreSQL (postgres:16-alpine)", "test-local HTTPS S3 stub", "in-test fixture provider"],
+      "prerequisites": ["Docker daemon", "Gradle integration-tests test task"],
+      "assets": "Synthetic WAV-shaped bytes and fixture provider responses; not a real model/source corpus.",
+      "safety": "Uses an isolated PostgreSQL container and synthetic test identities; does not dispatch to an external provider.",
+      "evidenceLimit": "Exercises commit fencing and transcript state transitions, not transcription quality, voice rights, or a live provider effect."
+    },
+    {
+      "id": "postgres-authorized-stt-restart",
+      "tier": "EXTERNAL_QUALIFICATION",
+      "selectors": ["com.ghatana.media.launcher.MediaAuthorizedSttTranscriptRestartIT"],
+      "sources": ["integration-tests/src/test/java/com/ghatana/media/launcher/MediaAuthorizedSttTranscriptRestartIT.java"],
+      "resources": ["Testcontainers PostgreSQL (postgres:16-alpine)", "test-local HTTPS S3 stub"],
+      "prerequisites": [
+        "Docker daemon",
+        "GHATANA_MEDIA_WHISPER_PROFILE",
+        "GHATANA_MEDIA_WHISPER_AUDIO",
+        "GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT",
+        "independently verified rights for model and source audio"
+      ],
+      "assets": "The repository contains no Whisper profile, WAV corpus, or gold transcript for this selector. The referenced environment paths must point to separately reviewed assets; their presence alone does not prove rights.",
+      "safety": "Do not copy private/customer source into the repository or test reports. The test creates a local TLS S3 stub, a temporary keystore, and PostgreSQL state; it does not require real AWS credentials.",
+      "evidenceLimit": "The test skips when any external input is absent. A run can exercise local inference/readback but does not itself establish model licensing, source rights, independent quality acceptance, or hosted qualification."
+    },
+    {
+      "id": "compose-startup-refusal",
+      "tier": "EXTERNAL_QUALIFICATION",
+      "selectors": [
+        "com.ghatana.audio.video.integration.AudioVideoIntegrationTest",
+        "com.ghatana.audio.video.integration.FullWorkflowIntegrationTest"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoContainerBase.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/IntegrationImagesCondition.java",
+        "integration-tests/docker-compose.integration.yml"
+      ],
+      "resources": ["Docker Compose", "STT and TTS service images selected by AUDIO_VIDEO_STT_IMAGE and AUDIO_VIDEO_TTS_IMAGE"],
+      "prerequisites": [
+        "Docker daemon",
+        "both image variables set to owner-pinned image digests for a qualification run",
+        "Run from integration-tests/"
+      ],
+      "assets": "Compose defaults are mutable :latest tags; no service image, model, voice, or licensed media asset is bundled or admitted by this repository.",
+      "safety": "The bounded probes run docker compose run without service-port publication and attempt project cleanup. Use only disposable candidate images and record image digest/host/version externally.",
+      "evidenceLimit": "These suites assert typed startup refusal for currently non-admitted providers. A passing refusal probe is not a successful STT/TTS operation or provider qualification; absent images are skipped by IntegrationImagesCondition."
+    }
+  ],
+  "unrepresentedSourceAreas": [
+    {
+      "path": "integration-tests/src/test/java/com/ghatana/media/MediaServicesIntegrationTest.java",
+      "reason": "This mock-based suite has no @Tag(integration), so :services:media:integration-tests:test excludes it even when passed with --tests."
+    },
+    {
+      "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration",
+      "reason": "EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, LoadTest.java, and PerformanceIntegrationTest.java are disabled scaffolds without @Tag(integration), so the configured integration task cannot select them."
+    },
+    {
+      "path": "modules/integration-tests/src/test/java",
+      "reason": "Separate module :services:media:modules:integration-tests, with contract, authenticated STT/TTS, persistence, pipeline, advanced-services, and multimodal RPC tests; not part of the services:media:integration-tests task."
+    },
+    {
+      "path": "providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws",
+      "reason": "Provider-owned suite, including MediaUploadCrashRecoveryIT.java, MediaDurableWorkerCrashIT.java, MediaSeededQueryPlanIT.java, and MediaAwsPostgresqlRuntimeStateIntegrationTest.java; select through its owning project task."
+    },
+    {
+      "path": "audio-video-observability/src/test/java/com/ghatana/audiovideo/observability",
+      "reason": "Observability-owned instrumentation, tracing, health, alert, metrics, and resource-profile tests; select through :services:media:audio-video-observability."
+    }
+  ],
   "guards": {
     "noTautologyAsIntegration": "a test asserting only literals/Map.of fixtures/simulated locals may not carry an Integration/E2E/Load/Journey name without an explicit @Disabled scaffold reason",
     "honestSkip": "container-gated suites skip via IntegrationImagesCondition with the missing image names — never silently pass",
