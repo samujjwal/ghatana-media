@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "media.derived-owner-remaining-work-execution.v2",
+  "schemaVersion": "media.derived-owner-remaining-work-execution.v1",
   "recordKind": "SOURCE_INSPECTED_EXECUTION_PLAN_NOT_PRODUCT_MEANING_OR_LIFECYCLE_PROOF",
   "reviewedAt": "2026-10-31 America/Los_Angeles (2026-11-01 UTC main)",
   "sources": {
@@ -3613,5 +3613,7 @@
     ],
     "oldSourceInventoryCaveat": "Earlier v1 census 29/57 is replaced by current 28/56, not retroactively edited proof",
     "userPriorAuthorizations": "Routine implementation approval applies, protected trust/license/independent reviewers not impersonated"
-  }
+  },
+  "reviewRevision": "2026-10-31-live-source-r2",
+  "schemaPreservationNote": "The existing v1 derived execution-register schema is preserved; this is a refreshed source observation and owner plan, not a replacement task or closure authority."
 }
