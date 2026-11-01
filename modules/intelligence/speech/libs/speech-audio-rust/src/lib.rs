@@ -702,12 +702,14 @@ fn decode_audio_bounded_with_time_budget(
             limits.max_input_bytes
         )));
     }
-    validate_riff_wav(&mut file, input_bytes, limits)?;
+    validate_riff_wav(&mut file, input_bytes, limits, started_at, max_decode_time)?;
     file.seek(SeekFrom::Start(0))?;
     // Only WAVE/AIFF container headers provide frame counts that this decoder
     // can treat as exact. Some codec probes (notably ADTS/AAC) estimate
     // `n_frames` from sampled bitrate, which is not a truncation boundary.
+    ensure_decode_time(started_at, max_decode_time)?;
     let has_exact_frame_count = has_exact_frame_count_container(&mut file)?;
+    ensure_decode_time(started_at, max_decode_time)?;
     let source = MediaSourceStream::new(Box::new(file), Default::default());
     let mut hint = Hint::new();
     if !extension.is_empty() {
@@ -889,7 +891,7 @@ fn decode_audio_bounded_with_time_budget(
 }
 
 fn ensure_decode_time(started_at: Instant, budget: Duration) -> Result<()> {
-    if started_at.elapsed() > budget {
+    if started_at.elapsed() >= budget {
         return Err(SpeechAudioError::ResourceLimit(
             "audio decode exceeded its wall-time budget".to_string(),
         ));
@@ -900,7 +902,14 @@ fn ensure_decode_time(started_at: Instant, budget: Duration) -> Result<()> {
 /// Validate ordinary RIFF/WAVE chunk boundaries before handing the file to a
 /// codec. This checks container integrity and common PCM/IEEE-float layouts;
 /// it does not establish provenance, licensing, or provider quality.
-fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Result<()> {
+fn validate_riff_wav(
+    file: &mut File,
+    file_len: u64,
+    limits: DecodeLimits,
+    started_at: Instant,
+    max_decode_time: Duration,
+) -> Result<()> {
+    ensure_decode_time(started_at, max_decode_time)?;
     let mut header = [0u8; 12];
     file.seek(SeekFrom::Start(0))?;
     match file.read_exact(&mut header) {
@@ -921,6 +930,7 @@ fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Re
     let mut fmt: Option<(u16, u16, u32, u32, u16, u16)> = None;
     let mut data_size: Option<u32> = None;
     while offset < declared_len {
+        ensure_decode_time(started_at, max_decode_time)?;
         if declared_len - offset < 8 {
             return Err(SpeechAudioError::Decode(
                 "truncated RIFF chunk header".to_string(),
@@ -929,6 +939,7 @@ fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Re
         file.seek(SeekFrom::Start(offset))?;
         let mut chunk_header = [0u8; 8];
         file.read_exact(&mut chunk_header)?;
+        ensure_decode_time(started_at, max_decode_time)?;
         let chunk_size = u32::from_le_bytes(chunk_header[4..8].try_into().unwrap());
         let chunk_start = offset + 8;
         let chunk_end = chunk_start
@@ -953,6 +964,7 @@ fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Re
             let mut raw = [0u8; 40];
             let bytes_to_read = if chunk_size >= 40 { 40 } else { 16 };
             file.read_exact(&mut raw[..bytes_to_read])?;
+            ensure_decode_time(started_at, max_decode_time)?;
             let mut encoding = u16::from_le_bytes(raw[0..2].try_into().unwrap());
             if encoding == 0xfffe {
                 let extension_size = u32::from(u16::from_le_bytes(raw[16..18].try_into().unwrap()));
@@ -995,6 +1007,8 @@ fn validate_riff_wav(file: &mut File, file_len: u64, limits: DecodeLimits) -> Re
         }
         offset = padded_end;
     }
+
+    ensure_decode_time(started_at, max_decode_time)?;
 
     let (encoding, channels, rate, byte_rate, block_align, bits) =
         fmt.ok_or_else(|| SpeechAudioError::Decode("WAVE is missing its fmt chunk".to_string()))?;
