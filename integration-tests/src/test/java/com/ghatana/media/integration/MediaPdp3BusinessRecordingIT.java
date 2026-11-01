@@ -3,7 +3,6 @@ package com.ghatana.media.integration;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.ClaimResult;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.OriginClass;
-import com.ghatana.media.launcher.MediaProductionRunCoordinator.ProducedOutput;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.ProductionStep;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.StepOutcome;
 import com.ghatana.media.launcher.MediaProductionRunCoordinator.StepRecord;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +22,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * H-08: end-to-end production-run proof for the PDP-3 business-recording
- * scenario media.demo.j03.corrected-captions.v1 — over authorized synthetic
- * curated sources only.
- *
- * <p>This IT exercises the deterministic spec compiler (H-02) and the
- * sealed-provenance run coordinator (H-07) across the scenario's seven
- * ordered scenes with narration and caption refs preserved. It deliberately
- * does NOT claim product-executed video, customer recording or external
- * publication — the PDP-3 source marks the Explorer capture as simulated
- * evidence and the build channel NOT_RECORDED; this IT verifies plan
- * determinism, per-scene sealed provenance, terminal version identity and
- * UNKNOWN fencing on the real compiled pipeline.
+ * H-08 synthetic planning and coordinator fixtures for the PDP-3 J03 scenario.
+ * The fixture ledger and bytes do not establish product capture, durable
+ * execution, rights approval, or a terminal artifact. The coordinator does
+ * not enforce DAG dependencies; a skipped manual gate cannot release capture.
  */
 @Tag("integration")
 class MediaPdp3BusinessRecordingIT {
@@ -80,50 +70,28 @@ class MediaPdp3BusinessRecordingIT {
     }
 
     @Test
-    void j03ScenarioCompilesAndRunsEndToEndWithSealedTerminalArtifact() {
-        // Compile — deterministic across two runs of the same spec.
+    void j03PlanRequiresRightsReviewBeforeCaptureAndGateSkipIsNotApproval() {
         var compiler = new MediaProductionSpecCompiler();
         CompiledPlan plan = compiler.compile(j03Spec());
         assertThat(plan.projectRevision()).isEqualTo("media.demo.j03.corrected-captions.v1");
-        assertThat(compiler.compile(j03Spec()).planFingerprint())
-                .isEqualTo(plan.planFingerprint());
-        // Seven scene captures plus validate/rights/compose/render/publish.
+        assertThat(compiler.compile(j03Spec()).planFingerprint()).isEqualTo(plan.planFingerprint());
         assertThat(plan.nodes()).hasSize(7 + 5);
+        var rightsGate = plan.nodes().stream().filter(n -> n.stepId().equals("rights-review"))
+                .findFirst().orElseThrow();
+        assertThat(rightsGate.mode()).isEqualTo(ExecutionMode.MANUAL_GATE);
+        assertThat(plan.nodes().stream().filter(n -> n.stepId().startsWith("capture-source-")))
+                .hasSize(7)
+                .allSatisfy(node -> assertThat(node.dependsOn()).containsExactly("rights-review"));
 
-        // Run the plan's capture steps through the coordinator.
         var coordinator = new MediaProductionRunCoordinator(new InMemoryLedger());
-        List<ProducedOutput> produced = new ArrayList<>();
-        for (var node : plan.nodes()) {
-            var step = new ProductionStep(
-                    node.stepId(),
-                    OriginClass.REAL_CAPTURE,
-                    node.versionRefs().isEmpty() ? "none" : node.versionRefs().get(0),
-                    "rights/internal-demo-evidence/v1",
-                    node.mode() == ExecutionMode.MANUAL_GATE);
-            var result = coordinator.executeStep(
-                    "run-j03-1", plan.planFingerprint(), step,
-                    (id, s) -> curatedBytes(id));
-            if (step.manualGate()) {
-                assertThat(result.outcome()).isEqualTo(StepOutcome.SKIPPED_MANUAL_GATE);
-            } else {
-                assertThat(result.outcome()).isEqualTo(StepOutcome.PRODUCED);
-                produced.add(result.output().orElseThrow());
-            }
-        }
-
-        // validate + seven scenes + compose + render produced; two manual gates skipped.
-        assertThat(produced).hasSize(7 + 3);
-        // Every output binds the plan fingerprint, exact source revision and checksum.
-        for (ProducedOutput output : produced) {
-            assertThat(output.planFingerprint()).isEqualTo(plan.planFingerprint());
-            assertThat(output.originClass()).isEqualTo(OriginClass.REAL_CAPTURE);
-            assertThat(output.contentSha256()).matches("[a-f0-9]{64}");
-            assertThat(output.effectiveRightsRef()).isEqualTo("rights/internal-demo-evidence/v1");
-        }
-        // Terminal artifact identity: the render output's checksum is exact and stable.
-        ProducedOutput terminal = produced.get(produced.size() - 1);
-        assertThat(terminal.stepId()).isEqualTo("render-profile-0");
-        assertThat(terminal.sourceRevisionRef()).isEqualTo("profile/1080p@v4");
+        var gate = new ProductionStep("rights-review", OriginClass.REAL_CAPTURE,
+                "rights/internal-demo-evidence/v1", "rights/internal-demo-evidence/v1", true);
+        var result = coordinator.executeStep("run-j03-1", plan.planFingerprint(), gate,
+                (id, step) -> { throw new AssertionError("manual gate must not execute"); });
+        assertThat(result.outcome()).isEqualTo(StepOutcome.SKIPPED_MANUAL_GATE);
+        assertThat(result.output()).isEmpty();
+        // The standalone step coordinator has no dependency executor. Do not
+        // submit capture children or infer a terminal artifact from this skip.
     }
 
     @Test

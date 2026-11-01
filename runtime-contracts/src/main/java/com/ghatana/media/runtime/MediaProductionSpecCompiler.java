@@ -123,10 +123,11 @@ public final class MediaProductionSpecCompiler {
 
     /**
      * Compiles a spec into the deterministic plan DAG. The DAG is fixed in
-     * shape: validate → per-scene capture (automatic) → rights review
-     * (manual gate) → compose → per-profile render (automatic) → publish
-     * review (manual gate). Node fingerprints bind exact version refs so a
-     * changed source revision invalidates only its descendants.
+     * shape: validate → rights review (manual gate) → per-scene capture →
+     * compose → per-profile render → publish review (manual gate). Each
+     * external capture still requires current source-specific authorization;
+     * this plan and its manual gate do not themselves grant access. Node
+     * fingerprints bind exact version refs for descendant invalidation.
      */
     public CompiledPlan compile(ProductionSpec spec) {
         Objects.requireNonNull(spec, "spec");
@@ -136,17 +137,17 @@ public final class MediaProductionSpecCompiler {
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
                 List.of(), List.of(spec.revisionId(), spec.purposeRef()),
                 List.of(spec.tenantId(), spec.projectId(), spec.originClass()));
+        addNode(nodes, fingerprints, "rights-review", "rights-review", ExecutionMode.MANUAL_GATE,
+                List.of("validate-spec"), List.of(spec.rightsRef()));
         List<String> captureIds = new ArrayList<>();
         for (int i = 0; i < spec.sceneRefs().size(); i++) {
             String id = "capture-source-" + i;
             addNode(nodes, fingerprints, id, "capture", ExecutionMode.AUTOMATIC,
-                    List.of("validate-spec"), List.of(spec.sceneRefs().get(i)));
+                    List.of("rights-review"), List.of(spec.sceneRefs().get(i)));
             captureIds.add(id);
         }
-        addNode(nodes, fingerprints, "rights-review", "rights-review", ExecutionMode.MANUAL_GATE,
-                captureIds, List.of(spec.rightsRef()));
         addNode(nodes, fingerprints, "compose-timeline", "compose", ExecutionMode.AUTOMATIC,
-                List.of("rights-review"), List.of(spec.timelineRef));
+                captureIds, List.of(spec.timelineRef));
         List<String> renderIds = new ArrayList<>();
         for (int i = 0; i < spec.outputProfileRefs().size(); i++) {
             String id = "render-profile-" + i;

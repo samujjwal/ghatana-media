@@ -30,8 +30,8 @@ class MediaProductionSpecCompilerTest {
         assertThat(a.planFingerprint()).startsWith("sha256:");
         assertThat(a.projectRevision()).isEqualTo("rev-7");
         assertThat(a.nodes().stream().map(n -> n.stepId())).containsExactly(
-                "validate-spec", "capture-source-0", "capture-source-1",
-                "rights-review", "compose-timeline", "render-profile-0", "publish-review");
+                "validate-spec", "rights-review", "capture-source-0", "capture-source-1",
+                "compose-timeline", "render-profile-0", "publish-review");
         // Manual gates exist for rights and publish — never auto-marked done.
         assertThat(a.nodes()).filteredOn(n -> n.mode() == ExecutionMode.MANUAL_GATE)
                 .extracting(n -> n.stepId())
@@ -39,7 +39,9 @@ class MediaProductionSpecCompilerTest {
         assertThat(a.nodes().stream()
                 .filter(n -> n.stepId().equals("compose-timeline"))
                 .findFirst().orElseThrow().dependsOn())
-                .containsExactly("rights-review");
+                .containsExactly("capture-source-0", "capture-source-1");
+        assertThat(a.nodes().stream().filter(n -> n.stepId().startsWith("capture-source-")))
+                .allSatisfy(node -> assertThat(node.dependsOn()).containsExactly("rights-review"));
     }
 
     @Test
@@ -53,12 +55,12 @@ class MediaProductionSpecCompilerTest {
                 List.of("profile/1080p@v4"));
         CompiledPlan after = compiler.compile(changed);
         assertThat(after.planFingerprint()).isNotEqualTo(before.planFingerprint());
-        // capture-source-0 changed; downstream rights-review → publish all re-fingerprinted.
-        // capture-source-1's inputs are unchanged — its node fingerprint is preserved.
+        // Only the changed capture and its compose/render descendants change.
+        // The separate rights gate and unchanged source retain their fingerprints.
         List<String> invalidated = after.invalidatedAgainst(before);
-        assertThat(invalidated).contains("capture-source-0", "rights-review",
-                "compose-timeline", "render-profile-0", "publish-review");
-        assertThat(invalidated).doesNotContain("validate-spec", "capture-source-1");
+        assertThat(invalidated).contains("capture-source-0", "compose-timeline",
+                "render-profile-0", "publish-review");
+        assertThat(invalidated).doesNotContain("validate-spec", "rights-review", "capture-source-1");
     }
 
     @Test
@@ -117,7 +119,7 @@ class MediaProductionSpecCompilerTest {
                 "tenant-1", "project-1", "rev-7", "REAL_CAPTURE", "purpose/v1",
                 List.of("scene/1@v3"), "timeline/main@v2", "rights/standard@v1",
                 List.of("profile/1080p@v4")));
-        assertThat(after.invalidatedAgainst(before)).contains("capture-source-1", "rights-review");
+        assertThat(after.invalidatedAgainst(before)).contains("capture-source-1", "compose-timeline");
         assertThat(after.invalidatedAgainst(before)).doesNotContain("capture-source-0", "validate-spec");
     }
 

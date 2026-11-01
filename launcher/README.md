@@ -23,3 +23,10 @@ will change. Existing plan or run records must be reconciled against their
 original inputs before further effects; a newly compiled fingerprint does not
 rewrite an existing run or authorize replay. The compiler produces a plan,
 not a rights decision or provider admission.
+
+The H-02 DAG places its manual rights-review gate before capture. The H-07
+step coordinator does not yet enforce DAG dependencies or convert a skipped
+manual gate into approval: callers must not dispatch child steps from a skipped
+or unresolved gate. Source-specific rights and consent are separately checked
+at each effect boundary. A durable, dependency-aware production executor is
+still required before this plan can establish a real capture outcome.
