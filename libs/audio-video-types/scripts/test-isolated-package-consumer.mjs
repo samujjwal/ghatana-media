@@ -86,6 +86,27 @@ try {
     assert.equal(root.createAudioData(new ArrayBuffer(0)).sampleRate, 16000);
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
     assert.equal(production.OpaqueIdSchema.parse('scene-1'), 'scene-1');
+    const requestFixture = { artifactId: 'source-1', idempotencyKey: 'idem-1' };
+    assert.equal(contracts.TranscriptionRequestSchema.parse(requestFixture).idempotencyKey, 'idem-1');
+    assert.throws(() => contracts.TranscriptionRequestSchema.parse({ artifactId: 'source-1' }));
+    // This is a structural fixture for the result shape, not evidence of a provider effect.
+    const resultFixture = {
+      artifactId: 'source-1', transcriptArtifactId: 'transcript-1', text: 'fixture transcript',
+      languageTag: 'en', confidence: 0.9, providerId: 'fixture-provider',
+      modelId: 'fixture-model', modelVersion: 'fixture-v1', processingTimeMs: 1,
+    };
+    assert.equal(contracts.TranscriptionResultSchema.parse(resultFixture).text, 'fixture transcript');
+    assert.throws(() => contracts.TranscriptionResultSchema.parse(requestFixture));
+    assert.throws(() => contracts.TranscriptionRequestSchema.parse(resultFixture));
+    const cancelledJob = contracts.MediaProcessingJobSchema.parse({
+      id: 'job-1', tenantId: 'tenant-1', kind: 'TRANSCRIBE',
+      createdAt: '2026-08-05T12:00:00.000Z', updatedAt: '2026-08-05T12:00:00.000Z',
+      correlationId: 'correlation-1', inputArtifactIds: ['source-1'], outputArtifactIds: [],
+      cancellable: true, retryable: false, state: 'CANCELLED', progress: 0,
+      completedAt: '2026-08-05T12:00:00.000Z',
+    });
+    assert.equal(cancelledJob.state, 'CANCELLED');
+    assert.equal(contracts.observeMediaJobState('CANCELLING').mappingDisposition, 'LEGACY_STATE_UNMAPPED');
     console.log('isolated ESM consumer imported all public package exports');
   `);
   await writeFile(path.join(consumerRoot, 'consumer.cjs'), `
@@ -96,11 +117,35 @@ try {
     assert.equal(root.createAudioData(new ArrayBuffer(0)).sampleRate, 16000);
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
     assert.equal(production.OpaqueIdSchema.parse('scene-1'), 'scene-1');
+    const requestFixture = { artifactId: 'source-1', idempotencyKey: 'idem-1' };
+    assert.equal(contracts.TranscriptionRequestSchema.parse(requestFixture).idempotencyKey, 'idem-1');
+    assert.throws(() => contracts.TranscriptionRequestSchema.parse({ artifactId: 'source-1' }));
+    // This is a structural fixture for the result shape, not evidence of a provider effect.
+    const resultFixture = {
+      artifactId: 'source-1', transcriptArtifactId: 'transcript-1', text: 'fixture transcript',
+      languageTag: 'en', confidence: 0.9, providerId: 'fixture-provider',
+      modelId: 'fixture-model', modelVersion: 'fixture-v1', processingTimeMs: 1,
+    };
+    assert.equal(contracts.TranscriptionResultSchema.parse(resultFixture).text, 'fixture transcript');
+    assert.throws(() => contracts.TranscriptionResultSchema.parse(requestFixture));
+    assert.throws(() => contracts.TranscriptionRequestSchema.parse(resultFixture));
+    const cancelledJob = contracts.MediaProcessingJobSchema.parse({
+      id: 'job-1', tenantId: 'tenant-1', kind: 'TRANSCRIBE',
+      createdAt: '2026-08-05T12:00:00.000Z', updatedAt: '2026-08-05T12:00:00.000Z',
+      correlationId: 'correlation-1', inputArtifactIds: ['source-1'], outputArtifactIds: [],
+      cancellable: true, retryable: false, state: 'CANCELLED', progress: 0,
+      completedAt: '2026-08-05T12:00:00.000Z',
+    });
+    assert.equal(cancelledJob.state, 'CANCELLED');
+    assert.equal(contracts.observeMediaJobState('CANCELLING').mappingDisposition, 'LEGACY_STATE_UNMAPPED');
     console.log('isolated CJS consumer imported all public package exports');
   `);
   await writeFile(path.join(consumerRoot, 'consumer.ts'), `
     import { createAudioData, type AudioFormat } from '@audio-video/types';
-    import { MediaArtifactKindSchema, type MediaArtifact } from '@audio-video/types/contracts';
+    import {
+      MediaArtifactKindSchema, type MediaArtifact,
+      type TranscriptionRequest, type TranscriptionResult,
+    } from '@audio-video/types/contracts';
     import { StoryTimeSchema, type AnimationSpec } from '@audio-video/types/production';
 
     const format: AudioFormat = 'wav';
@@ -124,7 +169,16 @@ try {
       tStoryRef: story,
       renderingRef: 'rendering-v1',
     };
-    void [audio, kind, animation];
+    const request: TranscriptionRequest = {
+      artifactId: 'source-1', punctuation: true, wordTimestamps: true,
+      alternatives: 1, profanityPolicy: 'PRESERVE', idempotencyKey: 'idem-1',
+    };
+    const result: TranscriptionResult = {
+      artifactId: 'source-1', transcriptArtifactId: 'transcript-1', text: 'fixture transcript',
+      languageTag: 'en', confidence: 0.9, providerId: 'fixture-provider',
+      words: [], alternatives: [], modelId: 'fixture-model', modelVersion: 'fixture-v1', processingTimeMs: 1,
+    };
+    void [audio, kind, animation, request, result];
   `);
 
   run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
