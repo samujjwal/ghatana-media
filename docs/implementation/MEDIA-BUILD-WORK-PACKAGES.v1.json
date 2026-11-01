@@ -117374,8 +117374,8 @@
           "phase": "PDP-0",
           "selector": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
           "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
-          "currentSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
-          "status": "CURRENT"
+          "currentSha256": "cc75ae3c47590051f5c15b750fc31e2ca3c5a18a5478a0809e827f29b31dc511",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -118501,8 +118501,8 @@
           "phase": "PDP-0",
           "selector": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#PDP-0-projection",
           "expectedSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
-          "currentSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
-          "status": "CURRENT"
+          "currentSha256": "4cfbad167a7f430c6e309340aaf49edbb11f37ef21acec384b3364dfaa3d2239",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-0",
@@ -118802,8 +118802,8 @@
           "phase": "PDP-1",
           "selector": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
           "expectedSha256": "2423b23fcce66df7731825503c8ed489a296a166f9fc279d7b663e3cf0da062c",
-          "currentSha256": "2423b23fcce66df7731825503c8ed489a296a166f9fc279d7b663e3cf0da062c",
-          "status": "CURRENT"
+          "currentSha256": "fc85554c2ddafe5c4550f52a9620019dd8590cb33858f962fe1e556051f8a971",
+          "status": "STALE_OR_UNSUPPORTED"
         },
         {
           "phase": "PDP-1",
@@ -382220,7 +382220,7 @@
   "materialSourceReceipt": {
     "status": "STALE_BLOCKED",
     "count": 872,
-    "staleCount": 7,
+    "staleCount": 10,
     "records": [
       {
         "phase": "PDP-0",
@@ -382275,8 +382275,8 @@
         "phase": "PDP-0",
         "selector": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
         "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
-        "currentSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
-        "status": "CURRENT"
+        "currentSha256": "cc75ae3c47590051f5c15b750fc31e2ca3c5a18a5478a0809e827f29b31dc511",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -383402,8 +383402,8 @@
         "phase": "PDP-0",
         "selector": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#PDP-0-projection",
         "expectedSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
-        "currentSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
-        "status": "CURRENT"
+        "currentSha256": "4cfbad167a7f430c6e309340aaf49edbb11f37ef21acec384b3364dfaa3d2239",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-0",
@@ -383703,8 +383703,8 @@
         "phase": "PDP-1",
         "selector": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
         "expectedSha256": "2423b23fcce66df7731825503c8ed489a296a166f9fc279d7b663e3cf0da062c",
-        "currentSha256": "2423b23fcce66df7731825503c8ed489a296a166f9fc279d7b663e3cf0da062c",
-        "status": "CURRENT"
+        "currentSha256": "fc85554c2ddafe5c4550f52a9620019dd8590cb33858f962fe1e556051f8a971",
+        "status": "STALE_OR_UNSUPPORTED"
       },
       {
         "phase": "PDP-1",

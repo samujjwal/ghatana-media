@@ -114,6 +114,12 @@ function protobufMessageFields(path, name) {
   return message[1].split(/\r?\n/u).flatMap((line) => {
     const content = line.replace(/\/\/.*$/u, "").trim();
     if (!content || content === "}") return [];
+    // Nested oneof/enum/message blocks, options, reserved ranges, and enum
+    // members are structural proto syntax, not top-level field declarations;
+    // oneof member fields themselves still match the field shape below.
+    if (/^(?:oneof|enum|message|extend|group)\s+\w+\s*\{?$/u.test(content)
+      || /^option\s/u.test(content) || /^reserved\s/u.test(content)
+      || /^extensions\s/u.test(content) || /^[A-Z_][A-Z0-9_]*\s*=\s*\d+\s*;$/u.test(content)) return [];
     const field = content.match(/^(repeated|optional)?\s*([A-Za-z_][\w.]*|map<\s*([A-Za-z_][\w.]*)\s*,\s*([A-Za-z_][\w.]*)\s*>)\s+([A-Za-z_]\w*)\s*=\s*(\d+)\s*(?:\[[^\]]*\])?;$/u);
     assert.ok(field, `unparsed protobuf field ${path}#message.${name}: ${content}`);
     const [, label = "", type, mapKey, mapValue, fieldName, number] = field;

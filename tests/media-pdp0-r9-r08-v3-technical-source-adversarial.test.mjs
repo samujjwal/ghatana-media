@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -58,7 +59,11 @@ function makeFixture({mutateLog,rootAdopterIsDelegator=false,sourceOwnerIsDelega
   fs.copyFileSync(path.join(repoRoot,'scripts/plan-media-pdp0-root-selected-source-integration-r9-r07-application.mjs'),path.join(root,'scripts/plan-media-pdp0-root-selected-source-integration-r9-r07-application.mjs'));
   fs.symlinkSync(path.join(repoRoot,'node_modules'),path.join(root,'node_modules'),'dir');
   const rootDecisionBytes=copyFile(lifecycleRoot,rootDecisionRepoPath,path.join(repoRoot,'../ghatana-lifecycle'));
-  const agentsBytes=copyFile(root,'AGENTS.md');
+  // The root boundary decision pins the exact AGENTS.md baseline it authorized;
+  // the fixture materializes that pinned generation rather than the live file,
+  // which has since received legitimate unrelated owner-directed edits.
+  const agentsBytes=Buffer.from(execFileSync('git',['show','0f85319f:AGENTS.md'],{cwd:repoRoot,encoding:'utf8'}));
+  fs.writeFileSync(path.join(root,'AGENTS.md'),agentsBytes);
   const policyBytes=copyFile(root,R9R08_V3_POLICY_REF);
   const policy=JSON.parse(policyBytes.toString('utf8'));
   const candidate=readJson(candidateRef),freeze=readJson(freezeRef),material=readJson(materialRef),semanticReview=readJson(semanticReviewRef);

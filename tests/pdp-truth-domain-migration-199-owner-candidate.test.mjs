@@ -384,7 +384,7 @@ test("MPSEM-0167-C001 refreshes stable PDP-1 source fingerprints while preservin
   assert.equal(row.currentTargetValueSha256, "fefaf4ef885148d74d031dd06a3fc778bc994b647343b7e87bb69d8cb2a290d5");
   const observation = row.currentProposalObservation;
   assert.equal(observation.priorSourceFileSha256, row.ownerSourceSha256);
-  assert.equal(observation.currentSourceFileSha256, "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+  assert.equal(observation.currentSourceFileSha256, "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0");
   assert.equal(observation.currentTargetValueSha256, row.currentTargetValueSha256);
   assert.equal(observation.supersededCurrentSourceFileSha256, "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04");
   assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
@@ -410,7 +410,7 @@ test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source
   const composition = candidate.records.find(({ claimId }) => claimId === "MPSEM-0172-C004");
   assert.equal(composition.ownerPhase, "PDP-1");
   assert.equal(composition.currentProposalObservation.currentSourceFileSha256,
-    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+    "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0");
   assert.equal(composition.currentProposalObservation.currentTargetValueSha256, composition.currentTargetValueSha256);
   assert.equal(composition.currentProposalObservation.supersededCurrentSourceFileSha256,
     "ed045314dbdb6ece934348a9eba6d7c2ae791438476ef11d343cb57a04a05e04");
@@ -418,7 +418,7 @@ test("MPSEM-0172-C004 and MPSEM-0172-C005 refresh only stable exact PDP-1 source
   assert.equal(composition.ownerSemanticReview.acceptanceEffect, "none");
   const requirementBinding = composition.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("requirements.yaml"));
   assert.equal(requirementBinding.currentProposalObservation.currentSourceFileSha256,
-    "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2");
+    "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7");
   assert.equal(requirementBinding.currentProposalObservation.currentSourceValueSha256,
     sha(resolveSelector(requirementBinding.ref).value));
   assert.equal(requirementBinding.currentProposalObservation.supersededCurrentSourceFileSha256,
@@ -466,14 +466,14 @@ test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints witho
   assert.equal(row.ownerPhase, "PDP-1");
   const current = row.currentProposalObservation;
   assert.equal(current.currentSourceFileSha256,
-    "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7");
+    "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b");
   assert.equal(current.currentTargetValueSha256, row.currentTargetValueSha256);
   assert.equal(current.supersededCurrentSourceFileSha256,
     "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419");
   for (const binding of row.ownerSemanticReview.materialBindings) {
     const observation = binding.currentProposalObservation;
     assert.equal(observation.currentSourceFileSha256,
-      "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7");
+      "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b");
     assert.equal(observation.currentSourceValueSha256, sha(resolveSelector(binding.ref).value));
     assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
     assert.equal(observation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
@@ -483,7 +483,7 @@ test("MPSEM-0296-C001 refreshes stable PDP-1 operation source fingerprints witho
 });
 
 test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprints without acceptance promotion", { skip: skipPdp1CandidateAssertions }, () => {
-  const operationRef = "608547580306320e9684ffd3249a6473704f65da573e01a9a6b2e4c9d86c4af7";
+  const operationRef = "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b";
   const slice = candidate.records.find(({ claimId }) => claimId === "MPSEM-0297-C002");
   assert.equal(slice.ownerPhase, "PDP-1");
   assert.equal(slice.currentProposalObservation.currentSourceFileSha256, operationRef);
@@ -509,7 +509,7 @@ test("MPSEM-0297-C002 and MPSEM-0326-C001 refresh stable exact source fingerprin
 
 test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
   const operations = liveOperationsSha256;
-  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const channel = "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34";
   const sdk = candidate.records.find(({ claimId }) => claimId === "MPSEM-0314-C002");
   assert.equal(sdk.ownerPhase, "PDP-1");
   assert.equal(sdk.currentProposalObservation.currentSourceFileSha256, operations);
@@ -533,7 +533,7 @@ test("MPSEM-0314-C002 and MPSEM-0335-C003 refresh stable current exact source fi
 
 test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate locators", { skip: skipPdp1CandidateAssertions }, () => {
   const operations = liveOperationsSha256;
-  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const channel = "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34";
   const action = candidate.records.find(({ claimId }) => claimId === "MPSEM-0334-C004");
   assert.equal(action.ownerPhase, "PDP-1");
   assert.equal(action.currentProposalObservation.currentSourceFileSha256, operations);
@@ -554,7 +554,7 @@ test("MPSEM-0334-C004 and MPSEM-0336-C001 refresh stable exact PDP-1 candidate l
 });
 
 test("MPSEM-0336-C002 and MPSEM-0336-C004 refresh stable exact source fingerprints", { skip: skipPdp1CandidateAssertions }, () => {
-  const channel = "cc25faf0326d9868842b561626629ce0f3a2d4e4365452d8caa1995268df6f76";
+  const channel = "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34";
   const operations = liveOperationsSha256;
   const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0336-C002");
   assert.equal(cancellation.ownerPhase, "PDP-1");
@@ -596,7 +596,7 @@ test("MPSEM-0358-C002 and MPSEM-0345-C001 refresh stable exact PDP-1 locators", 
   const relationship = candidate.records.find(({ claimId }) => claimId === "MPSEM-0358-C002");
   assert.equal(relationship.ownerPhase, "PDP-1");
   assert.equal(relationship.currentProposalObservation.currentSourceFileSha256,
-    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+    "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0");
   assert.equal(relationship.currentProposalObservation.currentTargetValueSha256, relationship.currentTargetValueSha256);
   for (const binding of relationship.ownerSemanticReview.materialBindings) {
     const observation = binding.currentProposalObservation;
@@ -631,7 +631,7 @@ test("MPSEM-0369-C003 and MPSEM-0372-C005 refresh stable exact PDP-1 locators", 
   const identity = candidate.records.find(({ claimId }) => claimId === "MPSEM-0369-C003");
   assert.equal(identity.ownerPhase, "PDP-1");
   assert.equal(identity.currentProposalObservation.currentSourceFileSha256,
-    "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629");
+    "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0");
   assert.equal(identity.currentProposalObservation.currentTargetValueSha256, identity.currentTargetValueSha256);
   const cancellation = candidate.records.find(({ claimId }) => claimId === "MPSEM-0372-C005");
   assert.equal(cancellation.ownerPhase, "PDP-1");
@@ -689,7 +689,7 @@ test("MPSEM-0385-C003 and MPSEM-0378-C004 refresh stable exact source fingerprin
   assert.equal(availability.currentProposalObservation.currentTargetValueSha256, availability.currentTargetValueSha256);
   const requirement = availability.ownerSemanticReview.materialBindings.find(({ ref }) => ref.includes("/requirements.yaml#"));
   assert.equal(requirement.currentProposalObservation.currentSourceFileSha256,
-    "49c079d4aff2499bb3c226ac52e3a7101d483392775bd9b05a0a469295329ce2");
+    "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7");
   const value = resolveSelector(requirement.ref).value;
   assert.equal(requirement.currentProposalObservation.currentSourceValueSha256,
     sha(typeof value === "string" ? value : JSON.stringify(value)));
