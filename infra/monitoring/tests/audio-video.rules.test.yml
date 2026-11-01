@@ -939,15 +939,30 @@ tests:
   - eval_time: 11m
     alertname: MediaProviderProfileStale
     exp_alerts: []
-- name: qualified-quality-regression-fires-and-recovers
+- name: qualified-quality-regression-recovers-before-threshold-stays-quiet
   interval: 1m
   input_series:
   - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="hin",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
-    values: 1.2x19
+    values: 1.2x4 0.2x15
   - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="eng",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
     values: 0.2x19
   alert_rule_test:
   - eval_time: 20m
+    alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaProviderReferenceQualityBelowThreshold
+    exp_alerts: []
+  - eval_time: 20m
+    alertname: MediaProviderQualityEvidenceMissing
+    exp_alerts: []
+- name: qualified-quality-regression-fires-then-clears
+  interval: 1m
+  input_series:
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="whisper-provider",provider_version="whisper-v1",model_revision="whisper-tiny",locale="hin",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1"}
+    values: 1.2x19 0.2x10
+  alert_rule_test:
+  - eval_time: 5m
     alertname: MediaProviderQualifiedQualityRegression
     exp_alerts:
     - exp_labels:
@@ -967,11 +982,8 @@ tests:
         summary: Qualified Media model quality regressed past the registered threshold
         description: The independently measured upper-95% WER for whisper-tiny (locale hin) is 1.2, above its registered reference threshold. Investigate the exact report provenance and keep the affected profile unadmitted until a healthy independent measurement clears this.
         runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
-  - eval_time: 20m
-    alertname: MediaProviderReferenceQualityBelowThreshold
-    exp_alerts: []
-  - eval_time: 20m
-    alertname: MediaProviderQualityEvidenceMissing
+  - eval_time: 25m
+    alertname: MediaProviderQualifiedQualityRegression
     exp_alerts: []
 - name: reference-quality-below-threshold-warns-without-admission
   interval: 1m
@@ -1001,6 +1013,22 @@ tests:
         runbook: docs/OPERATIONS.md#degradation-recovery-and-actionable-runbook
   - eval_time: 20m
     alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts: []
+- name: not-measured-and-fixture-quality-never-raise-model-quality-alerts
+  interval: 1m
+  input_series:
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="test-provider",provider_version="test-v1",model_revision="fixture-model",locale="hin",metric="wer_ci95_upper",scope="independent_qualified",contract_version="v1",source="fixture"}
+    values: 1.2x10
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="test-provider",provider_version="test-v1",model_revision="fixture-model",locale="npi",metric="wer",scope="reference_only",contract_version="v1",source="fixture"}
+    values: 1.2x10
+  - series: media_provider_quality_measured_value{service="stt",modality="stt",provider_id="test-provider",provider_version="test-v1",model_revision="unmeasured-model",locale="eng",metric="wer_ci95_upper",scope="NOT_MEASURED",contract_version="v1"}
+    values: 1.2x10
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: MediaProviderQualifiedQualityRegression
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: MediaProviderReferenceQualityBelowThreshold
     exp_alerts: []
 - name: quality-thresholds-hold-at-registered-values
   interval: 1m

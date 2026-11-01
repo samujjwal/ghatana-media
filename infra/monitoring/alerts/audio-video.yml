@@ -286,9 +286,9 @@ groups:
     rules:
       - alert: MediaProviderQualifiedQualityRegression
         expr: |
-          media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="eng"} > 0.30
-          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="hin"} > 0.45
-          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="npi"} > 0.55
+          media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="eng", source!="fixture"} > 0.30
+          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="hin", source!="fixture"} > 0.45
+          or media_provider_quality_measured_value{contract_version="v1", scope="independent_qualified", metric="wer_ci95_upper", locale="npi", source!="fixture"} > 0.55
         for: 5m
         labels:
           severity: critical
@@ -303,9 +303,9 @@ groups:
       # SLA breach; it still signals that a selected candidate is below bar.
       - alert: MediaProviderReferenceQualityBelowThreshold
         expr: |
-          media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="eng"} > 0.30
-          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="hin"} > 0.45
-          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="npi"} > 0.55
+          media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="eng", source!="fixture"} > 0.30
+          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="hin", source!="fixture"} > 0.45
+          or media_provider_quality_measured_value{contract_version="v1", scope="reference_only", metric="wer", locale="npi", source!="fixture"} > 0.55
         for: 5m
         labels:
           severity: warning
