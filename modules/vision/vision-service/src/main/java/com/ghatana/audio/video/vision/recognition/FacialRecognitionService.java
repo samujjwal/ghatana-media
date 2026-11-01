@@ -168,7 +168,14 @@ public final class FacialRecognitionService {
         if (imageBytes.length == 0) throw new IllegalArgumentException("imageBytes must not be empty");
         if (request.operation() != BiometricOperation.FACE_DETECTION) throw new NotAdmittedException();
         requireAdmission(request);
-        return List.copyOf(Objects.requireNonNull(model.detectFaces(imageBytes), "face model result"));
+        List<FaceDetection> detections = Objects.requireNonNull(model.detectFaces(imageBytes), "face model result");
+        // A face-detection admission authorizes geometry only. Model-generated
+        // embeddings and model-selected IDs could carry identity data, so they
+        // must not cross this boundary without a separate admitted identity API.
+        return detections.stream()
+                .map(detection -> FaceDetection.of(
+                        detection.boundingBox(), detection.confidence(), new float[0]))
+                .toList();
     }
 
     private void requireAdmission(BiometricRequest request) {

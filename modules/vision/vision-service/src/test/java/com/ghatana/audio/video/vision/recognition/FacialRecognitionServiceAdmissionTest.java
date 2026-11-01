@@ -46,6 +46,28 @@ class FacialRecognitionServiceAdmissionTest {
     }
 
     @Test
+    void faceDetectionReturnsGeometryWithoutProviderIdentityOrEmbedding() {
+        var modelOutput = new FacialRecognitionService.FaceDetection(
+                "sensitive-person-key-123",
+                new FacialRecognitionService.BoundingBox(0.1, 0.2, 0.3, 0.4),
+                0.91,
+                new float[] {0.125f, 0.875f});
+        var service = FacialRecognitionService.ofForTesting(
+                image -> List.of(modelOutput),
+                (identity, request) -> admitted(identity.tenantId(), identity.subject(), request),
+                () -> IDENTITY,
+                CLOCK);
+
+        FacialRecognitionService.FaceDetection result = service.detect(new byte[] {1}, REQUEST).get(0);
+
+        assertThat(result.boundingBox()).isEqualTo(modelOutput.boundingBox());
+        assertThat(result.confidence()).isEqualTo(modelOutput.confidence());
+        assertThat(result.embedding()).isEmpty();
+        assertThat(result.faceId()).isNotEqualTo("sensitive-person-key-123");
+        assertThat(modelOutput.embedding()).containsExactly(0.125f, 0.875f);
+    }
+
+    @Test
     void authorizationDecisionForTrimmedSelectorsCannotAuthorizeDifferentSubmittedReferences() {
         AtomicInteger providerCalls = new AtomicInteger();
         AtomicInteger resolverCalls = new AtomicInteger();
