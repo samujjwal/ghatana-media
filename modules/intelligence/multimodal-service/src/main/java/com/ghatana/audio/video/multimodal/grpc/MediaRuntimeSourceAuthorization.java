@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 
 import java.time.Instant;
+import java.security.MessageDigest;
 import java.util.Objects;
 
 /**
@@ -44,6 +45,14 @@ final class MediaRuntimeSourceAuthorization implements SourceAuthorization {
             // to an owned source version; deny rather than report unavailable.
             return Decision.DENIED;
         }
+        // This runtime probe only resolves one source artifact. It cannot independently
+        // authorize a composite of modality payloads or child-provider egress. Admit the
+        // narrow case where the one submitted modality is byte-identical to that artifact.
+        if (request.modalities().size() != 1 || request.contentBytes() <= 0
+                || !digestEquals(request.contentSha256(), sourceVersion.value().substring("sha256:".length()))) {
+            return request.modalities().size() != 1
+                    ? Decision.NOT_ADMITTED : Decision.DENIED;
+        }
         final MediaSourceAuthorizationContracts.Decision decision;
         try {
             decision = port.resolveSourceAuthorization(
@@ -58,9 +67,32 @@ final class MediaRuntimeSourceAuthorization implements SourceAuthorization {
             return Decision.NOT_ADMITTED;
         }
         return switch (decision.status()) {
-            case ALLOWED -> Decision.ADMITTED;
+            case ALLOWED -> evidenceMatches(request, sourceVersion, decision.evidence())
+                    ? Decision.ADMITTED : Decision.DENIED;
             case DENIED, REVOKED, STALE -> Decision.DENIED;
             case UNAVAILABLE -> Decision.NOT_ADMITTED;
         };
+    }
+
+    private static boolean evidenceMatches(AuthorizationRequest request, ArtifactVersion version,
+                                           MediaSourceAuthorizationContracts.Evidence evidence) {
+        return evidence != null
+                && evidence.tenantId().equals(request.tenantId())
+                && evidence.principalId().equals(request.principalId().toString())
+                && evidence.artifactId().equals(request.artifactId())
+                && evidence.sourceVersion().equals(version)
+                && digestEquals(evidence.sourceSha256(), request.contentSha256())
+                && evidence.operation().equalsIgnoreCase(JobType.MULTIMODAL.name())
+                && evidence.purpose().equals(request.purpose())
+                && evidence.currentAt(java.time.Clock.systemUTC());
+    }
+
+    private static boolean digestEquals(String left, String right) {
+        try {
+            return MessageDigest.isEqual(java.util.HexFormat.of().parseHex(left),
+                    java.util.HexFormat.of().parseHex(right));
+        } catch (IllegalArgumentException malformed) {
+            return false;
+        }
     }
 }

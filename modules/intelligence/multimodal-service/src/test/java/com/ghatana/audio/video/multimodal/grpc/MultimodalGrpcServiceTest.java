@@ -346,6 +346,59 @@ class MultimodalGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("single-modality authorization digest is the exact artifact byte digest")
+    void processMultimodal_singleModalityUsesExactByteDigest() throws Exception {
+        byte[] sourceBytes = new byte[] {9, 8, 7, 6};
+        AtomicReference<SourceAuthorization.AuthorizationRequest> captured = new AtomicReference<>();
+        MultimodalGrpcService capturing = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    captured.set(request);
+                    return SourceAuthorization.Decision.ADMITTED;
+                });
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> capturing.processMultimodal(MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(sourceBytes))
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
+
+        assertThat(captured.get().modalities()).isEqualTo(Set.of(SourceAuthorization.Modality.AUDIO));
+        assertThat(captured.get().contentSha256()).isEqualTo(java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256").digest(sourceBytes)));
+        assertThat(captured.get().contentBytes()).isEqualTo(sourceBytes.length);
+        assertFamilyTransportNotAdmitted(observer);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("malformed UTF-16 text is rejected before authorization")
+    void processMultimodalRejectsMalformedUnicodeBeforeAuthorization() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService counting = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED;
+                });
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> counting.processMultimodal(MultimodalRequest.newBuilder()
+                .setText("unpaired-\uD800")
+                .setOperationBinding(operationBinding(
+                        "media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded",
+                        "source observation"))
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(authorizationCalls).hasValue(0);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
     @DisplayName("processMultimodal: oversized artifact references are rejected before authorization or dispatch")
     void processMultimodal_oversizedArtifactReferenceIsRejectedBeforeAuthorization() {
         AtomicInteger authorizationCalls = new AtomicInteger();
@@ -382,6 +435,28 @@ class MultimodalGrpcServiceTest {
 
         withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
                 .setText(text)
+                .build(), observer));
+
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(authorizationCalls).hasValue(0);
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("processMultimodal: oversized UTF-16 text is rejected before authorization or dispatch")
+    void processMultimodal_oversizedUtf16TextIsRejectedBeforeAuthorization() {
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        MultimodalGrpcService bounded = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> {
+                    authorizationCalls.incrementAndGet();
+                    return SourceAuthorization.Decision.ADMITTED; // Test fixture only.
+                });
+        CapturingObserver<MultimodalResponse> observer = new CapturingObserver<>();
+        String oversized = "x".repeat(65_537);
+
+        withContext(TENANT_ID, () -> bounded.processMultimodal(MultimodalRequest.newBuilder()
+                .setText(oversized)
                 .build(), observer));
 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
@@ -884,7 +959,85 @@ class MultimodalGrpcServiceTest {
         withContext(TENANT_ID, () -> service.processMultimodal(MultimodalRequest.newBuilder()
                 .setText("private caller context").build(), observer));
 
-        assertFamilyTransportNotAdmitted(observer);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .startsWith("MULTIMODAL_CHILD_PLAN_NOT_ADMITTED:");
+        verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("canonical process plan selects children only for present source modalities")
+    void processMultimodalCanonicalPlanDoesNotInferChildrenFromLegacyArtifactId() {
+        AtomicReference<CanonicalOperationPlan> capturedPlan = new AtomicReference<>();
+        AtomicInteger executorCalls = new AtomicInteger();
+        CanonicalOperationExecutor capturingExecutor = new CanonicalOperationExecutor() {
+            @Override
+            public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                 java.util.concurrent.Callable<T> action) {
+                throw new AssertionError("Typed canonical operation expected");
+            }
+
+            @Override
+            public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                 CanonicalOperation<T> operation,
+                                 com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal auth) {
+                executorCalls.incrementAndGet();
+                capturedPlan.set(operation.plan());
+                throw new IllegalStateException("capture canonical child plan only");
+            }
+        };
+        MultimodalGrpcService capturing = new MultimodalGrpcService(mockEngine, mockAdapter,
+                MediaProcessingMetrics.noop(), request -> SourceAuthorization.Decision.ADMITTED,
+                capturingExecutor);
+        CanonicalOperationBinding binding = operationBinding(
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                "source observation");
+
+        CapturingObserver<MultimodalResponse> imageOnly = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.processMultimodal(MultimodalRequest.newBuilder()
+                .setArtifactId(binding.getSourceArtifactId())
+                .setImageData(ByteString.copyFrom(new byte[] {4, 5}))
+                .setOperationBinding(binding).build(), imageOnly));
+        assertThat(capturedPlan.get().children()).hasSize(1);
+        assertThat(capturedPlan.get().children()).extracting(CanonicalChildSelection::jobType)
+                .containsExactly(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION);
+        assertThat(capturedPlan.get().children()).extracting(CanonicalChildSelection::childKey)
+                .containsExactly("vision");
+
+        CapturingObserver<MultimodalResponse> audioOnly = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.processMultimodal(MultimodalRequest.newBuilder()
+                .setArtifactId(binding.getSourceArtifactId())
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2}))
+                .setOperationBinding(binding).build(), audioOnly));
+        assertThat(capturedPlan.get().children()).hasSize(1);
+        assertThat(capturedPlan.get().children()).extracting(CanonicalChildSelection::jobType)
+                .containsExactly(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT);
+        assertThat(capturedPlan.get().children()).extracting(CanonicalChildSelection::childKey)
+                .containsExactly("stt");
+
+        CapturingObserver<MultimodalResponse> mixed = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.processMultimodal(MultimodalRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {3, 4}))
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2}))
+                .setOperationBinding(binding).build(), mixed));
+        assertThat(capturedPlan.get().children()).extracting(CanonicalChildSelection::jobType)
+                .containsExactlyInAnyOrder(
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION);
+
+        int callsBeforeTextOnly = executorCalls.get();
+        CapturingObserver<MultimodalResponse> textOnly = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> capturing.processMultimodal(MultimodalRequest.newBuilder()
+                .setArtifactId(binding.getSourceArtifactId())
+                .setText("context without a source modality")
+                .setOperationBinding(binding).build(), textOnly));
+        assertThat(((StatusRuntimeException) textOnly.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(((StatusRuntimeException) textOnly.getError()).getStatus().getDescription())
+                .startsWith("MULTIMODAL_CHILD_PLAN_NOT_ADMITTED:");
+        assertThat(executorCalls).hasValue(callsBeforeTextOnly);
         verifyNoInteractions(mockEngine);
     }
 

@@ -216,6 +216,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             mediaMetrics.recordFailed("multimodal.analyse");
             return;
         }
+        if (request.getAudioData().isEmpty() && request.getImageData().isEmpty()
+                && request.getVideoData().isEmpty()) {
+            responseObserver.onError(Status.FAILED_PRECONDITION
+                    .withDescription("MULTIMODAL_CHILD_PLAN_NOT_ADMITTED: text-only input has no admitted source-backed child")
+                    .asRuntimeException());
+            mediaMetrics.recordFailed("multimodal.analyse");
+            return;
+        }
         if (utf8Length(request.getArtifactId()) > MAX_ARTIFACT_REF_BYTES) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Artifact reference exceeds configured limit")
                     .asRuntimeException());
@@ -265,7 +273,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
 
             MultimodalResult result;
             List<CanonicalChildSelection> observeChildren = new ArrayList<>(2);
-            if (!request.getAudioData().isEmpty() || !request.getArtifactId().isBlank()) {
+            if (!request.getAudioData().isEmpty()) {
                 observeChildren.add(CanonicalOperations.childSource("stt",
                         com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT,
                         request.getAudioData().isEmpty() ? null : request.getAudioData().toByteArray(),
@@ -274,7 +282,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             byte[] visualBytes = !request.getVideoData().isEmpty()
                     ? request.getVideoData().toByteArray()
                     : (!request.getImageData().isEmpty() ? request.getImageData().toByteArray() : null);
-            if (visualBytes != null || (observeChildren.isEmpty() && !request.getArtifactId().isBlank())) {
+            if (visualBytes != null) {
                 observeChildren.add(CanonicalOperations.childSource("vision",
                         com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION,
                         visualBytes,
@@ -1063,7 +1071,15 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private static int utf8Length(String value) {
-        return value.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+        // Every valid UTF-16 code unit contributes at least one UTF-8 byte. This
+        // cheap guard avoids allocating an encoded copy for obviously oversized input.
+        if (value.length() > MAX_TEXT_CHARS) return MAX_TEXT_CHARS + 1;
+        try {
+            return strictUtf8(value).length;
+        } catch (java.nio.charset.CharacterCodingException malformedUnicode) {
+            // Make the existing pre-authorization bounds check reject malformed strings.
+            return MAX_TEXT_CHARS + 1;
+        }
     }
 
     /**
@@ -1074,18 +1090,49 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private static String requestContentDigest(List<com.google.protobuf.ByteString> parts, String text) {
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            com.google.protobuf.ByteString soleBinaryPart = null;
+            int populatedParts = 0;
+            for (com.google.protobuf.ByteString part : parts) {
+                if (!part.isEmpty()) {
+                    soleBinaryPart = part;
+                    populatedParts++;
+                }
+            }
+            byte[] textBytes = strictUtf8(text);
+            if (textBytes.length > 0) populatedParts++;
+            if (populatedParts == 1) {
+                if (soleBinaryPart != null) {
+                    digest.update(soleBinaryPart.asReadOnlyByteBuffer());
+                } else {
+                    digest.update(textBytes);
+                }
+                return java.util.HexFormat.of().formatHex(digest.digest());
+            }
+            // Preserve the established length-framed composite fingerprint. It is a request
+            // fingerprint only and is deliberately not equated with one artifact's digest.
             for (com.google.protobuf.ByteString part : parts) {
                 java.nio.ByteBuffer bytes = part.asReadOnlyByteBuffer();
                 digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(bytes.remaining()).array());
                 digest.update(bytes);
             }
-            byte[] textBytes = text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             digest.update(java.nio.ByteBuffer.allocate(Long.BYTES).putLong(textBytes.length).array());
             digest.update(textBytes);
             return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.nio.charset.CharacterCodingException malformedUnicode) {
+            throw new IllegalArgumentException("Text input contains malformed Unicode", malformedUnicode);
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is required by the Java runtime", impossible);
         }
+    }
+
+    private static byte[] strictUtf8(String value) throws java.nio.charset.CharacterCodingException {
+        java.nio.ByteBuffer encoded = java.nio.charset.StandardCharsets.UTF_8.newEncoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                .encode(java.nio.CharBuffer.wrap(value));
+        byte[] bytes = new byte[encoded.remaining()];
+        encoded.get(bytes);
+        return bytes;
     }
 
     private <T> TracedObserver<T> traceAnalysis(String operation, String tenantId,

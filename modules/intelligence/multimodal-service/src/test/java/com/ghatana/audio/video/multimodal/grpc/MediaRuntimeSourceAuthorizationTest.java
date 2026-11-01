@@ -25,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MediaRuntimeSourceAuthorizationTest {
 
-    private static final String SHA_A = "a".repeat(64);
+    private static final byte[] SOURCE_BYTES = new byte[] {1, 2, 3, 4};
+    private static final String SHA_A = sha256(SOURCE_BYTES);
     private static final String SHA_B = "b".repeat(64);
     private static final UUID PRINCIPAL =
             UUID.fromString("2f3b6bd3-4bf7-4f06-9f9a-45ea8b8f11cc");
@@ -40,6 +41,36 @@ class MediaRuntimeSourceAuthorizationTest {
         assertThat(port.lastArtifactId).isEqualTo("src-artifact-1");
         assertThat(port.lastVersion.value()).isEqualTo("sha256:" + SHA_A);
         assertThat(port.lastPrincipal).isEqualTo(PRINCIPAL.toString());
+    }
+
+    @Test
+    void changedPayloadDigestIsDeniedBeforeRuntimeProbe() {
+        var port = new ProbePort(allowedDecision());
+        var authorization = new MediaRuntimeSourceAuthorization(port);
+        var changed = new SourceAuthorization.AuthorizationRequest(
+                "tenant-a", PRINCIPAL, Set.of(SourceAuthorization.Modality.AUDIO),
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, "req-1", "src-artifact-1", "sha256:" + SHA_A, "mm-observe", "",
+                List.of(), null, SOURCE_BYTES.length, SHA_B);
+
+        assertThat(authorization.authorize(changed)).isEqualTo(SourceAuthorization.Decision.DENIED);
+        assertThat(port.resolutions.get()).isZero();
+    }
+
+    @Test
+    void compositeModalityRequestIsNotAdmittedBySingleArtifactProbe() {
+        var port = new ProbePort(allowedDecision());
+        var authorization = new MediaRuntimeSourceAuthorization(port);
+        var composite = new SourceAuthorization.AuthorizationRequest(
+                "tenant-a", PRINCIPAL, Set.of(SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO),
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, "req-1", "src-artifact-1", "sha256:" + SHA_A, "mm-observe", "",
+                List.of(), null, SOURCE_BYTES.length, SHA_A);
+
+        assertThat(authorization.authorize(composite)).isEqualTo(SourceAuthorization.Decision.NOT_ADMITTED);
+        assertThat(port.resolutions.get()).isZero();
     }
 
     @Test
@@ -96,7 +127,15 @@ class MediaRuntimeSourceAuthorizationTest {
                 "media.multimodal.observe.source-grounded",
                 "media.operation.capability.media-multimodal-observe-source-grounded",
                 1, "req-1", "src-artifact-1", "sha256:" + SHA_A, "mm-observe", "",
-                List.of(), null, 4, SHA_B);
+                List.of(), null, SOURCE_BYTES.length, SHA_A);
+    }
+
+    private static String sha256(byte[] bytes) {
+        try {
+            return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new AssertionError(impossible);
+        }
     }
 
     private static MediaSourceAuthorizationContracts.Decision decision(
