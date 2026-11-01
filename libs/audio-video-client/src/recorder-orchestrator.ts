@@ -223,10 +223,53 @@ export async function recaptureScenario(
   adapter: { capture(request: CaptureRequest): Promise<CapturedFrame> },
   options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[] } = {},
 ): Promise<readonly CapturedFrame[]> {
-  const maxScenes = options.maxScenes ?? MAX_SCENES;
-  const selected = options.sceneIds === undefined
-    ? plan.sceneRuns
-    : plan.sceneRuns.filter((run) => options.sceneIds!.includes(run.sceneId));
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new ScenarioError("INVALID_SCENARIO", "recapture options must be an object");
+  }
+  const maxScenes = options.maxScenes === undefined ? MAX_SCENES : options.maxScenes;
+  if (!Number.isSafeInteger(maxScenes) || maxScenes < 1 || maxScenes > MAX_SCENES) {
+    throw new ScenarioError("INVALID_SCENARIO",
+      `maxScenes must be an integer between 1 and ${MAX_SCENES}`);
+  }
+  if (!plan || !Array.isArray(plan.sceneRuns)) {
+    throw new ScenarioError("INVALID_SCENARIO", "recapture plan must contain scene runs");
+  }
+  if (plan.sceneRuns.length > MAX_SCENES) {
+    throw new ScenarioError("INVALID_SCENARIO", `recapture plan exceeds ${MAX_SCENES} scenes`);
+  }
+  const runsById = new Map<string, SceneRun>();
+  for (const [index, run] of plan.sceneRuns.entries()) {
+    if (!run || typeof run !== "object") {
+      throw new ScenarioError("INVALID_SCENARIO", `recapture plan sceneRuns[${index}] must be an object`);
+    }
+    const sceneId = requireText(run.sceneId, `recapture plan sceneRuns[${index}].sceneId`);
+    if (runsById.has(sceneId)) {
+      throw new ScenarioError("INVALID_SCENARIO", `recapture plan has duplicate sceneId: ${sceneId}`);
+    }
+    runsById.set(sceneId, run);
+  }
+  let selected = plan.sceneRuns;
+  if (options.sceneIds !== undefined) {
+    if (!Array.isArray(options.sceneIds)) {
+      throw new ScenarioError("INVALID_SCENARIO", "sceneIds must be an array");
+    }
+    if (options.sceneIds.length > MAX_SCENES) {
+      throw new ScenarioError("INVALID_SCENARIO", `sceneIds exceeds ${MAX_SCENES} selectors`);
+    }
+    const requestedIds = options.sceneIds.map((id, index) => requireText(id, `sceneIds[${index}]`));
+    const requestedIdSet = new Set<string>();
+    for (const id of requestedIds) {
+      if (requestedIdSet.has(id)) {
+        throw new ScenarioError("INVALID_SCENARIO", `duplicate recapture sceneId: ${id}`);
+      }
+      if (!runsById.has(id)) {
+        throw new ScenarioError("INVALID_SCENARIO", `unknown recapture sceneId: ${id}`);
+      }
+      requestedIdSet.add(id);
+    }
+    // Preserve canonical plan order for the selected valid subset.
+    selected = plan.sceneRuns.filter((run) => requestedIdSet.has(run.sceneId));
+  }
   if (selected.length > maxScenes) {
     throw new ScenarioError("INVALID_SCENARIO",
       `recapture of ${selected.length} scenes exceeds bound ${maxScenes}`);

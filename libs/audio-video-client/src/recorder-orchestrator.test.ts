@@ -141,4 +141,80 @@ describe("recaptureScenario", () => {
       { sceneIds: ["intro"] });
     expect(single).toHaveLength(1);
   });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, 0, -1, 1.5, 257])(
+    "rejects invalid maxScenes bound %s before eligibility or capture", async (maxScenes) => {
+      const plan = orchestrateScenario(scenario());
+      let eligibilityCalls = 0;
+      let captureCalls = 0;
+      const eligibility = { check: () => { eligibilityCalls++; return "ADMITTED" as const; } };
+      const adapter = { capture: async () => { captureCalls++; return frame; } };
+      await expect(recaptureScenario(plan, eligibility, adapter, { maxScenes }))
+        .rejects.toThrow(/maxScenes/u);
+      expect(eligibilityCalls).toBe(0);
+      expect(captureCalls).toBe(0);
+    });
+
+  it.each([
+    ["unknown", ["missing-scene"]],
+    ["duplicate", ["intro", "intro"]],
+  ])("rejects %s scene selectors before any capture", async (_label, sceneIds) => {
+    const plan = orchestrateScenario(scenario());
+    let eligibilityCalls = 0;
+    let captureCalls = 0;
+    await expect(recaptureScenario(plan, {
+      check: () => { eligibilityCalls++; return "ADMITTED"; },
+    }, {
+      capture: async () => { captureCalls++; return frame; },
+    }, { sceneIds }))
+      .rejects.toThrow(ScenarioError);
+    expect(eligibilityCalls).toBe(0);
+    expect(captureCalls).toBe(0);
+  });
+
+  it("preserves selective valid capture in plan order", async () => {
+    const plan = orchestrateScenario(scenario());
+    const sourceOrder: string[] = [];
+    await recaptureScenario(plan, { check: () => "ADMITTED" }, {
+      capture: async (request) => {
+        sourceOrder.push(request.sourceIdentity);
+        return { ...frame, sourceIdentity: request.sourceIdentity, frameClockRef: request.frameClockRef };
+      },
+    }, { sceneIds: ["main", "intro"], maxScenes: 2 });
+    expect(sourceOrder).toEqual(["media-file:intro-clip", "media-file:main-clip"]);
+  });
+
+  it("rejects oversized plans/selectors and malformed plan runs before callbacks", async () => {
+    const plan = orchestrateScenario(scenario());
+    let eligibilityCalls = 0;
+    let captureCalls = 0;
+    const eligibility = { check: () => { eligibilityCalls++; return "ADMITTED" as const; } };
+    const adapter = { capture: async () => { captureCalls++; return frame; } };
+    const oversizedPlan = {
+      ...plan,
+      sceneRuns: Array.from({ length: 257 }, () => plan.sceneRuns[0]!),
+    } as typeof plan;
+    await expect(recaptureScenario(oversizedPlan, eligibility, adapter))
+      .rejects.toThrow(/exceeds 256 scenes/u);
+
+    const malformedRunPlan = {
+      ...plan,
+      sceneRuns: [null],
+    } as unknown as typeof plan;
+    await expect(recaptureScenario(malformedRunPlan, eligibility, adapter))
+      .rejects.toThrow(/sceneRuns\[0\] must be an object/u);
+
+    const blankIdentityPlan = {
+      ...plan,
+      sceneRuns: [{ ...plan.sceneRuns[0]!, sceneId: " " }],
+    } as typeof plan;
+    await expect(recaptureScenario(blankIdentityPlan, eligibility, adapter))
+      .rejects.toThrow(/sceneRuns\[0\]\.sceneId/u);
+
+    await expect(recaptureScenario(plan, eligibility, adapter, {
+      sceneIds: Array.from({ length: 257 }, () => "missing"),
+    })).rejects.toThrow(/exceeds 256 selectors/u);
+    expect(eligibilityCalls).toBe(0);
+    expect(captureCalls).toBe(0);
+  });
 });
