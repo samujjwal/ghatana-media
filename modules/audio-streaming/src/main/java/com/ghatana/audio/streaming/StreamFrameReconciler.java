@@ -74,7 +74,7 @@ public final class StreamFrameReconciler {
     /**
      * Resumes a session after process loss. The durable last-ACK position is
      * re-established and anything earlier is a duplicate. A resume carrying a
-     * different tenant or an older session revision is rejected.
+     * different tenant or a session revision other than the durable generation is rejected.
      */
     public static StreamFrameReconciler resume(
             SessionIdentity identity, SessionIdentity durable, int lastAckedSequence) {
@@ -95,9 +95,9 @@ public final class StreamFrameReconciler {
         if (lastAckedSequence < -1 || lastAckedSequence == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
         }
-        if (identity.sessionRevision() < durable.sessionRevision()) {
+        if (identity.sessionRevision() != durable.sessionRevision()) {
             throw new IllegalArgumentException(
-                    "resume carries an older session revision than the durable session");
+                    "resume session revision does not match the durable session generation");
         }
         return new StreamFrameReconciler(identity, lastAckedSequence);
     }

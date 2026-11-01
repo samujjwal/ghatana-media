@@ -111,8 +111,8 @@ class StreamFrameReconcilerTest {
     }
 
     @Test
-    @DisplayName("cross-tenant and stale-revision resumes are denied")
-    void resumeDeniedCrossTenantOrStaleRevision() {
+    @DisplayName("cross-tenant and noncanonical-generation resumes are denied")
+    void resumeDeniedCrossTenantOrNoncanonicalRevision() {
         SessionIdentity durable = identity("t1");
         assertThatThrownBy(() -> StreamFrameReconciler.resume(
                 identity("t2"), durable, 10))
@@ -122,7 +122,12 @@ class StreamFrameReconcilerTest {
                 "stream-1", "t1", "principal-1", "purpose-1", 0);
         assertThatThrownBy(() -> StreamFrameReconciler.resume(stale, durable, 10))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("older session revision");
+                .hasMessageContaining("does not match");
+        SessionIdentity future = new SessionIdentity(
+                "stream-1", "t1", "principal-1", "purpose-1", 2);
+        assertThatThrownBy(() -> StreamFrameReconciler.resume(future, durable, 10))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not match");
         assertThatThrownBy(() -> StreamFrameReconciler.resume(
                 new SessionIdentity("other", "t1", "principal-1", "purpose-1", 1), durable, 10))
                 .isInstanceOf(IllegalArgumentException.class)

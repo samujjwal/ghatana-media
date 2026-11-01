@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk;
@@ -1534,13 +1535,52 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         Object lock = streamOperationLocks.computeIfAbsent(
                 streamKey(frame.tenantId(), frame.sessionId()), ignored -> new Object());
         synchronized (lock) {
-            return acceptFrameLocked(frame);
+            return acceptFrameLocked(frame, null);
+        }
+    }
+
+    /**
+     * Launcher-local frame seam for an adapter bound to the observed canonical connection
+     * generation. The expected generation is checked while holding the same per-session lock as
+     * the store reservation, so a stale transport cannot submit into a later reconnect.
+     */
+    StreamAck acceptFrameForBinding(
+            StreamFrame frame,
+            int expectedReconnectCount,
+            long expectedVersion,
+            long expectedLastSequence,
+            Instant expectedLeaseExpiry) {
+        ensureOpen();
+        if (frame.payload().length > config.maximumChunkBytes()) {
+            throw new IllegalArgumentException("Stream frame exceeds MEDIA_MAX_CHUNK_BYTES");
+        }
+        Object lock = streamOperationLocks.computeIfAbsent(
+                streamKey(frame.tenantId(), frame.sessionId()), ignored -> new Object());
+        synchronized (lock) {
+            return acceptFrameLocked(frame, expectedReconnectCount, expectedVersion,
+                    expectedLastSequence, expectedLeaseExpiry);
         }
     }
 
     /** Performs the provider call and cursor commit under the per-session stream fence. */
-    private StreamAck acceptFrameLocked(StreamFrame frame) {
+    private StreamAck acceptFrameLocked(StreamFrame frame, Integer expectedReconnectCount) {
+        return acceptFrameLocked(frame, expectedReconnectCount, null, null, null);
+    }
+
+    private StreamAck acceptFrameLocked(
+            StreamFrame frame,
+            Integer expectedReconnectCount,
+            Long expectedVersion,
+            Long expectedLastSequence,
+            Instant expectedLeaseExpiry) {
         StreamSession current = requireStream(frame.tenantId(), frame.sessionId());
+        if (expectedReconnectCount != null
+                && (current.reconnectCount() != expectedReconnectCount
+                        || current.version() != expectedVersion
+                        || current.lastSequence() != expectedLastSequence
+                        || !java.util.Objects.equals(current.leaseExpiresAt(), expectedLeaseExpiry))) {
+            throw new StreamBindingConflictException();
+        }
         String tokenHash = hash(frame.connectionToken());
         if (!streamStore.tokenMatches(frame.tenantId(), frame.sessionId(), tokenHash)) {
             throw new SecurityException("Invalid media stream connection token");
@@ -1599,6 +1639,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         } catch (RuntimeException failure) {
             markStreamOutcomeUnknown(reserved, failure);
             throw failure;
+        }
+    }
+
+    static final class StreamBindingConflictException extends IllegalStateException {
+        private static final long serialVersionUID = 1L;
+
+        StreamBindingConflictException() {
+            super("Media canonical stream binding changed");
         }
     }
 
@@ -1677,10 +1725,27 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 .filter(value -> value.principalId().equals(principalId));
     }
 
+    boolean streamConnectionTokenMatches(String tenantId, String sessionId, String token) {
+        ensureOpen();
+        return token != null && !token.isBlank()
+                && streamStore.tokenMatches(tenantId, sessionId, hash(token));
+    }
+
     public MediaRuntimeConfig config() { return config; }
 
     /** Typed seam supplied to modality server compositions; it is this runtime, not a shadow store. */
     public MediaProcessingRuntimePort modalityPort() { return this; }
+
+    /**
+     * Creates a per-session audio helper adapter bound to this runtime's canonical stream store.
+     * The captured principal and connection token are rechecked by the existing stream path.
+     */
+    public CanonicalStreamFramePort audioStreamFramePort(
+            String tenantId, String principalId, String sessionId, String connectionToken) {
+        ensureOpen();
+        return new MediaRuntimeCanonicalStreamFramePort(
+                this, tenantId, principalId, sessionId, connectionToken);
+    }
 
     public List<String> providerIds() {
         ensureOpen();
