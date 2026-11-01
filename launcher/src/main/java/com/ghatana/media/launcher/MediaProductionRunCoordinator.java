@@ -246,6 +246,16 @@ public final class MediaProductionRunCoordinator {
                     Optional.ofNullable(recorded.output()), "recorded " + recorded.outcome());
         }
 
+        // A CLAIMED response is only useful if the exact pre-effect fence is
+        // durably readable under this run/step key. Do not trust an adapter
+        // that acknowledges a claim without persisting its plan/source/rights
+        // binding: dispatching in that case could permit a duplicate effect.
+        Optional<StepRecord> persistedClaim = ledger.find(runId, step.stepId());
+        if (persistedClaim.isEmpty() || !persistedClaim.get().equals(firstRecord)) {
+            return new StepResult(step.stepId(), StepOutcome.NOT_ADMITTED,
+                    Optional.empty(), "durable pre-effect claim could not be verified");
+        }
+
         if (step.manualGate()) {
             return new StepResult(step.stepId(), StepOutcome.SKIPPED_MANUAL_GATE,
                     Optional.empty(), "manual gate not auto-executed");

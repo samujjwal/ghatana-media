@@ -240,6 +240,25 @@ class MediaProductionRunCoordinatorTest {
     }
 
     @Test
+    void claimedButUnreadableFenceDoesNotDispatch() {
+        MediaProductionRunCoordinator.StepLedger ledger = new MediaProductionRunCoordinator.StepLedger() {
+            @Override public Optional<StepRecord> find(String runId, String stepId) { return Optional.empty(); }
+            @Override public void record(String runId, StepRecord record) { }
+            @Override public ClaimResult claim(String runId, StepRecord fence) { return ClaimResult.CLAIMED; }
+        };
+        AtomicInteger executions = new AtomicInteger();
+
+        StepResult result = new MediaProductionRunCoordinator(ledger).executeStep(
+                "run-unreadable-claim", "sha256:" + "f".repeat(64),
+                step("unreadable-claim", OriginClass.REAL_CAPTURE, false),
+                (id, s) -> { executions.incrementAndGet(); return new byte[] {1}; });
+
+        assertThat(result.outcome()).isEqualTo(StepOutcome.NOT_ADMITTED);
+        assertThat(result.detail()).isEqualTo("durable pre-effect claim could not be verified");
+        assertThat(executions.get()).isZero();
+    }
+
+    @Test
     void concurrentAttemptCannotDispatchWhenFixtureClaimAlreadyExists() throws Exception {
         var ledger = new InMemoryLedger();
         var coordinator = new MediaProductionRunCoordinator(ledger);
