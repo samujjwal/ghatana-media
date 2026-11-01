@@ -1,15 +1,29 @@
 package com.ghatana.stt.provider;
 
 import org.junit.jupiter.api.Test;
+import com.ghatana.media.common.AudioFormat;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.Cancellation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactContentReader;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.Optional;
 import java.util.Map;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -85,6 +99,121 @@ class WhisperOnnxSttProviderTest {
                 "sourceClockMappingEvidenceRef", "mapping-evidence",
                 "sourceClockTicksPerSecond", ticksPerSecond,
                 "sourceDurationTicks", durationTicks);
+    }
+
+    private static byte[] pcmWav(int sampleRate, int channels, int pcmBytes) {
+        byte[] wav = new byte[44 + pcmBytes];
+        ByteBuffer header = ByteBuffer.wrap(wav).order(ByteOrder.LITTLE_ENDIAN);
+        header.put("RIFF".getBytes(StandardCharsets.US_ASCII));
+        header.putInt(wav.length - 8);
+        header.put("WAVEfmt ".getBytes(StandardCharsets.US_ASCII));
+        header.putInt(16);
+        header.putShort((short) 1);
+        header.putShort((short) channels);
+        header.putInt(sampleRate);
+        header.putInt(sampleRate * channels * 2);
+        header.putShort((short) (channels * 2));
+        header.putShort((short) 16);
+        header.put("data".getBytes(StandardCharsets.US_ASCII));
+        header.putInt(pcmBytes);
+        return wav;
+    }
+
+    @Test
+    void providerWavDecoderUsesBoundedCanonicalPcmFraming() {
+        var decoded = WhisperOnnxSttProvider.wavPcm16Mono16k(pcmWav(16_000, 1, 320));
+        assertThat(decoded.format()).isEqualTo(AudioFormat.PCM);
+        assertThat(decoded.sampleRate()).isEqualTo(16_000);
+        assertThat(decoded.getSampleCount()).isEqualTo(160);
+
+        byte[] truncated = pcmWav(16_000, 1, 320);
+        truncated[4] = 0;
+        truncated[5] = 0;
+        truncated[6] = 0;
+        truncated[7] = 0;
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.wavPcm16Mono16k(truncated))
+                .isInstanceOf(SttAudioInputDecoder.InputException.class)
+                .hasMessageContaining("STT_AUDIO_INVALID_WAV");
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.wavPcm16Mono16k(pcmWav(44_100, 1, 320)))
+                .isInstanceOf(SttAudioInputDecoder.InputException.class)
+                .hasMessageContaining("STT_AUDIO_SAMPLE_RATE_MISMATCH");
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.wavPcm16Mono16k(pcmWav(16_000, 2, 320)))
+                .isInstanceOf(SttAudioInputDecoder.InputException.class)
+                .hasMessageContaining("STT_AUDIO_CHANNEL_LAYOUT_NOT_ADMITTED");
+    }
+
+    @Test
+    void providerWavDecoderRejectsInputOverTheBoundBeforeMaterialization() {
+        byte[] overLimit = pcmWav(16_000, 1,
+                Math.toIntExact(SttAudioInputDecoder.MAX_DECODED_PCM_BYTES + 2));
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.wavPcm16Mono16k(overLimit))
+                .isInstanceOf(SttAudioInputDecoder.InputException.class)
+                .hasMessageContaining("STT_AUDIO_TOO_LARGE");
+    }
+
+    @Test
+    void sourceReaderCannotExceedPhysicalStagingCapacityEvenWhenItIgnoresTheLimit() throws Exception {
+        byte[] source = "0123456789".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, ignoredMax) -> {
+            target.write(source);
+            return receipt(source, source);
+        });
+
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.readVerifiedSourceContent(context, 9))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("STT_SOURCE_TOO_LARGE");
+    }
+
+    @Test
+    void exactStagingLimitIsAcceptedOnlyWithMatchingReceiptAndArtifactVersion() throws Exception {
+        byte[] source = "exact-cap".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            assertThat(maxBytes).isEqualTo(source.length);
+            target.write(source);
+            return receipt(source, source);
+        });
+
+        var staged = WhisperOnnxSttProvider.readVerifiedSourceContent(context, source.length);
+        assertThat(staged.bytes()).containsExactly(source);
+        assertThat(staged.receipt().bytesCopied()).isEqualTo(source.length);
+        assertThat(staged.receipt().sha256()).isEqualTo(sha256(source));
+    }
+
+    @Test
+    void stagedBytesMustMatchTheReaderReceiptAndPinnedArtifactVersion() {
+        byte[] source = "actual".getBytes(StandardCharsets.US_ASCII);
+        byte[] altered = "altered".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            target.write(altered);
+            return receipt(source, source);
+        });
+
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.readVerifiedSourceContent(context, 32))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("STT_SOURCE_CONTENT_RECEIPT_MISMATCH");
+    }
+
+    private static ProcessingContext contextFor(byte[] source, MediaArtifactContentReader reader) {
+        String sourceHash = sha256(source);
+        var artifact = new MediaArtifact("tenant", "principal", "artifact", "source.wav", "audio/wav",
+                source.length, sourceHash, "object://source", "INTERNAL", Instant.now(),
+                Instant.now().plusSeconds(60), Map.of());
+        var request = new ProcessingJobRequest("request", "tenant", "principal", "correlation", "artifact",
+                artifact.version().value(), JobType.SPEECH_TO_TEXT, "whisper-provider", Map.of());
+        return new ProcessingContext(request, artifact, new Cancellation(), null, reader);
+    }
+
+    private static ArtifactContentReadReceipt receipt(byte[] bytesToHash, byte[] copiedBytes) {
+        String hash = sha256(bytesToHash);
+        return new ArtifactContentReadReceipt(ArtifactVersion.fromSha256(hash), hash, copiedBytes.length);
+    }
+
+    private static String sha256(byte[] value) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new AssertionError(impossible);
+        }
     }
 
     @Test

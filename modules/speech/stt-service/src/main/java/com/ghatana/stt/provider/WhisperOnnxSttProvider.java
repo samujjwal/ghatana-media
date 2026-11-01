@@ -7,7 +7,9 @@ import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
@@ -20,11 +22,10 @@ import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.engine.onnx.WhisperOnnxEngine;
+import com.ghatana.stt.service.SttAudioInputDecoder;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
@@ -295,9 +296,10 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
                 return CompletableFuture.failedFuture(new IllegalArgumentException(
                         "custom glossary application is not supported by this provider profile"));
             }
-            ByteArrayOutputStream staged = new ByteArrayOutputStream();
-            ArtifactContentReadReceipt receipt = context.copySourceContentTo(staged, maxSourceBytes);
-            AudioData audio = wavPcm16Mono16k(staged.toByteArray());
+            VerifiedStagedSource staged = readVerifiedSourceContent(context,
+                    Math.min(maxSourceBytes, SttAudioInputDecoder.MAX_INPUT_BYTES));
+            ArtifactContentReadReceipt receipt = staged.receipt();
+            AudioData audio = wavPcm16Mono16k(staged.bytes());
             TranscriptionOptions options = TranscriptionOptions.builder()
                     .language(requestLanguage(context))
                     .enableTimestamps(false)
@@ -409,20 +411,80 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         return Locale.ENGLISH;
     }
 
-    private static AudioData wavPcm16Mono16k(byte[] wav) throws Exception {
-        try (AudioInputStream input = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wav))) {
-            var format = input.getFormat();
-            if (!"PCM_SIGNED".equals(format.getEncoding().toString())
-                    || format.getSampleRate() != 16_000f || format.getChannels() != 1
-                    || format.getSampleSizeInBits() != 16 || format.isBigEndian()) {
-                throw new IllegalArgumentException(
-                        "Whisper source must be mono 16kHz signed 16-bit little-endian PCM WAV");
-            }
-            byte[] pcm = input.readAllBytes();
-            return new AudioData(pcm, 16_000, 1, 16,
-                    Duration.ofMillis(Math.round(pcm.length * 1_000d / (16_000 * 2))),
-                    AudioFormat.PCM);
+    static AudioData wavPcm16Mono16k(byte[] wav) {
+        AudioData decoded = SttAudioInputDecoder.decode(wav, AudioFormat.WAV, 16_000);
+        if (decoded.sampleRate() != 16_000 || decoded.channels() != 1 || decoded.bitsPerSample() != 16
+                || decoded.format() != AudioFormat.PCM) {
+            throw new IllegalArgumentException(
+                    "Whisper source must be mono 16kHz signed 16-bit little-endian PCM WAV");
         }
+        return decoded;
+    }
+
+    record VerifiedStagedSource(byte[] bytes, ArtifactContentReadReceipt receipt) { }
+
+    /** Reads through a physically bounded sink and verifies the receipt against the pinned artifact. */
+    static VerifiedStagedSource readVerifiedSourceContent(ProcessingContext context, long requestedMaxBytes)
+            throws IOException {
+        MediaArtifact artifact = context.artifact();
+        long cap = Math.min(requestedMaxBytes, SttAudioInputDecoder.MAX_INPUT_BYTES);
+        if (cap < 1 || cap > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("STT source staging limit must be between 1 byte and 4 MiB");
+        }
+        BoundedStagingSink sink = new BoundedStagingSink((int) cap);
+        ArtifactContentReadReceipt receipt = context.copySourceContentTo(sink, cap);
+        byte[] staged = sink.toByteArray();
+        String actualSha256 = sha256(staged);
+        if (staged.length != receipt.bytesCopied()
+                || staged.length != artifact.sizeBytes()
+                || !actualSha256.equals(receipt.sha256())
+                || !ArtifactVersion.fromSha256(actualSha256).equals(receipt.version())
+                || !receipt.version().equals(artifact.version())) {
+            throw new IllegalStateException(
+                    "STT_SOURCE_CONTENT_RECEIPT_MISMATCH: staged bytes do not match the admitted artifact version");
+        }
+        return new VerifiedStagedSource(staged, receipt);
+    }
+
+    /** Fixed-capacity staging: a nonconforming reader cannot grow memory past its declared ceiling. */
+    private static final class BoundedStagingSink extends OutputStream {
+        private final int capacity;
+        private byte[] buffer;
+        private int size;
+
+        private BoundedStagingSink(int capacity) {
+            this.capacity = capacity;
+            buffer = new byte[Math.min(capacity, 8 * 1024)];
+        }
+
+        @Override public void write(int value) throws IOException {
+            requireCapacity(1);
+            ensureCapacity(size + 1);
+            buffer[size++] = (byte) value;
+        }
+
+        @Override public void write(byte[] bytes, int offset, int length) throws IOException {
+            java.util.Objects.checkFromIndexSize(offset, length, bytes.length);
+            requireCapacity(length);
+            ensureCapacity(size + length);
+            System.arraycopy(bytes, offset, buffer, size, length);
+            size += length;
+        }
+
+        private void requireCapacity(int additional) throws IOException {
+            if (additional > capacity - size) {
+                throw new IOException("STT_SOURCE_TOO_LARGE: source reader exceeded the bounded staging limit");
+            }
+        }
+
+        private void ensureCapacity(int required) {
+            if (required <= buffer.length) return;
+            int grown = Math.max(required, Math.min(capacity, Math.max(1, buffer.length) * 2));
+            if (grown > capacity) grown = capacity;
+            buffer = java.util.Arrays.copyOf(buffer, grown);
+        }
+
+        private byte[] toByteArray() { return java.util.Arrays.copyOf(buffer, size); }
     }
 
     private static String sha256(byte[] value) {
