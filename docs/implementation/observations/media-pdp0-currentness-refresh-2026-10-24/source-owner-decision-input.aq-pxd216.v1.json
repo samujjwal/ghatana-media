@@ -14,7 +14,7 @@
   "protectedInputs": {
     "status": {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "status": "IN_PROGRESS",
       "phase": "PDP-0"
     },
@@ -74,7 +74,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v5.json",
-      "sha256": "eb9f6903db387375105f8d1b1653a297bf09e816d138749dc93f3d3c69ad27f5",
+      "sha256": "b259487ffec02b24c56d2b240dd1e28f95bbdfa17f603a8aa4df5e7631afbaf6",
       "state": "PREPARED_INPUT_ONLY; OWNER_AND_ROOT_DECISION_NOT_RECORDED"
     }
   ],

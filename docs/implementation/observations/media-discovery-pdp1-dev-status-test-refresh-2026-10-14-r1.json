@@ -9,7 +9,7 @@
   },
   "predecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-    "sha256": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+    "sha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
     "testPath": "tests/media-pdp-p1-dev-status.test.mjs",
     "testSha256": "sha256:8362bf108a1f05577e6cdc858cd1565c6afc4193eea102a475e0b1d145abc9ad"
   },

@@ -20,11 +20,11 @@
     "g0SourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
     "sourceReceipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537"
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc"
     },
     "topology": {
       "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "sha256": "sha256:b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+      "sha256": "sha256:026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
     }
   },
   "phaseSummary": {
@@ -90,7 +90,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -115,7 +115,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -140,7 +140,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -165,7 +165,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -192,7 +192,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -218,7 +218,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -244,7 +244,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -270,7 +270,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -295,7 +295,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -320,7 +320,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -345,7 +345,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -370,7 +370,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -396,7 +396,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -423,7 +423,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -450,7 +450,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -476,7 +476,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -501,7 +501,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -526,7 +526,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -552,7 +552,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -577,7 +577,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -603,7 +603,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -629,7 +629,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -654,7 +654,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -680,7 +680,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -705,7 +705,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -734,7 +734,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -757,7 +757,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -782,7 +782,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -807,7 +807,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -832,7 +832,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -857,7 +857,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -882,7 +882,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -907,7 +907,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -933,7 +933,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -960,7 +960,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -986,7 +986,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1012,7 +1012,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1038,7 +1038,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1064,7 +1064,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1090,7 +1090,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1116,7 +1116,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1142,7 +1142,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1167,7 +1167,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1193,7 +1193,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1218,7 +1218,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1244,7 +1244,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1270,7 +1270,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1296,7 +1296,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1322,7 +1322,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1347,7 +1347,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1375,7 +1375,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1403,7 +1403,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1431,7 +1431,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1459,7 +1459,7 @@
       "nextLegalAction": "PDP-1 may begin only on the source-current PDP-0 barrier; preserve each surface’s source-declared PDP-1 applicability. No closure or acceptance claim is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       }
     },
     {
@@ -1485,7 +1485,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1511,7 +1511,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1537,7 +1537,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1563,7 +1563,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1591,7 +1591,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1618,7 +1618,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1645,7 +1645,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1672,7 +1672,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1698,7 +1698,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1724,7 +1724,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1750,7 +1750,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1776,7 +1776,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1803,7 +1803,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1831,7 +1831,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1859,7 +1859,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1886,7 +1886,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1912,7 +1912,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1938,7 +1938,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1965,7 +1965,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -1991,7 +1991,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2018,7 +2018,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2045,7 +2045,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2071,7 +2071,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2098,7 +2098,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2124,7 +2124,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2154,7 +2154,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2177,7 +2177,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2202,7 +2202,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2227,7 +2227,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2252,7 +2252,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2277,7 +2277,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2302,7 +2302,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2327,7 +2327,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2350,7 +2350,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2373,7 +2373,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2396,7 +2396,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2419,7 +2419,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2442,7 +2442,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2465,7 +2465,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2488,7 +2488,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2511,7 +2511,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2534,7 +2534,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2557,7 +2557,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2580,7 +2580,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2603,7 +2603,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2626,7 +2626,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2649,7 +2649,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2672,7 +2672,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2695,7 +2695,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2718,7 +2718,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2743,7 +2743,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2768,7 +2768,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2793,7 +2793,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2818,7 +2818,7 @@
       "nextLegalAction": "PDP-2 may proceed after the PDP-1 source-current barrier is retained; no closure, acceptance, implementation, or Delivery is implied.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       }
     },
     {
@@ -2848,7 +2848,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -2880,7 +2880,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -2910,7 +2910,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -2940,7 +2940,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -2972,7 +2972,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3003,7 +3003,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3034,7 +3034,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3065,7 +3065,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3095,7 +3095,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3125,7 +3125,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3155,7 +3155,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3185,7 +3185,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3216,7 +3216,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3248,7 +3248,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3280,7 +3280,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3311,7 +3311,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3341,7 +3341,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3377,7 +3377,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3408,7 +3408,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3438,7 +3438,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3469,7 +3469,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3500,7 +3500,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3530,7 +3530,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3561,7 +3561,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3591,7 +3591,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3625,7 +3625,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3651,7 +3651,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3681,7 +3681,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3711,7 +3711,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3741,7 +3741,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3771,7 +3771,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3801,7 +3801,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3831,7 +3831,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3859,7 +3859,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3887,7 +3887,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3915,7 +3915,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3943,7 +3943,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3971,7 +3971,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -3999,7 +3999,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4027,7 +4027,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4055,7 +4055,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4083,7 +4083,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4111,7 +4111,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4139,7 +4139,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4167,7 +4167,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4195,7 +4195,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4223,7 +4223,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4251,7 +4251,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4279,7 +4279,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4306,7 +4306,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4336,7 +4336,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4366,7 +4366,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4396,7 +4396,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4426,7 +4426,7 @@
       "nextLegalAction": "PDP-3 may proceed only after the source-current PDP-2 barrier is retained across the full 54-identity denominator; this row makes no acceptance, closure, implementation, qualification, or Delivery claim.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       }
     },
     {
@@ -4456,7 +4456,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4486,7 +4486,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4516,7 +4516,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4546,7 +4546,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4578,7 +4578,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4609,7 +4609,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4640,7 +4640,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4671,7 +4671,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4701,7 +4701,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4731,7 +4731,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4761,7 +4761,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4791,7 +4791,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4822,7 +4822,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4854,7 +4854,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4886,7 +4886,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4917,7 +4917,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4947,7 +4947,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -4977,7 +4977,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5008,7 +5008,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5038,7 +5038,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5069,7 +5069,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5100,7 +5100,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5130,7 +5130,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5161,7 +5161,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5191,7 +5191,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5225,7 +5225,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5250,7 +5250,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5278,7 +5278,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5306,7 +5306,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5334,7 +5334,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5362,7 +5362,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5390,7 +5390,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5418,7 +5418,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5445,7 +5445,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5472,7 +5472,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5499,7 +5499,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5526,7 +5526,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5553,7 +5553,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5580,7 +5580,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5607,7 +5607,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5634,7 +5634,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5661,7 +5661,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5688,7 +5688,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5715,7 +5715,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5742,7 +5742,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5769,7 +5769,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5796,7 +5796,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5823,7 +5823,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5850,7 +5850,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5876,7 +5876,7 @@
       "nextLegalAction": "Retain the explicit PDP-3 applicability decision; this row does not imply phase closure or runtime admission.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5905,7 +5905,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5934,7 +5934,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5963,7 +5963,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     },
     {
@@ -5992,7 +5992,7 @@
       "nextLegalAction": "Retain the source-current PDP-3 development definition; native closure, implementation qualification, and Delivery remain separate gates.",
       "matrixSource": {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       }
     }
   ]

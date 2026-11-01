@@ -15,7 +15,7 @@
   },
   "input": {
     "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
-    "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb",
+    "sha256": "sha256:cf25b0c7116b9d0ece391b992a395bc4127015d93a4df80c1cca223e8165dcb3",
     "candidateStatuses": [
       "CANDIDATE"
     ],

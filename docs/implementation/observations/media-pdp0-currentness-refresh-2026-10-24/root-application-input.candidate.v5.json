@@ -8,13 +8,13 @@
   },
   "requiredSourceOwnerInput": {
     "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v5.json",
-    "sha256": "e7eabe3ce142f99a4c2e66f61ed997b1660fe313fc5b7cc5120381e5d1179823",
+    "sha256": "b568a596e8161231e8e866efe7e8b5c6f6ed2b12ea66faa513db8e84e25f0c0b",
     "state": "DECISION_NOT_RECORDED"
   },
   "protectedInputs": {
     "pdp0Status": {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "status": "IN_PROGRESS"
     },
     "crosswalk": {
@@ -53,7 +53,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v5.json",
-      "sha256": "e7eabe3ce142f99a4c2e66f61ed997b1660fe313fc5b7cc5120381e5d1179823"
+      "sha256": "b568a596e8161231e8e866efe7e8b5c6f6ed2b12ea66faa513db8e84e25f0c0b"
     }
   ],
   "canonicalApply": "NONE",

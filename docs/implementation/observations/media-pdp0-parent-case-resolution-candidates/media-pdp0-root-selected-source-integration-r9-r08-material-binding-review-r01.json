@@ -36,11 +36,11 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
-      "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+      "sha256": "433b0404dfda8f714142987d6f3ca18126cead85385ab496def9cc066fed617e"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
-      "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+      "sha256": "9827983816f3864f18bcbaf21a6f7bb54cc64ee5be59bdcee93688deb5ba6d7f"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.luna-integrity-review.v1.json",
@@ -55,11 +55,11 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-      "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8"
+      "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969"
     },
     {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "status": "IN_PROGRESS",
       "sourceShaSetEntries": 188
     },

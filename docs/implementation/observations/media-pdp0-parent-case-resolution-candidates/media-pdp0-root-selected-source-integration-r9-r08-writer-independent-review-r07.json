@@ -23,30 +23,89 @@
     "permittedWork": "Source-only technical authorization workflow implementation and adversarial testing in disposable repository copies."
   },
   "sourceBaseline": [
-    {"ref":"config/closure/media-product-definition/owner-execution-authorization.v1.json","sha256":"9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"},
-    {"ref":"../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/central/media-r08-source-technical-authority-boundary-root-decision-r01.json","sha256":"26e437be25c5ad465b3e48fb1a9c53e1bec58f85ac667cb60fa358dd41d65a70"},
-    {"ref":"AGENTS.md","sha256":"a3ad22a9d18f264329ab64264efdf81fdd407f2ea9f33bd4f7f982787b83b829"},
-    {"ref":"scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs","sha256":"e6f2f06d9507eafdc20b30378b402bf9f22448511c0355f95272ab75d8ec0895"},
-    {"ref":".product-experience/decision-log.md","sha256":"0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"},
-    {"ref":".product-experience/pdp-0-product-truth/capabilities.yaml","sha256":"fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"},
-    {"ref":".product-experience/pdp-0-product-truth/requirements.yaml","sha256":"672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"},
-    {"ref":"docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json","sha256":"02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"},
-    {"ref":".product-experience/pdp-0-product-truth/capability-leaf-review.yaml","sha256":"3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"},
-    {"ref":".product-experience/pdp-0-product-truth/campaign-extensions.yaml","sha256":"df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"},
-    {"ref":".product-experience/pdp-0-product-truth/quality-policy.yaml","sha256":"39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"},
-    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r06.json","sha256":"2dd478152704347a5cae95dcb9f2f3b053358abef639c9069ff452ea8b70a61c"}
+    {
+      "ref": "config/closure/media-product-definition/owner-execution-authorization.v1.json",
+      "sha256": "9a083ad119062b16865c944def9bdee1e14ca924be76e34b6f332c4aca798319"
+    },
+    {
+      "ref": "../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/central/media-r08-source-technical-authority-boundary-root-decision-r01.json",
+      "sha256": "26e437be25c5ad465b3e48fb1a9c53e1bec58f85ac667cb60fa358dd41d65a70"
+    },
+    {
+      "ref": "AGENTS.md",
+      "sha256": "a3ad22a9d18f264329ab64264efdf81fdd407f2ea9f33bd4f7f982787b83b829"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v2-guard.mjs",
+      "sha256": "e6f2f06d9507eafdc20b30378b402bf9f22448511c0355f95272ab75d8ec0895"
+    },
+    {
+      "ref": ".product-experience/decision-log.md",
+      "sha256": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+      "sha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/requirements.yaml",
+      "sha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+    },
+    {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "sha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "sha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+      "sha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r06.json",
+      "sha256": "8c5eb4241cd0c1443aab822f336c4c985efce98627c26a4cc291a6ce19db8991"
+    }
   ],
   "implementation": [
-    {"ref":"scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v3-technical-guard.mjs","sha256":"7e676cfe3fcf229403ff66516ba7d77d4eca85dfbb3e79f486b06da93b699ba0"},
-    {"ref":"scripts/lib/media-pdp0-review-successor-cas.mjs","sha256":"7dcaa3d9a1651fc415291799ec3331d92fd01505f828a3d97853ce0ce0bf1a1f"},
-    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation.schema.v1.json","sha256":"97934a79667d83dd4f6029ebabed4350f71183f2e63f25d9f569f9ae2ef3c953"},
-    {"ref":"docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation-proposal.v1.json","sha256":"e2bb484f16b2df0c3f0e16da2869501898949e1be3c08502ccd62c63c4a80343"},
-    {"ref":"config/closure/media-product-definition/technical-source-role-revocations.schema.v1.json","sha256":"59db8573e9519b24addc2c32e489321321a4cdfcf64152415c70895e7a663752"},
-    {"ref":"tests/media-pdp0-r9-r08-v3-technical-source-adversarial.test.mjs","sha256":"9a7d7a7aa0d05a4f813e715b55dcd1bd82ed6e07e28adf29905b44a2ee65b6d4"}
+    {
+      "ref": "scripts/lib/media-pdp0-root-selected-source-integration-r9-r08-v3-technical-guard.mjs",
+      "sha256": "7e676cfe3fcf229403ff66516ba7d77d4eca85dfbb3e79f486b06da93b699ba0"
+    },
+    {
+      "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",
+      "sha256": "7dcaa3d9a1651fc415291799ec3331d92fd01505f828a3d97853ce0ce0bf1a1f"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation.schema.v1.json",
+      "sha256": "97934a79667d83dd4f6029ebabed4350f71183f2e63f25d9f569f9ae2ef3c953"
+    },
+    {
+      "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.technical-source-role-delegation-proposal.v1.json",
+      "sha256": "0808b9b233e7e83d69c9d7b2f8219f5d53cd84be2346127a05f48cfae9b9a645"
+    },
+    {
+      "ref": "config/closure/media-product-definition/technical-source-role-revocations.schema.v1.json",
+      "sha256": "59db8573e9519b24addc2c32e489321321a4cdfcf64152415c70895e7a663752"
+    },
+    {
+      "ref": "tests/media-pdp0-r9-r08-v3-technical-source-adversarial.test.mjs",
+      "sha256": "9a7d7a7aa0d05a4f813e715b55dcd1bd82ed6e07e28adf29905b44a2ee65b6d4"
+    }
   ],
   "authorityBoundary": {
     "technicalSourceDelegation": "Implemented as a distinct fixed-path, source-only v3 lane for ordinary technical PDP-0 source decisions.",
-    "requiredRoles": ["PDP0_TECHNICAL_SOURCE_OWNER", "PDP0_TECHNICAL_ROOT_ADOPTER", "PDP0_TECHNICAL_PROFILE_REGISTRAR", "PDP0_TECHNICAL_APPLY_AUTHORITY"],
+    "requiredRoles": [
+      "PDP0_TECHNICAL_SOURCE_OWNER",
+      "PDP0_TECHNICAL_ROOT_ADOPTER",
+      "PDP0_TECHNICAL_PROFILE_REGISTRAR",
+      "PDP0_TECHNICAL_APPLY_AUTHORITY"
+    ],
     "distinctPrincipals": 5,
     "semanticAndSourcePins": "PXD-225 section plus seven-member read set and four exact frozen source targets; typed PXD role/root records bind six non-log pins, external delegation binds whole-log SHA and section hashes; pin graph is acyclic.",
     "nativeVerifierAcceptanceReceiptBuildDeliveryRelease": "NONE; protected v2 native trust remains NOT_REGISTERED and fail-closed.",
@@ -62,9 +121,15 @@
   },
   "adversarialCoverage": {
     "newCases": 14,
-    "newCasesResult": {"passed":14,"failed":0},
+    "newCasesResult": {
+      "passed": 14,
+      "failed": 0
+    },
     "combinedRegressionCommand": "node --test tests/media-pdp0-r9-r08-v3-technical-source-adversarial.test.mjs tests/media-pdp0-r9-r08-writer-temp-adversarial.test.mjs tests/media-pdp0-r9-r08-under-lease-readset-probe.test.mjs tests/media-pdp0-r9-r08-material-binding-negative-review-r01.test.mjs",
-    "combinedResult": {"passed":54,"failed":0},
+    "combinedResult": {
+      "passed": 54,
+      "failed": 0
+    },
     "covered": [
       "exact four-target publication only in disposable repositories",
       "mismatched/native effect, root actor, duplicate principals, wrong role scope, unrelated typed role decision, stale source pin, expiry and revocation rejection",

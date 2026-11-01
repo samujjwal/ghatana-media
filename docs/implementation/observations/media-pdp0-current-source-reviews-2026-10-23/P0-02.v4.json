@@ -11,15 +11,15 @@
   "reviewedSources": [
     {
       "sourceRef": "docs/implementation/media-pdp-38-readiness.json",
-      "sha256": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe"
+      "sha256": "18a07f305c1d34fd2a0e05c09aa3d7b2ff1c89c86722d527fce424cbe20a8005"
     },
     {
       "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-      "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+      "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",

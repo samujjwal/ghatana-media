@@ -6,27 +6,27 @@
     {
       "role": "prior campaign continuation",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
-      "sha256": "sha256:a5269f4a4baafec16417abae0539c6ec6184644da9cbe0095542be108bc892a0"
+      "sha256": "sha256:43a38a4eaaf862e9f9d294a445456dd9d499bb6da56f0d2a60b1bc9b51f4c320"
     },
     {
       "role": "G0 source material and topology receipt",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537"
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc"
     },
     {
       "role": "F00.T02 source-bound technical reconciliation candidate",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-      "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5"
+      "sha256": "sha256:b990b2a4a75565af0657c3e9dcceada1040b7edf49e1ab4ac6191ac4ad1ee865"
     },
     {
       "role": "L01.T01 exact blocker reconciliation candidate with clarified edge provenance",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
-      "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90"
+      "sha256": "sha256:f3ae6719ceef2bdf473673dee4ffa0f225eac31b5985ca57ca2b8910638d3829"
     },
     {
       "role": "full 54-surface by 4-PDP phase matrix",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019"
+      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e"
     }
   ],
   "campaign": {
@@ -74,7 +74,7 @@
     },
     "f00t01Receipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
       "topology": {
         "physical": 26,
         "compositionsAndRoot": 7,
@@ -96,7 +96,7 @@
     },
     "currentPerSurfacePhaseMatrix": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019",
+      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
       "rows": 216,
       "identities": 54,
       "sourceCurrent": true,
@@ -115,7 +115,7 @@
       "formalTaskAcceptance": "PENDING",
       "evidenceCandidate": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-        "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5",
+        "sha256": "sha256:b990b2a4a75565af0657c3e9dcceada1040b7edf49e1ab4ac6191ac4ad1ee865",
         "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
         "taskAcceptance": "NOT_ESTABLISHED",
         "planReady": "NOT_PROVEN"
@@ -134,7 +134,7 @@
       "criterionDiscrepancy": "The committed source baseline enumerates 25 exact blockers; 23 P1 source-join blockers now have current exact bridge edges. The two remaining concerns are channel admission and editorial voice/narration authority. The latter retains partial source-binding evidence and is not claimed as a one-to-one semantic replacement. Formal acceptance remains pending.",
       "blockerReconciliation": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
-        "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90",
+        "sha256": "sha256:f3ae6719ceef2bdf473673dee4ffa0f225eac31b5985ca57ca2b8910638d3829",
         "baselineBlockers": 25,
         "resolvedSourceJoinBlockers": 23,
         "openBaselineBlockers": 2,

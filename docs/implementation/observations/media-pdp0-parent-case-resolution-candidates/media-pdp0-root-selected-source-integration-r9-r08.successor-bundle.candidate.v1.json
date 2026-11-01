@@ -7,7 +7,7 @@
   "selectedBranch": "split",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json",
-    "sha256": "a4ed01253c422b3044ec415d9e065ddf9de6a373307c0b4e1f5284fef99669cb",
+    "sha256": "0be4e28dfd9222b396c61f98b7eb29da5f5b9306684f9ee594d9d19eeba5290a",
     "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.freeze.v1.json",
     "freezeSha256": "3d85b88e11d0c037f806696d888c4d5e76cf97fd6dd989e3603ad5a9bca4cc4a",
     "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.independent-peer.actual-h-r07-full.json",
@@ -71,12 +71,12 @@
   ],
   "selectedAllowedOperations": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
-    "sha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "sha256": "afe68f39e3f2d1c4622b1027510a47e08dd7afe75d5c8b4b728bc4e06a616d0c",
     "operationCount": 122
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationCount": 248
   },
   "current7Preimages": [
@@ -111,7 +111,7 @@
   ],
   "currentStatusReadback": {
     "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-    "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "status": "IN_PROGRESS",
     "sourcePinCount": 188,
     "r08TargetMismatches": 7,

@@ -298,12 +298,12 @@
       ".product-experience/pdp-3-product-experience/cli/command-registry.yaml": "sha256:6feed0105beddb02232045fff28cdd5d64d6e8314cb647c96dcdda3b945f82a4",
       ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml": "sha256:e95e812bb436c1c6f7630dd885bd2eb9fee9d645bf611ab99d20fe6421ce3a8c",
       ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml": "sha256:bec6d8b8a72aaa4a3f34a3c0b4040911e6aaaf8f88da64a103fec32e26825170",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java": "sha256:04fec5977cdf368b9c2c17c5a253c1015939410eeb881028e52a8f6f932acd1f",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java": "sha256:32c8c72704e23dcc388d59b55b2f3db25411aaed9d5ceb53b93cdd8691a83233",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
-      "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5"
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java": "sha256:04fec5977cdf368b9c2c17c5a253c1015939410eeb881028e52a8f6f932acd1f",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java": "sha256:32c8c72704e23dcc388d59b55b2f3db25411aaed9d5ceb53b93cdd8691a83233",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5"
     },
     "historicalPhaseStatusComparison": [
       {
@@ -1372,25 +1372,25 @@
             "disposition": "MATCH"
           },
           {
-            "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+            "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
             "recordedDigest": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
             "currentDigest": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
             "disposition": "MATCH"
           },
           {
-            "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+            "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
             "recordedDigest": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
             "currentDigest": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
             "disposition": "MATCH"
           },
           {
-            "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+            "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
             "recordedDigest": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
             "currentDigest": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
             "disposition": "MATCH"
           },
           {
-            "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+            "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
             "recordedDigest": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
             "currentDigest": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
             "disposition": "MATCH"
@@ -7985,42 +7985,42 @@
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AgentToolInput.java",
         "predecessorDigest": "sha256:04fec5977cdf368b9c2c17c5a253c1015939410eeb881028e52a8f6f932acd1f",
         "ownerReviewedDigest": "sha256:04fec5977cdf368b9c2c17c5a253c1015939410eeb881028e52a8f6f932acd1f",
         "observedDigest": "sha256:04fec5977cdf368b9c2c17c5a253c1015939410eeb881028e52a8f6f932acd1f",
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
         "predecessorDigest": "sha256:32c8c72704e23dcc388d59b55b2f3db25411aaed9d5ceb53b93cdd8691a83233",
         "ownerReviewedDigest": "sha256:32c8c72704e23dcc388d59b55b2f3db25411aaed9d5ceb53b93cdd8691a83233",
         "observedDigest": "sha256:32c8c72704e23dcc388d59b55b2f3db25411aaed9d5ceb53b93cdd8691a83233",
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
         "predecessorDigest": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
         "ownerReviewedDigest": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
         "observedDigest": "sha256:017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
         "predecessorDigest": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
         "ownerReviewedDigest": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
         "observedDigest": "sha256:4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
         "predecessorDigest": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
         "ownerReviewedDigest": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
         "observedDigest": "sha256:4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
         "disposition": "UNCHANGED"
       },
       {
-        "path": "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+        "path": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
         "predecessorDigest": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
         "ownerReviewedDigest": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
         "observedDigest": "sha256:aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",

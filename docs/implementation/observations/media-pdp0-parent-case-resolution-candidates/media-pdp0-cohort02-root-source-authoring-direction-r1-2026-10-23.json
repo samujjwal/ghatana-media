@@ -13,7 +13,7 @@
   },
   "sourceR6": {
     "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
-    "sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963"
+    "sha256": "61a91e20652e58fe051909fa669b1fcff969e6bab7b5ea02b5bfbe2a43d6ea02"
   },
   "phase": "PDP-0",
   "macroStage": "DISCOVERY",

@@ -394,7 +394,7 @@
     },
     {
       "path": ".product-experience/pdp-0-product-truth/generated/product-definition.candidate.json",
-      "sha256": "985ec0594f097a0a22124353bea9c804ee2789d6c0db90fe582470730da9254e"
+      "sha256": "bb95077806af25d47a98cb4b8436b4609f8d7339b9e3ae77d9dbdb8553cbee8c"
     },
     {
       "path": ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
@@ -402,7 +402,7 @@
     },
     {
       "path": ".product-experience/pdp-0-product-truth/implementation-status-2026-10-07.json",
-      "sha256": "f7bf7857dfa1055da7255591ed25c31d59be97d5a3579e68111d3dd53e9e082e"
+      "sha256": "b34539d6057215362e19c6e66196b9b81aed6ee4b4e63fc492c56ffd66272dd4"
     },
     {
       "path": ".product-experience/pdp-0-product-truth/migration-semantics-review.yaml",
@@ -438,7 +438,7 @@
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/generated/experience-language.candidate.json",
-      "sha256": "a982571bb9aba855d8e30b2d45f5ae088964e51fb7304670e284c34eb40933e2"
+      "sha256": "31b3ba5c760888b992a53e4f4ecb507643e9e6198e982cf390758a0a3aeff51b"
     },
     {
       "path": ".product-experience/pdp-2-design-interface-system/gui/layout.yaml",
@@ -466,7 +466,7 @@
     },
     {
       "path": ".product-experience/pdp-3-product-experience/generated/experience-specification.candidate.json",
-      "sha256": "d23fbaca5cfc10982462c573446541f6d28cb4c91d26846266c0b534ad9668ec"
+      "sha256": "aa44b1538925608367e189b72da6fbf3bbadd461b37b76cbdda5a5cb79c07eac"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/journey-contracts/check-which-processing-options-are-eligible.yaml",
@@ -550,7 +550,7 @@
     },
     {
       "path": "docs/migration/external-platform-contract-observation.json",
-      "sha256": "f99d1b4ba5f8a1b860c8e8983ce8b1260e4a6ba28bd6eadcdd2aa465fab71423"
+      "sha256": "5e35b260272e7f9c795f262849fa311767239af92ac557ce1c51dfc188568c6f"
     },
     {
       "path": "docs/migration/master-plan-source-change-claims.yaml",

@@ -4,7 +4,7 @@
   "recordedAt": "2026-10-23T05:06:30Z",
   "predecessor": {
     "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T045800Z.v1.json",
-    "sha256": "sha256:e3c84857c360170711e492f4deb54ad33720aa037b623701e1ea22f5e5f5304d"
+    "sha256": "sha256:36730fdae9014e788512a20dba49af447173d6aecd044f22aef670f22812c3ff"
   },
   "campaign": {
     "repository": "samujjwal/ghatana-media",
@@ -186,7 +186,7 @@
   },
   "sourceMatrix": {
     "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-    "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019",
+    "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
     "sourceIdentityCount": 54,
     "phaseCellCount": 216,
     "phaseLocalTaskCount": 0,

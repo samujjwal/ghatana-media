@@ -34,7 +34,7 @@
     },
     "qualityReview": {
       "path": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
-      "sha256": "11bd39275df012dc0c1937274858b7aa80fbce204aadc2dd77346adc1ffa27aa"
+      "sha256": "a9373535178a7040425e5f40f31951f7359abfb4aa64daf37157ef539b443b3c"
     }
   },
   "decisionSectionSha256": "7aa2bcd2f241b5eb656cd2acf7ea8fb8e7a68d690048e22c79d7dba9207837aa",

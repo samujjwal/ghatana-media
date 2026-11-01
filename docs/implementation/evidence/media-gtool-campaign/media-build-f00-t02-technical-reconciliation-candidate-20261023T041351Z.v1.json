@@ -14,7 +14,7 @@
   "taskDisposition": {
     "canonicalSource": {
       "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-      "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+      "sha256": "sha256:e9bee6d0c946f418f2342f19e9729b1e020413eb9162663af6706ebd67baae5d",
       "bytes": 39231
     },
     "status": "OPEN_TECHNICAL_WORK",
@@ -79,14 +79,14 @@
     "sourceMaterialReceipt": {
       "artifact": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-        "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+        "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
         "bytes": 12406
       },
       "gtoolSourceSnapshotFingerprint": "sha256:13d2a1899893a0581dffaf0ae82d3db7b1982d93ebd55171f638ebb2e98cc32a",
       "methodFingerprint": "sha256:d6344e6cd3ca38a2cc0fa52907be77e1ccd8b8178451ff6113343210aec591d5",
       "topology": {
         "sourcePath": ".product-experience/surfaces/media-physical-topology.v1.json",
-        "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+        "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
         "physicalManifestCandidates": 26,
         "semanticCompositionsIncludingRoot": 7,
         "logicalConsumers": 21,
@@ -115,7 +115,7 @@
         {
           "phase": "PDP-0",
           "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-          "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+          "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
           "rows": 54,
           "status": "DEV_COMPLETE",
           "sourceCurrentness": "CURRENT",
@@ -124,7 +124,7 @@
         {
           "phase": "PDP-1",
           "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-          "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+          "sha256": "fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81",
           "rows": 54,
           "status": "DEV_COMPLETE",
           "sourceCurrentness": "CURRENT",
@@ -133,7 +133,7 @@
         {
           "phase": "PDP-2",
           "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-          "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+          "sha256": "d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480",
           "rows": 54,
           "status": "DEV_COMPLETE",
           "sourceCurrentness": "CURRENT",
@@ -142,7 +142,7 @@
         {
           "phase": "PDP-3",
           "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-          "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+          "sha256": "deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb",
           "rows": 54,
           "status": "DEV_COMPLETE",
           "sourceCurrentness": "CURRENT",
@@ -153,7 +153,7 @@
     },
     "traceArtifact": {
       "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
-      "sha256": "sha256:92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+      "sha256": "sha256:6504f053c20d1398ccf853e93a4e9a2b10d1e0904c554e2ee746e5c0414d2450",
       "bytes": 1301570
     },
     "ownerPlan": {
@@ -163,7 +163,7 @@
     },
     "workPackageProjection": {
       "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-      "sha256": "sha256:e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef",
+      "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
       "bytes": 19473171
     },
     "binaryAbi": "UNBOUND; plan projection asserts no binary ABI fingerprint"
@@ -185,7 +185,7 @@
   "technicalEvidence": {
     "bridgeArtifact": {
       "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
-      "sha256": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+      "sha256": "sha256:30c827341a82124f06deb8b630e7d3d382153d6371a701b4044fe032415c5a5a",
       "bytes": 12478978
     },
     "bridgeStatus": "SOURCE_RELATIONS_CURRENT",
@@ -232,7 +232,7 @@
     },
     "priorContinuation": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T040737Z.v1.json",
-      "sha256": "sha256:a5269f4a4baafec16417abae0539c6ec6184644da9cbe0095542be108bc892a0",
+      "sha256": "sha256:43a38a4eaaf862e9f9d294a445456dd9d499bb6da56f0d2a60b1bc9b51f4c320",
       "bytes": 16179
     }
   },

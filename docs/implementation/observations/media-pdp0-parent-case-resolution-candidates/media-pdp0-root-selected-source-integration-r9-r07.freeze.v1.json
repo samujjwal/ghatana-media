@@ -4,7 +4,7 @@
   "freezeStatus": "FROZEN_FOR_ACTUAL_H_R07_REVIEW_ONLY",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.freeze.v1.json",
-    "sha256": "ec142cda6ba9820a4113df444b1718d292d283e3f822061f77f0ec289857a57f",
+    "sha256": "b6c6088f825550f22947f2a2d17e75df1e85f9420d3e69812434847f17babf39",
     "candidateBundleRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.successor-bundle.candidate.v1.json",
     "candidateBundleSha256": "56bda459ddfa8ccf1c6df7fb2d6ce356c90052df3da38b9a3aa6065ab02d0769",
     "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.independent-peer.actual-h-r06-full.json",
@@ -13,16 +13,16 @@
   },
   "supersedesUnsentCandidate": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.freeze.v1.json",
-    "sha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab",
+    "sha256": "b02ef4f11f014d72856bfec91a6b29e78abdd245c2713c48236b044bee83c280",
     "reason": "R9-R03 successor repairs the five findings in the R9-R02 full-cut actual H review."
   },
   "candidateBundle": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.successor-bundle.candidate.v1.json",
-    "sha256": "a4ed01253c422b3044ec415d9e065ddf9de6a373307c0b4e1f5284fef99669cb"
+    "sha256": "0be4e28dfd9222b396c61f98b7eb29da5f5b9306684f9ee594d9d19eeba5290a"
   },
   "rebuildVerification": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.rebuild-verification.v1.json",
-    "sha256": "f86bebc12bab7c20faee97bdf2a210dd046618f90d74220c324184c8a300d265"
+    "sha256": "6ae1d594beeff8cf4a2df9dbee302e1c50eefac2f82ea298cec35ca51edb5c98"
   },
   "repairMap": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r07.repair-map.v1.json",
@@ -30,7 +30,7 @@
   },
   "operationLedger": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
-    "sha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8"
+    "sha256": "afe68f39e3f2d1c4622b1027510a47e08dd7afe75d5c8b4b728bc4e06a616d0c"
   },
   "operationSchema": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json",
@@ -38,7 +38,7 @@
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationCount": 248
   },
   "current7Preimages": [
@@ -52,7 +52,7 @@
     },
     {
       "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
     },
     {
       "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -117,7 +117,7 @@
   ],
   "actualHReviewR06": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.independent-peer.actual-h-r06-full.json",
-    "sha256": "53439e136ac1d8a521c4f4748fe29a606e607f57578e969db6a2cb3edd4edcba",
+    "sha256": "c8bf9fb5be046392a6c9e8a31f54ee5f675c9b6dfeaccdb2af4ef5f8a8a1ce68",
     "reviewStatus": "REQUEST_CHANGES",
     "findings": [
       "F-10"

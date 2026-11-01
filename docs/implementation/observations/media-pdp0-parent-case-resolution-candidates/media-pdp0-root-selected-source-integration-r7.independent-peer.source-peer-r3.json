@@ -50,7 +50,7 @@
       },
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
-        "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "sha256": "46495ca48847f4edcde00ca144a89c2daa4161c3dc630cedc87fe6d0a8fc5d96",
         "decisions": 11,
         "selectedFeatureDecisions": 9,
         "packetRepairDirections": 2,
@@ -65,25 +65,25 @@
       },
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
-        "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+        "sha256": "1fdbf106ebe8a39a08ddba17c20253ea55b4accc3fc656622c73ee7a0657b92c",
         "hashMatches": true
       }
     ],
     "priorPeerArtifacts": [
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer.json",
-        "sha256": "cac01e9b6aa888ade255401b3ebb0265916e1371b12c96ad66850fa3ed58720e",
+        "sha256": "25bc79373355c78d3f1ca6b2767973bad428dbbeca0c9da9892a5c286bf0f576",
         "reviewStatus": "REQUEST_CHANGES"
       },
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
-        "sha256": "050ea65fd71736ef782f598992d7a0f47721b95d54131c1bd09c8486ae3417fa",
+        "sha256": "290770ebbbf99adcdfbc6befd3a9fb1f19a944270eb2209cba4a4c5a3d57e5b1",
         "reviewStatus": "PASS"
       }
     ],
     "baselineSource": {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-      "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+      "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969",
       "liveTargetPins": [
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -97,7 +97,7 @@
         },
         {
           "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-          "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+          "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
           "matchesLive": true
         },
         {

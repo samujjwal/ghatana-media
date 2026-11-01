@@ -4,7 +4,7 @@
   "state": "PROPOSAL_ONLY; OWNER_DECISION_AND_ROOT_TECHNICAL_REVIEW_PENDING",
   "ownerDecisionInput": {
     "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.aq-pxd216.v1.json",
-    "sha256": "5f5698ff3c11dc13baec7ca115e0a1852875c6de5dc5164abf7f5189af0c9e50"
+    "sha256": "9fcd167a8ce7742d3a549766621683d48ee16df87a253228a12594c367d6e4cf"
   },
   "candidateInputs": [
     {

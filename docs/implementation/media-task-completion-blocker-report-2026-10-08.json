@@ -979,7 +979,7 @@
         ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
         ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
         "libs/common/src/main/java/com/ghatana/audio/video/tools",
-        "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+        "adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
         "tests/media-agent-tool-contracts.test.mjs"
       ],
       "nextClosureEvidence": "Obtain a versioned qualified Shared public invocation contract with required context fields, and prove installed consumer tests against it; keep executionAdmitted=false until qualification.",

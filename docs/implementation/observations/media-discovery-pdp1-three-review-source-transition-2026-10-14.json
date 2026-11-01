@@ -10,7 +10,7 @@
   },
   "predecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "sha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "sha256": "sha256:af959512bc1d351f1de77d8744d5e47f5593855243f610473b5c74de5ae953da",
     "observationId": "MEDIA-PDP1-CURRENTNESS-CURRENT-CUT-R16"
   },
   "authority": {

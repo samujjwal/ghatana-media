@@ -4,11 +4,11 @@
   "status": "CANDIDATE_ONLY_NOT_FROZEN_NOT_REGISTERED",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.freeze.v1.json",
-    "sha256": "ca127314158567b5402708923fd2491b7537d399183aa10ca7e3a8c2b2b4c8f6"
+    "sha256": "5b32274e1e1d7546c6618aeb039db62cbef74cb9aafce389b006d96a7723ae76"
   },
   "actualRootMappingDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
     "optionId": "B_SPLIT_BY_OPERATION_SCOPE"
   },
   "selectedBranch": "split",

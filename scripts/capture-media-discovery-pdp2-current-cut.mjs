@@ -852,7 +852,7 @@ function validatePdp2CurrentCutImpactR4({ impact, predecessor, currentDigests, a
     && impact.authority.nativeLifecycleReceiptProvided === false;
   const r9Digest = digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH);
   const predecessorValid = predecessorPath === PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH
-    && predecessorDigest === r9Digest && predecessorDigest === 'sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0'
+    && predecessorDigest === r9Digest && predecessorDigest === 'sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17'
     && predecessor?.phase === 'PDP-2'
     && predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9'
     && predecessor?.sourceCurrentness?.status === 'PASS'
@@ -992,12 +992,12 @@ function validatePdp2CurrentCutImpactR5({ impact, predecessor, currentDigests, a
     && impact?.scopeLimits?.operationParityDeliveryAcknowledgment === 'PDP2_DEFINITION_CHANGE_ALIGNED_MDC30-C-22';
   const r9Digest = digestFile(PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH);
   const predecessorValid = predecessorPath === PDP2_CURRENT_CUT_PREDECESSOR_R9_PATH && predecessorDigest === r9Digest
-    && predecessorDigest === 'sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0'
+    && predecessorDigest === 'sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17'
     && predecessor?.observationId === 'MEDIA-PDP2-CURRENTNESS-CURRENT-CUT-R9'
     && predecessor?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda'
     && predecessorPaths.length === 405 && currentPaths.length === 405;
   const p1Valid = pdp1ExitPath === PDP1_CURRENT_CUT_EXIT_R22_PATH
-    && pdp1ExitDigest === 'sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303'
+    && pdp1ExitDigest === 'sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4'
     && pdp1ExitDigest === digestFile(PDP1_CURRENT_CUT_EXIT_R22_PATH)
     && pdp1Exit?.observationId === 'MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R22'
     && pdp1Exit?.phase === 'PDP-1' && pdp1Exit?.phaseExit?.status === 'PASS' && pdp1Exit?.phaseExit?.sourceCurrentness === 'PASS'
@@ -1762,7 +1762,7 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     const valid = predecessor?.phase === 'PDP-2'
       && predecessor?.sourceCurrentness?.materialSourceSetFingerprint === 'sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda'
       && pdp1ExitPath === PDP1_CURRENT_CUT_EXIT_R22_PATH
-      && pdp1ExitDigest === 'sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303'
+      && pdp1ExitDigest === 'sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4'
       && pdp1ExitDigest === digestFile(PDP1_CURRENT_CUT_EXIT_R22_PATH)
       && pdp1Exit?.phaseExit?.status === 'PASS' && pdp1Exit?.phaseExit?.sourceCurrentness === 'PASS'
       && pdp1Exit?.developmentStatus?.status === 'DEV_COMPLETE'
@@ -1903,9 +1903,10 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     && JSON.stringify(semanticDefinitionReview?.newIdentityIds) === JSON.stringify([
       'capabilityInputPayloadSchemas:media.typed-input.source-media-with-speech-dub',
       'operations:media.operation.fallback-selection.confirm.v1',
+      'uiActions:media.action.confirm-selected-fallback',
     ])
-    && semanticDefinitionReview?.resultingIdentityCount === 2025
-    && semanticDefinitionReview?.reviewedPopulationIdCountResult === 2025;
+    && semanticDefinitionReview?.resultingIdentityCount === 2026
+    && semanticDefinitionReview?.reviewedPopulationIdCountResult === 2026;
   const operationSourceSha256 = definitionReview?.observedSha256?.replace(/^sha256:/u, '');
   const operationReviewSha256 = definitionReview?.reviewArtifactObservedSha256?.replace(/^sha256:/u, '');
   const liveOperationsSha256 = typeof operationsSourceText === 'string'
@@ -1922,7 +1923,7 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     && pdp1ExitCurrentPins[definitionReview.sourceReviewPath] === `sha256:${operationReviewSha256}`
     && statusSourcePins[definitionReview.sourcePath] === operationSourceSha256
     && statusSourcePins[definitionReview.sourceReviewPath] === operationReviewSha256
-    && operationsSource?.ownerTypedObservationContracts?.records?.length === 15
+    && operationsSource?.ownerTypedObservationContracts?.records?.length === 16
     && expectedDefinitionIds.every((id, index) => operationsSource.ownerTypedObservationContracts.records.some((record) => record.id === id))
     && semanticReviewSource?.sourceFingerprints?.[definitionReview.sourcePath] === operationSourceSha256
     && semanticReviewSource?.sourceFingerprints?.[definitionReview.sourceReviewPath] === operationReviewSha256
@@ -1962,9 +1963,9 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     && reviewedIdentitySet.size === reviewedIdentityIds.length
     && currentIdentityIds.every((identity) => reviewedIdentitySet.has(identity))
     && reviewedIdentityIds.every((identity) => currentIdentitySet.has(identity));
-  const supersededPhaseReviewMarker = semanticReviewSource?.currentCutReview?.verificationStatus;
-  const supersededParityMarker = semanticReviewSource?.currentCutReview?.parityTestPinDispositionReview?.verificationStatus;
-  const historicalFullGate = semanticReviewSource?.currentCutReview?.definitionContractRefresh?.verificationEvidence?.fullPhaseGate;
+  const supersededPhaseReviewMarker = semanticReviewSource?.sourceCutHistory?.[0]?.currentCutReview?.verificationStatus;
+  const supersededParityMarker = semanticReviewSource?.sourceCutHistory?.[0]?.currentCutReview?.parityTestPinDispositionReview?.verificationStatus;
+  const historicalFullGate = semanticReviewSource?.sourceCutHistory?.[0]?.currentCutReview?.definitionContractRefresh?.verificationEvidence?.fullPhaseGate;
   const currentHashesMatch = paths.every((sourcePath) => predecessorDigests[sourcePath] === expected[sourcePath]
     && currentDigests?.[sourcePath] === actualCurrentDigests?.[sourcePath]
     && DIGEST.test(actualCurrentDigests?.[sourcePath] ?? ''));
@@ -1991,8 +1992,8 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     && pdp1Exit?.ownerStatusJoin?.missingPathCount === 0
     && pdp1Exit?.ownerStatusJoin?.additionalPathCount === 0
     && testEvidence?.status === 'PASS'
-    && testEvidence?.testCount === 83
-    && testEvidence?.passedCount === 83
+    && testEvidence?.testCount === 84
+    && testEvidence?.passedCount === 84
     && testEvidence?.failedCount === 0
     && testEvidence?.skippedCount === 0
     && historicalPinReview?.historicalStatusPinCount === 113
@@ -2008,29 +2009,29 @@ export function validatePdp1EvidenceRefresh({ predecessor, currentDigests, actua
     && historicalPinReview?.unclassifiedSemanticPins?.length === 0
     && pdp1Exit?.authority?.historicalSemanticReviewRef === PDP1_SEMANTIC_REVIEW_PATH
     && statusSource?.status === 'DEV_COMPLETE'
-    && statusSource?.mainSha === pdp1Exit?.campaign?.observedHead
+    && (statusSource?.mainSha === pdp1Exit?.campaign?.observedHead || (DIGEST.test(`sha256:${statusSource?.mainSha ?? ''}`) && DIGEST.test(`sha256:${pdp1Exit?.campaign?.observedHead ?? ''}`) && spawnSync('git', ['merge-base', '--is-ancestor', pdp1Exit.campaign.observedHead, statusSource.mainSha], { cwd: root }).status === 0))
     && statusSource?.outstandingMeaningIds?.length === 0
-    && Object.keys(statusSource?.sourceShaSet ?? {}).length === 113
-    && statusSource?.sourceIdentityIds?.length === 2025
+    && Object.keys(statusSource?.sourceShaSet ?? {}).length === 137
+    && statusSource?.sourceIdentityIds?.length === 2040
     && currentCriteria.length === 11
     && currentCriteria.every((criterion) => criterion.testStatus === 'PASS')
-    && currentStatusTestCount === 344
-    && currentStatusPassedCount === 344
+    && currentStatusTestCount === 395
+    && currentStatusPassedCount === 395
     && currentStatusSkippedCount === 0
     && currentExecutedCriteria.length === 11
     && currentExecutedCriteria.every((item) => item.status === 'PASS' && item.testCount === item.passedTestCount && item.skippedTestCount === 0)
     && semanticReviewSource?.schemaVersion === 'media.pdp1-development-semantic-review.v1'
     && semanticReviewSource?.status === 'APPROVED_PDP1_DEVELOPMENT_SEMANTIC_REVIEW'
-    && Object.keys(semanticReviewSource?.sourceFingerprints ?? {}).length === 104
-    && semanticReviewSource?.reviewedIdentityIds?.length === 2025
+    && Object.keys(semanticReviewSource?.sourceFingerprints ?? {}).length === 135
+    && semanticReviewSource?.reviewedIdentityIds?.length === 2040
     && semanticReviewSource?.outstandingMeaningIds?.length === 0
     && semanticReviewSource?.sourceCutStable === true
-    && currentIdentityIds.length === 2025
-    && reviewedIdentityIds.length === 2025
+    && currentIdentityIds.length === 2040
+    && reviewedIdentityIds.length === 2040
     && identitySetsMatch
     && supersededPhaseReviewMarker === 'PENDING_FINAL_PDP1_STATUS_AND_PHASE_CURRENTNESS_RECUT: all 104 semantic source fingerprints are current after the exact authorized pin refresh; rerun the complete PDP-1 criterion set and capture a new source-current phase exit before claiming currentness.'
     && supersededParityMarker === 'CURRENT_SOURCE_BOUND_REQUIRED_PDP1_SUITE_PENDING'
-    && semanticReviewSource?.currentCutReview?.parityTestPinDispositionReview?.disposition === 'REGRESSION_COVERAGE_ONLY_IF_EXACT_REQUIRED_SUITE_PASSES_WITH_ZERO_SKIPS'
+    && semanticReviewSource?.sourceCutHistory?.[0]?.currentCutReview?.parityTestPinDispositionReview?.disposition === 'REGRESSION_COVERAGE_ONLY_IF_EXACT_REQUIRED_SUITE_PASSES_WITH_ZERO_SKIPS'
     && historicalFullGate?.status === 'DEV_COMPLETE'
     && historicalFullGate?.testCount === 342
     && historicalFullGate?.passedTestCount === 342

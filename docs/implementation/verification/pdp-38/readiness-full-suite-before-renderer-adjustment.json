@@ -357,7 +357,7 @@
     "libs/audio-video-client/src/index.ts": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701",
     "libs/audio-video-client/src/operations.ts": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
     "libs/audio-video-types/src/contracts.ts": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
-    "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java": "f156ef62dacb95fbc835e79569fcdc14502354eca4a4c28afa5c1ded5e929d3b",
+    "adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java": "f156ef62dacb95fbc835e79569fcdc14502354eca4a4c28afa5c1ded5e929d3b",
     "libs/media-experience-simulation/README.md": "a71b55d5332c98c61cee6d8783daa699c9048de7134f577c34e6d0e13e8b86d3",
     "libs/media-experience-simulation/bin/ghatana-media.mjs": "98619f278f2092c244fb82ea57abb0799cfb4883e71357d82af487b1cc832fbb",
     "libs/media-experience-simulation/bin/media-experience-fixture.mjs": "42375b646233d3cd54c03e81be313bf09f784c352506c2bd41b9b990dce88701",
@@ -4511,7 +4511,7 @@
         ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
         ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml",
         "libs/common/src/main/java/com/ghatana/audio/video/tools",
-        "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+        "adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
         "tests/media-agent-tool-contracts.test.mjs"
       ],
       "verification": {

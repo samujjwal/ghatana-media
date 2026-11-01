@@ -62,7 +62,7 @@
       },
       {
         "channel": "USER_AUTHORIZATION_RELAYED_IN_PARENT_TASK",
-      "exactResponse": "Authorize these exact dispositions (Recommended)",
+        "exactResponse": "Authorize these exact dispositions (Recommended)",
         "authorizedPaths": [
           ".product-experience/interface-parity/operation-parity.yaml",
           ".product-experience/interface-parity/current-source-review.json",
@@ -115,13 +115,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r4.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R4",
-    "sha256": "sha256:7b9230c45c65e53638d3addb0e8ccb5844376e18f4aa6d035001ada4b6d4a08d",
+    "sha256": "sha256:9a52591e00ee426db0ca7d2cec1c49f15e567506870d27f22bf232a8f007ef84",
     "reason": "R4 is immutable history for its earlier R9-to-live transitions and PDP-1 R19. R5 preserves those dispositions and binds the newly authorized exact transitions and PDP-1 R22."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
+    "receiptSha256": "sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -129,7 +129,7 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r22.json",
-    "receiptSha256": "sha256:bb448dc45d3db788ef16802f8a92dc8054a6fc6aaa27f047c42b4f6c91feb303",
+    "receiptSha256": "sha256:82dd13f30bc69cdf64f6d8732935e719082b35efbe34f2b405e0a17653e06af4",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R22",
     "sourceFingerprint": "sha256:66bbc971734f92ae8f51446582f4a1118704168acac3c0e33783efbb208a5a0b",
     "status": "PASS",

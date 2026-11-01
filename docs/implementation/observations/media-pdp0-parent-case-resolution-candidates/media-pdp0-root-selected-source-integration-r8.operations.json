@@ -3,11 +3,11 @@
   "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R8-ROOT-SELECTED-SOURCE-INTEGRATION-OPERATIONS-2026-10-24",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
-    "sha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52"
+    "sha256": "0da0c0cbe6d02980f0098655524ef9bd8885e09210ab99046037cc6712ac5a24"
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationIds": [
       "c1-001",
       "c1-002",
@@ -1651,7 +1651,7 @@
   },
   "mappingDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
     "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE",
     "selectedAuditIds": [
       "AUD-DIRECT-010",

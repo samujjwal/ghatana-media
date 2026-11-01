@@ -1726,7 +1726,7 @@
   },
   "pdp0Status": {
     "recordPath": "docs/implementation/pdp-0-phase-dev-status.json",
-    "recordSha256": "71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d",
+    "recordSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "reportedStatus": "DEV_COMPLETE",
     "sourceRecordCount": {
       "capabilityLeafAdjudications": 462,

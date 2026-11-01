@@ -14,7 +14,7 @@
   },
   "predecessorStatus": {
     "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-    "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "status": "IN_PROGRESS",
     "sourcePinCount": 188,
     "recordedSourcePins": {
@@ -361,7 +361,7 @@
   ],
   "predecessorPacket": {
     "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-inputs-2026-10-23-r1.json",
-    "sha256": "ff923234783386bf22c3f11a66837b60dcda6160a72c0f7d4805f8eb4c919d98"
+    "sha256": "53a5fe92c2f1699ae6bb9e4ee988d59006a1177f219eef0fb87429f89f5f97a5"
   },
   "validatorReviewFollowup": {
     "reviewerIdentity": "01a16a6c-d506-7a73-801a-609c602a12e9",
@@ -396,7 +396,7 @@
   },
   "fullCutReviewDisposition": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02-full.json",
-    "sha256": "c215cd3937c401fa5c4252ce86af3bbb25f644aebaa9b584d5c9f45660c19a7c",
+    "sha256": "d11ec315db13abde844fa0f7f7aea57b42c87e09e256829331fcaf678c409583",
     "status": "REQUEST_CHANGES",
     "findingIds": [
       "F-01",

@@ -34,7 +34,7 @@
   },
   "trust014Candidate": {
     "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v2.json",
-    "sha256": "e3b3b2501df6bf5901edf5bfd4149484b25354a1b59c296dcc7756462971e9ba"
+    "sha256": "105e3e1f3db9143e051429cb519f50e259cd8e76c251d7905181fba3d24c157b"
   },
   "nonClaims": [
     "Integrity verification covers candidate and current-source pins only.",

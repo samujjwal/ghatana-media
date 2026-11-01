@@ -9,7 +9,7 @@
   },
   "candidateBundle": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.successor-bundle.candidate.v1.json",
-    "sha256": "56bda459ddfa8ccf1c6df7fb2d6ce356c90052df3da38b9a3aa6065ab02d0769"
+    "sha256": "21c21e6f06049fdb007e42f4c58dc3dfeb67fa9cccf84a345ea04a8da8abe167"
   },
   "repairMap": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r06.repair-map.v1.json",

@@ -343,7 +343,7 @@
   },
   "sourceDeltaReview": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-content-review-2026-10-23.json",
-    "sha256": "26fea207918cbf703dd92c1ddb4dd4e214c98e91f3aa1b03614e524d886cc443",
+    "sha256": "b1f819469d3f451b5f7815eaf2b688d3f1c5acae70d9f3bdeaef462ec3c79433",
     "conclusion": "TRUST014 reviewed semantic fields and exact owner adjudication row are unchanged across the v7 source delta; new pins identify current whole-file inputs and do not encode a new source-owner decision.",
     "v7Readback": {
       "authorizationRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-apply-authorization.v7.json",

@@ -24,7 +24,7 @@
     {
       "phase": "PDP-0",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r2.json",
-      "receiptSha256": "sha256:3f9b401f36ed23a50cf40a70670414e92327a71cffe80274d96d4006b55a39a3",
+      "receiptSha256": "sha256:1d60da4fa7ed6f0d7a58910ded7abce131fe819f709081555eed871281497ec1",
       "materialSourceSetFingerprint": "sha256:20e8a999b36e7fb61662183200f1e8c83eebb39523c5ab8835bea311af1f31e8",
       "materialPathCount": 146,
       "reporterSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1"
@@ -32,14 +32,14 @@
     {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-13-r3.json",
-      "receiptSha256": "sha256:66c8d902c73cd6c5eb5e4136413567175a5a7d224bfb5f48b1205a1c9189a957",
+      "receiptSha256": "sha256:bb846333187a430dce2ea28f9eb155d0ce6b341f0b869c3a48db730ff6498294",
       "materialSourceSetFingerprint": "sha256:53352578058a5deb1ab8faef43857848e9bbab2b8ad0d81a8bb6b6d73bef0baa",
       "materialPathCount": 329
     },
     {
       "phase": "PDP-1",
       "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r10.json",
-      "receiptSha256": "sha256:f16e6a417151e06ac2879e4f72b2c6ee3689a5de5d6e275a99ced6f7bd27f0ae",
+      "receiptSha256": "sha256:6e7328342cc6f889d746d356f20c538a9f8f050f2d489688e40a6dde4cec5893",
       "materialSourceSetFingerprint": "sha256:6ae63551e152a19d36a0766f510a1f993e0509bb7a5f8b6837f860806409b19a",
       "materialPathCount": 329,
       "receiptStatus": "FAIL_OWNER_STATUS_JOIN_ONLY"
@@ -48,7 +48,10 @@
   "sourceDeltas": [
     {
       "path": "scripts/report-media-pdp-readiness.mjs",
-      "phases": ["PDP-0", "PDP-1"],
+      "phases": [
+        "PDP-0",
+        "PDP-1"
+      ],
       "historicalPdp0MaterialSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
       "historicalPdp1MaterialSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
       "predecessorSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1",
@@ -56,20 +59,25 @@
       "predecessorChain": [
         {
           "receiptRef": "docs/implementation/observations/media-discovery-predecessor-impact-pdp3-status-guard-2026-10-14-r1.json",
-          "receiptSha256": "sha256:67ac10b13b933ee84dc4a3bf9cdbd00cd020a0c8427f7b83e5963e36467a58e7",
+          "receiptSha256": "sha256:b62118ef7a7128c817c3f842a1912c29d775d9db8e55d4634f156a735819854d",
           "fromSha256": "sha256:6655e0344b7f4b03f6ca0b7e594a5448eed72ae5aeac198cef4bb1b28252028c",
           "toSha256": "sha256:f3482cf689e0be2d8dc9faf9ccc72a1b63a1dcaecd056efaa1759e6f3696a5e1"
         }
       ],
       "classification": "PDP_STATUS_TEST_REPORTER_SELECTION_ONLY",
-      "changedFunctions": ["buildP103TestArgs", "runRequiredChecks"],
+      "changedFunctions": [
+        "buildP103TestArgs",
+        "runRequiredChecks"
+      ],
       "changeSummary": "Pins Node's TAP reporter for the two readiness-script test invocations so the status collector parses deterministic output; no product-definition behavior changes.",
       "meaningIdsChanged": [],
       "requiresFreshCurrentness": true
     },
     {
       "path": ".product-experience/interface-parity/current-source-review.json",
-      "phases": ["PDP-1"],
+      "phases": [
+        "PDP-1"
+      ],
       "historicalPdp1MaterialSha256": "sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc",
       "predecessorSha256": "sha256:14cf6c3d9ea948e39e41ffa2de3453c08b7b6a23267f407f3504c5462b7428fc",
       "observedSha256": "sha256:62765cbb335572f28570fe650b3955aaa028f314322490e17e466d3ca9234abf",
@@ -92,7 +100,9 @@
     },
     {
       "path": "tests/media-pdp-p1-dev-status.test.mjs",
-      "phases": ["PDP-1"],
+      "phases": [
+        "PDP-1"
+      ],
       "historicalPdp1MaterialSha256": "sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599",
       "predecessorSha256": "sha256:5a007a561cc96659d7da63d2470727237d1496c3a50c80682253a9d542846599",
       "observedSha256": "sha256:3ff1576a4a3987f5b1e05d15ae77e35a62745260e127ebcb28c1bb49ef7ef82e",
@@ -119,7 +129,10 @@
     "status": "APPROVED_INTERNAL_IMPACT_DISPOSITION_FOR_EXACT_SOURCE_DELTAS",
     "pdp0MeaningDisposition": "NO_MEANING_CHANGE_FOR_EXACT_REVIEWED_SOURCE_DELTAS",
     "pdp1MeaningDisposition": "NO_ADDITIONAL_MEANING_IDS_IN_THESE_THREE_PATH_CHANGES; OPERATIONS_YAML_DELTA_REMAINS_SEPARATELY_REVIEWED",
-    "requiresOrderedTechnicalCurrentnessRecapture": ["PDP-0", "PDP-1"],
+    "requiresOrderedTechnicalCurrentnessRecapture": [
+      "PDP-0",
+      "PDP-1"
+    ],
     "preserveHistoricalReceipts": true,
     "independentApproval": "NOT_CLAIMED_AND_NOT_WAIVED",
     "externalContractOwnerAcceptance": "NOT_CLAIMED",

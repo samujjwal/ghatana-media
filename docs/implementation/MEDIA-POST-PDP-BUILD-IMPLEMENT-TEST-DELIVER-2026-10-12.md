@@ -32,7 +32,7 @@
 ## Two former PDP findings reclassified into Build
 
 - **BUILD-UI-TOPOLOGY-01:** during real UI integration, correct `.product-experience/surfaces/media-physical-topology.v1.json` mapping for the React `@ghatana/ai-voice-ui-react` GUI package. This is build-time package/consumer metadata, **not unfinished PDP-2 design**.
-- **BUILD-AGENT-MAPPING-01:** when integrating Agent Tool execution, record the actual observed source under `libs/common/src/main/java/com/ghatana/audio/video/tools/` as the legacy/support handler. Preserve canonical logical contracts and `NOT_ADMITTED` execution until the real adapter exists. This is **not unfinished PDP-1 or PDP-3 definition**.
+- **BUILD-AGENT-MAPPING-01:** when integrating Agent Tool execution, record the actual observed source under `adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/` as the legacy/support handler. Preserve canonical logical contracts and `NOT_ADMITTED` execution until the real adapter exists. This is **not unfinished PDP-1 or PDP-3 definition**.
 
 ## Milestone and reporting
 

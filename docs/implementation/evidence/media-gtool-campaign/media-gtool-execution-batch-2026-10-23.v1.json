@@ -1406,7 +1406,7 @@
     "campaignExecutionArtifacts": [
       {
         "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
-        "sha256": "sha256:36ebe16b25d04318b73275e156c70e231bc54a65d74105978b494dd0a8123bf2",
+        "sha256": "sha256:30c827341a82124f06deb8b630e7d3d382153d6371a701b4044fe032415c5a5a",
         "changeScope": "campaign execution artifact"
       },
       {
@@ -1416,22 +1416,22 @@
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-        "sha256": "sha256:d103666fa3692fba5b597886d33b8d8c6b551b6036bb8220641d7d64307e49b2",
+        "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
         "changeScope": "campaign execution artifact"
       },
       {
         "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
-        "sha256": "sha256:22dd96abbb596d201c63b496e739a0134638a3580798dab4b5870e1d04195d6b",
+        "sha256": "sha256:8d7d990359505a9f35187cd3a9fa09e0a4d5ed0235fd14eaeb8047993c68fddf",
         "changeScope": "campaign execution artifact"
       },
       {
         "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
-        "sha256": "sha256:f417a1d8445c6613a42536f9b8c6911dc2f249215c3a52a3f192df2e81328f79",
+        "sha256": "sha256:7e295302b4ef5357653e9254502c77e3222433f9b6ad439e40ff0a4d1087266c",
         "changeScope": "campaign execution artifact"
       },
       {
         "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
-        "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb",
+        "sha256": "sha256:cf25b0c7116b9d0ece391b992a395bc4127015d93a4df80c1cca223e8165dcb3",
         "changeScope": "campaign execution artifact"
       },
       {
@@ -1511,19 +1511,19 @@
       },
       {
         "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-        "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a"
+        "sha256": "sha256:e9bee6d0c946f418f2342f19e9729b1e020413eb9162663af6706ebd67baae5d"
       },
       {
         "path": "docs/implementation/MEDIA-GTOOL-EXECUTION-QUEUE.v2.json",
-        "sha256": "sha256:f417a1d8445c6613a42536f9b8c6911dc2f249215c3a52a3f192df2e81328f79"
+        "sha256": "sha256:7e295302b4ef5357653e9254502c77e3222433f9b6ad439e40ff0a4d1087266c"
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-        "sha256": "sha256:d103666fa3692fba5b597886d33b8d8c6b551b6036bb8220641d7d64307e49b2"
+        "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955"
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
-        "sha256": "sha256:36ebe16b25d04318b73275e156c70e231bc54a65d74105978b494dd0a8123bf2"
+        "sha256": "sha256:30c827341a82124f06deb8b630e7d3d382153d6371a701b4044fe032415c5a5a"
       },
       {
         "path": "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json",
@@ -1531,11 +1531,11 @@
       },
       {
         "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
-        "sha256": "sha256:22dd96abbb596d201c63b496e739a0134638a3580798dab4b5870e1d04195d6b"
+        "sha256": "sha256:8d7d990359505a9f35187cd3a9fa09e0a4d5ed0235fd14eaeb8047993c68fddf"
       },
       {
         "path": "docs/implementation/evidence/media-pdp3-demo/pdp3-demo-recording-source.v1.json",
-        "sha256": "sha256:aba483c3102a7883b68ea4d3886c28e4efcfd35dcfa90a72c70fdec599c5c9bb"
+        "sha256": "sha256:cf25b0c7116b9d0ece391b992a395bc4127015d93a4df80c1cca223e8165dcb3"
       },
       {
         "path": "config/closure/media-product-definition/w3-pdp0-source-case-map.json",
@@ -1547,19 +1547,19 @@
       },
       {
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "sha256:62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14"
+        "sha256": "sha256:bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
       },
       {
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "sha256:f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7"
+        "sha256": "sha256:fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81"
       },
       {
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "sha256:e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946"
+        "sha256": "sha256:d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480"
       },
       {
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "sha256:541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db"
+        "sha256": "sha256:deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb"
       },
       {
         "path": "scripts/lib/media-build-bridge-blocker-inventory.mjs",

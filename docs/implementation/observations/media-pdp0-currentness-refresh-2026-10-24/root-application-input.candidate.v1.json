@@ -8,13 +8,13 @@
   },
   "requiredSourceOwnerInput": {
     "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v1.json",
-    "sha256": "c8a05ce7cded34b89cc25c7caa4b347b28d034bf41484735373a0796d9296ce1",
+    "sha256": "ac7fc64954780eaeb46cb4d3f59850fb9651ad1a13af14208b5e7a463aa5b578",
     "state": "DECISION_NOT_RECORDED"
   },
   "protectedInputs": {
     "pdp0Status": {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "status": "IN_PROGRESS"
     },
     "crosswalk": {

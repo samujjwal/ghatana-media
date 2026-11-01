@@ -3,7 +3,7 @@
   "artifactId": "MEDIA-PDP0-COHORT01-COHORT02-R7-OWNER-SOURCE-INTEGRATION-OPERATIONS-2026-10-23",
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationIds": [
       "c1-001",
       "c1-002",

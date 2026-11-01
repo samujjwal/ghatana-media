@@ -36,16 +36,16 @@
   "predecessorPins": [
     {
       "path": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     {
       "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-      "sha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
+      "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
     }
   ],
   "currentPdp0Receipt": {
     "path": "docs/implementation/pdp-0-phase-dev-status.json",
-    "sha256": "sha256:71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d",
+    "sha256": "sha256:12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "phase": "PDP-0",
     "status": "DEV_COMPLETE",
     "outstandingMeaningCount": 0,

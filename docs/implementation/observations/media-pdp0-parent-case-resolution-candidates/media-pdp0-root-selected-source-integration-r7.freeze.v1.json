@@ -21,7 +21,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.r7.json",
-      "sha256": "74d6d0802add1f4346f4fce6d22c7e99c00f5280c7a8461d0ce5ba544da39b10"
+      "sha256": "720822f1a6c0c102fff6825a5346475d068c0cd87d5d9a7b1af7cbb77ac2943a"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-postimages.r7.json",
@@ -33,15 +33,15 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
-      "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+      "sha256": "1fdbf106ebe8a39a08ddba17c20253ea55b4accc3fc656622c73ee7a0657b92c"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.operations.json",
-      "sha256": "8a1ffe62d90a0655a036459fb925a68849d8bffd8c20494af106a0ac9222dc52"
+      "sha256": "0da0c0cbe6d02980f0098655524ef9bd8885e09210ab99046037cc6712ac5a24"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
-      "sha256": "e2a1f83cd357cc64288a5725dbe441a55c3800424cee110e698349cebb09bca5"
+      "sha256": "9474f3ebedba7335e9e5fdc29aeb682c591079744115afccd722055bd08ca946"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.verification.json",
@@ -49,12 +49,12 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
-      "sha256": "050ea65fd71736ef782f598992d7a0f47721b95d54131c1bd09c8486ae3417fa"
+      "sha256": "290770ebbbf99adcdfbc6befd3a9fb1f19a944270eb2209cba4a4c5a3d57e5b1"
     }
   ],
   "current7Preimages": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-    "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969",
     "targets": [
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",

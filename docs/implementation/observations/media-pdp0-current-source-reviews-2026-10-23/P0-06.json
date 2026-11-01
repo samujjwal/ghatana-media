@@ -47,11 +47,11 @@
     },
     {
       "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2"
+      "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1"
     },
     {
       "sourceRef": "docs/implementation/media-pdp-38-readiness.json",
-      "sha256": "5ccc340576a8cbebfa793f9b769532962f7a26cb0102c0e589d07e3bdb301dbe"
+      "sha256": "18a07f305c1d34fd2a0e05c09aa3d7b2ff1c89c86722d527fce424cbe20a8005"
     },
     {
       "sourceRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/review-record.example.json",
@@ -59,11 +59,11 @@
     },
     {
       "sourceRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/review-record.schema.json",
-      "sha256": "762f0fcd7265f741774e218b17cfb426ab50c3683788e6d65a2fa59a09b64f3f"
+      "sha256": "b20d3ced92516bc55ff81fc5c60f654862e5d0e89ddf9a9057bc92f22edf1048"
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
     },
     {
       "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
@@ -71,7 +71,7 @@
     },
     {
       "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/P0-06.log",
@@ -79,7 +79,7 @@
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-      "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+      "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
     },
     {
       "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json",

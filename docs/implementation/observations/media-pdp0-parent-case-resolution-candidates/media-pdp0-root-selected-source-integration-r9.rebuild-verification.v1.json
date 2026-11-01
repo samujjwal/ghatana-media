@@ -3,7 +3,7 @@
   "status": "R9_EXACT_REBUILD_PASS_CANDIDATE_ONLY",
   "predecessorR8Freeze": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
-    "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e",
+    "sha256": "d9d722e036fc31caae90f26a4ff25688ae8da204d0cc821bebb2ab8f35a72eb7",
     "hReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.actual-h-r01.json",
     "hReviewSha256": "bc607c46054f64dde4b0d645cd922dfc95ddf7197aa1e9d52e10330400267454",
     "hDisposition": "REQUEST_CHANGES"

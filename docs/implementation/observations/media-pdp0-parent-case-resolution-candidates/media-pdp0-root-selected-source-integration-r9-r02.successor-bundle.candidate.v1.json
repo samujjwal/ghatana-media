@@ -4,7 +4,7 @@
   "status": "CANDIDATE_ONLY_NOT_REGISTERED_NOT_APPLIED",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
-    "sha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626",
+    "sha256": "eb99ca07288ff218e666d17bc5b3a69354de9e0ee56e290d8406ebd0604143e0",
     "freezeRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
     "freezeSha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e",
     "actualHReviewRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.actual-h-r01.json",
@@ -14,24 +14,24 @@
   "selectedBranch": "split",
   "rootMappingDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
     "optionId": "B_SPLIT_BY_OPERATION_SCOPE"
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationCount": 248
   },
   "selectedAllowedOperations": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
-    "sha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "sha256": "afe68f39e3f2d1c4622b1027510a47e08dd7afe75d5c8b4b728bc4e06a616d0c",
     "schemaRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.allowed-operations.schema.candidate.v1.json",
     "schemaSha256": "619548ce011fee7b1825817170dacb0782f1597278559813fbbc9b82ab59b066",
     "operationCount": 122
   },
   "sourceBaseline": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-    "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969",
     "targets": [
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",

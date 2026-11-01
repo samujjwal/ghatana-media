@@ -43,7 +43,7 @@
       },
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
-        "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+        "sha256": "46495ca48847f4edcde00ca144a89c2daa4161c3dc630cedc87fe6d0a8fc5d96",
         "features": 9,
         "packetRepairs": 2,
         "actualSha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
@@ -53,7 +53,7 @@
     "rootCandidates": [
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
-        "sha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+        "sha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
         "casesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
         "casesSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
         "actualSha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
@@ -63,7 +63,7 @@
       },
       {
         "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
-        "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
+        "sha256": "1fdbf106ebe8a39a08ddba17c20253ea55b4accc3fc656622c73ee7a0657b92c",
         "actualSha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239",
         "hashMatches": true
       }

@@ -6,13 +6,13 @@
   "phase": "PDP-0 Product Truth",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.postimages.json",
-    "sha256": "e2a1f83cd357cc64288a5725dbe441a55c3800424cee110e698349cebb09bca5",
+    "sha256": "9474f3ebedba7335e9e5fdc29aeb682c591079744115afccd722055bd08ca946",
     "frozenRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.freeze.v1.json",
     "frozenSha256": "ca127314158567b5402708923fd2491b7537d399183aa10ca7e3a8c2b2b4c8f6"
   },
   "mappingDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
     "recordKind": "ACTUAL_PRIMARY_ROOT_PDP0_SOURCE_PACKET_MAPPING_DECISION",
     "authorIdentity": "agent:thread:01a169b7-6b81-71b0-89c7-19ae122dc16e",
     "selectedAuditIds": [
@@ -54,7 +54,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-root-source-authoring-direction-r1-2026-10-23.json",
-      "sha256": "3358dd4206617d89a8f5f8e38d738e3d143fbc54cd728e49a5839bc4766f092a",
+      "sha256": "46495ca48847f4edcde00ca144a89c2daa4161c3dc630cedc87fe6d0a8fc5d96",
       "features": 9,
       "packetRepairs": 2
     }
@@ -62,18 +62,18 @@
   "rootCandidates": [
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-candidates.r7.yaml",
-      "sha256": "1aa649ba617a6b8acc4e108767488d0f8943ea417c9fcd1f1f637a4897461c74",
+      "sha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5",
       "casesRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.feature-source-cases.r7.json",
       "casesSha256": "24acb9708ce62929573903ccc704ea6dd5c77dfcfa86b40e8810a279fd5e35a5"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
-      "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+      "sha256": "1fdbf106ebe8a39a08ddba17c20253ea55b4accc3fc656622c73ee7a0657b92c"
     }
   ],
   "sourceBaseline": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-    "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969",
     "targets": [
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -85,7 +85,7 @@
       },
       {
         "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
       },
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -107,13 +107,13 @@
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationCount": 248,
     "operationIdsSha256": "5001ca541f2e14472e4ae265c61dc6b9ea13cc1a1e59117379f20fa8787fe43a"
   },
   "operationLedger": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.operations.json",
-    "sha256": "ac6ec50f4575ba6b18bd5d54dafd0145a0153d4bd9ad5cd6ab17f2c274473823"
+    "sha256": "a44cbcecf9cbc4032c103ea34a1c4a0a31de995813dfb99c7b2d0f6f5db205bf"
   },
   "counts": {
     "retainedProjectionOperations": 248,

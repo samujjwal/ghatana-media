@@ -20,7 +20,7 @@
   },
   "provenanceSuccessor": {
     "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v3.json",
-    "sha256": "80aa263680242ffcf506e2f1f45c0a998fc844bad754ac64729c874b6b4f755a",
+    "sha256": "bc4dee91c2517fe19efde31702b931ec870c1af174ce1a465dfcc0ac0dd49bb7",
     "status": "METADATA_ONLY_SUCCESSOR_PENDING_ROOT_PROVENANCE_REVIEW",
     "predecessorRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate-v2-provenance-successor.v2.json",
     "predecessorSha256": "d87cbab2ca113c7f195330ea2564bc0cea2b00fff78f65d6f26ac66e6045448f"

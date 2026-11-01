@@ -66,13 +66,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r2.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R2",
-    "sha256": "sha256:c5f732f18aede780ecb1f1a30efbbc34b8676b10c94b763685e8519cefd3ecd4",
+    "sha256": "sha256:0727ca2f3c17d5b41a5e93f433c34c7cc3295f48cfbb9ab1804bd6b57c1c358d",
     "reason": "R2 remains immutable history bound to PDP-1 R15. R3 preserves its exact six-path authorization and transitions, binds the current PDP-1 R16 predecessor, and requires fresh PDP-2 currentness."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r4.json",
-    "receiptSha256": "sha256:8f490948b9489ec40db997405f69a162c6727586bda1079fd6293033bf705267",
+    "receiptSha256": "sha256:84243406ed9272d09a9bc74d10f3b52ce2f6b4dabad65cc763cb10d910cd0bcc",
     "materialSourceSetFingerprint": "sha256:dcd8eb3ac4e8717ed279fc41e859d87f7fd1a938c5660399b8e086639d2b0a70",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -80,7 +80,7 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "receiptSha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "receiptSha256": "sha256:af959512bc1d351f1de77d8744d5e47f5593855243f610473b5c74de5ae953da",
     "status": "PASS",
     "sourceCurrentness": "PASS",
     "developmentStatus": "DEV_COMPLETE",

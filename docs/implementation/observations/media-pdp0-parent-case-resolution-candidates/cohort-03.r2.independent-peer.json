@@ -310,7 +310,7 @@
     "genericCases": "Current capability/parent cases remain generic typed/bounded and unknown/unsupported boundaries. R2 feature cases are reviewed as candidate proposals and are not treated as already accepted canonical cases.",
     "spec002SourceFeedback": {
       "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-source-amendment-candidate.v2.json",
-      "sha256": "ab9c5455c50df60c33066b0253f996f67885f78429047a6afa995e845b65d867",
+      "sha256": "dde3069e4c1f46bcab4ae21c7021c40fc7fc44284f67a92b7a0d81d8aeaad7c0",
       "status": "CANDIDATE_ONLY_BLOCKED",
       "disposition": "SEPARATE_SOURCE_FEEDBACK_ONLY_NOT_INCORPORATED_AS_AUTHORITY",
       "relevantProposal": "Bounded version-bound migration candidate and semantic diff are proposed as PDP-0 meaning; PDP-1 owns implementation mechanics.",

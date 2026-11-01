@@ -535,7 +535,7 @@
       },
       {
         "path": ".product-experience/surfaces/media-physical-topology.v1.json",
-        "sha256": "sha256:b29c6d320d681e6f71d0ef9f193143e7090c05fa93857c85231cf521c09c5c41",
+        "sha256": "sha256:026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
@@ -575,22 +575,22 @@
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r12.json",
-        "sha256": "sha256:91aeae0aad488bc8eb29d40bf955e527ef072ada762948064bc8e50422c5a5c5",
+        "sha256": "sha256:c5bb7b02bec3c2d9ac1c37d607495a42f84d053cc37f1d95a4fd6dc7df9a2cec",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r27.json",
-        "sha256": "sha256:2f57ace69d389dde7cbe7c5032c5b88d6a6b068c07177d33694fd968aa6c451e",
+        "sha256": "sha256:c9c4d1f77d982d75561fc3668c6a8849631c4d66565a2eb345f4178208e7cdf6",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r17.json",
-        "sha256": "sha256:e08981102312364aad0ebe4282680e20b6d5fcf2db4e70e41a43880b2712d64d",
+        "sha256": "sha256:ecf90143f9a196ddaf89fb8fae5b463455a0a29e772bf9fa440652ef845c2ee4",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {
         "path": "docs/implementation/observations/media-discovery-pdp3-mdc30-execution-2026-10-13-r1.json",
-        "sha256": "sha256:0200348cc96d6f302e3da63eca5bcde695fe9b9ad6840818e663341eb6e0c228",
+        "sha256": "sha256:bc8c3cec58fb7727b745b869823b6a6cfbdcba417a37e78275e3f8349bc08268",
         "gitState": "UNCHANGED_AT_CAPTURED_HEAD"
       },
       {

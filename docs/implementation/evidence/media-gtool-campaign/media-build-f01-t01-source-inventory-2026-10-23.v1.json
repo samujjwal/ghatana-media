@@ -37,28 +37,28 @@
       {
         "phase": "PDP-0",
         "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-        "sha256": "62743f38fdb835fae9c98aafceb864083d5bf4e8d581d164867979e2585c7c14",
+        "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
         "rows": 54,
         "remainingPhaseLocalTaskCount": 0
       },
       {
         "phase": "PDP-1",
         "path": "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json",
-        "sha256": "f99e3e228394233b3281d8c2abfaad2538608ce148c05a88f636d2b7e60431a7",
+        "sha256": "fef341480655a4bd6a454691ce530ca6f237b3f9617f448d8f651fb9ded92d81",
         "rows": 54,
         "remainingPhaseLocalTaskCount": 0
       },
       {
         "phase": "PDP-2",
         "path": "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json",
-        "sha256": "e57852f13b4769c1f2c717553fed3bb2c9d40b4cadf604b9ac6a3f81c410e946",
+        "sha256": "d230b74e0ef6e605d4522185008e89781b803c90a39393f063a0e0540a5ea480",
         "rows": 54,
         "remainingPhaseLocalTaskCount": 0
       },
       {
         "phase": "PDP-3",
         "path": "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json",
-        "sha256": "541d1689cb402e270b7c5e2d416478824bbf263186e1eb06f66448fa01f0a7db",
+        "sha256": "deb4d3967f7aa4b7089bd3b730e3d101a28932ace7c748b5d190b02f37f2b7eb",
         "rows": 54,
         "remainingPhaseLocalTaskCount": 0
       }
@@ -931,7 +931,7 @@
   },
   "crosswalk": {
     "path": "docs/migration/evidence/media-source-target-tree-crosswalk-current-2026-10-23.json",
-    "sha256": "f364bc0b709f76a3665f9434e71d57a53a9b43a2caff16f2d9195843ccba4638",
+    "sha256": "d6d72f3445f013c876ccbbfc19ad944d7802fe581878f5c08b76d7d40b7e828b",
     "status": "OBSERVED_REMOTE_TRACKING_CUTS",
     "comparison": "689 canonical source paths compared to same-relative Media target paths by Git mode and blob ID; committed origin/main trees only; no semantic ownership or relocation inferred.",
     "sourceRevision": "0acdf6d5f1ab585e0d726a7fd7ecf82a3f985a9f",

@@ -48,12 +48,12 @@
     },
     "fixedTechnicalPeerRecord": {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.independent-peer-2026-10-23.json",
-      "sha256": "7551b0367917e71ef1874a93bdc9b8b10450c83a97cc4b939a453c7f7234680c",
+      "sha256": "e63c448d00d1dd04b2b5f4f9e448802bb2b42e7d9153069011d4458428d6de59",
       "fullThreadId": "01a16a6c-df0b-7601-bddf-9153395d37a4"
     },
     "v7Projection": {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.v7-casebatch-projection.v1.json",
-      "sha256": "c5cba03f0814d58a786f480e11dbabca710a7892962c10b41833676f2772096d",
+      "sha256": "46d32fbe218a7745cba163da2e5d7a025cf3cb8a4624aedd6e4a1ea0951987f1",
       "sourceFreezeManifestSha256": "21d6e319b1717bff603c97b74b1decda18eae0d4e9efb835b289f1d0666b8c54"
     },
     "trust014SchemaCandidate": {
@@ -110,11 +110,17 @@
       "exactWhere": [
         {
           "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
-          "lines": [410, 430]
+          "lines": [
+            410,
+            430
+          ]
         },
         {
           "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
-          "lines": [115, 123]
+          "lines": [
+            115,
+            123
+          ]
         }
       ],
       "evidence": "The registry check correctly resolves the identity string to a fixed, hash-pinned record containing a real Codex thread ID, and the unregistered-identity negative test reaches that check and rejects. However, the passing test constructs the peerReview PASS object itself and sets reviewer.identity to the known registered string. The projector checks equality to the record but has no signed review assertion, authenticated author channel, or app-resolved review event proving that this thread authored the submitted peerReview JSON. A different caller can copy the same registered identity string and construct the same PASS payload.",
@@ -129,11 +135,21 @@
       "exactWhere": [
         {
           "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
-          "lines": [393, 402, 433, 459]
+          "lines": [
+            393,
+            402,
+            433,
+            459
+          ]
         },
         {
           "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
-          "lines": [81, 100, 105, 123]
+          "lines": [
+            81,
+            100,
+            105,
+            123
+          ]
         }
       ],
       "evidence": "projectMediaPdp0SemanticCaseBatches accepts repositoryRoot from its caller and hashes workflow files found under that root without resolving it to the actual canonical checkout or a trusted source service. The positive harness creates a temporary root, copies the authority map and fixed peer registry, writes a synthetic PXD-998 decision section and owner-choice JSON, writes a peerReview PASS JSON, and the test expects projection to succeed. The harness labels this test-only and claims no signature, but the same root selection and structural checks are available to a production caller.",
@@ -148,11 +164,17 @@
       "exactWhere": [
         {
           "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry-schema.candidate.v1.json",
-          "lines": [150, 162]
+          "lines": [
+            150,
+            162
+          ]
         },
         {
           "file": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/trust014-recast-profile-registry.candidate.v1.json",
-          "lines": [205, 212]
+          "lines": [
+            205,
+            212
+          ]
         }
       ],
       "evidence": "Ajv strict validation accepts a bounded-number parameter with minimum=2 and maximum=1. The registry candidate states minimum must be less than or equal to maximum, but that relation is not enforced by the current Draft 2020-12 schema or a companion semantic validator.",

@@ -9,12 +9,12 @@
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-2026-10-14-current-cut-r13.json",
-    "receiptSha256": "sha256:e594080519407b78027389e4b9e09669663de6451cedeb2e17dd9db8c5cfcaae"
+    "receiptSha256": "sha256:425c3c34d2371da5d025bb666444c3864e5b9810a34b36415dee47f210df8781"
   },
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r25.json",
-    "receiptSha256": "sha256:914390414ee87982efa786e1edf2a8adb0bc3e5d8b5c609776a7f0c65f679e1e",
+    "receiptSha256": "sha256:199de6eab67febeda4218fc65b8daffdc80d8e40c19be55956b67a8d45fa10b9",
     "sourceFingerprint": "sha256:249b4d300e4103406335b4c395da888e487fa898d08bae91f09d7fa07a1e9d0e",
     "status": "PASS",
     "sourceCurrentness": "PASS",
@@ -29,8 +29,8 @@
     "userAuthorization": {
       "status": "AUTHORIZED",
       "authorizedBy": "USER",
-        "exactResponse": "Authorize these three exact transitions (Recommended)",
-        "additionalScopedAuthorizationResponse": "Authorize this scoped PDP-2 impact disposition (Recommended)",
+      "exactResponse": "Authorize these three exact transitions (Recommended)",
+      "additionalScopedAuthorizationResponse": "Authorize this scoped PDP-2 impact disposition (Recommended)",
       "exactResponses": [
         "Authorize these three exact transitions (Recommended)",
         "Authorize this scoped PDP-2 impact disposition (Recommended)"

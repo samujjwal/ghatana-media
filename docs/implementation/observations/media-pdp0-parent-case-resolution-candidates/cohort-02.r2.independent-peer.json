@@ -40,7 +40,7 @@
       },
       "phaseStatus": {
         "path": "docs/implementation/pdp-0-phase-dev-status.json",
-        "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+        "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
       },
       "productTruth": {
         "path": ".product-experience/pdp-0-product-truth/PRODUCT-TRUTH.md",
@@ -52,15 +52,15 @@
       },
       "crosswalk": {
         "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
       },
       "directCriterion": {
         "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-        "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+        "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
       },
       "selfCheck": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02-supported-self-check.json",
-        "sha256": "d6996eddf5206f5c02d08df8314277fa4e39c2000b6097318229ef8a749e2c50"
+        "sha256": "3e631a91e6afaefcd25cc697006cde9ebecbf0930ba2aa3aa2ba1de9ab45a105"
       }
     }
   },

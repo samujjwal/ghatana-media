@@ -4,20 +4,20 @@
   "freezeStatus": "FROZEN_FOR_ACTUAL_H_R02_REVIEW_ONLY",
   "predecessor": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
-    "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e"
+    "sha256": "d9d722e036fc31caae90f26a4ff25688ae8da204d0cc821bebb2ab8f35a72eb7"
   },
   "actualHReviewR01": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.actual-h-r01.json",
-    "sha256": "bc607c46054f64dde4b0d645cd922dfc95ddf7197aa1e9d52e10330400267454",
+    "sha256": "a3f86a05d71ec5c4b4d2c6fdfd4d605f00fa1a7c3e372ec83673bad978b6306b",
     "reviewStatus": "REQUEST_CHANGES"
   },
   "candidateBundle": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.successor-bundle.candidate.v1.json",
-    "sha256": "67a58dd97c67783a0fb069cbd41ea54b068804cbd17c7ecf6b7876aec14d8d09"
+    "sha256": "c0bff9176a48d5c7ed57ac48e7aa9a70660c0fe9e79e6f94bace9a52ceb3dcb4"
   },
   "rebuildVerification": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.rebuild-verification.v1.json",
-    "sha256": "e91e2fc1236e076f53d32582dfdd6ae49b5a639dea3ddea4f6b70801e1c4dc59"
+    "sha256": "159fa74d83253514c276e3bd9214a4a3206c0a5e3ecd9838542c150f073cf572"
   },
   "repairMap": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.h-r01-repair-map.v1.json",
@@ -25,7 +25,7 @@
   },
   "operationLedger": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.split.allowed-operations.candidate.v1.json",
-    "sha256": "6dd80d37d079748dc431f76c422850f24dc4f7460647bc17618d903dafdf2283"
+    "sha256": "c6963eaa97661af905fff777f21fc9c66247f485b6ae766a2c6ad2ceeab609c3"
   },
   "operationSchema": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9.allowed-operations.schema.candidate.v1.json",
@@ -33,7 +33,7 @@
   },
   "retainedProjection": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-231-cases-v7-consolidated-projection.v1.json",
-    "sha256": "2cd57270b3ab298d09e2bd9003e56d37243bb960fcd3374f31ae3fbd002075cc",
+    "sha256": "8100c54d520f2ad9b1c9741466956057685cca17e7fbf0b8187ad9649a72375f",
     "operationCount": 248
   },
   "current7Preimages": [
@@ -47,7 +47,7 @@
     },
     {
       "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
     },
     {
       "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",

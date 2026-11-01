@@ -6,7 +6,7 @@
   "phase": "PDP-0",
   "inputRef": {
     "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-cohort02-11-root-directed-source-candidates.v2.json",
-    "sha256": "80c9f4b35316ce3bdbe9a98496513b1f420dcbcb3747e5a42c0d13327a387239"
+    "sha256": "1fdbf106ebe8a39a08ddba17c20253ea55b4accc3fc656622c73ee7a0657b92c"
   },
   "selectedAuditIds": [
     "AUD-DIRECT-010",

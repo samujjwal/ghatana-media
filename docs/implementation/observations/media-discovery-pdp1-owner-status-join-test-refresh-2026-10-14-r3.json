@@ -10,7 +10,7 @@
   },
   "predecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-owner-status-join-test-refresh-2026-10-14-r2.json",
-    "sha256": "sha256:89a8fb541ea527c4b314a7c1c1b588b4465ca33ca2107cc9b7315b4c951c68aa",
+    "sha256": "sha256:9c268a0fe76b45a388f4afe360ac239a22852ddc654df2ebd3d2c442cce4fdd7",
     "testPath": "tests/media-discovery-pdp1-supplemental-owner-status-join.test.mjs",
     "testSha256": "sha256:ec1169c9c7a5c147dac13a24460d5f73dc9517861752bb0b5b1fe72f9f068d88",
     "pdp0ExitRef": "docs/implementation/observations/media-discovery-pdp0-exit-2026-10-14-current-cut-r11.json",

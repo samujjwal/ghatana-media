@@ -5,12 +5,12 @@
   "proposalStatus": "ADDITIVE_TECHNICAL_PROPOSAL_ONLY; NOT_CANONICAL_OWNER_DECISIONS",
   "supersedes": {
     "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.json",
-    "sha256": "3b0ce80847b7ffb548c49a8561ab81af8e6fff3c94488945d80af4e9ae8bc269",
+    "sha256": "cf9543a2e5303661b1d05eaa8460b43cfaee29121b0c25c428e67d661a96175b",
     "disposition": "PRESERVED_AS_HISTORICAL_R1; this additive R2 supplies corrected row-specific classifications and evidence."
   },
   "reviewBasis": {
     "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01-supported-self-check.r2.json",
-    "sha256": "1789c3b074cc6c171c51f69110d121871cbb0cee96dba2fb3ee6ac886f501aab",
+    "sha256": "8fa58adec5869a4111c9c6b9662064d58a137a6c124a8d18e02825ea96a3efe1",
     "scope": "Independent review of all 40 R1 SUPPORTED proposals, exact feature/capability outcome fit, trigger/output/negative coverage, and generic parent-case limitations."
   },
   "reviewScope": {
@@ -542,7 +542,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-001",
@@ -552,7 +552,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -929,7 +929,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-002",
@@ -939,7 +939,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -1251,7 +1251,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-003",
@@ -1261,7 +1261,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -1587,7 +1587,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-004",
@@ -1597,7 +1597,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -1915,7 +1915,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-005",
@@ -1925,7 +1925,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -2302,7 +2302,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-006",
@@ -2312,7 +2312,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -2624,7 +2624,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-007",
@@ -2634,7 +2634,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -2936,7 +2936,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-008",
@@ -2946,7 +2946,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -3262,7 +3262,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-013",
@@ -3272,7 +3272,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -3528,7 +3528,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-014",
@@ -3538,7 +3538,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -3840,7 +3840,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-016",
@@ -3850,7 +3850,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -4200,7 +4200,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-018",
@@ -4210,7 +4210,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -4642,7 +4642,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-019",
@@ -4652,7 +4652,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -4902,7 +4902,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-020",
@@ -4912,7 +4912,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -5272,7 +5272,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-001",
@@ -5282,7 +5282,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -5639,7 +5639,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-002",
@@ -5649,7 +5649,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -5977,7 +5977,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-007",
@@ -5987,7 +5987,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -6385,7 +6385,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-008",
@@ -6395,7 +6395,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -6780,7 +6780,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-011",
@@ -6790,7 +6790,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -7153,7 +7153,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-014",
@@ -7163,7 +7163,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -7690,7 +7690,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-015",
@@ -7700,7 +7700,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -8155,7 +8155,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-016",
@@ -8165,7 +8165,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -8535,7 +8535,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-011",
@@ -8545,7 +8545,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -8887,7 +8887,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-013",
@@ -8897,7 +8897,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -9173,7 +9173,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-016",
@@ -9183,7 +9183,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -9473,7 +9473,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-018",
@@ -9483,7 +9483,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -9737,7 +9737,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-019",
@@ -9747,7 +9747,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -10035,7 +10035,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-027",
@@ -10045,7 +10045,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -10353,7 +10353,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-028",
@@ -10363,7 +10363,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -10718,7 +10718,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-003",
@@ -10728,7 +10728,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -11073,7 +11073,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-004",
@@ -11083,7 +11083,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -11485,7 +11485,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-005",
@@ -11495,7 +11495,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -11858,7 +11858,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006",
@@ -11868,7 +11868,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -12144,7 +12144,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-007",
@@ -12154,7 +12154,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -12542,7 +12542,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-017",
@@ -12552,7 +12552,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -12922,7 +12922,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-001",
@@ -12932,7 +12932,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -13281,7 +13281,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-002",
@@ -13291,7 +13291,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -13646,7 +13646,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-003",
@@ -13656,7 +13656,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -14035,7 +14035,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-005",
@@ -14045,7 +14045,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -14402,7 +14402,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-006",
@@ -14412,7 +14412,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -14785,7 +14785,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-007",
@@ -14795,7 +14795,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -15149,7 +15149,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-008",
@@ -15159,7 +15159,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -15475,7 +15475,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-010",
@@ -15485,7 +15485,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -15813,7 +15813,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-011",
@@ -15823,7 +15823,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -16194,7 +16194,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-012",
@@ -16204,7 +16204,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -16593,7 +16593,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-013",
@@ -16603,7 +16603,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -16889,7 +16889,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
@@ -16899,7 +16899,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -17349,7 +17349,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-002",
@@ -17359,7 +17359,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -17879,7 +17879,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-003",
@@ -17889,7 +17889,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -18169,7 +18169,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-004",
@@ -18179,7 +18179,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -18427,7 +18427,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-005",
@@ -18437,7 +18437,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -18699,7 +18699,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-006",
@@ -18709,7 +18709,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -18991,7 +18991,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-007",
@@ -19001,7 +19001,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -19377,7 +19377,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-008",
@@ -19387,7 +19387,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -19712,7 +19712,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-009",
@@ -19722,7 +19722,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -20077,7 +20077,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-010",
@@ -20087,7 +20087,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -20401,7 +20401,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-011",
@@ -20411,7 +20411,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -20711,7 +20711,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-012",
@@ -20721,7 +20721,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -21055,7 +21055,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-013",
@@ -21065,7 +21065,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -21407,7 +21407,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-014",
@@ -21417,7 +21417,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -21711,7 +21711,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-015",
@@ -21721,7 +21721,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -21981,7 +21981,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-016",
@@ -21991,7 +21991,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -22446,7 +22446,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-017",
@@ -22456,7 +22456,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -22862,7 +22862,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-001",
@@ -22872,7 +22872,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -23321,7 +23321,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-002",
@@ -23331,7 +23331,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -23765,7 +23765,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-003",
@@ -23775,7 +23775,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -24220,7 +24220,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-004",
@@ -24230,7 +24230,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -24591,7 +24591,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-005",
@@ -24601,7 +24601,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -24923,7 +24923,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-006",
@@ -24933,7 +24933,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -25369,7 +25369,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-007",
@@ -25379,7 +25379,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -25873,7 +25873,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-009",
@@ -25883,7 +25883,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -26345,7 +26345,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-010",
@@ -26355,7 +26355,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -26690,7 +26690,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-011",
@@ -26700,7 +26700,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -27081,7 +27081,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-012",
@@ -27091,7 +27091,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -27526,7 +27526,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-013",
@@ -27536,7 +27536,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -28020,7 +28020,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-014",
@@ -28030,7 +28030,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",
@@ -28378,7 +28378,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-015",
@@ -28388,7 +28388,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "proposalStatus": "TECHNICAL_PROPOSAL_NOT_OWNER_DECISION",

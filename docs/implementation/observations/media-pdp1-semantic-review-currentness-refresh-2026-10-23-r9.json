@@ -6,7 +6,7 @@
   "authority": "agent:/root/phase_io; explicit root-delegated Media technical-owner source-currentness authority.",
   "predecessor": {
     "path": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
-    "sha256": "sha256:8ae394b7e14f2bfc0275a1f49cb0b9d4a891913f71d28c69b9127ae9c300d6e8",
+    "sha256": "sha256:a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
     "snapshotPath": "docs/implementation/observations/media-pdp1-semantic-review-r8-predecessor-snapshot-2026-10-23.json",
     "snapshotSha256": "sha256:8ae394b7e14f2bfc0275a1f49cb0b9d4a891913f71d28c69b9127ae9c300d6e8",
     "currentnessReviewRef": "PDP1-CURRENT-SOURCE-CUT-AND-STATUS-RECONCILIATION-2026-10-23-R8"

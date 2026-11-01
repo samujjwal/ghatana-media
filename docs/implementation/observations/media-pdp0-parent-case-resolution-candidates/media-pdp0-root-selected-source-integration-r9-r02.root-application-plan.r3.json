@@ -5,20 +5,20 @@
   "profileId": "media.pdp0.root-selected-source-integration.r9-r02.source-owner.v1",
   "candidateBundle": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.successor-bundle.candidate.v1.json",
-    "sha256": "7e9b4643ea2231eda8fdb3eb91e3c3eede96f0a3d658052b09e5bb75c551a6ec"
+    "sha256": "76720da82f3053630cb77524c72799d718d4972f7eb5cc9e307ed162445855d8"
   },
   "freezeManifest": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.freeze.v1.json",
-    "sha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab"
+    "sha256": "b02ef4f11f014d72856bfec91a6b29e78abdd245c2713c48236b044bee83c280"
   },
   "verification": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.rebuild-verification.v1.json",
-    "sha256": "41049756e999a9783bf09e6a7000a09dda7550725ddb3b488dd0687049a90f10",
+    "sha256": "51cc0bb7ab02d95c3f6c289b413a4992a729c675050d847d1a3dc0ef1511a079",
     "status": "R9_EXACT_REBUILD_PASS_CANDIDATE_ONLY"
   },
   "operationLedger": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.split.allowed-operations.candidate.v1.json",
-    "sha256": "af3c281732ea14822466a778a8055cf4ec4cc9641e20e25b9ff047c7fcb7f3f8",
+    "sha256": "afe68f39e3f2d1c4622b1027510a47e08dd7afe75d5c8b4b728bc4e06a616d0c",
     "operationCount": 122,
     "counts": {
       "retainedProjectionOperations": 248,
@@ -51,7 +51,7 @@
   },
   "actualHReview": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02.json",
-    "sha256": "b9c93569b8711030195f6003de7494ee8a359cdba50f2f88b2f55cfb1eecacc2",
+    "sha256": "8f7e392d9855cfcc9f4a13cc91dc106f7ff67c8da994f44ea191f83f1ddc204a",
     "reviewStatus": "PASS_SCOPED_SOURCE_SEMANTIC_REVIEW",
     "reviewerIdentity": "01a16a6c-d506-7a73-801a-609c602a12e9",
     "reviewedFreezeSha256": "a828f8ebe54e9854d9d5dd1d3d22f5b61c636056584713b3977e626db3fbedab"

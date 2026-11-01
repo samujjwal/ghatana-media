@@ -1570,8 +1570,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
-      "targetPath": "libs/common/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
+      "targetPath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/AudioVideoToolHandlerFactory.java",
       "sourceMode": "100644",
       "sourceObjectId": "f8ec3fca452ab91d7a8b18fbe9dd590a4a7deefa",
       "targetMode": "100644",
@@ -1579,8 +1579,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
-      "targetPath": "libs/common/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+      "targetPath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
       "sourceMode": "100644",
       "sourceObjectId": "358ad5e9061249a1844ead30e57566acbd6fff46",
       "targetMode": "100644",
@@ -1588,8 +1588,8 @@
       "classification": "PRESENT_DIFFERENT_MODE_OR_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
-      "targetPath": "libs/common/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+      "targetPath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
       "sourceMode": "100644",
       "sourceObjectId": "8bbcf1366c21b3bfd60876cc13f6a0e7cd02ac45",
       "targetMode": "100644",
@@ -1597,8 +1597,8 @@
       "classification": "PRESENT_DIFFERENT_MODE_OR_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
-      "targetPath": "libs/common/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+      "targetPath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
       "sourceMode": "100644",
       "sourceObjectId": "876df9f570f0f93bebe686379460f322bc2cbcfb",
       "targetMode": "100644",
@@ -1606,8 +1606,8 @@
       "classification": "PRESENT_DIFFERENT_MODE_OR_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
-      "targetPath": "libs/common/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+      "targetPath": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
       "sourceMode": "100644",
       "sourceObjectId": "eb8c4c2088525945ddb3c37c79869c4e7bee6b64",
       "targetMode": "100644",
@@ -1615,8 +1615,8 @@
       "classification": "PRESENT_DIFFERENT_MODE_OR_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/resources/capabilities/audio-video-common.yaml",
-      "targetPath": "libs/common/src/main/resources/capabilities/audio-video-common.yaml",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/resources/capabilities/audio-video-common.yaml",
+      "targetPath": "adapters/agent-tools-media/src/main/resources/capabilities/audio-video-common.yaml",
       "sourceMode": "100644",
       "sourceObjectId": "889471ecbd208772df8bd3c5857c9792bd93ef84",
       "targetMode": "100644",
@@ -1624,8 +1624,8 @@
       "classification": "PRESENT_DIFFERENT_MODE_OR_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/resources/capabilities/multimodal-inference.yaml",
-      "targetPath": "libs/common/src/main/resources/capabilities/multimodal-inference.yaml",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/resources/capabilities/multimodal-inference.yaml",
+      "targetPath": "adapters/agent-tools-media/src/main/resources/capabilities/multimodal-inference.yaml",
       "sourceMode": "100644",
       "sourceObjectId": "fd830ed4a240fca82085d0eadc3aae517503d1e8",
       "targetMode": "100644",
@@ -1633,8 +1633,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/resources/capabilities/speech-to-text.yaml",
-      "targetPath": "libs/common/src/main/resources/capabilities/speech-to-text.yaml",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/resources/capabilities/speech-to-text.yaml",
+      "targetPath": "adapters/agent-tools-media/src/main/resources/capabilities/speech-to-text.yaml",
       "sourceMode": "100644",
       "sourceObjectId": "084124f0600811bdab489fe6e6289ec57ad4ea09",
       "targetMode": "100644",
@@ -1642,8 +1642,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/resources/capabilities/text-to-speech.yaml",
-      "targetPath": "libs/common/src/main/resources/capabilities/text-to-speech.yaml",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/resources/capabilities/text-to-speech.yaml",
+      "targetPath": "adapters/agent-tools-media/src/main/resources/capabilities/text-to-speech.yaml",
       "sourceMode": "100644",
       "sourceObjectId": "05d7d88a939bd6f913806aeeb5618b2a56a30774",
       "targetMode": "100644",
@@ -1651,8 +1651,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/main/resources/capabilities/vision-analysis.yaml",
-      "targetPath": "libs/common/src/main/resources/capabilities/vision-analysis.yaml",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/main/resources/capabilities/vision-analysis.yaml",
+      "targetPath": "adapters/agent-tools-media/src/main/resources/capabilities/vision-analysis.yaml",
       "sourceMode": "100644",
       "sourceObjectId": "a0315031c85a82ec18fc6ca33864c291e0724d9c",
       "targetMode": "100644",
@@ -1813,8 +1813,8 @@
       "classification": "PRESENT_IDENTICAL_MODE_AND_BLOB"
     },
     {
-      "sourcePath": "services/media/libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
-      "targetPath": "libs/common/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+      "sourcePath": "services/media/adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
+      "targetPath": "adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/AudioVideoToolHandlersTest.java",
       "sourceMode": "100644",
       "sourceObjectId": "4733636fcbeb68faefdb44f1755d756138e801b6",
       "targetMode": "100644",

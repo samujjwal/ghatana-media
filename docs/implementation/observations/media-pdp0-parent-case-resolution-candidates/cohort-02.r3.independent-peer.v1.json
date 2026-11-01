@@ -6,7 +6,7 @@
     "sourcePins": {
       "r3": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r3.json",
-        "sha256": "b83dc9a68f901926a1e2e358ff8891a08da202003663abffea768080196cbb27"
+        "sha256": "ec110757fcfa471d984d0c773ed3940a567bab5635077220782a5aa54fb6cb6b"
       },
       "r2": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json",
@@ -14,7 +14,7 @@
       },
       "priorTechnicalPeer": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.independent-peer.v3.json",
-        "sha256": "1568526892cbbfe3ef8791b215c04feeedba779d327db436bc131cac3b8c990a"
+        "sha256": "33e8766d195505d36f83bf0860b0273d1441997f838b535526d74c4b369d1954"
       },
       "assignment": {
         "path": "/Users/samujjwal/Development/ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-pdp0-resolution-cohort-assignments.json",
@@ -38,7 +38,7 @@
       },
       "phaseStatus": {
         "path": "docs/implementation/pdp-0-phase-dev-status.json",
-        "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+        "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
       },
       "aqTraceability": {
         "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
@@ -46,7 +46,7 @@
       },
       "crosswalk": {
         "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "6eb4d5d5d593ee46c1bbb24dfeb379d936ed429d429b3d30956f166ea08c1a20"
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
       },
       "p0SevenResidual": {
         "path": "docs/implementation/observations/media-pdp0-p0-07-parent-case-residual-classification-2026-10-23.json",
@@ -1277,7 +1277,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DELIV-018",
@@ -1572,7 +1572,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DELIV-019",
@@ -3074,7 +3074,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-004",
@@ -3336,7 +3336,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-005",
@@ -3572,7 +3572,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-006",
@@ -3808,7 +3808,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-009",
@@ -4044,7 +4044,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-010",
@@ -4280,7 +4280,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-011",
@@ -4542,7 +4542,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-012",
@@ -5155,7 +5155,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-015",
@@ -5414,7 +5414,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DSP-017",
@@ -5887,7 +5887,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-001",
@@ -6189,7 +6189,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-004",
@@ -6430,7 +6430,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-005",
@@ -6732,7 +6732,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-006",
@@ -6968,7 +6968,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-007",
@@ -7209,7 +7209,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-008",
@@ -7511,7 +7511,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-009",
@@ -7995,7 +7995,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-011",
@@ -8236,7 +8236,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-013",
@@ -8553,7 +8553,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-015",
@@ -8868,7 +8868,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-DUB-016",
@@ -9803,7 +9803,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-EDIT-011",
@@ -10092,7 +10092,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-EDIT-012",
@@ -10361,7 +10361,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-EDIT-016",
@@ -11585,7 +11585,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-EDIT-024",
@@ -11973,7 +11973,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-EDIT-026",
@@ -12482,7 +12482,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-001",
@@ -13481,7 +13481,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-004",
@@ -13783,7 +13783,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-005",
@@ -14085,7 +14085,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-006",
@@ -14387,7 +14387,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-007",
@@ -14626,7 +14626,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-008",
@@ -15199,7 +15199,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-010",
@@ -15478,7 +15478,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-011",
@@ -15715,7 +15715,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-012",
@@ -16017,7 +16017,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-016",
@@ -16274,7 +16274,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-017",
@@ -16634,7 +16634,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-018",
@@ -17162,7 +17162,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-020",
@@ -17499,7 +17499,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-021",
@@ -17958,7 +17958,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-023",
@@ -18228,7 +18228,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-GEN-024",
@@ -19518,7 +19518,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MOTION-002",
@@ -19834,7 +19834,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MOTION-006",
@@ -20458,7 +20458,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MOTION-011",
@@ -20717,7 +20717,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MOTION-016",
@@ -21071,7 +21071,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-001",
@@ -21310,7 +21310,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-004",
@@ -21576,7 +21576,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-005",
@@ -21842,7 +21842,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-006",
@@ -22108,7 +22108,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-007",
@@ -22374,7 +22374,7 @@
             {
               "ref": "docs/implementation/pdp-0-phase-dev-status.json",
               "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-              "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+              "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
             }
           ],
           "r2ProposalRowRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r2.json#/rows/@existingAuditId=AUD-MUSIC-009",

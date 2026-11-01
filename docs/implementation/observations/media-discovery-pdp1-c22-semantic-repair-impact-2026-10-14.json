@@ -18,7 +18,7 @@
   },
   "sourcePredecessor": {
     "ref": "docs/implementation/observations/media-discovery-pdp1-exit-current-cut-r16.json",
-    "sha256": "sha256:63ee158301047bd715b586c41368a4d576a0b1e224672d08e2ced08349ad00fc",
+    "sha256": "sha256:af959512bc1d351f1de77d8744d5e47f5593855243f610473b5c74de5ae953da",
     "sourceDigests": {
       ".product-experience/pdp-1-domain-data/operations.yaml": "sha256:ec1e29eceb76333dec91b52b94d20fa882456dcb52989b1794c4f9c58fdfd111",
       ".product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml": "sha256:e7c432e0244e7c719d211d16dd7c7d94d1c7dc87b33f339ed72ddcf5bd6e4a9b"
@@ -33,7 +33,9 @@
       "phase": "PDP-1",
       "classification": "PXD163_MDC30_C22_SEMANTIC_REPAIR",
       "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
-      "meaningIdsChanged": ["PXD-163/MDC30-C-22"],
+      "meaningIdsChanged": [
+        "PXD-163/MDC30-C-22"
+      ],
       "requiresFreshCurrentness": true
     },
     {
@@ -44,7 +46,9 @@
       "phase": "PDP-1",
       "classification": "PXD163_MDC30_C22_SEMANTIC_REPAIR",
       "meaningChange": "PDP1_MEANING_CHANGED_AND_REVIEWED_UNDER_DELEGATED_INTERNAL_SOURCE_REVIEW",
-      "meaningIdsChanged": ["PXD-163/MDC30-C-22"],
+      "meaningIdsChanged": [
+        "PXD-163/MDC30-C-22"
+      ],
       "requiresFreshCurrentness": true
     }
   ],
@@ -84,7 +88,10 @@
       "ownerReceipt",
       "observedAt"
     ],
-    "negativeOutcomes": ["REJECTED", "UNKNOWN"],
+    "negativeOutcomes": [
+      "REJECTED",
+      "UNKNOWN"
+    ],
     "fingerprintComputedBy": "authenticated-trusted-host",
     "acknowledgmentIsSeparate": true
   },

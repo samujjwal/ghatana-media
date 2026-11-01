@@ -94,7 +94,7 @@
     },
     "pdp0CanonicalStatus": {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "phase": "PDP-0",
       "status": "IN_PROGRESS",
       "authorityBoundary": "Read-only current status; this package does not refresh pins, close tasks, or alter phase status."
@@ -127,7 +127,7 @@
     ],
     "currentnessAssessment": {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.discovery-phase-surface-matrix.v1.json",
-      "sha256": "ac2890d59584c514357e788e6e7eed2a7409abc55c135e3d6cbce4f9c611cdf2",
+      "sha256": "da587c117985c7e4a647356bece334296ea729d40bbe6e76d1b23cfc4411d3bb",
       "recordKind": "READ_ONLY_REVIEW_MATRIX_NOT_CANONICAL_STATUS_OR_CLOSURE",
       "statusRecord": "IN_PROGRESS",
       "statusRecordSha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",

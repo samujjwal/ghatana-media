@@ -18,7 +18,7 @@
     {
       "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
       "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v6.json",
-      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
     },
     {
       "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -47,7 +47,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.independent-peer-2026-10-23.json",
-      "sha256": "7551b0367917e71ef1874a93bdc9b8b10450c83a97cc4b939a453c7f7234680c",
+      "sha256": "e63c448d00d1dd04b2b5f4f9e448802bb2b42e7d9153069011d4458428d6de59",
       "disposition": "REQUEST_CHANGES",
       "caseContentDisposition": "SOURCE_CONTENT_FINDINGS_ADDRESSED; ROOT_CHOICES_REMAIN_PENDING",
       "eligibleCasePairCount": 60
@@ -66,7 +66,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
-      "sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963"
+      "sha256": "61a91e20652e58fe051909fa669b1fcff969e6bab7b5ea02b5bfbe2a43d6ea02"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-03.source-amendment-record-postimages.r2.json",
@@ -114,7 +114,7 @@
     },
     {
       "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
       "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v6.json",
       "disposition": "PRESERVED_EXACT_V7_POSTIMAGE_BYTES"
     },
@@ -17744,7 +17744,7 @@
       },
       {
         "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
         "state": "COMMITTED_EXACT_READBACK_OR_PRESERVED_EXACT_V7"
       },
       {
@@ -17796,7 +17796,7 @@
       {
         "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
         "postimageRef": "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-crosswalk-postimage.v6.json",
-        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
       },
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -17817,7 +17817,7 @@
   },
   "successorSourceImpact": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-current-source-baseline-2026-10-23.json",
-    "sha256": "9e2eee68096898c66bd8709ec0c690fe6bae5a00af99c92f0d5a1fce9ddc66c8",
+    "sha256": "02ca53f3ca165552f62a4bdafe3eb96f0324ba5c691b50bc9d0245ffaa1ec969",
     "status": "CURRENT_BASELINE_EXACT_READBACK_VERIFIED",
     "decisionId": "PXD-227",
     "qualitySuccessorReadbackRef": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-quality2target-actual-root-source-readback-2026-10-23.json",
@@ -17865,7 +17865,7 @@
         },
         {
           "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-          "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+          "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
         },
         {
           "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",

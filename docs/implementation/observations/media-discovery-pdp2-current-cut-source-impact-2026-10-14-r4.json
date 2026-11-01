@@ -76,13 +76,13 @@
   "supersedes": {
     "ref": "docs/implementation/observations/media-discovery-pdp2-current-cut-source-impact-2026-10-14-r3.json",
     "recordId": "MEDIA-DISCOVERY-PDP2-CURRENT-CUT-SOURCE-IMPACT-2026-10-14-R3",
-    "sha256": "sha256:c6792790f11743d3cf5946bcb47e86230c346d78651b16038c75a6e5b645f2d1",
+    "sha256": "sha256:67e336b329fec9c7c5e71948f67f0ff11247023685a285496ad281eb0208d16d",
     "reason": "R3 remains immutable history bound to PDP-1 R16 and an earlier P2 cut. R4 binds the exact R9 historical baseline and the current PDP-1 R19 predecessor without changing prior records."
   },
   "predecessorCut": {
     "phase": "PDP-2",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp2-exit-current-cut-r9.json",
-    "receiptSha256": "sha256:3720413ea63e00a9f1d57740e49d0f36d3e9ba1890584e2bdf66364595041bf0",
+    "receiptSha256": "sha256:28ce33bbc05ebe760cb25d58ebb27f771cac984e1a209655470906aeda842b17",
     "materialSourceSetFingerprint": "sha256:318b301bfb6ee4a4d27f141f8137930c2aa1353dc6b6e8d519ac015bc1ec1eda",
     "materialPathCount": 405,
     "receiptStatus": "HISTORICAL_BASELINE_FOR_SCOPED_IMPACT_DISPOSITION"
@@ -90,7 +90,7 @@
   "pdp1Predecessor": {
     "phase": "PDP-1",
     "receiptRef": "docs/implementation/observations/media-discovery-pdp1-exit-2026-10-14-current-cut-r19.json",
-    "receiptSha256": "sha256:7b96365bc6dbb53b84d6932e831752e73f50e469c11a00111915cfdc6d4e5c33",
+    "receiptSha256": "sha256:95697267250fa399d5409d699877d58137957ae72012fb5e7363fb7acc871e72",
     "observationId": "MEDIA-PDP1-CURRENTNESS-2026-10-14-CURRENT-CUT-R19",
     "sourceFingerprint": "sha256:b8351b8e78818d4c9805fe38223a848ba8f954960bc1f102dec38dbbba58526a",
     "status": "PASS",

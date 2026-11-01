@@ -28,7 +28,7 @@
     "pdp0PhaseStatus": {
       "status": "IN_PROGRESS",
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "outstandingMeaningIds": 0,
       "sourcePinCount": 188,
       "staleLiveSourcePins": 8
@@ -192,17 +192,17 @@
   "reviewProvenance": [
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r02.independent-peer.actual-h-r02.json",
-      "sha256": "b9c93569b8711030195f6003de7494ee8a359cdba50f2f88b2f55cfb1eecacc2",
+      "sha256": "8f7e392d9855cfcc9f4a13cc91dc106f7ff67c8da994f44ea191f83f1ddc204a",
       "role": "scoped actual-H-R02 packet review; two packet capabilities only"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r7.independent-peer.source-peer-r2.json",
-      "sha256": "050ea65fd71736ef782f598992d7a0f47721b95d54131c1bd09c8486ae3417fa",
+      "sha256": "290770ebbbf99adcdfbc6befd3a9fb1f19a944270eb2209cba4a4c5a3d57e5b1",
       "role": "pinned R7 full-root integration and conservation review; prior evidence reused for unchanged integration invariants, not this full R9-R02 actual-H disposition"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r2.json",
-      "sha256": "7dce2d406a01f6f8c06c2292742e1e1e54752e6c3dbf35b5da4480d8fdd10842",
+      "sha256": "db14ba7bbdb704d038157ff178adddebf9eddea903f52a80b0f3ec2d2f1c3ae4",
       "role": "child technical review of R8 split parent relations; not this full R9-R02 review"
     },
     {

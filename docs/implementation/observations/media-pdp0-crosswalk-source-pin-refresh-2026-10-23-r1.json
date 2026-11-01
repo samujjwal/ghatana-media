@@ -7,7 +7,7 @@
   "authority": "agent:/root/phase_io under explicit root-delegated Media technical-owner source-currentness authority; independent acceptance and owner approval are not claimed.",
   "predecessor": {
     "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-    "sha256": "sha256:dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181",
+    "sha256": "sha256:02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
     "snapshotPath": "docs/implementation/observations/media-pdp0-crosswalk-source-pin-refresh-2026-10-23-r1-predecessor.json",
     "snapshotSha256": "sha256:dbd27e398c350fad6e8d617b23cf60d5754effcd7b4bbae214109b85d2983181"
   },

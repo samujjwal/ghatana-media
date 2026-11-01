@@ -18,12 +18,12 @@
       },
       {
         "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "443aa333cf82849eb052907e6ccc9826d4aad5f7c4b99fa2ce23984d5c0a8b08",
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
         "workingTreeState": "CURRENT_BYTES_AT_REVIEW"
       },
       {
         "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-independent-semantic-review-third-pass.json",
-        "sha256": "fbf71bdedc7e04719c69017cd5e3ccdabfc165bdb104b7a85cb95d4d8c6bb7b2",
+        "sha256": "71f28c7ee1b19cd8ccbfcc063c32591675574d8654d0f294b77109946ed64102",
         "workingTreeState": "CURRENT_BYTES_AT_REVIEW"
       },
       {

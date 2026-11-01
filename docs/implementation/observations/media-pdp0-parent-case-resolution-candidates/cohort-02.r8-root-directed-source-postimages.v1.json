@@ -27,14 +27,14 @@
     },
     {
       "ref": ".product-experience/surfaces/media-physical-topology.v1.json",
-      "sha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+      "sha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
       "physicalSurfaceCount": 26,
       "compositeIncludingRootCount": 7,
       "logicalConsumerCount": 21
     },
     {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "phaseStatus": "IN_PROGRESS",
       "denominator": 54
     }

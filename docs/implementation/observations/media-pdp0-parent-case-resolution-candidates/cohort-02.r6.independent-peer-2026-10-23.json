@@ -33,7 +33,7 @@
   "sourceBaseline": {
     "cohort02R6Proposal": {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r6.json",
-      "sha256": "a4c7e7d2d23a4c0c23684a65d557ec944164ed1fb0abee0b664adededccfa963"
+      "sha256": "61a91e20652e58fe051909fa669b1fcff969e6bab7b5ea02b5bfbe2a43d6ea02"
     },
     "candidate": {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.source-amendment-candidate.r6.json",
@@ -57,7 +57,7 @@
     },
     "phaseStatus": {
       "path": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     "projector": {
       "path": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
@@ -115,11 +115,17 @@
       "exactWhere": [
         {
           "file": "scripts/lib/media-pdp0-semantic-case-batch-projector.mjs",
-          "lines": [431, 432]
+          "lines": [
+            431,
+            432
+          ]
         },
         {
           "file": "tests/media-pdp0-semantic-case-batch-projector.test.mjs",
-          "lines": [141, 145]
+          "lines": [
+            141,
+            145
+          ]
         }
       ],
       "evidence": "The validator requires only a role string, a nonempty reviewer.identity string, and inequality with the source-owner role. It does not resolve that identity against a trusted reviewer registry, assigned review workflow, or other authentic source-bound peer record. The passing three-batch test supplies the unregistered literal peer-workflow-test-2, which satisfies the gate. The error says registered review principal, but no registration check is present.",
@@ -136,11 +142,17 @@
       "exactWhere": [
         {
           "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
-          "lines": [112, 119]
+          "lines": [
+            112,
+            119
+          ]
         },
         {
           "file": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",
-          "lines": [141, 178]
+          "lines": [
+            141,
+            178
+          ]
         }
       ],
       "evidence": "The positive fixture is rejected before review validation because its case lacks the exact semanticBinding required by the hardened projector. The malformed-R4 batch is rejected by the hardened exact live-contract guard, but the test expects an obsolete error string. The forged-authority case also fails at that earlier semanticBinding guard, so it does not demonstrate rejection at the owner/peer workflow boundary.",
@@ -175,7 +187,11 @@
       "type": "PDP-0 logical/source-definition cohort",
       "pdpPhaseApplicability": "PDP-0 applicable; later PDP phases not reviewed in this turn",
       "sourceCurrentStatus": "R6 input pins verified; phase status remains IN_PROGRESS; canonical application not performed",
-      "remainingPhaseLocalTasks": ["11 root choices pending", "P1 peer identity trust-boundary finding", "P2 source-peer regression fixture repair"] ,
+      "remainingPhaseLocalTasks": [
+        "11 root choices pending",
+        "P1 peer identity trust-boundary finding",
+        "P2 source-peer regression fixture repair"
+      ],
       "blockerOwner": "PDP-0 semantic owner for root choices; projector owner for peer identity and regression repairs",
       "acceptanceCriteria": "Resolve 11 root choices through actual owner-controlled records; resolve peer identities to trusted distinct review records; pass focused tests with isolated valid controls.",
       "nextLegalAction": "Continue PDP-0 definition and review work; no Build or source apply implied."

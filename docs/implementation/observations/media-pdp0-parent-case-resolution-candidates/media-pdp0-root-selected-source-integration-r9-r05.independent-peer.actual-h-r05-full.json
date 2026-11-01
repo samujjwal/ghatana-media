@@ -28,7 +28,7 @@
     "pdp0PhaseStatus": {
       "status": "IN_PROGRESS",
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "outstandingMeaningIds": 0,
       "sourcePinCount": 188,
       "staleLiveSourcePins": 9,
@@ -145,12 +145,12 @@
   "reviewProvenance": [
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.freeze.v1.json",
-      "sha256": "4ce72424e401e58cc16b59a28f552c79ffad60ef25094f005537d7322c4f0b37",
+      "sha256": "072bebec671759d2fb2baa387ba6d65dc85125817c4711fbfea24fad03eba782",
       "use": "Frozen review boundary, predecessor chain, pins and no-effect assertions."
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r05.successor-bundle.candidate.v1.json",
-      "sha256": "aa32fd81b73f9dd1063d3e51c30a93842ae9dc655840a6a1188dcad0e5c9ca4d",
+      "sha256": "6ac7b4b55c23bda9b2da60edb20766975607de251e9b02b219f5f85e6316fc76",
       "use": "R05 candidate inputs and selected postimages."
     },
     {
@@ -160,7 +160,7 @@
     },
     {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "use": "Read-only PDP-0 currentness and phase barrier."
     }
   ],

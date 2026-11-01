@@ -11,7 +11,7 @@
   },
   "liveBaseline": {
     "statusRef": "docs/implementation/pdp-0-phase-dev-status.json",
-    "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+    "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "status": "IN_PROGRESS",
     "sourcePinCount": 188,
     "capabilityLeafAdjudications": 462,
@@ -87,7 +87,7 @@
       "backingAndRecoveryInputs": [
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568",
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
           "exists": true
         },
         {
@@ -115,7 +115,7 @@
       "backingAndRecoveryInputs": [
         {
           "path": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
-          "sha256": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
+          "sha256": "231dc3ad51aef8d70a87157013de5d30170270a4e43becf9aeafdb2511f83c16",
           "exists": true
         },
         {
@@ -1054,14 +1054,14 @@
     },
     "canonicalStatus": {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c",
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
       "status": "IN_PROGRESS",
       "writes": "NONE"
     },
     "focusedSourceAdjustment": {
       "basis": ".product-experience/decision-log.md#PXD-226 and currentDefinitionPopulation in campaign-extensions.yaml",
       "change": "Updated the applicability resolver and its test contract for 463 current-version leaves (462 historical adjudications plus one current extension), six future proposals, and 469 definitions; the returned historical applicability join remains exactly 462.",
-      "test": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs \u2014 15\u00d738/462-leaf join PASS",
+      "test": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs — 15×38/462-leaf join PASS",
       "testCommand": "node --test --test-reporter=tap --test-name-pattern='15 review dimensions resolve every requirement type and all 462 exact leaf joins' tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
       "latestResult": "1/1 PASS after resolver and source-applicability assertion update"
     },
@@ -1070,7 +1070,7 @@
         "id": "P0-01-PXD216-PIN",
         "owner": "PDP-0 currentness record owner",
         "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:97",
-        "finding": "PXD-216 source pin expects capability-leaf-review.yaml SHA-256 3b1326a1\u2026; test execution observed dc50362c\u2026 while a post-run live read returned 3b1326a1\u2026. The phase-status sourceShaSet also retains dc50362c\u2026. This is an unstable/stale source baseline; do not rewrite PXD-216 semantic history.",
+        "finding": "PXD-216 source pin expects capability-leaf-review.yaml SHA-256 3b1326a1…; test execution observed dc50362c… while a post-run live read returned 3b1326a1…. The phase-status sourceShaSet also retains dc50362c…. This is an unstable/stale source baseline; do not rewrite PXD-216 semantic history.",
         "predecessor": "R9-R08 distinct full semantic review and source-application serialization",
         "acceptance": "Stable source snapshot; preserve exact 20-leaf PXD-216 semantics; publish an owner-authorized currentness successor covering PXD-226/227 source changes."
       },
@@ -1078,7 +1078,7 @@
         "id": "P0-01-PXD225-SECTION",
         "owner": "PDP-0 currentness record owner",
         "where": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:245",
-        "finding": "PXD-225 reconciliation records decision-section SHA-256 cb2d928f\u2026; live PXD-225 section projection is d979ecb4\u2026.",
+        "finding": "PXD-225 reconciliation records decision-section SHA-256 cb2d928f…; live PXD-225 section projection is d979ecb4….",
         "predecessor": "PXD-225 exact source-owner decision and R9-R08 semantic peer gate",
         "acceptance": "A source-authorized currentness successor pins the exact decision section and preserves PXD-216/PXD-223 semantics with no acceptance claim."
       }
@@ -1105,7 +1105,7 @@
       "canonicalApply": "NONE",
       "nextAction": "Wait for distinct full semantic review and fresh owner/root disposition; then rebuild currentness from one stable source cut before any status application."
     },
-    "surfaceProjection": "The checked-in 54-surface matrix is stale: it pins status SHA-256 71d801cd\u2026 while live PDP-0 status is 6e92932b\u2026. Its historical per-surface DEV_COMPLETE/zero-task cells are not current evidence.",
+    "surfaceProjection": "The checked-in 54-surface matrix is stale: it pins status SHA-256 71d801cd… while live PDP-0 status is 6e92932b…. Its historical per-surface DEV_COMPLETE/zero-task cells are not current evidence.",
     "authorityBoundary": {
       "ownerApproval": "NOT_CLAIMED",
       "independentAcceptance": "NOT_CLAIMED",
@@ -1131,7 +1131,7 @@
           "skipped": 29,
           "failedCriteria": [
             "audit traceability preserves all 501 source IDs and has no missing exact PDP-0 joins",
-            "PDP-0 joins, family scope, implementation handoffs, and A\u2013Q recommendations remain distinct",
+            "PDP-0 joins, family scope, implementation handoffs, and A–Q recommendations remain distinct",
             "traceability validator verifies source pins and source disposition ledger",
             "all non-whitespace changed-text residuals have exactly one source-bound disposition",
             "PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source",

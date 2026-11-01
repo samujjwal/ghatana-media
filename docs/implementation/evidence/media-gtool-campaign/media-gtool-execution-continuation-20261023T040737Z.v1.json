@@ -6,12 +6,12 @@
     {
       "role": "prior source/planning continuation",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T033715Z.v1.json",
-      "sha256": "sha256:5f227bf33f2da5e6bf314b05ac7b6dcc8c3e0d2497ff9dc3a19621d2cf5973f1"
+      "sha256": "sha256:841cbafe7f64a103668e9e297def9da5b2890c5c8de1c90c4f95f61a1eb4618a"
     },
     {
       "role": "fresh F00.T01 source receipt",
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537"
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc"
     }
   ],
   "campaign": {
@@ -59,7 +59,7 @@
     },
     "f00t01Receipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
       "topology": {
         "physical": 26,
         "compositionsAndRoot": 7,

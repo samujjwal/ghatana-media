@@ -4,11 +4,11 @@
   "profileId": "media.pdp0.root-selected-source-integration.r9-r08.operation-profile.v2",
   "candidate": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
-    "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+    "sha256": "9827983816f3864f18bcbaf21a6f7bb54cc64ee5be59bdcee93688deb5ba6d7f"
   },
   "freeze": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
-    "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+    "sha256": "433b0404dfda8f714142987d6f3ca18126cead85385ab496def9cc066fed617e"
   },
   "materialBinding": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json",
@@ -19,14 +19,14 @@
   },
   "semanticReview": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
-    "sha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a",
+    "sha256": "30f30d419404c0ca281910dd6f467f9f5e1a7c1144c5d0ec306137be815342a0",
     "status": "PASS_FOR_SELECTED_CANDIDATE_SEMANTICS_ONLY_BLOCKED_FOR_CURRENTNESS_AND_AUTHORITY_CHAIN",
     "disposition": "PASS_FOR_FROZEN_R9_R08_SELECTED_CUT_ONLY",
     "semanticFindingCount": 0
   },
   "materialBindingRecommendation": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-material-binding-review-r01.json",
-    "sha256": "5c0c90c4ae7a31a1b7bd3b971c8b071daa1289675fa5327dece745f37239026d",
+    "sha256": "10f1d5ab05dbe557e9ca154b948522135a4e581541e6166f49412486ebbd3d20",
     "status": "DESIGN_RECOMMENDATION_WITH_BLOCKER",
     "recordKind": "READ_ONLY_TECHNICAL_RECOMMENDATION",
     "disposition": "TECHNICAL_RECOMMENDATION_ONLY"

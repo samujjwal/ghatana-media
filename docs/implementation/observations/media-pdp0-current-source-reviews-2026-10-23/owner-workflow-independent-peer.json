@@ -74,7 +74,7 @@
     },
     "currentP007Input": {
       "ref": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-07.json",
-      "sha256": "f8586eb6ee7866e1ce192972a9e4a6be1afb617cdef14768a7faf8951aae6cf6",
+      "sha256": "f9bed53e627b14f4264378e1aa8f889416b4001fcee11781845d4718b3e445eb",
       "schemaVersion": "media.pdp0.current-source-review-record.v1",
       "findingIds": [
         "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231"

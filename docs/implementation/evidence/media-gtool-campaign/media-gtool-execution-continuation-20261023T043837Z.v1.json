@@ -5,27 +5,27 @@
   "parentRecords": [
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-gtool-execution-continuation-20261023T042800Z.v1.json",
-      "sha256": "sha256:94a10f98bd9377948f87c7f601b3d9f6f208ee7f39116c979dc80762d683072e",
+      "sha256": "sha256:0fcec8f87b14c3975592fe29d074b143c70f6b4b51ca742f04a081e5a28b5290",
       "relation": "PREVIOUS_CONTINUATION"
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
       "relation": "F00_T01_SOURCE_BASELINE"
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-      "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5",
+      "sha256": "sha256:b990b2a4a75565af0657c3e9dcceada1040b7edf49e1ab4ac6191ac4ad1ee865",
       "relation": "F00_T02_TECHNICAL_CANDIDATE"
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
-      "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90",
+      "sha256": "sha256:f3ae6719ceef2bdf473673dee4ffa0f225eac31b5985ca57ca2b8910638d3829",
       "relation": "L01_T01_BLOCKER_CANDIDATE"
     },
     {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t03-handoff-census-candidate-20261023T043837Z.v1.json",
-      "sha256": "sha256:d2c6f8cb3f72bed40ddcce469f9a60e63f226d439bf69398f9fb7569dbce6c40",
+      "sha256": "sha256:2f2736cb024a77cd332cf3482604bfe944f32ece0a2742b8492e08854e6c4920",
       "relation": "F00_T03_HANDOFF_CENSUS_CANDIDATE"
     }
   ],
@@ -75,7 +75,7 @@
     },
     "f00t01Receipt": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t01-source-material-topology-observation-20261023T040454Z.v1.json",
-      "sha256": "sha256:28314928b26c3bb97c8b0e4fcaeeed1610f25d3e12adcffbf90c298de0047537",
+      "sha256": "sha256:64984b50b5167f147962e0c0ca5a0de65c4bafcf99662cafc66c9348f9bf2fbc",
       "status": "SOURCE_INPUTS_RECONCILED_WITH_METHOD_AGGREGATE_BLOCKER",
       "identities": 54,
       "materialPins": 859,
@@ -84,7 +84,7 @@
     },
     "perSurfacePhaseMatrix": {
       "path": "docs/implementation/evidence/media-gtool-campaign/media-source-phase-surface-matrix-20261023T041850Z.v1.json",
-      "sha256": "sha256:f2ac9e889c34c200c4595b5da16b32b799d14075c8eac339dc38db54ab31a019",
+      "sha256": "sha256:28bdc05ff5e6daacd0920e29e26fb2a757f163f4ce6263d50e87900a2a76a33e",
       "rows": 216,
       "identities": 54,
       "sourceCurrent": true,
@@ -96,12 +96,12 @@
     },
     "trace": {
       "path": "docs/implementation/MEDIA-BUILD-IDENTITY-TRACE.v1.json",
-      "sha256": "sha256:92222c29aabc0965ad7e4c926f89c9c631678c0ac5eb40b9748dcef2df3eaa32",
+      "sha256": "sha256:6504f053c20d1398ccf853e93a4e9a2b10d1e0904c554e2ee746e5c0414d2450",
       "identities": 3186
     },
     "packageProjection": {
       "path": "docs/implementation/MEDIA-BUILD-WORK-PACKAGES.v1.json",
-      "sha256": "sha256:e5990c3991aaa8852e0f6918573bb584a6b3edb406076e57638ddcd95f138aef",
+      "sha256": "sha256:7119bebe81e8b461192297eaafd594320125e8c857f766f58898fb0e110e5955",
       "status": "DETERMINISTIC_CURRENT",
       "packages": 50,
       "tasks": 57,
@@ -110,7 +110,7 @@
     },
     "ownerDisposition": {
       "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-      "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+      "sha256": "sha256:e9bee6d0c946f418f2342f19e9729b1e020413eb9162663af6706ebd67baae5d",
       "approvedTaskScopes": 19,
       "remainingTechnicalTasks": 19
     },
@@ -122,7 +122,7 @@
     },
     "contractBridge": {
       "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
-      "sha256": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+      "sha256": "sha256:30c827341a82124f06deb8b630e7d3d382153d6371a701b4044fe032415c5a5a",
       "traceIdentities": 3186,
       "edges": 8667,
       "unresolvedSourceBlockers": 0
@@ -145,7 +145,7 @@
       "formalTaskAcceptance": "PENDING",
       "evidenceCandidate": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t02-technical-reconciliation-candidate-20261023T041351Z.v1.json",
-        "sha256": "sha256:12cada80cb6fbfe5502f48f1b8fa6fc22f473f8c13199e6f3fc21f3c9eb9bea5",
+        "sha256": "sha256:b990b2a4a75565af0657c3e9dcceada1040b7edf49e1ab4ac6191ac4ad1ee865",
         "status": "TECHNICALLY_RECONCILED_REVIEW_PENDING",
         "taskAcceptance": "NOT_ESTABLISHED",
         "planReady": "NOT_PROVEN"
@@ -164,7 +164,7 @@
       "criterionDiscrepancy": "The committed source baseline enumerates 25 exact blockers; 23 P1 source-join blockers now have current exact bridge edges. The two remaining concerns are channel admission and editorial voice/narration authority. The latter retains partial source-binding evidence and is not claimed as a one-to-one semantic replacement. Formal acceptance remains pending.",
       "blockerReconciliation": {
         "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041912Z.v1.json",
-        "sha256": "sha256:e8cd19aa01f1d543a6584f10ed61b2f5bea4802c6e487b0d4a821d4d773d7b90",
+        "sha256": "sha256:f3ae6719ceef2bdf473673dee4ffa0f225eac31b5985ca57ca2b8910638d3829",
         "baselineBlockers": 25,
         "resolvedSourceJoinBlockers": 23,
         "openBaselineBlockers": 2,
@@ -290,7 +290,7 @@
     "f00T03": {
       "status": "ASSIGNED_UNVERIFIED",
       "technicalCandidate": "docs/implementation/evidence/media-gtool-campaign/media-build-f00-t03-handoff-census-candidate-20261023T043837Z.v1.json",
-      "sha256": "sha256:d2c6f8cb3f72bed40ddcce469f9a60e63f226d439bf69398f9fb7569dbce6c40",
+      "sha256": "sha256:2f2736cb024a77cd332cf3482604bfe944f32ece0a2742b8492e08854e6c4920",
       "packageCount": 50,
       "packageTaskCount": 57,
       "consumerIdentities": 54,

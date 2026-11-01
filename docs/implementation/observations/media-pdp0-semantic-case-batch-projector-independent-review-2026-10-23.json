@@ -30,7 +30,7 @@
     },
     "r4Artifact": {
       "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-02.r4.json",
-      "sha256": "dafce83cdb8a93feed3b43db66cb1230988a9eaff051c641f84812e2d3ef5d39"
+      "sha256": "254984f00f0475def169b4b7abffbd9dc2d38f0ba95ed0d82c77b491e11b59cb"
     },
     "sourcePeerTests": {
       "path": "tests/media-pdp0-semantic-case-batch-projector-source-peer.test.mjs",

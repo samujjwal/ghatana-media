@@ -186,7 +186,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -194,15 +194,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -351,7 +351,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -359,15 +359,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -517,7 +517,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -525,15 +525,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -687,7 +687,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -695,15 +695,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -839,7 +839,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -847,15 +847,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1000,7 +1000,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1008,15 +1008,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1151,7 +1151,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1159,15 +1159,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1307,7 +1307,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1315,15 +1315,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1472,7 +1472,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1480,15 +1480,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1607,7 +1607,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1615,15 +1615,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1758,7 +1758,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1766,15 +1766,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -1932,7 +1932,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -1940,15 +1940,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2102,7 +2102,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2110,15 +2110,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2230,7 +2230,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2238,15 +2238,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2423,7 +2423,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2431,15 +2431,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2601,7 +2601,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2609,15 +2609,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2748,7 +2748,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2756,15 +2756,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -2927,7 +2927,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -2935,15 +2935,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3119,7 +3119,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3127,15 +3127,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3299,7 +3299,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3307,15 +3307,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3478,7 +3478,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3486,15 +3486,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3676,7 +3676,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3684,15 +3684,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3850,7 +3850,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3858,15 +3858,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -3985,7 +3985,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -3993,15 +3993,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4125,7 +4125,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4133,15 +4133,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4274,7 +4274,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4282,15 +4282,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4391,7 +4391,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4399,15 +4399,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4507,7 +4507,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4515,15 +4515,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4673,7 +4673,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4681,15 +4681,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -4857,7 +4857,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -4865,15 +4865,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5037,7 +5037,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5045,15 +5045,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5240,7 +5240,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5248,15 +5248,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5420,7 +5420,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5428,15 +5428,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5555,7 +5555,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5563,15 +5563,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5758,7 +5758,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5766,15 +5766,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -5927,7 +5927,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -5935,15 +5935,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6091,7 +6091,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6099,15 +6099,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6256,7 +6256,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6264,15 +6264,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6424,7 +6424,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6432,15 +6432,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6603,7 +6603,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6611,15 +6611,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6792,7 +6792,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6800,15 +6800,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -6951,7 +6951,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -6959,15 +6959,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7119,7 +7119,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7127,15 +7127,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7277,7 +7277,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7285,15 +7285,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7446,7 +7446,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7454,15 +7454,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7644,7 +7644,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7652,15 +7652,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7783,7 +7783,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7791,15 +7791,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -7930,7 +7930,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -7938,15 +7938,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8047,7 +8047,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8055,15 +8055,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8163,7 +8163,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8171,15 +8171,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8293,7 +8293,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8301,15 +8301,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8428,7 +8428,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8436,15 +8436,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8567,7 +8567,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8575,15 +8575,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8684,7 +8684,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8692,15 +8692,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8802,7 +8802,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8810,15 +8810,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -8924,7 +8924,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -8932,15 +8932,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9066,7 +9066,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9074,15 +9074,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9205,7 +9205,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9213,15 +9213,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9323,7 +9323,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9331,15 +9331,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9440,7 +9440,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9448,15 +9448,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9570,7 +9570,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9578,15 +9578,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9687,7 +9687,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9695,15 +9695,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -9887,7 +9887,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -9895,15 +9895,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10089,7 +10089,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10097,15 +10097,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10282,7 +10282,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10290,15 +10290,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10477,7 +10477,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10485,15 +10485,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10616,7 +10616,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10624,15 +10624,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10732,7 +10732,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10740,15 +10740,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -10870,7 +10870,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -10878,15 +10878,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11025,7 +11025,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11033,15 +11033,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11180,7 +11180,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11188,15 +11188,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11323,7 +11323,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11331,15 +11331,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11445,7 +11445,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11453,15 +11453,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11583,7 +11583,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11591,15 +11591,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11727,7 +11727,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11735,15 +11735,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -11865,7 +11865,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -11873,15 +11873,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [
@@ -12000,7 +12000,7 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "path": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json",
@@ -12008,15 +12008,15 @@
         },
         {
           "path": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-          "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+          "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
         },
         {
           "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.independent-peer.json",
-          "sha256": "7710506c6624bf46b9b64c6c808654d5eb6b38f4d4b2f68a886fec9a13540a24"
+          "sha256": "abac92e3dc1c5cd449181b65df78ddd853df6103cb4e6d9bed98fdcabdc27f8c"
         }
       ],
       "nonClaims": [

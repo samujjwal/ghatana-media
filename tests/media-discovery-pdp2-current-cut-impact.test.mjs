@@ -249,8 +249,8 @@ test('historical PDP-2 R2 preserves its exact six-path impact and predecessor pi
   assert.equal(impact.sourceDeltas.length, 6);
   // This fixture asserts the immutable R2 transition record. Its observed hashes are historical and are not live R4 inputs.
   assert.match(decisionLogText, /### PXD-163\b/u);
-  assert.match(interfaceReviewText, /The exact source inventory contains 15\/15 current owner typed observation contracts and 15 validation rules/u);
-  assert.match(handoffContractsText, /ownerDefinedOperations:\s*\n\s*count:\s*107\b/u);
+  assert.match(interfaceReviewText, /The exact source inventory contains 16\/16 current owner typed observation contracts and 15 owner typed observation validation-rule records/u);
+  assert.match(handoffContractsText, /ownerDefinedOperations:\s*\n\s*count:\s*108\b/u);
   assert.match(reporterText, /pdp-1/u);
 });
 
@@ -384,8 +384,8 @@ test('PDP-2 scoped impact rejects a seventh changed path, a missing pin, or byte
   assert.equal(fixture({ mutateSemanticReview: (value) => { value.supplementaryReviews.find((review) => review.id === 'P1-current-owner-typed-observation-definition-delta-2026-10-14').sourceSha256 = 'wrong-hash'; } }).p1EvidenceRefresh.valid, false);
   assert.equal(fixture({ mutateOperationsReview: (value) => { value.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta.reviewedRecords[0].meaning = ''; } }).p1EvidenceRefresh.valid, false);
   assert.equal(fixture({ mutateOperationsReview: (value) => { value.currentSourceCutDeltaReview.supplementalPdp1DefinitionDelta.reviewedRecords[0].id = 'wrong.id'; } }).p1EvidenceRefresh.valid, false);
-  assert.equal(fixture({ mutateSemanticReview: (value) => { value.currentCutReview.parityTestPinDispositionReview.verificationStatus = 'PASS'; } }).p1EvidenceRefresh.valid, false);
-  assert.equal(fixture({ mutateSemanticReview: (value) => { value.currentCutReview.definitionContractRefresh.verificationEvidence.fullPhaseGate.testCount = 343; } }).p1EvidenceRefresh.valid, false);
+  assert.equal(fixture({ mutateSemanticReview: (value) => { value.sourceCutHistory[0].currentCutReview.parityTestPinDispositionReview.verificationStatus = 'PASS'; } }).p1EvidenceRefresh.valid, false);
+  assert.equal(fixture({ mutateSemanticReview: (value) => { value.sourceCutHistory[0].currentCutReview.definitionContractRefresh.verificationEvidence.fullPhaseGate.testCount = 343; } }).p1EvidenceRefresh.valid, false);
 });
 
 test('the live R4 comparison blocks newly changed PDP-2 and PDP-1 pins beyond its six-path R2 record', () => {

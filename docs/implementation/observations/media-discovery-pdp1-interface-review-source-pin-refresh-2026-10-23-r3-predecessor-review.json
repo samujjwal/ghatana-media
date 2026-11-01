@@ -13,7 +13,7 @@
     },
     {
       "path": ".product-experience/pdp-1-domain-data/operations-current-source-review.json",
-      "sha256": "a1ff62230ab89dc6bc051737d68418b8e5bee3c08e5bad0a64628fe273f0b19c"
+      "sha256": "45f4ee6460053855cad418e27f61798480b0128361709f076d1cedf764024d57"
     },
     {
       "path": ".product-experience/pdp-3-product-experience/action-registry.yaml",
@@ -105,11 +105,11 @@
     },
     {
       "path": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "38df1156b776b4be5f134562eb35a98f3ef2830bba3aa9af86f2be2de257aa7d"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     {
       "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-      "sha256": "767ed0f3909f53c729a14273660f460120713e88c16d59d439082e7e370e6ea9"
+      "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1"
     }
   ],
   "recomputedPopulations": {
@@ -540,12 +540,12 @@
         },
         {
           "path": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "1dcfb709f49c2bd6184ec32f830ded18fe04c7fa9b6c0153ca6c9f7e8ce181f6",
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
           "authorityRole": "source-pinned PDP-0 status record"
         },
         {
           "path": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
-          "sha256": "7d19f4f25fbfdcb598a8c010a8ce78e3345648576605fd02231d4c2ddd41f379",
+          "sha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
           "authorityRole": "PDP-0 surface status projection only; not product-definition authority"
         }
       ],

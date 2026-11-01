@@ -5,20 +5,20 @@
   "planDisposition": "BLOCKED_AWAITING_SOURCE_OWNER_PROFILE_REGISTRATION_DECISIONS_AND_ACTUAL_H_REVIEW",
   "candidateBundle": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.successor-bundle.candidate.v1.json",
-    "sha256": "bf8be9fd5693b76136be553a9cc692727605e31769b35bbf991f01adffb88626"
+    "sha256": "eb99ca07288ff218e666d17bc5b3a69354de9e0ee56e290d8406ebd0604143e0"
   },
   "freezeManifest": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
-    "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e"
+    "sha256": "d9d722e036fc31caae90f26a4ff25688ae8da204d0cc821bebb2ab8f35a72eb7"
   },
   "rootMappingDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-    "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+    "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
     "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE"
   },
   "subagentTechnicalCheck": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r2.json",
-    "sha256": "7dce2d406a01f6f8c06c2292742e1e1e54752e6c3dbf35b5da4480d8fdd10842",
+    "sha256": "db14ba7bbdb704d038157ff178adddebf9eddea903f52a80b0f3ec2d2f1c3ae4",
     "reviewStatus": "PASS",
     "reviewerIdentity": "/root/source_peer",
     "disposition": "PASS_TECHNICAL_SUBAGENT_ONLY"
@@ -79,7 +79,7 @@
     },
     {
       "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-      "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
+      "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
       "actualSha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3",
       "matches": true
     },

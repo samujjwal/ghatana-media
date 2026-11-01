@@ -11,7 +11,7 @@
   "decisionChain": {
     "actualMappingDecision": {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-direct010-edit022-actual-root-mapping-decision-r01.json",
-      "sha256": "0d5a84df21b1dbf66d807934a659649c7e89ae199e409a240ce1c47f5f1e3d4e",
+      "sha256": "ed45fff9a708dab8b2a22ac74b59462451a5b0131b22e0b598461bbed76aed22",
       "selectedOptionId": "B_SPLIT_BY_OPERATION_SCOPE"
     },
     "sourceOwnerDecision": {
@@ -28,7 +28,7 @@
     },
     "independentFinalPeerReview": {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.independent-peer.source-peer-r2.json",
-      "sha256": "7dce2d406a01f6f8c06c2292742e1e1e54752e6c3dbf35b5da4480d8fdd10842",
+      "sha256": "db14ba7bbdb704d038157ff178adddebf9eddea903f52a80b0f3ec2d2f1c3ae4",
       "status": "PASS_TECHNICAL_ONLY"
     }
   },
@@ -56,7 +56,7 @@
       },
       {
         "targetRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
-        "sha256": "6f6eb6267083174de9716efcfd42d20357fb933696bafbea7444b28abcdef8a3"
+        "sha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4"
       },
       {
         "targetRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
@@ -1188,11 +1188,11 @@
   "nextAction": "Route the frozen exact-input candidate to the authorized source owner and root authority. This proposal does not execute writes; canonical apply would require separate current exact-input authorization after schema registration.",
   "predecessorProposal": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.source-adoption-cas-proposal.candidate.v1.json",
-    "sha256": "058b31a9225791aa8654ee27b96212ba96ac0e638623b751a38eb9e199fe9c56"
+    "sha256": "7b46087a85a08a3d0e70a6816a3bd894bb1a7f82331e96034e15c3c41ea03a22"
   },
   "freezeManifest": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r8.freeze.v1.json",
-    "sha256": "413ec491503aa77722629e66e3cafc0d43c15024f244c90ac1e1294f6e3aab4e",
+    "sha256": "d9d722e036fc31caae90f26a4ff25688ae8da204d0cc821bebb2ab8f35a72eb7",
     "status": "FROZEN_FOR_SOURCE_OWNER_AND_ROOT_REVIEW_ONLY"
   }
 }

@@ -25,7 +25,7 @@
     "artifacts": {
       "cohort01R3": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.json",
-        "sha256": "62f517753a8096f7df9310f6cb04cae94360d6e75860ca3e05268b7001ff7ed8"
+        "sha256": "31ad6a7c01f85a0f8b3dffb623e7a4eabebf2aec8c26b9ef6d966fca21658654"
       },
       "candidateV2": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.v2.json",
@@ -37,11 +37,11 @@
       },
       "cohort01R2": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.json",
-        "sha256": "74540aa4d40380556c0f36765821a68308bd5ce6358c366432b25809f383ffe4"
+        "sha256": "97a46ae0c942a54c135c06c0371af31a77e4073036fe538fb3f405ab1ce26795"
       },
       "cohort01R2IndependentPeer": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r2.independent-peer.json",
-        "sha256": "570ef85540279e0f61145de505b8cd311bc7b757f6659eed5ca82487ab64a281"
+        "sha256": "a0b5085a3c38177aee166750696121f3bd00218e3c749d9ea89262bd9344c9b7"
       },
       "cohort01R3SourceProposalV1": {
         "path": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/cohort-01.r3.source-amendment-candidate.v1.json",

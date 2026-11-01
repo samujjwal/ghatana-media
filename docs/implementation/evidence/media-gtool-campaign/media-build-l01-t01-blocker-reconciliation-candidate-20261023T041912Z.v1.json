@@ -14,7 +14,7 @@
   "taskDisposition": {
     "ownerDisposition": {
       "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-      "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+      "sha256": "sha256:e9bee6d0c946f418f2342f19e9729b1e020413eb9162663af6706ebd67baae5d",
       "bytes": 39231
     },
     "status": "OPEN_TECHNICAL_WORK",
@@ -31,7 +31,7 @@
         "revision": "HEAD",
         "commit": "f8816aede965d55c27005d5bab13bcb6ae376389",
         "gitBlobOid": "ddbac671e8fcfd4c737102f303e7ceec4fa93138",
-        "sha256": "sha256:a49a69aee00a66cedfc538aa03d955a12b158ffccf46d56fe186281c6c88135b",
+        "sha256": "sha256:8d7d990359505a9f35187cd3a9fa09e0a4d5ed0235fd14eaeb8047993c68fddf",
         "bytes": 343376
       },
       "blockerCount": 25,
@@ -66,7 +66,7 @@
     "currentSourceGenerated": {
       "scenario": {
         "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
-        "sha256": "sha256:129f3bbd4b1a31a3912f45f05e983e60a06d73d25a8a43458cb323bf997c963a",
+        "sha256": "sha256:8d7d990359505a9f35187cd3a9fa09e0a4d5ed0235fd14eaeb8047993c68fddf",
         "bytes": 482607
       },
       "generator": "scripts/generate-media-early-business-scenario.mjs",
@@ -622,7 +622,7 @@
     "artifactRefs": {
       "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json": {
         "path": "docs/implementation/MEDIA-EARLY-BUSINESS-SCENARIO.v1.json",
-        "sha256": "sha256:129f3bbd4b1a31a3912f45f05e983e60a06d73d25a8a43458cb323bf997c963a",
+        "sha256": "sha256:8d7d990359505a9f35187cd3a9fa09e0a4d5ed0235fd14eaeb8047993c68fddf",
         "bytes": 482607
       },
       "scripts/generate-media-early-business-scenario.mjs": {
@@ -642,7 +642,7 @@
       },
       "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json": {
         "path": "docs/implementation/MEDIA-BUILD-CONTRACT-BRIDGE.v1.json",
-        "sha256": "sha256:e4a3bb4df45ca055a9b4129f98be6ea15ac668276e137bcb4b25179c15c5cd13",
+        "sha256": "sha256:30c827341a82124f06deb8b630e7d3d382153d6371a701b4044fe032415c5a5a",
         "bytes": 12478978
       },
       "docs/implementation/MEDIA-BUILD-BRIDGE-BLOCKER-INVENTORY.v1.json": {
@@ -652,7 +652,7 @@
       },
       "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json": {
         "path": "docs/implementation/MEDIA-GTOOL-OWNER-EXECUTION-DISPOSITIONS.v1.json",
-        "sha256": "sha256:23b6a951b71bfcbcd296d24bdaaa113b0a3b8b267ee851eacca872cb87624d8a",
+        "sha256": "sha256:e9bee6d0c946f418f2342f19e9729b1e020413eb9162663af6706ebd67baae5d",
         "bytes": 39231
       },
       ".product-experience/pdp-1-domain-data/operations.yaml": {
@@ -802,7 +802,7 @@
   "nextAction": "Reconcile the canonical 25-blocker acceptance criterion against this exact baseline-to-current source evidence in the owner/Work Planner task review. Retain the channel blocker and the narration/editorial-authority gap; do not close L01.T01 on this candidate alone.",
   "supersedes": {
     "path": "docs/implementation/evidence/media-gtool-campaign/media-build-l01-t01-blocker-reconciliation-candidate-20261023T041622Z.v1.json",
-    "sha256": "sha256:b1812b2defad963a07bfaa532cc5e8bf156a8f0724a0e503e2abff8205548ae0",
+    "sha256": "sha256:b89eed5b549726fbbb6f51c532e6fd2743000d8e3951d50d06364b024fb7cd16",
     "reason": "Independent review clarified that five exact operation-binding selectors are distinct from the bridge edge sourceRef list selectors; both are retained with explicit roles."
   },
   "provenanceClarification": {

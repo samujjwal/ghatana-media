@@ -114,7 +114,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-001",
@@ -124,7 +124,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -227,7 +227,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-002",
@@ -237,7 +237,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The stream leaf and its source-bound live-audio input cover transcription intent; partial/final ordering is explicitly retained as a PDP-1 handoff, and no timing guarantee is claimed.",
@@ -340,7 +340,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-003",
@@ -350,7 +350,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed missing-definition decision overlooks existing `media.audio.analysis.detect.silence` and `media.audio.analysis.segment.content-kind`; the current row already has `media.speech.transcription.voice-activity.detect`. This is a three-leaf coverage question, not evidence of a new silence definition.",
@@ -458,7 +458,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-004",
@@ -468,7 +468,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.speech.transcription.language.detect` defines a language observation, but the feature also promises mixed-language segments. The cited family cases do not define segment boundaries, per-segment language, or uncertainty for mixed/ambiguous speech.",
@@ -582,7 +582,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-005",
@@ -592,7 +592,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -695,7 +695,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-006",
@@ -705,7 +705,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -808,7 +808,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-007",
@@ -818,7 +818,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Speaker segmentation meaning matches within-recording speaker-associated segments; revision behavior is not promoted into PDP-0 and is handed to PDP-1.",
@@ -921,7 +921,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-008",
@@ -931,7 +931,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The stream leaf covers live transcription, and parent AC-03 covers user-initiated insertion into a selected authorized target. Neither case defines push-to-talk versus persistent toggle mode, activation/deactivation, or the resulting capture scope; the proposal treats the compound feature as fully supported.",
@@ -1039,7 +1039,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-013",
@@ -1049,7 +1049,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Confidence output is directly defined as transcription confidence information; the candidate disclaims thresholds and UI review queues.",
@@ -1122,7 +1122,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-014",
@@ -1132,7 +1132,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The cited `media.sync.dub-subtitle-voiceover-time` leaf describes an alignment candidate; it does not define transcript rebasing when a video edit changes the underlying revision. Generic sync cases do not bind old/new project versions or stale-anchor handling.",
@@ -1240,7 +1240,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-016",
@@ -1250,7 +1250,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -1353,7 +1353,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-018",
@@ -1363,7 +1363,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.speech.transcription.translate` and the translation parent case define a translated draft and glossary/memory boundaries, but not low-latency partial translated captions. The proposed supported finding does not establish partial update meaning or a latency target.",
@@ -1471,7 +1471,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-019",
@@ -1481,7 +1481,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The mapped `punctuate-capitalize` leaf defines formatting, while the source feature also names local LLM cleanup. The proposal correctly says lexical cleanup is not covered, so its overall SUPPORTED disposition is false coverage.",
@@ -1565,7 +1565,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASR-020",
@@ -1575,7 +1575,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.audio.analysis.segment.content-kind` distinguishes speech, music, and non-speech intervals, but the source feature additionally says sound-event detection. The current case does not identify an event taxonomy or distinguish a recognized event from generic non-speech.",
@@ -1707,7 +1707,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-001",
@@ -1717,7 +1717,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -1844,7 +1844,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-002",
@@ -1854,7 +1854,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -1945,7 +1945,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-007",
@@ -1955,7 +1955,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -2082,7 +2082,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-008",
@@ -2092,7 +2092,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Derivation binds exact source version, transformation profile/configuration, output type, purpose and rights; proxy status is not treated as implementation or registration.",
@@ -2219,7 +2219,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-011",
@@ -2229,7 +2229,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Artifact inspection is explicitly observational for one exact immutable version and returns only recorded metadata; unknown metadata remains absent/unknown.",
@@ -2362,7 +2362,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-014",
@@ -2372,7 +2372,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -2499,7 +2499,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-015",
@@ -2509,7 +2509,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Artifact search supports bounded, rights-scoped speaker/person facets and exact source/time provenance; the candidate does not claim external catalog search or source availability.",
@@ -2636,7 +2636,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-ASSET-016",
@@ -2646,7 +2646,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.artifact.derive` defines a derivation candidate, exact source/profile/purpose/rights and byte budget; it does not define content-addressed cache identity, reuse, freshness, or cache isolation. The proposal claims supported meaning while explicitly deferring those core feature terms.",
@@ -2754,7 +2754,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-011",
@@ -2764,7 +2764,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.stream.transport.webrtc` covers transport and owner-reported session observations, not remote-contributor enrollment, participant identity/consent, or capture path ownership. The proposed supported disposition covers only one part of the named feature.",
@@ -2842,7 +2842,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-013",
@@ -2852,7 +2852,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The linked `media.sync.drift-detect-correct` leaf covers timestamped alignment but the cited row does not show a multi-camera input relation or a clapper-marker observation case. The proposal reduces the feature to generic drift correction.",
@@ -2942,7 +2942,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-016",
@@ -2952,7 +2952,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -3037,7 +3037,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-018",
@@ -3047,7 +3047,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.animation.path` defines path-based animation in a versioned scene/edit, but does not define the feature’s scale behavior or idle hiding. The rationale acknowledges these omissions while retaining SUPPORTED.",
@@ -3131,7 +3131,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-019",
@@ -3141,7 +3141,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -3214,7 +3214,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-027",
@@ -3224,7 +3224,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The drift-correction leaf returns a time-bound alignment candidate with uncertainty; no correction accuracy or execution is inferred.",
@@ -3327,7 +3327,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CAP-028",
@@ -3337,7 +3337,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The cited reconnect meaning does not identify an authority that can issue the proposed scene-ownership receipt or confirm recording resume. The source audit names the desired capability but does not define the owner/evidence contract.",
@@ -3457,7 +3457,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-003",
@@ -3467,7 +3467,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.speech.synthesis.speaker.clone-authorized` defines an authorized-speaker profile derived from a source recording, but neither that leaf nor its cited generic cases defines zero-shot operation. The feature’s method qualifier is therefore not covered by the supported disposition.",
@@ -3587,7 +3587,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-004",
@@ -3597,7 +3597,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The source audit names optional tuning/fine-tuning, while current canonical clone meaning is source-authorized profile derivation and its owner clauses explicitly keep provider/model and training details separate. The supplied sources do not establish whether model tuning is a P0 product capability or a Build-only route.",
@@ -3741,7 +3741,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-005",
@@ -3751,7 +3751,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -3866,7 +3866,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-006",
@@ -3876,7 +3876,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The candidate proposes source-free synthetic voice design, but current sources distinguish authorized-speaker cloning and general speech synthesis without establishing this feature’s intended synthetic persona scope. The feature label alone cannot settle product applicability.",
@@ -3954,7 +3954,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-007",
@@ -3964,7 +3964,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The existing authorized-speaker similarity leaf returns a bounded similarity observation; it does not establish identity consistency or identify a person. The feature label combines comparison with a stronger identity-check claim.",
@@ -4108,7 +4108,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-CLONE-017",
@@ -4118,7 +4118,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed missing case is a scoped enrollment candidate with current consent/rights and explicitly no identity proof or out-of-scope likeness use.",
@@ -4227,7 +4227,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-001",
@@ -4237,7 +4237,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed feature-specific meaning binds comment anchors to an exact version/timebase, rejects inferred rebase, and keeps review comments separate from authorization.",
@@ -4345,7 +4345,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-002",
@@ -4355,7 +4355,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.project.review` records a scoped review action on an immutable project version; it does not define a checklist, criteria set, criterion-level evidence, or quality signoff semantics. The current supported disposition overreads review as checklist/signoff workflow.",
@@ -4474,7 +4474,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-003",
@@ -4484,7 +4484,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The rebind includes `media.quality.compare` and `media.project.review`, but neither referenced meaning defines frame-specific markup/annotation creation or its time/frame anchor. The proposed refs cover comparison and review action only.",
@@ -4597,7 +4597,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-005",
@@ -4607,7 +4607,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed case scopes role changes to named actors and exact project versions, distinguishes observed state from request, and does not grant external authority.",
@@ -4733,7 +4733,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-006",
@@ -4743,7 +4743,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed read-only grant is limited to an exact artifact/recipient and denies implied edit/export/publication authority; access is not inferred from a grant.",
@@ -4869,7 +4869,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-007",
@@ -4879,7 +4879,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposal adds owner-specified expiry to exact share scope and does not infer expiry defaults, recipient access, or delivery.",
@@ -4987,7 +4987,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-008",
@@ -4997,7 +4997,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -5105,7 +5105,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-010",
@@ -5115,7 +5115,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed temporary edit claim has exact project/track scope, owner, expiry/conflict states, and does not imply a global lock.",
@@ -5223,7 +5223,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-011",
@@ -5233,7 +5233,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed team-library record is versioned and rights/use scoped and explicitly denies cross-tenant reuse or rights clearance by membership.",
@@ -5341,7 +5341,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-012",
@@ -5351,7 +5351,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed decision binds exact variant versions, reviewer authority, declared basis and evidence; it separates human choice from automated quality ranking.",
@@ -5477,7 +5477,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLLAB-013",
@@ -5487,7 +5487,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.artifact.provenance.export` binds expected source versions, destination and profile, but the reviewed proposal does not cite a case that requires the exported review summary to be linked to the exact output hash. Source version is not automatically output digest.",
@@ -5564,7 +5564,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-001",
@@ -5574,7 +5574,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposal adds only saturation, but current canonical capabilities already define `media.color.exposure`, `media.color.contrast`, `media.color.white-balance`, and `media.color.saturation`. This is not a new P0 meaning; the input row’s single exposure link is incomplete.",
@@ -5652,7 +5652,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-002",
@@ -5662,7 +5662,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.color.curves` does not by itself prove that lift/gamma/gain, color wheels, and curves are one equivalent operation. The proposal’s “covers” claim relies on similarity of labels and omits the trigger/parameter distinctions.",
@@ -5746,7 +5746,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-003",
@@ -5756,7 +5756,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -5829,7 +5829,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-004",
@@ -5839,7 +5839,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Shot matching maps to an existing candidate treatment and the proposal does not assert automatic correctness, execution, or profile availability.",
@@ -5912,7 +5912,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-005",
@@ -5922,7 +5922,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The declared color-space/gamut conversion leaf covers the transformation intent; OpenColorIO is not represented as an admitted implementation.",
@@ -5995,7 +5995,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-006",
@@ -6005,7 +6005,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.quality.image.image.assess-color` defines an image-color observation, not the named waveform, vectorscope, and histogram values/representations. The supported rationale treats a generic observation as all three scopes.",
@@ -6083,7 +6083,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-007",
@@ -6093,7 +6093,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The color-space conversion source supports declared-space transforms, but the source does not provide an exact ACES configuration/profile binding or compatibility decision in this cohort. The candidate’s named-profile-input assumption is not source-backed here.",
@@ -6182,7 +6182,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-008",
@@ -6192,7 +6192,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -6277,7 +6277,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-009",
@@ -6287,7 +6287,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -6360,7 +6360,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-010",
@@ -6370,7 +6370,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.color.skin-tone-preserve` covers a color-treatment intent but does not define subtitle contrast/readability or subtitle-to-skin reference semantics. The proposed supported disposition silently treats the subtitle phrase as context.",
@@ -6454,7 +6454,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-011",
@@ -6464,7 +6464,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.edit.matte` is a matte candidate operation; it does not demonstrate chroma spill suppression or edge cleanup. The rationale treats the general matte domain as those two transformations.",
@@ -6548,7 +6548,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-012",
@@ -6558,7 +6558,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The background-replacement leaf explicitly takes a subject mask and produces a candidate; the proposal does not infer mask correctness or runtime quality.",
@@ -6643,7 +6643,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-013",
@@ -6653,7 +6653,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -6732,7 +6732,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-014",
@@ -6742,7 +6742,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -6815,7 +6815,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-015",
@@ -6825,7 +6825,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -6904,7 +6904,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-016",
@@ -6914,7 +6914,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -7059,7 +7059,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-COLOR-017",
@@ -7069,7 +7069,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The quality-compare leaf is a read-only scoped observation with an explicit no-winner rule; the human-readable view remains a downstream representation.",
@@ -7196,7 +7196,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-001",
@@ -7206,7 +7206,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.compose.render-manifest` yields a local manifest/configuration candidate, not a source-time rational-frame render graph. Rational time semantics alone do not define graph nodes, dependencies, or graph outcome.",
@@ -7337,7 +7337,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-002",
@@ -7347,7 +7347,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -7473,7 +7473,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-003",
@@ -7483,7 +7483,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -7585,7 +7585,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-004",
@@ -7595,7 +7595,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Source feature maps to the exact current capability outcome and its declared unsupported/unknown boundaries; the disposition does not claim feature-specific UI, implementation, qualification, acceptance, or release behavior beyond those refs.",
@@ -7667,7 +7667,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-005",
@@ -7677,7 +7677,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Execution-compatibility compares a declared query with operation/profile and is observation-only; browser runtime availability and encoding success are not asserted.",
@@ -7773,7 +7773,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-006",
@@ -7783,7 +7783,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Encode plus compatibility fallback is profile-bound and conditional; no named codec support, license, or native execution is asserted.",
@@ -7879,7 +7879,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-007",
@@ -7889,7 +7889,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Encode plus conditional fallback preserves unsupported outcomes; patent/legal review is not claimed complete and hardware encoding is not asserted.",
@@ -7985,7 +7985,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-009",
@@ -7995,7 +7995,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Encode plus conditional profile/fallback is adequate for requested audio variants as a declaration; no format/channel-layout is claimed available.",
@@ -8085,7 +8085,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-010",
@@ -8095,7 +8095,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "`media.deliver.renditions.resolution` covers resolution renditions, not portrait/landscape/square aspect-ratio presets. The candidate warns against defaults but omits the existing aspect-ratio capability from its binding.",
@@ -8183,7 +8183,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-011",
@@ -8193,7 +8193,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposal rebinds HDR grading to execution compatibility/profile validation, but omits `media.deliver.encode` for the requested output format and bit-depth/color tags. Profile compatibility alone does not define an encoded deliverable.",
@@ -8294,7 +8294,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-012",
@@ -8304,7 +8304,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Export profile returns a package or explicit export outcome and distinguishes this from destination acknowledgement/recipient access.",
@@ -8406,7 +8406,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-013",
@@ -8416,7 +8416,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed multi-leaf binding separates generation, overlay composition, and delivery, but cites no feature-specific parent case for burned-in captions or their separation from sidecar/embedded tracks. A family package case only covers subtitle delivery.",
@@ -8517,7 +8517,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-014",
@@ -8527,7 +8527,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "Subtitle delivery is profile- and rights-bound and disclaims unsupported container compatibility; the candidate preserves the separate broadcast profile requirement and does not assert qualification.",
@@ -8599,7 +8599,7 @@
         {
           "ref": "docs/implementation/pdp-0-phase-dev-status.json#/directDevelopmentCriteria/P0-07",
           "sourcePath": "docs/implementation/pdp-0-phase-dev-status.json",
-          "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+          "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
         },
         {
           "ref": "docs/implementation/references/MEDIA-UNIFIED-PRODUCTION-ATTACHED-COMBINED-AUDIT-V3-2026-10-17.json#originalAudit.inventory/@audit_id=AUD-DELIV-015",
@@ -8609,7 +8609,7 @@
         {
           "ref": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#/records/@taskId=P0-07",
           "sourcePath": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
-          "sha256": "189132a830e82f388020ea50be0169aefbe8f0caa73e567359f305ab0e33d568"
+          "sha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517"
         }
       ],
       "actualSemanticComparison": "The proposed new case merges an alignment candidate with a verification observation, and overlooks existing `media.quality.video.video.assess-av-sync`, which defines read-only A/V synchronization assessment. The source feature asks for verification, not only a map candidate.",

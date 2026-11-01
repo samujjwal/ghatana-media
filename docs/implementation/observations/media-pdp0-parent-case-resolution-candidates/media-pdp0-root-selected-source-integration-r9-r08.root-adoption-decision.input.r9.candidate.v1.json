@@ -4,11 +4,11 @@
   "approvalReadiness": "BLOCKED_PENDING_AUTHORITY_SECTION_ALLOCATION_SOURCE_OWNER_DECISION_ROOT_ADOPTION_PROFILE_REGISTRATION_AND_FINAL_APPLY_READSET",
   "candidate": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
-    "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+    "sha256": "9827983816f3864f18bcbaf21a6f7bb54cc64ee5be59bdcee93688deb5ba6d7f"
   },
   "freezeManifest": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
-    "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+    "sha256": "433b0404dfda8f714142987d6f3ca18126cead85385ab496def9cc066fed617e"
   },
   "sourceOwnerDecision": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.source-owner-decision.r2.json",
@@ -17,7 +17,7 @@
   },
   "fullSemanticReview": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
-    "sha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a",
+    "sha256": "30f30d419404c0ca281910dd6f467f9f5e1a7c1144c5d0ec306137be815342a0",
     "reviewStatus": "PASS_FOR_SELECTED_CANDIDATE_SEMANTICS_ONLY_BLOCKED_FOR_CURRENTNESS_AND_AUTHORITY_CHAIN",
     "reviewScope": "INDEPENDENT_READ_ONLY_FULL_R9_R08_SELECTED_CUT_PDP0_SEMANTIC_REVIEW",
     "semanticDisposition": "PASS_FOR_FROZEN_R9_R08_SELECTED_CUT_ONLY",
@@ -28,7 +28,7 @@
   },
   "materialBindingReview": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-material-binding-review-r01.json",
-    "sha256": "5c0c90c4ae7a31a1b7bd3b971c8b071daa1289675fa5327dece745f37239026d",
+    "sha256": "10f1d5ab05dbe557e9ca154b948522135a4e581541e6166f49412486ebbd3d20",
     "recordKind": "READ_ONLY_TECHNICAL_RECOMMENDATION",
     "reviewStatus": "DESIGN_RECOMMENDATION_WITH_BLOCKER",
     "findingIds": [
@@ -37,7 +37,7 @@
   },
   "applicationPlan": {
     "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.application-plan.v2.r2.candidate.v1.json",
-    "sha256": "2a422e243f7f85aed62bdcdbdb5782a7bbad6818675d79ecc48833567504b6ae",
+    "sha256": "61093ee39d129b7eb66e42dcf29b0aa30a23c7c272807748746c45fd921cb98a",
     "disposition": "BLOCKED_PENDING_AUTHORITY_AND_CURRENTNESS",
     "blockers": [
       "PDP0_STATUS_PIN_OR_CURRENTNESS_NOT_COMPLETE",

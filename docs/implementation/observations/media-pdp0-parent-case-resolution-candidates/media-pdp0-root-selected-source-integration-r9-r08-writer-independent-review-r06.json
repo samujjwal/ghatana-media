@@ -37,19 +37,19 @@
     },
     {
       "ref": "docs/implementation/pdp-0-phase-dev-status.json",
-      "sha256": "6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c"
+      "sha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08-writer-independent-review-r04.json",
-      "sha256": "bb1dd101f2aa7c3d82d85f87667dba3f215e450e30837523d4486062e0c57082"
+      "sha256": "b842ae96f107c07d97e0e34affba8af890e648d9b5a227a134dabeec10ab66b9"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.successor-bundle.candidate.v1.json",
-      "sha256": "d1f527cb8c341519f64914d396b80024a7a4c5c682b905767aaa3384fbd087fb"
+      "sha256": "9827983816f3864f18bcbaf21a6f7bb54cc64ee5be59bdcee93688deb5ba6d7f"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
-      "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d"
+      "sha256": "433b0404dfda8f714142987d6f3ca18126cead85385ab496def9cc066fed617e"
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json",
@@ -57,7 +57,7 @@
     },
     {
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.independent-peer.r08-semantic-review.v1.json",
-      "sha256": "200aaaff4577426d4f91f16ecb74a3c64bcc76280ad92ca5fd278d531523fe5a"
+      "sha256": "30f30d419404c0ca281910dd6f467f9f5e1a7c1144c5d0ec306137be815342a0"
     },
     {
       "ref": "scripts/lib/media-pdp0-review-successor-cas.mjs",

@@ -16,13 +16,13 @@
     {
       "label": "R9-R08 freeze",
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.freeze.v1.json",
-      "sha256": "d5f86dc15900236b167949cc08408f61b76297ac31d2d8a6aa6bf5e3e52ec85d",
+      "sha256": "433b0404dfda8f714142987d6f3ca18126cead85385ab496def9cc066fed617e",
       "decisionState": "NOT_SET"
     },
     {
       "label": "R9-R08 root application input",
       "ref": "docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.root-adoption-decision.input.r10.candidate.v1.json",
-      "sha256": "9fc791a5e29c85a2b6e3b5b9cb8f7c12f293bcf2f62e231dded9c5acb2594d02",
+      "sha256": "7eb4af648b57a110a6db2c259e068d20df05fe16ec8d2b871b6f8d7037fa8ff6",
       "decisionState": "NOT_RECORDED"
     },
     {
