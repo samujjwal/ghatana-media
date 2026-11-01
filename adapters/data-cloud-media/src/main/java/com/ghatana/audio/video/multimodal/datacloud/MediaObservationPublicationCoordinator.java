@@ -21,9 +21,11 @@ import java.util.HexFormat;
  * never republished blindly — reconciliation must first read the
  * destination's actual state.
  *
- * <p>The coordinator performs no transport work itself: source authority,
- * the destination publication client and the durable outbox are all admitted
- * seams owned by their respective public contracts.
+ * <p>The coordinator performs no transport work itself: live source and
+ * disclosure authorities, the destination publication client and the durable
+ * outbox are separate admitted seams owned by their respective public
+ * contracts. A locally projected consent or redaction reference alone is not
+ * publication authority.
  *
  * @doc.type class
  * @doc.purpose Idempotent rights-bound Data Cloud observation publication
@@ -36,6 +38,14 @@ public final class MediaObservationPublicationCoordinator {
     @FunctionalInterface
     public interface SourceReadbackAuthority {
         Decision verify(String tenantId, String artifactId, String sourceArtifactVersionId);
+
+        enum Decision { ADMITTED, DENIED, NOT_ADMITTED, UNAVAILABLE }
+    }
+
+    /** Live policy/consent/redaction readback for the complete immutable candidate. */
+    @FunctionalInterface
+    public interface DisclosureReadbackAuthority {
+        Decision verify(MediaSemanticObservationProjector.MediaDerivedObservation observation);
 
         enum Decision { ADMITTED, DENIED, NOT_ADMITTED, UNAVAILABLE }
     }
@@ -142,16 +152,34 @@ public final class MediaObservationPublicationCoordinator {
 
     private final MediaSemanticObservationProjector projector;
     private final SourceReadbackAuthority sourceAuthority;
+    private final DisclosureReadbackAuthority disclosureAuthority;
     private final PublicationClient destination;
     private final PublicationOutbox outbox;
 
+    /**
+     * Compatibility constructor without a live disclosure authority. It is
+     * intentionally fail-closed; non-empty consent or redaction references
+     * in a projection candidate are not proof of current authorization.
+     */
     public MediaObservationPublicationCoordinator(
             MediaSemanticObservationProjector projector,
             SourceReadbackAuthority sourceAuthority,
             PublicationClient destination,
             PublicationOutbox outbox) {
+        this(projector, sourceAuthority,
+                observation -> DisclosureReadbackAuthority.Decision.NOT_ADMITTED,
+                destination, outbox);
+    }
+
+    public MediaObservationPublicationCoordinator(
+            MediaSemanticObservationProjector projector,
+            SourceReadbackAuthority sourceAuthority,
+            DisclosureReadbackAuthority disclosureAuthority,
+            PublicationClient destination,
+            PublicationOutbox outbox) {
         this.projector = Objects.requireNonNull(projector, "projector");
         this.sourceAuthority = Objects.requireNonNull(sourceAuthority, "sourceAuthority");
+        this.disclosureAuthority = Objects.requireNonNull(disclosureAuthority, "disclosureAuthority");
         this.destination = Objects.requireNonNull(destination, "destination");
         this.outbox = Objects.requireNonNull(outbox, "outbox");
     }
@@ -250,6 +278,20 @@ public final class MediaObservationPublicationCoordinator {
         }
         if (authority != SourceReadbackAuthority.Decision.ADMITTED) {
             return notAdmitted(dedupKey, "source authority is unavailable or not admitted");
+        }
+
+        DisclosureReadbackAuthority.Decision disclosure;
+        try {
+            disclosure = disclosureAuthority.verify(observation);
+        } catch (RuntimeException unavailable) {
+            disclosure = DisclosureReadbackAuthority.Decision.UNAVAILABLE;
+        }
+        if (disclosure == DisclosureReadbackAuthority.Decision.DENIED) {
+            return new PublishResult(
+                    Outcome.DENIED, dedupKey, Optional.empty(), "disclosure policy denied publication");
+        }
+        if (disclosure != DisclosureReadbackAuthority.Decision.ADMITTED) {
+            return notAdmitted(dedupKey, "disclosure policy is unavailable or not admitted");
         }
 
         Optional<Recorded> prior;

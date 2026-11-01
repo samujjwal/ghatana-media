@@ -7,6 +7,7 @@ import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationC
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.Recorded;
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.ClaimResult;
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.ClaimStatus;
+import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.DisclosureReadbackAuthority;
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.SourceReadbackAuthority;
 import com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjector.MediaDerivedObservation;
 import org.junit.jupiter.api.Test;
@@ -113,6 +114,7 @@ class MediaObservationPublicationCoordinatorTest {
         return new MediaObservationPublicationCoordinator(
                 new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> authority,
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 destination, outbox);
     }
 
@@ -224,11 +226,82 @@ class MediaObservationPublicationCoordinatorTest {
     }
 
     @Test
+    void nonEmptyConsentAndRedactionReferencesDoNotReplaceLiveDisclosureReadback() {
+        InMemoryOutbox outbox = new InMemoryOutbox();
+        AtomicInteger publishes = new AtomicInteger();
+        var legacyCoordinator = new MediaObservationPublicationCoordinator(
+                new MediaSemanticObservationProjector(),
+                (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                (tenant, projection) -> {
+                    publishes.incrementAndGet();
+                    return new PublicationReceipt("receipt-1", "pub-v1");
+                }, outbox);
+
+        PublishResult result = legacyCoordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
+
+        assertThat(result.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(result.detail()).contains("disclosure policy");
+        assertThat(publishes.get()).isZero();
+        assertThat(outbox.find(result.dedupKey())).isEmpty();
+    }
+
+    @Test
+    void deniedOrUnavailableLiveDisclosureNeverPublishesOrMutatesOutbox() {
+        for (DisclosureReadbackAuthority.Decision decision : DisclosureReadbackAuthority.Decision.values()) {
+            if (decision == DisclosureReadbackAuthority.Decision.ADMITTED) continue;
+            InMemoryOutbox outbox = new InMemoryOutbox();
+            AtomicInteger publishes = new AtomicInteger();
+            AtomicReference<MediaDerivedObservation> checked = new AtomicReference<>();
+            var coordinator = new MediaObservationPublicationCoordinator(
+                    new MediaSemanticObservationProjector(),
+                    (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                    candidate -> {
+                        checked.set(candidate);
+                        return decision;
+                    },
+                    (tenant, projection) -> {
+                        publishes.incrementAndGet();
+                        return new PublicationReceipt("unexpected", "pub-v1");
+                    }, outbox);
+
+            PublishResult result = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
+
+            assertThat(result.outcome()).as(decision.name()).isEqualTo(
+                    decision == DisclosureReadbackAuthority.Decision.DENIED ? Outcome.DENIED : Outcome.NOT_ADMITTED);
+            assertThat(checked.get().consentRef()).isEqualTo("consent-4");
+            assertThat(checked.get().redactionDecisionRef()).isEqualTo("policy-redaction-2");
+            assertThat(publishes.get()).as(decision.name()).isZero();
+            assertThat(outbox.find(result.dedupKey())).isEmpty();
+        }
+    }
+
+    @Test
+    void disclosureAuthorityExceptionsAreNotMisreportedAsPolicyDenials() {
+        AtomicInteger publishes = new AtomicInteger();
+        InMemoryOutbox outbox = new InMemoryOutbox();
+        var coordinator = new MediaObservationPublicationCoordinator(
+                new MediaSemanticObservationProjector(),
+                (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                candidate -> { throw new IllegalStateException("consent owner unavailable"); },
+                (tenant, projection) -> {
+                    publishes.incrementAndGet();
+                    return new PublicationReceipt("unexpected", "pub-v1");
+                }, outbox);
+
+        PublishResult result = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
+
+        assertThat(result.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(publishes.get()).isZero();
+        assertThat(outbox.find(result.dedupKey())).isEmpty();
+    }
+
+    @Test
     void authorityExceptionsAreNotMisreportedAsPolicyDenials() {
         InMemoryOutbox outbox = new InMemoryOutbox();
         AtomicInteger publishes = new AtomicInteger();
         var coordinator = new MediaObservationPublicationCoordinator(new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> { throw new IllegalStateException("source owner unavailable"); },
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> {
                     publishes.incrementAndGet();
                     return new PublicationReceipt("receipt-1", "pub-v1");
@@ -248,6 +321,7 @@ class MediaObservationPublicationCoordinatorTest {
         var coordinator = new MediaObservationPublicationCoordinator(
                 new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> live.get(),
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> {
                     publishes.incrementAndGet();
                     return new PublicationReceipt("receipt-1", "pub-v1");
@@ -269,12 +343,39 @@ class MediaObservationPublicationCoordinatorTest {
                 new AtomicReference<>(SourceReadbackAuthority.Decision.ADMITTED);
         var coordinator = new MediaObservationPublicationCoordinator(
                 new MediaSemanticObservationProjector(), (tenant, artifact, version) -> live.get(),
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> new PublicationReceipt("receipt-1", "pub-v1"), outbox);
         PublishResult published = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
         live.set(SourceReadbackAuthority.Decision.DENIED);
         PublishResult revokedReplay = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
         assertThat(revokedReplay.outcome()).isEqualTo(Outcome.DENIED);
         assertThat(revokedReplay.receipt()).isEmpty();
+        assertThat(outbox.find(published.dedupKey())).get().extracting(Recorded::outcome)
+                .isEqualTo(Outcome.PUBLISHED);
+    }
+
+    @Test
+    void revokedDisclosureCannotReadARecordedPublicationOrOverwriteIt() {
+        InMemoryOutbox outbox = new InMemoryOutbox();
+        AtomicReference<DisclosureReadbackAuthority.Decision> live =
+                new AtomicReference<>(DisclosureReadbackAuthority.Decision.ADMITTED);
+        AtomicInteger publishes = new AtomicInteger();
+        var coordinator = new MediaObservationPublicationCoordinator(
+                new MediaSemanticObservationProjector(),
+                (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                observation -> live.get(),
+                (tenant, projection) -> {
+                    publishes.incrementAndGet();
+                    return new PublicationReceipt("receipt-1", "pub-v1");
+                }, outbox);
+        PublishResult published = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
+        live.set(DisclosureReadbackAuthority.Decision.DENIED);
+
+        PublishResult revokedReplay = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
+
+        assertThat(revokedReplay.outcome()).isEqualTo(Outcome.DENIED);
+        assertThat(revokedReplay.receipt()).isEmpty();
+        assertThat(publishes.get()).isEqualTo(1);
         assertThat(outbox.find(published.dedupKey())).get().extracting(Recorded::outcome)
                 .isEqualTo(Outcome.PUBLISHED);
     }
@@ -290,6 +391,7 @@ class MediaObservationPublicationCoordinatorTest {
                 };
         var coordinator = new MediaObservationPublicationCoordinator(new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> {
                     publishes.incrementAndGet();
                     return new PublicationReceipt("receipt-1", "pub-v1");
@@ -334,6 +436,7 @@ class MediaObservationPublicationCoordinatorTest {
         var mismatchedKeyCoordinator = new MediaObservationPublicationCoordinator(
                 new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> {
                     mismatchedKeyPublishes.incrementAndGet();
                     return new PublicationReceipt("unexpected", "pub-v1");
@@ -451,6 +554,7 @@ class MediaObservationPublicationCoordinatorTest {
         AtomicInteger publishes = new AtomicInteger();
         var coordinator = new MediaObservationPublicationCoordinator(new MediaSemanticObservationProjector(),
                 (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
                 (tenant, projection) -> {
                     publishes.incrementAndGet();
                     return new PublicationReceipt("receipt-1", "pub-v1");
@@ -488,9 +592,9 @@ class MediaObservationPublicationCoordinatorTest {
             return new PublicationReceipt("receipt-1", "pub-v1");
         };
         var first = new MediaObservationPublicationCoordinator(new MediaSemanticObservationProjector(), authority,
-                destination, outbox);
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED, destination, outbox);
         var second = new MediaObservationPublicationCoordinator(new MediaSemanticObservationProjector(), authority,
-                destination, outbox);
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED, destination, outbox);
         ExecutorService workers = Executors.newFixedThreadPool(2);
         try {
             Future<PublishResult> a = workers.submit(() -> first.publish(observation("tenant-a", "event-7", "artifact-v3")));
