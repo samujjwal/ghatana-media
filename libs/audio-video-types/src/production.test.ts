@@ -28,6 +28,19 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, originClass: 'BOGUS' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, tenantId: 'bad id!' }).success).toBe(false);
   });
+  it('accepts only the closed, versioned PDP-1 scene-binding shape', () => {
+    const scene = {
+      schemaVersion: 'media.declarative.value.scene-binding.v1',
+      sceneId: 'scene-1', sceneGraphRef: ref, animationGraphRef: ref,
+      modelStateRefOrNull: null, sourceRefs: [ref], temporalMappingRef: ref,
+      semanticAnchorRefs: ['anchor-1'], accessibilityRef: ref,
+    };
+    expect(SceneBindingSchema.safeParse(scene).success).toBe(true);
+    expect(SceneBindingSchema.safeParse({ ...scene, extra: true }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, sourceRefs: [] }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, modelStateRefOrNull: ' ' }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor-1', 'anchor-1'] }).success).toBe(false);
+  });
   it('refuses cyclic and over-deep caller values before schema descent', () => {
     const cyclic = { ...spec } as Record<string, unknown>;
     cyclic.self = cyclic;
