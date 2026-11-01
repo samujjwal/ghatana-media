@@ -180,7 +180,7 @@ public final class MediaWorkflowMetrics {
                                       String scope) {}
 
     private record ProviderQualityRefresh(Instant checkedAt,
-            Map<ProviderQualityKey, ProviderQualitySeriesSample> samples) {}
+            Map<ProviderQualityKey, ProviderQualitySeriesSample> samples, boolean conflicted) {}
 
     private static final int MAX_PROVIDER_PROFILES = 64;
     private static final int MAX_PROVIDER_QUALITY_SERIES = 1024;
@@ -400,7 +400,8 @@ public final class MediaWorkflowMetrics {
      * Replace the measured-quality series for one provider model revision with the
      * latest verified report rows. Series present in an earlier refresh but absent
      * now are set to NaN — stale evidence never leaves a phantom measured value.
-     * Older refreshes and conflicting equal-time refreshes are rejected; exact
+     * Older refreshes and conflicting equal-time refreshes are rejected; a
+     * conflict clears the group's measured values until a newer refresh. Exact
      * equal-time duplicates are idempotent. The registry keeps at most
      * {@value MAX_PROVIDER_PROFILES} provider model groups and
      * at most {@value MAX_PROVIDER_QUALITY_SERIES} quality series; label values are
@@ -453,7 +454,17 @@ public final class MediaWorkflowMetrics {
                 }
             }
             if (previous != null && checkedAt.equals(previous.checkedAt())) {
-                if (previous.samples().equals(desired)) return true;
+                if (!previous.conflicted() && previous.samples().equals(desired)) return true;
+                for (var entry : providerQualitySeries.entrySet()) {
+                    ProviderQualityKey key = entry.getKey();
+                    if (key.modality() == modality && key.providerId().equals(providerId)
+                            && key.providerVersion().equals(providerVersion)
+                            && key.modelRevision().equals(modelRevision)) {
+                        entry.getValue().set(Double.NaN);
+                    }
+                }
+                providerQualityRefreshes.put(group,
+                        new ProviderQualityRefresh(checkedAt, previous.samples(), true));
                 registry.counter("media.provider.quality.series.rejected",
                         "service", safeService, "contract_version", CONTRACT_VERSION).increment();
                 return false;
@@ -487,7 +498,7 @@ public final class MediaWorkflowMetrics {
                         this::registerQualityGauge);
                 value.set(sample.value());
             }
-            providerQualityRefreshes.put(group, new ProviderQualityRefresh(checkedAt, Map.copyOf(desired)));
+            providerQualityRefreshes.put(group, new ProviderQualityRefresh(checkedAt, Map.copyOf(desired), false));
             return true;
         }
     }

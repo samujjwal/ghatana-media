@@ -399,10 +399,18 @@ class MediaWorkflowMetricsTest {
                 "provider", "v1", "model", now, java.util.List.of(measured))).isTrue();
         assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
                 "provider", "v1", "model", now, java.util.List.of(conflicting))).isFalse();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isNaN();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now, java.util.List.of(measured))).isFalse();
         assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
                 "provider", "v1", "model", now.plusSeconds(1), java.util.List.of(future))).isFalse();
         assertThat(registry.get("media.provider.quality.measured_value")
-                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.5);
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isNaN();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "model", now.plusSeconds(2), java.util.List.of(future))).isTrue();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.2);
         assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
                 "provider", "v1", "model", now.plusSeconds(3), java.util.List.of())).isTrue();
         assertThat(registry.get("media.provider.quality.measured_value")
