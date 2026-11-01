@@ -55,6 +55,28 @@ export class CaptureNotAdmittedError extends Error {
   }
 }
 
+/**
+ * An admitted capture was dispatched, but the adapter rejected or returned a
+ * frame that failed validation. The outcome is deliberately not called
+ * FAILED: callers must reconcile before deciding whether to recapture. Only
+ * a safe enum kind and fixed reason are retained; caller refs and provider
+ * error text are omitted.
+ */
+export class CaptureOutcomeUnknownError extends TypeError {
+  public constructor(
+    kind: CaptureSourceKind,
+    reason: "ADAPTER_REJECTED" | "INVALID_FRAME",
+  ) {
+    super("capture outcome is unknown after an admitted capture attempt");
+    this.name = "CaptureOutcomeUnknownError";
+    this.kind = kind;
+    this.reason = reason;
+  }
+
+  public readonly kind: CaptureSourceKind;
+  public readonly reason: "ADAPTER_REJECTED" | "INVALID_FRAME";
+}
+
 function requireRequestField(value: string | undefined, field: string): string {
   if (value === undefined || typeof value !== "string"
     || value.trim().length === 0 || value.length > 384 || value !== value.trim()) {
@@ -108,23 +130,38 @@ export async function captureWithAdmission(
   if (decision !== "ADMITTED") {
     throw new CaptureNotAdmittedError(admittedRequest.kind, decision);
   }
-  const frame = await adapter.capture(admittedRequest);
-  if (!frame || typeof frame !== "object") {
-    throw new TypeError("captured frame must be an object");
+  let frame: CapturedFrame;
+  try {
+    frame = await adapter.capture(admittedRequest);
+  } catch {
+    // A rejected transport/promise does not prove that the source did not
+    // capture. Do not invite an automatic retry or expose a provider error
+    // that may contain request data or credentials.
+    throw new CaptureOutcomeUnknownError(admittedRequest.kind, "ADAPTER_REJECTED");
   }
-  // Read each provider-owned field once, then detach the byte storage. The
-  // adapter may reuse or mutate its result after this promise resolves.
-  const { sourceIdentity, frameClockRef, bytes, capturedAtEpochMillis } = frame;
-  if (!(bytes instanceof Uint8Array)
-    || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
-    throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
+  try {
+    if (!frame || typeof frame !== "object") {
+      throw new TypeError("captured frame must be an object");
+    }
+    // Read each provider-owned field once, then detach the byte storage. The
+    // adapter may reuse or mutate its result after this promise resolves.
+    const { sourceIdentity, frameClockRef, bytes, capturedAtEpochMillis } = frame;
+    if (!(bytes instanceof Uint8Array)
+      || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
+      throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
+    }
+    if (!Number.isSafeInteger(capturedAtEpochMillis) || capturedAtEpochMillis < 0) {
+      throw new TypeError("captured frame timestamp must be a non-negative safe integer");
+    }
+    if (sourceIdentity !== admittedRequest.sourceIdentity
+      || frameClockRef !== admittedRequest.frameClockRef) {
+      throw new TypeError("captured frame does not bind the requested source identity and clock");
+    }
+    return { sourceIdentity, frameClockRef, bytes: Uint8Array.from(bytes), capturedAtEpochMillis };
+  } catch {
+    // The adapter has already run. Even a malformed/mismatched response does
+    // not prove that the source capture had no effect; collapse it to a
+    // sanitized UNKNOWN error without provider text or caller-controlled refs.
+    throw new CaptureOutcomeUnknownError(admittedRequest.kind, "INVALID_FRAME");
   }
-  if (!Number.isSafeInteger(capturedAtEpochMillis) || capturedAtEpochMillis < 0) {
-    throw new TypeError("captured frame timestamp must be a non-negative safe integer");
-  }
-  if (sourceIdentity !== admittedRequest.sourceIdentity
-    || frameClockRef !== admittedRequest.frameClockRef) {
-    throw new TypeError("captured frame does not bind the requested source identity and clock");
-  }
-  return { sourceIdentity, frameClockRef, bytes: Uint8Array.from(bytes), capturedAtEpochMillis };
 }

@@ -40,6 +40,18 @@
     "./http-core": {
       "types": "./dist/http-core.d.ts",
       "import": "./dist/http-core.js"
+    },
+    "./capture-adapters": {
+      "types": "./dist/capture-adapters.d.ts",
+      "import": "./dist/capture-adapters.js"
+    },
+    "./recorder-orchestrator": {
+      "types": "./dist/recorder-orchestrator.d.ts",
+      "import": "./dist/recorder-orchestrator.js"
+    },
+    "./production-plan": {
+      "types": "./dist/production-plan.d.ts",
+      "import": "./dist/production-plan.js"
     }
   },
   "dependencies": {

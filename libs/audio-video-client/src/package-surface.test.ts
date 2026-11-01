@@ -37,6 +37,14 @@ describe("package surface", () => {
     expect(typeof esm.createMediaOperationClient).toBe("function");
     const canonical = await import("@audio-video/client/canonical-operations");
     expect(typeof canonical.createMediaCanonicalClient).toBe("function");
+    const capture = await import("@audio-video/client/capture-adapters");
+    expect(typeof capture.captureWithAdmission).toBe("function");
+    expect(typeof capture.noAdmittedCaptureAdapter.check).toBe("function");
+    const recorder = await import("@audio-video/client/recorder-orchestrator");
+    expect(typeof recorder.orchestrateScenario).toBe("function");
+    expect(typeof recorder.recaptureScenario).toBe("function");
+    const production = await import("@audio-video/client/production-plan");
+    expect(typeof production.compileProductionPlan).toBe("function");
     // CJS consumers: Node ≥22 supports require() of ESM modules.
     const require = createRequire(resolve(packageRoot, "package.json"));
     const cjs = require("./dist/canonical-operations.js") as Record<string, unknown>;

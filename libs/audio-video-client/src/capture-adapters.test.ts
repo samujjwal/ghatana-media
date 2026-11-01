@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CaptureNotAdmittedError,
+  CaptureOutcomeUnknownError,
   captureWithAdmission,
   noAdmittedCaptureAdapter,
   type CaptureRequest,
@@ -39,6 +40,38 @@ describe("captureWithAdmission", () => {
       { check: () => "ADMITTED" }, adapter, request);
     expect(frame.bytes).toEqual(new Uint8Array([1, 2, 3]));
     expect(adapter.calls()).toBe(1);
+  });
+
+  it("marks an admitted adapter rejection unknown without exposing caller-controlled refs or provider text", async () => {
+    let eligibilityCalls = 0;
+    let captureCalls = 0;
+    let outcome: unknown;
+    try {
+      await captureWithAdmission({
+      check: () => { eligibilityCalls++; return "ADMITTED"; },
+    }, {
+      capture: async () => {
+        captureCalls++;
+        throw new Error("provider transport failure with potentially sensitive details");
+      },
+    }, {
+      ...request,
+      sourceIdentity: "SECRET_SOURCE_MARKER",
+      sourceVersionRef: "SECRET_VERSION_MARKER",
+      purposeRef: "SECRET_PURPOSE_MARKER",
+      secretsRef: "SECRET_VALUE_MARKER",
+      frameClockRef: "SECRET_CLOCK_MARKER",
+    });
+    } catch (error) {
+      outcome = error;
+    }
+    expect(outcome).toBeInstanceOf(CaptureOutcomeUnknownError);
+    expect(outcome).toBeInstanceOf(TypeError);
+    expect(outcome).toMatchObject({ kind: "MEDIA_FILE", reason: "ADAPTER_REJECTED" });
+    expect(String(outcome)).not.toMatch(/SECRET_|potentially sensitive details/u);
+    expect(Object.keys(outcome as object).sort()).toEqual(["kind", "name", "reason"]);
+    expect(eligibilityCalls).toBe(1);
+    expect(captureCalls).toBe(1);
   });
 
   it("detaches captured bytes from the adapter-owned frame", async () => {
@@ -81,7 +114,7 @@ describe("captureWithAdmission", () => {
       capturedAtEpochMillis: 0,
     });
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
-      .rejects.toThrow(/does not bind the requested source identity and clock/u);
+      .rejects.toMatchObject({ name: "CaptureOutcomeUnknownError", reason: "INVALID_FRAME" });
   });
 
   it("rejects requests missing source identity, purpose, version, secrets or clock", async () => {
@@ -187,7 +220,7 @@ describe("captureWithAdmission", () => {
       capturedAtEpochMillis,
     });
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
-      .rejects.toThrow(TypeError);
+      .rejects.toBeInstanceOf(CaptureOutcomeUnknownError);
     expect(adapter.calls()).toBe(1);
   });
 
@@ -199,7 +232,32 @@ describe("captureWithAdmission", () => {
       capturedAtEpochMillis: 1,
     });
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
-      .rejects.toThrow(/capture bound/u);
+      .rejects.toMatchObject({ reason: "INVALID_FRAME", kind: "MEDIA_FILE" });
+  });
+
+  it.each([
+    ["source marker", "SECRET_OTHER_SOURCE", request.frameClockRef],
+    ["clock marker", request.sourceIdentity, "SECRET_OTHER_CLOCK"],
+  ])("returns sanitized UNKNOWN when the captured %s does not match", async (_label, sourceIdentity, frameClockRef) => {
+    let outcome: unknown;
+    try {
+      await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning({
+        sourceIdentity,
+        frameClockRef,
+        bytes: new Uint8Array([1]),
+        capturedAtEpochMillis: 1,
+      }), {
+        ...request,
+        sourceIdentity: "SECRET_EXPECTED_SOURCE",
+        frameClockRef: "SECRET_EXPECTED_CLOCK",
+      });
+    } catch (error) {
+      outcome = error;
+    }
+    expect(outcome).toBeInstanceOf(CaptureOutcomeUnknownError);
+    expect(outcome).toMatchObject({ reason: "INVALID_FRAME", kind: "MEDIA_FILE" });
+    expect(String(outcome)).not.toMatch(/SECRET_|OTHER_/u);
+    expect(Object.keys(outcome as object).sort()).toEqual(["kind", "name", "reason"]);
   });
 
   it("keeps eligibility and frame binding on a frozen request snapshot during async capture", async () => {

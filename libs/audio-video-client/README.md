@@ -157,3 +157,30 @@ and reconcile an existing plan before using it in a downstream workflow; do
 not treat an old fingerprint as evidence for a newly compiled plan. The Java
 runtime compiler uses its own plan representation and fingerprints; these
 values are not an interchangeability claim between the two compilers.
+
+## Headless recorder and capture SPI
+
+The existing headless modules are available through explicit subpaths:
+
+```ts
+import { captureWithAdmission, noAdmittedCaptureAdapter } from '@audio-video/client/capture-adapters';
+import { orchestrateScenario, recaptureScenario } from '@audio-video/client/recorder-orchestrator';
+import { compileProductionPlan } from '@audio-video/client/production-plan';
+```
+
+`orchestrateScenario()` and `compileProductionPlan()` produce deterministic,
+effect-free plans. They do not capture media, invoke a browser/device, or
+establish product completion. `recaptureScenario()` only calls an adapter
+after the supplied trusted eligibility seam returns `ADMITTED`; the default
+`noAdmittedCaptureAdapter` denies capture. Exporting the SPI does not admit a
+source, adapter, provider, or host.
+
+Capture requests bind source identity, purpose, immutable source version,
+controlled-secret reference, and frame clock. The adapter must return actual
+bounded bytes matching the requested source and clock. The client does not
+manufacture frames or treat fixture output as real capture. An adapter
+rejection or invalid returned frame after dispatch raises
+`CaptureOutcomeUnknownError` with only a safe source-kind enum and fixed
+reason. The error contains no request references or provider detail; callers
+must reconcile the attempt before deciding whether to recapture, and the
+client performs no automatic retry.
