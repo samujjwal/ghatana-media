@@ -84,6 +84,15 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void tenantWideInvalidationFailsClosedInsteadOfClearingEveryTenant() {
+        assertThatThrownBy(() -> await(cacheService.invalidateAllForTenant("tenant-a")))
+                .hasRootCauseInstanceOf(UnsupportedOperationException.class)
+                .hasRootCauseMessage("Tenant-scoped transcription cache invalidation is not supported");
+
+        verify(cachePort, never()).invalidateAll();
+    }
+
+    @Test
     void sameIdForTwoTenantsNeverExposesUnrevalidatedCacheEntries() throws Exception {
         UUID id = UUID.randomUUID();
         String tenantAKey = key("tenant-a", id.toString());

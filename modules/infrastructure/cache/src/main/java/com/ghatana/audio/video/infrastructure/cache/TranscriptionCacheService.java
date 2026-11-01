@@ -166,9 +166,11 @@ public class TranscriptionCacheService {
      */
     public AsyncOperation<Void> invalidateAllForTenant(String tenantId) {
         if (!hasTenantId(tenantId)) return AsyncOperation.failure(invalidTenantId());
-        // Note: This would need pattern-based invalidation support in the cache
-        LOG.debug("Invalidate all transcriptions for tenant: {}", tenantId);
-        return cache.invalidateAll();
+        // DistributedCachePort only exposes port-wide invalidation. Calling it
+        // here would evict other tenants' entries while claiming tenant scope.
+        // Fail closed until the platform contract supports scoped invalidation.
+        return AsyncOperation.failure(new UnsupportedOperationException(
+                "Tenant-scoped transcription cache invalidation is not supported"));
     }
 
     /**
