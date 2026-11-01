@@ -6,6 +6,10 @@ import { evaluate, scoreLocale, validateManifest } from '../scripts/qualificatio
 
 const revision = '70bb2e84b976b7e960aa89f1c648e09c59f894dd';
 
+function datasetLocales() {
+  return { eng: { datasetConfig: 'en_us' }, hin: { datasetConfig: 'hi_in' }, npi: { datasetConfig: 'ne_np' } };
+}
+
 function clip(locale, id, partition, speakerId) {
   return {
     clipId: id,
@@ -39,7 +43,7 @@ function frozenManifest() {
       name: 'google/fleurs',
       sourceRevision: revision,
       license: 'CC-BY-4.0',
-      locales: { eng: {}, hin: {}, npi: {} },
+      locales: datasetLocales(),
     },
     selection: { trainingSplit: 'train', holdoutSplit: 'dev', clips },
   };
@@ -60,13 +64,15 @@ test('checked-in preparation config pins R9 source and remains unfrozen', async 
   assert.deepEqual(config.metricProtocol.thresholds.werMaxByLocale,
     { eng: 0.3, hin: 0.45, npi: 0.55 });
   assert.equal(config.metricProtocol.confidenceIntervals.replicates, 1000);
+  assert.deepEqual(Object.fromEntries(Object.entries(config.dataset.locales).map(([locale, source]) => [locale, source.datasetConfig])),
+    { eng: 'en_us', hin: 'hi_in', npi: 'ne_np' });
 });
 
 test('blocked metadata-only manifest validates but cannot be scored', () => {
   const manifest = {
     schemaVersion: '1.0.0',
     status: 'METADATA_ONLY_NOT_FROZEN',
-    dataset: { name: 'google/fleurs', sourceRevision: revision, license: 'CC-BY-4.0', locales: { eng: {}, hin: {}, npi: {} } },
+    dataset: { name: 'google/fleurs', sourceRevision: revision, license: 'CC-BY-4.0', locales: datasetLocales() },
     selection: { trainingSplit: 'train', holdoutSplit: 'dev', clips: [] },
   };
   assert.equal(validateManifest(manifest).clipCount, 0);
@@ -78,6 +84,12 @@ test('frozen pack enforces clip evidence, caps, and speaker-disjoint partitions'
   assert.equal(validateManifest(manifest, { requireFrozen: true }).clipCount, 6);
   manifest.selection.clips[1].speakerId = manifest.selection.clips[0].speakerId;
   assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /overlaps training and holdout/);
+});
+
+test('frozen manifest binds each declared locale to the pinned FLEURS dataset config', () => {
+  const manifest = frozenManifest();
+  manifest.dataset.locales.hin.datasetConfig = 'en_us';
+  assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /dataset config mismatch for hin/);
 });
 
 test('rejects identical audio across distinct source rows and partitions, including uppercase digests', () => {
@@ -111,7 +123,7 @@ function qualificationManifest() {
       name: 'google/fleurs',
       sourceRevision: revision,
       license: 'CC-BY-4.0',
-      locales: { eng: {}, hin: {}, npi: {} },
+      locales: datasetLocales(),
     },
     metricProtocol: {
       thresholds: {

@@ -10,6 +10,11 @@ const SHA256 = /^[a-f0-9]{64}$/i;
 // not by an independently editable user-supplied evaluation manifest.
 const ownerDecision = JSON.parse(readFileSync(new URL('../../docs/implementation/MEDIA-WAVE2-R10-OWNER-BLOCKER-RESOLUTION.json', import.meta.url), 'utf8'));
 const STT_REFERENCE = ownerDecision.approvedReferenceQualificationProfiles.stt;
+const preparationProfile = JSON.parse(readFileSync(
+  new URL('../../config/qualification/fleurs-asr-evaluation.v1.json', import.meta.url), 'utf8'));
+const EXPECTED_DATASET_CONFIGS = Object.freeze(Object.fromEntries(
+  Object.entries(preparationProfile.dataset.locales).map(([locale, source]) => [locale, source.datasetConfig]),
+));
 const PILOT_MAX_CLIPS_PER_LOCALE = STT_REFERENCE.qualityPilotClipsPerLocale;
 const QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE = STT_REFERENCE.qualityHoldoutMinimumPerLocale;
 const QUALIFICATION_MAX_CLIPS_PER_LOCALE = PILOT_MAX_CLIPS_PER_LOCALE + QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE;
@@ -91,7 +96,11 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   assert(manifest.dataset?.name === 'google/fleurs', 'unexpected dataset');
   assert(manifest.dataset?.sourceRevision === '70bb2e84b976b7e960aa89f1c648e09c59f894dd', 'unexpected source revision');
   assert(manifest.dataset?.license === 'CC-BY-4.0', 'unexpected dataset license');
-  for (const locale of LOCALES) assert(manifest.dataset?.locales?.[locale], `missing locale ${locale}`);
+  for (const locale of LOCALES) {
+    assert(manifest.dataset?.locales?.[locale], `missing locale ${locale}`);
+    assert(manifest.dataset.locales[locale].datasetConfig === EXPECTED_DATASET_CONFIGS[locale],
+      `dataset config mismatch for ${locale}`);
+  }
   const clips = manifest.selection?.clips;
   assert(Array.isArray(clips), 'selection.clips must be an array');
   const mode = manifest.selection?.mode ?? 'PILOT';
