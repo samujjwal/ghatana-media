@@ -31,6 +31,7 @@ dependencies {
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
+    testRuntimeOnly(libs.log4j.slf4j.impl)
 }
 
 tasks.test {

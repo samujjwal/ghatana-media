@@ -6,13 +6,14 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Set;
+import java.util.Map;
 
 /**
- * K4: Security validator for Data Cloud media processing requests.
+ * K4: Metadata validator for Data Cloud media processing requests.
  *
  * Enforces tenant and permission metadata from Data Cloud job request,
- * adds consent/retention validation for audio/video processing,
- * and rejects jobs without consent where required.
+ * validates consent/retention metadata for audio/video processing. Caller-
+ * supplied consent labels are not authoritative authorization evidence.
  *
  * @doc.type class
  * @doc.purpose Security validation for media processing
@@ -47,14 +48,28 @@ public class MediaProcessingSecurityValidator {
      * Validate a media processing request from Data Cloud
      *
      * @param job The transcription job message to validate
-     * @param requiredPermissions Set of required permissions for the operation
-     * @return ValidationResult indicating if the request is valid
+     * @param requiredPermissions Set of required permissions for the operation;
+     *        this validator has no authenticated principal or permission evidence,
+     *        so non-empty requirements fail closed
+     * @return metadata validation result, not an authorization decision
      */
     public ValidationResult validateMediaProcessingRequest(
             TranscriptionJobProducer.TranscriptionJobMessage job,
             Set<String> requiredPermissions) {
+        if (job == null) {
+            return ValidationResult.rejected("Media processing request is required", "MISSING_REQUEST");
+        }
+        if (requiredPermissions == null) {
+            return ValidationResult.rejected("Permission requirements are unavailable", "PERMISSION_REQUIREMENTS_UNAVAILABLE");
+        }
+        if (!requiredPermissions.isEmpty()) {
+            return ValidationResult.rejected(
+                "Permission evaluation requires authenticated authority", "PERMISSION_CHECK_NOT_ADMITTED");
+        }
 
-        try (MDC.MDCCloseable ignored = MDC.putCloseable("jobId", job.jobId().toString())) {
+        Map<String, String> previousMdc = MDC.getCopyOfContextMap();
+        try {
+            MDC.put("jobId", job.jobId().toString());
             MDC.put("tenantId", job.tenantId());
             if (job.artifactId() != null) {
                 MDC.put("artifactId", job.artifactId().toString());
@@ -98,6 +113,12 @@ public class MediaProcessingSecurityValidator {
                 job.jobId(), job.tenantId());
 
             return ValidationResult.valid();
+        } finally {
+            if (previousMdc == null) {
+                MDC.clear();
+            } else {
+                MDC.setContextMap(previousMdc);
+            }
         }
     }
 
@@ -113,7 +134,7 @@ public class MediaProcessingSecurityValidator {
 
         if (!REQUIRED_CONSENT_STATUSES.contains(consentStatus.toUpperCase())) {
             return ValidationResult.rejected(
-                "Invalid consent status: " + consentStatus + ". Required: " + REQUIRED_CONSENT_STATUSES,
+                "Consent status is not recognized",
                 "INVALID_CONSENT_STATUS"
             );
         }
@@ -133,7 +154,7 @@ public class MediaProcessingSecurityValidator {
 
         if (!VALID_RETENTION_POLICIES.contains(retentionPolicy.toUpperCase())) {
             return ValidationResult.rejected(
-                "Invalid retention policy: " + retentionPolicy + ". Valid policies: " + VALID_RETENTION_POLICIES,
+                "Retention policy is not recognized",
                 "INVALID_RETENTION_POLICY"
             );
         }

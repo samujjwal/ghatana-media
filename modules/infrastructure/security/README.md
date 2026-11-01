@@ -36,3 +36,11 @@ security.auth.enabled=true
 ```
 
 Tests validate that valid tokens pass through, expired/tampered tokens are rejected with `UNAUTHENTICATED`, and auth-disabled mode allows all requests (dev/test only).
+
+`MediaProcessingSecurityValidator` performs metadata validation only when no
+permission requirement is supplied. It has no authenticated principal or
+permission evidence, so any non-empty `requiredPermissions` fails with
+`PERMISSION_CHECK_NOT_ADMITTED`. Caller-supplied `consentStatus` and
+`retentionPolicy` labels are input metadata, not authoritative consent or
+authorization evidence; use the owning consent and policy authorities before
+any sensitive dispatch.

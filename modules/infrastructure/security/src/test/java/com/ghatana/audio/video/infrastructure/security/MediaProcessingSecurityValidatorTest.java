@@ -3,6 +3,7 @@ package com.ghatana.audio.video.infrastructure.security;
 import com.ghatana.audio.video.infrastructure.messaging.TranscriptionJobProducer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 import java.util.Set;
 import java.util.UUID;
@@ -364,8 +365,8 @@ class MediaProcessingSecurityValidatorTest {
     }
 
     @Test
-    @DisplayName("should accept fully valid media processing request")
-    void shouldAcceptFullyValidRequest() {
+    @DisplayName("accepts metadata validation when no authorization requirement is requested")
+    void acceptsMetadataOnlyValidation() {
         TranscriptionJobProducer.TranscriptionJobMessage job =
             TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
                 "tenant-123",
@@ -377,8 +378,69 @@ class MediaProcessingSecurityValidatorTest {
             );
 
         MediaProcessingSecurityValidator.ValidationResult result =
-            validator.validateMediaProcessingRequest(job, Set.of("media:process"));
+            validator.validateMediaProcessingRequest(job, Set.of());
 
         assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
+    @DisplayName("fails closed when permission evidence is required")
+    void permissionRequirementIsNotAdmittedWithoutAuthenticatedEvidence() {
+        var job = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
+            "tenant-123", UUID.randomUUID(), UUID.randomUUID().toString(), "GRANTED", "STANDARD", "en");
+
+        var result = validator.validateMediaProcessingRequest(job, Set.of("media:process"));
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.errorCode()).isEqualTo("PERMISSION_CHECK_NOT_ADMITTED");
+        assertThat(result.rejectionReason()).doesNotContain("GRANTED");
+    }
+
+    @Test
+    @DisplayName("does not echo untrusted consent or retention values in rejection messages")
+    void sanitizesCallerSuppliedPolicyValues() {
+        var invalidConsent = new TranscriptionJobProducer.TranscriptionJobMessage(
+            UUID.randomUUID(), "tenant-123", UUID.randomUUID(), "corr", "DENIED\nsecret-value",
+            "STANDARD", "en", null, java.time.Instant.now());
+        var consentResult = validator.validateMediaProcessingRequest(invalidConsent, Set.of());
+        assertThat(consentResult.errorCode()).isEqualTo("INVALID_CONSENT_STATUS");
+        assertThat(consentResult.rejectionReason()).doesNotContain("DENIED", "secret-value");
+
+        var invalidRetention = new TranscriptionJobProducer.TranscriptionJobMessage(
+            UUID.randomUUID(), "tenant-123", UUID.randomUUID(), "corr", "GRANTED",
+            "CUSTOM\nsecret-value", "en", null, java.time.Instant.now());
+        var retentionResult = validator.validateMediaProcessingRequest(invalidRetention, Set.of());
+        assertThat(retentionResult.errorCode()).isEqualTo("INVALID_RETENTION_POLICY");
+        assertThat(retentionResult.rejectionReason()).doesNotContain("CUSTOM", "secret-value");
+    }
+
+    @Test
+    @DisplayName("restores prior logging identity after successful and rejected validation")
+    void restoresMdcIdentityAfterValidation() {
+        MDC.put("jobId", "outer-job");
+        MDC.put("tenantId", "outer-tenant");
+        MDC.put("artifactId", "outer-artifact");
+        MDC.put("traceId", "trace-1");
+        try {
+            var valid = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
+                "request-tenant", UUID.randomUUID(), "corr-1", "GRANTED", "STANDARD", "en");
+            assertThat(validator.validateMediaProcessingRequest(valid, Set.of()).isValid()).isTrue();
+            assertPriorMdcContext();
+
+            var invalid = TranscriptionJobProducer.TranscriptionJobMessage.createWithDataCloudMetadata(
+                null, UUID.randomUUID(), "corr-2", "GRANTED", "STANDARD", "en");
+            assertThat(validator.validateMediaProcessingRequest(invalid, Set.of()).errorCode())
+                .isEqualTo("MISSING_TENANT_ID");
+            assertPriorMdcContext();
+        } finally {
+            MDC.clear();
+        }
+    }
+
+    private static void assertPriorMdcContext() {
+        assertThat(MDC.get("jobId")).isEqualTo("outer-job");
+        assertThat(MDC.get("tenantId")).isEqualTo("outer-tenant");
+        assertThat(MDC.get("artifactId")).isEqualTo("outer-artifact");
+        assertThat(MDC.get("traceId")).isEqualTo("trace-1");
     }
 }
