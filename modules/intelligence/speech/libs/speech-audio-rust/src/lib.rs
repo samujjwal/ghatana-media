@@ -371,24 +371,47 @@ pub fn extract_waveform<P: AsRef<Path>>(path: P, buckets: usize) -> Result<Vec<f
             "waveform bucket count must be positive".to_string(),
         ));
     }
-
-    let buffer = load_audio_buffer(path)?;
-    let channels = buffer.config.channels.max(1) as usize;
-    let frames = buffer.frame_count();
-    if frames == 0 {
-        return Ok(vec![0.0; buckets]);
+    // A caller-controlled bucket count must not trigger an unbounded allocation.
+    const MAX_WAVEFORM_BUCKETS: usize = 1_000_000;
+    if buckets > MAX_WAVEFORM_BUCKETS {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "waveform bucket count exceeds {MAX_WAVEFORM_BUCKETS}"
+        )));
     }
 
-    let step = ((frames as f64) / buckets as f64).ceil().max(1.0) as usize;
-    let mut waveform = Vec::with_capacity(buckets);
+    let buffer = load_audio_buffer(path)?;
+    let channels = buffer.config.channels as usize;
+    if channels == 0 || !buffer.samples.len().is_multiple_of(channels) {
+        return Err(SpeechAudioError::InvalidInput(
+            "waveform input must have a positive channel count and complete interleaved frames"
+                .to_string(),
+        ));
+    }
+    if buffer.samples.iter().any(|sample| !sample.is_finite()) {
+        return Err(SpeechAudioError::InvalidInput(
+            "waveform input must not contain non-finite samples".to_string(),
+        ));
+    }
+    let frames = buffer.frame_count();
+    if frames == 0 {
+        let mut waveform = Vec::new();
+        waveform.try_reserve_exact(buckets).map_err(|error| {
+            SpeechAudioError::ResourceLimit(format!("cannot reserve waveform buckets: {error}"))
+        })?;
+        waveform.resize(buckets, 0.0);
+        return Ok(waveform);
+    }
+
+    let mut waveform = Vec::new();
+    waveform.try_reserve_exact(buckets).map_err(|error| {
+        SpeechAudioError::ResourceLimit(format!("cannot reserve waveform buckets: {error}"))
+    })?;
 
     for bucket in 0..buckets {
-        let start_frame = bucket * step;
-        if start_frame >= frames {
-            waveform.push(0.0);
-            continue;
-        }
-        let end_frame = (start_frame + step).min(frames);
+        // Use exact proportional partitions; u128 avoids overflow for very large
+        // caller-provided bucket counts and keeps every source frame represented.
+        let start_frame = ((bucket as u128 * frames as u128) / buckets as u128) as usize;
+        let end_frame = (((bucket as u128 + 1) * frames as u128) / buckets as u128) as usize;
         let mut peak = 0.0f32;
         for frame in start_frame..end_frame {
             for channel in 0..channels {
@@ -418,11 +441,28 @@ pub fn slice_audio_buffer(
         ));
     }
 
-    let channels = buffer.config.channels.max(1) as usize;
-    let start_frame = (start_time * buffer.config.sample_rate as f64).floor() as usize;
-    let end_frame = (end_time * buffer.config.sample_rate as f64).ceil() as usize;
-    let clamped_start = start_frame.min(buffer.frame_count());
-    let clamped_end = end_frame.min(buffer.frame_count());
+    let channels = buffer.config.channels as usize;
+    if buffer.config.sample_rate == 0
+        || channels == 0
+        || !buffer.samples.len().is_multiple_of(channels)
+    {
+        return Err(SpeechAudioError::InvalidInput(
+            "slice input must have a positive sample rate and complete interleaved frames"
+                .to_string(),
+        ));
+    }
+    let frames = buffer.frame_count();
+    // Select samples whose frame timestamps lie in [start_time, end_time).
+    // Clamp in seconds before multiplication so huge finite times cannot overflow
+    // the conversion or turn into saturated usize indices.
+    let frame_boundary = |time: f64| -> usize {
+        if time >= frames as f64 / buffer.config.sample_rate as f64 {
+            return frames;
+        }
+        (time * buffer.config.sample_rate as f64).ceil() as usize
+    };
+    let clamped_start = frame_boundary(start_time);
+    let clamped_end = frame_boundary(end_time);
     let start_index = clamped_start * channels;
     let end_index = clamped_end * channels;
 
@@ -463,26 +503,41 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
         }
     }
 
+    let channels = reference.channels as usize;
+    if channels == 0 {
+        return Err(SpeechAudioError::InvalidInput(
+            "mix channel count must be positive".to_string(),
+        ));
+    }
     let max_samples = buffers
         .iter()
         .map(|buffer| buffer.samples.len())
         .max()
         .unwrap_or(0);
-    let mut mixed = vec![0.0f32; max_samples];
+    if buffers
+        .iter()
+        .any(|buffer| !buffer.samples.len().is_multiple_of(channels))
+    {
+        return Err(SpeechAudioError::InvalidInput(
+            "mix inputs must contain complete interleaved frames".to_string(),
+        ));
+    }
+    let mut mixed = Vec::new();
+    mixed.try_reserve_exact(max_samples).map_err(|error| {
+        SpeechAudioError::ResourceLimit(format!("cannot reserve mixed audio: {error}"))
+    })?;
+    mixed.resize(max_samples, 0.0f32);
 
     for (buffer, volume) in buffers.iter().zip(volumes.iter().copied()) {
         for (index, sample) in buffer.samples.iter().copied().enumerate() {
-            mixed[index] += sample * volume;
-        }
-    }
-
-    let peak = mixed
-        .iter()
-        .copied()
-        .fold(0.0f32, |max_peak, sample| max_peak.max(sample.abs()));
-    if peak > 1.0 {
-        for sample in &mut mixed {
-            *sample /= peak;
+            let sum = mixed[index] as f64 + sample as f64 * volume as f64;
+            let converted = sum as f32;
+            if !converted.is_finite() {
+                return Err(SpeechAudioError::ResourceLimit(
+                    "mixed sample exceeds finite f32 range".to_string(),
+                ));
+            }
+            mixed[index] = converted;
         }
     }
 
@@ -1111,6 +1166,30 @@ mod tests {
     }
 
     #[test]
+    fn slice_audio_buffer_uses_half_open_sample_timestamps_and_preserves_stereo_frames() {
+        let config = AudioConfig {
+            sample_rate: 4,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        let buffer = AudioBuffer::new(vec![0.0, 10.0, 1.0, 11.0, 2.0, 12.0, 3.0, 13.0], config);
+
+        // [0.25, 0.75) selects frame timestamps 0.25 and 0.5, both channels intact.
+        assert_eq!(
+            slice_audio_buffer(&buffer, 0.25, 0.75).unwrap().samples,
+            vec![1.0, 11.0, 2.0, 12.0]
+        );
+        assert!(slice_audio_buffer(&buffer, 0.5, 0.5)
+            .unwrap()
+            .samples
+            .is_empty());
+        assert_eq!(
+            slice_audio_buffer(&buffer, 0.75, 1.0).unwrap().samples,
+            vec![3.0, 13.0]
+        );
+    }
+
+    #[test]
     fn slice_audio_buffer_rejects_non_finite_times_instead_of_coercing_indices() {
         let buffer = AudioBuffer::new(
             vec![0.0, 0.2, 0.4, 0.6],
@@ -1155,10 +1234,47 @@ mod tests {
             .unwrap()
             .samples
             .is_empty());
+        assert!(
+            slice_audio_buffer(&buffer, 0.0, f64::MAX)
+                .unwrap()
+                .samples
+                .len()
+                == buffer.samples.len()
+        );
     }
 
     #[test]
-    fn mix_audio_normalizes_peak() {
+    fn slice_audio_buffer_rejects_negative_and_invalid_time_or_sample_units() {
+        let buffer = AudioBuffer::new(
+            vec![0.0, 1.0],
+            AudioConfig {
+                sample_rate: 2,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        for (start, end) in [(-0.01, 0.5), (0.0, -0.01), (0.75, 0.5)] {
+            assert!(matches!(
+                slice_audio_buffer(&buffer, start, end),
+                Err(SpeechAudioError::InvalidInput(_))
+            ));
+        }
+        let zero_rate = AudioBuffer::new(
+            vec![0.0],
+            AudioConfig {
+                sample_rate: 0,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            slice_audio_buffer(&zero_rate, 0.0, 1.0),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn mix_audio_preserves_gain_without_peak_normalization() {
         let config = AudioConfig {
             sample_rate: 16000,
             channels: 1,
@@ -1169,7 +1285,35 @@ mod tests {
 
         let mixed = mix_audio(&[first, second], &[1.0, 1.0]).unwrap();
 
-        assert!(mixed.samples.iter().all(|sample| sample.abs() <= 1.0));
+        assert_eq!(mixed.samples, vec![1.6, 0.0]);
+    }
+
+    #[test]
+    fn mix_audio_preserves_stereo_channel_isolation_and_interleaving() {
+        let config = AudioConfig {
+            sample_rate: 16000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        let left = AudioBuffer::new(vec![0.5, 0.0, 0.25, 0.0], config);
+        let right = AudioBuffer::new(vec![0.0, -0.5, 0.0, -0.25], config);
+        let mixed = mix_audio(&[left, right], &[1.0, 1.0]).unwrap();
+        assert_eq!(mixed.samples, vec![0.5, -0.5, 0.25, -0.25]);
+        assert_eq!(mixed.frame_count(), 2);
+    }
+
+    #[test]
+    fn mix_audio_rejects_unrepresentable_finite_sum_without_clipping() {
+        let config = AudioConfig {
+            sample_rate: 16000,
+            channels: 1,
+            sample_format: SampleFormat::F32,
+        };
+        let huge = AudioBuffer::new(vec![f32::MAX], config);
+        assert!(matches!(
+            mix_audio(&[huge.clone(), huge], &[2.0, 2.0]),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
     }
 
     #[test]
@@ -1403,6 +1547,66 @@ mod tests {
     }
 
     #[test]
+    fn extract_waveform_handles_stereo_peaks_and_silence_with_bounded_buckets() {
+        let temp = tempdir().unwrap();
+        let stereo_path = temp.path().join("stereo-waveform.wav");
+        let config = AudioConfig {
+            sample_rate: 8_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        write_wav(
+            &stereo_path,
+            &AudioBuffer::new(vec![0.1, -0.7, 0.4, -0.2], config),
+        )
+        .unwrap();
+        assert_eq!(extract_waveform(&stereo_path, 2).unwrap(), vec![0.7, 0.4]);
+
+        let silence_path = temp.path().join("silence-waveform.wav");
+        write_wav(
+            &silence_path,
+            &AudioBuffer::new(
+                vec![0.0; 8],
+                AudioConfig {
+                    channels: 1,
+                    ..config
+                },
+            ),
+        )
+        .unwrap();
+        assert_eq!(extract_waveform(&silence_path, 4).unwrap(), vec![0.0; 4]);
+        assert!(matches!(
+            extract_waveform(&silence_path, 1_000_001),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+    }
+
+    #[test]
+    fn extract_waveform_returns_zero_for_empty_buckets_when_buckets_exceed_frames() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("sparse-waveform.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.5, -0.25],
+                AudioConfig {
+                    sample_rate: 8_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+
+        // Four proportional buckets over two frames produce empty buckets at
+        // positions 0 and 2; the occupied buckets retain each frame's peak.
+        assert_eq!(
+            extract_waveform(&path, 4).unwrap(),
+            vec![0.0, 0.5, 0.0, 0.25]
+        );
+    }
+
+    #[test]
     fn write_and_read_stereo_wav_preserves_channels() {
         let temp = tempdir().unwrap();
         let path = temp.path().join("stereo.wav");
@@ -1440,7 +1644,16 @@ mod tests {
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert!(matches!(
+            mix_audio(std::slice::from_ref(&good), &[f32::INFINITY]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
             mix_audio(&[nan_buffer], &[1.0]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        let infinite_buffer = AudioBuffer::new(vec![f32::INFINITY], config);
+        assert!(matches!(
+            mix_audio(&[infinite_buffer], &[1.0]),
             Err(SpeechAudioError::InvalidInput(_))
         ));
     }
