@@ -622,15 +622,16 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "b7e0f4d430f3f9a47deac94ad568ec140ff123901eb6433aa81dd102e55a94ad",
-        "currentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
+        "currentSourceFileSha256": "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22",
         "priorTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValuePreview": "14-of-14 observed legacy/candidate SDK paths are absent from the 27-route active manifest; this proves non-admission and does not choose a replacement route.",
-        "reason": "The operation-parity source summary was corrected against the current route manifest. The prior 27-route source/value pins remain preserved above; the new summary is recorded as a pending current-value-drift observation. This observation does not imply acceptance, semantic parity, owner approval, runtime admission, or release.",
-        "previousCurrentSourceFileSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-        "supersededCurrentSourceFileSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
+        "reason": "The operation-parity source summary was corrected against the current route manifest. The prior 27-route source/value pins remain preserved above; the new summary is recorded as a pending current-value-drift observation. This observation does not imply acceptance, semantic parity, owner approval, runtime admission, or release. Current owner-source bytes were re-observed by the narrow C002 refresh; the pending live target value remains unchanged.",
+        "previousCurrentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
+        "supersededCurrentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
         "sourceFileSha256History": [
-          "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a"
+          "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
+          "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f"
         ],
         "currentValueDriftObservation": {
           "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",

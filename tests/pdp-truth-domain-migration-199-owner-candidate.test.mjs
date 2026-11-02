@@ -388,7 +388,10 @@ test("MPSEM-0023-C002 preserves the prior route summary and records current mani
   const currentManifest = JSON.parse(readFileSync(resolve(root, "config/route-manifest.json"), "utf8"));
   const drift = observation.currentValueDriftObservation;
 
-  assert.equal(sha(historicalSource), observation.supersededCurrentSourceFileSha256);
+  assert.equal(observation.sourceFileSha256History[0], sha(historicalSource),
+    "the original frozen source pin remains in observation history");
+  assert.ok(observation.sourceFileSha256History.includes(observation.previousCurrentSourceFileSha256),
+    "the superseded pending source observation remains in history");
   assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
   assert.equal(historicalManifest.routes.length, 27, "the preserved predecessor summary used the 27-route manifest");
   assert.match(historicalValue, /absent from the 27-route active manifest/u);
