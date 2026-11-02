@@ -1825,7 +1825,7 @@ This closes one lossy alias in the local projection only. The adapter still acce
 
 ### 41.48 November 2 STT consent expiry before policy evaluation (2026-11-02)
 
-At Media `main@0a98c46e`, `SharedPolicySttRequestAuthorizationTest.expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch` supplies an `ADMITTED` rights resolution whose consent timestamp has expired, with a policy evaluator configured to return an authoritative ALLOW if invoked. The focused selector passed **1/1**. The test explicitly confirms policy evaluation is not reached and the service rejects before the library or provider is accessed. This covers the adapter's existing expired-facts guard; no production code changed.
+At Media source cut `main@0a98c46e` plus test-only commit `88838c29`, `SharedPolicySttRequestAuthorizationTest.expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch` supplies an `ADMITTED` rights resolution whose consent timestamp has expired, with a policy evaluator configured to return an authoritative ALLOW if invoked. The focused selector passed **1/1**. The test explicitly confirms policy evaluation is not reached and the service rejects before the library or provider is accessed. This covers the adapter's existing expired-facts guard; no production code changed.
 
 ```bash
 GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
