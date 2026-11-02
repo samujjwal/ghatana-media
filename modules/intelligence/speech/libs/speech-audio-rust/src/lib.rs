@@ -3039,6 +3039,148 @@ mod tests {
     }
 
     #[test]
+    fn seeded_bounded_wave_mutations_are_panic_free_and_respect_decode_caps() {
+        const SEED: u64 = 0x6d65_6469_615f_7273;
+        const CASES: usize = 128;
+        const MAX_INPUT_BYTES: usize = 8 * 1024;
+        const MAX_OUTPUT_SAMPLES: usize = 1_024;
+
+        fn next_random(state: &mut u64) -> u64 {
+            // xorshift64*: fixed-width, dependency-free and reproducible across runs.
+            *state ^= *state >> 12;
+            *state ^= *state << 25;
+            *state ^= *state >> 27;
+            (*state).wrapping_mul(0x2545_f491_4f6c_dd1d)
+        }
+
+        let temp = tempdir().unwrap();
+        let source_path = temp.path().join("seeded-source.wav");
+        let input_path = temp.path().join("seeded-mutated.wav");
+        write_wav(
+            &source_path,
+            &AudioBuffer::new(
+                (0..512)
+                    .map(|sample| ((sample as f32 * 0.071).sin()) * 0.5)
+                    .collect(),
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let valid = std::fs::read(source_path).unwrap();
+        assert!(valid.len() <= MAX_INPUT_BYTES);
+
+        let limits = DecodeLimits {
+            max_input_bytes: MAX_INPUT_BYTES as u64,
+            max_decoded_samples: MAX_OUTPUT_SAMPLES,
+            max_channels: 2,
+            ..DecodeLimits::DEFAULT
+        };
+        let mut state = SEED;
+
+        for case in 0..CASES {
+            let mut mutated = valid.clone();
+            let operations = if case == 0 {
+                0
+            } else {
+                1 + (next_random(&mut state) as usize % 8)
+            };
+            for _ in 0..operations {
+                if mutated.is_empty() {
+                    mutated.push(next_random(&mut state) as u8);
+                    continue;
+                }
+                match next_random(&mut state) % 4 {
+                    0 => {
+                        let index = next_random(&mut state) as usize % mutated.len();
+                        mutated[index] ^= (next_random(&mut state) as u8) | 1;
+                    }
+                    1 => {
+                        let index = next_random(&mut state) as usize % mutated.len();
+                        mutated[index] = next_random(&mut state) as u8;
+                    }
+                    2 => {
+                        let length = next_random(&mut state) as usize % (mutated.len() + 1);
+                        mutated.truncate(length);
+                    }
+                    _ if mutated.len() < MAX_INPUT_BYTES => {
+                        let room = MAX_INPUT_BYTES - mutated.len();
+                        let count = 1 + (next_random(&mut state) as usize % room.min(16));
+                        for _ in 0..count {
+                            mutated.push(next_random(&mut state) as u8);
+                        }
+                    }
+                    _ => {
+                        let index = next_random(&mut state) as usize % mutated.len();
+                        mutated[index] = !mutated[index];
+                    }
+                }
+            }
+            assert!(mutated.len() <= MAX_INPUT_BYTES);
+            std::fs::write(&input_path, mutated).unwrap();
+
+            // The decoder checks this cooperative budget between codec operations;
+            // it is not a hard wall-clock limit for an in-flight codec call.
+            let outcome = std::panic::catch_unwind(|| {
+                decode_audio_bounded_with_time_budget(
+                    &input_path,
+                    limits,
+                    Duration::from_millis(250),
+                )
+            });
+            assert!(
+                outcome.is_ok(),
+                "decoder panicked for fixed-seed case {case}"
+            );
+            match outcome.unwrap() {
+                Ok(decoded) => {
+                    assert!(
+                        decoded.config.channels > 0
+                            && decoded.config.channels <= limits.max_channels,
+                        "successful case {case} returned an invalid or over-cap channel count"
+                    );
+                    assert!(
+                        decoded.config.sample_rate > 0
+                            && decoded.config.sample_rate <= limits.max_sample_rate,
+                        "successful case {case} returned an invalid or over-cap sample rate"
+                    );
+                    assert!(
+                        decoded.samples.len() <= limits.max_decoded_samples,
+                        "successful case {case} exceeded the decoded sample budget"
+                    );
+                    assert_eq!(
+                        decoded.samples.len() % decoded.config.channels as usize,
+                        0,
+                        "successful case {case} returned misaligned interleaved samples"
+                    );
+                    assert!(
+                        decoded.samples.iter().all(|sample| sample.is_finite()),
+                        "successful case {case} returned non-finite samples"
+                    );
+                    if case == 0 {
+                        assert_eq!(decoded.samples.len(), 512);
+                        assert_eq!(
+                            decoded.config,
+                            AudioConfig {
+                                sample_rate: 16_000,
+                                channels: 1,
+                                sample_format: SampleFormat::F32,
+                            }
+                        );
+                    }
+                }
+                Err(error) if case == 0 => {
+                    panic!("unmutated seed fixture was not decodable: {error}");
+                }
+                Err(_) => {}
+            }
+        }
+    }
+
+    #[test]
     fn malformed_compressed_codec_packet_is_not_silently_skipped() {
         let temp = tempdir().unwrap();
         let path = temp.path().join("corrupt.mp3");
