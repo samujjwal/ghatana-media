@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -28,6 +29,10 @@ public final class MediaPostgresqlProcessCrashWorker {
         Path marker = Path.of(args[0]);
         String tenantId = args[1];
         String jobId = args[2];
+        if (args.length == 4 && "commit-transcript".equals(args[3])) {
+            commitTranscript(marker, tenantId, jobId);
+            return;
+        }
         try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
             if (args.length == 4 && "record-unknown".equals(args[3])) {
                 commitMultimodalChildUnknown(store, marker, tenantId, jobId);
@@ -56,6 +61,52 @@ public final class MediaPostgresqlProcessCrashWorker {
 
             // Keep the committed process alive so the parent can terminate it abruptly after the
             // durable method returns, matching an OS-level worker loss rather than close().
+            while (true) Thread.sleep(60_000);
+        }
+    }
+
+    private static void commitTranscript(Path marker, String tenantId, String jobId) throws Exception {
+        try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+             PostgresqlMediaTranscriptStore transcripts = new PostgresqlMediaTranscriptStore()) {
+            ProcessingJob expected = store.find(tenantId, jobId).orElseThrow();
+            ProcessingAttempt attempt = store.findProcessingAttempt(tenantId, jobId, 1).orElseThrow();
+            String runId = jobId.substring("job-ip06-stt-".length());
+            String transcriptId = jobId.replace("job-", "transcript-");
+            String transcriptVersion = "transcript-version-" + runId;
+            String text = "crash-safe transcript fixture";
+            Instant observedAt = Instant.ofEpochMilli(System.currentTimeMillis());
+            Map<String, Object> response = Map.of(
+                    "sourceArtifactVersionRef", expected.expectedArtifactVersion(),
+                    "requestFingerprint", expected.requestFingerprint(),
+                    "transcriptVersionRef", transcriptVersion,
+                    "glossaryDisposition", "NOT_REQUESTED",
+                    "transcriptText", text);
+            Map<String, Object> result = Map.of("semanticObservations", Map.of(
+                    "requestFingerprint", expected.requestFingerprint(),
+                    "glossaryApplication", Map.of("disposition", "NOT_REQUESTED"),
+                    "transcriptResponse", response));
+            TranscriptDraft draft = new TranscriptDraft(
+                    tenantId, expected.principalId(), transcriptId, expected.artifactId(),
+                    expected.expectedArtifactVersion(), "c".repeat(64), jobId,
+                    "profile-ip06-v1", expected.providerId(), "model-ip06-v1", "en-US", "milliseconds",
+                    text, "consent-stt-" + runId, "rights-ip06-" + runId, "policy-v1",
+                    "urn:media:purpose:transcription", "transcription");
+            ProcessingJob completed = new ProcessingJob(
+                    expected.jobId(), expected.requestId(), expected.tenantId(), expected.principalId(),
+                    expected.artifactId(), expected.jobType(), expected.providerId(), JobStatus.COMPLETED,
+                    expected.createdAt(), expected.startedAt(), observedAt, Map.of("text", text), "",
+                    expected.version() + 1, expected.expectedArtifactVersion(), expected.requestFingerprint());
+            ProviderAttemptObservation observation = new ProviderAttemptObservation(
+                    attempt.query(), AttemptFinality.SUCCEEDED, attempt.providerReceiptId(), result,
+                    PROVENANCE_DIGEST, observedAt);
+            MediaLifecycleEvent event = new MediaLifecycleEvent(
+                    "media:ip06:stt:completed:" + jobId, "media.job.completed", tenantId,
+                    expected.principalId(), expected.requestId(), expected.requestId(), "job", jobId,
+                    completed.version(), "INTERNAL", observedAt, Map.of("status", "COMPLETED"));
+            store.commitFinalOutcomeWithTranscript(expected, attempt, completed, observation, event,
+                    transcripts, draft, transcriptVersion);
+            write(marker, "COMMITTED");
+            // Parent kills this child after PostgreSQL reports COMMIT returned.
             while (true) Thread.sleep(60_000);
         }
     }

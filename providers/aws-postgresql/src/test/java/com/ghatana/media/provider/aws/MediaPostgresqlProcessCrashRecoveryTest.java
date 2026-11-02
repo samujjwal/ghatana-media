@@ -8,6 +8,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -132,6 +134,105 @@ class MediaPostgresqlProcessCrashRecoveryTest {
             assertThat(attempt.providerOperationId()).isEqualTo("operation-" + runId);
             assertThat(attempt.providerReceiptId()).isEqualTo("receipt-" + runId);
             assertThat(outboxCount(identity, "media.job.completed", 3)).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void forcibleProcessDeathKeepsTranscriptAttemptJobAndBothOutboxEventsAtomic(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = createBucket("media-ip06-stt-crash-" + runId);
+        Map<String, String> environment = environment(bucket, "parent-stt-crash-" + runId);
+        JobIdentity identity = prepareDispatchedSttJob(environment, runId);
+        String transcriptId = identity.jobId().replace("job-", "transcript-");
+        String principalId = "principal-stt-" + runId;
+        String transcriptVersion = "transcript-version-" + runId;
+
+        Path beforeJdbcMarker = tempDir.resolve("stt-before-commit.jdbc.marker");
+        Path beforeLog = tempDir.resolve("stt-before-commit.log");
+        Process before = startWorker(commitGatedEnvironment(environment, "BEFORE_COMMIT", beforeJdbcMarker),
+                tempDir.resolve("stt-before-commit.marker"), identity, beforeLog, "commit-transcript");
+        try {
+            awaitMarker(before, beforeJdbcMarker, "PRE_COMMIT", beforeLog);
+            assertThat(jobStatus(identity)).isEqualTo("RUNNING");
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isZero();
+            assertThat(outboxCount(identity.tenantId(), transcriptId,
+                    "media.transcript.revision.created", 1)).isZero();
+            before.destroyForcibly();
+            assertThat(before.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (before.isAlive()) before.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore();
+             PostgresqlMediaTranscriptStore transcripts = new PostgresqlMediaTranscriptStore()) {
+            ProcessingJob recovered = restarted.find(identity.tenantId(), identity.jobId()).orElseThrow();
+            assertThat(recovered.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(recovered.version()).isEqualTo(2);
+            assertThat(restarted.findProcessingAttempt(identity.tenantId(), identity.jobId(), 1).orElseThrow()
+                    .finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(transcripts.revisions(identity.tenantId(), principalId, transcriptId)).isEmpty();
+            assertThat(transcripts.revisionByVersionRef(identity.tenantId(), principalId, transcriptVersion))
+                    .isEmpty();
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isZero();
+            assertThat(outboxCount(identity.tenantId(), transcriptId,
+                    "media.transcript.revision.created", 1)).isZero();
+        }
+
+        Path afterJdbcMarker = tempDir.resolve("stt-after-commit.jdbc.marker");
+        Path afterLog = tempDir.resolve("stt-after-commit.log");
+        Process after = startWorker(commitGatedEnvironment(environment, "AFTER_COMMIT", afterJdbcMarker),
+                tempDir.resolve("stt-after-commit.marker"), identity, afterLog, "commit-transcript");
+        try {
+            awaitMarker(after, afterJdbcMarker, "POSTGRES_COMMITTED_RETURNED", afterLog);
+            assertThat(jobStatus(identity)).isEqualTo("COMPLETED");
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isEqualTo(1);
+            assertThat(outboxCount(identity.tenantId(), transcriptId,
+                    "media.transcript.revision.created", 1)).isEqualTo(1);
+            after.destroyForcibly();
+            assertThat(after.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (after.isAlive()) after.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore();
+             PostgresqlMediaTranscriptStore transcripts = new PostgresqlMediaTranscriptStore()) {
+            ProcessingJob recovered = restarted.find(identity.tenantId(), identity.jobId()).orElseThrow();
+            assertThat(recovered.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(recovered.version()).isEqualTo(3);
+            assertThat(restarted.findProcessingAttempt(identity.tenantId(), identity.jobId(), 1).orElseThrow()
+                    .finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            var revision = transcripts.revisionByVersionRef(identity.tenantId(), principalId, transcriptVersion)
+                    .orElseThrow();
+            assertThat(revision.revision()).isEqualTo(1);
+            assertThat(revision.draft().text()).isEqualTo("crash-safe transcript fixture");
+            var attempt = restarted.findProcessingAttempt(identity.tenantId(), identity.jobId(), 1).orElseThrow();
+            var binding = transcripts.readAttemptBinding(identity.tenantId(), principalId, transcriptId,
+                    revision.revision());
+            assertThat(binding.jobId()).isEqualTo(identity.jobId());
+            assertThat(binding.attemptNumber()).isEqualTo(1);
+            assertThat(binding.fencingToken()).isEqualTo(attempt.fencingToken());
+            assertThat(binding.providerId()).isEqualTo("provider-ip06-stt");
+            assertThat(binding.providerOperationId()).isEqualTo("operation-ip06-stt-" + runId);
+            assertThat(binding.providerReceiptId()).isEqualTo("receipt-ip06-stt-" + runId);
+            assertThat(binding.requestFingerprint()).isEqualTo(FINGERPRINT);
+            assertThat(binding.sourceArtifactVersionRef()).isEqualTo("sha256:" + "c".repeat(64));
+            assertThat(binding.transcriptVersionRef()).isEqualTo(transcriptVersion);
+            assertThat(binding.resultDigest()).isEqualTo(attempt.resultDigest());
+            TranscriptDraft replayDraft = new TranscriptDraft(
+                    identity.tenantId(), principalId, transcriptId, "artifact-stt-" + runId,
+                    "sha256:" + "c".repeat(64), "c".repeat(64), identity.jobId(),
+                    "profile-ip06-v1", "provider-ip06-stt", "model-ip06-v1", "en-US", "milliseconds",
+                    "crash-safe transcript fixture", "consent-stt-" + runId,
+                    "rights-ip06-" + runId, "policy-v1", "urn:media:purpose:transcription", "transcription");
+            assertThat(transcripts.appendFromSuccessfulAttempt(replayDraft, 0, attempt.attemptNumber(),
+                    attempt.fencingToken(), FINGERPRINT, transcriptVersion)).isEqualTo(revision);
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isEqualTo(1);
+            assertThat(outboxCount(identity.tenantId(), transcriptId,
+                    "media.transcript.revision.created", 1)).isEqualTo(1);
+            assertThat(transcripts.revisions(identity.tenantId(), principalId, transcriptId)).hasSize(1);
         }
     }
 
@@ -278,6 +379,60 @@ class MediaPostgresqlProcessCrashRecoveryTest {
         return new JobIdentity(tenantId, jobId);
     }
 
+    private static JobIdentity prepareDispatchedSttJob(Map<String, String> environment, String runId)
+            throws Exception {
+        String tenantId = "tenant-ip06-stt-" + runId;
+        String jobId = "job-ip06-stt-" + runId;
+        String principalId = "principal-stt-" + runId;
+        String artifactId = "artifact-stt-" + runId;
+        String digest = "c".repeat(64);
+        String sourceVersion = "sha256:" + digest;
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            try (Connection connection = databaseConnection();
+                 var insert = connection.prepareStatement("""
+                         INSERT INTO media_artifacts (tenant_id,artifact_id,principal_id,file_name,content_type,
+                           size_bytes,sha256,object_reference,classification,created_at,expires_at,metadata_json,scan_status)
+                         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                         """)) {
+                long now = System.currentTimeMillis();
+                insert.setString(1, tenantId); insert.setString(2, artifactId); insert.setString(3, principalId);
+                insert.setString(4, "source.wav"); insert.setString(5, "audio/wav"); insert.setLong(6, 12);
+                insert.setString(7, digest); insert.setString(8, "test-only://ip06/" + artifactId);
+                insert.setString(9, "CONFIDENTIAL"); insert.setLong(10, now);
+                insert.setLong(11, now + TimeUnit.HOURS.toMillis(1)); insert.setString(12, "{}");
+                insert.setString(13, "CLEAN"); insert.executeUpdate();
+            }
+            try (Connection connection = databaseConnection();
+                 var insert = connection.prepareStatement("""
+                         INSERT INTO media_consents (tenant_id,consent_id,principal_id,purposes_csv,
+                           allowed_regions_csv,external_processing_allowed,biometric_processing_allowed,
+                           granted_at,revoked_at,version)
+                         VALUES (?,?,?,'transcription','local',false,false,?,NULL,1)
+                         """)) {
+                insert.setString(1, tenantId); insert.setString(2, "consent-stt-" + runId);
+                insert.setString(3, principalId); insert.setLong(4, System.currentTimeMillis());
+                insert.executeUpdate();
+            }
+            Instant createdAt = Instant.ofEpochMilli(System.currentTimeMillis());
+            ProcessingJob accepted = new ProcessingJob(jobId, "request-ip06-stt-" + runId, tenantId,
+                    principalId, artifactId, JobType.SPEECH_TO_TEXT, "provider-ip06-stt", JobStatus.ACCEPTED,
+                    createdAt, null, null, Map.of(), "", 1, sourceVersion, FINGERPRINT);
+            store.create(accepted, FINGERPRINT, new SttSubmissionSnapshot(
+                    SttSubmissionSnapshot.AUTHORIZED_VERSION, null, null, "rights-ip06-" + runId,
+                    "policy-decision-ip06-" + runId, "policy-v1", "consent-stt-" + runId,
+                    "source-clock-ip06-" + runId, 0L));
+            JobLease lease = store.claim(accepted, "worker-ip06-stt", Instant.now().plusSeconds(120));
+            ProcessingJob running = new ProcessingJob(jobId, accepted.requestId(), tenantId, principalId,
+                    artifactId, JobType.SPEECH_TO_TEXT, accepted.providerId(), JobStatus.RUNNING, createdAt,
+                    Instant.now(), null, Map.of(), "", 2, sourceVersion, FINGERPRINT);
+            var started = store.startAttempt(accepted, running, lease, 1, FINGERPRINT);
+            store.recordProviderReceipt(started.attempt(), lease,
+                    "operation-ip06-stt-" + runId, "receipt-ip06-stt-" + runId);
+        }
+        return new JobIdentity(tenantId, jobId);
+    }
+
     private static Process startWorker(
             Map<String, String> environment, Path marker, JobIdentity identity, Path log,
             String... workerOptions) throws Exception {
@@ -324,12 +479,17 @@ class MediaPostgresqlProcessCrashRecoveryTest {
     }
 
     private static long outboxCount(JobIdentity identity, String eventType, long version) throws Exception {
+        return outboxCount(identity.tenantId(), identity.jobId(), eventType, version);
+    }
+
+    private static long outboxCount(String tenantId, String aggregateId, String eventType, long version)
+            throws Exception {
         try (Connection connection = databaseConnection();
              var query = connection.prepareStatement(
                      "SELECT COUNT(*) FROM media_processing_lifecycle_outbox "
                              + "WHERE tenant_id=? AND aggregate_id=? AND aggregate_version=? AND event_type=?")) {
-            query.setString(1, identity.tenantId());
-            query.setString(2, identity.jobId());
+            query.setString(1, tenantId);
+            query.setString(2, aggregateId);
             query.setLong(3, version);
             query.setString(4, eventType);
             try (var rows = query.executeQuery()) { rows.next(); return rows.getLong(1); }

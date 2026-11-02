@@ -1707,6 +1707,21 @@ The owner-requested V001–V016 inputs and H-02 review disposition are available
 | **VS-02 / byte-frame helper** | Independent Luna review accepted the unchanged fixed-header parser boundary and its focused frame tests. | The plan also calls for codec and width/height bounds before copy, but the current VS-02 frame format contains no codec or dimension metadata and the helper receives opaque bytes. Preserve this as a source/contract scope handoff; do not invent wire fields or claim full VS-02 completion. |
 | **IP-06 / requested test history** | The synthetic snapshot, applied-history CSV, and migration manifest remain hash-verified and are documented with provenance in §41.40. Process-crash recovery and S3 integrity/retry work are recorded in §41.35–§41.38. | No deployed `flyway_schema_history`, old-writer fence, production cutover, or rollback authority was found. Do not treat fixture history as installed-state evidence. |
 
+### 41.43 November 2 IP-06 atomic STT transcript finalization after process death (2026-11-02)
+
+At Media `main@36ab531d` plus the uncommitted test-only changes to `MediaPostgresqlProcessCrashRecoveryTest` and `MediaPostgresqlProcessCrashWorker`, the new `forcibleProcessDeathKeepsTranscriptAttemptJobAndBothOutboxEventsAtomic` selector covers the distinct successful-STT finalization boundary absent from the generic job/outbox kill test in §41.16. A synthetic authorized STT fixture is killed before COMMIT and after PostgreSQL reports COMMIT returned. Before COMMIT, fresh reads retain `RUNNING`/attempt `UNKNOWN` and show no transcript revision row, transcript version, or either completion/revision-created event. After COMMIT, fresh stores recover the exact completed job, succeeded attempt, transcript revision and attempt binding (job, attempt/fence, provider operation/receipt, request fingerprint, source version, transcript version, and result digest), with exactly one job completion event and one `media.transcript.revision.created` event. Replaying the same successful-attempt transcript append returns the same revision and leaves one revision/event. Independent Luna review caught that a version-ref lookup could miss an orphan transcript row; the pre-COMMIT path now asserts the principal-scoped revision list is empty, and the updated selector passed.
+
+The focused PostgreSQL 16 + LocalStack/Testcontainers selector passed **1/1** with:
+
+```bash
+./gradlew \
+  :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaPostgresqlProcessCrashRecoveryTest.forcibleProcessDeathKeepsTranscriptAttemptJobAndBothOutboxEventsAtomic \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+```
+
+Together with §41.16 and §41.35–§41.38, no additional local crash-boundary gap was identified for this transcript/attempt/job/outbox invariant. This synthetic test does not establish deployed `flyway_schema_history`, an old-writer fence, production cutover, rollback/restore authority, or IP-06 row acceptance; each remains open.
+
 Focused commands in this continuation:
 
 ```bash
@@ -1726,3 +1741,34 @@ Focused commands in this continuation:
 ```
 
 `git diff --check` passed. Media implementation/test commits are `327b7661` (deadline outcomes and PostgreSQL cancellation readback), `34169e37` (audio reconnect ACK guard), and `93408b7c` (installed gRPC consumer roundtrips). The local Media branch remains ahead of `origin/main`; nothing was pushed. These changes do not close JC-03/04, VS-02, IP-06, Kernel OCR #99, Wave 2/Wave 3, PDP source-currentness, formal phase acceptance, or production admission.
+
+### 41.44 November 2 H-02 typed operation evidence and PDP-0 check-only guard (2026-11-02)
+
+At Media `main@36ab531d`, H-02 now has an additive typed `OperationResolutionEvidence` path. It requires exactly one caller-asserted operationRef → versioned definitionRef/SHA pair for every distinct graph operation, rejects missing/duplicate/extra mappings, resolves each exact definition ref once, checks reference echo and bytes against the supplied digest, and includes adverse outcomes for absent content, resolver failure, and wrong-ref echo. The existing cardinality API remains compatible with PDP-1: one caller-supplied resolution still prepares a local candidate, zero is `UNRESOLVED_OPERATION`, and multiple are `AMBIGUOUS_OPERATION`. Typed evidence adds byte-bound source checking only. PDP-1 keeps its exact graph fingerprint field order, so operation definition evidence is deliberately excluded from candidate identity. The typed association is caller asserted; the bytes are not interpreted to prove they define that operation.
+
+Independent Luna technical review returned **`ACCEPT_LOCAL_CANDIDATE_ONLY`** for this bounded structural slice. It does not establish resolver authority/currentness, operation existence or compatibility, canonical PDP-1 acceptance, trusted edit-lock CAS, runtime admission, dispatch, or durable runtime readback. The declared `stepOperationMapping` review remains open, PDP-1/2/3 source currentness remains stale, no source pins or status projections changed, and H-02 runtime stays `NOT_ADMITTED`.
+
+PDP-0's matrix check now exits nonzero when computed phase source currentness is not `CURRENT`, even if the committed matrix bytes match the generated projection. The regression exercises the current `STALE` state and confirms status and matrix files remain unchanged. The guard detects stale provenance; it does not rebind pins or settle any owner review. The owner-mediated selector and pin-reconciliation route remains as recorded in §41.24.
+
+Focused evidence:
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSemanticSourceTest \
+  --tests com.ghatana.media.runtime.MediaProductionCompilerContractTest \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest \
+  --tests com.ghatana.media.runtime.MediaProductionAdmissionBindingTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 50/50 passed
+
+pnpm check:declarative-production-definition
+# PASS: 507 capability leaves, 620 canonical operation identities
+
+pnpm test:ocr-single-authority
+# 12/12 passed
+
+node --test tests/pdp0-surface-phase-status-matrix.test.mjs
+# 1/1 passed; the generated PDP-0 currentness remains STALE
+```
+
+No PDP status, pin, matrix, runtime, provider, deployment, or release state was promoted. The independent PDP-0 status owner still needs to enumerate and disposition its skipped selector cases and reconcile source review before any currentness claim; exact owner route and distinct skip counts remain recorded in §41.24.
