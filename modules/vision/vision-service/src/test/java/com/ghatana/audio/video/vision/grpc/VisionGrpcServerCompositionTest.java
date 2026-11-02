@@ -124,7 +124,14 @@ class VisionGrpcServerCompositionTest {
 
     @Test
     void failedGrpcBindLeavesProductionRootDownAndClosed() throws Exception {
-        try (ServerSocket occupied = new ServerSocket(0)) {
+        int occupiedPort = freePort();
+        io.grpc.Server occupied = io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder.forAddress(
+                        new java.net.InetSocketAddress(
+                                java.net.InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), occupiedPort))
+                .addService(io.grpc.ServerServiceDefinition.builder("test.PortOccupier").build())
+                .build()
+                .start();
+        try {
             var metrics = new SimpleMeterRegistry();
             YoloV8Adapter detector = mock(YoloV8Adapter.class);
             when(detector.isInitialized()).thenReturn(false);
@@ -135,12 +142,15 @@ class VisionGrpcServerCompositionTest {
                     MediaProcessingMetrics.create(), metrics);
             var readiness = VisionGrpcServer.createReadinessLifecycle(metrics, service::isProviderReady);
             service.setReadinessProbe(readiness::isServing);
-            var server = new VisionGrpcServer(occupied.getLocalPort(),
+            var server = new VisionGrpcServer(occupiedPort,
                     AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service, readiness);
             assertThatThrownBy(server::start).isInstanceOf(java.io.IOException.class);
             assertThat(server.isShutdown()).isTrue();
             assertThat(server.isReady()).isFalse();
             server.close();
+        } finally {
+            occupied.shutdownNow();
+            occupied.awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 

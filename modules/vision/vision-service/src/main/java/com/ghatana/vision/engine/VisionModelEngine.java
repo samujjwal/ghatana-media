@@ -150,13 +150,13 @@ public class VisionModelEngine {
     }
 
     /**
-     * Extracts text from the given image using OCR.
-     *
-     * <p>Delegates to the backing {@link VisionDetector} when it supports
-     * {@link VisionCapability#OCR}; otherwise fails closed.
+     * Legacy generic OCR entry point. It remains fail-closed because a raw image
+     * and {@link OcrResult} cannot carry the source authorization, tenant, frame
+     * time, and region provenance required by Media's Document Intelligence path.
+     * Use the source-aware Vision scene-text operation for admitted OCR instead.
      *
      * @param imageData raw image bytes
-     * @return OCR result with extracted text
+     * @throws OcrNotAdmittedException because this legacy API has no admitted DI binding
      */
     public OcrResult extractText(byte[] imageData) {
         validateImage(imageData);
