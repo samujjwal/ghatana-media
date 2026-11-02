@@ -2051,3 +2051,38 @@ The current Kernel checkout is still clean at `main@bb07a172d84a488090d5bb134812
 The current Kernel `pnpm check:product-definition-source` selector was run read-only. Its first chained validator, `validate-product-definition.mjs`, returned **7,915 checks, 28 failures, and 1 diagnostic**, so the later validators in that `&&` chain did not run. The reported failure groups are 20 effective API mutations without exact `commitPoint` bindings, two stale generated phase guides, a stale phase-snapshot digest, and four stale owner-decision material bindings. The earlier complete native PDP source verifier recorded in §41.56 remains **10/15 pass, 5 fail** against the same Kernel commit with Shared and Tools roots supplied. No source package was regenerated and no owner decision was re-acknowledged. The earliest legal work remains Kernel PDP-0 Discovery; the stale owner bindings and visual-review requirements are not approval evidence.
 
 Media host preflight was repeated: Docker access is denied for both the `desktop-linux` socket and `/var/run/docker.sock`; `GHATANA_MEDIA_VISION_WORKER_IMAGE`, the Whisper profile/audio/gold variables, and database URL variables are unset; no local ONNX, WAV, GGUF, PT, or safetensors model files were found. Thus no fresh host OCI, real-model, deployed-database, or protected-writer evidence became available. These checks leave the existing JC-03 and IP-06 external qualification gates unchanged.
+
+### 41.59 November 2 Multimodal bounded dispatch, IP-06 snapshot-forward rehearsal, and H-02 review disposition
+
+**JC-03 local production path:** `MultimodalGrpcService` now sends canonical multimodal engine calls through a context-aware executor with two workers and a four-entry queue. It carries the gRPC context into the worker, interrupts started work on deadline/cancellation, reports `UNKNOWN_OUTCOME` after effect-capable work starts, rejects saturation before dispatch, and closes the owned executor with the service lifecycle. The finality harness now uses asynchronous gRPC dispatch and exercises blocked-work deadlines, explicit cancellation, late completion, and saturation. The IPv4 bind-failure fixture binds the same loopback address as the server so it reliably tests failed startup cleanup.
+
+Focused Gradle verification passed **79/79** (zero failures/errors/skips): `MultimodalGrpcFinalitySurfaceTest` 14/14, `MultimodalGrpcServiceTest` 54/54, `MultimodalGrpcServiceInProcessIntegrationTest` 8/8, and `MultimodalGrpcServerCompositionTest` 3/3. The additional service regression installs a 200 ms server-owned `RpcDeadlineServerInterceptor` and sends no client deadline; the worker observes cancellation after dispatch, the call returns `UNKNOWN`, and late completion emits no response. Production `MultimodalGrpcServer` uses the standard interceptor chain, whose RPC maximum defaults to 120 seconds and is configuration-capped at 600 seconds.
+
+```bash
+./gradlew :services:media:modules:intelligence:multimodal-service:test \
+  --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcFinalitySurfaceTest' \
+  --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceTest' \
+  --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServiceInProcessIntegrationTest' \
+  --tests 'com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServerCompositionTest' \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 79/79 passed
+```
+
+This is a bounded Media service-path result. The existing server maximum deadline remains transport-owned; this change does not prove forced termination of a noncooperative native provider or host OCI isolation. Real provider quality, whole-row JC-03 acceptance, and native worker qualification remain open.
+
+**IP-06 checked-in snapshot forward rehearsal:** `Ip06LegacyMigrationCompatibilityTest.checkedInSnapshotRestoresLegacyProjectionAndMigratesForward` now restores the checked-in synthetic V001–V016 SQL snapshot into an isolated PostgreSQL 16/Testcontainers schema, compares its 16-row manifest-backed history projection with the pinned manifest, checks the seeded tenant/artifact/job/transcript/outbox content, baselines at V016, and applies V017–V029. It checks preservation of the synthetic legacy rows, selected additive columns/tables and unresolved defaults, contiguous Flyway baseline-plus-tail history, and idempotent second migration.
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests 'com.ghatana.media.provider.aws.Ip06LegacyMigrationCompatibilityTest.checkedInSnapshotRestoresLegacyProjectionAndMigratesForward' \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 1/1 passed, zero skips
+```
+
+The fixture remains synthetic and test-only; the checked-in applied-history CSV remains an isolated PostgreSQL 16 capture. This rehearsal does not establish the deployed V001–V029 history, legacy-writer identity/fencing, cutover, or rollback authority.
+
+**H-02 independent local candidate disposition:** a fresh read-only reviewer disposition is `ACCEPT_LOCAL_CANDIDATE_ONLY` for the effect-free structural binding between the digest-checked semantic graph and the PDP-1 v3 admission envelope. It does not accept operation compatibility: PDP-1 still marks the identical-step-ID join as a candidate requiring source review, and the compiler does not establish operation-definition meaning. The current PDP-1 status pin and `mainSha` are stale for this source cut. There is no trusted identity/rights/current-authority adapter, project CAS/lock implementation, H-02 job-attempt dispatch, or durable readback. Keep `runtimeAdmission: NOT_ADMITTED`; no source owner acceptance or formal PDP-1 currentness follows from this review. Media issue #25 remains open.
+
+**Kernel Discovery-only mechanical refresh (`4ef9180c9`, local main, not pushed):** the owner-derived PDP-0/PDP-3 phase guides and generated phase-snapshot digest were regenerated from their authored sources. `render-phase-guides.mjs --check` and `export-phase-snapshot.mjs --check` pass. The current validator remains **7,915 checks / 25 failures / 1 diagnostic**: the 20 exact API `commitPoint` bindings remain absent (21 findings including aggregate effective-contract failure), and all four accepted owner decisions still bind older material digests. The derived refresh clears only two guide and one digest-staleness findings. No Kernel code or BUILD tests ran; the global Discovery exit still fails and Kernel OCR BUILD remains prohibited.
+
+**Remaining governed gates:** Media PDP-1/2/3 source-currentness and PDP-0 candidate failures remain on their owning reconciliation path; no Media status, source pin, matrix, decision, or receipt was changed. Continue with exact owner-authorized Kernel API semantics and owner material reacceptance, H-02 operation/authority semantics and trusted adapters, JC-03 killable native/provider qualification, IP-06 authentic deployed-history and old-writer evidence, then original Wave 2/Wave 3/H acceptance. No deployment, writer cutover, lifecycle closure, or release is claimed.
