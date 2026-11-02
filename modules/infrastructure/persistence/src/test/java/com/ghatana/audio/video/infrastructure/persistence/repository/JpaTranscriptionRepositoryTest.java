@@ -300,6 +300,7 @@ class JpaTranscriptionRepositoryTest {
     void testFindByAudioFileId() { 
         // GIVEN
         String tenantId = "tenant-123";
+        String otherTenantId = "tenant-999";
         UUID audioFileId = UUID.randomUUID(); 
         TranscriptionEntity entity = new TranscriptionEntity( 
             UUID.randomUUID(), 
@@ -309,14 +310,25 @@ class JpaTranscriptionRepositoryTest {
             "Test transcription text",
             "en"
         );
+        TranscriptionEntity otherTenantEntity = new TranscriptionEntity(
+            UUID.randomUUID(),
+            otherTenantId,
+            audioFileId,
+            UUID.randomUUID(),
+            "Other tenant transcription",
+            "en"
+        );
         repository.save(tenantId, entity); 
+        repository.save(otherTenantId, otherTenantEntity);
 
         // WHEN
         var found = repository.findByAudioFileId(tenantId, audioFileId); 
 
         // THEN
         assertThat(found).isPresent(); 
-        assertThat(found.get().getAudioFileId()).isEqualTo(audioFileId); 
+        assertThat(found.get().getId()).isEqualTo(entity.getId());
+        assertThat(found.get().getTenantId()).isEqualTo(tenantId);
+        assertThat(repository.findByAudioFileId("tenant-no-row", audioFileId)).isEmpty();
     }
 
     @Test
