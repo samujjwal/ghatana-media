@@ -108,6 +108,32 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
+    void boundMultiScenePlanFailsBeforeAnyEffectWhenSourceAuthorityHasNoPerSceneMapping() {
+        var compiler = new MediaProductionSpecCompiler();
+        var multiScene = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1", "scene/2@v1"), "timeline/v1",
+                "rights/v1", List.of("profile/v1"));
+        Binding binding = binding(SHA);
+        AtomicInteger effects = new AtomicInteger();
+
+        assertThatThrownBy(() -> {
+            compiler.compile(multiScene, binding);
+            MediaProductionAdmissionBinding.beforeEffect(binding, "capture-source-0",
+                    () -> state(binding, "capture-source-0"), effects::incrementAndGet);
+        }).isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        assertThat(effects).hasValue(0);
+
+        var singleScene = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1",
+                "rights/v1", List.of("profile/v1"));
+        assertThat(compiler.compile(singleScene, binding).nodes())
+                .extracting(node -> node.stepId())
+                .contains("capture-source-0");
+    }
+
+    @Test
     void currentEnvelopePassesButRuntimeEffectRemainsClosedUntilIndependentSourceReview() {
         Binding binding = binding(SHA);
         MediaProductionAdmissionBinding.requireCurrent(binding, "render-profile-0", state(binding, "render-profile-0"));
@@ -283,7 +309,7 @@ class MediaProductionAdmissionBindingTest {
         assertThatThrownBy(() -> compiler.compile(spec, onlyFirstScene))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
-                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
+                .isEqualTo(AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
     }
 
     @Test

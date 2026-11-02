@@ -1948,8 +1948,12 @@ executionAdmissionBinding:
     before each dispatch, retry and restart; resolve the request identity through
     the existing MediaRuntime/JobAttempt authority and reconcile an existing exact
     attempt rather than dispatching it twice. A reused key with another
-    fingerprint is an idempotency conflict. Use the existing operation journal
-    and compare-and-set authority only.
+    fingerprint is an idempotency conflict. Reserved cost, compute, and time
+    must each cover their corresponding worst-case bound in the same declared
+    unit. An execution context with one sourceVersionRef cannot authorize a
+    multi-source plan unless a source-bound per-step authority shape is defined;
+    that case remains NOT_ADMITTED. Use the existing operation journal and
+    compare-and-set authority only.
   operationSchemaRelation:
     operationRef: media.recipe.specification.compile
     relation: COMPILES_PLAN_ADMISSION_CONTEXT
@@ -2003,6 +2007,31 @@ executionAdmissionBinding:
         render-profile-{zeroBasedOutputProfileIndex}: EXACT_OUTPUT_PROFILE_REF_AT_SAME_INPUT_INDEX
         allOtherSteps: NO_IMPLICIT_SCENE_OR_OUTPUT_LOCK_MAPPING; EFFECT_NOT_ADMITTED
       stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
+    admissionContextBindingRules:
+      engineByStep:
+        keys: EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS
+        nonEngineBuildDigest: IMMUTABLE_SHA256_REQUIRED
+        noEngine: EXPLICIT_IDENTITY_AND_DIGEST_MUST_BOTH_EQUAL_NO_ENGINE
+      reservation:
+        quoteRefAndVersion: IMMUTABLE_VERSIONED_REFERENCES_REQUIRED
+        reservationId: REQUIRED_BEFORE_EFFECT
+        reservedCostComputeAndTime: MUST_EACH_COVER_WORST_CASE_IN_THE_SAME_UNIT
+        staleOrInsufficientReservation: NOT_ADMITTED
+      currentAuthority:
+        tenantId: EXACT_EQUAL_TO_PRODUCTION_SPEC_TENANT_ID
+        purposeRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_PURPOSE_REF
+        rightsRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_RIGHTS_REF
+        decision: RE_RESOLVE_CURRENT_OWNER_DECISION_AND_REVOCATION_EPOCH_BEFORE_EACH_EFFECT
+        sourceVersionRef: SINGLE_SOURCE_ONLY_UNTIL_A_SOURCE_BOUND_PER_STEP_SHAPE_EXISTS
+      projectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_AND_COMPARE_AND_SET_REQUIRED
+      editLock:
+        targetRef: EXACT_SCENE_OR_OUTPUT_VERSION_FOR_THE_EFFECT_STEP
+        ownerLeaseEpochAndExpiry: CURRENT_FENCED_LEASE_REQUIRED
+        multiTargetCoverage: ONE_EXACT_TARGET_PER_LOCK; NO_IMPLICIT_SHARING
+      clocks:
+        identities: ALL_DECLARED_CLOCK_REFS_MUST_RESOLVE_TO_VERSIONED_CLOCKS
+        conversions: RATIONAL_DIRECTIONAL_MAPPINGS_REQUIRED_FOR_EACH_CROSS_CLOCK_EFFECT
+        missingOrAmbiguousMapping: NOT_ADMITTED
     operationInputCoverage:
       scope: EFFECT_FREE_REFERENCE_BOUND_FIXED_DAG_PROTOTYPE_ONLY
       typedProductionSpecInput: EXISTING_TYPED_PRODUCTION_SPEC_MIRROR_ACCEPTED; EXACT_INPUT1_VERSION_REF_BOUND_WHEN_SUPPLIED

@@ -108,7 +108,7 @@ test('reject a PDP-3 journey/operation drift even with all 61 successor cases pr
 test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds explicit NO_ENGINE identities', () => {
   const source = YAML.parse(read(files.p1));
   const binding = source.executionAdmissionBinding;
-  assert.equal(binding.id, 'media.production.execution-admission.v1');
+  assert.equal(binding.id, 'media.production.execution-admission.v2');
   assert.equal(binding.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(binding.operationSchemaRelation.operationRef, 'media.recipe.specification.compile');
   assert.equal(binding.operationSchemaRelation.relation, 'COMPILES_PLAN_ADMISSION_CONTEXT');
@@ -134,7 +134,7 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
       'input5-target-schema', 'input6-migration-transformation']);
   assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
     'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');
-  assert.equal(binding.operationSchemaRelation.sourceAndLockCoverage.oneLockAuthorizesEverySceneInPlan, false);
+  assert.equal(binding.operationSchemaRelation.sourceAndLockCoverage.oneLockAuthorizesOtherScenesOrOutputsInPlan, false);
   assert.equal(binding.operationSchemaRelation.effectBoundary.beforeProviderDispatchRetryOrRestart.implementationStatus,
     'NOT_WIRED_TO_H02_EXECUTION_PATH');
   assert.equal(binding.operationSchemaRelation.planBindingRules.optionalProjectRevisionRef,
@@ -157,4 +157,33 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.equal(engine.allOf[0].then.properties.immutableBuildSha256.const, 'NO_ENGINE');
   assert.equal(engine.allOf[1].then.properties.identity.not.const, 'NO_ENGINE');
   assert.equal(engine.allOf[1].then.properties.immutableBuildSha256.$ref, '#/$defs/immutableSha256');
+  const schema = binding.schema.properties;
+  assert.deepEqual(schema.reservation.required, [
+    'quoteRef', 'quoteVersion', 'reservationId', 'worstCaseCost', 'reservedCost',
+    'worstCaseCompute', 'reservedCompute', 'worstCaseTime', 'reservedTime',
+  ]);
+  for (const field of ['worstCaseCost', 'reservedCost', 'worstCaseCompute', 'reservedCompute', 'worstCaseTime', 'reservedTime']) {
+    assert.equal(schema.reservation.properties[field].$ref, '#/$defs/boundedQuantity', `${field} is bounded and unit typed`);
+  }
+  assert.deepEqual(schema.authority.required, [
+    'tenantId', 'principalId', 'purposeRef', 'rightsRef', 'sourceVersionRef', 'sourceSha256',
+    'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
+  ]);
+  assert.deepEqual(schema.project.required, ['projectId', 'expectedRevision', 'compareAndSet']);
+  assert.deepEqual(schema.editLocksByStep.additionalProperties.required,
+    ['scopeKind', 'targetRef', 'ownerPrincipalId', 'leaseId', 'epoch', 'expiresAt']);
+  assert.deepEqual(schema.clocks.required,
+    ['storyClockRef', 'mediaClockRef', 'simulationClockRef', 'wallClockRef', 'conversions']);
+  const mapping = binding.operationSchemaRelation.admissionContextBindingRules;
+  assert.equal(mapping.reservation.reservedCostComputeAndTime,
+    'MUST_EACH_COVER_WORST_CASE_IN_THE_SAME_UNIT');
+  assert.equal(mapping.currentAuthority.decision,
+    'RE_RESOLVE_CURRENT_OWNER_DECISION_AND_REVOCATION_EPOCH_BEFORE_EACH_EFFECT');
+  assert.equal(mapping.projectRevision,
+    'EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_AND_COMPARE_AND_SET_REQUIRED');
+  assert.equal(mapping.editLock.multiTargetCoverage,
+    'ONE_EXACT_TARGET_PER_LOCK; NO_IMPLICIT_SHARING');
+  assert.equal(mapping.clocks.missingOrAmbiguousMapping, 'NOT_ADMITTED');
+  assert.match(binding.executionRule, /reserved cost, compute, and time\s+must each cover their corresponding worst-case bound/iu);
+  assert.match(binding.executionRule, /one sourceVersionRef cannot authorize a\s+multi-source plan/u);
 });

@@ -307,6 +307,13 @@ public final class MediaProductionSpecCompiler {
             throw new MediaProductionAdmissionBinding.AdmissionException(
                     MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
         }
+        if (binding != null && spec.sceneRefs().size() > 1) {
+            // The v2 authority envelope binds one source version and has no
+            // source-per-scene mapping. Do not compile an admitted-looking DAG
+            // whose source rights cannot be bound to every scene.
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        }
         String admissionFingerprint = binding == null ? null : binding.stableContextFingerprint();
         Map<String, String> fingerprints = new LinkedHashMap<>();
         List<PlanNode> nodes = new ArrayList<>();
