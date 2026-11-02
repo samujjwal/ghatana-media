@@ -1328,7 +1328,7 @@ git diff --check
 
 ### 41.10 Local H-02 content binding, IP-06 delete-fault recovery, and JC-03 late-result fence (2026-11-02)
 
-This continuation is effect-free Track A evidence on the local `main` checkout whose pre-change HEAD was `f816e0ecd18f`. It does not update PDP status, source pins, phase receipts, Wave 2 acceptance, runtime admission, or the remote branch.
+This continuation is effect-free Track A evidence on local `main`, based on pre-change HEAD `f816e0ecd18f`. Implementation commits are `cd0d6e0d` (H-02), `5e425564` (IP-06), and `3d5bf67d` (JC-03). These local commits do not update PDP status, source pins, phase receipts, Wave 2 acceptance, runtime admission, or the remote branch.
 
 | Work unit | Implementation and technical disposition | Evidence and remaining boundary |
 | --- | --- | --- |
