@@ -6,7 +6,7 @@ This directory is under `src/test/resources` solely to reproduce the source line
 
 ## Reproducible snapshot artifacts
 
-The checked-in snapshot artifacts are in the sibling test-resource directory `db/legacy-media-runtime-v001-v016-snapshot/`, outside this Flyway migration location so migration-name validation continues to see only V001–V016. They are test artifacts for historical source commit `d62557fdaac7a324e036ca25f672d2a62ac532ea`. The applied-history capture was produced on **2026-11-02 UTC** by PostgreSQL **16** in the isolated Testcontainers fixture. Its four IP-06 records are synthetic (`ip06-tenant`, `ip06-artifact`, `ip06-job`, `ip06-transcript`, `ip06-event`); there is no customer or deployed database data.
+The checked-in snapshot artifacts are in the sibling test-resource directory `db/legacy-media-runtime-v001-v016-snapshot/`, outside this Flyway migration location so migration-name validation continues to see only V001–V016. They are test artifacts for historical source commit `d62557fdaac7a324e036ca25f672d2a62ac532ea`. The applied-history capture was produced on **2026-11-02 UTC** by PostgreSQL **16** in the isolated Testcontainers fixture; the current checked-in capture is SHA-256 `8aebbf666624dc73cf2dea461b89ac755a1077b63cee45f0898045f4dc7a2667`. Its four IP-06 records are synthetic (`ip06-tenant`, `ip06-artifact`, `ip06-job`, `ip06-transcript`, `ip06-event`); there is no customer or deployed database data.
 
 Reproduce and validate both checked-in artifacts with:
 

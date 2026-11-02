@@ -1,19 +1,19 @@
 # test-only isolated PostgreSQL readback; not a deployed database export
 # source_commit,d62557fdaac7a324e036ca25f672d2a62ac532ea
 installed_rank,version,description,type,script,checksum,installed_by,installed_on,execution_time,success
-1,"001","media runtime state","SQL","V001__media_runtime_state.sql",2011091060,"test","2026-11-02T06:06:40.869422Z",25,true
-2,"002","media upload finalization claim","SQL","V002__media_upload_finalization_claim.sql",-1739934140,"test","2026-11-02T06:06:40.922716Z",4,true
-3,"003","media consent authority","SQL","V003__media_consent_authority.sql",-1700736947,"test","2026-11-02T06:06:40.934518Z",9,true
-4,"004","media principal ownership","SQL","V004__media_principal_ownership.sql",-106672087,"test","2026-11-02T06:06:40.953893Z",20,true
-5,"005","media job worker lease","SQL","V005__media_job_worker_lease.sql",-1755849979,"test","2026-11-02T06:06:40.987830Z",12,true
-6,"006","media job cancellation truth","SQL","V006__media_job_cancellation_truth.sql",1500389172,"test","2026-11-02T06:06:41.009722Z",5,true
-7,"007","media job unknown provider outcome","SQL","V007__media_job_unknown_provider_outcome.sql",-2036800623,"test","2026-11-02T06:06:41.024504Z",5,true
-8,"008","media job artifact content version","SQL","V008__media_job_artifact_content_version.sql",-863726996,"test","2026-11-02T06:06:41.038272Z",6,true
-9,"009","media job attempts and outbox","SQL","V009__media_job_attempts_and_outbox.sql",-392192638,"test","2026-11-02T06:06:41.051398Z",11,true
-10,"010","media artifact format verification","SQL","V010__media_artifact_format_verification.sql",-2015988551,"test","2026-11-02T06:06:41.069593Z",4,true
-11,"011","media job submission digest","SQL","V011__media_job_submission_digest.sql",-1104155036,"test","2026-11-02T06:06:41.079184Z",2,true
-12,"012","media outbox delivery attempts","SQL","V012__media_outbox_delivery_attempts.sql",1299987228,"test","2026-11-02T06:06:41.085621Z",5,true
-13,"013","media artifact quarantine and lineage","SQL","V013__media_artifact_quarantine_and_lineage.sql",-1451326476,"test","2026-11-02T06:06:41.095794Z",10,true
-14,"014","media attempt finality and lifecycle outbox","SQL","V014__media_attempt_finality_and_lifecycle_outbox.sql",548832866,"test","2026-11-02T06:06:41.111947Z",8,true
-15,"015","media transcript revisions","SQL","V015__media_transcript_revisions.sql",659110515,"test","2026-11-02T06:06:41.125789Z",5,true
-16,"016","media lifecycle outbox leases","SQL","V016__media_lifecycle_outbox_leases.sql",-1645731082,"test","2026-11-02T06:06:41.136408Z",4,true
+1,"001","media runtime state","SQL","V001__media_runtime_state.sql",2011091060,"test","2026-11-02T08:23:15.372722Z",21,true
+2,"002","media upload finalization claim","SQL","V002__media_upload_finalization_claim.sql",-1739934140,"test","2026-11-02T08:23:15.409937Z",3,true
+3,"003","media consent authority","SQL","V003__media_consent_authority.sql",-1700736947,"test","2026-11-02T08:23:15.417713Z",4,true
+4,"004","media principal ownership","SQL","V004__media_principal_ownership.sql",-106672087,"test","2026-11-02T08:23:15.426906Z",6,true
+5,"005","media job worker lease","SQL","V005__media_job_worker_lease.sql",-1755849979,"test","2026-11-02T08:23:15.437693Z",3,true
+6,"006","media job cancellation truth","SQL","V006__media_job_cancellation_truth.sql",1500389172,"test","2026-11-02T08:23:15.444920Z",2,true
+7,"007","media job unknown provider outcome","SQL","V007__media_job_unknown_provider_outcome.sql",-2036800623,"test","2026-11-02T08:23:15.451656Z",2,true
+8,"008","media job artifact content version","SQL","V008__media_job_artifact_content_version.sql",-863726996,"test","2026-11-02T08:23:15.457387Z",2,true
+9,"009","media job attempts and outbox","SQL","V009__media_job_attempts_and_outbox.sql",-392192638,"test","2026-11-02T08:23:15.463456Z",5,true
+10,"010","media artifact format verification","SQL","V010__media_artifact_format_verification.sql",-2015988551,"test","2026-11-02T08:23:15.473571Z",3,true
+11,"011","media job submission digest","SQL","V011__media_job_submission_digest.sql",-1104155036,"test","2026-11-02T08:23:15.480287Z",1,true
+12,"012","media outbox delivery attempts","SQL","V012__media_outbox_delivery_attempts.sql",1299987228,"test","2026-11-02T08:23:15.484716Z",3,true
+13,"013","media artifact quarantine and lineage","SQL","V013__media_artifact_quarantine_and_lineage.sql",-1451326476,"test","2026-11-02T08:23:15.492070Z",6,true
+14,"014","media attempt finality and lifecycle outbox","SQL","V014__media_attempt_finality_and_lifecycle_outbox.sql",548832866,"test","2026-11-02T08:23:15.503220Z",4,true
+15,"015","media transcript revisions","SQL","V015__media_transcript_revisions.sql",659110515,"test","2026-11-02T08:23:15.511872Z",3,true
+16,"016","media lifecycle outbox leases","SQL","V016__media_lifecycle_outbox_leases.sql",-1645731082,"test","2026-11-02T08:23:15.519139Z",3,true
