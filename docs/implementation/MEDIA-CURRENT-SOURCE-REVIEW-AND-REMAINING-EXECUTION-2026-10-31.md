@@ -2103,3 +2103,39 @@ cargo fmt --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Car
 ```
 
 This closes the concurrent file-growth boundary only. RS-02 remains in progress: sustained fuzzing and repeated worst-case peak-RSS measurement are still absent; decoder-internal allocations and interruption of a synchronous codec call are not bounded by this wrapper. Same-length in-place content mutation remains outside a file-size guard and requires immutable source handling or digest verification at the owning authority boundary. No model, provider, cross-host capacity, or full RS-02 qualification is claimed.
+
+### 41.61 November 2 owner-requested fixture and H-02 review; RS-02 bounded mutation and RSS evidence (2026-11-02)
+
+**V001–V016 test-only snapshot and applied history:** the requested artifacts already exist at `providers/aws-postgresql/src/test/resources/db/legacy-media-runtime-v001-v016-snapshot/test-snapshot.sql` (SHA-256 `1afad850c7e3f1098dc09216c327d715f2d4ed7bf3ce47a620ad2bbf1b14c883`) and `applied-history.csv` (SHA-256 `8aebbf666624dc73cf2dea461b89ac755a1077b63cee45f0898045f4dc7a2667`). Their source lineage is pinned to historical commit `d62557fdaac7a324e036ca25f672d2a62ac532ea`; all four IP-06 rows are synthetic. `MediaLegacyMigrationSnapshotArtifactTest` and `MediaLegacyMigrationHistoryReadbackTest` passed **2/2** against the checked-in artifact and isolated PostgreSQL 16/Testcontainers readback:
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationSnapshotArtifactTest \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationHistoryReadbackTest
+```
+
+No new snapshot or history artifact was needed. The SQL snapshot contains a manifest-backed history projection; the CSV is an isolated synthetic database capture. Neither is deployed `flyway_schema_history` or evidence of live data, old-writer fencing, cutover, or rollback. The separate snapshot-forward rehearsal remains recorded in §41.59.
+
+**Independent current H-02/PDP-1 technical disposition:** at checkout `main@0415eb2f`, a fresh read-only Luna review returned `ACCEPT_LOCAL_CANDIDATE_ONLY` for the effect-free structural comparison between the digest-checked semantic graph and the v3 execution-admission envelope. PDP-1 `mainSha` in `docs/implementation/pdp-1-phase-dev-status.json` remains `ebcbdfca77aecfd8a1d1b3b252259fe914fd0208`; its `declarative-production-contracts.yaml` pin is `6dbf0bde…`, while the current file hashes to `6cf4be161ecf3f1991bfb155dc8bbc0bd16d1245ef9fbdd1f4f8717fe07fd400`. The `operations.yaml` pin still matches `3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b`. The source explicitly labels `stepOperationMapping` as an exact step-ID join requiring review and says operation compatibility is unproven. The compiler preserves `operationRef` and declared `kind`; it does not establish operation meaning, resolver authority, or source currentness. No trusted identity/rights adapter, canonical project CAS/lock, H-02 `MediaRuntime`/`JobAttempt` dispatch, or durable attempt readback exists. Keep runtime `NOT_ADMITTED`; the review is not owner approval or formal PDP-1 acceptance, and Media issue #25 remains open.
+
+**RS-02 bounded mutation regression (`c09a305b`):** `seeded_bounded_wave_mutations_are_panic_free_and_respect_decode_caps` uses a fixed seed for 128 mutations, caps input at 8 KiB and output at 1,024 samples, and catches decoder panics. The unmodified case asserts exactly 512 F32 samples at 16 kHz mono; successful mutations assert positive, bounded channels and rate, sample-count cap, interleaved alignment, and finite values. Its 250 ms decoder budget is cooperative between codec operations and is not a hard wall-clock bound. Independent Luna review accepted this test as a deterministic bounded mutation regression, not sustained fuzz coverage.
+
+```bash
+cargo test --locked -p speech-audio-rust seeded_bounded_wave_mutations_are_panic_free_and_respect_decode_caps
+# 1/1 passed
+cargo test --locked -p speech-audio-rust
+# 46/46 passed
+cargo clippy --locked -p speech-audio-rust --all-targets -- -D warnings
+# passed
+cargo fmt --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml -- --check
+# passed
+```
+
+**RS-02 RSS characterization:** `examples/decode-rss-probe.rs` generates a deterministic 10-second, 16 kHz mono PCM16 WAV; it verifies the 320,044-byte input and exactly 160,000 finite F32 output samples. `scripts/measure-speech-audio-rss.py` launches separate child processes, requires the exact expected decode output, uses `wait4` per-child `ru_maxrss`, reports Darwin/Linux units, and computes an even-count median correctly. Locked release build and final five-run measurement passed on macOS 26.2 arm64; per-child values were **2,654,208; 2,654,208; 2,654,208; 2,670,592; 2,670,592 bytes** (min 2,654,208; max 2,670,592; median 2,654,208). This includes process startup and fixture creation. Independent read-only review found no remaining actionable issue for this scoped characterization.
+
+```bash
+cargo build --locked --release --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml --example decode-rss-probe
+python3 modules/intelligence/speech/libs/speech-audio-rust/scripts/measure-speech-audio-rss.py target/release/examples/decode-rss-probe --runs 5
+```
+
+These local additions do not close RS-02: sustained fuzzing, representative codec/container and worst-case RSS coverage, decoder-internal allocation limits, synchronous codec-call interruption, and same-length source immutability remain unresolved. No cross-host capacity or production qualification is claimed. No further nonduplicative local task was identified in the pasted immediate sequence after this slice: Kernel #99 remains blocked by Kernel's global Discovery gate; H-02 #25 requires source-owner semantics and currentness; JC-03 #26 requires killable host/provider qualification; IP-06 #27 requires authentic deployed history and old-writer fencing. Continue independent local work only when new evidence identifies a bounded task; do not infer owner approval, runtime admission, phase acceptance, or cutover from these fixtures and local tests.
