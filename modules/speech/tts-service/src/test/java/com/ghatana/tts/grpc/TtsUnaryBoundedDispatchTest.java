@@ -2,6 +2,7 @@ package com.ghatana.tts.grpc;
 
 import com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
@@ -12,7 +13,13 @@ import com.ghatana.media.common.CanonicalAudioFormat;
 import com.ghatana.media.common.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
+import com.ghatana.tts.core.grpc.proto.TTSServiceGrpc;
 import io.grpc.Context;
+import io.grpc.Contexts;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -31,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Set;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -157,6 +165,63 @@ class TtsUnaryBoundedDispatchTest {
         } finally {
             allowLateReturn.countDown();
             scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void grpcClientDeadlineCancelsPropagatedProviderContextAndSuppressesLateResponse() throws Exception {
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch releaseProvider = new CountDownLatch(1);
+        AtomicReference<Context> providerContext = new AtomicReference<>();
+        when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
+            providerContext.set(Context.current());
+            providerStarted.countDown();
+            awaitIgnoringInterrupt(releaseProvider);
+            return audio();
+        });
+
+        java.lang.reflect.Field keyField = JwtServerInterceptor.class.getDeclaredField("VERIFIED_IDENTITY");
+        keyField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey =
+                (Context.Key<JwtServerInterceptor.VerifiedIdentity>) keyField.get(null);
+        String serverName = InProcessServerBuilder.generateName();
+        Server server = InProcessServerBuilder.forName(serverName).directExecutor()
+                .addService(service)
+                .intercept(new RpcDeadlineServerInterceptor(Duration.ofSeconds(2), Map.of()))
+                .intercept(verifiedIdentityInterceptor(identityKey))
+                .build().start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+        CountDownLatch terminal = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        AtomicReference<SynthesizeResponse> response = new AtomicReference<>();
+        try {
+            TTSServiceGrpc.newStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                    .synthesize(request(), new io.grpc.stub.StreamObserver<>() {
+                        @Override public void onNext(SynthesizeResponse value) { response.set(value); }
+                        @Override public void onError(Throwable error) { failure.set(error); terminal.countDown(); }
+                        @Override public void onCompleted() { terminal.countDown(); }
+                    });
+
+            assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(terminal.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(providerContext.get()).isNotNull();
+            long cancellationWaitUntil = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+            while (!providerContext.get().isCancelled() && System.nanoTime() < cancellationWaitUntil) {
+                Thread.yield();
+            }
+            assertThat(providerContext.get().isCancelled()).isTrue();
+
+            releaseProvider.countDown();
+            Thread.sleep(50);
+            assertThat(response.get()).isNull();
+            assertThat(failure.get()).isNotNull();
+            verify(engine).synthesize(anyString(), any());
+        } finally {
+            releaseProvider.countDown();
+            channel.shutdownNow();
+            server.shutdownNow();
         }
     }
 
@@ -482,6 +547,20 @@ class TtsUnaryBoundedDispatchTest {
             @Override public Decision authorize(Request request) { return Decision.ADMITTED; }
             @Override public boolean isConfigured() { return true; }
             @Override public String configuredDefaultVoiceId() { return "voice-test"; }
+        };
+    }
+
+    private static io.grpc.ServerInterceptor verifiedIdentityInterceptor(
+            Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey) {
+        return new io.grpc.ServerInterceptor() {
+            @Override
+            public <ReqT, RespT> io.grpc.ServerCall.Listener<ReqT> interceptCall(
+                    io.grpc.ServerCall<ReqT, RespT> call, io.grpc.Metadata headers,
+                    io.grpc.ServerCallHandler<ReqT, RespT> next) {
+                Context context = Context.current().withValue(identityKey,
+                        new JwtServerInterceptor.VerifiedIdentity("subject-test", "tenant-test"));
+                return Contexts.interceptCall(context, call, headers, next);
+            }
         };
     }
 

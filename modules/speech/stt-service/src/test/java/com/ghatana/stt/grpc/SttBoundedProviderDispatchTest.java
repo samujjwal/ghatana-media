@@ -8,8 +8,16 @@ import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.testutil.VerifiedJwtContext;
+import com.ghatana.stt.core.grpc.proto.STTServiceGrpc;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
+import io.grpc.Contexts;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.trace.Span;
@@ -22,6 +30,7 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
@@ -32,6 +41,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -198,6 +208,77 @@ class SttBoundedProviderDispatchTest {
             deadline.cancel(new RuntimeException("deadline fixture cleanup"));
             releaseProvider.countDown();
             service.close();
+        }
+    }
+
+    @Test
+    void grpcClientDeadlineCancelsPropagatedProviderContextAndSuppressesLateResponse() throws Exception {
+        ThreadPoolExecutor workers = pool(1, 1);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine engine = mock(SttEngine.class);
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch releaseProvider = new CountDownLatch(1);
+        CountDownLatch providerReturned = new CountDownLatch(1);
+        AtomicReference<Context> providerContext = new AtomicReference<>();
+        when(library.getSttEngine()).thenReturn(engine);
+        when(engine.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenAnswer(invocation -> {
+            providerContext.set(Context.current());
+            providerStarted.countDown();
+            try {
+                while (!releaseProvider.await(50, TimeUnit.MILLISECONDS)) { /* held by test */ }
+            } catch (InterruptedException deadline) {
+                while (releaseProvider.getCount() != 0) Thread.yield();
+            } finally {
+                providerReturned.countDown();
+            }
+            return result();
+        });
+        SttGrpcService service = service(library, workers,
+                request -> SttRequestAuthorization.Decision.ADMITTED);
+        java.lang.reflect.Field keyField = JwtServerInterceptor.class.getDeclaredField("VERIFIED_IDENTITY");
+        keyField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey =
+                (Context.Key<JwtServerInterceptor.VerifiedIdentity>) keyField.get(null);
+        String serverName = InProcessServerBuilder.generateName();
+        Server server = InProcessServerBuilder.forName(serverName).directExecutor()
+                .addService(service)
+                .intercept(new RpcDeadlineServerInterceptor(Duration.ofSeconds(2), Map.of()))
+                .intercept(verifiedIdentityInterceptor(identityKey, PRINCIPAL, TENANT))
+                .build().start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+        CountDownLatch terminal = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        AtomicReference<TranscribeResponse> response = new AtomicReference<>();
+        try {
+            STTServiceGrpc.newStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                    .transcribe(request(), new StreamObserver<>() {
+                        @Override public void onNext(TranscribeResponse value) { response.set(value); }
+                        @Override public void onError(Throwable error) { failure.set(error); terminal.countDown(); }
+                        @Override public void onCompleted() { terminal.countDown(); }
+                    });
+
+            assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(terminal.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(failure.get()).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(providerContext.get()).isNotNull();
+            long cancellationWaitUntil = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+            while (!providerContext.get().isCancelled() && System.nanoTime() < cancellationWaitUntil) {
+                Thread.yield();
+            }
+            assertThat(providerContext.get().isCancelled()).isTrue();
+
+            releaseProvider.countDown();
+            assertThat(providerReturned.await(2, TimeUnit.SECONDS)).isTrue();
+            Thread.sleep(50);
+            assertThat(response.get()).isNull();
+            verify(engine).transcribe(any(AudioData.class), any(TranscriptionOptions.class));
+        } finally {
+            releaseProvider.countDown();
+            channel.shutdownNow();
+            server.shutdownNow();
+            service.close();
+            workers.shutdownNow();
         }
     }
 
@@ -435,6 +516,20 @@ class SttBoundedProviderDispatchTest {
         return new SttGrpcService(library, new SimpleMeterRegistry(),
                 io.opentelemetry.api.GlobalOpenTelemetry.getTracer("stt-bounded-worker-test"),
                 authorization, executor);
+    }
+
+    private static io.grpc.ServerInterceptor verifiedIdentityInterceptor(
+            Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey, String subject, String tenant) {
+        return new io.grpc.ServerInterceptor() {
+            @Override
+            public <ReqT, RespT> io.grpc.ServerCall.Listener<ReqT> interceptCall(
+                    io.grpc.ServerCall<ReqT, RespT> call, io.grpc.Metadata headers,
+                    io.grpc.ServerCallHandler<ReqT, RespT> next) {
+                Context context = Context.current().withValue(identityKey,
+                        new JwtServerInterceptor.VerifiedIdentity(subject, tenant));
+                return Contexts.interceptCall(context, call, headers, next);
+            }
+        };
     }
 
     private static ThreadPoolExecutor pool(int workers, int queueCapacity) {
