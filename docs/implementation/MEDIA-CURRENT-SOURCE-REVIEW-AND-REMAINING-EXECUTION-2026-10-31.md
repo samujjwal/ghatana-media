@@ -1340,3 +1340,7 @@ This continuation is effect-free Track A evidence on local `main`, based on pre-
 
 The review/candidate source references remain `.product-experience/pdp-1-domain-data/operations.yaml:256939` and `.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml:52-74,608-659,1980-2097`. The independent local technical disposition does not replace the required owner-authored source-currentness disposition, canonical resolver proof, or independent PDP-1 acceptance artifact.
 
+### 41.11 MC-03 bounded engine-pool lifecycle readback (2026-11-02)
+
+Read-only code audit and focused tests on code at `8c1fb594` found the selected MC-03 lifecycle behaviors already implemented; this pulse made no Java changes. `EnginePool` uses tokenized leases, preserves interruption, bounds acquisition and close behavior, reserves capacity while destroy fails, and permits close retry. STT/TTS/Vision circuit-breaker wrappers keep delegate-close state retryable until provider close succeeds. Selected tests passed **32/32** with `./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.common.pool.EnginePoolLifecycleTest --tests com.ghatana.media.resilience.CircuitBreakerEngineCloseTest --tests com.ghatana.media.resilience.CircuitBreakerSttEngineTest --tests com.ghatana.media.resilience.CircuitBreakerTtsEngineTest`. The providers in these tests are mocked; native handle cleanup, real inference recovery, and source-free consumer qualification remain unproven. MC-03 is not promoted to original-task or package acceptance from these local tests.
+
