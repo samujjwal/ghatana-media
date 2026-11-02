@@ -12,6 +12,8 @@ import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
 import com.ghatana.stt.core.grpc.proto.TranscriptionOptions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.ByteString;
+import io.grpc.Context;
+import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
@@ -149,9 +151,10 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
     }
 
     private AudioResult transcribeViaGrpc(byte[] audioData) {
+        Deadline effectiveDeadline = effectiveDeadline(Context.current(), CALL_DEADLINE_SECONDS);
         STTServiceGrpc.STTServiceFutureStub client =
                 STTServiceGrpc.newFutureStub(channel)
-                        .withDeadlineAfter(CALL_DEADLINE_SECONDS, TimeUnit.SECONDS);
+                        .withDeadline(effectiveDeadline);
 
         TranscribeRequest request = TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(audioData))
@@ -202,6 +205,15 @@ public final class GrpcSttClientAdapter implements SttClientAdapter, AutoCloseab
                 .timedSegments(sourceWordTimings(response, audioData.length));
         if (confidence != null) result.confidence(confidence);
         return result.build();
+    }
+
+    static Deadline effectiveDeadline(Context context, long maximumSeconds) {
+        Objects.requireNonNull(context, "context");
+        if (maximumSeconds <= 0) throw new IllegalArgumentException("maximumSeconds must be positive");
+        Deadline serviceMaximum = Deadline.after(maximumSeconds, TimeUnit.SECONDS);
+        Deadline callerDeadline = context.getDeadline();
+        return callerDeadline != null && callerDeadline.isBefore(serviceMaximum)
+                ? callerDeadline : serviceMaximum;
     }
 
     /**

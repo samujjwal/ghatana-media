@@ -12,9 +12,11 @@ import com.ghatana.stt.core.grpc.proto.TimestampTimebase;
 import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.core.grpc.proto.WordTiming;
 import io.grpc.Context;
+import io.grpc.Deadline;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
@@ -36,8 +38,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -409,6 +413,81 @@ class GrpcSttClientAdapterTest {
                     .cause().isInstanceOf(CancellationException.class);
             assertThat(callCancelled.await(2, TimeUnit.SECONDS)).isTrue();
         } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Child STT RPC uses the earlier parent deadline instead of its longer service cap")
+    void childRpcDeadlineIsCappedByParentDeadline() throws Exception {
+        AtomicLong providerRemainingDeadlineMillis = new AtomicLong(-1);
+        Server server = ServerBuilder.forPort(0).addService(new STTServiceGrpc.STTServiceImplBase() {
+            @Override
+            public void transcribe(
+                    com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                    StreamObserver<TranscribeResponse> observer) {
+                Deadline deadline = Context.current().getDeadline();
+                if (deadline != null) {
+                    providerRemainingDeadlineMillis.set(deadline.timeRemaining(TimeUnit.MILLISECONDS));
+                }
+                observer.onNext(TranscribeResponse.newBuilder().setText("deadline-bound").build());
+                observer.onCompleted();
+            }
+        }).build().start();
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        Context.CancellableContext parent = Context.current().withDeadlineAfter(2, TimeUnit.SECONDS, timer);
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            Context previous = parent.attach();
+            try {
+                AudioResult result = adapter.transcribe(new byte[] {1});
+                assertThat(result.isError()).isFalse();
+                assertThat(result.getTranscription()).isEqualTo("deadline-bound");
+            } finally {
+                parent.detach(previous);
+            }
+            assertThat(providerRemainingDeadlineMillis.get()).isBetween(1L, 5_000L);
+        } finally {
+            parent.cancel(null);
+            timer.shutdownNow();
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    @DisplayName("Expired parent deadline prevents the STT child RPC from reaching the provider")
+    void expiredParentDeadlineDoesNotDispatchChildRpc() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        Server server = ServerBuilder.forPort(0).addService(new STTServiceGrpc.STTServiceImplBase() {
+            @Override
+            public void transcribe(
+                    com.ghatana.stt.core.grpc.proto.TranscribeRequest request,
+                    StreamObserver<TranscribeResponse> observer) {
+                providerCalls.incrementAndGet();
+                observer.onNext(TranscribeResponse.newBuilder().setText("must-not-run").build());
+                observer.onCompleted();
+            }
+        }).build().start();
+        ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+        Context.CancellableContext expired = Context.current()
+                .withDeadline(Deadline.after(-1, TimeUnit.SECONDS), timer);
+        try (GrpcSttClientAdapter adapter = GrpcSttClientAdapter.forLocalTesting(
+                "localhost", server.getPort(), GrpcSttClientAdapter.SttMode.GRPC)) {
+            Context previous = expired.attach();
+            try {
+                assertThatThrownBy(() -> adapter.transcribe(new byte[] {1}))
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .satisfies(failure -> assertThat(((StatusRuntimeException) failure).getStatus().getCode())
+                                .isEqualTo(Status.Code.DEADLINE_EXCEEDED));
+            } finally {
+                expired.detach(previous);
+            }
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            expired.cancel(null);
+            timer.shutdownNow();
             server.shutdownNow();
             server.awaitTermination(5, TimeUnit.SECONDS);
         }
