@@ -1822,3 +1822,17 @@ GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
 ```
 
 This closes one lossy alias in the local projection only. The adapter still accepts raw string states and does not itself verify caller authority, canonical job/attempt/source identity, durable RunLedger write acknowledgment, or Data Cloud readback. LD-01..05 remain support-only/incomplete; no row acceptance or status promotion follows.
+
+### 41.48 November 2 STT consent expiry before policy evaluation (2026-11-02)
+
+At Media `main@0a98c46e`, `SharedPolicySttRequestAuthorizationTest.expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch` supplies an `ADMITTED` rights resolution whose consent timestamp has expired, with a policy evaluator configured to return an authoritative ALLOW if invoked. The focused selector passed **1/1**. The test explicitly confirms policy evaluation is not reached and the service rejects before the library or provider is accessed. This covers the adapter's existing expired-facts guard; no production code changed.
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
+  :services:media:modules:speech:stt-service:test \
+  --tests com.ghatana.stt.grpc.SharedPolicySttRequestAuthorizationTest.expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# BUILD SUCCESSFUL; 55 actionable tasks, 1 selected test passed
+```
+
+This is a synthetic stale-consent authorization regression only. It does not prove an authoritative rights record, real policy service, licensed model, provider effect, current source status, G02 whole-row acceptance, or runtime admission.

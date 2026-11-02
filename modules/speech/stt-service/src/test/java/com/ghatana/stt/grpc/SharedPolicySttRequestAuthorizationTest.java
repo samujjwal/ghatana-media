@@ -108,6 +108,28 @@ class SharedPolicySttRequestAuthorizationTest {
     }
 
     @Test
+    void expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine provider = mock(SttEngine.class);
+        when(library.getSttEngine()).thenReturn(provider);
+        when(provider.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("expired consent must not run", 0.9, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-model"));
+        var expiredFacts = expiredFacts();
+        AtomicInteger policyEvaluations = new AtomicInteger();
+
+        assertRejectedBeforeProvider(library, authorization(
+                request -> {
+                    policyEvaluations.incrementAndGet();
+                    return CompletableFuture.completedFuture(
+                            decision(PolicyDecisionOutcome.ALLOW, true, null, request));
+                },
+                rightsResolver(admitted(expiredFacts), ignored -> admitted(expiredFacts), new AtomicInteger())));
+        assertThat(policyEvaluations).hasValue(0);
+        verifyNoInteractions(provider);
+    }
+
+    @Test
     void anythingShortOfCurrentPolicyAndUnchangedRightsStopsBeforeProvider() throws Exception {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         SttEngine provider = mock(SttEngine.class);
@@ -297,6 +319,13 @@ class SharedPolicySttRequestAuthorizationTest {
                 SOURCE_FACTS.canonicalArtifactId(), "fixture-replaced-version", SOURCE_FACTS.purpose(),
                 SOURCE_FACTS.rightsReference(), SOURCE_FACTS.consentReference(),
                 Instant.now().plusSeconds(300), SOURCE_FACTS.revocationScope());
+    }
+
+    private static SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.SourceFacts expiredFacts() {
+        return new SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.SourceFacts(
+                SOURCE_FACTS.canonicalArtifactId(), SOURCE_FACTS.immutableVersion(), SOURCE_FACTS.purpose(),
+                SOURCE_FACTS.rightsReference(), SOURCE_FACTS.consentReference(),
+                Instant.now().minusSeconds(1), SOURCE_FACTS.revocationScope());
     }
 
     private static SttRequestAuthorization.Request request() {
