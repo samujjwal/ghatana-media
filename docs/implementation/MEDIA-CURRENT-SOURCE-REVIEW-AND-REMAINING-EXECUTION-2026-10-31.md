@@ -2088,3 +2088,18 @@ The fixture remains synthetic and test-only; the checked-in applied-history CSV 
 **Media derived currentness projections:** PDP-1, PDP-2 and PDP-3 surface matrices were regenerated in dependency order and their exact `--check` selectors pass. Each projection retains all **56** surface identities and reports campaign `IN_PROGRESS` / `sourceCurrentness: STALE`; current stale source-pin counts are 27, 20 and 21. No canonical phase status, source pin, owner decision, or receipt changed, so this refresh does not establish source currentness or owner acceptance.
 
 **Remaining governed gates:** Media PDP-1/2/3 phase source-currentness, H-02 source/operation/authority semantics and trusted adapters, JC-03 killable native/provider qualification, IP-06 authentic deployed-history and old-writer evidence, and original Wave 2/Wave 3/H acceptance remain open. Continue with exact owner-authorized Kernel API semantics and owner material reacceptance, then the named Media external inputs. No deployment, writer cutover, lifecycle closure, or release is claimed.
+
+### 41.60 November 2 RS-02 concurrent file-growth boundary (2026-11-02)
+
+At Media `main@4b405ed9`, the Rust bounded decoder now wraps each opened regular file in a `MediaSource` limited to the byte length captured before probing. Reads and seeks cannot expose appended bytes; size changes observed during reads, probing, packet decode, or before success return `SpeechAudioError::ResourceLimit`. A cloned handle observes the same opened file. The deterministic regression appends to that file on its first decoder read, asserts the typed rejection, and counts bytes returned by the source to prove they remain within the admitted length.
+
+```bash
+cargo test --locked -p speech-audio-rust
+# 45 passed, 0 failed
+cargo clippy --locked -p speech-audio-rust --all-targets -- -D warnings
+# passed
+cargo fmt --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml -- --check
+# passed
+```
+
+This closes the concurrent file-growth boundary only. RS-02 remains in progress: sustained fuzzing and repeated worst-case peak-RSS measurement are still absent; decoder-internal allocations and interruption of a synchronous codec call are not bounded by this wrapper. Same-length in-place content mutation remains outside a file-size guard and requires immutable source handling or digest verification at the owning authority boundary. No model, provider, cross-host capacity, or full RS-02 qualification is claimed.
