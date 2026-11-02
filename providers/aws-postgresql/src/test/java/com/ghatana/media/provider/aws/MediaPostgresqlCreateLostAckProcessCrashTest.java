@@ -90,6 +90,50 @@ class MediaPostgresqlCreateLostAckProcessCrashTest {
         }
     }
 
+    @Test
+    void childDiesAfterDatabaseCommitButBeforeCreateReturns(@TempDir Path tempDir) throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String tenantId = "tenant-ip06-commit-gap-" + runId;
+        String jobId = "job-ip06-commit-gap-" + runId;
+        String requestId = "request-ip06-commit-gap-" + runId;
+        String bucket = "media-ip06-gap-" + runId;
+        createBucket(bucket);
+
+        long createdAtMillis = System.currentTimeMillis();
+        ProcessingJob submission = acceptedJob(tenantId, jobId, requestId,
+                "principal-ip06-gap-" + runId, "artifact-ip06-gap-" + runId, createdAtMillis);
+        Map<String, String> environment = environment(bucket, "parent-ip06-gap-" + runId);
+        environment.put("MEDIA_POSTGRES_DRIVER", MediaIp06CommitGateDriver.class.getName());
+        Path marker = tempDir.resolve("jdbc-commit-return.marker");
+        Path log = tempDir.resolve("jdbc-commit-return-child.log");
+        environment.put("MEDIA_IP06_COMMIT_GATE_MARKER", marker.toString());
+        Process child = startChild(environment, marker, log, tenantId, jobId, requestId,
+                submission.principalId(), submission.artifactId(), Long.toString(createdAtMillis));
+        try {
+            awaitMarker(child, marker, log);
+
+            // The test Driver writes this marker only after the delegate's PostgreSQL commit has
+            // returned. The child is now blocked inside Connection.commit(), before create() can
+            // receive that return or emit its own acknowledgement.
+            assertThat(jobCount(tenantId, jobId)).isEqualTo(1);
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isEqualTo(1);
+            child.destroyForcibly();
+            assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (child.isAlive()) child.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     environmentWithPostgresDriver(environment));
+             PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore()) {
+            ProcessingJob durable = restarted.find(tenantId, jobId).orElseThrow();
+            assertThat(durable).isEqualTo(submission);
+            assertThat(restarted.create(submission)).isEqualTo(durable);
+            assertThat(jobCount(tenantId, jobId)).isEqualTo(1);
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isEqualTo(1);
+        }
+    }
+
     private static ProcessingJob acceptedJob(
             String tenantId, String jobId, String requestId, String principalId, String artifactId, long createdAtMillis) {
         return new ProcessingJob(jobId, requestId, tenantId, principalId, artifactId, JobType.TRANSCODE,
@@ -139,6 +183,13 @@ class MediaPostgresqlCreateLostAckProcessCrashTest {
         environment.put("MEDIA_IP06_CREATE_S3_ACCESS", LOCALSTACK.getAccessKey());
         environment.put("MEDIA_IP06_CREATE_S3_SECRET", LOCALSTACK.getSecretKey());
         return environment;
+    }
+
+    private static Map<String, String> environmentWithPostgresDriver(Map<String, String> environment) {
+        Map<String, String> result = new HashMap<>(environment);
+        result.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
+        result.remove("MEDIA_IP06_COMMIT_GATE_MARKER");
+        return result;
     }
 
     private static String withApplicationName(String jdbcUrl, String name) {
