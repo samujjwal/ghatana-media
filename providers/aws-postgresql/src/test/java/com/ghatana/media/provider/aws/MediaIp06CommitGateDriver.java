@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-/** Test-only JDBC wrapper that freezes after PostgreSQL commit and before the caller receives it. */
+/** Test-only JDBC wrapper that gates PostgreSQL commit boundaries for child-process crash probes. */
 public final class MediaIp06CommitGateDriver implements Driver {
     private final Driver delegate;
 
@@ -33,6 +33,7 @@ public final class MediaIp06CommitGateDriver implements Driver {
         if (connection == null) return null;
         String markerPath = System.getenv("MEDIA_IP06_COMMIT_GATE_MARKER");
         if (markerPath == null || markerPath.isBlank()) return connection;
+        String gateMode = System.getenv().getOrDefault("MEDIA_IP06_COMMIT_GATE_MODE", "AFTER_COMMIT");
         AtomicBoolean jobInsertExecuted = new AtomicBoolean();
         return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
                 new Class<?>[] {Connection.class}, (proxy, method, args) -> {
@@ -51,8 +52,13 @@ public final class MediaIp06CommitGateDriver implements Driver {
                                 });
                     }
                     if (method.getName().equals("commit") && jobInsertExecuted.get()) {
+                        if ("BEFORE_COMMIT".equals(gateMode)) {
+                            writeMarker(Path.of(markerPath), "PRE_COMMIT");
+                            awaitProcessKill(); // Leave the transaction open for abrupt child termination.
+                            return null;
+                        }
                         invoke(method, connection, args); // Real commit has returned successfully.
-                        writeMarker(Path.of(markerPath));
+                        writeMarker(Path.of(markerPath), "POSTGRES_COMMITTED_RETURNED");
                         awaitProcessKill(); // Deliberately never return to PostgresqlMediaJobStore.create().
                         return null;
                     }
@@ -68,8 +74,8 @@ public final class MediaIp06CommitGateDriver implements Driver {
         }
     }
 
-    private static void writeMarker(Path marker) throws Exception {
-        Files.writeString(marker, "POSTGRES_COMMITTED_RETURNED", StandardCharsets.UTF_8);
+    private static void writeMarker(Path marker, String state) throws Exception {
+        Files.writeString(marker, state, StandardCharsets.UTF_8);
     }
 
     private static void awaitProcessKill() throws InterruptedException {

@@ -31,11 +31,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
-/**
- * IP-06: kills the child after the store call returns and before the parent harness receives its
- * completion marker. This exercises a lost parent-level acknowledgement, not a crash between DB
- * commit and {@code create()} returning inside the child.
- */
+/** IP-06: child-process create crashes before commit, after commit before return, and after return. */
 @Testcontainers(disabledWithoutDocker = true)
 class MediaPostgresqlCreateLostAckProcessCrashTest {
     private static final String FINGERPRINT =
@@ -134,6 +130,55 @@ class MediaPostgresqlCreateLostAckProcessCrashTest {
         }
     }
 
+    @Test
+    void childDiesBeforeDatabaseCommitLeavesNoJobOrAcceptedEvent(@TempDir Path tempDir) throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String tenantId = "tenant-ip06-pre-commit-" + runId;
+        String jobId = "job-ip06-pre-commit-" + runId;
+        String requestId = "request-ip06-pre-commit-" + runId;
+        String bucket = "media-ip06-pre-commit-" + runId;
+        createBucket(bucket);
+
+        long createdAtMillis = System.currentTimeMillis();
+        ProcessingJob submission = acceptedJob(tenantId, jobId, requestId,
+                "principal-ip06-pre-commit-" + runId, "artifact-ip06-pre-commit-" + runId, createdAtMillis);
+        Map<String, String> gatedEnvironment = environment(bucket, "parent-ip06-pre-commit-" + runId);
+        gatedEnvironment.put("MEDIA_POSTGRES_DRIVER", MediaIp06CommitGateDriver.class.getName());
+        gatedEnvironment.put("MEDIA_IP06_COMMIT_GATE_MODE", "BEFORE_COMMIT");
+        Path marker = tempDir.resolve("create-pre-commit.marker");
+        Path log = tempDir.resolve("create-pre-commit-child.log");
+        gatedEnvironment.put("MEDIA_IP06_COMMIT_GATE_MARKER", marker.toString());
+        Process child = startChild(gatedEnvironment, marker, log, tenantId, jobId, requestId,
+                submission.principalId(), submission.artifactId(), Long.toString(createdAtMillis));
+        try {
+            awaitMarker(child, marker, log, "PRE_COMMIT");
+            // The database transaction is open but uncommitted; independent readers cannot see
+            // either half of the atomic job/outbox acceptance.
+            assertThat(jobCount(tenantId, jobId)).isZero();
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isZero();
+            child.destroyForcibly();
+            assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (child.isAlive()) child.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        Map<String, String> ordinaryEnvironment = environmentWithPostgresDriver(gatedEnvironment);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(ordinaryEnvironment);
+             PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore()) {
+            assertThat(restarted.find(tenantId, jobId)).isEmpty();
+            assertThat(jobCount(tenantId, jobId)).isZero();
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isZero();
+
+            ProcessingJob accepted = restarted.create(submission);
+            assertThat(accepted).isEqualTo(submission);
+            assertThat(jobCount(tenantId, jobId)).isEqualTo(1);
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isEqualTo(1);
+            assertThat(restarted.create(submission)).isEqualTo(accepted);
+            assertThat(jobCount(tenantId, jobId)).isEqualTo(1);
+            assertThat(acceptedEventCount(tenantId, submission.principalId(), requestId)).isEqualTo(1);
+        }
+    }
+
     private static ProcessingJob acceptedJob(
             String tenantId, String jobId, String requestId, String principalId, String artifactId, long createdAtMillis) {
         return new ProcessingJob(jobId, requestId, tenantId, principalId, artifactId, JobType.TRANSCODE,
@@ -156,9 +201,14 @@ class MediaPostgresqlCreateLostAckProcessCrashTest {
     }
 
     private static void awaitMarker(Process child, Path marker, Path log) throws Exception {
+        awaitMarker(child, marker, log, "COMMITTED");
+    }
+
+    private static void awaitMarker(Process child, Path marker, Path log, String expectedState) throws Exception {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(20);
         while (System.nanoTime() < deadline) {
-            if (Files.exists(marker) && Files.readString(marker, StandardCharsets.UTF_8).contains("COMMITTED")) return;
+            if (Files.exists(marker)
+                    && Files.readString(marker, StandardCharsets.UTF_8).contains(expectedState)) return;
             if (!child.isAlive()) throw new AssertionError("worker exited before lost-ACK boundary: " + Files.readString(log));
             Thread.sleep(25);
         }
