@@ -954,10 +954,14 @@ public final class MediaProductionSpecCompiler {
             }
         }
 
-        // PDP-1 does not define a stepId-to-operationRef join. Preserve the
-        // graph-only candidate, but do not bind it to a v3 engine entry by
-        // position, kind, label, or caller-provided key coincidence.
-        return failedSemanticBind(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+        StringBuilder projection = new StringBuilder();
+        appendSemanticField(projection, "media.production.semantic-source-v3-candidate.v1");
+        appendSemanticField(projection, semanticSourceRef);
+        appendSemanticField(projection, semanticSourceSha256);
+        appendSemanticField(projection, graph.fingerprint());
+        appendSemanticField(projection, binding.fingerprint());
+        return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED,
+                MediaProductionSemanticSource.Reason.NONE, "sha256:" + sha256(projection.toString()));
     }
 
     private static SemanticCandidateBindResult failedSemanticBind(MediaProductionSemanticSource.Reason reason) {

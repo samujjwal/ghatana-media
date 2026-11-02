@@ -373,7 +373,7 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
-    void exactFixedPlanStepJoinStillFailsClosedWhileStepOperationMappingIsUndefined() throws Exception {
+    void exactFixedPlanStepJoinProducesCandidateWithoutOperationCompatibilityClaim() throws Exception {
         var semantic = source(List.of(
                 node("validate-spec", "DETERMINISTIC", List.of()),
                 node("rights-review", "DETERMINISTIC", List.of("validate-spec")),
@@ -395,9 +395,13 @@ class MediaProductionSemanticSourceTest {
         var result = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(fixedPlanIds, locks, null, D1),
                 resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
-        assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
-        assertThat(result.reason()).isEqualTo(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
-        assertThat(result.candidateFingerprint()).isNull();
+        var repeat = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(fixedPlanIds, locks, null, D1),
+                resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
+        assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(result.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(result.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
+        assertThat(result.candidateFingerprint()).isEqualTo(repeat.candidateFingerprint());
     }
 
     @Test
