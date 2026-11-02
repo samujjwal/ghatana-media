@@ -388,7 +388,10 @@ class AudioVideoRunLedgerAdapterTest {
                         "policyCheckpointId", email,
                         "policyDecision", "DENY",
                         "policyReason", "Denied for " + email + " at " + signedUrl,
-                        "policyConstraints", "NO_CACHE, " + credential),
+                        // Arbitrary free-text and uppercase PII-like values
+                        // must fail the canonical constraint vocabulary.
+                        "policyConstraints", "NO_CACHE, Alice Example, ALICE_EXAMPLE, "
+                                + "voiceprint subject, VOICEPRINT_SUBJECT, " + credential),
                 now - 1_000, now - 500, "trace", "correlation");
 
         assertThat(ledger.policyCheckpointId()).startsWith("redacted:sha256:");
@@ -400,7 +403,8 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(ledger.attributes()).containsEntry(
                 "policyReason", "Policy detail omitted by ledger safety filter");
         assertThat(ledger.toString()).doesNotContain(email, signedUrl, "source-secret", credential,
-                "sk-live-policy-secret");
+                "sk-live-policy-secret", "Alice Example", "ALICE_EXAMPLE",
+                "voiceprint subject", "VOICEPRINT_SUBJECT");
 
         RunLedger oversizedConstraints = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
                 "job-policy-large", "artifact-source", "provider", "provider-job",
@@ -639,6 +643,33 @@ class AudioVideoRunLedgerAdapterTest {
                 "sk-live-secret-token", "s3-signed-url-token", "do-not-leak",
                 "sk-live-credential-value", "signed-source");
         assertThat(ledger.attributes().get("providerJobIdRef")).startsWith("sha256:");
+    }
+
+    @Test
+    @DisplayName("Input policy constraints retain canonical values and count rejected parameter entries")
+    void testInputPolicyConstraintsUseCanonicalVocabulary() {
+        long now = System.currentTimeMillis();
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-input-constraints", "VIDEO", "VISION_ANALYSIS", "collection", "source",
+                Map.of("policyConstraints", "BLOCKING_AUDIT_REQUIRED,NO_CACHE,NO_STORE,"
+                        + "ESCALATE_TO_ADMIN,ALICE_EXAMPLE,VOICEPRINT_SUBJECT,bearer sk-live-constraint-secret"),
+                "PROCESSING", now, now, null, null, "provider", "provider-job", "trace", "correlation");
+
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("policyConstraints",
+                        "BLOCKING_AUDIT_REQUIRED,NO_CACHE,NO_STORE,ESCALATE_TO_ADMIN")
+                .containsEntry("sanitizedParamsDropped", "1");
+        assertThat(ledger.toString()).doesNotContain(
+                "ALICE_EXAMPLE", "VOICEPRINT_SUBJECT", "sk-live-constraint-secret");
+
+        RunLedger allUnknown = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-input-constraints-unknown", "VIDEO", "VISION_ANALYSIS", "collection", "source",
+                Map.of("constraints", "ALICE_EXAMPLE,VOICEPRINT_SUBJECT"),
+                "PROCESSING", now, now, null, null, "provider", "provider-job", "trace", "correlation");
+        assertThat(allUnknown.inputs().parameters())
+                .containsEntry("sanitizedParamsDropped", "1")
+                .doesNotContainKey("constraints");
+        assertThat(allUnknown.toString()).doesNotContain("ALICE_EXAMPLE", "VOICEPRINT_SUBJECT");
     }
 
     @Test

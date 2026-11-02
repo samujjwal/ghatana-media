@@ -196,6 +196,8 @@ public final class AudioVideoRunLedgerAdapter {
                 + "|\\b(?:biometric|voiceprint|speaker\\s+identity|face\\s+identity)\\b)");
     private static final String REDACTED_FAILURE_DETAIL = "Failure details omitted by ledger safety filter";
     private static final String REDACTED_POLICY_DETAIL = "Policy detail omitted by ledger safety filter";
+    private static final Set<String> ALLOWED_POLICY_CONSTRAINTS = Set.of(
+        "BLOCKING_AUDIT_REQUIRED", "NO_CACHE", "NO_STORE", "ESCALATE_TO_ADMIN");
     private static final Set<String> ALLOWED_PARAMETER_KEYS = Set.of(
         "bitrate", "codec", "format", "language", "languageTag", "sampleRate",
         "channels", "fps", "resolution", "width", "height", "durationMs",
@@ -250,6 +252,25 @@ public final class AudioVideoRunLedgerAdapter {
                 continue;
             }
             String value = entry.getValue() == null ? "" : entry.getValue();
+            if (isConstraintParameter(key)) {
+                if (value.length() > MAX_LEDGER_VALUE_CHARS) {
+                    dropped++;
+                    continue;
+                }
+                ConstraintSanitization sanitized = sanitizeConstraintTokens(value);
+                if (sanitized.value() == null) {
+                    dropped++;
+                    continue;
+                }
+                clean.put(key, sanitized.value());
+                if (sanitized.rejectedAny()) {
+                    // Keep the marker's established unit: rejected input
+                    // parameter entries, even when only some list tokens
+                    // were removed from this entry.
+                    dropped++;
+                }
+                continue;
+            }
             boolean typedClassification = key.equals("classification") && isSafeClassification(value);
             if (value.length() > MAX_LEDGER_VALUE_CHARS
                     || containsSensitiveLedgerText(value) && !typedClassification
@@ -263,6 +284,28 @@ public final class AudioVideoRunLedgerAdapter {
             clean.put("sanitizedParamsDropped", String.valueOf(dropped));
         }
         return Map.copyOf(clean);
+    }
+
+    private static boolean isConstraintParameter(String key) {
+        return key.equals("policyConstraints") || key.equals("constraints");
+    }
+
+    private record ConstraintSanitization(String value, boolean rejectedAny) { }
+
+    /** Retain canonical constraints; the caller counts this input parameter once. */
+    private static ConstraintSanitization sanitizeConstraintTokens(String value) {
+        Set<String> allowed = new LinkedHashSet<>();
+        boolean rejectedAny = false;
+        for (String token : value.split(",", -1)) {
+            String normalized = token.trim();
+            if (ALLOWED_POLICY_CONSTRAINTS.contains(normalized)) {
+                allowed.add(normalized);
+            } else {
+                rejectedAny = true;
+            }
+        }
+        return new ConstraintSanitization(
+                allowed.isEmpty() ? null : String.join(",", allowed), rejectedAny);
     }
 
     /** Validate value shape as well as key name; a whitelist alone is not a type boundary. */
@@ -304,8 +347,9 @@ public final class AudioVideoRunLedgerAdapter {
         if (key.equals("resolution")) {
             return value.matches("[0-9]{1,5}x[0-9]{1,5}");
         }
-        if (key.equals("policyConstraints") || key.equals("constraints")) {
-            return value.matches("[A-Z][A-Z0-9_,-]{0,127}");
+        if (isConstraintParameter(key)) {
+            return Arrays.stream(value.split(",", -1))
+                    .allMatch(token -> ALLOWED_POLICY_CONSTRAINTS.contains(token.trim()));
         }
         return value.matches("[A-Za-z0-9][A-Za-z0-9_.:/+-]{0,127}");
     }
@@ -595,8 +639,10 @@ public final class AudioVideoRunLedgerAdapter {
         Set<String> constraints = new LinkedHashSet<>();
         for (String constraint : rawConstraints.split(",")) {
             String normalized = constraint.trim();
-            if (!normalized.isEmpty() && normalized.length() <= MAX_LEDGER_VALUE_CHARS
-                    && !containsSensitiveLedgerText(normalized)) {
+            // Provider metadata is untrusted. Pattern and shape checks still
+            // admit arbitrary name-like codes, so accept only the canonical
+            // constraint vocabulary recognized by WorkflowPolicySnapshot.
+            if (ALLOWED_POLICY_CONSTRAINTS.contains(normalized)) {
                 constraints.add(normalized);
             }
         }
