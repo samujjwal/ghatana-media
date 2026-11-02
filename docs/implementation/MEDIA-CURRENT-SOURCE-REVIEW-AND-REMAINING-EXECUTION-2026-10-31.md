@@ -2261,6 +2261,8 @@ The requested V001–V016 test-only snapshot and applied-history CSV remain avai
 
 **H-02 current independent disposition:** a fresh read-only Luna review of the H-02 source binding at `main@d8e3451f` returned `ACCEPT_LOCAL_CANDIDATE_ONLY` for structural, effect-free candidate preparation. The reviewed code uses PDP-1 input 3 as the explicit per-instance graph and exact-joins its step IDs to `enginesByStep`; it checks bounded graph shape/topology, content digests, scene coverage, operation-evidence cardinality and digest, project/context fields, lock mappings, and deterministic fingerprints. The PDP-1 operation-to-engine meaning remains review-needed: caller-supplied definition bytes do not establish operation semantics, resolver authority, currentness, or engine compatibility. Project revision CAS, source/rights recheck, fenced-lock authority, clock resolution, `MediaRuntime`/`JobAttempt` dispatch and durable unknown-outcome readback are not wired. The `ownerPrincipalId` to `authority.principalId` equality is a conservative code constraint not explicit in the PDP-1 schema. The PDP-1 status pin for `declarative-production-contracts.yaml` is stale (`6dbf0bde…` recorded vs `6cf4be16…` current). Thus runtime admission is still **`NOT_ADMITTED`**; the review is not source-owner acceptance, formal PDP acceptance, or closure.
 
+**PDP source currentness:** the current four native matrices remain `STALE`: PDP-0 18/188, PDP-1 27/137, PDP-2 20/157, and PDP-3 21/367 (**86 stale pins across 849 entries**). The drift spans normative, review, topology, generated projection, interface, and check inputs; a stale pin alone does not prove every changed source is normative. The fail-closed `--check` behavior from `c190eb33` is already implemented, so the safe next action is owning-phase reconciliation and authorized status/matrix regeneration. No pins, status records, receipts, or lifecycle state were changed. The historical `post-pdp-current-status.json` is dated October 12, 2026 and is not current evidence.
+
 **JC-03 real host deadline regression:** the first opt-in Docker run exposed an actual preflight defect: Docker rejected `join .RepoDigests` because the daemon exposes the field as `[]interface{}`, so the supervisor returned `NOT_ADMITTED` before durable dispatch. `WhisperOciWorkerSupervisor.workerPreflight` now inspects bare image IDs using `.Id` alone and emits repository digest lists as JSON for exact parsed membership checks. The opt-in test uses a local ARM64 sleeper image pinned by image ID and synthetic model files; it does not run Whisper inference. It confirmed the attached `docker start` timed out at the 20-second invocation deadline, `docker kill --signal=KILL` and `docker rm --force` succeeded, result/status/journal all remain `UNKNOWN_OUTCOME`, a duplicate invocation does not create/start another container, and no worker container remains for the broker labels.
 
 ```bash
@@ -2276,3 +2278,18 @@ MEDIA_WHISPER_DOCKER_TIMEOUT_TEST_IMAGE_ID=sha256:363659dd16eed6b68a73b5d8418742
 ```
 
 This establishes the local host timeout/cleanup path and fixes image pin inspection. It does not qualify a real model, lawful source or weight rights, transcript quality, a provider/job/outbox effect, non-ARM64 hosts, or production admission; the original Wave 2 qualification remains open.
+
+**JC-03 authenticated broker deadline path:** the Unix-socket client had also widened the server compute budget when the shared caller deadline exceeded the request's own budget. `WhisperComputeBrokerClient` now transmits the minimum of both monotonic budgets. The focused client suite passed **15/15**, including each bound being the tighter value. `MediaOciBrokerWhisperDockerDeadlineTest` passed **1/1** with the 20-second request budget and 25-second caller deadline: signed execute response, status, and replay all remained `UNKNOWN_OUTCOME`; the real attached Docker worker timed out, was killed and removed, and no duplicate container or labeled leftover remained. This test uses the broker's peer-identity injection seam with a local test identity, so it proves Unix-socket framing/HMAC and the complete broker-to-supervisor deadline path, not the host's `SO_PEERCRED` extraction. It still uses the synthetic sleeper and four synthetic model files and makes no inference or provider-quality claim.
+
+```bash
+MEDIA_WHISPER_DOCKER_TIMEOUT_TEST_IMAGE_ID=sha256:363659dd16eed6b68a73b5d84187423574eeeab66b735ed644afa041fbd20e2e \
+  GRADLE_USER_HOME=/private/tmp/ghatana-media-whisper-worker-gradle-home \
+  ./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=vision \
+  :services:media:libs:java:common:test \
+  :services:media:modules:vision:vision-service:test \
+  --tests 'com.ghatana.media.runtime.WhisperComputeBrokerClientTest' \
+  --tests 'com.ghatana.audio.video.vision.video.MediaOciBrokerWhisperDockerDeadlineTest' \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --offline
+# WhisperComputeBrokerClientTest: 15 passed; broker-to-OCI deadline test: 1 passed
+```
