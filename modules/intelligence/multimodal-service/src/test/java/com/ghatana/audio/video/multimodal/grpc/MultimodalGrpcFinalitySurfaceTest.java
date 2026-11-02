@@ -1,7 +1,9 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import com.ghatana.audio.video.multimodal.engine.MultimodalAnalysisEngine;
 import com.ghatana.audio.video.multimodal.engine.PlatformMultimodalAdapter;
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
@@ -13,6 +15,8 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authenticated
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
 import io.grpc.Contexts;
+import io.grpc.CallOptions;
+import io.grpc.ClientCall;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
@@ -27,7 +31,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.time.Duration;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,11 +55,15 @@ class MultimodalGrpcFinalitySurfaceTest {
 
     private Server server;
     private ManagedChannel channel;
+    private MultimodalGrpcService service;
+    private ExecutorService testWorkers;
 
     @AfterEach
     void tearDown() {
         if (channel != null) channel.shutdownNow();
         if (server != null) server.shutdownNow();
+        if (service != null) service.close();
+        if (testWorkers != null) testWorkers.shutdownNow();
     }
 
     @Test
@@ -177,10 +190,22 @@ class MultimodalGrpcFinalitySurfaceTest {
                 dispatches.incrementAndGet();
                 deadlinePropagated.set(Context.current().getDeadline() != null);
                 executorEntered.countDown();
-                awaitIgnoringInterrupts(releaseExecutor);
-                io.grpc.Deadline deadline = Context.current().getDeadline();
-                deadlineExpiredOrCancellationObserved.set(Context.current().isCancelled()
-                        || deadline != null && deadline.isExpired());
+                long observationLimit = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+                while (releaseExecutor.getCount() > 0 && System.nanoTime() < observationLimit) {
+                    io.grpc.Deadline deadline = Context.current().getDeadline();
+                    if (Context.current().isCancelled() || deadline != null && deadline.isExpired()) {
+                        deadlineExpiredOrCancellationObserved.set(true);
+                        break;
+                    }
+                    try {
+                        releaseExecutor.await(5, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException cancelled) {
+                        if (Context.current().isCancelled()) {
+                            deadlineExpiredOrCancellationObserved.set(true);
+                            break;
+                        }
+                    }
+                }
                 return operation.fixtureAction().call();
             }
         });
@@ -200,6 +225,11 @@ class MultimodalGrpcFinalitySurfaceTest {
             assertThat(clientFailure.get()).isInstanceOfSatisfying(StatusRuntimeException.class, failure ->
                     assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED));
             assertThat(deadlinePropagated).isTrue();
+            long observationLimit = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (!deadlineExpiredOrCancellationObserved.get() && System.nanoTime() < observationLimit) {
+                Thread.sleep(5);
+            }
+            assertThat(deadlineExpiredOrCancellationObserved).isTrue();
         } finally {
             releaseExecutor.countDown();
             caller.join(2_000);
@@ -207,6 +237,224 @@ class MultimodalGrpcFinalitySurfaceTest {
         assertThat(dispatches).hasValue(1);
         assertThat(deadlineExpiredOrCancellationObserved).isTrue();
         assertThat(clientReceivedResponse).isFalse();
+    }
+
+    @Test
+    void serverOwnedDeadlineReachesStartedWorkerAndReturnsUnknownWithoutClientDeadline() throws Exception {
+        CountDownLatch executorEntered = new CountDownLatch(1);
+        CountDownLatch workerObservedDeadline = new CountDownLatch(1);
+        CountDownLatch releaseExecutor = new CountDownLatch(1);
+        CountDownLatch lateExecutorCompletion = new CountDownLatch(1);
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicBoolean serverDeadlineInstalled = new AtomicBoolean();
+        AtomicBoolean clientReceivedResponse = new AtomicBoolean();
+        AtomicReference<Throwable> clientFailure = new AtomicReference<>();
+        start(new CanonicalOperationExecutor() {
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         Callable<T> action) throws Exception {
+                throw new UnsupportedOperationException("typed operation required");
+            }
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         CanonicalOperation<T> operation,
+                                         AuthenticatedPrincipal authenticated) throws Exception {
+                dispatches.incrementAndGet();
+                io.grpc.Deadline deadline = Context.current().getDeadline();
+                serverDeadlineInstalled.set(deadline != null);
+                executorEntered.countDown();
+                long limit = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+                while (System.nanoTime() < limit) {
+                    deadline = Context.current().getDeadline();
+                    if (Context.current().isCancelled() || deadline != null && deadline.isExpired()) {
+                        workerObservedDeadline.countDown();
+                        break;
+                    }
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException cancellation) {
+                        if (Context.current().isCancelled()) {
+                            workerObservedDeadline.countDown();
+                            break;
+                        }
+                    }
+                }
+                awaitIgnoringInterrupts(releaseExecutor);
+                try {
+                    return operation.fixtureAction().call();
+                } finally {
+                    lateExecutorCompletion.countDown();
+                }
+            }
+        }, workerPool(1, 1), new RpcDeadlineServerInterceptor(Duration.ofMillis(200), Map.of()));
+
+        Thread caller = Thread.startVirtualThread(() -> {
+            try {
+                stub().processMultimodal(request());
+                clientReceivedResponse.set(true);
+            } catch (Throwable failure) {
+                clientFailure.set(failure);
+            }
+        });
+        try {
+            assertThat(executorEntered.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(workerObservedDeadline.await(2, TimeUnit.SECONDS)).isTrue();
+            caller.join(2_000);
+            assertThat(caller.isAlive()).isFalse();
+            assertThat(clientFailure.get()).isInstanceOfSatisfying(StatusRuntimeException.class, failure -> {
+                assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.UNKNOWN);
+                assertThat(failure.getStatus().getDescription()).contains("UNKNOWN_OUTCOME");
+            });
+            assertThat(serverDeadlineInstalled).isTrue();
+            assertThat(clientReceivedResponse).isFalse();
+            assertThat(dispatches).hasValue(1);
+        } finally {
+            releaseExecutor.countDown();
+            caller.join(2_000);
+        }
+        assertThat(lateExecutorCompletion.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(clientReceivedResponse).isFalse();
+    }
+
+    @Test
+    void productionServiceDispatchesBlockedCanonicalWorkOffRpcHandlerAndSuppressesLateCompletion()
+            throws Exception {
+        CountDownLatch executorEntered = new CountDownLatch(1);
+        CountDownLatch releaseExecutor = new CountDownLatch(1);
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicBoolean clientReceivedResponse = new AtomicBoolean();
+        AtomicReference<Throwable> clientFailure = new AtomicReference<>();
+        ThreadPoolExecutor workers = workerPool(1, 1);
+        start(blockingExecutor(dispatches, executorEntered, releaseExecutor), workers);
+
+        Thread caller = Thread.startVirtualThread(() -> {
+            try {
+                stub().withDeadlineAfter(150, TimeUnit.MILLISECONDS).processMultimodal(request());
+                clientReceivedResponse.set(true);
+            } catch (Throwable failure) {
+                clientFailure.set(failure);
+            }
+        });
+        try {
+            assertThat(executorEntered.await(2, TimeUnit.SECONDS)).isTrue();
+            caller.join(2_000);
+            assertThat(caller.isAlive()).isFalse();
+            assertThat(clientFailure.get()).isInstanceOfSatisfying(StatusRuntimeException.class, failure ->
+                    assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED));
+        } finally {
+            releaseExecutor.countDown();
+            caller.join(2_000);
+        }
+        assertThat(dispatches).hasValue(1);
+        assertThat(clientReceivedResponse).isFalse();
+    }
+
+    @Test
+    void explicitClientCancellationInterruptsWorkerButLateCanonicalCompletionStaysUnknown()
+            throws Exception {
+        CountDownLatch executorEntered = new CountDownLatch(1);
+        CountDownLatch releaseExecutor = new CountDownLatch(1);
+        CountDownLatch clientClosed = new CountDownLatch(1);
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicInteger clientMessages = new AtomicInteger();
+        AtomicReference<Status> clientStatus = new AtomicReference<>();
+        ThreadPoolExecutor workers = workerPool(1, 1);
+        start(blockingExecutor(dispatches, executorEntered, releaseExecutor), workers);
+        ClientCall<MultimodalRequest, com.ghatana.audio.video.multimodal.grpc.proto.MultimodalResponse> call =
+                channel.newCall(MultimodalServiceGrpc.getProcessMultimodalMethod(), CallOptions.DEFAULT);
+        call.start(new ClientCall.Listener<>() {
+            @Override public void onMessage(
+                    com.ghatana.audio.video.multimodal.grpc.proto.MultimodalResponse response) {
+                clientMessages.incrementAndGet();
+            }
+            @Override public void onClose(Status status, io.grpc.Metadata trailers) {
+                clientStatus.set(status);
+                clientClosed.countDown();
+            }
+        }, new io.grpc.Metadata());
+        call.request(1);
+        call.sendMessage(request());
+        call.halfClose();
+        try {
+            assertThat(executorEntered.await(2, TimeUnit.SECONDS)).isTrue();
+            call.cancel("test cancellation", null);
+            assertThat(clientClosed.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(clientStatus.get().getCode()).isEqualTo(Status.Code.CANCELLED);
+        } finally {
+            releaseExecutor.countDown();
+        }
+        assertThat(dispatches).hasValue(1);
+        assertThat(clientMessages).hasValue(0);
+    }
+
+    @Test
+    void saturatedCanonicalWorkerQueueRejectsBeforeDispatch() throws Exception {
+        CountDownLatch executorEntered = new CountDownLatch(1);
+        CountDownLatch releaseExecutor = new CountDownLatch(1);
+        AtomicInteger dispatches = new AtomicInteger();
+        ThreadPoolExecutor workers = workerPool(1, 1);
+        start(blockingExecutor(dispatches, executorEntered, releaseExecutor), workers);
+
+        Thread first = Thread.startVirtualThread(() -> invokeIgnoringFailure(stub(), request()));
+        try {
+            assertThat(executorEntered.await(2, TimeUnit.SECONDS)).isTrue();
+            Thread second = Thread.startVirtualThread(() -> invokeIgnoringFailure(stub(), request()));
+            awaitQueueSize((ThreadPoolExecutor) workers, 1);
+            assertThatThrownBy(() -> stub().withDeadlineAfter(2, TimeUnit.SECONDS).processMultimodal(request()))
+                    .isInstanceOfSatisfying(StatusRuntimeException.class, failure -> {
+                        assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.RESOURCE_EXHAUSTED);
+                        assertThat(failure.getStatus().getDescription())
+                                .contains("MULTIMODAL_PORT_CAPACITY_UNAVAILABLE");
+                    });
+            assertThat(dispatches).hasValue(1);
+            releaseExecutor.countDown();
+            first.join(2_000);
+            second.join(2_000);
+        } finally {
+            releaseExecutor.countDown();
+            first.join(2_000);
+        }
+    }
+
+    private static CanonicalOperationExecutor blockingExecutor(AtomicInteger dispatches,
+                                                                 CountDownLatch entered,
+                                                                 CountDownLatch release) {
+        return new CanonicalOperationExecutor() {
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         Callable<T> action) throws Exception {
+                throw new UnsupportedOperationException("typed operation required");
+            }
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         CanonicalOperation<T> operation,
+                                         AuthenticatedPrincipal authenticated) throws Exception {
+                dispatches.incrementAndGet();
+                entered.countDown();
+                awaitIgnoringInterrupts(release);
+                return operation.fixtureAction().call();
+            }
+        };
+    }
+
+    private static void invokeIgnoringFailure(MultimodalServiceGrpc.MultimodalServiceBlockingStub stub,
+                                              MultimodalRequest request) {
+        try {
+            stub.withDeadlineAfter(5, TimeUnit.SECONDS).processMultimodal(request);
+        } catch (Throwable ignored) {
+            // Concurrent requests only occupy bounded worker/queue slots for this saturation fixture.
+        }
+    }
+
+    private static void awaitQueueSize(ThreadPoolExecutor executor, int size) throws InterruptedException {
+        long limit = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+        while (executor.getQueue().size() < size && System.nanoTime() < limit) Thread.sleep(5);
+        assertThat(executor.getQueue()).hasSize(size);
+    }
+
+    private static ThreadPoolExecutor workerPool(int workers, int queueCapacity) {
+        return new ThreadPoolExecutor(workers, workers, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(queueCapacity), task -> {
+                    Thread thread = new Thread(task, "test-multimodal-worker");
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
     }
 
     private static void awaitIgnoringInterrupts(CountDownLatch latch) {
@@ -225,19 +473,27 @@ class MultimodalGrpcFinalitySurfaceTest {
     // ── Harness ─────────────────────────────────────────────────────────────
 
     private void start(CanonicalOperationExecutor executor) throws Exception {
+        start(executor, workerPool(2, 4));
+    }
+
+    private void start(CanonicalOperationExecutor executor, Executor workers) throws Exception {
+        start(executor, workers, new ServerInterceptor[0]);
+    }
+
+    private void start(CanonicalOperationExecutor executor, Executor workers,
+                       ServerInterceptor... additionalInterceptors) throws Exception {
         var engine = mock(MultimodalAnalysisEngine.class);
         var adapter = mock(PlatformMultimodalAdapter.class);
-        var service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
-                request -> SourceAuthorization.Decision.ADMITTED, executor);
-        server = ServerBuilder.forPort(0)
-                .directExecutor()
-                .intercept(new TenantInjector())
-                .addService(service)
-                .build()
-                .start();
+        service = new MultimodalGrpcService(engine, adapter, MediaProcessingMetrics.noop(),
+                request -> SourceAuthorization.Decision.ADMITTED,
+                new AudioVideoTracingService(io.opentelemetry.api.GlobalOpenTelemetry
+                        .getTracer("multimodal-test")), executor, workers);
+        if (workers instanceof ExecutorService executorService) testWorkers = executorService;
+        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(0).intercept(new TenantInjector());
+        for (ServerInterceptor interceptor : additionalInterceptors) serverBuilder.intercept(interceptor);
+        server = serverBuilder.addService(service).build().start();
         channel = ManagedChannelBuilder.forAddress("localhost", server.getPort())
                 .usePlaintext()
-                .directExecutor()
                 .build();
     }
 

@@ -3,6 +3,7 @@ package com.ghatana.audio.video.multimodal.grpc;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 
 import com.ghatana.audio.video.common.observability.MediaProcessingMetrics;
+import com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import com.ghatana.audiovideo.observability.tracing.AudioVideoTracingService;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
@@ -30,6 +31,14 @@ import java.util.UUID;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * gRPC service implementation for multimodal audio+video analysis.
@@ -39,7 +48,7 @@ import java.util.concurrent.Callable;
  * @doc.layer product
  * @doc.pattern Service, Adapter
  */
-public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServiceImplBase {
+public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServiceImplBase implements AutoCloseable {
 
     private static final int MAX_MODALITY_BYTES = 32 * 1024 * 1024;
     private static final int MAX_TOTAL_INPUT_BYTES = 64 * 1024 * 1024;
@@ -57,6 +66,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private static final String OP_SUMMARIZE = "media.operation.capability.media-multimodal-summarize";
     private static final String CAP_EXTRACT = "media.multimodal.extract.structured";
     private static final String OP_EXTRACT = "media.operation.capability.media-multimodal-extract-structured";
+    private static final int CANONICAL_WORKER_COUNT = 2;
+    private static final int CANONICAL_QUEUE_CAPACITY = 4;
 
     private static final Logger LOG = LoggerFactory.getLogger(MultimodalGrpcService.class);
 
@@ -69,6 +80,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     private final MediaProcessingRuntimePort mediaRuntimePort;
     private final CanonicalOperationExecutor canonicalOperationExecutor;
     private final AudioVideoTracingService tracingService;
+    private final ContextAwareBoundedExecutor canonicalDispatchExecutor;
+    private final ExecutorService ownedCanonicalDispatchExecutor;
     private final MediaWorkflowMetrics workflowMetrics = new MediaWorkflowMetrics(
             io.micrometer.core.instrument.Metrics.globalRegistry, "multimodal");
     private volatile BooleanSupplier readinessProbe = () -> false;
@@ -113,6 +126,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
+        ExecutorService workers = createCanonicalDispatchExecutor();
+        this.ownedCanonicalDispatchExecutor = workers;
+        this.canonicalDispatchExecutor = new ContextAwareBoundedExecutor(workers);
         // The production runtime port binds the durable canonical executor; when no port
         // is composed the service remains fail-closed (executor == null).
         this.canonicalOperationExecutor = mediaRuntimePort == null
@@ -164,6 +180,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.sourceAuthorization = java.util.Objects.requireNonNull(sourceAuthorization, "sourceAuthorization");
         this.tracingService = java.util.Objects.requireNonNull(tracingService, "tracingService");
         this.mediaRuntimePort = mediaRuntimePort;
+        ExecutorService workers = createCanonicalDispatchExecutor();
+        this.ownedCanonicalDispatchExecutor = workers;
+        this.canonicalDispatchExecutor = new ContextAwareBoundedExecutor(workers);
         this.canonicalOperationExecutor = mediaRuntimePort == null
                 ? null : new MediaCanonicalOperationExecutor(mediaRuntimePort);
     }
@@ -173,6 +192,15 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                           MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
                           AudioVideoTracingService tracingService,
                           CanonicalOperationExecutor canonicalOperationExecutor) {
+        this(engine, platformAdapter, metrics, sourceAuthorization, tracingService,
+                canonicalOperationExecutor, Runnable::run);
+    }
+
+    /** Test-only worker seam for deterministic deadline and queue-saturation coverage. */
+    MultimodalGrpcService(MultimodalAnalysisEngine engine, PlatformMultimodalAdapter platformAdapter,
+                          MediaProcessingMetrics metrics, SourceAuthorization sourceAuthorization,
+                          AudioVideoTracingService tracingService,
+                          CanonicalOperationExecutor canonicalOperationExecutor, Executor dispatchExecutor) {
         this.engine = java.util.Objects.requireNonNull(engine, "engine");
         this.platformAdapter = java.util.Objects.requireNonNull(platformAdapter, "platformAdapter");
         this.mediaMetrics = java.util.Objects.requireNonNull(metrics, "metrics");
@@ -181,6 +209,28 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         this.mediaRuntimePort = null;
         this.canonicalOperationExecutor = java.util.Objects.requireNonNull(
                 canonicalOperationExecutor, "canonicalOperationExecutor");
+        this.ownedCanonicalDispatchExecutor = null;
+        this.canonicalDispatchExecutor = new ContextAwareBoundedExecutor(
+                java.util.Objects.requireNonNull(dispatchExecutor, "dispatchExecutor"));
+    }
+
+    private static ThreadPoolExecutor createCanonicalDispatchExecutor() {
+        AtomicInteger sequence = new AtomicInteger();
+        ThreadFactory factory = task -> {
+            Thread thread = new Thread(task, "multimodal-canonical-" + sequence.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
+        };
+        return new ThreadPoolExecutor(CANONICAL_WORKER_COUNT, CANONICAL_WORKER_COUNT,
+                0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(CANONICAL_QUEUE_CAPACITY), factory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    @Override
+    public void close() {
+        if (ownedCanonicalDispatchExecutor != null) {
+            ownedCanonicalDispatchExecutor.shutdownNow();
+        }
     }
 
     MediaProcessingRuntimePort mediaRuntimePort() { return mediaRuntimePort; }
@@ -1003,8 +1053,41 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             throws Exception {
         if (canonicalOperationExecutor == null) throw multimodalFamilyNotAdmitted();
         try {
-            return canonicalOperationExecutor.execute(
-                    binding, operationRef, operation, authenticated(identity));
+            Context telemetryContext = Context.current();
+            ContextAwareBoundedExecutor.Submission<CanonicalExecution<T>> submission =
+                    canonicalDispatchExecutor.submit(telemetryContext.wrap(() -> {
+                        try {
+                            return CanonicalExecution.success(canonicalOperationExecutor.execute(
+                                    binding, operationRef, operation, authenticated(identity)));
+                        } catch (Exception failure) {
+                            return CanonicalExecution.failure(failure);
+                        }
+                    }), true);
+            final CanonicalExecution<T> execution;
+            try {
+                execution = submission.result().get();
+            } catch (InterruptedException interrupted) {
+                submission.cancel();
+                throw interrupted;
+            } catch (ExecutionException failedDispatch) {
+                Throwable cause = failedDispatch.getCause();
+                if (!submission.started()) {
+                    Status.Code code = Status.fromThrowable(cause).getCode();
+                    if (code == Status.Code.DEADLINE_EXCEEDED) {
+                        throw new CanonicalOperationDeadlineExceededException(cause);
+                    }
+                    if (code == Status.Code.CANCELLED) {
+                        throw new CanonicalOperationCancelledException(cause);
+                    }
+                    if (code == Status.Code.RESOURCE_EXHAUSTED) {
+                        throw new CanonicalOperationResourceExhaustedException(cause);
+                    }
+                }
+                if (cause instanceof Exception exception) throw exception;
+                throw new OperationOutcomeUnknownException(new Exception("canonical worker failed", cause));
+            }
+            if (execution.failure() != null) throw execution.failure();
+            return execution.value();
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new OperationOutcomeUnknownException(interrupted);
@@ -1026,6 +1109,13 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             // After handoff, Media cannot tell a pre-dispatch failure from a completed effect
             // whose response was lost. Preserve that uncertainty instead of inviting a retry.
             throw new OperationOutcomeUnknownException(executorFailure);
+        }
+    }
+
+    private record CanonicalExecution<T>(T value, Exception failure) {
+        static <T> CanonicalExecution<T> success(T value) { return new CanonicalExecution<>(value, null); }
+        static <T> CanonicalExecution<T> failure(Exception failure) {
+            return new CanonicalExecution<>(null, failure);
         }
     }
 

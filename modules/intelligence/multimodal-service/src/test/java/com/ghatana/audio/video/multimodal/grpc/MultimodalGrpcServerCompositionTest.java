@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -121,7 +122,7 @@ class MultimodalGrpcServerCompositionTest {
 
     @Test
     void failedGrpcBindLeavesProductionRootDownAndClosed() throws Exception {
-        try (ServerSocket occupied = new ServerSocket(0)) {
+        try (ServerSocket occupied = new ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))) {
             var service = new MultimodalGrpcService(MediaProcessingMetrics.create());
             var readiness = MultimodalGrpcServer.readinessService(service);
             var server = new MultimodalGrpcServer(occupied.getLocalPort(),
