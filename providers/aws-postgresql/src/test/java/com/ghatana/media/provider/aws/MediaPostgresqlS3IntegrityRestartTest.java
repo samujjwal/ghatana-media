@@ -70,6 +70,81 @@ class MediaPostgresqlS3IntegrityRestartTest {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
+    void scannerUnavailableAfterFinalizeKeepsArtifactHiddenAndColdRetryPublishesOnce() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-scan-unavailable-" + runId;
+        String prefix = "ip06-scan-unavailable/" + runId;
+        String tenant = "tenant-ip06-scan-unavailable-" + runId;
+        String principal = "principal-ip06-scan-unavailable-" + runId;
+        byte[] bytes = wav(("scanner-unavailable:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        AtomicInteger unavailableScans = new AtomicInteger();
+        AtomicInteger cleanScans = new AtomicInteger();
+        UploadSession upload;
+        String finalKey;
+        String stagedChunkKey;
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore(
+                         unavailableScanner(unavailableScans))) {
+                upload = store.begin(new UploadRequest(tenant, principal, "source.wav", "audio/wav",
+                        bytes.length, digest, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                        "ip06-scan-unavailable-" + runId);
+                store.append(tenant, principal, upload.uploadId(), 0, bytes);
+                finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                        + upload.uploadId() + "/" + digest;
+                stagedChunkKey = chunkObjectKey(tenant, upload.uploadId());
+
+                assertThatThrownBy(() -> store.complete(tenant, principal, upload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("scan did not return a clean verdict: UNAVAILABLE");
+                assertThat(unavailableScans).hasValue(1);
+                assertThat(store.upload(tenant, upload.uploadId()).orElseThrow().status())
+                        .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.OPEN);
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("UNAVAILABLE");
+                assertThat(artifactIdForUpload(tenant, upload.uploadId())).isNull();
+                assertThat(artifactCountForTenant(tenant)).isZero();
+                assertThat(s3Object(bucket, "s3://" + bucket + "/" + finalKey)).containsExactly(bytes);
+                assertThat(s3ObjectCount(bucket, stagedChunkKey)).isEqualTo(1);
+                assertThat(chunkRowCount(tenant, upload.uploadId())).isEqualTo(1);
+            }
+
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore(
+                         cleanScanner(cleanScans))) {
+                MediaArtifact recovered = restarted.complete(tenant, principal, upload.uploadId());
+                assertThat(cleanScans).hasValue(1);
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(artifactIdForUpload(tenant, upload.uploadId())).isEqualTo(recovered.artifactId());
+                assertThat(restarted.artifact(tenant, recovered.artifactId())).contains(recovered);
+                assertThat(artifactCount(tenant, recovered.artifactId())).isEqualTo(1);
+                assertThat(s3Object(bucket, recovered.objectReference())).containsExactly(bytes);
+                assertThat(s3ObjectCount(bucket, stagedChunkKey)).isZero();
+                assertThat(chunkRowCount(tenant, upload.uploadId()))
+                        .as("the durable manifest remains available for orphan cleanup replay")
+                        .isEqualTo(1);
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("CLEAN");
+
+                MediaArtifact replayed = restarted.complete(tenant, principal, upload.uploadId());
+                assertThat(replayed).isEqualTo(recovered);
+                assertThat(artifactIdForUpload(tenant, upload.uploadId())).isEqualTo(recovered.artifactId());
+                assertThat(artifactCount(tenant, recovered.artifactId())).isEqualTo(1);
+                assertThat(s3ObjectCount(bucket, finalKey)).isEqualTo(1);
+                assertThat(s3Object(bucket, recovered.objectReference())).containsExactly(bytes);
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
     void rejectedQuarantinedObjectIsRecordedAndDeletedWithoutArtifactPublication() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-quarantine-" + runId;
@@ -406,6 +481,20 @@ class MediaPostgresqlS3IntegrityRestartTest {
         }
     }
 
+    private static String artifactIdForUpload(String tenant, String uploadId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT artifact_id FROM media_upload_sessions WHERE tenant_id=? AND upload_id=?")) {
+            query.setString(1, tenant);
+            query.setString(2, uploadId);
+            try (var rows = query.executeQuery()) {
+                if (!rows.next()) throw new AssertionError("upload row disappeared");
+                return rows.getString(1);
+            }
+        }
+    }
+
     private static String scanStatus(String tenant, String uploadId) throws Exception {
         try (var connection = DriverManager.getConnection(
                 POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
@@ -475,6 +564,24 @@ class MediaPostgresqlS3IntegrityRestartTest {
                 return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
                         artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
                         artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.REJECT,
+                        now, now.plusSeconds(60));
+            }
+        };
+    }
+
+    private static MediaArtifactScanner unavailableScanner(AtomicInteger scans) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-test-unavailable-scanner"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                Instant now = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.UNAVAILABLE,
                         now, now.plusSeconds(60));
             }
         };
