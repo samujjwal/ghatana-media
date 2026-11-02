@@ -926,7 +926,10 @@ public final class MediaProductionSpecCompiler {
         }
         Set<String> graphStepIds = new TreeSet<>();
         graph.nodes().forEach(node -> graphStepIds.add(node.stepId()));
-        if (!graphStepIds.equals(binding.enginesByStep().keySet())) {
+        Set<String> compiledPlanStepIds = new TreeSet<>(compile(spec).nodes().stream()
+                .map(PlanNode::stepId).toList());
+        if (!graphStepIds.equals(binding.enginesByStep().keySet())
+                || !graphStepIds.equals(compiledPlanStepIds)) {
             return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
         }
         Set<String> specSceneRefs = new TreeSet<>(spec.sceneRefs());
@@ -951,14 +954,10 @@ public final class MediaProductionSpecCompiler {
             }
         }
 
-        StringBuilder projection = new StringBuilder();
-        appendSemanticField(projection, "media.production.semantic-source-v3-candidate.v1");
-        appendSemanticField(projection, semanticSourceRef);
-        appendSemanticField(projection, semanticSourceSha256);
-        appendSemanticField(projection, graph.fingerprint());
-        appendSemanticField(projection, binding.fingerprint());
-        return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED,
-                MediaProductionSemanticSource.Reason.NONE, "sha256:" + sha256(projection.toString()));
+        // PDP-1 does not define a stepId-to-operationRef join. Preserve the
+        // graph-only candidate, but do not bind it to a v3 engine entry by
+        // position, kind, label, or caller-provided key coincidence.
+        return failedSemanticBind(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
     }
 
     private static SemanticCandidateBindResult failedSemanticBind(MediaProductionSemanticSource.Reason reason) {

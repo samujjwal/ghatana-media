@@ -1938,7 +1938,7 @@ semanticSource:
       A caller-owned resolver supplies exact operation-reference resolution evidence.
       The compiler checks the supplied cardinality but does not prove resolver
       authority, source-currentness, or operation existence.
-    UNKNOWN: [ABSENT_GRAPH, UNKNOWN_NODE_KIND, UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING, SOURCE_BINDING_MISMATCH, INVALID_SEMANTIC_SOURCE_CONTENT, MISSING_DEPENDENCY]
+    UNKNOWN: [ABSENT_GRAPH, UNKNOWN_NODE_KIND, UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING, SOURCE_BINDING_MISMATCH, INVALID_SEMANTIC_SOURCE_CONTENT, MISSING_DEPENDENCY, STEP_OPERATION_MAPPING_UNDEFINED]
     NOT_ADMITTED: [CYCLIC_GRAPH, EXECUTION_CONTEXT_MISMATCH]
     effect: No dispatch, job creation, project mutation, provider call, or admission decision is produced by semantic-source compilation.
   executionAdmissionMapping:

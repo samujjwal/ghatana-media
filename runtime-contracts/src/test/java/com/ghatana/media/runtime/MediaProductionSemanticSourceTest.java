@@ -23,6 +23,7 @@ class MediaProductionSemanticSourceTest {
     private static final String SCHEMA = "production-spec-schema/rev-1";
     private static final String COMPILER = "production-compiler-contract/v3";
     private static final String OP = "media.operation.capability.media-project-version";
+    private static final String OP2 = "media.operation.capability.media-project-composition-update";
     private static final String D1 = "sha256:" + "1".repeat(64);
     private static final String D2 = "sha256:" + "2".repeat(64);
     private static final String D3 = "sha256:" + "3".repeat(64);
@@ -311,7 +312,7 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
-    void candidateBindingPreservesSourceDefinedCardinalityAndAcceptsTypedOperationEvidence() throws Exception {
+    void candidateBindingRejectsArbitraryStepIdsEvenWhenCallerEngineKeysMatch() throws Exception {
         var semantic = source(List.of(
                 boundNode("step-a", List.of(), List.of("scene/1@v3"),
                         Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
@@ -323,28 +324,29 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var base = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs, productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
-        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
-        assertThat(base.candidateFingerprint()).startsWith("sha256:");
+        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(base.candidateFingerprint()).isNull();
 
         var operationFingerprints = resolvedWithSemanticSourceAndOperation(graphContent);
         var typedBase = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
                 operationFingerprints, operationEvidence());
-        assertThat(typedBase.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(typedBase.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
-        assertThat(typedBase.candidateFingerprint()).isEqualTo(base.candidateFingerprint());
+        assertThat(typedBase.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(typedBase.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(typedBase.candidateFingerprint()).isNull();
 
         var identical = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
                 operationFingerprints, operationEvidence());
-        assertThat(identical.candidateFingerprint()).isEqualTo(typedBase.candidateFingerprint());
+        assertThat(identical.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(identical.candidateFingerprint()).isNull();
 
         var changedEngineDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding("step-b", D2),
                 operationFingerprints, operationEvidence());
-        assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(changedEngineDigest.candidateFingerprint()).isNotEqualTo(typedBase.candidateFingerprint());
+        assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(changedEngineDigest.candidateFingerprint()).isNull();
 
         var fixedPlanIds = List.of("validate-spec", "rights-review", "capture-source-0", "compose-timeline",
                 "render-profile-0", "publish-review");
@@ -371,6 +373,34 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
+    void exactFixedPlanStepJoinStillFailsClosedWhileStepOperationMappingIsUndefined() throws Exception {
+        var semantic = source(List.of(
+                node("validate-spec", "DETERMINISTIC", List.of()),
+                node("rights-review", "DETERMINISTIC", List.of("validate-spec")),
+                new MediaProductionSemanticSource.Node("capture-source-0", "DETERMINISTIC", OP,
+                        List.of(), List.of("artifact/capture@v1"), List.of("rights-review"), List.of("scene/1@v3"),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
+                node("compose-timeline", "DETERMINISTIC", List.of("capture-source-0")),
+                new MediaProductionSemanticSource.Node("render-profile-0", "GENERATIVE", OP,
+                        List.of(), List.of("artifact/render@v1"), List.of("compose-timeline"), List.of(),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("OUTPUT", "profile/1080p@v4"))),
+                node("publish-review", "DETERMINISTIC", List.of("render-profile-0"))));
+        var compiler = new MediaProductionSpecCompiler();
+        var graphContent = graphFixture(semantic);
+        var fixedPlanIds = List.of("validate-spec", "rights-review", "capture-source-0", "compose-timeline",
+                "render-profile-0", "publish-review");
+        var locks = Map.of(
+                "capture-source-0", new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"),
+                "render-profile-0", new MediaProductionSemanticSource.LockTarget("OUTPUT", "profile/1080p@v4"));
+        var result = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(fixedPlanIds, locks, null, D1),
+                resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
+        assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
+        assertThat(result.reason()).isEqualTo(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+        assertThat(result.candidateFingerprint()).isNull();
+    }
+
+    @Test
     void candidateBindRejectsSemanticRefDigestAndExactV3MappingMismatches() throws Exception {
         var semantic = source(List.of(boundNode("step-a", List.of(), List.of("scene/1@v3"),
                 Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
@@ -381,9 +411,9 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var good = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs(), productionSpec(), binding(null, D1), resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
-        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
-        assertThat(good.candidateFingerprint()).startsWith("sha256:");
+        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(good.candidateFingerprint()).isNull();
 
         var wrongDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, D3,
                 inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
@@ -476,6 +506,124 @@ class MediaProductionSemanticSourceTest {
                 fixture.fingerprint().sha256(), inputs(), resolvedInputs, Map.of(OP, 1));
         assertThat(countOnly.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(countOnly.fingerprint()).isEqualTo(typed.fingerprint());
+    }
+
+    @Test
+    void resolvedInputCandidateValidatesExactBytesAndPreservesExplicitGraphWithoutInferringSemantics() throws Exception {
+        var compiler = new MediaProductionSpecCompiler();
+        var spec = productionSpec();
+        var inputs = inputs();
+        var first = new MediaProductionSemanticSource.Node("step-z", "DETERMINISTIC", OP,
+                List.of("asset/source@v1"), List.of("asset/intermediate@v1"), List.of(),
+                List.of("scene/1@v3"), Optional.empty());
+        var second = new MediaProductionSemanticSource.Node("step-a", "GENERATIVE", OP2,
+                List.of("asset/input@v9"), List.of("asset/output@v2"), List.of("step-z"),
+                List.of(), Optional.empty());
+
+        var firstInputs = resolvedCompilerInputs(spec, inputs, compilerContract(spec, inputs, List.of(second, first)));
+        var reorderedInputs = resolvedCompilerInputs(spec, inputs, compilerContract(spec, inputs, List.of(first, second)));
+        var candidate = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs,
+                ref -> firstInputs.get(ref), Map.of(OP, 1, OP2, 1));
+        var repeat = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs,
+                ref -> firstInputs.get(ref), Map.of(OP, 1, OP2, 1));
+        var reordered = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs,
+                ref -> reorderedInputs.get(ref), Map.of(OP, 1, OP2, 1));
+
+        assertThat(candidate.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(candidate.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(candidate.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::stepId)
+                .containsExactly("step-z", "step-a");
+        assertThat(candidate.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::kind)
+                .containsExactly(MediaProductionSemanticSource.NodeKind.DETERMINISTIC,
+                        MediaProductionSemanticSource.NodeKind.GENERATIVE);
+        assertThat(candidate.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::operationRef)
+                .containsExactly(OP, OP2);
+        assertThat(candidate.fingerprint()).isEqualTo(repeat.fingerprint());
+        assertThat(reordered.nodes()).isEqualTo(candidate.nodes()); // Normalization is independent of input order.
+        assertThat(reordered.fingerprint()).isNotEqualTo(candidate.fingerprint()); // Exact compiler-contract bytes stay bound.
+        assertThat(candidate.fingerprint()).matches("sha256:[0-9a-f]{64}");
+    }
+
+    @Test
+    void resolvedInputCandidateReturnsUnknownForMissingOrMalformedVersionedContent() throws Exception {
+        var compiler = new MediaProductionSpecCompiler();
+        var spec = productionSpec();
+        var inputs = inputs();
+        var content = resolvedCompilerInputs(spec, inputs,
+                compilerContract(spec, inputs, List.of(node("step", "DETERMINISTIC", List.of()))));
+
+        var unresolved = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs, ref -> {
+            if (ref.equals(inputs.compilerContractRef())) throw new IllegalStateException("unavailable");
+            return content.get(ref);
+        }, Map.of(OP, 1));
+        assertResult(unresolved, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+
+        for (String malformed : List.of(
+                "{\"schemaVersion\":\"media.production.compiler-contract.v1\",\"schemaVersion\":\"duplicate\"}",
+                new String(content.get(inputs.compilerContractRef()).content(), StandardCharsets.UTF_8) + " {}",
+                "{\"schemaVersion\":\"media.production.compiler-contract.v1\",\"unexpected\":true}")) {
+            byte[] bytes = malformed.getBytes(StandardCharsets.UTF_8);
+            var malformedContent = new MediaVersionedContractContent.ResolvedContent(
+                    inputs.compilerContractRef(), bytes, digest(bytes));
+            var rejected = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs,
+                    ref -> ref.equals(inputs.compilerContractRef()) ? malformedContent : content.get(ref), Map.of(OP, 1));
+            assertResult(rejected, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                    MediaProductionSemanticSource.Reason.INVALID_SEMANTIC_SOURCE_CONTENT);
+        }
+
+        var wrongTarget = compilerContract(spec, inputs, List.of(node("step", "DETERMINISTIC", List.of())))
+                .replace(inputs.productionSpecRef(), "production-spec/different");
+        var targetMismatchContent = resolvedCompilerInputs(spec, inputs, wrongTarget);
+        var mismatch = compiler.compileSemanticSourceFromResolvedInputs(spec, inputs,
+                ref -> targetMismatchContent.get(ref), Map.of(OP, 1));
+        assertResult(mismatch, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+    }
+
+    private static Map<String, MediaVersionedContractContent.ResolvedContent> resolvedCompilerInputs(
+            MediaProductionSpecCompiler.ProductionSpec spec,
+            MediaProductionSpecCompiler.CompilationInputs inputs,
+            String contract) throws Exception {
+        var values = new LinkedHashMap<String, MediaVersionedContractContent.ResolvedContent>();
+        byte[] specBytes = JSON.writeValueAsBytes(spec);
+        byte[] schemaBytes = productionSpecSchema().getBytes(StandardCharsets.UTF_8);
+        values.put(inputs.productionSpecRef(), resolvedContent(inputs.productionSpecRef(), specBytes));
+        values.put(inputs.productionSpecSchemaRef(), resolvedContent(inputs.productionSpecSchemaRef(), schemaBytes));
+        values.put(inputs.compilerContractRef(), resolvedContent(inputs.compilerContractRef(), contract.getBytes(StandardCharsets.UTF_8)));
+        return Map.copyOf(values);
+    }
+
+    private static MediaVersionedContractContent.ResolvedContent resolvedContent(String ref, byte[] bytes) throws Exception {
+        return new MediaVersionedContractContent.ResolvedContent(ref, bytes, digest(bytes));
+    }
+
+    private static String compilerContract(MediaProductionSpecCompiler.ProductionSpec spec,
+            MediaProductionSpecCompiler.CompilationInputs inputs,
+            List<MediaProductionSemanticSource.Node> steps) throws Exception {
+        byte[] specBytes = JSON.writeValueAsBytes(spec);
+        String specDigest = digest(specBytes);
+        String schemaDigest = digest(productionSpecSchema().getBytes(StandardCharsets.UTF_8));
+        List<Map<String, Object>> serializedSteps = steps.stream().<Map<String, Object>>map(step -> {
+            var value = new LinkedHashMap<String, Object>();
+            value.put("stepId", step.stepId()); value.put("kind", step.kind()); value.put("operationRef", step.operationRef());
+            value.put("inputArtifactVersionRefs", step.inputArtifactVersionRefs());
+            value.put("outputArtifactVersionRefs", step.outputArtifactVersionRefs());
+            value.put("dependsOn", step.dependsOn()); value.put("sourceSceneRefs", step.sourceSceneRefs());
+            value.put("manualLockTarget", step.manualLockTarget().<Object>map(lock ->
+                    Map.of("scopeKind", lock.scopeKind(), "targetRef", lock.targetRef())).orElse(null));
+            return value;
+        }).toList();
+        return JSON.writeValueAsString(Map.of("schemaVersion", MediaProductionSpecCompiler.PRODUCTION_COMPILER_CONTRACT_SCHEMA_VERSION,
+                "targetProductionSpecRef", inputs.productionSpecRef(), "targetProductionSpecSha256", specDigest,
+                "targetProductionSpecSchemaRef", inputs.productionSpecSchemaRef(), "targetProductionSpecSchemaSha256", schemaDigest,
+                "steps", serializedSteps));
+    }
+
+    private static String productionSpecSchema() {
+        return """
+                {"$schema":"https://json-schema.org/draft/2020-12/schema","$defs":{"versionRef":{"type":"string","minLength":1,"maxLength":384,"pattern":"\\\\S"},"refList":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/$defs/versionRef"}}},"type":"object","additionalProperties":false,"required":["tenantId","projectId","revisionId","schemaVersion","originClass","purposeRef","sceneRefs","timelineRef","rightsRef","outputProfileRefs"],"properties":{"tenantId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"projectId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"revisionId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"schemaVersion":{"const":"media.declarative.value.production-spec.v1"},"originClass":{"enum":["REAL_CAPTURE","DECLARATIVE_ANIMATION","MODEL_SIMULATION","GENERATIVE_MEDIA","PDP_SYNTHETIC_FIXTURE"]},"purposeRef":{"$ref":"#/$defs/versionRef"},"sceneRefs":{"$ref":"#/$defs/refList"},"timelineRef":{"$ref":"#/$defs/versionRef"},"rightsRef":{"$ref":"#/$defs/versionRef"},"outputProfileRefs":{"$ref":"#/$defs/refList"}}}
+                """;
     }
 
     @Test
