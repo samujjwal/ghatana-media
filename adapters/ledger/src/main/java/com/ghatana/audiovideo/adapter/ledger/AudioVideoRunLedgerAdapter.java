@@ -365,9 +365,8 @@ public final class AudioVideoRunLedgerAdapter {
             case "SUBMITTED", "QUEUED", "PREPARING", "RETRY_PENDING" -> JobExecutionState.PENDING;
             case "TRANSCODING", "PROCESSING", "ANALYZING", "STORING", "UPLOADING", "INDEXING",
                  "RUNNING" -> JobExecutionState.RUNNING;
-            case "COMPLETED", "SUCCEEDED", "STORED", "FAILED", "ERROR",
-                 "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
-            case "CANCELLED", "ABORTED" -> JobExecutionState.CANCELLED;
+            case "COMPLETED", "FAILED", "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
+            case "CANCELLED" -> JobExecutionState.CANCELLED;
             case "OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING" -> throw new IllegalArgumentException(
                     "Media processing job state cannot be represented without loss: " + jobState);
             // An unrecognized state must never be projected as RUNNING or a
@@ -379,10 +378,10 @@ public final class AudioVideoRunLedgerAdapter {
 
     private static ExecutionOutcome mapProcessingJobOutcome(String jobState) {
         return switch (jobState.toUpperCase(Locale.ENGLISH)) {
-            case "COMPLETED", "SUCCEEDED", "STORED" -> ExecutionOutcome.SUCCEEDED;
+            case "COMPLETED" -> ExecutionOutcome.SUCCEEDED;
             case "PARTIALLY_SUCCEEDED" -> ExecutionOutcome.DEGRADED;
-            case "FAILED", "ERROR" -> ExecutionOutcome.FAILED;
-            case "CANCELLED", "ABORTED" -> ExecutionOutcome.CANCELLED;
+            case "FAILED" -> ExecutionOutcome.FAILED;
+            case "CANCELLED" -> ExecutionOutcome.CANCELLED;
             // Nonterminal and unrepresentable states carry no outcome. The
             // caller must retain canonical UNKNOWN/cancellation-request truth.
             default -> null;

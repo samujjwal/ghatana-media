@@ -577,11 +577,12 @@ class AudioVideoRunLedgerAdapterTest {
             assertThat(ledger.outcome()).as(activePhase).isNull();
         }
 
-        // The remaining canonical job states and attempt-only states have no lossless
-        // RunLedger state. They must not become RUNNING or a terminal success/failure.
+        // The remaining canonical job states, attempt-only states and noncanonical aliases
+        // have no lossless RunLedger state. They must not become RUNNING or terminal.
         for (String unrepresentable : List.of(
                 "OUTCOME_UNKNOWN", "RECONCILING", "CLAIMED", "DISPATCH_INTENT_RECORDED",
-                "DISPATCHED", "CANCEL_REQUESTED", "CANCEL_CONFIRMED", "SUPERSEDED")) {
+                "DISPATCHED", "CANCEL_REQUESTED", "CANCEL_CONFIRMED", "SUPERSEDED",
+                "ABORTED", "SUCCEEDED", "STORED", "ERROR")) {
             assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
                     "matrix-" + unrepresentable, "AUDIO", "STT", "collection", "source",
                     Map.of(), unrepresentable, now, 0, null, null,

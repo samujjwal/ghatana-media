@@ -1804,3 +1804,21 @@ GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
 ```
 
 This is synthetic authorization-adapter evidence only. No actual rights record, Shared policy authority, provider effect, runtime admission, G02 whole-row acceptance, or source status was changed.
+
+### 41.47 November 2 RunLedger cancellation alias fails closed (2026-11-02)
+
+At Media `main@af001740` plus the uncommitted adapter/test change, `AudioVideoRunLedgerAdapter.fromProcessingJob` no longer projects the noncanonical terminal strings `ABORTED`, `SUCCEEDED`, `STORED`, and `ERROR` as final Media job outcomes. These spellings now follow the unmapped-state error path; canonical `COMPLETED`, `PARTIALLY_SUCCEEDED`, `FAILED`, and `CANCELLED` remain supported, as does the nonterminal legacy phase `STORING`. PDP-1 defines `SUCCEEDED` only for a Media attempt, where it still requires result validation and registration; `STORED` and `ERROR` are absent from canonical job/attempt states. P1-D04 requires cancellation finality or authoritative proof of no dispatch, and LD-02 bars provider hints from establishing Media finality.
+
+An independent Luna source review found no source-owned Media job definition or verified external-consumer compatibility requirement for these aliases. The current and read-only legacy checkouts have no production call sites for this adapter method; the legacy adapter's permissive mappings are not an admitted compatibility contract. An external caller would need an authoritative typed terminal observation before noncanonical spellings could be accepted.
+
+The exhaustive mapping matrix and the full focused adapter test class passed; the XML report records **23 tests, 0 skipped, 0 failures/errors**:
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
+  :services:media:adapters:ledger:test \
+  --tests com.ghatana.audiovideo.adapter.ledger.AudioVideoRunLedgerAdapterTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# BUILD SUCCESSFUL; 54 actionable tasks, 23 tests passed
+```
+
+This closes one lossy alias in the local projection only. The adapter still accepts raw string states and does not itself verify caller authority, canonical job/attempt/source identity, durable RunLedger write acknowledgment, or Data Cloud readback. LD-01..05 remain support-only/incomplete; no row acceptance or status promotion follows.
