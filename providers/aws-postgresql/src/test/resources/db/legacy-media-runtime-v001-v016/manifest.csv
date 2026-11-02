@@ -1,0 +1,18 @@
+# Test-only source-derived fixture; Flyway checksums are filled from PostgreSQL run.
+version,description,flyway_checksum
+1,media runtime state,2011091060
+2,media upload finalization claim,-1739934140
+3,media consent authority,-1700736947
+4,media principal ownership,-106672087
+5,media job worker lease,-1755849979
+6,media job cancellation truth,1500389172
+7,media job unknown provider outcome,-2036800623
+8,media job artifact content version,-863726996
+9,media job attempts and outbox,-392192638
+10,media artifact format verification,-2015988551
+11,media job submission digest,-1104155036
+12,media outbox delivery attempts,1299987228
+13,media artifact quarantine and lineage,-1451326476
+14,media attempt finality and lifecycle outbox,548832866
+15,media transcript revisions,659110515
+16,media lifecycle outbox leases,-1645731082
