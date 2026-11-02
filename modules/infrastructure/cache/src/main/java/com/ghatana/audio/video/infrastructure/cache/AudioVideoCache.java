@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.infrastructure.cache;
 
+import com.ghatana.cache.CachePolicy;
 import com.ghatana.cache.DistributedCachePort;
 import com.ghatana.core.async.AsyncOperation;
 import org.slf4j.Logger;
@@ -26,6 +27,44 @@ import java.util.function.Function;
  * @doc.pattern Cache
  */
 public class AudioVideoCache<K, V> {
+
+    /**
+     * Complete authorization and content identity supplied by the caller for a
+     * protected cache entry. These values partition the key only; they do not
+     * establish that a caller currently has rights to read the cached value.
+     */
+    public record CacheKeyScope(
+            String tenantId,
+            String authenticatedPrincipalId,
+            String rightsScope,
+            String purpose,
+            String classification,
+            String artifactId,
+            String artifactRevision,
+            String transcriptRevision,
+            String sourceFingerprint) {
+        public CacheKeyScope {
+            requireScopeValue(tenantId, "tenantId");
+            requireScopeValue(authenticatedPrincipalId, "authenticatedPrincipalId");
+            requireScopeValue(rightsScope, "rightsScope");
+            requireScopeValue(purpose, "purpose");
+            requireScopeValue(classification, "classification");
+            requireScopeValue(artifactId, "artifactId");
+            requireScopeValue(artifactRevision, "artifactRevision");
+            requireScopeValue(transcriptRevision, "transcriptRevision");
+            requireScopeValue(sourceFingerprint, "sourceFingerprint");
+        }
+
+        private static void requireScopeValue(String value, String name) {
+            if (value == null || value.isBlank()) {
+                throw new IllegalArgumentException(name + " must be non-blank");
+            }
+            if (value.length() > CachePolicy.MAX_KEY_LENGTH) {
+                throw new IllegalArgumentException(name + " exceeds supported length of "
+                        + CachePolicy.MAX_KEY_LENGTH);
+            }
+        }
+    }
     
     private static final Logger LOG = LoggerFactory.getLogger(AudioVideoCache.class);
     private static final Duration DEFAULT_TTL = Duration.ofMinutes(30);
@@ -648,6 +687,36 @@ public class AudioVideoCache<K, V> {
             updateFramedUtf16(digest, namespace);
             updateFramedUtf16(digest, tenantId);
             updateFramedUtf16(digest, id);
+            StringBuilder key = new StringBuilder("av2-");
+            for (byte value : digest.digest()) {
+                key.append(Character.forDigit((value >>> 4) & 0xf, 16))
+                        .append(Character.forDigit(value & 0xf, 16));
+            }
+            return key.toString();
+        } catch (java.security.NoSuchAlgorithmException failure) {
+            throw new IllegalStateException("SHA-256 is unavailable", failure);
+        }
+    }
+
+    /**
+     * Build an isolated key for protected content. Callers must supply every
+     * scope dimension used by their authorization and source versioning path;
+     * no value here is a substitute for rechecking current rights before reads.
+     */
+    public String buildScopedKey(CacheKeyScope scope) {
+        Objects.requireNonNull(scope, "scope cannot be null");
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            updateFramedUtf16(digest, namespace);
+            updateFramedUtf16(digest, scope.tenantId());
+            updateFramedUtf16(digest, scope.authenticatedPrincipalId());
+            updateFramedUtf16(digest, scope.rightsScope());
+            updateFramedUtf16(digest, scope.purpose());
+            updateFramedUtf16(digest, scope.classification());
+            updateFramedUtf16(digest, scope.artifactId());
+            updateFramedUtf16(digest, scope.artifactRevision());
+            updateFramedUtf16(digest, scope.transcriptRevision());
+            updateFramedUtf16(digest, scope.sourceFingerprint());
             StringBuilder key = new StringBuilder("av2-");
             for (byte value : digest.digest()) {
                 key.append(Character.forDigit((value >>> 4) & 0xf, 16))

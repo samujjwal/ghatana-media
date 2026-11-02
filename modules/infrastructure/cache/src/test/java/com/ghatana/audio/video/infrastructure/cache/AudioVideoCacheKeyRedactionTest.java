@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.infrastructure.cache;
 
+import com.ghatana.cache.CachePolicy;
 import com.ghatana.cache.DistributedCachePort;
 import com.ghatana.cache.DistributedCacheService;
 import com.ghatana.core.async.AsyncOperation;
@@ -106,6 +107,92 @@ class AudioVideoCacheKeyRedactionTest {
         assertThat(tenantTwoLoads).hasValue(1);
         assertThat(values).containsEntry(tenantOneKey, "tenant-one-transcript")
                 .containsEntry(tenantTwoKey, "tenant-two-transcript");
+    }
+
+    @Test
+    void equalAudioFingerprintHasNoCrossScopeHitsAcrossProtectedDimensions() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        ConcurrentHashMap<String, String> values = new ConcurrentHashMap<>();
+        AtomicInteger loads = new AtomicInteger();
+        when(port.get(org.mockito.ArgumentMatchers.anyString())).thenAnswer(invocation ->
+                AsyncOperation.success(Optional.ofNullable(values.get(invocation.getArgument(0)))));
+        when(port.put(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(Duration.class)))
+                .thenAnswer(invocation -> {
+                    values.put(invocation.getArgument(0), invocation.getArgument(1));
+                    return AsyncOperation.success(null);
+                });
+
+        AudioVideoCache.CacheKeyScope baseline = scopedKey("tenant-a", "principal-a", "rights-a",
+                "transcription", "sensitive", "artifact-1", "artifact-rev-1", "transcript-rev-1");
+        List<AudioVideoCache.CacheKeyScope> otherScopes = List.of(
+                scopedKey("tenant-b", "principal-a", "rights-a", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-b", "rights-a", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-b", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "translation", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "restricted",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
+                        "artifact-2", "artifact-rev-1", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-2", "transcript-rev-1"),
+                scopedKey("tenant-a", "principal-a", "rights-a", "transcription", "sensitive",
+                        "artifact-1", "artifact-rev-1", "transcript-rev-2"));
+
+        String fingerprint = "audio-sha256:" + "a".repeat(64);
+        String baseKey = cache.buildScopedKey(withFingerprint(baseline, fingerprint));
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(baseKey, ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("baseline-transcript");
+        }))).isEqualTo("baseline-transcript");
+
+        for (AudioVideoCache.CacheKeyScope scope : otherScopes) {
+            String key = cache.buildScopedKey(withFingerprint(scope, fingerprint));
+            assertThat(key).matches("av2-[0-9a-f]{64}").isNotEqualTo(baseKey);
+            assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(key, ignored -> {
+                loads.incrementAndGet();
+                return AsyncOperation.success("isolated-transcript");
+            }))).isEqualTo("isolated-transcript");
+        }
+
+        assertThat(loads).hasValue(1 + otherScopes.size());
+    }
+
+    @Test
+    void protectedScopeRequiresAllDimensions() {
+        assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", " "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceFingerprint");
+    }
+
+    @Test
+    void protectedScopeRejectsComponentsBeyondSharedCacheKeyLimit() {
+        assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
+                "purpose", "classification", "artifact", "artifact-rev", "transcript-rev",
+                "f".repeat(CachePolicy.MAX_KEY_LENGTH + 1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sourceFingerprint")
+                .hasMessageContaining(Integer.toString(CachePolicy.MAX_KEY_LENGTH));
+    }
+
+    private static AudioVideoCache.CacheKeyScope scopedKey(
+            String tenant, String principal, String rights, String purpose, String classification,
+            String artifact, String artifactRevision, String transcriptRevision) {
+        return new AudioVideoCache.CacheKeyScope(tenant, principal, rights, purpose, classification,
+                artifact, artifactRevision, transcriptRevision, "fingerprint-placeholder");
+    }
+
+    private static AudioVideoCache.CacheKeyScope withFingerprint(
+            AudioVideoCache.CacheKeyScope scope, String fingerprint) {
+        return new AudioVideoCache.CacheKeyScope(scope.tenantId(), scope.authenticatedPrincipalId(),
+                scope.rightsScope(), scope.purpose(), scope.classification(), scope.artifactId(),
+                scope.artifactRevision(), scope.transcriptRevision(), fingerprint);
     }
 
     @Test
