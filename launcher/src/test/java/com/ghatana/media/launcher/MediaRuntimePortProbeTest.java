@@ -7,6 +7,9 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
+import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
+import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionException;
+import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionFailure;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
@@ -23,12 +26,33 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * W2-R01 port-probe coverage: truthful child readiness, effect-free source-rights
  * resolution, and conditional multimodal production eligibility bound at composition.
  */
 class MediaRuntimePortProbeTest {
+
+    @Test
+    void productionSpecCompilationUsesExistingRuntimeAndRejectsStaleRevision() throws Exception {
+        var root = Files.createTempDirectory("media-production-plan-");
+        var runtime = runtime(root, "local", List.of(), null);
+        try {
+            var spec = new ProductionSpec("tenant-a", "project-a", "revision-7", "REAL_CAPTURE",
+                    "purpose/v1", List.of("scene-a/v3"), "timeline/v2", "rights/v1", List.of("profile/v4"));
+            var plan = runtime.compileProductionSpec(spec, "revision-7", null);
+            assertThat(plan.projectRevision()).isEqualTo("revision-7");
+            assertThat(plan.nodes()).isNotEmpty();
+
+            assertThatThrownBy(() -> runtime.compileProductionSpec(spec, "revision-6", null))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(failure -> ((AdmissionException) failure).failure())
+                    .isEqualTo(AdmissionFailure.PROJECT_REVISION_STALE);
+        } finally {
+            runtime.close();
+        }
+    }
 
     @Test
     void processingReadyReflectsUsableProviderPerJobType() throws Exception {

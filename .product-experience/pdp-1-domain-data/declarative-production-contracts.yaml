@@ -1944,7 +1944,74 @@ executionAdmissionBinding:
     and compare-and-set authority only.
   operationSchemaRelation:
     operationRef: media.recipe.specification.compile
-    fieldMapping: NOT_ASSERTED
-    status: SOURCE_REVIEW_REQUIRED
-    sourceReviewRequirement: Independently review the exact mapping and source cut before any runtime admission.
+    relation: COMPILES_PLAN_ADMISSION_CONTEXT
+    fieldMapping: NOT_APPLICABLE_SEPARATE_VERSIONED_ENVELOPE
+    status: OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED
+    sourceOwnerDisposition: >-
+      The execution-admission envelope is a separate versioned runtime context
+      for the plan candidate produced by this operation. It is not a field in
+      ProductionSpec v1 and is not a new compile-operation input. Compilation
+      remains local candidate preparation with no job, project mutation, or
+      external effect.
+    planBindingRules:
+      projectId: EXACT_EQUAL_TO_PRODUCTION_SPEC_PROJECT_ID
+      expectedProjectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID
+      optionalProjectRevisionRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_OR_REJECT_STALE
+      authorityTenantId: EXACT_EQUAL_TO_PRODUCTION_SPEC_TENANT_ID
+      authorityPurposeRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_PURPOSE_REF
+      authorityRightsRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_RIGHTS_REF
+      enginesByStepKeys: EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS
+      compiledPlanSchemaVersion: media.production-plan.v1
+      compiledPlanSteps:
+        - stepId: validate-spec
+          kind: validate
+          executionMode: AUTOMATIC
+        - stepId: rights-review
+          kind: rights-review
+          executionMode: MANUAL_GATE
+          dependsOn: [validate-spec]
+        - stepIdTemplate: capture-source-{zeroBasedSceneIndex}
+          kind: capture
+          executionMode: AUTOMATIC
+          iterationSource: ProductionSpec.sceneRefs_in_input_order
+          dependsOn: [rights-review]
+        - stepId: compose-timeline
+          kind: compose
+          executionMode: AUTOMATIC
+          dependsOn: all_capture_source_steps_in_scene_order
+        - stepIdTemplate: render-profile-{zeroBasedOutputProfileIndex}
+          kind: render
+          executionMode: AUTOMATIC
+          iterationSource: ProductionSpec.outputProfileRefs_in_input_order
+          dependsOn: compose-timeline
+        - stepId: publish-review
+          kind: publish-review
+          executionMode: MANUAL_GATE
+          dependsOn: all_render_profile_steps_in_output_profile_order
+      planFingerprint: INCLUDES_STABLE_ADMISSION_CONTEXT_AND_PER_STEP_ENGINE_DIGESTS
+      changedEngineDigest: INVALIDATES_ONLY_THAT_STEP_AND_DESCENDANTS
+      stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
+    operationInputCoverage:
+      scope: ADMISSION_CONTEXT_RELATION_ONLY
+      typedProductionSpecInput: COMPILER_ACCEPTS_THE_EXISTING_TYPED_PRODUCTION_SPEC_MIRROR
+      optionalProjectRevisionInput: EXACT_EQUALITY_CHECKED_WHEN_PRESENT
+      notImplementedInputs: [input2-production-specification-schema, input3-compiler-contract, input5-target-schema, input6-migration-transformation]
+      schemaMigrationCandidate: NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION
+    sourceAndLockCoverage:
+      authoritySourceVersionToEachSceneOrStep: NOT_MAPPED
+      sceneEditLockCardinality: ONE_EXACT_SCENE_PER_EFFECT
+      oneLockAuthorizesEverySceneInPlan: false
+    effectBoundary:
+      compileOperation: LOCAL_CANDIDATE_ONLY_NO_JOB_OR_EXTERNAL_EFFECT
+      beforeProviderDispatchRetryOrRestart:
+        required: RECHECK_CURRENT_AUTHORITY_THROUGH_EXISTING_MEDIARUNTIME_JOBATTEMPT
+        implementationStatus: NOT_WIRED_TO_H02_EXECUTION_PATH
+      unknownProviderOutcome:
+        required: RECONCILE_EXISTING_ATTEMPT_WITHOUT_DUPLICATE_DISPATCH
+        implementationStatus: UNKNOWN_UNTIL_AUTHORITY_BACKED_ATTEMPT_READBACK
+      sceneEditLockScope:
+        cardinality: ONE_EXACT_SCENE_PER_EFFECT
+        authorizesOtherScenesInMultiScenePlan: false
+      runtimeAdmission: NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER
+    sourceReviewRequirement: Independently review the owner-authored plan binding rules and exact source cut before any runtime admission.
 nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]

@@ -45,6 +45,18 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
+    void optionalProjectRevisionMustEqualTheSpecificationRevision() {
+        MediaProductionSpecCompiler compiler = new MediaProductionSpecCompiler();
+        CompiledPlan canonical = compiler.compile(spec(), "rev-7", null);
+        assertThat(canonical.planFingerprint()).isEqualTo(compiler.compile(spec()).planFingerprint());
+
+        assertThatThrownBy(() -> compiler.compile(spec(), "rev-6", null))
+                .isInstanceOf(MediaProductionAdmissionBinding.AdmissionException.class)
+                .extracting(failure -> ((MediaProductionAdmissionBinding.AdmissionException) failure).failure())
+                .isEqualTo(MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
+    }
+
+    @Test
     void sourceChangeInvalidatesOnlyAffectedDescendants() {
         MediaProductionSpecCompiler compiler = new MediaProductionSpecCompiler();
         CompiledPlan before = compiler.compile(spec());

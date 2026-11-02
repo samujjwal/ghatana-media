@@ -11,6 +11,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const files = {
   p0: '.product-experience/pdp-0-product-truth/requirements.yaml',
   p1: '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml',
+  p1Operations: '.product-experience/pdp-1-domain-data/operations.yaml',
   p2: '.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml',
   p3: '.product-experience/pdp-3-product-experience/declarative-production-experience.yaml',
 };
@@ -110,7 +111,37 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.equal(binding.id, 'media.production.execution-admission.v1');
   assert.equal(binding.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(binding.operationSchemaRelation.operationRef, 'media.recipe.specification.compile');
-  assert.equal(binding.operationSchemaRelation.fieldMapping, 'NOT_ASSERTED');
+  assert.equal(binding.operationSchemaRelation.relation, 'COMPILES_PLAN_ADMISSION_CONTEXT');
+  assert.equal(binding.operationSchemaRelation.fieldMapping, 'NOT_APPLICABLE_SEPARATE_VERSIONED_ENVELOPE');
+  assert.equal(binding.operationSchemaRelation.status, 'OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED');
+  assert.equal(binding.operationSchemaRelation.planBindingRules.enginesByStepKeys,
+    'EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS');
+  assert.equal(binding.operationSchemaRelation.planBindingRules.compiledPlanSchemaVersion, 'media.production-plan.v1');
+  assert.deepEqual(binding.operationSchemaRelation.planBindingRules.compiledPlanSteps.map(step =>
+    step.stepId ?? step.stepIdTemplate), [
+    'validate-spec', 'rights-review', 'capture-source-{zeroBasedSceneIndex}', 'compose-timeline',
+    'render-profile-{zeroBasedOutputProfileIndex}', 'publish-review',
+  ]);
+  assert.equal(binding.operationSchemaRelation.planBindingRules.stepOperationMapping,
+    'NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE');
+  assert.deepEqual(binding.operationSchemaRelation.operationInputCoverage.notImplementedInputs,
+    ['input2-production-specification-schema', 'input3-compiler-contract',
+      'input5-target-schema', 'input6-migration-transformation']);
+  assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
+    'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');
+  assert.equal(binding.operationSchemaRelation.sourceAndLockCoverage.oneLockAuthorizesEverySceneInPlan, false);
+  assert.equal(binding.operationSchemaRelation.effectBoundary.beforeProviderDispatchRetryOrRestart.implementationStatus,
+    'NOT_WIRED_TO_H02_EXECUTION_PATH');
+  assert.equal(binding.operationSchemaRelation.planBindingRules.optionalProjectRevisionRef,
+    'EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_OR_REJECT_STALE');
+  assert.equal(binding.operationSchemaRelation.effectBoundary.runtimeAdmission,
+    'NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER');
+  const operations = YAML.parse(read(files.p1Operations));
+  const compileOperation = operations.capabilityOperationContracts.definitionExtensionOperationMappings.find(operation =>
+    operation.id === 'media.definition-extension-operation.media-recipe-specification-compile');
+  assert.ok(compileOperation, 'H-02 keeps the existing compile operation identity');
+  assert.deepEqual(compileOperation.inputSlots.map(slot => slot.slotId),
+    ['input1', 'input2', 'input3', 'input4', 'input5', 'input6']);
   assert.deepEqual(binding.schema.properties.requestIdentity.required, ['requestId', 'requestFingerprint']);
   assert.equal(binding.schema.properties.enginesByStep.minProperties, 1);
   const enginesByStep = binding.schema.properties.enginesByStep;

@@ -154,12 +154,28 @@ public final class MediaProductionSpecCompiler {
      * fingerprints bind exact version refs for descendant invalidation.
      */
     public CompiledPlan compile(ProductionSpec spec) {
-        return compile(spec, null);
+        return compile(spec, null, null);
     }
 
     /** Compile with a separately versioned execution binding in every node identity. */
     public CompiledPlan compile(ProductionSpec spec, MediaProductionAdmissionBinding.Binding binding) {
+        return compile(spec, null, binding);
+    }
+
+    /**
+     * Compile the existing operation's optional project-revision slot together
+     * with its separate admission context. The optional slot is a consistency
+     * assertion only; the canonical revision remains the one inside spec.
+     */
+    public CompiledPlan compile(
+            ProductionSpec spec,
+            String optionalProjectRevisionRef,
+            MediaProductionAdmissionBinding.Binding binding) {
         Objects.requireNonNull(spec, "spec");
+        if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(spec.revisionId())) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
+        }
         if (binding != null && (!binding.projectId().equals(spec.projectId())
                 || !binding.expectedProjectRevision().equals(spec.revisionId())
                 || !binding.authority().tenantId().equals(spec.tenantId())

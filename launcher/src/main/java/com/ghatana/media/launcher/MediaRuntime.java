@@ -56,6 +56,7 @@ import com.ghatana.media.runtime.MediaLifecycleProjection;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaJobRequestFingerprint;
 import com.ghatana.media.runtime.MediaJobRequestFingerprint.ProviderDescriptor;
+import com.ghatana.media.runtime.MediaProductionSpecCompiler;
 import com.ghatana.audiovideo.observability.MediaWorkflowMetrics;
 import io.micrometer.prometheusmetrics.PrometheusConfig;
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
@@ -819,6 +820,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         // so the downstream verified policy context derives from the real credential.
         return submit(request, new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
                 request.tenantId(), request.principalId(), clock.instant()));
+    }
+
+    /**
+     * Prepares the existing local H-02 plan candidate through MediaRuntime.
+     * This does not create a job, mutate a project, or authorize a provider
+     * dispatch; effectful work continues through the existing job/attempt path.
+     */
+    public MediaProductionSpecCompiler.CompiledPlan compileProductionSpec(
+            MediaProductionSpecCompiler.ProductionSpec spec,
+            String optionalProjectRevisionRef,
+            com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding admissionContext) {
+        ensureOpen();
+        return new MediaProductionSpecCompiler().compile(spec, optionalProjectRevisionRef, admissionContext);
     }
 
     /**
