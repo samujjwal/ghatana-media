@@ -813,7 +813,14 @@ fn decode_audio_bounded_with_time_budget(
             Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
                 break
             }
-            Err(SymphoniaError::DecodeError(_)) => continue,
+            // A failed packet must not be silently omitted from a successful
+            // result: doing so can turn a corrupt compressed stream into
+            // apparently valid, but incomplete, provider input.
+            Err(SymphoniaError::DecodeError(message)) => {
+                return Err(SpeechAudioError::Decode(format!(
+                    "codec packet decode failed: {message}"
+                )))
+            }
             Err(error) => return Err(map_decode_error(error)),
         };
         ensure_decode_time(started_at, max_decode_time)?;
@@ -2593,6 +2600,22 @@ mod tests {
                 assert!(decoded.samples.iter().all(|sample| sample.is_finite()));
             }
         }
+    }
+
+    #[test]
+    fn malformed_compressed_codec_packet_is_not_silently_skipped() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("corrupt.mp3");
+        // MPEG-1 Layer III, 128 kbps / 44.1 kHz frame header followed by an
+        // invalid all-ones side-info/payload. The container probe can identify
+        // the codec, but decoding the packet must fail closed.
+        let mut frame = vec![0xff; 417];
+        frame[..4].copy_from_slice(&[0xff, 0xfb, 0x90, 0x64]);
+        std::fs::write(&path, frame).unwrap();
+
+        let outcome = std::panic::catch_unwind(|| load_audio_buffer(&path));
+        assert!(outcome.is_ok(), "decoder panicked on corrupt MP3 packet");
+        assert!(matches!(outcome.unwrap(), Err(SpeechAudioError::Decode(_))));
     }
 
     #[test]
