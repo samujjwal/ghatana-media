@@ -313,7 +313,7 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
-    void candidateBindingRejectsArbitraryStepIdsEvenWhenCallerEngineKeysMatch() throws Exception {
+    void candidateBindingUsesExactInputThreeStepIdsWithoutLegacyFixedDagConstraint() throws Exception {
         var semantic = source(List.of(
                 boundNode("step-a", List.of(), List.of("scene/1@v3"),
                         Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
@@ -325,29 +325,29 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var base = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs, productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
-        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
-        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
-        assertThat(base.candidateFingerprint()).isNull();
+        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(base.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
 
         var operationFingerprints = resolvedWithSemanticSourceAndOperation(graphContent);
         var typedBase = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
                 operationFingerprints, operationEvidence());
-        assertThat(typedBase.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
-        assertThat(typedBase.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
-        assertThat(typedBase.candidateFingerprint()).isNull();
+        assertThat(typedBase.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(typedBase.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(typedBase.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
 
         var identical = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
                 operationFingerprints, operationEvidence());
-        assertThat(identical.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
-        assertThat(identical.candidateFingerprint()).isNull();
+        assertThat(identical.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(identical.candidateFingerprint()).isEqualTo(typedBase.candidateFingerprint());
 
         var changedEngineDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding("step-b", D2),
                 operationFingerprints, operationEvidence());
-        assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
-        assertThat(changedEngineDigest.candidateFingerprint()).isNull();
+        assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(changedEngineDigest.candidateFingerprint()).isNotEqualTo(typedBase.candidateFingerprint());
 
         var fixedPlanIds = List.of("validate-spec", "rights-review", "capture-source-0", "compose-timeline",
                 "render-profile-0", "publish-review");
@@ -416,9 +416,9 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var good = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs(), productionSpec(), binding(null, D1), resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
-        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
-        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
-        assertThat(good.candidateFingerprint()).isNull();
+        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(good.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
 
         var wrongDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, D3,
                 inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));

@@ -941,10 +941,12 @@ public final class MediaProductionSpecCompiler {
         }
         Set<String> graphStepIds = new TreeSet<>();
         graph.nodes().forEach(node -> graphStepIds.add(node.stepId()));
-        Set<String> compiledPlanStepIds = new TreeSet<>(compile(spec).nodes().stream()
-                .map(PlanNode::stepId).toList());
-        if (!graphStepIds.equals(binding.enginesByStep().keySet())
-                || !graphStepIds.equals(compiledPlanStepIds)) {
+        // Input 3 is the authoritative per-instance graph for this candidate.
+        // Join its explicit step IDs to the v3 engine map exactly; do not
+        // synthesize or constrain those IDs using the legacy fixed-DAG helper.
+        // This method returns only an effect-free candidate fingerprint and
+        // does not create a CompiledPlan or authorize runtime execution.
+        if (!graphStepIds.equals(binding.enginesByStep().keySet())) {
             return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
         }
         Set<String> specSceneRefs = new TreeSet<>(spec.sceneRefs());
