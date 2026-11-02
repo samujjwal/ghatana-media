@@ -6,6 +6,13 @@ import com.ghatana.audio.streaming.BoundedAudioFrameDecoder.SessionBudget;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -81,6 +88,69 @@ class BoundedAudioFrameDecoderTest {
         bytesOnly.decode(new byte[4], 1, false);
         assertThat(bytesOnly.decode(new byte[2], 2, false).verdict())
                 .isEqualTo(DecodeVerdict.BUDGET_EXCEEDED); // 10 bytes > maxBytes 8
+    }
+
+    private static List<BoundedAudioFrameDecoder.Result> decodeTwoConcurrently(
+            BoundedAudioFrameDecoder dec) throws Exception {
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService workers = Executors.newFixedThreadPool(2);
+
+        try {
+            Future<BoundedAudioFrameDecoder.Result> first = workers.submit(() -> {
+                ready.countDown();
+                if (!start.await(5, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("concurrent decode start timed out");
+                }
+                return dec.decode(new byte[2], 0, false);
+            });
+            Future<BoundedAudioFrameDecoder.Result> second = workers.submit(() -> {
+                ready.countDown();
+                if (!start.await(5, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("concurrent decode start timed out");
+                }
+                return dec.decode(new byte[2], 1, false);
+            });
+
+            assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            return List.of(
+                    first.get(5, TimeUnit.SECONDS), second.get(5, TimeUnit.SECONDS));
+        } finally {
+            start.countDown();
+            workers.shutdownNow();
+            assertThat(workers.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    @Test
+    @DisplayName("concurrent decodes cannot oversubscribe the per-session frame budget")
+    void concurrentDecodesReserveFrameBudgetAtomically() throws Exception {
+        BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(
+                "pcm_s16le", 1, 48000, budget(1, 4));
+
+        List<BoundedAudioFrameDecoder.Result> results = decodeTwoConcurrently(dec);
+
+        assertThat(results).extracting(BoundedAudioFrameDecoder.Result::verdict)
+                .containsExactlyInAnyOrder(DecodeVerdict.DECODED, DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(dec.framesDecoded()).isEqualTo(1);
+        assertThat(dec.bytesDecoded()).isEqualTo(2);
+        assertThat(dec.framesDecoded()).isLessThanOrEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("concurrent decodes cannot oversubscribe the per-session byte budget")
+    void concurrentDecodesReserveByteBudgetAtomically() throws Exception {
+        BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(
+                "pcm_s16le", 1, 48000, budget(2, 2));
+
+        List<BoundedAudioFrameDecoder.Result> results = decodeTwoConcurrently(dec);
+
+        assertThat(results).extracting(BoundedAudioFrameDecoder.Result::verdict)
+                .containsExactlyInAnyOrder(DecodeVerdict.DECODED, DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(dec.framesDecoded()).isEqualTo(1);
+        assertThat(dec.bytesDecoded()).isEqualTo(2);
+        assertThat(dec.bytesDecoded()).isLessThanOrEqualTo(2);
     }
 
     @Test

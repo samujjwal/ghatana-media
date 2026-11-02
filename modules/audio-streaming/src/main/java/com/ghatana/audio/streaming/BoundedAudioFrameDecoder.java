@@ -14,7 +14,8 @@ import java.util.Objects;
  * {@link SessionBudget#maxFrames} frames and
  * {@link SessionBudget#maxBytes} bytes before returning
  * {@link DecodeVerdict#BUDGET_EXCEEDED} — a producer faster than the
- * declared budget cannot exhaust memory.
+ * declared budget cannot exhaust memory. Concurrent calls on one decoder are
+ * serialized so they cannot oversubscribe its shared session budget.
  *
  * @doc.type class
  * @doc.purpose Bounded codec/timebase-declared audio frame decoding
@@ -126,7 +127,7 @@ public final class BoundedAudioFrameDecoder {
      * rational number. Undeclared/unsupported codec, malformed shape, or a
      * session over budget fail closed.
      */
-    public Result decode(byte[] payload, long positionNumerator, boolean partialRevision) {
+    public synchronized Result decode(byte[] payload, long positionNumerator, boolean partialRevision) {
         if (codec == null) {
             return Result.fail(DecodeVerdict.UNAVAILABLE,
                     "codec is not declared for this session");
@@ -161,15 +162,16 @@ public final class BoundedAudioFrameDecoder {
             return Result.fail(DecodeVerdict.BUDGET_EXCEEDED,
                     "session frame/byte budget exceeded");
         }
-        frames++;
-        bytes += payload.length;
-        return Result.ok(new DecodedSourceFrame(
+        Result result = Result.ok(new DecodedSourceFrame(
                 codec, payload, new SamplePosition(exactTimeNumerator, timebase.denominator()),
                 partialRevision));
+        frames++;
+        bytes += payload.length;
+        return result;
     }
 
-    public int framesDecoded() { return frames; }
-    public long bytesDecoded() { return bytes; }
+    public synchronized int framesDecoded() { return frames; }
+    public synchronized long bytesDecoded() { return bytes; }
     public Codec codec() { return codec; }
     public SamplePosition timebase() { return timebase; }
 }
