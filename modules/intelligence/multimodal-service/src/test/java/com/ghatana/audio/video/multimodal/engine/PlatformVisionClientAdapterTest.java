@@ -10,12 +10,19 @@ import org.junit.jupiter.api.Test;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PlatformVisionClientAdapterTest {
@@ -64,6 +71,38 @@ class PlatformVisionClientAdapterTest {
     }
 
     @Test
+    void preInterruptedImageCallDoesNotReachVisionProvider() throws Exception {
+        VisionEngine engine = mock(VisionEngine.class);
+        Thread.currentThread().interrupt();
+        try {
+            assertThatThrownBy(() -> adapter(engine).detectObjects(png()))
+                    .isInstanceOf(java.util.concurrent.CancellationException.class);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            verifyNoInteractions(engine);
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void preInterruptedVideoCallDoesNotReachFrameExtractor() {
+        VisionEngine engine = mock(VisionEngine.class);
+        VideoFrameExtractor frameExtractor = mock(VideoFrameExtractor.class);
+        PlatformVisionClientAdapter adapter = new PlatformVisionClientAdapter(
+                engine, frameExtractor, AudioVideoRuntimeSettings.defaults());
+        Thread.currentThread().interrupt();
+        try {
+            assertThatThrownBy(() -> adapter.analyseVideo(new byte[] {1, 2, 3}, 1, 1))
+                    .isInstanceOf(java.util.concurrent.CancellationException.class);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            verifyNoInteractions(frameExtractor);
+            verifyNoInteractions(engine);
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
     void rejectsMalformedProviderDetectionBeforeReturningVisualResult() throws Exception {
         VisionEngine engine = mock(VisionEngine.class);
         when(engine.detect(any(), any())).thenReturn(new DetectionResult(
@@ -83,6 +122,49 @@ class PlatformVisionClientAdapterTest {
         assertThat(result.getSceneDescription()).isEqualTo("cat");
         assertThat(result.getDetections()).hasSize(1);
         assertThat(result.getConfidence()).isNull();
+    }
+
+    @Test
+    void cancelledNonCooperativeVisionCallDoesNotStartCaptionOrReturnLateResult() throws Exception {
+        VisionEngine engine = mock(VisionEngine.class);
+        CountDownLatch detectStarted = new CountDownLatch(1);
+        CountDownLatch releaseDetect = new CountDownLatch(1);
+        when(engine.detect(any(), any())).thenAnswer(invocation -> {
+            detectStarted.countDown();
+            boolean interrupted = false;
+            while (true) {
+                try {
+                    releaseDetect.await();
+                    break;
+                } catch (InterruptedException ignored) {
+                    interrupted = true;
+                }
+            }
+            if (interrupted) Thread.currentThread().interrupt();
+            return new DetectionResult(List.of(), 8, 8, 1, "test");
+        });
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread caller = new Thread(() -> {
+            try {
+                adapter(engine).detectObjects(png());
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+            }
+        });
+        caller.start();
+        try {
+            assertThat(detectStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            caller.interrupt();
+            releaseDetect.countDown();
+            caller.join(2_000);
+            assertThat(caller.isAlive()).isFalse();
+            assertThat(failure.get()).isInstanceOf(java.util.concurrent.CancellationException.class);
+            verify(engine, never()).caption(any());
+        } finally {
+            releaseDetect.countDown();
+            caller.interrupt();
+            caller.join(2_000);
+        }
     }
 
     @Test

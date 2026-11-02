@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
 
 /** Routes multimodal vision calls through the published platform VisionEngine SPI. */
 final class PlatformVisionClientAdapter implements VisionClientAdapter {
@@ -39,10 +40,20 @@ final class PlatformVisionClientAdapter implements VisionClientAdapter {
 
     @Override
     public VisualResult detectObjects(byte[] imageData) {
+        throwIfInterrupted();
         ImageData image = toImageData(imageData);
-        var detections = engine.detect(image, DetectionOptions.defaults()).objects().stream()
+        throwIfInterrupted();
+        com.ghatana.media.vision.api.DetectionResult detectionResult =
+                engine.detect(image, DetectionOptions.defaults());
+        // The published SPI is synchronous and does not accept a cancellation token. Do not
+        // start a second provider operation or publish the first result if its caller was
+        // cancelled while the engine was running.
+        throwIfInterrupted();
+        var detections = detectionResult.objects().stream()
                 .map(PlatformVisionClientAdapter::toDetection).toList();
+        throwIfInterrupted();
         String caption = Objects.requireNonNull(engine.caption(image), "Vision SPI returned no caption result");
+        throwIfInterrupted();
         return VisualResult.builder().sceneDescription(caption).detections(detections)
                 .build();
     }
@@ -58,17 +69,21 @@ final class PlatformVisionClientAdapter implements VisionClientAdapter {
         Path directory = null;
         Path video = null;
         try {
+            throwIfInterrupted();
             directory = Files.createTempDirectory("multimodal-vision-frames-");
             video = Files.createTempFile("multimodal-vision-", ".bin");
             Files.write(video, videoData);
             var config = VideoFrameExtractor.ExtractionConfig.builder()
                     .fps(sampleFps).maxFrames(maxFrames).format("jpg").build();
+            throwIfInterrupted();
             List<VideoFrameExtractor.ExtractedFrame> frames = frameExtractor.extractFrames(video, directory, config);
+            throwIfInterrupted();
             if (frames.size() > maxFrames) throw new IllegalStateException("Frame extractor exceeded requested frame limit");
             List<FrameResult> frameResults = new ArrayList<>();
             List<DetectionResult> allDetections = new ArrayList<>();
             String firstCaption = "";
             for (var frame : frames) {
+                throwIfInterrupted();
                 if (Files.size(frame.getPath()) > MAX_IMAGE_BYTES) {
                     throw new IllegalStateException("Extracted frame exceeds the 16 MiB image limit");
                 }
@@ -79,6 +94,7 @@ final class PlatformVisionClientAdapter implements VisionClientAdapter {
                         MediaClockTimestamp.fromSource(frame.getSourceTimestamp()), result.getDetections()));
                 allDetections.addAll(result.getDetections());
             }
+            throwIfInterrupted();
             return VisualResult.builder().sceneDescription(firstCaption).frameResults(frameResults)
                     .detections(allDetections).build();
         } catch (IOException e) {
@@ -125,6 +141,12 @@ final class PlatformVisionClientAdapter implements VisionClientAdapter {
         if (box == null) throw new IllegalArgumentException("Vision SPI returned a detection without a bounding box");
         // Validate at the SPI boundary, before the value can reach a gRPC response.
         return new DetectionResult(object.className(), object.confidence(), box.x(), box.y(), box.width(), box.height());
+    }
+
+    private static void throwIfInterrupted() {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new CancellationException("Multimodal Vision operation cancelled");
+        }
     }
 
     private static void delete(Path path) {
