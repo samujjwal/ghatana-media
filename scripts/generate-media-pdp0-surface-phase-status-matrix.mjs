@@ -283,6 +283,9 @@ for (const row of matrix.surfaces) {
 
 const output = `${JSON.stringify(matrix, null, 2)}\n`;
 if (process.argv.includes('--check')) {
+  if (phaseSourceCurrentness.status !== 'CURRENT') {
+    throw new Error(`PDP-0 phase source currentness is ${phaseSourceCurrentness.status}: ${staleSourcePins.length} of ${phaseSourceCurrentness.sourcePinCount} required phase pins do not match.`);
+  }
   if (read(matrixPath).toString('utf8') !== output) throw new Error(`${matrixPath} is stale; regenerate it after the PDP-0 status record.`);
 } else if (process.argv.includes('--write')) {
   fs.writeFileSync(path.join(root, matrixPath), output);
