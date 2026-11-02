@@ -173,19 +173,21 @@ final class WhisperOciWorkerSupervisor {
         Result response = result(invocationId, profileId, sourceSha256, Status.UNKNOWN_OUTCOME);
         String containerId = null;
         boolean cleanupConfirmed = false;
+        boolean createAttempted = false;
         try {
             List<String> create = createCommand(config, docker, operation.identity().invocationId().toString(),
                     workerUid, workerGid);
+            createAttempted = true;
             CommandResult created = runner.run(create, null,
                     bounded(CREATE_TIMEOUT, deadline, monotonicClock), 8192, MAX_STDERR_BYTES);
             if (created.timedOut() || created.exitCode() != 0 || created.outputExceeded()) {
-                removeByName(operation.identity().invocationId().toString());
+                cleanupConfirmed = removeByName(operation.identity().invocationId().toString());
                 markUnknownQuietly(operation.identity());
                 return response;
             }
             containerId = stdoutText(created).trim();
             if (!containerId.matches("[a-f0-9]{64}")) {
-                removeByName(operation.identity().invocationId().toString());
+                cleanupConfirmed = removeByName(operation.identity().invocationId().toString());
                 markUnknownQuietly(operation.identity());
                 return response;
             }
@@ -242,12 +244,19 @@ final class WhisperOciWorkerSupervisor {
             if (containerId != null && !cleanupConfirmed) {
                 // A failed cleanup is never allowed to produce or preserve SUCCESS.
                 kill(containerId);
-                remove(containerId);
+                cleanupConfirmed = remove(containerId);
+                markUnknownQuietly(operation.identity());
+            }
+            if (containerId == null && createAttempted && !cleanupConfirmed) {
+                // A timed-out/ambiguous create may have left a named container behind.
+                cleanupConfirmed = removeByName(operation.identity().invocationId().toString());
                 markUnknownQuietly(operation.identity());
             }
             active.remove(invocationId, operation);
             operation.finished.countDown();
-            oneWorker.release();
+            // Do not admit another worker while this one may still be consuming host
+            // resources. A daemon restart can release the slot only after orphan sweep.
+            if (!createAttempted || cleanupConfirmed || operation.cleanupConfirmed) oneWorker.release();
         }
     }
 
@@ -284,7 +293,7 @@ final class WhisperOciWorkerSupervisor {
         String containerId = operation.containerId;
         if (containerId != null) {
             kill(containerId);
-            remove(containerId);
+            if (remove(containerId)) operation.cleanupConfirmed = true;
         }
         try {
             operation.finished.await(CONTROL_TIMEOUT.toMillis() + 10_000, TimeUnit.MILLISECONDS);
@@ -478,10 +487,12 @@ final class WhisperOciWorkerSupervisor {
         } catch (IOException failure) { return false; }
     }
 
-    private void removeByName(String invocationId) {
-        try { runner.run(List.of(docker, "rm", "--force", name(invocationId)), null,
-                CONTROL_TIMEOUT, 256, 256); }
-        catch (IOException ignored) { }
+    private boolean removeByName(String invocationId) {
+        try {
+            CommandResult result = runner.run(List.of(docker, "rm", "--force", name(invocationId)), null,
+                    CONTROL_TIMEOUT, 256, 256);
+            return removeConfirmed(result) && !result.outputExceeded();
+        } catch (IOException ignored) { return false; }
     }
 
     private void markUnknownQuietly(MediaOciBrokerWhisperJournal.Identity identity) {
@@ -583,6 +594,7 @@ final class WhisperOciWorkerSupervisor {
         private final CountDownLatch finished = new CountDownLatch(1);
         private volatile String containerId;
         private volatile Result successResult;
+        private volatile boolean cleanupConfirmed;
         private Active(MediaOciBrokerWhisperJournal.Identity identity) { this.identity = identity; }
         private MediaOciBrokerWhisperJournal.Identity identity() { return identity; }
     }

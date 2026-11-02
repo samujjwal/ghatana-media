@@ -370,6 +370,10 @@ class WhisperOciWorkerSupervisorTest {
                     WAV.getBytes(StandardCharsets.UTF_8), 30_000).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
             assertThat(context.supervisor().status(id(0), PROFILE, "en-US", INPUT_SHA).status())
                     .isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(context.supervisor().execute(id(1), PROFILE, "en-US", INPUT_SHA,
+                    WAV.getBytes(StandardCharsets.UTF_8), 30_000).status()).isEqualTo(Status.RESOURCE_EXHAUSTED);
+            assertThat(failedCleanup.commands.stream().filter(command -> command.get(1).equals("create")))
+                    .hasSize(1);
         }
 
         FakeRunner wrongIdentity = new FakeRunner();
