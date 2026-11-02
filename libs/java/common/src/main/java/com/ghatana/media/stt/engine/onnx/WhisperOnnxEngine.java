@@ -520,9 +520,7 @@ public final class WhisperOnnxEngine implements SttEngine {
     /**
      * Preprocess audio to mel spectrogram.
      */
-    private float[][] preprocess(AudioData audio, InvocationControl control, CancellationSignal cancellation) {
-        // Convert bytes to float samples
-        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample(), control, cancellation);
+    private float[][] preprocess(float[] samples, InvocationControl control, CancellationSignal cancellation) {
         checkActive(control, cancellation);
 
         // Pad or trim to N_SAMPLES
@@ -546,7 +544,7 @@ public final class WhisperOnnxEngine implements SttEngine {
         float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample(), control, cancellation);
         if (isExactlySilent(samples, control, cancellation)) return "";
         if (!splitWhisperProfile) {
-            float[][] mel = preprocess(audio, control, cancellation);
+            float[][] mel = preprocess(samples, control, cancellation);
             checkActive(control, cancellation);
             return runInference(mel, options, runOptions, control, cancellation);
         }
