@@ -31,6 +31,8 @@ class DocumentIntelligenceHttpClientTest {
             .getBytes(StandardCharsets.UTF_8);
     private volatile boolean declareLength = true;
     private volatile CountDownLatch gate;
+    private volatile CountDownLatch parseGate;
+    private volatile CountDownLatch parseStarted;
     private volatile String cancelResponseMode = "confirmed";
     private volatile int parseStatus = 409;
     private volatile String parseBody = errorEnvelope("operation-1", "PROVIDER_FAILED");
@@ -57,6 +59,10 @@ class DocumentIntelligenceHttpClientTest {
         });
         server.createContext("/v1/operations/", exchange -> {
             cancelRequests.incrementAndGet();
+            if ("drop".equals(cancelResponseMode)) {
+                exchange.close();
+                return;
+            }
             String operationId = exchange.getRequestURI().getRawPath().substring("/v1/operations/".length());
             String generation = exchange.getRequestHeaders().getFirst("x-operation-generation");
             String body = switch (cancelResponseMode) {
@@ -72,6 +78,16 @@ class DocumentIntelligenceHttpClientTest {
             exchange.close();
         });
         server.createContext("/v1/parse", exchange -> {
+            CountDownLatch started = parseStarted;
+            if (started != null) started.countDown();
+            CountDownLatch pending = parseGate;
+            if (pending != null) {
+                try {
+                    pending.await(30, TimeUnit.SECONDS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             byte[] body = parseBody.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("content-type", "application/json");
             exchange.sendResponseHeaders(parseStatus, body.length);
@@ -176,6 +192,30 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void lostCancellationTransportAcknowledgmentLeavesParseUnknown() throws Exception {
+        parseGate = new CountDownLatch(1);
+        parseStarted = new CountDownLatch(1);
+        cancelResponseMode = "drop";
+        Cancellation cancellation = new Cancellation();
+        java.util.concurrent.CompletableFuture<Kind> outcome = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            try {
+                client().parse(parseRequest(30_000), cancellation);
+                return null;
+            } catch (DocumentIntelligenceException failure) {
+                return failure.kind();
+            }
+        });
+        try {
+            assertThat(parseStarted.await(5, TimeUnit.SECONDS)).isTrue();
+            cancellation.cancel();
+            assertThat(outcome.get(5, TimeUnit.SECONDS)).isEqualTo(Kind.UNKNOWN_OUTCOME);
+            assertThat(cancelRequests).hasValue(1);
+        } finally {
+            parseGate.countDown();
+        }
+    }
+
+    @Test
     void parseErrorMustCarryTheRequestOperationIdentity() {
         DocumentIntelligenceHttpClient client = client();
         parseBody = errorEnvelope("different-operation", "PROVIDER_FAILED");
@@ -258,8 +298,12 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     private static DocumentIntelligenceV1.ParseRequest parseRequest() {
+        return parseRequest(1_000);
+    }
+
+    private static DocumentIntelligenceV1.ParseRequest parseRequest(long timeoutMs) {
         return new DocumentIntelligenceV1.ParseRequest("operation-1", "a".repeat(32), "di.ocr.en", "image/png",
-                java.util.Optional.empty(), 1000, java.util.Map.of(), new byte[] {1, 2, 3});
+                java.util.Optional.empty(), timeoutMs, java.util.Map.of(), new byte[] {1, 2, 3});
     }
 
     private DocumentIntelligenceHttpClient client(Duration timeout) {
