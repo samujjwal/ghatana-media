@@ -1,4 +1,5 @@
 import {
+  MediaClientError,
   MediaHttpTransport,
   MediaOperationAmbiguousError,
   MediaOperationNotAdmittedError,
@@ -112,6 +113,14 @@ const JOB_STATUSES = new Set(["ACCEPTED", "RUNNING", "OUTCOME_UNKNOWN", "COMPLET
 const STREAM_KINDS = new Set(["AUDIO", "VIDEO", "MULTIMODAL"]);
 const STREAM_STATES = new Set(["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"]);
 const FINALITIES = new Set(["NONE", "FINAL_ACKNOWLEDGED", "UNKNOWN"]);
+
+/** Only a nonretryable 4xx response proves a mutation was rejected cleanly. */
+function isDefinitiveClientRejection(failure: unknown): failure is MediaClientError {
+  return failure instanceof MediaClientError
+    && failure.statusCode !== undefined
+    && failure.statusCode >= 400 && failure.statusCode < 500
+    && !failure.detail.retryable;
+}
 
 const STREAM_SESSION_FIELDS = new Set([
   "tenantId", "sessionId", "principalId", "streamKind", "providerId", "state",
@@ -389,17 +398,18 @@ export class MediaCanonicalClient {
       throw new Error("requestId, correlationId and artifactId are required.");
     }
     let job: CanonicalProcessingJob;
+    let dispatched = false;
     try {
       job = await this.transport.request(
         "POST", canonicalMediaHttpRoutes.submitJob, body,
         { parse: parseCanonicalProcessingJob }, signal,
         { "Idempotency-Key": idempotencyKey },
+        () => { dispatched = true; },
       );
     } catch (failure) {
       // A post-dispatch abort is OUTCOME_UNKNOWN — never a clean failure that
       // invites a duplicate submit.
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError("/api/v1/jobs", failure);
       }
       throw failure;
@@ -458,14 +468,15 @@ export class MediaCanonicalClient {
     const principalId = this.requirePrincipalId("job cancel");
     const requested = safePathSegment("jobId", jobId);
     let job: CanonicalProcessingJob;
+    let dispatched = false;
     try {
       job = await this.transport.request(
         "POST", canonicalMediaHttpRoutes.cancelJob.replace("{jobId}", encodeURIComponent(requested)), {},
         { parse: parseCanonicalProcessingJob }, signal,
+        {}, () => { dispatched = true; },
       );
     } catch (failure) {
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/jobs/${requested}/cancel`, failure);
       }
       throw failure;
@@ -523,14 +534,15 @@ export class MediaCanonicalClient {
       },
     };
     let registration: CanonicalStreamRegistration;
+    let dispatched = false;
     try {
       registration = await this.transport.request(
         "POST", "/api/v1/streams", body, parser, signal,
         { "Idempotency-Key": idempotencyKey },
+        () => { dispatched = true; },
       );
     } catch (failure) {
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError("/api/v1/streams", failure);
       }
       throw failure;
@@ -568,15 +580,16 @@ export class MediaCanonicalClient {
     const requested = safePathSegment("sessionId", sessionId);
     const token = this.requireStreamToken(connectionToken);
     let session: CanonicalStreamSession;
+    let dispatched = false;
     try {
       session = await this.transport.request(
         "POST", `/api/v1/streams/${encodeURIComponent(requested)}/connect`, {},
         { parse: parseCanonicalStreamSession }, signal,
         { "X-Stream-Token": token },
+        () => { dispatched = true; },
       );
     } catch (failure) {
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/streams/${requested}/connect`, failure);
       }
       throw failure;
@@ -610,28 +623,29 @@ export class MediaCanonicalClient {
     if (frame.size > 16 * 1024 * 1024) {
       throw new Error("frame payload exceeds the bounded wire size.");
     }
-    const headers = await this.transport.headers({
+    const headers = {
       "Content-Type": "application/octet-stream",
       "X-Stream-Token": token,
       ...(options.endOfStream ? { "X-End-Of-Stream": "true" } : {}),
-    });
-    let response: Response;
+    };
+    let dispatched = false;
     try {
-      response = await this.transport.fetchRaw(
+      const response = await this.transport.fetchRawMutation(
         `${this.transport.baseUrl}/api/v1/streams/${encodeURIComponent(requested)}/frames/${sequence}`,
-        { method: "POST", headers, body: frame },
+        { method: "POST", body: frame },
+        headers,
         options.signal,
+        () => { dispatched = true; },
       );
+      if (!response.ok) throw await this.transport.errorFromResponse(response);
+      return parseCanonicalStreamAck(await response.json());
     } catch (failure) {
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(
           `/api/v1/streams/${requested}/frames/${sequence}`, failure);
       }
       throw failure;
     }
-    if (!response.ok) throw await this.transport.errorFromResponse(response);
-    return parseCanonicalStreamAck(await response.json());
   }
 
   /** POST /api/v1/streams/{sessionId}/close — terminal close with the token. */
@@ -642,15 +656,16 @@ export class MediaCanonicalClient {
     const requested = safePathSegment("sessionId", sessionId);
     const token = this.requireStreamToken(connectionToken);
     let session: CanonicalStreamSession;
+    let dispatched = false;
     try {
       session = await this.transport.request(
         "POST", `/api/v1/streams/${encodeURIComponent(requested)}/close`, {},
         { parse: parseCanonicalStreamSession }, signal,
         { "X-Stream-Token": token },
+        () => { dispatched = true; },
       );
     } catch (failure) {
-      if (failure instanceof DOMException
-        && (failure.name === "AbortError" || failure.name === "TimeoutError")) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/streams/${requested}/close`, failure);
       }
       throw failure;

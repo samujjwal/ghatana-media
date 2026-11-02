@@ -244,6 +244,7 @@ export class MediaHttpTransport {
     input: string,
     init: RequestInit,
     signal?: AbortSignal,
+    onDispatch?: () => void,
   ): Promise<Response> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
@@ -252,7 +253,38 @@ export class MediaHttpTransport {
       this.requestTimeoutMs,
     );
     try {
+      if (controller.signal.aborted) {
+        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
+      }
+      onDispatch?.();
       return await this.fetchImpl(input, { ...init, signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+      unlink();
+    }
+  }
+
+  /** Raw mutation request with credential setup included in timeout/abort control. */
+  public async fetchRawMutation(
+    input: string,
+    init: RequestInit,
+    additionalHeaders: Readonly<Record<string, string>>,
+    signal?: AbortSignal,
+    onDispatch?: () => void,
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const unlink = linkAbortSignal(signal, controller);
+    const timeout = setTimeout(
+      () => controller.abort(new DOMException("Request timed out", "TimeoutError")),
+      this.requestTimeoutMs,
+    );
+    try {
+      const headers = await abortable(this.headers(additionalHeaders), controller.signal);
+      if (controller.signal.aborted) {
+        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
+      }
+      onDispatch?.();
+      return await this.fetchImpl(input, { ...init, headers, signal: controller.signal });
     } finally {
       clearTimeout(timeout);
       unlink();

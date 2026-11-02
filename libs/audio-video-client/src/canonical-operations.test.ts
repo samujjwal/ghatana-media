@@ -179,6 +179,56 @@ describe("MediaCanonicalClient job operations", () => {
     expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs");
   });
 
+  it("maps a lost post-dispatch response to OUTCOME_UNKNOWN", async () => {
+    const fetchImpl = (async () => { throw new TypeError("connection lost"); }) as typeof fetch;
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitJob({
+      requestId: "req-lost", correlationId: "corr-lost", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-lost",
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs");
+  });
+
+  it("maps a retryable 503 envelope after mutation dispatch to OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl } = recordedFetch(() => jsonResponse({
+      error: { code: "TEMPORARY_FAILURE", message: "try later", retryable: true },
+      meta: { correlationId: "corr-503" },
+    }, 503));
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitJob({
+      requestId: "req-503", correlationId: "corr-503", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-503",
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).cause).toBeInstanceOf(MediaClientError);
+  });
+
+  it("preserves a proven pre-dispatch abort as no-effect", async () => {
+    let releaseToken!: (token: string) => void;
+    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job(), 202));
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => token,
+      fetchImpl,
+    });
+    const controller = new AbortController();
+    const pending = client.submitJob({
+      requestId: "req-pre-abort", correlationId: "corr-pre-abort", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-pre-abort",
+    }, controller.signal);
+
+    controller.abort(new DOMException("cancelled before dispatch", "AbortError"));
+    releaseToken("token");
+    const failure = await pending.catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(DOMException);
+    expect(failure).not.toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(calls).toHaveLength(0);
+  });
+
   it("cancelJob round-trips and never retries after a dispatch abort", async () => {
     const { fetchImpl, calls } = recordedFetch(() =>
       jsonResponse(job({ status: "CANCELLED" }), 200));
@@ -282,6 +332,86 @@ describe("MediaCanonicalClient stream operations", () => {
     const headers = new Headers(calls[0]!.init.headers);
     expect(headers.get("X-Stream-Token")).toBe(connectionToken);
     expect(headers.get("Content-Type")).toBe("application/octet-stream");
+  });
+
+  it("keeps frame credential setup under abort control and avoids dispatch after abort", async () => {
+    let releaseToken!: (token: string) => void;
+    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
+      acceptedSequence: 0, bufferedBytes: 1, backpressured: false,
+    }, 202));
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test", tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => token, fetchImpl,
+    });
+    const controller = new AbortController();
+    const pending = client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"]), { signal: controller.signal });
+    controller.abort(new DOMException("cancelled before dispatch", "AbortError"));
+    releaseToken("token");
+    const failure = await pending.catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(DOMException);
+    expect(failure).not.toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("times out frame credential setup before dispatch", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = vi.fn() as unknown as typeof fetch;
+      const client = createMediaCanonicalClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1",
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+        getAccessToken: () => new Promise<string>(() => undefined), fetchImpl,
+        requestTimeoutMs: 5,
+      });
+      const pending = client.submitStreamFrame("sess-1", connectionToken, 0, new Blob(["f"]));
+      const failurePromise = pending.catch((error: unknown) => error);
+      await vi.advanceTimersByTimeAsync(6);
+      const failure = await failurePromise;
+      expect(failure).toBeInstanceOf(DOMException);
+      expect((failure as DOMException).name).toBe("TimeoutError");
+      expect(fetchImpl).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each([429, 503])("maps retryable frame HTTP %s to OUTCOME_UNKNOWN", async (status) => {
+    const { fetchImpl } = recordedFetch(() => jsonResponse({
+      error: { code: "TEMPORARY_FAILURE", message: "try later", retryable: true },
+      meta: { correlationId: `corr-${status}` },
+    }, status));
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).cause).toBeInstanceOf(MediaClientError);
+  });
+
+  it.each([
+    new Response("", { status: 202 }),
+    jsonResponse({ acceptedSequence: "invalid", bufferedBytes: 1, backpressured: false }, 202),
+  ])("maps malformed frame acknowledgement to OUTCOME_UNKNOWN", async (response) => {
+    const { fetchImpl } = recordedFetch(() => response);
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+  });
+
+  it("preserves a definitive frame 403 response", async () => {
+    const { fetchImpl } = recordedFetch(() => jsonResponse({
+      error: { code: "STREAM_REVOKED", message: "purpose revoked", retryable: false },
+      meta: { correlationId: "corr-403" },
+    }, 403));
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaClientError);
+    expect((failure as MediaClientError).statusCode).toBe(403);
+    expect((failure as MediaClientError).detail.retryable).toBe(false);
   });
 
   it("a 409 on connect surfaces as a CONFLICT MediaClientError", async () => {
