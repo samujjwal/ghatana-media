@@ -1985,3 +1985,36 @@ pnpm test:declarative-production-definition
 ```
 
 No H-02 engine/build compatibility, licensed provider qualification, reservation quote/receipt, current authorization or revocation authority, revision-scoped CAS/edit-lock, effect dispatch, or durable attempt readback was added. H-02 runtime remains `NOT_ADMITTED`; independent PDP-1 acceptance and source-currentness remain outstanding. Kernel #99 was not changed: the current Kernel `AGENTS.md` still blocks BUILD implementation and tests until its repository-wide Discovery exit; use the existing §41.54 Discovery findings and do not claim OCR production qualification. PDP-1/2/3 source-currentness, authentic deployed V001–V016/V017–V029 history, the actual old-writer fence, protected cutover, and all original Wave 2/Wave 3/H whole-row acceptance remain open.
+
+### 41.56 November 2 deadline, erasure retry, and source-currentness continuation (2026-11-02)
+
+At Media `main@ed9c29e9`, three further isolated regressions were committed after §41.55. The branch remains local and unpushed.
+
+**JC-03 multimodal Vision cancellation (`e82a08cf`):** `PlatformVisionClientAdapter` checks the interrupt flag after image decoding and before `detect`, before `caption`, before frame extraction, between frames, and before returning video output. It suppresses caption/result work after a synchronous detect call returns to an interrupted caller, while the video path still deletes its temporary files in `finally`. `PlatformVisionClientAdapterTest` passed **11/11** with a noncooperative detect fake and pre-interrupted image/video cases; independent review accepted the cancellation boundaries. A synchronous SPI call still cannot be stopped while it is executing, so this is no host-process or real-provider qualification.
+
+**IP-06 S3 erasure lost-ACK recovery (`ddf653cb`):** the new LocalStack case lets `DeleteObject` apply, then injects one 503 before the acknowledgement reaches the caller. The metadata transaction rolls back and the artifact remains visible while the object is absent; a same-key retry safely repeats the idempotent delete and removes metadata. Independent review accepted the fixture. The complete `MediaPostgresqlS3ArtifactErasureTreeTest` class passed **7/7** on PostgreSQL 16 + LocalStack. This still uses isolated fixture history and a test-only bucket; deployed migration history and the legacy-writer cutover remain unproven.
+
+**H-02 resolver-byte binding (`ed9c29e9`):** `MediaProductionSpecCompilerTest` now verifies that a reformatted but structurally equal schema is accepted while the changed resolver bytes produce a new plan fingerprint and invalidate dependent nodes. The focused class passed **18/18**, and independent review accepted the test. Together with §41.55, schema structure is compared after strict parsing and the digest remains bound to the actual bytes.
+
+```bash
+./gradlew :services:media:modules:intelligence:multimodal-service:test \
+  --tests com.ghatana.audio.video.multimodal.engine.PlatformVisionClientAdapterTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+# 11/11 passed
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaPostgresqlS3ArtifactErasureTreeTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 7/7 passed
+
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+# 18/18 passed
+```
+
+**Fresh Media source-currentness checks:** `pnpm check:surface-roster` passes with **56 identities / 56 matrix-bound / 0 unbound**; `pnpm check:build-bridge-blockers` reports **3,188 identities / 8,668 edges / 0 unresolved**. `pnpm check:contract-parity` passes structural parity but leaves semantic binding `REVIEW_REQUIRED` (46 current findings dispositioned; no unresolved join). PDP-0 `--check` now fails on **18/188 stale source pins**. The observed stale material includes current owner/source files (`applications-channels.yaml`, `capability-leaf-review.yaml`, `ocr-ownership.yaml`, and physical topology), independent-review observations, and their validation scripts/tests. PDP-1/2/3 matrix `--check` commands still reject stale status/projections. `pnpm check:build-plan-task-closure` stops at **23** historical PDP-2 selectors without established successors. No pins, status records, matrix projections, or owner dispositions were edited; run the owning P0→P1→P2→P3 source process after the required owner reviews settle.
+
+**Kernel OCR / #99 current boundary:** the read-only Kernel checkout remains clean at `main@bb07a172d8`, six commits ahead of its tracking ref. Current generated PDP-0 Product Truth digest `b74cc6a2…c307b` differs from the owner-recorded `47ddbbe…`; acceptance projection is `REVIEW_REQUIRED/STALE`. Kernel `AGENTS.md` retains the repository-wide Discovery-first barrier. Its next legal action is an authorized Product Truth owner acceptance of the exact digest, status-workflow ratification, and current per-surface/composition dispositions. The attempted current validator run did not return a captured result, so no pass/fail is claimed. No Kernel implementation or tests ran.
+
+The outstanding whole-task boundaries remain unchanged: H-02 source/operation meaning and authority-backed dispatch/readback; JC-03 termination of noncooperative provider work and real host qualification; IP-06 authentic deployed V001–V029 history and old-writer fencing; Kernel Discovery and OCR authority; PDP status/currentness; original Wave 2/Wave 3/H acceptance. No runtime admission, independent owner signature, protected cutover, deployment, or release is claimed.
