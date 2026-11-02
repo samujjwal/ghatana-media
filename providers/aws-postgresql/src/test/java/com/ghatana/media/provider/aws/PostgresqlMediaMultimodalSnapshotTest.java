@@ -91,6 +91,72 @@ class PostgresqlMediaMultimodalSnapshotTest {
     }
 
     @Test
+    void parentAndChildAttemptBindingsSurviveStoreRecreationAndExactChildReplay() throws Exception {
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                integrationEnvironment(bucket()))) {
+            MultimodalOperationSpec spec = spec(1);
+            String requestId = "request-mm-" + runId();
+            ProcessingJob parent = mmJob(requestId);
+            MultimodalOperationSnapshot retained = snapshot(spec);
+            String childRequestId = MultimodalOperationSpec.childRequestId(requestId, "vision");
+            ProcessingJob child = childJob(parent, childRequestId);
+
+            try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+                store.create(parent, parent.requestFingerprint(), null, retained);
+                // Starting the parent requires its accepted row to be durable first.
+                var startedParent = store.startAttempt(
+                        parent, running(parent),
+                        store.claim(parent, "mm-worker", Instant.now().plusSeconds(60)),
+                        1, parent.requestFingerprint());
+                store.create(child, child.requestFingerprint(), null, null);
+                var startedChild = store.startAttempt(
+                        child, running(child),
+                        store.claim(child, "vision-worker", Instant.now().plusSeconds(60)),
+                        1, child.requestFingerprint());
+
+                assertThat(startedParent.running().status()).isEqualTo(JobStatus.RUNNING);
+                assertThat(startedChild.running().status()).isEqualTo(JobStatus.RUNNING);
+
+                // Keep the shared Testcontainers state alive while replacing the store
+                // handle. No in-memory child registry is available to resolve either job.
+                PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore();
+                store.close();
+                try (restarted) {
+                    ProcessingJob parentRead = restarted.findByRequest(parent.tenantId(), requestId)
+                            .orElseThrow();
+                    ProcessingJob childRead = restarted.findByRequest(parent.tenantId(), childRequestId)
+                            .orElseThrow();
+                    assertThat(parentRead.jobId()).isEqualTo(parent.jobId());
+                    assertThat(parentRead.status()).isEqualTo(JobStatus.RUNNING);
+                    assertThat(childRead.jobId()).isEqualTo(child.jobId());
+                    assertThat(childRead.status()).isEqualTo(JobStatus.RUNNING);
+                    var snapshotRead = restarted.findMultimodalOperationSnapshot(
+                            parent.tenantId(), parent.jobId()).orElseThrow();
+                    assertThat(snapshotRead.operationSpec()).isEqualTo(spec);
+                    assertThat(snapshotRead.rightsDecisionId()).isEqualTo(retained.rightsDecisionId());
+                    assertThat(snapshotRead.policyDecisionId()).isEqualTo(retained.policyDecisionId());
+                    assertThat(snapshotRead.consentDecisionId()).isEqualTo(retained.consentDecisionId());
+                    assertThat(restarted.findProcessingAttempt(parent.tenantId(), parent.jobId(), 1))
+                            .isPresent();
+                    assertThat(restarted.findProcessingAttempt(parent.tenantId(), child.jobId(), 1))
+                            .isPresent();
+                    assertThat(restarted.findProcessingAttempt(parent.tenantId(), child.jobId(), 2))
+                            .isEmpty();
+
+                    // Exact deterministic child submission is idempotent after restart; it
+                    // resolves the persisted child row and does not create another attempt.
+                    assertThat(restarted.create(child, child.requestFingerprint(), null, null).jobId())
+                            .isEqualTo(child.jobId());
+                    assertThat(restarted.findByRequest(parent.tenantId(), childRequestId))
+                            .contains(childRead);
+                    assertThat(restarted.findProcessingAttempt(parent.tenantId(), child.jobId(), 2))
+                            .isEmpty();
+                }
+            }
+        }
+    }
+
+    @Test
     void snapshotIsRequiredForMultimodalAndAbsentForOtherJobTypes() throws Exception {
         try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
                      integrationEnvironment(bucket()));
@@ -157,6 +223,23 @@ class PostgresqlMediaMultimodalSnapshotTest {
                 "artifact-src", JobType.MULTIMODAL, "provider-mm", JobStatus.ACCEPTED,
                 Instant.now(), null, null, Map.of(), "", 1,
                 "", SHA_B.substring(0, 40) + runId.substring(0, 24));
+    }
+
+    private static ProcessingJob childJob(ProcessingJob parent, String requestId) {
+        String childRunId = runId();
+        return new ProcessingJob(
+                "job-vis-" + childRunId, requestId, parent.tenantId(), parent.principalId(),
+                "artifact-vis", JobType.VISION, "provider-vis", JobStatus.ACCEPTED,
+                Instant.now(), null, null, Map.of(), "", 1,
+                "sha256:" + SHA_B, SHA_A.substring(0, 40) + childRunId.substring(0, 24));
+    }
+
+    private static ProcessingJob running(ProcessingJob accepted) {
+        return new ProcessingJob(
+                accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(),
+                accepted.artifactId(), accepted.jobType(), accepted.providerId(), JobStatus.RUNNING,
+                accepted.createdAt(), Instant.now(), null, Map.of(), "", accepted.version() + 1,
+                accepted.expectedArtifactVersion(), accepted.requestFingerprint());
     }
 
     private static MultimodalOperationSnapshot snapshot(MultimodalOperationSpec spec) {

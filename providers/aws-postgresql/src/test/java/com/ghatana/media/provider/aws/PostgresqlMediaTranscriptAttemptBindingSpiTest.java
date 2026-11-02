@@ -1,8 +1,11 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevision;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -49,15 +52,20 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
             seed(fixture.state(), tenant, principal, artifact, job, consent, digest);
             String resultDigest = seedSuccessfulAttempt(fixture.state(), tenant, principal, artifact, job, digest, fingerprint,
                     transcriptVersion, transcriptText, "provider-op-spi", "provider-receipt-spi");
+            TranscriptSegment wholeSpan = new TranscriptSegment("transcript-span", transcriptText, "PROVIDER",
+                    TranscriptSegmentTiming.sourceTicks(0, 16_000, "fixture-source-clock", 16_000, 16_000));
             expectedBinding = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBinding(
                     job, 1, 73, "provider-a", "provider-op-spi", "provider-receipt-spi", fingerprint,
                     "sha256:" + digest, transcriptVersion, resultDigest);
-            TranscriptDraft draft = draft(tenant, principal, transcript, artifact, job, consent, digest, transcriptText);
+            TranscriptDraft draft = draft(tenant, principal, transcript, artifact, job, consent, digest,
+                    transcriptText, java.util.List.of(wholeSpan));
             MediaTranscriptStore contract = fixture.store();
 
             expectedRevision = contract.appendFromSuccessfulAttempt(draft, 0, 1, 73, fingerprint, transcriptVersion);
             assertThat(expectedRevision.revision()).isEqualTo(1);
             assertThat(expectedRevision.admissionStatus()).isEqualTo("CANDIDATE");
+            assertThat(expectedRevision.draft().timingAvailability()).isEqualTo(TimingAvailability.SOURCE_CLOCK_BOUND);
+            assertThat(expectedRevision.draft().segments()).containsExactly(wholeSpan);
             assertThat(contract.readAttemptBinding(tenant, principal, transcript, 1)).isEqualTo(expectedBinding);
             assertThat(contract.appendFromSuccessfulAttempt(draft, 0, 1, 73, fingerprint, transcriptVersion))
                     .isEqualTo(expectedRevision);
@@ -76,6 +84,11 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
             assertThatThrownBy(() -> contract.readAttemptBinding(tenant, principal, unboundTranscript, 1))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("binding is unavailable");
+
+            assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(
+                    0, 16_001, "fixture-source-clock", 16_000, 16_000))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("beyond the declared source duration");
         } finally {
             fixture.close();
         }
@@ -84,6 +97,12 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
         try (installation; PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
             MediaTranscriptStore contract = reopened;
             assertThat(contract.revisions(tenant, principal, transcript)).containsExactly(expectedRevision);
+            assertThat(contract.revisions(tenant, principal, transcript).getFirst().draft().timingAvailability())
+                    .isEqualTo(TimingAvailability.SOURCE_CLOCK_BOUND);
+            assertThat(contract.revisions(tenant, principal, transcript).getFirst().draft().segments())
+                    .containsExactly(new TranscriptSegment("transcript-span", transcriptText, "PROVIDER",
+                            TranscriptSegmentTiming.sourceTicks(
+                                    0, 16_000, "fixture-source-clock", 16_000, 16_000)));
             assertThat(contract.readAttemptBinding(tenant, principal, transcript, 1)).isEqualTo(expectedBinding);
             assertThat(contract.appendFromSuccessfulAttempt(
                     expectedRevision.draft(), 0, 1, 73, fingerprint, transcriptVersion)).isEqualTo(expectedRevision);
@@ -220,6 +239,14 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
         return new TranscriptDraft(tenant, principal, transcript, artifact, "sha256:" + digest, digest, job,
                 "profile-candidate", "provider-a", "model-candidate", "en-US", "milliseconds", text,
                 consent, "rights-candidate", "policy-candidate", "urn:media:purpose:transcription", "transcription");
+    }
+
+    private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
+            String job, String consent, String digest, String text, java.util.List<TranscriptSegment> segments) {
+        return new TranscriptDraft(tenant, principal, transcript, artifact, "sha256:" + digest, digest, job,
+                "profile-candidate", "provider-a", "model-candidate", "en-US", "milliseconds", text,
+                consent, "rights-candidate", "policy-candidate", "urn:media:purpose:transcription", "transcription",
+                segments);
     }
 
     private static String sha256(String value) throws Exception {

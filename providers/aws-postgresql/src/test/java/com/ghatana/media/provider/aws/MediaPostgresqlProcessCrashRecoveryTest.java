@@ -1,8 +1,12 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
+import com.ghatana.media.runtime.MediaLifecycleEvent;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -25,6 +29,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +52,9 @@ class MediaPostgresqlProcessCrashRecoveryTest {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     private record JobIdentity(String tenantId, String jobId) {}
+    private record MultimodalIdentity(
+            JobIdentity parent, JobIdentity child, ProcessingJob replayParent, ProcessingJob replayChild,
+            MultimodalOperationSpec operationSpec) {}
 
     @Test
     void forcibleProcessDeathBeforeCommitRollsBackAttemptJobAndOutboxTogether(@TempDir Path tempDir)
@@ -130,6 +138,126 @@ class MediaPostgresqlProcessCrashRecoveryTest {
         }
     }
 
+    @Test
+    void forcibleProcessDeathAfterMultimodalChildUnknownCommitReadsExactChildWithoutRetry(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = createBucket("media-mm-child-crash-" + runId);
+        Map<String, String> environment = environment(bucket, "parent-mm-child-crash-" + runId);
+        MultimodalIdentity identity = prepareMultimodalChild(environment, runId);
+        String applicationName = "media-mm-child-worker-" + runId;
+        Path marker = tempDir.resolve("mm-child-committed.marker");
+        Path log = tempDir.resolve("mm-child-committed.log");
+
+        Process worker = startWorker(
+                withWorkerApplicationName(environment, applicationName), marker, identity.child(), log,
+                "record-unknown");
+        try {
+            awaitMarker(worker, marker, "COMMITTED", log);
+            worker.destroyForcibly();
+            assertThat(worker.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (worker.isAlive()) worker.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        // The worker was killed after the child state transaction returned. The restarted
+        // assertion reads PostgreSQL only; no provider execution or parent-process memory is
+        // used to reconstruct the child receipt/finality.
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore()) {
+            ProcessingJob parent = restarted.find(identity.parent().tenantId(), identity.parent().jobId())
+                    .orElseThrow();
+            ProcessingJob child = restarted.find(identity.child().tenantId(), identity.child().jobId())
+                    .orElseThrow();
+            assertThat(parent.status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(parent.artifactId()).isEqualTo(identity.replayParent().artifactId());
+            assertThat(parent.expectedArtifactVersion()).isEqualTo(identity.replayParent().expectedArtifactVersion());
+            assertThat(parent.requestFingerprint()).isEqualTo(identity.replayParent().requestFingerprint());
+            assertThat(restarted.findMultimodalOperationSnapshot(
+                    identity.parent().tenantId(), identity.parent().jobId()).orElseThrow().operationSpec())
+                    .isEqualTo(identity.operationSpec());
+            assertThat(child.requestId()).isEqualTo(identity.replayChild().requestId());
+            assertThat(child.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(child.version()).isEqualTo(3);
+            assertThat(child.artifactId()).isEqualTo(identity.replayChild().artifactId());
+            assertThat(child.expectedArtifactVersion()).isEqualTo(
+                    identity.replayChild().expectedArtifactVersion());
+            assertThat(child.requestFingerprint()).isEqualTo(identity.replayChild().requestFingerprint());
+            var attempt = restarted.findProcessingAttempt(child.tenantId(), child.jobId(), 1).orElseThrow();
+            assertThat(attempt.requestId()).isEqualTo(child.requestId());
+            assertThat(attempt.providerId()).isEqualTo("provider-mm-child-fixture");
+            assertThat(attempt.requestFingerprint()).isEqualTo(child.requestFingerprint());
+            assertThat(attempt.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(attempt.providerOperationId()).isEqualTo("fixture-operation-" + child.jobId());
+            assertThat(attempt.providerReceiptId()).isEqualTo("fixture-receipt-" + child.jobId());
+            assertThat(attempt.observedAt()).isNotNull();
+            assertThat(restarted.findProcessingAttempt(child.tenantId(), child.jobId(), 2)).isEmpty();
+
+            ProcessingJob exactReplay = restarted.create(
+                    identity.replayChild(), identity.replayChild().requestFingerprint(), null, null);
+            assertThat(exactReplay.jobId()).isEqualTo(child.jobId());
+            assertThat(restarted.findByRequest(child.tenantId(), child.requestId())).contains(child);
+            assertThat(restarted.findProcessingAttempt(child.tenantId(), child.jobId(), 2)).isEmpty();
+            assertThat(outboxCount(identity.child(), "media.job.outcome_unknown", child.version())).isEqualTo(1);
+        }
+    }
+
+    private static MultimodalIdentity prepareMultimodalChild(Map<String, String> environment, String runId)
+            throws Exception {
+        String tenantId = "tenant-mm-crash-" + runId;
+        String principalId = "principal-mm-crash-" + runId;
+        String requestId = "request-mm-crash-" + runId;
+        String parentJobId = "job-mm-crash-" + runId;
+        String childJobId = "job-mm-vision-" + runId;
+        String sourceSha = "a".repeat(64);
+        String childSha = "b".repeat(64);
+        MultimodalOperationSpec spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                1, "artifact-mm-source", "sha256:" + sourceSha, sourceSha,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec(
+                        "vision", JobType.VISION, "artifact-mm-vision", "sha256:" + childSha,
+                        childSha, "provider-mm-child-fixture", Map.of())),
+                new MultimodalOperationSpec.SourceClockBinding(
+                        "clock-evidence-fixture", 48_000, 0, "source-clock-fixture", 48_000),
+                Map.of("purpose", "mm-crash-fixture"));
+        MultimodalOperationSnapshot snapshot = new MultimodalOperationSnapshot(
+                MultimodalOperationSnapshot.AUTHORIZED_VERSION, spec.toParametersValue(),
+                "rights-fixture", "policy-fixture", "policy-v1", "consent-fixture",
+                "clock-evidence-fixture", 0L);
+        String childRequestId = MultimodalOperationSpec.childRequestId(requestId, "vision");
+        Instant now = Instant.ofEpochMilli(System.currentTimeMillis());
+        ProcessingJob parent = new ProcessingJob(parentJobId, requestId, tenantId, principalId,
+                "artifact-mm-source", JobType.MULTIMODAL, "provider-mm-fixture", JobStatus.ACCEPTED,
+                now, null, null, Map.of(), "", 1, "sha256:" + sourceSha, FINGERPRINT);
+        ProcessingJob child = new ProcessingJob(childJobId, childRequestId, tenantId, principalId,
+                "artifact-mm-vision", JobType.VISION, "provider-mm-child-fixture", JobStatus.ACCEPTED,
+                now, null, null, Map.of(), "", 1, "sha256:" + childSha,
+                "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789");
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            store.create(parent, FINGERPRINT, null, snapshot);
+            JobLease parentLease = store.claim(parent, "mm-parent-fixture", Instant.now().plusSeconds(120));
+            ProcessingJob runningParent = running(parent);
+            store.startAttempt(parent, runningParent, parentLease, 1, FINGERPRINT);
+
+            store.create(child, child.requestFingerprint());
+            JobLease childLease = store.claim(child, "mm-child-fixture", Instant.now().plusSeconds(120));
+            store.startAttempt(child, running(child), childLease, 1, child.requestFingerprint());
+        }
+        return new MultimodalIdentity(new JobIdentity(tenantId, parentJobId),
+                new JobIdentity(tenantId, childJobId), parent, child, spec);
+    }
+
+    private static ProcessingJob running(ProcessingJob accepted) {
+        return new ProcessingJob(accepted.jobId(), accepted.requestId(), accepted.tenantId(),
+                accepted.principalId(), accepted.artifactId(), accepted.jobType(), accepted.providerId(),
+                JobStatus.RUNNING, accepted.createdAt(), Instant.now(), null, Map.of(), "",
+                accepted.version() + 1, accepted.expectedArtifactVersion(), accepted.requestFingerprint());
+    }
+
     private static JobIdentity prepareDispatchedJob(Map<String, String> environment, String runId)
             throws Exception {
         String tenantId = "tenant-ip06-" + runId;
@@ -154,13 +282,17 @@ class MediaPostgresqlProcessCrashRecoveryTest {
     }
 
     private static Process startWorker(
-            Map<String, String> environment, Path marker, JobIdentity identity, Path log) throws Exception {
+            Map<String, String> environment, Path marker, JobIdentity identity, Path log,
+            String... workerOptions) throws Exception {
         String classpath = System.getProperty("media.child.classpath", "");
         if (classpath.isBlank()) throw new IllegalStateException("Gradle did not provide media.child.classpath");
         Path java = Path.of(System.getProperty("java.home"), "bin", "java");
-        ProcessBuilder builder = new ProcessBuilder(java.toString(), "-cp", classpath,
+        java.util.ArrayList<String> command = new java.util.ArrayList<>(List.of(
+                java.toString(), "-cp", classpath,
                 MediaPostgresqlProcessCrashWorker.class.getName(), marker.toString(),
-                identity.tenantId(), identity.jobId());
+                identity.tenantId(), identity.jobId()));
+        command.addAll(List.of(workerOptions));
+        ProcessBuilder builder = new ProcessBuilder(command);
         builder.environment().putAll(environment);
         builder.redirectErrorStream(true);
         builder.redirectOutput(log.toFile());

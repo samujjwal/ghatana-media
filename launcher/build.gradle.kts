@@ -99,10 +99,19 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
+    testImplementation(project(":services:media:providers:aws-postgresql"))
+    testImplementation(platform(libs.aws.sdk.bom))
+    testImplementation(libs.aws.s3)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.testcontainers.localstack)
+    testImplementation(libs.testcontainers.junit.jupiter)
 }
 
 tasks.test {
     useJUnitPlatform()
+    doFirst {
+        systemProperty("media.child.classpath", sourceSets.test.get().runtimeClasspath.asPath)
+    }
     finalizedBy(tasks.jacocoTestReport)
 }
 

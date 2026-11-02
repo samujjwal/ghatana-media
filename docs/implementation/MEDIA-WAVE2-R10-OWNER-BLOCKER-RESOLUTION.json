@@ -2455,16 +2455,16 @@
       {
         "id": "MM_POSTGRES_CHILD_RESTART",
         "owner": "MM/Postgres",
-        "state": "TEST_NOT_RUN",
-        "evidence": "MM restart suite uses in-process store; Postgres MM snapshot test tests descriptor",
-        "next": "W2-R03 actual parent/child Testcontainers kill/restart/receipt/no duplicate"
+        "state": "LOCAL_SYNTHETIC_CHILD_CRASH_AND_RUNTIME_RECOVERY_TESTED_EXTERNAL_EFFECT_PENDING",
+        "evidence": "PostgreSQL16/LocalStack Testcontainers force-kills a seed JVM after synthetic child receipt + OUTCOME_UNKNOWN + one lifecycle event, then a fresh MediaRuntime with empty provider registries reads PostgreSQL, preserves exact parent/child/spec/digest/attempt identities, keeps parent UNKNOWN, and creates no child attempt #2. No real provider effect or gRPC acknowledgement is asserted.",
+        "next": "Add parent-CAS/lost-gRPC-ack and pre/post-receipt crash checkpoints plus partial-fanout cancellation that preserves UNKNOWN for dispatched children; qualify a real rights-bound fused effect before any original W2 acceptance; row stays NOT_ACCEPTED"
       },
       {
         "id": "STT_V027_SEGMENT_VALUES",
         "owner": "STT/Postgres",
-        "state": "SOURCE_IMPLEMENTED_FOCUSED_HOST_IT_MISSING",
-        "evidence": "V027 columns, source union; reported 5/5 ITs establish schema compatibility only",
-        "next": "W2-R04 nonempty mixed/source tick segments via fenced append+restart, and truthful per-word unavailable"
+        "state": "LOCAL_WHOLE_SPAN_ATTEMPT_RESTART_TESTED_REAL_WORD_TIMING_PENDING",
+        "evidence": "PostgreSQL16/LocalStack selectors passed 21/21; fenced successful-attempt fixture persists a full-span SOURCE_TICKS candidate and exact binding across store recreation; existing suite covers mixed timing, revocation, and restart. Fixture timing does not qualify a provider.",
+        "next": "Keep STT-06 word alignment unclaimed; actual rights-qualified model output, independently authored per-word gold, and source-clock qualification remain required; original W2 row stays NOT_ACCEPTED"
       },
       {
         "id": "STT_MODEL_TINY_FAIL",
@@ -2592,16 +2592,16 @@
         {
           "id": "MM_POSTGRES_CHILD_RESTART",
           "owner": "MM/Postgres",
-          "state": "TEST_NOT_RUN",
-          "evidence": "MM restart suite uses in-process store; Postgres MM snapshot test tests descriptor",
-          "next": "W2-R03 actual parent/child Testcontainers kill/restart/receipt/no duplicate"
+          "state": "LOCAL_SYNTHETIC_CHILD_CRASH_AND_RUNTIME_RECOVERY_TESTED_EXTERNAL_EFFECT_PENDING",
+          "evidence": "PostgreSQL16/LocalStack Testcontainers force-kills a seed JVM after synthetic child receipt + OUTCOME_UNKNOWN + one lifecycle event, then a fresh MediaRuntime with empty provider registries reads PostgreSQL, preserves exact parent/child/spec/digest/attempt identities, keeps parent UNKNOWN, and creates no child attempt #2. No real provider effect or gRPC acknowledgement is asserted.",
+          "next": "Add parent-CAS/lost-gRPC-ack and pre/post-receipt crash checkpoints plus partial-fanout cancellation that preserves UNKNOWN for dispatched children; qualify a real rights-bound fused effect before any original W2 acceptance; row stays NOT_ACCEPTED"
         },
         {
           "id": "STT_V027_SEGMENT_VALUES",
           "owner": "STT/Postgres",
-          "state": "SOURCE_IMPLEMENTED_FOCUSED_HOST_IT_MISSING",
-          "evidence": "V027 columns, source union; reported 5/5 ITs establish schema compatibility only",
-          "next": "W2-R04 nonempty mixed/source tick segments via fenced append+restart, and truthful per-word unavailable"
+          "state": "LOCAL_WHOLE_SPAN_ATTEMPT_RESTART_TESTED_REAL_WORD_TIMING_PENDING",
+          "evidence": "PostgreSQL16/LocalStack selectors passed 21/21; fenced successful-attempt fixture persists a full-span SOURCE_TICKS candidate and exact binding across store recreation; existing suite covers mixed timing, revocation, and restart. Fixture timing does not qualify a provider.",
+          "next": "Keep STT-06 word alignment unclaimed; actual rights-qualified model output, independently authored per-word gold, and source-clock qualification remain required; original W2 row stays NOT_ACCEPTED"
         },
         {
           "id": "STT_MODEL_TINY_FAIL",
