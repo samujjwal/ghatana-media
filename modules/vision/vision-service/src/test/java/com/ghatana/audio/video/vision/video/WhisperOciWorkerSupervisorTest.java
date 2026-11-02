@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -301,6 +302,66 @@ class WhisperOciWorkerSupervisorTest {
     }
 
     @Test
+    void cancellationDuringCreateKillsCreatedContainerWithoutStartingWorker() throws Exception {
+        FakeRunner runner = new FakeRunner();
+        runner.blockCreate = true;
+        try (Context context = context("cancel-during-create", runner)) {
+            CompletableFuture<com.ghatana.media.runtime.WhisperComputeContracts.Result> execution =
+                    CompletableFuture.supplyAsync(() -> context.supervisor().execute(id(0), PROFILE, "en-US",
+                            INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000));
+            Thread cancelThread = null;
+            try {
+                assertThat(runner.createEntered.await(5, TimeUnit.SECONDS)).isTrue();
+
+                AtomicReference<com.ghatana.media.runtime.WhisperComputeContracts.Result> cancellation =
+                        new AtomicReference<>();
+                CountDownLatch cancellationReturned = new CountDownLatch(1);
+                cancelThread = new Thread(() -> {
+                    try {
+                        cancellation.set(context.supervisor().cancel(id(0), PROFILE, "en-US", INPUT_SHA));
+                    } finally {
+                        cancellationReturned.countDown();
+                    }
+                }, "whisper-cancel-during-create-test");
+                cancelThread.start();
+
+                // cancel() sets the operation's cancelled flag before waiting for execute() to finish.
+                // Waiting for that bounded wait to begin establishes the race ordering without sleeps.
+                awaitWaiting(cancelThread);
+                runner.finishCreate.countDown();
+                assertThat(execution.get(5, TimeUnit.SECONDS).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+                assertThat(cancellationReturned.await(5, TimeUnit.SECONDS)).isTrue();
+                cancelThread.join(1_000);
+                assertThat(cancelThread.isAlive()).isFalse();
+                assertThat(cancellation.get().status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+
+                assertThat(context.supervisor().status(id(0), PROFILE, "en-US", INPUT_SHA).status())
+                        .isEqualTo(Status.UNKNOWN_OUTCOME);
+                assertThat(context.journal().lookup(id(0)).status())
+                        .isEqualTo(MediaOciBrokerWhisperJournal.Status.UNKNOWN_OUTCOME);
+                assertThat(runner.commands).anySatisfy(command -> assertThat(command)
+                        .contains("kill", "--signal=KILL", FakeRunner.CONTAINER));
+                assertThat(runner.commands).anySatisfy(command -> assertThat(command)
+                        .contains("rm", "--force", FakeRunner.CONTAINER));
+                assertThat(runner.commands).noneMatch(command -> command.size() > 1 && command.get(1).equals("start"));
+            } finally {
+                runner.finishCreate.countDown();
+                execution.get(5, TimeUnit.SECONDS);
+                if (cancelThread != null) cancelThread.join(5_000);
+            }
+        }
+    }
+
+    private static void awaitWaiting(Thread thread) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (thread.getState() != Thread.State.TIMED_WAITING && System.nanoTime() < deadline) {
+            if (!thread.isAlive()) throw new AssertionError("cancel returned before entering its wait");
+            Thread.yield();
+        }
+        assertThat(thread.getState()).isEqualTo(Thread.State.TIMED_WAITING);
+    }
+
+    @Test
     void failedCleanupOrMalformedWorkerIdentityCannotProduceSuccess() throws Exception {
         FakeRunner failedCleanup = new FakeRunner();
         failedCleanup.failRemove = true;
@@ -338,9 +399,12 @@ class WhisperOciWorkerSupervisorTest {
     private static final class FakeRunner implements WhisperOciWorkerSupervisor.CommandRunner {
         private static final String CONTAINER = "c".repeat(64);
         private final List<List<String>> commands = new java.util.concurrent.CopyOnWriteArrayList<>();
+        private final CountDownLatch createEntered = new CountDownLatch(1);
+        private final CountDownLatch finishCreate = new CountDownLatch(1);
         private final CountDownLatch startEntered = new CountDownLatch(1);
         private final CountDownLatch finishStart = new CountDownLatch(1);
         private final AtomicBoolean releaseOnKill = new AtomicBoolean(true);
+        private volatile boolean blockCreate;
         private volatile boolean blockStart;
         private volatile boolean startTimedOut;
         private volatile boolean failRemove;
@@ -369,7 +433,7 @@ class WhisperOciWorkerSupervisorTest {
                         : ok("sha256:" + "d".repeat(64) + "|" + IMAGE);
                 case "ps" -> failList ? new WhisperOciWorkerSupervisor.CommandResult(1,
                         new byte[0], bytes("docker unavailable"), false, false) : ok(orphanIds);
-                case "create" -> ok(CONTAINER + "\n");
+                case "create" -> create();
                 case "start" -> start(stdin);
                 case "inspect" -> ok("false\n");
                 case "kill" -> {
@@ -380,6 +444,20 @@ class WhisperOciWorkerSupervisorTest {
                         bytes("not removed"), bytes("failure"), false, false) : ok("");
                 default -> throw new IOException("Unexpected fake command: " + command);
             };
+        }
+
+        private WhisperOciWorkerSupervisor.CommandResult create() throws IOException {
+            createEntered.countDown();
+            if (blockCreate) {
+                try {
+                    if (!finishCreate.await(10, TimeUnit.SECONDS)) return new WhisperOciWorkerSupervisor.CommandResult(
+                            -1, new byte[0], new byte[0], true, false);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    return new WhisperOciWorkerSupervisor.CommandResult(-1, new byte[0], new byte[0], true, false);
+                }
+            }
+            return ok(CONTAINER + "\n");
         }
 
         private WhisperOciWorkerSupervisor.CommandResult start(byte[] stdin) throws IOException {

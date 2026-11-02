@@ -1582,3 +1582,9 @@ Commit `88485869` adds a test-only child mode that wraps only `deleteObject` for
 ### 41.33 November 2 PDP matrix currentness checks after the focused continuation (2026-11-02)
 
 Read-only checks returned PDP-0 `--check` exit **0** while its source status remains stale, PDP-1 exit **1** (matrix stale; regenerate after PDP-1 status and semantic review settle), PDP-2 exit **1** (status unsettled), and PDP-3 exit **1** (status unsettled). No matrix, pin, owner decision or PDP status was regenerated or changed. The check results do not establish source-currentness or formal phase acceptance.
+
+### 41.34 November 2 JC-03 cancellation during OCI container creation (2026-11-02)
+
+`WhisperOciWorkerSupervisorTest.cancellationDuringCreateKillsCreatedContainerWithoutStartingWorker` closes a cancellation window before the OCI container ID is published to the active operation. A fake command runner blocks `create`; the test starts cancellation, observes its normal wait after the cancellation flag is set, then releases `create`. It verifies the newly created container is killed and removed, `start` is never invoked, execution/cancellation/status/journal all remain `UNKNOWN_OUTCOME`, and both threads finish before the journal closes. No production code changed.
+
+The focused `WhisperOciWorkerSupervisorTest` selector passed **13/13**, with zero skips, failures, or errors. Independent Luna engineering review accepted the final test diff. This proves supervisor control flow with a fake runner only; it does not prove Docker process termination, cgroup/OOM enforcement, or native host qualification. JC-03 whole-row acceptance remains open.
