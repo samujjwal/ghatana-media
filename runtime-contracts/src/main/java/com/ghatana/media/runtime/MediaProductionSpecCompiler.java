@@ -1,20 +1,38 @@
 package com.ghatana.media.runtime;
 
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
+import com.networknt.schema.SpecificationVersion;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,7 +55,21 @@ public final class MediaProductionSpecCompiler {
     /** Process-local misuse guard only; it does not authenticate or attest serialized plans. */
     private static final ReferenceQueue<CompiledPlan> COMPILED_PLAN_QUEUE = new ReferenceQueue<>();
     private static final Set<CompiledPlanIdentityReference> COMPILER_ISSUED_PLANS = ConcurrentHashMap.newKeySet();
-
+    private static final Set<String> PRODUCTION_SPEC_FIELDS = Set.of(
+            "tenantId", "projectId", "revisionId", "schemaVersion", "originClass", "purposeRef",
+            "sceneRefs", "timelineRef", "rightsRef", "outputProfileRefs");
+    private static final ObjectMapper CONTRACT_JSON = JsonMapper.builder(JsonFactory.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .streamReadConstraints(StreamReadConstraints.builder()
+                    .maxNestingDepth(64)
+                    .maxDocumentLength(MediaVersionedContractContent.MAX_CONTENT_BYTES)
+                    .maxTokenCount(20_000)
+                    .maxStringLength(MediaVersionedContractContent.MAX_CONTENT_BYTES)
+                    .maxNameLength(256)
+                    .build())
+            .build())
+            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
     private static final class CompiledPlanIdentityReference extends WeakReference<CompiledPlan> {
         private final int identityHashCode;
 
@@ -283,14 +315,14 @@ public final class MediaProductionSpecCompiler {
     }
 
     /**
-     * Resolves the spec, schema, and compiler-contract references and binds
-     * digest-checked resolver response bytes into the local candidate fingerprint.
-     * The bytes remain opaque and are not proven to be the source of the separate
-     * typed {@code spec}; the resolver must enforce immutable-version lookup and
-     * authorization. This does not interpret schema/compiler semantics, establish
-     * source-defined step semantics, or admit runtime effects. Each already-
-     * materialized response is limited by {@link MediaVersionedContractContent#MAX_CONTENT_BYTES};
-     * the resolver must also bound reads before materializing content.
+     * Resolves the specification, schema, and compiler-contract references; validates
+     * input 1 against the exact resolved Draft 2020-12 schema and the existing typed
+     * production-spec mirror; then binds all three digest-checked responses into the
+     * effect-free local candidate fingerprint. The resolver must enforce immutable-
+     * version lookup and authorization and bound reads before materializing content.
+     * The compiler-contract content remains opaque, and this does not define step
+     * semantics, establish source authority, or admit runtime effects. Each
+     * materialized response is limited by {@link MediaVersionedContractContent#MAX_CONTENT_BYTES}.
      */
     public CompiledPlan compileWithResolvedContentFingerprints(
             ProductionSpec spec,
@@ -300,11 +332,106 @@ public final class MediaProductionSpecCompiler {
         Objects.requireNonNull(inputs, "inputs");
         Objects.requireNonNull(resolver, "resolver");
         requireInputSchemaVersion(spec, inputs);
+        MediaVersionedContractContent.ResolvedContent specificationContent = resolver.resolve(inputs.productionSpecRef());
+        var specificationFingerprint = MediaVersionedContractContent.verifyDigestChecked(
+                inputs.productionSpecRef(), specificationContent);
+        MediaVersionedContractContent.ResolvedContent schemaContent = resolver.resolve(inputs.productionSpecSchemaRef());
+        var schemaFingerprint = MediaVersionedContractContent.verifyDigestChecked(
+                inputs.productionSpecSchemaRef(), schemaContent);
+        validateProductionSpecContent(specificationContent.content(), schemaContent.content(), spec);
+        var compilerFingerprint = MediaVersionedContractContent.resolveDigestChecked(
+                inputs.compilerContractRef(), resolver);
         List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = List.of(
-                MediaVersionedContractContent.resolveDigestChecked(inputs.productionSpecRef(), resolver),
-                MediaVersionedContractContent.resolveDigestChecked(inputs.productionSpecSchemaRef(), resolver),
-                MediaVersionedContractContent.resolveDigestChecked(inputs.compilerContractRef(), resolver));
+                specificationFingerprint, schemaFingerprint, compilerFingerprint);
         return compileInternal(spec, null, null, inputs, resolved);
+    }
+
+    private static void validateProductionSpecContent(
+            byte[] specificationBytes,
+            byte[] schemaBytes,
+            ProductionSpec typedSpec) {
+        ProductionSpec decodedSpec;
+        try {
+            JsonNode specificationNode = CONTRACT_JSON.readTree(specificationBytes);
+            JsonNode schemaNode = CONTRACT_JSON.readTree(schemaBytes);
+            if (specificationNode == null || !specificationNode.isObject()
+                    || schemaNode == null || !schemaNode.isObject()) {
+                throw invalidProductionSpecContent();
+            }
+            String schemaJson = strictUtf8(schemaBytes);
+            String specificationJson = strictUtf8(specificationBytes);
+            Schema schema = newLocalSchemaRegistry().getSchema(schemaJson, InputFormat.JSON);
+            if (!schema.validate(specificationJson, InputFormat.JSON).isEmpty()) {
+                throw invalidProductionSpecContent();
+            }
+            decodedSpec = decodeProductionSpec(specificationNode);
+        } catch (StackOverflowError excessiveSchemaRecursion) {
+            throw invalidProductionSpecContent();
+        } catch (RuntimeException | IOException invalidSchemaOrContent) {
+            throw invalidProductionSpecContent();
+        }
+        if (!typedSpec.equals(decodedSpec)) {
+            throw new IllegalArgumentException(
+                    "resolved production-spec content does not match the supplied typed specification");
+        }
+    }
+
+    private static ProductionSpec decodeProductionSpec(JsonNode node) {
+        Set<String> fields = new HashSet<>();
+        fields.addAll(node.propertyNames());
+        if (!fields.equals(PRODUCTION_SPEC_FIELDS)) throw invalidProductionSpecContent();
+        return new ProductionSpec(
+                requiredText(node, "tenantId"),
+                requiredText(node, "projectId"),
+                requiredText(node, "revisionId"),
+                requiredText(node, "schemaVersion"),
+                requiredText(node, "originClass"),
+                requiredText(node, "purposeRef"),
+                requiredTextList(node, "sceneRefs", MAX_SCENES),
+                requiredText(node, "timelineRef"),
+                requiredText(node, "rightsRef"),
+                requiredTextList(node, "outputProfileRefs", MAX_OUTPUT_PROFILES));
+    }
+
+    private static String requiredText(JsonNode object, String field) {
+        JsonNode value = object.get(field);
+        if (value == null || !value.isString()) throw invalidProductionSpecContent();
+        return value.asString();
+    }
+
+    private static List<String> requiredTextList(JsonNode object, String field, int maximumItems) {
+        JsonNode value = object.get(field);
+        if (value == null || !value.isArray() || value.isEmpty() || value.size() > maximumItems) {
+            throw invalidProductionSpecContent();
+        }
+        List<String> items = new ArrayList<>(value.size());
+        for (JsonNode item : value) {
+            if (!item.isString()) throw invalidProductionSpecContent();
+            items.add(item.asString());
+        }
+        return List.copyOf(items);
+    }
+
+    private static String strictUtf8(byte[] content) throws CharacterCodingException {
+        return StandardCharsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT)
+                .decode(ByteBuffer.wrap(content))
+                .toString();
+    }
+
+    private static IllegalArgumentException invalidProductionSpecContent() {
+        return new IllegalArgumentException("resolved production-spec content is invalid under its versioned schema");
+    }
+
+    private static SchemaRegistry newLocalSchemaRegistry() {
+        // A registry belongs to one exact resolved schema version. Avoid cache
+        // reuse across immutable references that happen to share a stable $id.
+        return SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12,
+                builder -> builder.schemaLoader(loader -> loader.fetchRemoteResources(false))
+                        .schemaRegistryConfig(SchemaRegistryConfig.builder()
+                                .strict(SpecificationVersion.DRAFT_2020_12.getDialectId(), true)
+                                .build()));
     }
 
     /** Compile with a separately versioned execution binding in every node identity. */

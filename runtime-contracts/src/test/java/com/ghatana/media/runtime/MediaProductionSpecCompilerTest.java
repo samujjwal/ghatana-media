@@ -1,5 +1,7 @@
 package com.ghatana.media.runtime;
 
+import tools.jackson.databind.ObjectMapper;
+
 import com.ghatana.media.runtime.MediaProductionSpecCompiler.CompiledPlan;
 import com.ghatana.media.runtime.MediaProductionSpecCompiler.ExecutionMode;
 import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
@@ -18,6 +20,38 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** H-02: deterministic plan compile, stable fingerprint, partial invalidation. */
 class MediaProductionSpecCompilerTest {
+    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final String PRODUCTION_SPEC_SCHEMA_JSON = """
+            {
+              "$schema":"https://json-schema.org/draft/2020-12/schema",
+              "$defs":{
+                "versionRef":{"type":"string","format":"opaque-versioned-reference",
+                  "minLength":1,"maxLength":384,"pattern":"\\\\S"},
+                "nonEmptyVersionRefList":{"type":"array","minItems":1,"uniqueItems":true,
+                  "items":{"$ref":"#/$defs/versionRef"}}
+              },
+              "type":"object",
+              "additionalProperties":false,
+              "required":["tenantId","projectId","revisionId","schemaVersion","originClass","purposeRef",
+                "sceneRefs","timelineRef","rightsRef","outputProfileRefs"],
+              "properties":{
+                "tenantId":{"type":"string","format":"opaque-id","minLength":1,"maxLength":128,
+                  "pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+                "projectId":{"type":"string","format":"opaque-id","minLength":1,"maxLength":128,
+                  "pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+                "revisionId":{"type":"string","format":"opaque-id","minLength":1,"maxLength":128,
+                  "pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+                "schemaVersion":{"const":"media.declarative.value.production-spec.v1"},
+                "originClass":{"enum":["REAL_CAPTURE","DECLARATIVE_ANIMATION","MODEL_SIMULATION",
+                  "GENERATIVE_MEDIA","PDP_SYNTHETIC_FIXTURE"]},
+                "purposeRef":{"$ref":"#/$defs/versionRef"},
+                "sceneRefs":{"$ref":"#/$defs/nonEmptyVersionRefList"},
+                "timelineRef":{"$ref":"#/$defs/versionRef"},
+                "rightsRef":{"$ref":"#/$defs/versionRef"},
+                "outputProfileRefs":{"$ref":"#/$defs/nonEmptyVersionRefList"}
+              }
+            }
+            """;
 
     private static ProductionSpec spec() {
         return new ProductionSpec(
@@ -114,24 +148,31 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
-    void digestCheckedOpaqueContentIsFingerprintBoundWithoutClaimingSourceSemantics() throws Exception {
+    void resolvedProductionSpecIsSchemaValidatedMatchedAndFingerprintBound() throws Exception {
         var inputs = new MediaProductionSpecCompiler.CompilationInputs(
                 "production-spec/source-rev-7", "production-spec-schema/rev-1",
                 MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
         Map<String, byte[]> contents = Map.of(
-                inputs.productionSpecRef(), "spec bytes".getBytes(StandardCharsets.UTF_8),
-                inputs.productionSpecSchemaRef(), "schema bytes".getBytes(StandardCharsets.UTF_8),
+                inputs.productionSpecRef(), JSON.writeValueAsBytes(spec()),
+                inputs.productionSpecSchemaRef(), PRODUCTION_SPEC_SCHEMA_JSON.getBytes(StandardCharsets.UTF_8),
                 inputs.compilerContractRef(), "compiler bytes".getBytes(StandardCharsets.UTF_8));
         var compiler = new MediaProductionSpecCompiler();
+        AtomicInteger firstResolverCalls = new AtomicInteger();
         var first = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
-                ref -> resolved(ref, contents.get(ref)));
+                ref -> {
+                    firstResolverCalls.incrementAndGet();
+                    return resolved(ref, contents.get(ref));
+                });
+        assertThat(firstResolverCalls).hasValue(3);
         var repeat = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
                 ref -> resolved(ref, contents.get(ref)));
         assertThat(repeat.planFingerprint()).isEqualTo(first.planFingerprint());
 
         Map<String, byte[]> changed = Map.of(
                 inputs.productionSpecRef(), contents.get(inputs.productionSpecRef()),
-                inputs.productionSpecSchemaRef(), "changed schema bytes".getBytes(StandardCharsets.UTF_8),
+                inputs.productionSpecSchemaRef(), PRODUCTION_SPEC_SCHEMA_JSON
+                        .replace("\"$schema\"", "\"title\":\"approved-schema-revision\",\"$schema\"")
+                        .getBytes(StandardCharsets.UTF_8),
                 inputs.compilerContractRef(), contents.get(inputs.compilerContractRef()));
         var changedSchemaContent = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
                 ref -> resolved(ref, changed.get(ref)));
@@ -148,6 +189,70 @@ class MediaProductionSpecCompilerTest {
                         "sha256:" + "0".repeat(64))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("digest does not match");
+    }
+
+    @Test
+    void resolvedProductionSpecMustMatchTypedInputAndRejectMalformedOrDuplicateJson() throws Exception {
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+        byte[] schema = PRODUCTION_SPEC_SCHEMA_JSON.getBytes(StandardCharsets.UTF_8);
+        byte[] compiler = "opaque compiler contract".getBytes(StandardCharsets.UTF_8);
+
+        byte[] differentProject = JSON.writeValueAsBytes(new ProductionSpec(
+                "tenant-1", "other-project", "rev-7", "REAL_CAPTURE", "purpose/v1",
+                List.of("scene/1@v3", "scene/2@v1"), "timeline/main@v2", "rights/standard@v1",
+                List.of("profile/1080p@v4")));
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? differentProject
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? schema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not match the supplied typed specification");
+
+        byte[] unknownProperty = (new String(JSON.writeValueAsBytes(spec()), StandardCharsets.UTF_8)
+                .replace("{", "{\"unexpected\":true,"))
+                .getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? unknownProperty
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? schema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolved production-spec content is invalid");
+
+        byte[] duplicateProperty = "{\"tenantId\":\"tenant-1\",\"tenantId\":\"tenant-1\"}"
+                .getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? duplicateProperty
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? schema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolved production-spec content is invalid");
+
+        byte[] malformedJson = "{".getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? malformedJson
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? schema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolved production-spec content is invalid");
+
+        byte[] trailingDocument = (new String(JSON.writeValueAsBytes(spec()), StandardCharsets.UTF_8) + " {}")
+                .getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? trailingDocument
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? schema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolved production-spec content is invalid");
+
+        byte[] malformedSchema = "not-json-schema".getBytes(StandardCharsets.UTF_8);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> resolved(ref, ref.equals(inputs.productionSpecRef())
+                        ? JSON.writeValueAsBytes(spec())
+                        : ref.equals(inputs.productionSpecSchemaRef()) ? malformedSchema : compiler)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("resolved production-spec content is invalid");
     }
 
     @Test

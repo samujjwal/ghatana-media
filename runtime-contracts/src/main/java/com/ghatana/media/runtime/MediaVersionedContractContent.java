@@ -56,6 +56,13 @@ public final class MediaVersionedContractContent {
     public static ResolvedContentFingerprint resolveDigestChecked(String requestedVersionRef, Resolver resolver) {
         Objects.requireNonNull(requestedVersionRef, "requestedVersionRef");
         ResolvedContent resolved = Objects.requireNonNull(resolver, "resolver").resolve(requestedVersionRef);
+        return verifyDigestChecked(requestedVersionRef, resolved);
+    }
+
+    /** Validate an already-resolved response without invoking its resolver a second time. */
+    public static ResolvedContentFingerprint verifyDigestChecked(
+            String requestedVersionRef, ResolvedContent resolved) {
+        Objects.requireNonNull(requestedVersionRef, "requestedVersionRef");
         if (resolved == null) throw new IllegalArgumentException("versioned content is unavailable");
         if (!requestedVersionRef.equals(resolved.versionRef())) {
             throw new IllegalArgumentException("resolver returned content for a different version reference");

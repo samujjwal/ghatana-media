@@ -12,6 +12,9 @@ java {
 }
 
 dependencies {
+    // Validate versioned PDP JSON Schemas at the effect-free H-02 compile boundary.
+    implementation(libs.jackson.databind)
+    implementation(libs.networknt.validator)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testRuntimeOnly(libs.junit.jupiter.engine)
