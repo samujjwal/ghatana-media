@@ -810,18 +810,10 @@ fn decode_audio_bounded_with_time_budget(
 
         let decoded = match decoder.decode(&packet) {
             Ok(decoded) => decoded,
-            Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
-                break
-            }
             // A failed packet must not be silently omitted from a successful
             // result: doing so can turn a corrupt compressed stream into
             // apparently valid, but incomplete, provider input.
-            Err(SymphoniaError::DecodeError(message)) => {
-                return Err(SpeechAudioError::Decode(format!(
-                    "codec packet decode failed: {message}"
-                )))
-            }
-            Err(error) => return Err(map_decode_error(error)),
+            Err(error) => return Err(map_packet_decode_error(error)),
         };
         ensure_decode_time(started_at, max_decode_time)?;
 
@@ -1083,6 +1075,18 @@ fn map_decode_error(error: SymphoniaError) -> SpeechAudioError {
             SpeechAudioError::UnsupportedFormat(message.to_string())
         }
         other => SpeechAudioError::Decode(other.to_string()),
+    }
+}
+
+fn map_packet_decode_error(error: SymphoniaError) -> SpeechAudioError {
+    match error {
+        SymphoniaError::IoError(error) if error.kind() == ErrorKind::UnexpectedEof => {
+            SpeechAudioError::Decode(format!("codec packet is truncated: {error}"))
+        }
+        SymphoniaError::DecodeError(message) => {
+            SpeechAudioError::Decode(format!("codec packet decode failed: {message}"))
+        }
+        other => map_decode_error(other),
     }
 }
 
@@ -2616,6 +2620,17 @@ mod tests {
         let outcome = std::panic::catch_unwind(|| load_audio_buffer(&path));
         assert!(outcome.is_ok(), "decoder panicked on corrupt MP3 packet");
         assert!(matches!(outcome.unwrap(), Err(SpeechAudioError::Decode(_))));
+    }
+
+    #[test]
+    fn truncated_codec_packet_eof_is_a_decode_error() {
+        let error = map_packet_decode_error(SymphoniaError::IoError(std::io::Error::new(
+            ErrorKind::UnexpectedEof,
+            "truncated packet",
+        )));
+        assert!(
+            matches!(error, SpeechAudioError::Decode(message) if message.contains("truncated"))
+        );
     }
 
     #[test]
