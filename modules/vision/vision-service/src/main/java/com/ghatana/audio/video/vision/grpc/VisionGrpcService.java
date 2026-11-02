@@ -376,6 +376,19 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         return submission;
     }
 
+    private com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission<List<DetectedObject>>
+            submitProviderExecution(Context requestContext, Supplier<List<DetectedObject>> invocation) {
+        // A client-streaming callback can be invoked on a transport thread whose current
+        // Context differs from the one captured when processVideo opened. Reattach the
+        // original RPC Context before the bounded executor snapshots it for the child.
+        Context previous = requestContext.attach();
+        try {
+            return submitProviderExecution(invocation);
+        } finally {
+            previous.attach();
+        }
+    }
+
     private List<DetectedObject> recordProviderExecution(Supplier<List<DetectedObject>> invocation) {
         MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
                 MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.PROVIDER);
@@ -1174,7 +1187,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         .maxDetections(50)
                         .confidenceThreshold(0.6)
                         .build();
-                    var submission = submitProviderExecution(() -> detector.detectObjects(
+                    var submission = submitProviderExecution(operationContext, () -> detector.detectObjects(
                             request.getFrameData().toByteArray(), options));
                     pendingFrame.set(submission);
                     if (terminal.get() || rpcCancelled(responseObserver, operationContext)) {

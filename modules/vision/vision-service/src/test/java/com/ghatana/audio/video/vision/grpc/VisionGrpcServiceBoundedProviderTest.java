@@ -9,6 +9,7 @@ import com.ghatana.audio.video.vision.model.DetectionOptions;
 import com.ghatana.audio.video.vision.video.VideoFrameExtractor;
 import com.google.protobuf.ByteString;
 import io.grpc.Context;
+import io.grpc.Deadline;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -20,6 +21,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,6 +34,7 @@ import static org.mockito.Mockito.when;
 
 class VisionGrpcServiceBoundedProviderTest {
     private static final String TENANT = "vision-bounded-test";
+    private static final Context.Key<String> CORRELATION = Context.key("test-correlation");
     private static final DetectRequest REQUEST = DetectRequest.newBuilder()
             .setImageData(ByteString.copyFrom(new byte[]{1, 2, 3}))
             .build();
@@ -131,6 +134,48 @@ class VisionGrpcServiceBoundedProviderTest {
         workers.shutdownNow();
     }
 
+    @Test
+    void processVideoChildReceivesOriginalRpcDeadlineAndCorrelationAfterCallbackContextChanges() throws Exception {
+        VisionDetector detector = mock(VisionDetector.class);
+        AtomicReference<Deadline> observedDeadline = new AtomicReference<>();
+        AtomicReference<String> observedCorrelation = new AtomicReference<>();
+        CountDownLatch providerCalled = new CountDownLatch(1);
+        when(detector.detectObjects(any(byte[].class), any(DetectionOptions.class))).thenAnswer(call -> {
+            observedDeadline.set(Context.current().getDeadline());
+            observedCorrelation.set(CORRELATION.get());
+            providerCalled.countDown();
+            return List.of(detection());
+        });
+        VisionGrpcService service = new VisionGrpcService(detector, mock(VideoFrameExtractor.class)) {
+            @Override protected boolean isInferenceProviderAdmitted() { return true; }
+        };
+        ExecutorService workers = workerPool(1, 1);
+        service.bindProviderExecutor(workers);
+        ScheduledExecutorService scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+        Deadline rpcDeadline = Deadline.after(10, TimeUnit.SECONDS);
+        Context requestContext = tenantContext().withValue(CORRELATION, "corr-video-stream")
+                .withDeadline(rpcDeadline, scheduler);
+        CapturingStreamObserver observer = new CapturingStreamObserver();
+        AtomicReference<StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest>> requestStream =
+                new AtomicReference<>();
+
+        requestContext.run(() -> requestStream.set(service.processVideo(observer)));
+        // Simulate a later transport callback running under a reduced/different Context.
+        tenantContext().run(() -> requestStream.get().onNext(
+                com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest.newBuilder()
+                        .setFrameData(ByteString.copyFrom(new byte[]{1, 2, 3}))
+                        .build()));
+
+        assertThat(providerCalled.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(observer.failure).isNull();
+        assertThat(observedDeadline.get()).isSameAs(rpcDeadline);
+        assertThat(observedCorrelation.get()).isEqualTo("corr-video-stream");
+        requestStream.get().onCompleted();
+        assertThat(observer.terminal.await(1, TimeUnit.SECONDS)).isTrue();
+        scheduler.shutdownNow();
+        workers.shutdownNow();
+    }
+
     private static ThreadPoolExecutor workerPool(int workers, int queueCapacity) {
         return new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(queueCapacity), runnable -> {
@@ -178,5 +223,15 @@ class VisionGrpcServiceBoundedProviderTest {
         @Override public void onError(Throwable value) { failure = value; terminal.countDown(); }
 
         @Override public void onCompleted() { completed = true; terminal.countDown(); }
+    }
+
+    private static final class CapturingStreamObserver
+            implements StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse> {
+        private volatile Throwable failure;
+        private final CountDownLatch terminal = new CountDownLatch(1);
+
+        @Override public void onNext(com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse value) { }
+        @Override public void onError(Throwable value) { failure = value; terminal.countDown(); }
+        @Override public void onCompleted() { terminal.countDown(); }
     }
 }
