@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import YAML from 'yaml';
 import { verifyDeclarativeProductionDefinitions } from '../scripts/check-media-declarative-production-definitions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,7 +23,7 @@ test('all PDP-0, PDP-1, and PDP-2 declarative production source contracts reconc
   assert.equal(result.stats.p1Bindings, 61);
   assert.equal(result.stats.p2Bindings, 61);
   assert.equal(result.stats.p3Bindings, 61);
-  assert.equal(result.stats.valueTypes, 10);
+  assert.equal(result.stats.valueTypes, 11);
   assert.equal(result.stats.recorderManualEdits, 52);
   assert.equal(result.stats.originClasses, 5);
 });
@@ -86,7 +87,7 @@ test('reject conversion of educational model time into editorial story time', ()
 
 test('refuse premature phase DEV_COMPLETE status from an unexecuted source proposal', () => {
   const source = read(files.p1);
-  const broken = source.replace('status: SOURCE_AUTHORED_PENDING_NATIVE_VALIDATION_AND_CURRENTNESS', 'status: DEV_COMPLETE');
+  const broken = source.replace('status: SOURCE_AUTHORED_DEFINITION_ONLY', 'status: DEV_COMPLETE');
   assert.notEqual(source, broken);
   const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: broken } });
   assert.ok(result.errors.some(e => /cannot self-declare current-source DEV_COMPLETE/.test(e)), result.errors.join('\n'));
@@ -101,4 +102,23 @@ test('reject a PDP-3 journey/operation drift even with all 61 successor cases pr
   assert.notEqual(source, broken);
   const result = verifyDeclarativeProductionDefinitions({ overrides: { p3: broken } });
   assert.ok(result.errors.some(e => /PDP-3 successor lacks exact P0\/1\/2/.test(e)), result.errors.join('\n'));
+});
+
+test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds explicit NO_ENGINE identities', () => {
+  const source = YAML.parse(read(files.p1));
+  const binding = source.executionAdmissionBinding;
+  assert.equal(binding.id, 'media.production.execution-admission.v1');
+  assert.equal(binding.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(binding.operationSchemaRelation.operationRef, 'media.recipe.specification.compile');
+  assert.equal(binding.operationSchemaRelation.fieldMapping, 'NOT_ASSERTED');
+  assert.deepEqual(binding.schema.properties.requestIdentity.required, ['requestId', 'requestFingerprint']);
+  assert.equal(binding.schema.properties.enginesByStep.minProperties, 1);
+  const enginesByStep = binding.schema.properties.enginesByStep;
+  const engine = enginesByStep.additionalProperties;
+  assert.deepEqual(engine.properties.identityKind.enum, ['ENGINE', 'MODEL', 'SOLVER', 'NO_ENGINE']);
+  assert.equal(engine.allOf[0].if.properties.identityKind.const, 'NO_ENGINE');
+  assert.equal(engine.allOf[0].then.properties.identity.const, 'NO_ENGINE');
+  assert.equal(engine.allOf[0].then.properties.immutableBuildSha256.const, 'NO_ENGINE');
+  assert.equal(engine.allOf[1].then.properties.identity.not.const, 'NO_ENGINE');
+  assert.equal(engine.allOf[1].then.properties.immutableBuildSha256.$ref, '#/$defs/immutableSha256');
 });

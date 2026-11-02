@@ -1122,7 +1122,7 @@ caseExperiences:
     channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
   - id: media.declarative.p3.case.058.v1
     pdp0CaseId: MEDIA-DECL-P0-AC-058
-    pdp1OperationRef: media.operation-slice.submit-job
+    pdp1OperationRef: media.operation.job.submit.v1
     pdp2ScreenReuseRef: media.view.compose-media
     existingJourneyRef: J-18
     surfaceId: media.surface.recorder-orchestrator

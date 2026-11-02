@@ -123,9 +123,9 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   if (!sameSet(p1.existingCanonicalDomainRefs || [], domainIds) ||
       !domainIds.every(id => objectIds.has(id))) fail('PDP-1: canonical domain objects are missing, replaced or duplicated');
   const vals = p1.typedProductionValueDescriptors || [];
-  if (vals.length !== 10 || !unique(vals.map(x => x.id)) ||
+  if (vals.length !== 11 || !unique(vals.map(x => x.id)) ||
       vals.some(x => !x.requiredFields?.length || !x.invariant || !objectIds.has(x.ownerDomainRef)))
-    fail('PDP-1: all 10 typed declarative value descriptions require existing owner objects and explicit fields');
+    fail('PDP-1: all 11 typed declarative value descriptions require existing owner objects and explicit fields');
   if (recorderP2.manualOperationParity?.canonicalOperationCount !== 52 ||
       recorderP2.manualOperationParity.operations?.length !== 52)
     fail('PDP-2: 52 Recorder manual operation discriminants/parity are not preserved');
