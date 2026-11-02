@@ -305,7 +305,33 @@ public final class MediaProductionAdmissionBinding {
             BoundedAmount remainingCost, BoundedAmount remainingCompute, BoundedAmount remainingTime,
             String lockScopeKind, String lockTargetRef, String lockOwnerPrincipalId, String lockLeaseId, long lockEpoch,
             Instant lockExpiresAt, String canonicalRequestId, String canonicalRequestFingerprint,
-            ClockBindings clocks, Instant observedAt) { }
+            ClockBindings clocks, Instant observedAt,
+            String globalOwnerDecisionRef, Instant globalDecisionExpiresAt, long globalRevocationEpoch,
+            String globalRightsRef) {
+        /**
+         * Source-compatible constructor for readers that expose a single authority
+         * decision. It leaves global authority unavailable, so this state fails
+         * closed. Readers must use the full constructor and supply the independently
+         * observed current global authority decision to admit any step.
+         */
+        public CurrentState(String tenantId, String principalId, String purposeRef,
+                String sourceVersionRef, String sourceSha256, String projectId, String projectRevision,
+                String rightsRef, String ownerDecisionRef, Instant rightsExpiresAt, long revocationEpoch,
+                String engineIdentityKind, String engineIdentity, String engineBuildSha256, String providerId,
+                String qualificationRef, String qualificationSha256, String providerRightsRef, boolean qualified,
+                String quoteRef, String quoteVersion, String reservationId,
+                BoundedAmount remainingCost, BoundedAmount remainingCompute, BoundedAmount remainingTime,
+                String lockScopeKind, String lockTargetRef, String lockOwnerPrincipalId, String lockLeaseId,
+                long lockEpoch, Instant lockExpiresAt, String canonicalRequestId, String canonicalRequestFingerprint,
+                ClockBindings clocks, Instant observedAt) {
+            this(tenantId, principalId, purposeRef, sourceVersionRef, sourceSha256, projectId, projectRevision,
+                    rightsRef, ownerDecisionRef, rightsExpiresAt, revocationEpoch, engineIdentityKind, engineIdentity,
+                    engineBuildSha256, providerId, qualificationRef, qualificationSha256, providerRightsRef,
+                    qualified, quoteRef, quoteVersion, reservationId, remainingCost, remainingCompute, remainingTime,
+                    lockScopeKind, lockTargetRef, lockOwnerPrincipalId, lockLeaseId, lockEpoch, lockExpiresAt,
+                    canonicalRequestId, canonicalRequestFingerprint, clocks, observedAt, null, null, -1, null);
+        }
+    }
 
     public static void requireCurrent(Binding b, String stepId, CurrentState s) {
         requireCurrentInternal(b, stepId, null, s, false);
@@ -335,6 +361,11 @@ public final class MediaProductionAdmissionBinding {
         if (!a.tenantId().equals(s.tenantId())) fail(AdmissionFailure.TENANT_MISMATCH);
         if (!a.principalId().equals(s.principalId())) fail(AdmissionFailure.PRINCIPAL_MISMATCH);
         if (!a.purposeRef().equals(s.purposeRef())) fail(AdmissionFailure.PURPOSE_MISMATCH);
+        if (!a.ownerDecisionRef().equals(s.globalOwnerDecisionRef())
+                || !a.decisionExpiresAt().equals(s.globalDecisionExpiresAt())
+                || !a.decisionExpiresAt().isAfter(now)) fail(AdmissionFailure.RIGHTS_STALE);
+        if (s.globalRevocationEpoch() != a.revocationEpoch()) fail(AdmissionFailure.RIGHTS_REVOKED);
+        if (!a.rightsRef().equals(s.globalRightsRef())) fail(AdmissionFailure.RIGHTS_STALE);
         SceneSourceAuthority sceneAuthority = null;
         if (stepId.startsWith("capture-source-")) {
             if (!planSceneValidated || sceneRef == null) fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
@@ -425,6 +456,8 @@ public final class MediaProductionAdmissionBinding {
                 && present(s.projectId()) && present(s.projectRevision())
                 && present(s.rightsRef()) && present(s.ownerDecisionRef()) && s.rightsExpiresAt() != null
                 && s.revocationEpoch() >= 0
+                && present(s.globalOwnerDecisionRef()) && s.globalDecisionExpiresAt() != null
+                && s.globalRevocationEpoch() >= 0 && present(s.globalRightsRef())
                 && present(s.engineIdentityKind()) && present(s.engineIdentity()) && present(s.engineBuildSha256())
                 && present(s.providerId()) && present(s.qualificationRef()) && present(s.qualificationSha256())
                 && present(s.providerRightsRef())

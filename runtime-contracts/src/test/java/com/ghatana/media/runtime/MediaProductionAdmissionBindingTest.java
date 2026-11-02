@@ -86,7 +86,8 @@ class MediaProductionAdmissionBindingTest {
                 new BoundedAmount(120, "cpu-ms"), new BoundedAmount(600, "wall-ms"),
                 lock.scopeKind(), lock.targetRef(), lock.ownerPrincipalId(), lock.leaseId(),
                 lock.epoch(), lock.expiresAt(),
-                null, null, b.clocks(), NOW);
+                null, null, b.clocks(), NOW, b.authority().ownerDecisionRef(),
+                b.authority().decisionExpiresAt(), b.authority().revocationEpoch(), b.authority().rightsRef());
     }
 
     private static Binding withSceneSources(Binding base, Map<String, SceneSourceAuthority> sources) {
@@ -218,6 +219,75 @@ class MediaProductionAdmissionBindingTest {
         assertThat(compiler.compile(singleScene, base).nodes())
                 .extracting(node -> node.stepId())
                 .contains("capture-source-0");
+    }
+
+    @Test
+    void captureRequiresCurrentGlobalDecisionAndRevocationEpochIndependentlyOfSceneDecision() {
+        Binding base = binding(SHA);
+        Binding b = withSceneSources(base, Map.of("scene/1@v1", new SceneSourceAuthority(
+                "source/v4", SHA, "rights/v1", "decision/scene-1", NOW.plusSeconds(300), 8)));
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1",
+                "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, b);
+        CurrentState current = state(b, "capture-source-0", "scene/1@v1");
+
+        MediaProductionAdmissionBinding.requireCurrent(b, plan, "capture-source-0", "scene/1@v1", current);
+        assertCaptureFailureWithoutEffect(b, plan, withoutGlobalAuthority(current),
+                AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        assertCaptureFailureWithoutEffect(b, plan, copyGlobalRights(current, "rights/revoked-global"),
+                AdmissionFailure.RIGHTS_STALE);
+
+        assertCaptureFailureWithoutEffect(b, plan, copyGlobalAuthority(current,
+                "decision/revoked-global", NOW.plusSeconds(600), 3), AdmissionFailure.RIGHTS_STALE);
+        assertCaptureFailureWithoutEffect(b, plan, copyGlobalAuthority(current,
+                "decision/rights-4", NOW.minusSeconds(1), 3), AdmissionFailure.RIGHTS_STALE);
+        assertCaptureFailureWithoutEffect(b, plan, copyGlobalAuthority(current,
+                "decision/rights-4", NOW.plusSeconds(600), 4), AdmissionFailure.RIGHTS_REVOKED);
+    }
+
+    private static void assertCaptureFailureWithoutEffect(Binding b,
+            MediaProductionSpecCompiler.CompiledPlan plan, CurrentState state, AdmissionFailure failure) {
+        AtomicInteger effects = new AtomicInteger();
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, plan,
+                "capture-source-0", "scene/1@v1", () -> state, effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(failure);
+        assertThat(effects).hasValue(0);
+    }
+
+    private static CurrentState copyGlobalAuthority(CurrentState s, String decisionRef,
+            Instant expiresAt, long revocationEpoch) {
+        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+                s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
+                s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
+                s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
+                s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(),
+                s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
+                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(),
+                decisionRef, expiresAt, revocationEpoch, s.globalRightsRef());
+    }
+
+    private static CurrentState copyGlobalRights(CurrentState s, String rightsRef) {
+        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+                s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
+                s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
+                s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
+                s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(),
+                s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
+                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(),
+                s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), rightsRef);
+    }
+
+    private static CurrentState withoutGlobalAuthority(CurrentState s) {
+        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+                s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
+                s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
+                s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
+                s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(),
+                s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
+                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
     }
 
     @Test
@@ -492,7 +562,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
                 s.quoteVersion(), reservation, s.remainingCost(), s.remainingCompute(), s.remainingTime(),
                 s.lockScopeKind(), s.lockTargetRef(), lockOwner, s.lockLeaseId(), lockEpoch, s.lockExpiresAt(), s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), clocks, s.observedAt());
+                s.canonicalRequestFingerprint(), clocks, s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyWithRights(CurrentState s, String rightsRef) {
@@ -502,7 +572,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
                 s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyAttempt(CurrentState s, String requestId, String fingerprint) {
@@ -512,7 +582,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
                 s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), requestId, fingerprint,
-                s.clocks(), s.observedAt());
+                s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyWithSourceSha(CurrentState s, String sourceSha) {
@@ -522,7 +592,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
                 s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyWithLockExpiry(CurrentState s, Instant expiry) {
@@ -532,7 +602,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
                 s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), expiry, s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyWithLockTarget(CurrentState s, String scopeKind, String targetRef) {
@@ -542,7 +612,7 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
                 s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), scopeKind, targetRef,
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState copyWithEngine(CurrentState s, String kind, String identity, String digest) {
@@ -551,7 +621,7 @@ class MediaProductionAdmissionBindingTest {
                 kind, identity, digest, s.providerId(), s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(),
                 s.qualified(), s.quoteRef(), s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(),
                 s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
-                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
     private static CurrentState replace(CurrentState s, String tenant, String principal, String purpose,
@@ -564,6 +634,6 @@ class MediaProductionAdmissionBindingTest {
                 s.qualificationSha256(), s.providerRightsRef(), qualified, s.quoteRef(), quoteVersion,
                 s.reservationId(), remainingCost, s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 lockOwner, s.lockLeaseId(), lockEpoch, lockExpiry, s.canonicalRequestId(),
-                s.canonicalRequestFingerprint(), clocks, s.observedAt());
+                s.canonicalRequestFingerprint(), clocks, s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 }
