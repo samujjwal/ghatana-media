@@ -292,7 +292,18 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         ensureOpen();
         require(principalId, "principalId");
         FinalizationClaim claim = claimFinalization(tenantId, principalId, uploadId);
-        if (claim.existingArtifact() != null) return new UploadCompletionResult(claim.existingArtifact(), false);
+        if (claim.existingArtifact() != null) {
+            // Artifact metadata is already durable. Chunk-object removal is best effort after
+            // commit, so a lost delete acknowledgement or transient S3 failure can leave staged
+            // objects behind. The committed chunk manifest remains the ownership record and lets
+            // an idempotent completion retry remove only this upload's staged keys.
+            try {
+                deleteChunks(chunks(tenantId, uploadId));
+            } catch (RuntimeException ignored) {
+                // Cleanup must not turn a completed upload into a failed/ambiguous completion.
+            }
+            return new UploadCompletionResult(claim.existingArtifact(), false);
+        }
 
         String finalKey = artifactKey(tenantId, uploadId, claim.row().expectedSha256());
         String multipartId = null;

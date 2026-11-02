@@ -21,6 +21,8 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -176,6 +178,16 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
             MediaArtifact replay = restarted.complete(tenant, principal, upload.uploadId());
             assertThat(replay).isEqualTo(recovered);
             assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+
+            // Simulate a staged-object delete that failed after the artifact commit. The durable
+            // chunk manifest must let an exact completion replay retry cleanup without creating
+            // another artifact or changing the request fingerprint.
+            putObject(bucket, stagedChunkKey, bytes);
+            assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
+            assertThat(restarted.complete(tenant, principal, upload.uploadId())).isEqualTo(recovered);
+            assertThat(objectExists(bucket, stagedChunkKey)).isFalse();
+            assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+            assertThat(requestFingerprint(tenant, upload.uploadId())).isEqualTo(fingerprint);
         } finally {
             dropChunkInsertFenceIfPresent();
             deleteBucketObjects(bucket);
@@ -350,6 +362,13 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         try (S3Client client = s3Client()) {
             return client.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build()).readAllBytes();
         } catch (java.io.IOException failure) { throw new AssertionError("S3 object read failed", failure); }
+    }
+
+    private static void putObject(String bucket, String key, byte[] bytes) {
+        try (S3Client client = s3Client()) {
+            client.putObject(PutObjectRequest.builder().bucket(bucket).key(key)
+                    .contentLength((long) bytes.length).build(), RequestBody.fromBytes(bytes));
+        }
     }
 
     private static void deleteBucketObjects(String bucket) {
