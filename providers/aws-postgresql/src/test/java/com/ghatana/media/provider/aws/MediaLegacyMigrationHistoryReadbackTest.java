@@ -127,11 +127,12 @@ class MediaLegacyMigrationHistoryReadbackTest {
     }
 
     private static List<History> readManifest() throws Exception {
+        List<History> history;
         try (var input = MediaLegacyMigrationHistoryReadbackTest.class.getResourceAsStream(MANIFEST)) {
             assertThat(input).isNotNull();
             try (var reader = new java.io.BufferedReader(
                     new java.io.InputStreamReader(input, StandardCharsets.UTF_8))) {
-                return reader.lines().filter(line -> !line.isBlank() && !line.startsWith("#")
+                history = reader.lines().filter(line -> !line.isBlank() && !line.startsWith("#")
                                 && !line.startsWith("version,"))
                         .map(line -> line.split(",", -1))
                         .map(parts -> {
@@ -153,6 +154,13 @@ class MediaLegacyMigrationHistoryReadbackTest {
                         }).toList();
             }
         }
+        assertThat(history).as("test-only legacy Flyway source manifest").hasSize(16);
+        for (int index = 0; index < history.size(); index++) {
+            assertThat(history.get(index).version())
+                    .as("legacy migration manifest row %d", index + 1)
+                    .isEqualTo(index + 1);
+        }
+        return history;
     }
 
     private static String sha256(byte[] value) throws Exception {
