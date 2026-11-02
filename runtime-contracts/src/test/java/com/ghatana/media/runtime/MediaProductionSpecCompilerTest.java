@@ -200,6 +200,36 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
+    void structurallyEqualSchemaFormattingIsAcceptedButActualResolverBytesStayFingerprintBound() throws Exception {
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+        byte[] canonicalSchema = PRODUCTION_SPEC_SCHEMA_JSON.getBytes(StandardCharsets.UTF_8);
+        byte[] reformattedSchema = JSON.writeValueAsBytes(JSON.readTree(PRODUCTION_SPEC_SCHEMA_JSON));
+        assertThat(reformattedSchema).isNotEqualTo(canonicalSchema);
+        byte[] specification = JSON.writeValueAsBytes(spec());
+        byte[] compilerContract = "compiler bytes".getBytes(StandardCharsets.UTF_8);
+        Map<String, byte[]> canonicalContent = Map.of(
+                inputs.productionSpecRef(), specification,
+                inputs.productionSpecSchemaRef(), canonicalSchema,
+                inputs.compilerContractRef(), compilerContract);
+        Map<String, byte[]> reformattedContent = Map.of(
+                inputs.productionSpecRef(), specification,
+                inputs.productionSpecSchemaRef(), reformattedSchema,
+                inputs.compilerContractRef(), compilerContract);
+
+        var compiler = new MediaProductionSpecCompiler();
+        var canonicalPlan = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved(ref, canonicalContent.get(ref)));
+        var reformattedPlan = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved(ref, reformattedContent.get(ref)));
+
+        assertThat(reformattedPlan.planFingerprint()).isNotEqualTo(canonicalPlan.planFingerprint());
+        assertThat(reformattedPlan.invalidatedAgainst(canonicalPlan)).containsExactlyElementsOf(
+                canonicalPlan.nodes().stream().map(node -> node.stepId()).toList());
+    }
+
+    @Test
     void resolvedProductionSpecMustMatchTypedInputAndRejectMalformedOrDuplicateJson() throws Exception {
         var inputs = new MediaProductionSpecCompiler.CompilationInputs(
                 "production-spec/source-rev-7", "production-spec-schema/rev-1",
