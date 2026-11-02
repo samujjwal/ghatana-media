@@ -49,6 +49,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -193,6 +194,68 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
             assertArtifactPresent(tenant, maliciousId);
             assertObjectExists(admin, bucket, otherTenantKey);
             assertArtifactPresent(otherTenant, otherTenantArtifact.artifactId());
+        } finally {
+            deleteBucket(bucket);
+        }
+    }
+
+    @Test
+    void lostDeleteAcknowledgementKeepsMetadataForIdempotentErasureRetry() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-erasure-lost-ack-" + runId;
+        String prefix = "ip06-erasure-lost-ack/" + runId;
+        String tenant = "tenant-ip06-erasure-lost-ack-" + runId;
+        String principal = "principal-ip06-erasure-lost-ack-" + runId;
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        AtomicBoolean loseFirstDeleteAck = new AtomicBoolean(true);
+        AtomicReference<String> targetKey = new AtomicReference<>();
+        AtomicReference<String> deletedKey = new AtomicReference<>();
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                     delegate -> (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(),
+                             new Class<?>[] {S3Client.class}, (proxy, method, arguments) -> {
+                                 Object result;
+                                 try {
+                                     result = method.invoke(delegate, arguments);
+                                 } catch (InvocationTargetException failure) {
+                                     throw failure.getCause();
+                                 }
+                                 if ("deleteObject".equals(method.getName()) && arguments != null
+                                         && arguments.length > 0 && arguments[0] instanceof DeleteObjectRequest request
+                                         && bucket.equals(request.bucket())
+                                         && request.key().equals(targetKey.get())
+                                         && loseFirstDeleteAck.compareAndSet(true, false)) {
+                                     deletedKey.set(request.key());
+                                     throw software.amazon.awssdk.services.s3.model.S3Exception.builder()
+                                             .statusCode(503).message("injected lost erasure delete acknowledgement")
+                                             .build();
+                                 }
+                                 return result;
+                             }));
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore();
+             PostgresqlMediaPrivacyMaintenance maintenance = new PostgresqlMediaPrivacyMaintenance(environment);
+             S3Client admin = s3Client()) {
+            MediaArtifact expired = complete(store, tenant, principal, "expired.wav", "expired:" + runId);
+            String objectKey = objectKey(expired.objectReference());
+            targetKey.set(objectKey);
+            expireArtifact(tenant, expired.artifactId(), false);
+            assertObjectExists(admin, bucket, objectKey);
+
+            assertThatThrownBy(() -> maintenance.purgeExpired(Instant.now()))
+                    .isInstanceOf(software.amazon.awssdk.services.s3.model.S3Exception.class)
+                    .hasMessageContaining("injected lost erasure delete acknowledgement");
+
+            // S3 performed the delete, but its lost ACK forced the metadata transaction to roll
+            // back. The artifact remains visible for retry while its bytes are already absent.
+            assertThat(deletedKey.get()).isEqualTo(objectKey);
+            assertObjectAbsent(admin, bucket, objectKey);
+            assertArtifactPresent(tenant, expired.artifactId());
+
+            var retry = maintenance.purgeExpired(Instant.now());
+            assertThat(retry.artifactsDeleted()).isEqualTo(1);
+            assertArtifactAbsent(tenant, expired.artifactId());
+            assertObjectAbsent(admin, bucket, objectKey);
         } finally {
             deleteBucket(bucket);
         }
