@@ -118,13 +118,34 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
         return composeRuntimePort(environment, ServiceLoader.load(MediaRuntimePortFactory.class, classLoader));
     }
 
+    /**
+     * The canonical runtime port is mandatory for OCR_ONLY source authority, while FULL_VISION
+     * remains independently startable without Media job access. If factories are present in
+     * either profile, the usual single-provider and non-null checks still apply.
+     */
+    static MediaProcessingRuntimePort composeRuntimePortForProfile(
+            Map<String, String> environment, Iterable<MediaRuntimePortFactory> discoveredFactories) {
+        boolean required = com.ghatana.audio.video.vision.model.VisionCapabilityProfile.fromEnvironment(environment)
+                == com.ghatana.audio.video.vision.model.VisionCapabilityProfile.OCR_ONLY;
+        List<MediaRuntimePortFactory> factories = new ArrayList<>();
+        discoveredFactories.forEach(factories::add);
+        if (factories.isEmpty() && !required) return null;
+        return composeRuntimePort(environment, factories);
+    }
+
+    static MediaProcessingRuntimePort composeRuntimePortForProfile(
+            Map<String, String> environment, ClassLoader classLoader) {
+        return composeRuntimePortForProfile(environment,
+                ServiceLoader.load(MediaRuntimePortFactory.class, classLoader));
+    }
+
     static MediaProcessingRuntimePort composeRuntimePort(
             Map<String, String> environment, Iterable<MediaRuntimePortFactory> discoveredFactories) {
         List<MediaRuntimePortFactory> factories = new ArrayList<>();
         discoveredFactories.forEach(factories::add);
         if (factories.isEmpty()) {
-            LOG.warn("No MediaRuntimePortFactory installed; Vision source operations stay NOT_ADMITTED");
-            return null;
+            throw new IllegalStateException(
+                    "Standalone Vision requires exactly one MediaRuntimePortFactory; none is installed");
         }
         if (factories.size() > 1) {
             throw new IllegalStateException("Multiple MediaRuntimePortFactory implementations are installed: "
@@ -154,7 +175,7 @@ public final class VisionGrpcServer extends AudioVideoGrpcServerBase {
     static VisionGrpcServer createStandaloneServer(Map<String, String> environment, ClassLoader classLoader) {
         int port = parsePort(environment.get("VISION_GRPC_PORT"));
         TransportSecurity security = transportSecurity(environment);
-        MediaProcessingRuntimePort runtimePort = composeRuntimePort(environment, classLoader);
+        MediaProcessingRuntimePort runtimePort = composeRuntimePortForProfile(environment, classLoader);
         ServerRuntime runtime = null;
         try {
             runtime = createProductionRuntime(environment, runtimePort, true);

@@ -13,7 +13,10 @@ import java.util.Optional;
  */
 public final class DocumentIntelligenceException extends Exception {
 
-    public enum Kind { UNAVAILABLE, TIMEOUT, CANCELLED, WORKER_ERROR, INVALID_RESPONSE, SOURCE_TOO_LARGE }
+    public enum Kind {
+        UNAVAILABLE, TIMEOUT, CANCELLED, DEADLINE_EXCEEDED, UNKNOWN_OUTCOME,
+        WORKER_ERROR, INVALID_RESPONSE, SOURCE_TOO_LARGE
+    }
 
     private final Kind kind;
     private final String workerCode;

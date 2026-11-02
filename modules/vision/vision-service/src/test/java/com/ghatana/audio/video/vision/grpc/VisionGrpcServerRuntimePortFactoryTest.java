@@ -50,13 +50,26 @@ public class VisionGrpcServerRuntimePortFactoryTest {
     }
 
     @Test
-    void missingFactoryLeavesRuntimeNotAdmittedAndAmbiguousFactoriesFailClosed() {
-        assertThat(VisionGrpcServer.composeRuntimePort(Map.of(), List.of())).isNull();
+    void missingFactoryAndAmbiguousFactoriesFailClosed() {
+        assertThatThrownBy(() -> VisionGrpcServer.composeRuntimePort(Map.of(), List.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("exactly one MediaRuntimePortFactory")
+                .hasMessageContaining("none is installed");
         MediaRuntimePortFactory first = factory("first", mock(MediaProcessingRuntimePort.class));
         MediaRuntimePortFactory second = factory("second", mock(MediaProcessingRuntimePort.class));
         assertThatThrownBy(() -> VisionGrpcServer.composeRuntimePort(Map.of(), List.of(first, second)))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Multiple MediaRuntimePortFactory");
+    }
+
+    @Test
+    void fullVisionMayStartWithoutMediaRuntimeWhileOcrOnlyStillRequiresIt() {
+        assertThat(VisionGrpcServer.composeRuntimePortForProfile(
+                Map.of("VISION_CAPABILITY_PROFILE", "FULL_VISION"), List.of())).isNull();
+        assertThatThrownBy(() -> VisionGrpcServer.composeRuntimePortForProfile(
+                Map.of("VISION_CAPABILITY_PROFILE", "OCR_ONLY"), List.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("exactly one MediaRuntimePortFactory");
     }
 
     @Test
@@ -97,7 +110,7 @@ public class VisionGrpcServerRuntimePortFactoryTest {
         try (URLClassLoader withoutFactory = new URLClassLoader(new URL[0], null)) {
             assertThatThrownBy(() -> VisionGrpcServer.createStandaloneServer(environment, withoutFactory))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("OCR_ONLY requires the canonical Media runtime port");
+                    .hasMessageContaining("exactly one MediaRuntimePortFactory");
         }
         try (Socket ignored = new Socket("127.0.0.1", portNumber)) {
             throw new AssertionError("server unexpectedly bound without the canonical runtime factory");

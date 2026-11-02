@@ -25,6 +25,7 @@ class VisionGrpcServerMainProcessTest {
         Files.createDirectories(serviceFile.getParent());
         Files.writeString(serviceFile, StandaloneProcessTestRuntimePortFactory.class.getName() + "\n");
         Path closeMarker = tempDirectory.resolve("runtime-port-closed");
+        Path composedMarker = tempDirectory.resolve("runtime-port-composed");
 
         ProcessBuilder builder = new ProcessBuilder(
                 javaExecutable(),
@@ -47,6 +48,7 @@ class VisionGrpcServerMainProcessTest {
                 Map.entry("DI_ACCEPTED_MEDIA_TYPES", "image/png"),
                 Map.entry("DI_ACCEPTED_LANGUAGES", "en"),
                 Map.entry("VISION_TEST_PORT_CLOSE_MARKER", closeMarker.toString()),
+                Map.entry("VISION_TEST_PORT_COMPOSED_MARKER", composedMarker.toString()),
                 Map.entry("AV_JWT_SECRET", "vision-main-process-test-secret")));
 
         Process process = builder.start();
@@ -84,7 +86,61 @@ class VisionGrpcServerMainProcessTest {
             }
         }
         assertThat(process.exitValue()).as("child received process shutdown").isIn(0, 143);
+        assertThat(Files.readString(composedMarker)).isEqualTo("composed");
         assertThat(Files.readString(closeMarker)).isEqualTo("closed");
+    }
+
+    @Test
+    void mainFailsClosedBeforeBindingWhenNoRuntimeFactoryIsInstalled(@TempDir Path tempDirectory) throws Exception {
+        assertMainFailsBeforeBinding(tempDirectory, "", "exactly one MediaRuntimePortFactory");
+    }
+
+    @Test
+    void mainFailsClosedBeforeCompositionOrBindingWhenFactoriesAreAmbiguous(@TempDir Path tempDirectory)
+            throws Exception {
+        String providers = StandaloneProcessTestRuntimePortFactory.class.getName() + "\n"
+                + DuplicateStandaloneProcessTestRuntimePortFactory.class.getName() + "\n";
+        assertMainFailsBeforeBinding(tempDirectory, providers, "Multiple MediaRuntimePortFactory");
+    }
+
+    private static void assertMainFailsBeforeBinding(Path tempDirectory, String providers, String expectedLog)
+            throws Exception {
+        int port = freePort();
+        int healthPort = freePort();
+        Path serviceDirectory = tempDirectory.resolve("provider");
+        Path serviceFile = serviceDirectory.resolve(
+                "META-INF/services/com.ghatana.media.runtime.MediaRuntimePortFactory");
+        Files.createDirectories(serviceFile.getParent());
+        Files.writeString(serviceFile, providers);
+        Path logFile = tempDirectory.resolve("vision-child.log");
+        ProcessBuilder builder = new ProcessBuilder(
+                javaExecutable(),
+                "-cp",
+                System.getProperty("java.class.path") + System.getProperty("path.separator") + serviceDirectory,
+                VisionGrpcServer.class.getName())
+                .directory(tempDirectory.toFile())
+                .redirectErrorStream(true)
+                .redirectOutput(logFile.toFile());
+        builder.environment().putAll(Map.of(
+                "VISION_CAPABILITY_PROFILE", "OCR_ONLY",
+                "VISION_GRPC_PORT", Integer.toString(port),
+                "AV_HEALTH_PORT", Integer.toString(healthPort),
+                "AV_JWT_SECRET", "vision-main-process-test-secret"));
+
+        Process process = builder.start();
+        assertThat(process.waitFor(15, TimeUnit.SECONDS)).as("misconfigured child exits promptly").isTrue();
+        assertThat(process.exitValue()).isEqualTo(1);
+        assertThat(Files.readString(logFile)).contains(expectedLog);
+        assertPortUnavailable(port);
+        assertPortUnavailable(healthPort);
+    }
+
+    private static void assertPortUnavailable(int port) throws Exception {
+        try (java.net.Socket ignored = new java.net.Socket("127.0.0.1", port)) {
+            throw new AssertionError("misconfigured Vision process unexpectedly bound port " + port);
+        } catch (java.io.IOException expected) {
+            // A failed composition must not expose either listener.
+        }
     }
 
     private static int freePort() throws Exception {

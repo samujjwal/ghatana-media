@@ -18,6 +18,14 @@ public final class StandaloneProcessTestRuntimePortFactory implements MediaRunti
 
     @Override
     public MediaProcessingRuntimePort compose(Map<String, String> environment) {
+        String composedMarker = environment.get("VISION_TEST_PORT_COMPOSED_MARKER");
+        if (composedMarker != null && !composedMarker.isBlank()) {
+            try {
+                Files.writeString(Path.of(composedMarker), "composed");
+            } catch (java.io.IOException failure) {
+                throw new IllegalStateException("could not record test runtime port composition", failure);
+            }
+        }
         String marker = environment.get("VISION_TEST_PORT_CLOSE_MARKER");
         if (marker == null || marker.isBlank()) {
             throw new IllegalStateException("test close marker is required");

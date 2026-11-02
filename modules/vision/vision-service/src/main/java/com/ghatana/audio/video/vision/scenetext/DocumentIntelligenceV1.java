@@ -29,8 +29,8 @@ public interface DocumentIntelligenceV1 {
     /** {@code POST /v1/parse} with multipart {@code metadata} + opaque {@code file}. */
     ParsedDocument parse(ParseRequest request, Cancellation cancellation) throws DocumentIntelligenceException;
 
-    /** {@code DELETE /v1/operations/{operationId}}; idempotent for the given generation. */
-    void cancel(String operationId, String operationGeneration);
+    /** {@code DELETE /v1/operations/{operationId}}; true only for a validated cancellation acknowledgment. */
+    boolean cancel(String operationId, String operationGeneration);
 
     record ProviderCatalog(String protocolVersion, String workerCapabilityVersion, List<ProviderEntry> providers) {
         public ProviderCatalog {

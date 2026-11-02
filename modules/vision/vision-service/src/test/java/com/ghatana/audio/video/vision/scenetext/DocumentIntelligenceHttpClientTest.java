@@ -31,6 +31,9 @@ class DocumentIntelligenceHttpClientTest {
             .getBytes(StandardCharsets.UTF_8);
     private volatile boolean declareLength = true;
     private volatile CountDownLatch gate;
+    private volatile String cancelResponseMode = "confirmed";
+    private volatile int parseStatus = 409;
+    private volatile String parseBody = errorEnvelope("operation-1", "PROVIDER_FAILED");
     private final AtomicInteger cancelRequests = new AtomicInteger();
 
     @BeforeEach
@@ -54,7 +57,25 @@ class DocumentIntelligenceHttpClientTest {
         });
         server.createContext("/v1/operations/", exchange -> {
             cancelRequests.incrementAndGet();
-            exchange.sendResponseHeaders(204, -1);
+            String operationId = exchange.getRequestURI().getRawPath().substring("/v1/operations/".length());
+            String generation = exchange.getRequestHeaders().getFirst("x-operation-generation");
+            String body = switch (cancelResponseMode) {
+                case "false" -> cancelAck(operationId, generation, false);
+                case "wrong-generation" -> cancelAck(operationId, "0".repeat(32), true);
+                case "extra-field" -> cancelAck(operationId, generation, true).replace("}", ",\"extra\":true}");
+                case "malformed" -> "{not-json";
+                default -> cancelAck(operationId, generation, true);
+            };
+            byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, bytes.length);
+            exchange.getResponseBody().write(bytes);
+            exchange.close();
+        });
+        server.createContext("/v1/parse", exchange -> {
+            byte[] body = parseBody.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().add("content-type", "application/json");
+            exchange.sendResponseHeaders(parseStatus, body.length);
+            exchange.getResponseBody().write(body);
             exchange.close();
         });
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
@@ -139,6 +160,64 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void cancellationRequiresExactFrozenAcknowledgment() {
+        DocumentIntelligenceHttpClient client = client();
+        String generation = "a".repeat(32);
+        assertThat(client.cancel("operation-1", generation)).isTrue();
+        cancelResponseMode = "false";
+        assertThat(client.cancel("operation-1", generation)).isFalse();
+        cancelResponseMode = "wrong-generation";
+        assertThat(client.cancel("operation-1", generation)).isFalse();
+        cancelResponseMode = "extra-field";
+        assertThat(client.cancel("operation-1", generation)).isFalse();
+        cancelResponseMode = "malformed";
+        assertThat(client.cancel("operation-1", generation)).isFalse();
+        assertThat(cancelRequests).hasValue(5);
+    }
+
+    @Test
+    void parseErrorMustCarryTheRequestOperationIdentity() {
+        DocumentIntelligenceHttpClient client = client();
+        parseBody = errorEnvelope("different-operation", "PROVIDER_FAILED");
+        assertThatThrownBy(() -> client.parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+
+        parseBody = "{\"protocolVersion\":\"document-intelligence.v1\",\"code\":\"PROVIDER_FAILED\",\"retryable\":true}";
+        assertThatThrownBy(() -> client.parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+    }
+
+    @Test
+    void duplicateOperationErrorIsReportedAsUnknownOutcome() {
+        parseBody = errorEnvelope("operation-1", "DUPLICATE_OPERATION");
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.UNKNOWN_OUTCOME));
+    }
+
+    @Test
+    void activeDuplicateInvalidRequestEnvelopeIsUnknownOutcome() {
+        // The worker's active-operation duplicate response is the ordinary public
+        // INVALID_REQUEST envelope and carries operationId but no generation.
+        parseStatus = 400;
+        parseBody = errorEnvelope("operation-1", "INVALID_REQUEST", false);
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.UNKNOWN_OUTCOME));
+    }
+
+    @Test
+    void activeDuplicateEnvelopeWithMismatchedOperationIdIsInvalidResponse() {
+        parseStatus = 400;
+        parseBody = errorEnvelope("different-operation", "INVALID_REQUEST", false);
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class,
+                        failure -> assertThat(failure.kind()).isEqualTo(Kind.INVALID_RESPONSE));
+    }
+
+    @Test
     void concurrencyBoundRejectsOverflowAsUnavailable() throws Exception {
         gate = new CountDownLatch(1);
         DocumentIntelligenceHttpClient client = new DocumentIntelligenceHttpClient(
@@ -162,6 +241,25 @@ class DocumentIntelligenceHttpClientTest {
 
     private DocumentIntelligenceHttpClient client() {
         return client(Duration.ofSeconds(3));
+    }
+
+    private static String cancelAck(String operationId, String generation, boolean cancelled) {
+        return "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\"" + operationId
+                + "\",\"operationGeneration\":\"" + generation + "\",\"cancelled\":" + cancelled + "}";
+    }
+
+    private static String errorEnvelope(String operationId, String code) {
+        return errorEnvelope(operationId, code, true);
+    }
+
+    private static String errorEnvelope(String operationId, String code, boolean retryable) {
+        return "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\"" + operationId
+                + "\",\"code\":\"" + code + "\",\"retryable\":" + retryable + "}";
+    }
+
+    private static DocumentIntelligenceV1.ParseRequest parseRequest() {
+        return new DocumentIntelligenceV1.ParseRequest("operation-1", "a".repeat(32), "di.ocr.en", "image/png",
+                java.util.Optional.empty(), 1000, java.util.Map.of(), new byte[] {1, 2, 3});
     }
 
     private DocumentIntelligenceHttpClient client(Duration timeout) {

@@ -26,6 +26,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
@@ -175,7 +176,7 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
     }
 
     @Override
-    public void cancel(String operationId, String operationGeneration) {
+    public boolean cancel(String operationId, String operationGeneration) {
         if (operationId == null || !IDENTIFIER.matcher(operationId).matches()) {
             throw new IllegalArgumentException("invalid DI operation identity");
         }
@@ -183,8 +184,22 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
         HttpRequest request = HttpRequest.newBuilder(baseUri.resolve(baseUri.getPath() + "/v1/operations/"
                         + URLEncoder.encode(operationId, StandardCharsets.UTF_8)))
                 .timeout(catalogTimeout).header("x-operation-generation", operationGeneration).DELETE().build();
-        // Cancellation is idempotent per generation; transport errors must not surface.
-        http.sendAsync(request, HttpResponse.BodyHandlers.discarding()).exceptionally(error -> null);
+        try {
+            HttpResponse<byte[]> response = http.sendAsync(request, boundedResponseBody(new AtomicBoolean())).get();
+            if (response.statusCode() / 100 != 2 || response.body() == null) return false;
+            JsonNode body = mapper.readTree(response.body());
+            keys(body, Set.of("protocolVersion", "operationId", "operationGeneration", "cancelled"),
+                    Set.of("protocolVersion", "operationId", "operationGeneration", "cancelled"));
+            return PROTOCOL_VERSION.equals(text(body, "protocolVersion"))
+                    && operationId.equals(text(body, "operationId"))
+                    && operationGeneration.equals(text(body, "operationGeneration"))
+                    && body.get("cancelled").isBoolean() && body.get("cancelled").booleanValue();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (ExecutionException | RuntimeException lostOrInvalidAck) {
+            return false;
+        }
     }
 
     private JsonNode send(HttpRequest request, Cancellation cancellation, String operationId, String generation)
@@ -200,31 +215,35 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
 
     private JsonNode sendBounded(HttpRequest request, Cancellation cancellation, String operationId, String generation)
             throws DocumentIntelligenceException {
-        CompletableFuture<HttpResponse<byte[]>> pending = http.sendAsync(request, boundedResponseBody());
+        AtomicBoolean responseTooLarge = new AtomicBoolean();
+        CompletableFuture<HttpResponse<byte[]>> pending = http.sendAsync(request, boundedResponseBody(responseTooLarge));
         Runnable unregister = cancellation.onCancel(() -> pending.cancel(true));
         HttpResponse<byte[]> response;
         try {
             response = pending.get();
         } catch (CancellationException | InterruptedException cancelled) {
             if (cancelled instanceof InterruptedException) Thread.currentThread().interrupt();
-            if (generation != null) cancel(operationId, generation);
-            throw DocumentIntelligenceException.of(Kind.CANCELLED);
+            if (generation == null) throw DocumentIntelligenceException.of(Kind.CANCELLED);
+            throw cancellationOutcome(operationId, generation, false);
         } catch (ExecutionException failure) {
             if (cancellation.isCancelled()) {
-                if (generation != null) cancel(operationId, generation);
-                throw DocumentIntelligenceException.of(Kind.CANCELLED);
+                if (generation == null) throw DocumentIntelligenceException.of(Kind.CANCELLED);
+                throw cancellationOutcome(operationId, generation, false);
             }
-            if (responseTooLarge(failure.getCause())) {
+            if (responseTooLarge.get() || responseTooLarge(failure.getCause())) {
                 throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
             }
-            throw DocumentIntelligenceException.of(failure.getCause() instanceof java.net.http.HttpTimeoutException
-                    ? Kind.TIMEOUT : Kind.UNAVAILABLE);
+            boolean timedOut = failure.getCause() instanceof java.net.http.HttpTimeoutException;
+            if (generation == null) {
+                throw DocumentIntelligenceException.of(timedOut ? Kind.TIMEOUT : Kind.UNAVAILABLE);
+            }
+            throw cancellationOutcome(operationId, generation, timedOut);
         } finally {
             unregister.run();
         }
         if (cancellation.isCancelled()) {
-            if (generation != null) cancel(operationId, generation);
-            throw DocumentIntelligenceException.of(Kind.CANCELLED);
+            if (generation == null) throw DocumentIntelligenceException.of(Kind.CANCELLED);
+            throw cancellationOutcome(operationId, generation, false);
         }
         byte[] raw = response.body();
         if (raw == null) throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
@@ -234,9 +253,15 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
         } catch (RuntimeException malformed) {
             body = null;
         }
-        if (response.statusCode() / 100 != 2) throw workerError(body);
+        if (response.statusCode() / 100 != 2) throw workerError(body, operationId);
         if (body == null || !body.isObject()) throw DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);
         return body;
+    }
+
+    private DocumentIntelligenceException cancellationOutcome(String operationId, String generation,
+                                                              boolean deadline) {
+        if (!cancel(operationId, generation)) return DocumentIntelligenceException.of(Kind.UNKNOWN_OUTCOME);
+        return DocumentIntelligenceException.of(deadline ? Kind.DEADLINE_EXCEEDED : Kind.CANCELLED);
     }
 
     /**
@@ -244,19 +269,25 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
      * any body byte is buffered, and the stream is read only up to the cap plus one byte, so a
      * malicious peer can never force an allocation larger than the configured ceiling.
      */
-    private HttpResponse.BodyHandler<byte[]> boundedResponseBody() {
+    private HttpResponse.BodyHandler<byte[]> boundedResponseBody(AtomicBoolean responseTooLarge) {
         return responseInfo -> {
             long declared = responseInfo.headers().firstValueAsLong("Content-Length").orElse(-1L);
-            if (declared > MAX_RESPONSE_BYTES) throw new ResponseTooLargeException();
+            if (declared > MAX_RESPONSE_BYTES) {
+                responseTooLarge.set(true);
+                throw new ResponseTooLargeException();
+            }
             return HttpResponse.BodySubscribers.mapping(
-                    HttpResponse.BodySubscribers.ofInputStream(), this::readBoundedBody);
+                    HttpResponse.BodySubscribers.ofInputStream(), input -> readBoundedBody(input, responseTooLarge));
         };
     }
 
-    private byte[] readBoundedBody(InputStream input) {
+    private byte[] readBoundedBody(InputStream input, AtomicBoolean responseTooLarge) {
         try (InputStream body = input) {
             byte[] bytes = body.readNBytes(MAX_RESPONSE_BYTES + 1);
-            if (bytes.length > MAX_RESPONSE_BYTES) throw new ResponseTooLargeException();
+            if (bytes.length > MAX_RESPONSE_BYTES) {
+                responseTooLarge.set(true);
+                throw new ResponseTooLargeException();
+            }
             return bytes;
         } catch (ResponseTooLargeException tooLarge) {
             throw tooLarge;
@@ -278,14 +309,34 @@ public final class DocumentIntelligenceHttpClient implements DocumentIntelligenc
         }
     }
 
-    private static DocumentIntelligenceException workerError(JsonNode body) {
+    private static DocumentIntelligenceException workerError(JsonNode body, String requestOperationId) {
         try {
             keys(body, Set.of("protocolVersion", "operationId", "code", "retryable", "providerRef"),
                     Set.of("protocolVersion", "operationId", "code", "retryable"));
             if (!PROTOCOL_VERSION.equals(text(body, "protocolVersion")) || !body.get("retryable").isBoolean()) {
                 throw new IllegalArgumentException();
             }
+            // Parse failures are operation-scoped. Never attribute an error from another
+            // operation (or an unbound envelope) to this request. Catalog requests have no
+            // operation identity, so their protocol error envelope is validated as before.
+            String errorOperationId = text(body, "operationId");
+            if (requestOperationId != null && !requestOperationId.equals(errorOperationId)) {
+                throw new IllegalArgumentException();
+            }
             String code = identifier(body, "code", 64);
+            if ("DUPLICATE_OPERATION".equals(code) && requestOperationId != null) {
+                // The worker reports an already-present operation, whose completed effect
+                // cannot be inferred from this rejection. Preserve that ambiguity explicitly.
+                return DocumentIntelligenceException.of(Kind.UNKNOWN_OUTCOME);
+            }
+            if ("INVALID_REQUEST".equals(code) && requestOperationId != null) {
+                // The current worker also uses INVALID_REQUEST when an operation ID is still
+                // active (and when a generation has already been seen). Its public error
+                // envelope echoes only operationId, so this cannot be distinguished from an
+                // ordinary invalid request. After the operation identity check above, keep
+                // the outcome unknown instead of claiming provider failure or safe retry.
+                return DocumentIntelligenceException.of(Kind.UNKNOWN_OUTCOME);
+            }
             return new DocumentIntelligenceException(Kind.WORKER_ERROR, code, body.get("retryable").booleanValue());
         } catch (RuntimeException unrecognized) {
             return DocumentIntelligenceException.of(Kind.INVALID_RESPONSE);

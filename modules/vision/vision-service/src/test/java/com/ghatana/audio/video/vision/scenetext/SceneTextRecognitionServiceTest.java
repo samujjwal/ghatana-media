@@ -12,6 +12,11 @@ import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceAuthority;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceCheck;
 import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceStatus;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.OperationIdentityRequest;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.OperationIdentityReservation;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.DiOperationIdentity;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.ReservationDecision;
+import com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.ReservationStatus;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
@@ -53,12 +58,18 @@ class SceneTextRecognitionServiceTest {
     private HttpServer server;
     private final List<String> calls = new CopyOnWriteArrayList<>();
     private final AtomicReference<byte[]> parseBody = new AtomicReference<>();
+    private final AtomicReference<String> diOperationId = new AtomicReference<>();
+    private final AtomicReference<String> cancelOperationId = new AtomicReference<>();
     private final AtomicReference<String> parseGenerationHeader = new AtomicReference<>();
     private final AtomicReference<String> cancelGenerationHeader = new AtomicReference<>();
+    private final List<String> diOperationIds = new CopyOnWriteArrayList<>();
+    private final List<String> diGenerations = new CopyOnWriteArrayList<>();
     private volatile String catalogJson = catalog("ACCEPTED", "2.4.1", "2026.09.2");
     private volatile String parseJson = parsed("op-1", "di.ocr.en", "2026.09.2", ",\"confidence\":0.9");
     private volatile int parseStatus = 200;
     private volatile CountDownLatch parseGate = null;
+    private volatile boolean cancelAck = true;
+    private volatile boolean dropCancelAck;
     private final CountDownLatch parseEntered = new CountDownLatch(1);
 
     @BeforeEach
@@ -67,7 +78,11 @@ class SceneTextRecognitionServiceTest {
         server.createContext("/v1/providers", exchange -> respond(exchange, 200, catalogJson, "providers"));
         server.createContext("/v1/parse", exchange -> {
             parseGenerationHeader.set(exchange.getRequestHeaders().getFirst("x-operation-generation"));
-            parseBody.set(exchange.getRequestBody().readAllBytes());
+            byte[] body = exchange.getRequestBody().readAllBytes();
+            parseBody.set(body);
+            diOperationId.set(multipartOperationId(new String(body, StandardCharsets.ISO_8859_1)));
+            diOperationIds.add(diOperationId.get());
+            diGenerations.add(parseGenerationHeader.get());
             parseEntered.countDown();
             if (parseGate != null) {
                 try {
@@ -76,11 +91,23 @@ class SceneTextRecognitionServiceTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            respond(exchange, parseStatus, parseJson, "parse");
+            String response = parseJson.replace("\"operationId\":\"op-1\"",
+                    "\"operationId\":\"" + diOperationId.get() + "\"");
+            respond(exchange, parseStatus, response, "parse");
         });
         server.createContext("/v1/operations/", exchange -> {
             cancelGenerationHeader.set(exchange.getRequestHeaders().getFirst("x-operation-generation"));
-            respond(exchange, 204, null, "cancel:" + exchange.getRequestMethod() + ":" + exchange.getRequestURI().getPath());
+            cancelOperationId.set(exchange.getRequestURI().getPath().substring("/v1/operations/".length()));
+            String call = "cancel:" + exchange.getRequestMethod() + ":" + exchange.getRequestURI().getPath();
+            if (dropCancelAck) {
+                calls.add(call);
+                exchange.close();
+            } else {
+                String ack = "{\"protocolVersion\":\"document-intelligence.v1\",\"operationId\":\""
+                        + cancelOperationId.get() + "\",\"operationGeneration\":\""
+                        + cancelGenerationHeader.get() + "\",\"cancelled\":" + cancelAck + "}";
+                respond(exchange, 200, ack, call);
+            }
         });
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         server.start();
@@ -116,8 +143,10 @@ class SceneTextRecognitionServiceTest {
         });
         assertThat(calls).containsExactly("providers", "parse");
         String body = new String(parseBody.get(), StandardCharsets.ISO_8859_1);
-        assertThat(body).contains("\"operationId\":\"op-1\"", "\"providerRef\":\"di.ocr.en\"", "\"mediaType\":\"image/png\"",
+        assertThat(body).contains("\"operationId\":\"" + diOperationId.get() + "\"", "\"providerRef\":\"di.ocr.en\"", "\"mediaType\":\"image/png\"",
                 "\"operationGeneration\":\"" + parseGenerationHeader.get() + "\"", "name=\"file\"");
+        assertThat(diOperationId.get()).matches("media-scene-text-[0-9a-f]{64}").isNotEqualTo("op-1");
+        assertThat(recognized.operationId()).isEqualTo("op-1");
         assertThat(body).contains(new String(CROP, StandardCharsets.ISO_8859_1));
         assertThat(parseGenerationHeader.get()).matches("[0-9a-f]{32}");
     }
@@ -251,7 +280,9 @@ class SceneTextRecognitionServiceTest {
         assertRejected(pending.get(5, TimeUnit.SECONDS), Code.CANCELLED);
         for (int i = 0; i < 50 && cancelGenerationHeader.get() == null; i++) Thread.sleep(20);
         assertThat(cancelGenerationHeader.get()).isEqualTo(parseGenerationHeader.get());
-        assertThat(calls).contains("cancel:DELETE:/v1/operations/op-1");
+        assertThat(cancelOperationId.get()).isEqualTo(diOperationId.get());
+        assertThat(cancelOperationId.get()).isNotEqualTo("op-1");
+        assertThat(calls).contains("cancel:DELETE:/v1/operations/" + diOperationId.get());
     }
 
     @Test
@@ -260,6 +291,121 @@ class SceneTextRecognitionServiceTest {
         cancellation.cancel();
         assertRejected(service(admitted()).recognize(request("tenant-1", ORIGINAL_SHA), cancellation), Code.CANCELLED);
         assertThat(calls).isEmpty();
+    }
+
+    @Test
+    void identicalInputReusesStableDiIdentityAndDifferentTenantDoesNot() {
+        SceneTextRecognitionService service = service(admitted(), POLICY, new MapReservation());
+        assertThat(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()))
+                .isInstanceOf(Recognized.class);
+        assertThat(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()))
+                .isInstanceOf(Recognized.class);
+        assertThat(service.recognize(request("tenant-2", ORIGINAL_SHA), Cancellation.none()))
+                .isInstanceOf(Recognized.class);
+
+        assertThat(diOperationIds).hasSize(3);
+        assertThat(diOperationIds.get(0)).isEqualTo(diOperationIds.get(1));
+        assertThat(diGenerations.get(0)).isEqualTo(diGenerations.get(1)).matches("[0-9a-f]{32}");
+        assertThat(diOperationIds.get(2)).isNotEqualTo(diOperationIds.get(0));
+        assertThat(diGenerations.get(2)).isNotEqualTo(diGenerations.get(0));
+        assertThat(diOperationIds).noneMatch(id -> id.contains("tenant-"));
+    }
+
+    @Test
+    void renewedDecisionReferenceDoesNotBreakExactReplayAndLatestReferenceIsReturned() {
+        AtomicInteger decisionRefs = new AtomicInteger();
+        SourceAuthority renewedDecision = check -> new Decision(SourceStatus.ADMITTED, check.sourceVersion(),
+                ORIGINAL_SHA, "decision-" + decisionRefs.incrementAndGet());
+        SceneTextRecognitionService service = service(renewedDecision, POLICY, new MapReservation());
+
+        Recognized first = (Recognized) service.recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+        Recognized replay = (Recognized) service.recognize(
+                request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertThat(first.rightsDecisionRef()).isEqualTo("decision-3");
+        assertThat(replay.rightsDecisionRef()).isEqualTo("decision-6");
+        assertThat(decisionRefs).hasValue(6);
+        assertThat(diOperationIds).hasSize(2);
+        assertThat(diOperationIds.get(0)).isEqualTo(diOperationIds.get(1));
+        assertThat(diGenerations).hasSize(2);
+        assertThat(diGenerations.get(0)).isEqualTo(diGenerations.get(1));
+    }
+
+    @Test
+    void sourceRightsAreRecheckedAfterDurableReservationBeforeDiParse() {
+        AtomicInteger checks = new AtomicInteger();
+        SourceAuthority revokedDuringReservation = check -> checks.incrementAndGet() <= 2
+                ? new Decision(SourceStatus.ADMITTED, check.sourceVersion(), ORIGINAL_SHA, "decision-" + checks.get())
+                : Decision.of(SourceStatus.DENIED);
+        OperationIdentityReservation reservation = new MapReservation();
+        SceneTextRecognitionService service = service(revokedDuringReservation, POLICY, reservation);
+
+        Outcome outcome = service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+
+        assertRejected(outcome, Code.SOURCE_DENIED);
+        assertThat(checks).hasValue(3);
+        assertThat(calls).containsExactly("providers");
+        assertThat(parseEntered.getCount()).isEqualTo(1);
+    }
+
+    @Test
+    void unavailableOperationReservationFailsClosedBeforeDiParse() {
+        SceneTextRecognitionService service = service(admitted(), POLICY,
+                ignored -> ReservationDecision.of(ReservationStatus.UNAVAILABLE));
+
+        assertRejected(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()),
+                Code.OPERATION_IDENTITY_NOT_ADMITTED);
+        assertThat(calls).containsExactly("providers");
+        assertThat(parseEntered.getCount()).isEqualTo(1);
+    }
+
+    @Test
+    void changedRequestUnderSameMediaOperationIdConflictsBeforeSecondParse() {
+        SceneTextRecognitionService service = service(admitted(), POLICY, new MapReservation());
+        assertThat(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()))
+                .isInstanceOf(Recognized.class);
+        FrameRequest base = request("tenant-1", ORIGINAL_SHA);
+        FrameRequest changed = new FrameRequest(base.operationId(), base.tenantId(), base.principalId(), "different-purpose",
+                base.sourceArtifactId(), base.sourceVersion(), base.frameId(), base.ptsUs(), base.frameWidth(), base.frameHeight(),
+                base.roi(), base.mediaType(), base.croppedBytes(), base.originalFrameSha256(), base.croppedFrameSha256(), base.languageHint());
+
+        assertRejected(service.recognize(changed, Cancellation.none()), Code.OPERATION_IDENTITY_CONFLICT);
+        assertThat(calls.stream().filter("parse"::equals)).hasSize(1);
+        assertThat(diOperationIds).hasSize(1);
+    }
+
+    @Test
+    void missingOperationReservationFailsClosedBeforeDiParse() {
+        SceneTextRecognitionService service = new SceneTextRecognitionService(
+                Optional.of(httpClient()), admitted(), POLICY, Optional.of(trustedResolver()));
+
+        assertRejected(service.recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none()),
+                Code.OPERATION_IDENTITY_NOT_ADMITTED);
+        assertThat(calls).containsExactly("providers");
+        assertThat(parseEntered.getCount()).isEqualTo(1);
+    }
+
+    @Test
+    void timeoutWithConfirmedCancelReturnsDeadlineExceeded() {
+        parseGate = new CountDownLatch(1);
+        Outcome outcome = service(admitted(), policyWithTimeout(150))
+                .recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+        parseGate.countDown();
+        assertRejected(outcome, Code.DEADLINE_EXCEEDED);
+        assertThat(cancelOperationId.get()).isEqualTo(diOperationId.get());
+        assertThat(cancelGenerationHeader.get()).isEqualTo(parseGenerationHeader.get());
+    }
+
+    @Test
+    void timeoutWithLostCancelAckReturnsNonretryableUnknownOutcome() {
+        parseGate = new CountDownLatch(1);
+        dropCancelAck = true;
+        Outcome outcome = service(admitted(), policyWithTimeout(150))
+                .recognize(request("tenant-1", ORIGINAL_SHA), Cancellation.none());
+        parseGate.countDown();
+        assertRejected(outcome, Code.UNKNOWN_OUTCOME);
+        assertThat(((Rejected) outcome).retryable()).isFalse();
     }
 
     @Test
@@ -361,12 +507,26 @@ class SceneTextRecognitionServiceTest {
     }
 
     private SceneTextRecognitionService service(SourceAuthority authority) {
+        return service(authority, POLICY);
+    }
+
+    private SceneTextRecognitionService service(SourceAuthority authority, Policy policy) {
+        return service(authority, policy, new MapReservation());
+    }
+
+    private SceneTextRecognitionService service(SourceAuthority authority, Policy policy,
+                                                OperationIdentityReservation reservation) {
         DocumentIntelligenceHttpClient client = new DocumentIntelligenceHttpClient(
                 URI.create("http://127.0.0.1:" + server.getAddress().getPort()),
                 HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build(), Duration.ofSeconds(3), 1024 * 1024,
                 DocumentIntelligenceHttpClient.EndpointPolicy.loopback("127.0.0.1"), 4);
-        return new SceneTextRecognitionService(Optional.of(client), authority, POLICY,
-                Optional.of(trustedResolver()));
+        return new SceneTextRecognitionService(Optional.of(client), authority, policy,
+                Optional.of(trustedResolver()), Optional.of(reservation));
+    }
+
+    private static Policy policyWithTimeout(long timeoutMs) {
+        return new Policy(POLICY.providerRef(), POLICY.providerVersion(), POLICY.modelRef(), POLICY.modelVersion(),
+                POLICY.acceptedMediaTypes(), POLICY.acceptedLanguages(), timeoutMs, POLICY.workerLimits());
     }
 
     /** Trusted-resolver fixture: re-derives CROP for the admitted frame identity. */
@@ -422,6 +582,16 @@ class SceneTextRecognitionServiceTest {
                 + "\"text\":\"EXIT\",\"boundingRegion\":{\"x\":0.5,\"y\":0.5,\"width\":0.25,\"height\":0.25}" + lineExtras + "}]}]}]}";
     }
 
+    private static String multipartOperationId(String body) {
+        String key = "\"operationId\":\"";
+        int start = body.indexOf(key);
+        if (start < 0) throw new AssertionError("DI request metadata has no operation ID");
+        start += key.length();
+        int end = body.indexOf('"', start);
+        if (end < 0) throw new AssertionError("DI request operation ID is unterminated");
+        return body.substring(start, end);
+    }
+
     private static String sha(byte[] bytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
@@ -444,4 +614,34 @@ class SceneTextRecognitionServiceTest {
             return delegate.verify(check);
         }
     }
+
+    /** Test-only atomic reservation fake; production deliberately has no local store. */
+    private static final class MapReservation implements OperationIdentityReservation {
+        private final java.util.concurrent.ConcurrentMap<String, BoundIdentity> bindings = new java.util.concurrent.ConcurrentHashMap<>();
+
+        @Override
+        public ReservationDecision reserve(OperationIdentityRequest request) {
+            String key = request.tenantId() + '\u0000' + request.principalId() + '\u0000' + request.mediaOperationId();
+            BoundIdentity proposed = new BoundIdentity(request.requestFingerprint(),
+                    new DiOperationIdentity(request.candidateDiOperationId(), request.candidateGeneration()));
+            java.util.concurrent.atomic.AtomicReference<BoundIdentity> selected = new java.util.concurrent.atomic.AtomicReference<>();
+            java.util.concurrent.atomic.AtomicBoolean conflict = new java.util.concurrent.atomic.AtomicBoolean();
+            bindings.compute(key, (ignored, existing) -> {
+                if (existing == null) {
+                    selected.set(proposed);
+                    return proposed;
+                }
+                if (!existing.fingerprint().equals(request.requestFingerprint())) {
+                    conflict.set(true);
+                    return existing;
+                }
+                selected.set(existing);
+                return existing;
+            });
+            if (conflict.get()) return ReservationDecision.of(ReservationStatus.CONFLICT);
+            return ReservationDecision.reserved(selected.get().identity());
+        }
+    }
+
+    private record BoundIdentity(String fingerprint, DiOperationIdentity identity) { }
 }

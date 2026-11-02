@@ -9,7 +9,9 @@ import com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Provenanc
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
@@ -37,6 +39,7 @@ public final class SceneTextRecognitionService {
 
     private static final Pattern IDENTITY = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}");
     private static final Pattern SHA256 = Pattern.compile("[a-f0-9]{64}");
+    private static final Pattern GENERATION = Pattern.compile("[a-f0-9]{32}");
     private static final int MAX_CROP_BYTES = 20 * 1024 * 1024;
     private static final int MAX_OBSERVATIONS = 5_000;
 
@@ -44,21 +47,29 @@ public final class SceneTextRecognitionService {
     private final SourceAuthority sourceAuthority;
     private final Policy policy;
     private final Optional<FrameCropResolver> cropResolver;
-    private final SecureRandom random = new SecureRandom();
+    private final Optional<OperationIdentityReservation> operationIdentityReservation;
     private final Set<String> inFlight = ConcurrentHashMap.newKeySet();
 
     public SceneTextRecognitionService(Optional<DocumentIntelligenceV1> documentIntelligence,
                                        SourceAuthority sourceAuthority, Policy policy) {
-        this(documentIntelligence, sourceAuthority, policy, Optional.empty());
+        this(documentIntelligence, sourceAuthority, policy, Optional.empty(), Optional.empty());
     }
 
     public SceneTextRecognitionService(Optional<DocumentIntelligenceV1> documentIntelligence,
                                        SourceAuthority sourceAuthority, Policy policy,
                                        Optional<FrameCropResolver> cropResolver) {
+        this(documentIntelligence, sourceAuthority, policy, cropResolver, Optional.empty());
+    }
+
+    public SceneTextRecognitionService(Optional<DocumentIntelligenceV1> documentIntelligence,
+                                       SourceAuthority sourceAuthority, Policy policy,
+                                       Optional<FrameCropResolver> cropResolver,
+                                       Optional<OperationIdentityReservation> operationIdentityReservation) {
         this.documentIntelligence = Objects.requireNonNull(documentIntelligence, "documentIntelligence");
         this.sourceAuthority = Objects.requireNonNull(sourceAuthority, "sourceAuthority");
         this.policy = Objects.requireNonNull(policy, "policy");
         this.cropResolver = Objects.requireNonNull(cropResolver, "cropResolver");
+        this.operationIdentityReservation = Objects.requireNonNull(operationIdentityReservation, "operationIdentityReservation");
     }
 
     /** Trusted source-rights seam; caller-supplied consent strings are not an input. */
@@ -75,6 +86,30 @@ public final class SceneTextRecognitionService {
     @FunctionalInterface
     public interface FrameCropResolver {
         CropOutcome resolve(CropRequest request);
+    }
+
+    /** Durable owner seam. Implementations atomically bind the Media key to one fingerprint and DI identity. */
+    @FunctionalInterface
+    public interface OperationIdentityReservation {
+        ReservationDecision reserve(OperationIdentityRequest request);
+    }
+
+    public record OperationIdentityRequest(String tenantId, String principalId, String mediaOperationId,
+                                            String requestFingerprint, String candidateDiOperationId,
+                                            String candidateGeneration) { }
+
+    public record DiOperationIdentity(String operationId, String generation) { }
+
+    public enum ReservationStatus { RESERVED, CONFLICT, UNAVAILABLE, NOT_ADMITTED }
+
+    public record ReservationDecision(ReservationStatus status, DiOperationIdentity identity) {
+        public static ReservationDecision reserved(DiOperationIdentity identity) {
+            return new ReservationDecision(ReservationStatus.RESERVED, identity);
+        }
+
+        public static ReservationDecision of(ReservationStatus status) {
+            return new ReservationDecision(status, null);
+        }
     }
 
     /** Exact admitted frame identity handed to the trusted resolver. */
@@ -170,6 +205,8 @@ public final class SceneTextRecognitionService {
         INVALID_REQUEST, DUPLICATE_IN_FLIGHT, SOURCE_DIGEST_MISMATCH, SOURCE_DENIED, SOURCE_UNAVAILABLE,
         SOURCE_VERSION_MISMATCH, SOURCE_FRAME_MISMATCH, CROP_RESOLVER_NOT_CONFIGURED,
         MEDIA_TYPE_NOT_ADMITTED, LANGUAGE_NOT_ADMITTED, DI_NOT_CONFIGURED, DI_UNAVAILABLE,
+        OPERATION_IDENTITY_NOT_ADMITTED, OPERATION_IDENTITY_CONFLICT,
+        DEADLINE_EXCEEDED, UNKNOWN_OUTCOME,
         CLIENT_PROTOCOL_MISMATCH, WORKER_VERSION_NOT_ADMITTED, PROVIDER_NOT_ADMITTED, PROVIDER_VERSION_MISMATCH,
         MODEL_IDENTITY_MISSING, MODEL_VERSION_MISMATCH, RESPONSE_INVALID, PAGE_SCOPE_UNSUPPORTED,
         RESULT_CONFIDENCE_MISSING, PROVIDER_FAILED, CANCELLED
@@ -203,11 +240,12 @@ public final class SceneTextRecognitionService {
         if (request.languageHint().isPresent() && !policy.acceptedLanguages().contains(request.languageHint().get())) {
             return Rejected.of(Code.LANGUAGE_NOT_ADMITTED);
         }
-        if (!inFlight.add(request.tenantId() + '\u0000' + request.operationId())) return Rejected.of(Code.DUPLICATE_IN_FLIGHT);
+        String inFlightKey = request.tenantId() + '\u0000' + request.principalId() + '\u0000' + request.operationId();
+        if (!inFlight.add(inFlightKey)) return Rejected.of(Code.DUPLICATE_IN_FLIGHT);
         try {
             return recognizeAdmitted(request, cancellation);
         } finally {
-            inFlight.remove(request.tenantId() + '\u0000' + request.operationId());
+            inFlight.remove(inFlightKey);
         }
     }
 
@@ -238,7 +276,6 @@ public final class SceneTextRecognitionService {
         }
         if (documentIntelligence.isEmpty()) return Rejected.of(Code.DI_NOT_CONFIGURED);
         DocumentIntelligenceV1 di = documentIntelligence.get();
-        String generation = HexFormat.of().formatHex(randomBytes());
         try {
             ProviderCatalog catalog = di.providers(cancellation);
             Code catalogProblem = checkCatalog(catalog, request);
@@ -250,17 +287,55 @@ public final class SceneTextRecognitionService {
             Code dispatchProblem = sourceProblem(request, dispatchDecision);
             if (dispatchProblem != null) return Rejected.of(dispatchProblem);
             if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
-            ParsedDocument parsed = di.parse(new DocumentIntelligenceV1.ParseRequest(request.operationId(), generation,
+            String operationFingerprint = operationFingerprint(request, dispatchDecision, resolved);
+            String generation = operationFingerprint.substring(0, 32);
+            // Stable across request changes for one scoped Media key. The reservation
+            // atomically rejects a changed fingerprint and preserves the original DI pair.
+            String candidateOperationId = "media-scene-text-" + mediaOperationKey(request);
+            if (operationIdentityReservation.isEmpty()) return Rejected.of(Code.OPERATION_IDENTITY_NOT_ADMITTED);
+            ReservationDecision reservation;
+            try {
+                reservation = operationIdentityReservation.get().reserve(new OperationIdentityRequest(
+                        request.tenantId(), request.principalId(), request.operationId(), operationFingerprint,
+                        candidateOperationId, generation));
+            } catch (RuntimeException unavailable) {
+                return Rejected.of(Code.OPERATION_IDENTITY_NOT_ADMITTED);
+            }
+            if (reservation == null || reservation.status() == null) {
+                return Rejected.of(Code.OPERATION_IDENTITY_NOT_ADMITTED);
+            }
+            if (reservation.status() == ReservationStatus.CONFLICT) {
+                return Rejected.of(Code.OPERATION_IDENTITY_CONFLICT);
+            }
+            if (reservation.status() != ReservationStatus.RESERVED || reservation.identity() == null
+                    || reservation.identity().operationId() == null
+                    || !IDENTITY.matcher(reservation.identity().operationId()).matches()
+                    || reservation.identity().generation() == null
+                    || !GENERATION.matcher(reservation.identity().generation()).matches()) {
+                return Rejected.of(Code.OPERATION_IDENTITY_NOT_ADMITTED);
+            }
+            String diOperationId = reservation.identity().operationId();
+            String reservedGeneration = reservation.identity().generation();
+            // Reservation may require durable I/O. Recheck rights after it so any delay in
+            // binding the idempotency identity does not widen the authorization window.
+            if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
+            Decision finalDecision = verifySource(request);
+            Code finalSourceProblem = sourceProblem(request, finalDecision);
+            if (finalSourceProblem != null) return Rejected.of(finalSourceProblem);
+            if (cancellation.isCancelled()) return Rejected.of(Code.CANCELLED);
+            ParsedDocument parsed = di.parse(new DocumentIntelligenceV1.ParseRequest(diOperationId, reservedGeneration,
                     policy.providerRef(), resolved.mediaType(), request.languageHint(), policy.timeoutMs(),
                     policy.workerLimits(), resolved.pixels()), cancellation);
             if (cancellation.isCancelled()) {
-                di.cancel(request.operationId(), generation);
-                return Rejected.of(Code.CANCELLED);
+                return di.cancel(diOperationId, reservedGeneration)
+                        ? Rejected.of(Code.CANCELLED) : Rejected.of(Code.UNKNOWN_OUTCOME);
             }
-            return map(request, dispatchDecision, parsed);
+            return map(request, finalDecision, parsed, diOperationId);
         } catch (DocumentIntelligenceException failure) {
             return switch (failure.kind()) {
                 case CANCELLED -> Rejected.of(Code.CANCELLED);
+                case DEADLINE_EXCEEDED -> Rejected.of(Code.DEADLINE_EXCEEDED);
+                case UNKNOWN_OUTCOME -> Rejected.of(Code.UNKNOWN_OUTCOME);
                 case UNAVAILABLE, TIMEOUT -> Rejected.of(Code.DI_UNAVAILABLE);
                 case WORKER_ERROR -> new Rejected(Code.PROVIDER_FAILED, failure.retryable(), failure.workerCode());
                 case INVALID_RESPONSE -> Rejected.of(Code.RESPONSE_INVALID);
@@ -314,8 +389,8 @@ public final class SceneTextRecognitionService {
                 ? Rejected.of(Code.SOURCE_UNAVAILABLE) : Rejected.of(Code.SOURCE_DENIED);
     }
 
-    private Outcome map(FrameRequest request, Decision decision, ParsedDocument parsed) {
-        if (!parsed.operationId().equals(request.operationId()) || !parsed.providerRef().equals(policy.providerRef())
+    private Outcome map(FrameRequest request, Decision decision, ParsedDocument parsed, String diOperationId) {
+        if (!parsed.operationId().equals(diOperationId) || !parsed.providerRef().equals(policy.providerRef())
                 || !DocumentIntelligenceV1.PROTOCOL_VERSION.equals(parsed.protocolVersion())) {
             return Rejected.of(Code.RESPONSE_INVALID);
         }
@@ -425,10 +500,76 @@ public final class SceneTextRecognitionService {
         return null;
     }
 
-    private byte[] randomBytes() {
-        byte[] bytes = new byte[16];
-        random.nextBytes(bytes);
-        return bytes;
+    private String operationFingerprint(FrameRequest request, Decision decision, ResolvedCrop crop) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            DataOutputStream fields = new DataOutputStream(bytes);
+            field(fields, "tenantId", request.tenantId());
+            field(fields, "principalId", request.principalId());
+            field(fields, "operationId", request.operationId());
+            field(fields, "purposeRef", request.purposeRef());
+            field(fields, "sourceArtifactId", request.sourceArtifactId());
+            field(fields, "sourceVersion", decision.sourceVersion());
+            field(fields, "frameId", request.frameId());
+            field(fields, "ptsUs", Long.toString(request.ptsUs()));
+            field(fields, "originalFrameSha256", crop.originalFrameSha256());
+            field(fields, "cropSha256", sha256(crop.pixels()));
+            field(fields, "mediaType", crop.mediaType());
+            field(fields, "decisionStatus", decision.status().name());
+            field(fields, "providerRef", policy.providerRef());
+            field(fields, "providerVersion", policy.providerVersion());
+            field(fields, "modelRef", policy.modelRef());
+            field(fields, "modelVersion", policy.modelVersion());
+            field(fields, "timeoutMs", Long.toString(policy.timeoutMs()));
+            policy.workerLimits().entrySet().stream().sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        try {
+                            field(fields, "workerLimit." + entry.getKey(), Integer.toString(entry.getValue()));
+                        } catch (IOException impossible) {
+                            throw new IllegalStateException("Unable to encode DI worker limits", impossible);
+                        }
+                    });
+            field(fields, "frameWidth", Integer.toString(request.frameWidth()));
+            field(fields, "frameHeight", Integer.toString(request.frameHeight()));
+            field(fields, "roiX", Integer.toString(request.roi().x()));
+            field(fields, "roiY", Integer.toString(request.roi().y()));
+            field(fields, "roiWidth", Integer.toString(request.roi().width()));
+            field(fields, "roiHeight", Integer.toString(request.roi().height()));
+            field(fields, "languageHint", request.languageHint().orElse(""));
+            for (String mediaType : policy.acceptedMediaTypes().stream().sorted().toList()) {
+                field(fields, "acceptedMediaType", mediaType);
+            }
+            for (String language : policy.acceptedLanguages().stream().sorted().toList()) {
+                field(fields, "acceptedLanguage", language);
+            }
+            fields.flush();
+            return sha256(bytes.toByteArray());
+        } catch (IOException impossible) {
+            throw new IllegalStateException("Unable to encode DI operation fingerprint", impossible);
+        }
+    }
+
+    private static String mediaOperationKey(FrameRequest request) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            DataOutputStream fields = new DataOutputStream(bytes);
+            field(fields, "tenantId", request.tenantId());
+            field(fields, "principalId", request.principalId());
+            field(fields, "operationId", request.operationId());
+            fields.flush();
+            return sha256(bytes.toByteArray());
+        } catch (IOException impossible) {
+            throw new IllegalStateException("Unable to encode Media operation key", impossible);
+        }
+    }
+
+    private static void field(DataOutputStream fields, String name, String value) throws IOException {
+        byte[] nameBytes = name.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] valueBytes = value.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        fields.writeInt(nameBytes.length);
+        fields.write(nameBytes);
+        fields.writeInt(valueBytes.length);
+        fields.write(valueBytes);
     }
 
     private static String sha256(byte[] bytes) {
@@ -438,4 +579,5 @@ public final class SceneTextRecognitionService {
             throw new IllegalStateException(impossible);
         }
     }
+
 }
