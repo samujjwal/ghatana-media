@@ -1957,3 +1957,31 @@ The combined task's nested Gradle invocation encountered a sandbox file-lock soc
 The Media source-currentness audit also remains read-only: PDP-1 has **27/137** stale source pins plus **37** semantic-review pin issues; PDP-2 has **20/157** stale pins; PDP-3 has **21/367** stale pins. Their matrix checks remain stale. The Build task-closure checker still stops on **23** prior PDP-2 selectors with no established source successors. PDP-0's global selector still has **30** skipped cases and fails closed at `MSR-006-RESIDUAL-01`; candidate `MPSEM-0023-C002` still awaits coordinator material review. Per the existing owner route, preserve these historical cuts; process the earliest PDP-0 source-currentness disposition first, then review and regenerate only through the owning P0→P1→P2→P3 producers. No blanket hash refresh, status/pin mutation, owner signature, independent acceptance, Kernel admission, PDP closure, deployment, writer cutover, or release was performed.
 
 The H-02 disposition and fixture provenance remain those in §§41.40 and 41.53: independent review is `ACCEPT_LOCAL_CANDIDATE_ONLY`, the test-history artifact is synthetic, and H-02 runtime stays `NOT_ADMITTED`.
+
+### 41.55 November 2 bounded IP-06 read, JC-03 OCI cleanup, and H-02 schema context (2026-11-02)
+
+At Media `main@b72fbbf3`, three focused local increments were committed after §41.54. The branch remains local and unpushed.
+
+**IP-06 S3 oversized-object verification (`9806bfea`):** `S3PostgresqlMediaArtifactStore` now caps each object-body read at the smaller of its 64 KiB buffer and one byte beyond the remaining declared immutable-version size. An oversized quarantine object is rejected after consuming exactly the declared bytes plus one, before content scanning or artifact/lineage registration; rollback cleanup removes the unreferenced quarantine object. `MediaPostgresqlS3ArtifactErasureTreeTest` passed **6/6** on PostgreSQL 16 + LocalStack. An independent code review accepted the bound and cleanup ordering. This remains isolated S3 evidence; it does not prove deployed Flyway history, the legacy-writer fence, cutover, or production rollback.
+
+**JC-03 OCI worker-capacity retention (`2f632e34`):** `WhisperOciWorkerSupervisor` now retains its single-worker permit when create/kill/remove leaves container cleanup unconfirmed. Name-based removal covers ambiguous create; confirmed cancellation-side removal is recorded; unresolved cleanup keeps admission closed until a later orphan sweep. The regression verifies the second request is `RESOURCE_EXHAUSTED` and does not create another container. `WhisperOciWorkerSupervisorTest` passed **13/13**, and independent review accepted the permit-release paths. This was fake-runner evidence only. At this cut the Docker daemon was unavailable and `GHATANA_MEDIA_VISION_WORKER_IMAGE` was unset, so no host OCI qualification or model result is claimed.
+
+**H-02 canonical schema context (`b72fbbf3`):** a deterministic generator now derives the `ProductionSpec` v1 descriptor plus the exact PDP-1 root `$defs` into `runtime-contracts/src/main/resources/contracts/media-production-spec-v1.schema.json`; parity checking is part of the declarative-production checker. The generator requires the exact PDP-1 `sharedDefinitionsSource` path. The resolver overload strictly parses input-2 and requires structural JSON equality with that generated schema before validating input-1; the existing SHA-256 binding remains over the actual resolver bytes. The PDP-1 coverage text records that behavior and removes only shared-definition materialization from `notImplementedInputs`. Independent technical review accepted this local implementation after wording and source-path checks were corrected. Source SHA-256 is `18145feabb77a316ce0dce75b137d052448a1e70be52db17b55003fafd2ecd5f`; generated resource SHA-256 is `a6f3661821e58a303230e7506b6656f8e4034761a1369afe0bef2bd99bf6153a`.
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest \
+  --tests com.ghatana.media.runtime.MediaProductionSemanticSourceTest \
+  --tests com.ghatana.media.runtime.MediaProductionCompilerContractTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+# 38/38 passed
+
+node scripts/generate-media-production-spec-schema-context.mjs --check
+# PASS
+pnpm check:declarative-production-definition
+# PASS
+pnpm test:declarative-production-definition
+# 13/13 passed
+```
+
+No H-02 engine/build compatibility, licensed provider qualification, reservation quote/receipt, current authorization or revocation authority, revision-scoped CAS/edit-lock, effect dispatch, or durable attempt readback was added. H-02 runtime remains `NOT_ADMITTED`; independent PDP-1 acceptance and source-currentness remain outstanding. Kernel #99 was not changed: the current Kernel `AGENTS.md` still blocks BUILD implementation and tests until its repository-wide Discovery exit; use the existing §41.54 Discovery findings and do not claim OCR production qualification. PDP-1/2/3 source-currentness, authentic deployed V001–V016/V017–V029 history, the actual old-writer fence, protected cutover, and all original Wave 2/Wave 3/H whole-row acceptance remain open.
