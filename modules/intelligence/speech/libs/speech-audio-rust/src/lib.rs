@@ -1,6 +1,8 @@
 use std::fs::File;
 use std::io::{ErrorKind, Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use hound::{SampleFormat as WavSampleFormat, WavSpec, WavWriter};
@@ -8,7 +10,7 @@ use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::errors::Error as SymphoniaError;
 use symphonia::core::formats::FormatOptions;
-use symphonia::core::io::MediaSourceStream;
+use symphonia::core::io::{MediaSource, MediaSourceStream};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 use symphonia::default::{get_codecs, get_probe};
@@ -724,20 +726,152 @@ fn decode_audio_bounded_with_time_budget(
     ensure_decode_time(started_at, max_decode_time)?;
     let has_exact_frame_count = has_exact_frame_count_container(&mut file)?;
     ensure_decode_time(started_at, max_decode_time)?;
-    let source = MediaSourceStream::new(Box::new(file), Default::default());
-    let mut hint = Hint::new();
-    if !extension.is_empty() {
-        hint.with_extension(&extension);
+    let file_size_observer = file.try_clone()?;
+    let source_changed = Arc::new(AtomicBool::new(false));
+    let bounded_source =
+        FixedLengthMediaSource::new(file, input_bytes, Arc::clone(&source_changed))?;
+
+    decode_audio_from_source(DecodeSource {
+        path,
+        extension: &extension,
+        input_bytes,
+        limits,
+        max_decode_time,
+        started_at,
+        has_exact_frame_count,
+        source: Box::new(bounded_source),
+        file_size_observer,
+        source_changed,
+    })
+}
+
+/// A file-backed source whose readable and seekable range is fixed to the
+/// length admitted by the initial metadata check. Appended bytes can never be
+/// observed by the decoder, even if another process grows the same file while
+/// it is being probed or decoded.
+struct FixedLengthMediaSource {
+    file: File,
+    length: u64,
+    position: u64,
+    source_changed: Arc<AtomicBool>,
+}
+
+impl FixedLengthMediaSource {
+    fn new(mut file: File, length: u64, source_changed: Arc<AtomicBool>) -> std::io::Result<Self> {
+        if !file.metadata()?.is_file() {
+            return Err(std::io::Error::new(
+                ErrorKind::Unsupported,
+                "bounded audio decoding requires a regular file",
+            ));
+        }
+        let position = file.stream_position()?;
+        Ok(Self {
+            file,
+            length,
+            position,
+            source_changed,
+        })
     }
 
-    let probe = get_probe()
-        .format(
-            &hint,
-            source,
-            &FormatOptions::default(),
-            &MetadataOptions::default(),
-        )
-        .map_err(map_probe_error)?;
+    fn observe_length(&self) -> std::io::Result<()> {
+        let actual = self.file.metadata()?.len();
+        if actual != self.length {
+            self.source_changed.store(true, Ordering::Release);
+        }
+        Ok(())
+    }
+}
+
+impl Read for FixedLengthMediaSource {
+    fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+        if buffer.is_empty() {
+            return Ok(0);
+        }
+        let remaining = self.length.saturating_sub(self.position);
+        if remaining == 0 {
+            self.observe_length()?;
+            return Ok(0);
+        }
+        let allowed = buffer.len().min(remaining.min(usize::MAX as u64) as usize);
+        let count = self.file.read(&mut buffer[..allowed])?;
+        self.position += count as u64;
+        self.observe_length()?;
+        Ok(count)
+    }
+}
+
+impl Seek for FixedLengthMediaSource {
+    fn seek(&mut self, position: SeekFrom) -> std::io::Result<u64> {
+        self.observe_length()?;
+        let target = match position {
+            SeekFrom::Start(offset) => i128::from(offset),
+            SeekFrom::Current(offset) => i128::from(self.position) + i128::from(offset),
+            SeekFrom::End(offset) => i128::from(self.length) + i128::from(offset),
+        };
+        if target < 0 || target > i128::from(self.length) {
+            return Err(std::io::Error::new(
+                ErrorKind::InvalidInput,
+                "seek is outside the admitted audio source range",
+            ));
+        }
+        let position = self.file.seek(SeekFrom::Start(target as u64))?;
+        self.position = position;
+        self.observe_length()?;
+        Ok(position)
+    }
+}
+
+impl MediaSource for FixedLengthMediaSource {
+    fn is_seekable(&self) -> bool {
+        true
+    }
+
+    fn byte_len(&self) -> Option<u64> {
+        Some(self.length)
+    }
+}
+
+struct DecodeSource<'a> {
+    path: &'a Path,
+    extension: &'a str,
+    input_bytes: u64,
+    limits: DecodeLimits,
+    max_decode_time: Duration,
+    started_at: Instant,
+    has_exact_frame_count: bool,
+    source: Box<dyn MediaSource>,
+    file_size_observer: File,
+    source_changed: Arc<AtomicBool>,
+}
+
+fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
+    let DecodeSource {
+        path,
+        extension,
+        input_bytes,
+        limits,
+        max_decode_time,
+        started_at,
+        has_exact_frame_count,
+        source,
+        file_size_observer,
+        source_changed,
+    } = input;
+    ensure_source_unchanged(&file_size_observer, input_bytes, &source_changed)?;
+    let source = MediaSourceStream::new(source, Default::default());
+    let mut hint = Hint::new();
+    if !extension.is_empty() {
+        hint.with_extension(extension);
+    }
+
+    let probe_result = get_probe().format(
+        &hint,
+        source,
+        &FormatOptions::default(),
+        &MetadataOptions::default(),
+    );
+    ensure_source_unchanged(&file_size_observer, input_bytes, &source_changed)?;
+    let probe = probe_result.map_err(map_probe_error)?;
     ensure_decode_time(started_at, max_decode_time)?;
     let mut format = probe.format;
     let track = format
@@ -790,7 +924,9 @@ fn decode_audio_bounded_with_time_budget(
 
     loop {
         ensure_decode_time(started_at, max_decode_time)?;
-        let packet = match format.next_packet() {
+        let packet_result = format.next_packet();
+        ensure_source_unchanged(&file_size_observer, input_bytes, &source_changed)?;
+        let packet = match packet_result {
             Ok(packet) => packet,
             Err(SymphoniaError::IoError(error)) if error.kind() == ErrorKind::UnexpectedEof => {
                 break
@@ -808,13 +944,12 @@ fn decode_audio_bounded_with_time_budget(
             continue;
         }
 
-        let decoded = match decoder.decode(&packet) {
-            Ok(decoded) => decoded,
-            // A failed packet must not be silently omitted from a successful
-            // result: doing so can turn a corrupt compressed stream into
-            // apparently valid, but incomplete, provider input.
-            Err(error) => return Err(map_packet_decode_error(error)),
-        };
+        // A failed packet must not be silently omitted from a successful
+        // result: doing so can turn a corrupt compressed stream into
+        // apparently valid, but incomplete, provider input.
+        let decoded_result = decoder.decode(&packet);
+        ensure_source_unchanged(&file_size_observer, input_bytes, &source_changed)?;
+        let decoded = decoded_result.map_err(map_packet_decode_error)?;
         ensure_decode_time(started_at, max_decode_time)?;
 
         // Bound the exact decoded packet before allocating SampleBuffer or
@@ -890,6 +1025,7 @@ fn decode_audio_bounded_with_time_budget(
         }
     }
     ensure_decode_time(started_at, max_decode_time)?;
+    ensure_source_unchanged(&file_size_observer, input_bytes, &source_changed)?;
 
     Ok(DecodedAudio {
         path: path.to_path_buf(),
@@ -899,8 +1035,22 @@ fn decode_audio_bounded_with_time_budget(
             channels,
             sample_format: SampleFormat::F32,
         },
-        format: extension,
+        format: extension.to_owned(),
     })
+}
+
+fn ensure_source_unchanged(
+    file: &File,
+    expected_len: u64,
+    source_changed: &AtomicBool,
+) -> Result<()> {
+    let actual_len = file.metadata()?.len();
+    if source_changed.load(Ordering::Acquire) || actual_len != expected_len {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "encoded audio source changed size during decoding (expected {expected_len} bytes, observed {actual_len})"
+        )));
+    }
+    Ok(())
 }
 
 fn ensure_decode_time(started_at: Instant, budget: Duration) -> Result<()> {
@@ -1093,7 +1243,47 @@ fn map_packet_decode_error(error: SymphoniaError) -> SpeechAudioError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::OpenOptions;
+    use std::io::Write;
+    use std::sync::atomic::AtomicU64;
     use tempfile::tempdir;
+
+    struct GrowFileOnFirstRead {
+        source: FixedLengthMediaSource,
+        path: PathBuf,
+        grown: bool,
+        bytes_returned: Arc<AtomicU64>,
+    }
+
+    impl Read for GrowFileOnFirstRead {
+        fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+            if !self.grown {
+                let mut file = OpenOptions::new().append(true).open(&self.path)?;
+                file.write_all(b"concurrent-file-growth")?;
+                self.grown = true;
+            }
+            let count = self.source.read(buffer)?;
+            self.bytes_returned
+                .fetch_add(count as u64, Ordering::Relaxed);
+            Ok(count)
+        }
+    }
+
+    impl Seek for GrowFileOnFirstRead {
+        fn seek(&mut self, position: SeekFrom) -> std::io::Result<u64> {
+            self.source.seek(position)
+        }
+    }
+
+    impl MediaSource for GrowFileOnFirstRead {
+        fn is_seekable(&self) -> bool {
+            self.source.is_seekable()
+        }
+
+        fn byte_len(&self) -> Option<u64> {
+            self.source.byte_len()
+        }
+    }
 
     fn wav_chunk(bytes: &[u8], wanted: &[u8; 4]) -> (usize, usize, usize) {
         let mut offset = 12usize;
@@ -2553,6 +2743,63 @@ mod tests {
             ),
             Err(SpeechAudioError::InvalidInput(_))
         ));
+    }
+
+    #[test]
+    fn bounded_decoder_rejects_growth_of_the_opened_file() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("growing-source.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.25; 256],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+
+        let started_at = Instant::now();
+        let limits = DecodeLimits::DEFAULT;
+        let mut file = File::open(&path).unwrap();
+        let input_bytes = file.metadata().unwrap().len();
+        validate_riff_wav(&mut file, input_bytes, limits, started_at, MAX_DECODE_TIME).unwrap();
+        file.seek(SeekFrom::Start(0)).unwrap();
+        let has_exact_frame_count = has_exact_frame_count_container(&mut file).unwrap();
+        let file_size_observer = file.try_clone().unwrap();
+        let source_changed = Arc::new(AtomicBool::new(false));
+        let bytes_returned = Arc::new(AtomicU64::new(0));
+        let source = GrowFileOnFirstRead {
+            source: FixedLengthMediaSource::new(file, input_bytes, Arc::clone(&source_changed))
+                .unwrap(),
+            path: path.clone(),
+            grown: false,
+            bytes_returned: Arc::clone(&bytes_returned),
+        };
+
+        let result = decode_audio_from_source(DecodeSource {
+            path: &path,
+            extension: "wav",
+            input_bytes,
+            limits,
+            max_decode_time: MAX_DECODE_TIME,
+            started_at,
+            has_exact_frame_count,
+            source: Box::new(source),
+            file_size_observer,
+            source_changed,
+        });
+
+        assert!(matches!(
+            result,
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message.contains("source changed size during decoding")
+        ));
+        assert!(std::fs::metadata(&path).unwrap().len() > input_bytes);
+        assert!(bytes_returned.load(Ordering::Relaxed) <= input_bytes);
     }
 
     #[test]
