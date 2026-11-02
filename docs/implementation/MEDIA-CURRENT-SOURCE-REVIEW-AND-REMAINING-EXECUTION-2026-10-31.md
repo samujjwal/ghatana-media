@@ -1135,3 +1135,45 @@ Whole campaign source roster 56/56 and bridge 3188/8668 are **structural positiv
 
 **Copy/paste implementer start:** *Read main at e2b449ea or its exact successor. Preserve the reported IP06 18/18, JC03 66/66, JC04 24/24 source-composite, H03 22/22, H04 27/27, H08 3/3 synthetic evidence; these do not finish the original rows. Execute disjoint P0 batches for Kernel DiOcrProvider context/cancel/security, Media H02 source-authorized execution envelope, JC03 hard RPC deadline, PDP phase stale source/current owner review, and IP06 crash/S3/Flyway cases. Produce actual code+focused JUnit and source-free client readback, record per original task ID and exact source SHA, use genuine qualified model/host/rights when available; do not reset code, fabricate approvals, re-create OCR engines or promote lifecycle without original owner verification.*
 
+### 41.8 Local implementation continuation (2026-11-02)
+
+This local follow-up records Track A code and test evidence only. The Media work is on local `main`; no remote push, original-row acceptance, PDP status/pin update, Track B transition, deployment, or release was made.
+
+| Work unit | Local implementation and independent disposition | Focused evidence and remaining boundary |
+| --- | --- | --- |
+| **Kernel #99 / DI OCR public boundary** | Publicly constructed `DiOcrProvider` instances remain degraded even when DI catalog discovery succeeds; public extract/status/cancel return `PROVIDER_NOT_ADMITTED`. Test-only transport results are labeled unverified and failure receipts are `not-issued`. Independent code review found no public bypass, and noted the package-private test transport seam as a P2 boundary-hardening concern. | `DiOcrProviderTest` passed **16/16** on local Kernel `main`; no durable operation journal, restart reconciliation, production resolver/host wiring, installed public consumer, or genuine model/rights qualification. Kernel work is local and unpushed. |
+| **H-02 / versioned execution-admission binding** | Added envelope v2 per-step SCENE/OUTPUT edit-lock mapping, exact compiler target/scope validation, owner-principal/revision/fingerprint checks before CAS, and negative zero-CAS tests. `ProductionSpec` v1 and its six compile slots remain unchanged. Independent read-only source review found the local mapping technically consistent and fail-closed. | Binding/compiler selectors passed **21/21**. Independent disposition is `ACCEPT_LOCAL_CANDIDATE_ONLY`, not PDP-1 acceptance: current source hash differs from the phase-status pin; source-to-scene authority and step-operation/clock-use mappings remain incomplete; schema/compiler content resolution and authority-backed JobAttempt dispatch/retry/restart are absent. Runtime admission remains `NOT_ADMITTED`. |
+| **JC-03 / deadline and client-cancellation path** | Added a full interceptor-chain regression for authenticated in-process client cancellation. Started effect-capable work remains `UNKNOWN`; no late success is returned. Existing bounded executor refuses queued dispatch after expiry and preserves ambiguous started work. | gRPC stack/interceptor/chain selectors passed **16/16**. This is cooperative JVM/in-process evidence; non-cooperative/native provider killable-host supervision and real four-modality source-free host qualification remain open. |
+| **IP-06 / V001–V016 test-only snapshot and applied history** | Checked in a deterministic SQL snapshot reconstructed from byte-identical legacy migrations at source commit `d62557fdaac7a324e036ca25f672d2a62ac532ea`, with synthetic IP-06 rows. A separate PostgreSQL 16 Testcontainers readback captured all 16 successful Flyway entries and validates version, description, script, checksum, and installation fields against the source manifest. Artifacts live outside Flyway migration discovery. | Snapshot/readback selectors passed **2/2**, historical compatibility **1/1**, and lost-ACK process restart/replay fencing **1/1**; existing S3 restart evidence remains separate. The snapshot/history are synthetic source-derived test fixtures, not an export of a deployed database. Actual installed history, old-writer fencing, cutover, and rollback/restore remain unproven. |
+| **PDP source currentness and original acceptance** | Read-only matrix rebuild remains PDP-1 `STALE` 27/137 pins, PDP-2 `STALE` 20/157, PDP-3 `STALE` 21/367. No matrix or source/status pin was regenerated. | Keep all original denominators and external evidence gates. No real lawful Whisper input, licensed voice/model qualification, five actual streaming intents, real provider c1/c16/c64, full Wave 2/W3/H whole-row acceptance, authenticated Work Planner/Lifecycle receipt, or writer cutover is established by this pulse. |
+
+Commands used for this local evidence:
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionAdmissionBindingTest \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest
+
+./gradlew :services:media:libs:common:test \
+  --tests com.ghatana.audio.video.common.resilience.RpcDeadlineGrpcStackIntegrationTest \
+  --tests com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptorTest \
+  --tests com.ghatana.audio.video.common.resilience.GrpcInterceptorChainTest
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationSnapshotArtifactTest \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationHistoryReadbackTest
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.Ip06LegacyMigrationCompatibilityTest
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaPostgresqlLostAckReplayFenceTest
+```
+
+Kernel was checked separately from `/Users/samujjwal/Development/ghatana-kernel` with:
+
+```bash
+./gradlew :platform-kernel:kernel-product-runtime:test \
+  --tests com.ghatana.kernel.product.runtime.DiOcrProviderTest
+```
+
