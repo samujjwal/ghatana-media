@@ -1,5 +1,6 @@
 package com.ghatana.media.runtime;
 
+import tools.jackson.databind.ObjectMapper;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionFailure;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionException;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding;
@@ -18,6 +19,9 @@ import com.ghatana.media.runtime.MediaProductionAdmissionBinding.ProjectEditLock
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.SceneSourceAuthority;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaProductionAdmissionBindingTest {
     private static final Instant NOW = Instant.parse("2030-01-01T00:00:00Z");
     private static final String SHA = "sha256:" + "a".repeat(64);
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     private static Binding binding(String engineDigest) {
         return new Binding(MediaProductionAdmissionBinding.SCHEMA_VERSION, "project-1", "rev-7",
@@ -59,6 +64,66 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static Engine noEngine() { return new Engine("NO_ENGINE", "NO_ENGINE", "NO_ENGINE"); }
+
+    private static MediaVersionedContractContent.ResolvedContent resolved(String ref, byte[] content) {
+        try {
+            String digest = "sha256:" + HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(content));
+            return new MediaVersionedContractContent.ResolvedContent(ref, content, digest);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
+    void resolvedRuntimeCandidateRetainsBindingAndStillFailsClosedAtAdmission() throws Exception {
+        Binding binding = binding(SHA);
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1",
+                List.of("profile/v1"));
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs("production-spec/rev-7",
+                "production-spec-schema/rev-1", MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION,
+                "production-compiler-contract/v3");
+        Map<String, byte[]> contents = Map.of(
+                inputs.productionSpecRef(), JSON.writeValueAsBytes(spec),
+                inputs.productionSpecSchemaRef(), "{\"type\":\"object\"}".getBytes(StandardCharsets.UTF_8),
+                inputs.compilerContractRef(), "opaque compiler contract".getBytes(StandardCharsets.UTF_8));
+
+        var plan = new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec, inputs, "rev-7", binding, ref -> resolved(ref, contents.get(ref)));
+
+        assertThat(plan.projectRevision()).isEqualTo("rev-7");
+        assertThat(plan.inputProvenance()).isEqualTo(inputs);
+        assertThat(plan.admissionBindingFingerprint()).isEqualTo(binding.stableContextFingerprint());
+        assertThat(MediaProductionSpecCompiler.isCompilerIssued(plan)).isTrue();
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.requireAdmitted(
+                binding, "render-profile-0", state(binding, "render-profile-0")))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(failure -> ((AdmissionException) failure).failure())
+                .isEqualTo(AdmissionFailure.SOURCE_REVIEW_NOT_ADMITTED);
+    }
+
+    @Test
+    void resolvedCompilerRejectsBindingMismatchBeforeCallingContentResolver() {
+        Binding binding = binding(SHA);
+        var mismatchedSpec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "other-project", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1",
+                List.of("profile/v1"));
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs("production-spec/rev-7",
+                "production-spec-schema/rev-1", MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION,
+                "production-compiler-contract/v3");
+        AtomicInteger resolverCalls = new AtomicInteger();
+
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                mismatchedSpec, inputs, null, binding, ref -> {
+                    resolverCalls.incrementAndGet();
+                    throw new AssertionError("resolver must not be called for a mismatched binding");
+                }))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(failure -> ((AdmissionException) failure).failure())
+                .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        assertThat(resolverCalls).hasValue(0);
+    }
 
     private static CurrentState state(Binding b, String stepId) {
         return state(b, stepId, "scene/1@v1");

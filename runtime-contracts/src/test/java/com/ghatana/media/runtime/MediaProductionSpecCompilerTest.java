@@ -270,6 +270,19 @@ class MediaProductionSpecCompilerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must match");
         assertThat(calls).hasValue(0);
+
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), new MediaProductionSpecCompiler.CompilationInputs(
+                        "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                        MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3"),
+                "rev-6", null, ref -> {
+                    calls.incrementAndGet();
+                    return resolved(ref, new byte[0]);
+                }))
+                .isInstanceOf(MediaProductionAdmissionBinding.AdmissionException.class)
+                .extracting(failure -> ((MediaProductionAdmissionBinding.AdmissionException) failure).failure())
+                .isEqualTo(MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
+        assertThat(calls).hasValue(0);
     }
 
     private static MediaVersionedContractContent.ResolvedContent resolved(String ref, byte[] content) {

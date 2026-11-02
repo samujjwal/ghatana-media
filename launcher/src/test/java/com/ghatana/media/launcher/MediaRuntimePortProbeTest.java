@@ -11,6 +11,7 @@ import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionExcept
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionFailure;
 import com.ghatana.media.runtime.MediaProductionSpecCompiler;
 import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
+import com.ghatana.media.runtime.MediaVersionedContractContent;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
@@ -52,6 +53,22 @@ class MediaRuntimePortProbeTest {
             var sourceBoundPlan = runtime.compileProductionSpec(spec, inputs, "revision-7", null);
             assertThat(sourceBoundPlan.inputProvenance()).isEqualTo(inputs);
             assertThat(sourceBoundPlan.planFingerprint()).isNotEqualTo(plan.planFingerprint());
+
+            Map<String, byte[]> content = Map.of(
+                    inputs.productionSpecRef(), """
+                            {"tenantId":"tenant-a","projectId":"project-a","revisionId":"revision-7",
+                             "schemaVersion":"media.declarative.value.production-spec.v1",
+                             "originClass":"REAL_CAPTURE","purposeRef":"purpose/v1",
+                             "sceneRefs":["scene-a/v3"],"timelineRef":"timeline/v2",
+                             "rightsRef":"rights/v1","outputProfileRefs":["profile/v4"]}
+                            """.getBytes(StandardCharsets.UTF_8),
+                    inputs.productionSpecSchemaRef(), "{\"type\":\"object\"}".getBytes(StandardCharsets.UTF_8),
+                    inputs.compilerContractRef(), "opaque compiler contract".getBytes(StandardCharsets.UTF_8));
+            var resolvedPlan = runtime.compileProductionSpec(spec, inputs, "revision-7", null,
+                    ref -> resolved(ref, content.get(ref)));
+            assertThat(resolvedPlan.inputProvenance()).isEqualTo(inputs);
+            assertThat(resolvedPlan.planFingerprint()).isNotEqualTo(sourceBoundPlan.planFingerprint());
+
             assertThat(runtime.assessProductionSchemaMigration(inputs,
                     new MediaProductionSpecCompiler.SchemaMigrationRequest(
                             java.util.Optional.of("production-spec-schema/v2"), java.util.Optional.empty()))
@@ -399,5 +416,15 @@ class MediaRuntimePortProbeTest {
                 "probe-upload-" + java.util.UUID.randomUUID());
         runtime.appendChunk(tenantId, principalId, upload.uploadId(), 0, bytes);
         return runtime.completeUpload(tenantId, principalId, upload.uploadId());
+    }
+
+    private static MediaVersionedContractContent.ResolvedContent resolved(String ref, byte[] content) {
+        try {
+            String digest = "sha256:" + HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(content));
+            return new MediaVersionedContractContent.ResolvedContent(ref, content, digest);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

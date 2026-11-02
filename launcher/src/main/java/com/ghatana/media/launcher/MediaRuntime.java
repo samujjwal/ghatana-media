@@ -850,6 +850,24 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 spec, compilationInputs, optionalProjectRevisionRef, admissionContext);
     }
 
+    /**
+     * Resolves the exact versioned spec, schema, and compiler-contract bytes
+     * through the supplied resolver before preparing the local candidate.
+     * The resolver remains responsible for authenticated immutable-version
+     * lookup. This method validates and fingerprints content but neither
+     * interprets compiler step semantics nor admits runtime effects.
+     */
+    public MediaProductionSpecCompiler.CompiledPlan compileProductionSpec(
+            MediaProductionSpecCompiler.ProductionSpec spec,
+            MediaProductionSpecCompiler.CompilationInputs compilationInputs,
+            String optionalProjectRevisionRef,
+            com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding admissionContext,
+            com.ghatana.media.runtime.MediaVersionedContractContent.Resolver contentResolver) {
+        ensureOpen();
+        return new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec, compilationInputs, optionalProjectRevisionRef, admissionContext, contentResolver);
+    }
+
     /** Returns the fail-closed disposition for optional target-schema migration inputs. */
     public MediaProductionSpecCompiler.SchemaMigrationAssessment assessProductionSchemaMigration(
             MediaProductionSpecCompiler.CompilationInputs sourceInputs,

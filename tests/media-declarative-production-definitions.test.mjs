@@ -126,12 +126,20 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.equal(binding.operationSchemaRelation.planBindingRules.stepOperationMapping,
     'NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE');
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
-    /EXACT_VERSIONED_REFERENCE_AND_DECLARED_SCHEMA_ID_MUST_MATCH_PRODUCTION_SPEC_SCHEMA_VERSION/);
+    /EXACT_VERSIONED_REFERENCE_AND_SUPPLIED_PRODUCTION_SPEC_SCHEMA_VERSION_MUST_MATCH_SPEC_SCHEMA_VERSION/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input1Content,
+    /CHECKS_EXACT_REFERENCE_ECHO_AND_SHA256_OF_RETURNED_BYTES/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.typedProductionSpecInput,
+    /DECODED_INPUT1_VALUE_TO_STRUCTURALLY_EQUAL_THE_TYPED_MIRROR/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
+    /RESOLVED_SCHEMA_DOCUMENT_\$ID_IS_NOT_MATCHED_TO_THE_SUPPLIED_VERSION/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
-    /EXACT_VERSIONED_REFERENCE_REQUIRED_AND_BOUND_IN_FINGERPRINT/);
+    /RESOLVER_OVERLOAD_CHECKS_REFERENCE_ECHO_AND_SHA256_OF_RETURNED_BYTES/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
+    /DECLARED_STEP_KIND_INTERPRETATION_IS_NOT_IMPLEMENTED/);
   assert.deepEqual(binding.operationSchemaRelation.operationInputCoverage.notImplementedInputs,
-    ['input1-content-digest-attestation', 'input2-schema-content-resolution-and-validation',
-      'input3-compiler-content-resolution-and-step-kind-semantics',
+    ['input1-immutable-version-and-authorization-proof', 'input2-shared-definitions-context-materialization',
+      'input3-compiler-contract-schema-and-step-kind-semantics',
       'input5-target-schema', 'input6-migration-transformation']);
   assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
     'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');

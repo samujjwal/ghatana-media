@@ -328,10 +328,27 @@ public final class MediaProductionSpecCompiler {
             ProductionSpec spec,
             CompilationInputs inputs,
             MediaVersionedContractContent.Resolver resolver) {
+        return compileWithResolvedContentFingerprints(spec, inputs, null, null, resolver);
+    }
+
+    /**
+     * Resolves and validates the versioned production inputs while retaining
+     * the exact optional revision assertion and v3 admission context on the
+     * effect-free candidate. This still does not interpret compiler-contract
+     * semantics or authenticate the resolver; the caller must supply the
+     * existing authoritative resolver and execution remains NOT_ADMITTED.
+     */
+    public CompiledPlan compileWithResolvedContentFingerprints(
+            ProductionSpec spec,
+            CompilationInputs inputs,
+            String optionalProjectRevisionRef,
+            MediaProductionAdmissionBinding.Binding binding,
+            MediaVersionedContractContent.Resolver resolver) {
         Objects.requireNonNull(spec, "spec");
         Objects.requireNonNull(inputs, "inputs");
         Objects.requireNonNull(resolver, "resolver");
         requireInputSchemaVersion(spec, inputs);
+        validateCompileBinding(spec, optionalProjectRevisionRef, binding);
         MediaVersionedContractContent.ResolvedContent specificationContent = resolver.resolve(inputs.productionSpecRef());
         var specificationFingerprint = MediaVersionedContractContent.verifyDigestChecked(
                 inputs.productionSpecRef(), specificationContent);
@@ -343,7 +360,7 @@ public final class MediaProductionSpecCompiler {
                 inputs.compilerContractRef(), resolver);
         List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = List.of(
                 specificationFingerprint, schemaFingerprint, compilerFingerprint);
-        return compileInternal(spec, null, null, inputs, resolved);
+        return compileInternal(spec, optionalProjectRevisionRef, binding, inputs, resolved);
     }
 
     private static void validateProductionSpecContent(
@@ -492,24 +509,7 @@ public final class MediaProductionSpecCompiler {
             List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedContents) {
         Objects.requireNonNull(spec, "spec");
         if (inputs != null) requireInputSchemaVersion(spec, inputs);
-        if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(spec.revisionId())) {
-            throw new MediaProductionAdmissionBinding.AdmissionException(
-                    MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
-        }
-        if (binding != null && (!binding.projectId().equals(spec.projectId())
-                || !binding.expectedProjectRevision().equals(spec.revisionId())
-                || !binding.authority().tenantId().equals(spec.tenantId())
-                || !binding.authority().purposeRef().equals(spec.purposeRef())
-                || !binding.authority().rightsRef().equals(spec.rightsRef()))) {
-            throw new MediaProductionAdmissionBinding.AdmissionException(
-                    MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
-        }
-        if (binding != null && !binding.sourceBindingsByScene().keySet().equals(new TreeSet<>(spec.sceneRefs()))) {
-            // The separately-versioned v3 envelope must bind every exact scene
-            // ref and no other scene; partial/extra mappings cannot authorize a plan.
-            throw new MediaProductionAdmissionBinding.AdmissionException(
-                    MediaProductionAdmissionBinding.AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
-        }
+        validateCompileBinding(spec, optionalProjectRevisionRef, binding);
         String admissionFingerprint = binding == null ? null : binding.stableContextFingerprint();
         Map<String, String> fingerprints = new LinkedHashMap<>();
         List<PlanNode> nodes = new ArrayList<>();
@@ -597,6 +597,30 @@ public final class MediaProductionSpecCompiler {
                 admissionFingerprint);
         markCompilerIssued(compiledPlan);
         return compiledPlan;
+    }
+
+    private static void validateCompileBinding(
+            ProductionSpec spec,
+            String optionalProjectRevisionRef,
+            MediaProductionAdmissionBinding.Binding binding) {
+        if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(spec.revisionId())) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
+        }
+        if (binding != null && (!binding.projectId().equals(spec.projectId())
+                || !binding.expectedProjectRevision().equals(spec.revisionId())
+                || !binding.authority().tenantId().equals(spec.tenantId())
+                || !binding.authority().purposeRef().equals(spec.purposeRef())
+                || !binding.authority().rightsRef().equals(spec.rightsRef()))) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
+        }
+        if (binding != null && !binding.sourceBindingsByScene().keySet().equals(new TreeSet<>(spec.sceneRefs()))) {
+            // The separately-versioned v3 envelope must bind every exact scene
+            // ref and no other scene; partial/extra mappings cannot authorize a plan.
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        }
     }
 
     private static List<String> engineContext(
