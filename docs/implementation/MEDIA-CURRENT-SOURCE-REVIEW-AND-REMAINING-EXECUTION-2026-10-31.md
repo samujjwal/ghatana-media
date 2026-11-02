@@ -2220,3 +2220,33 @@ This is real local Docker/Linux ARM64 enforcement for the synthetic OCI fixture 
 **Unchanged real-codec evidence reuse:** the existing source-coverage record reports `HostOciVisionRealCodecIntegrationTest` **3/3** on pinned FFmpeg 8.1.2 Linux ARM64, archive SHA-256 `ead92446d2d51015500843fa70a3ead35391898fe9850b7471c042f11d533586`, and image SHA-256 `6d2a571bc6ee53bb700e8b03e8d1ea026fe32e9135cf8e9b099bf5a9c36b23c6`. The test source last changed at `ef823571` and remains unmodified; read-only Docker inspect still reports the same image ID and `arm64` architecture. Reused this existing result without rerunning the same selectors. It covers generated-BMP pixel-exact decode, malformed-source rejection, and exact output-limit overflow only; it does not close the wider VIS-03 adversarial/cutover/whole-row acceptance.
 
 The same unchanged-source check found a recorded `HostOciVisionPngCodecIntegrationTest` **4/4** result against pinned BtbN LGPL PNG-capable FFmpeg, image SHA-256 `f2532a912e29c8278d89c87400553cf1f738cc1a09ee7dcd52cdcce48fbcf253`. Its current test source last changed at `2180a067` and is unmodified; read-only Docker inspect confirmed the exact same image ID and `arm64` architecture. Reused this result without rerunning. The recorded cases cover exact PNG decode/encode pixel fidelity, corrupt-PNG rejection, and output-overflow failure; VIS-03's full adversarial and original whole-row obligations remain open.
+
+### 41.66 November 2 stale-source check behavior and Linux ARM64 Whisper selectors
+
+**PDP-1/2/3 check-path fail-closed correction (`c190eb33`):** the three source-phase matrix generators now reject `--check` whenever the computed `phaseSourceCurrentness` is not `CURRENT`, even when the stored projection faithfully contains the same stale source pins. Their existing projections, PDP status records, source pins, owners, and lifecycle state were not changed. The focused generator tests passed **13/13**:
+
+```bash
+node --test \
+  tests/pdp1-surface-phase-status-matrix-generator.test.mjs \
+  tests/pdp2-surface-phase-status-matrix-generator.test.mjs \
+  tests/pdp3-surface-phase-status-matrix-generator.test.mjs
+```
+
+Direct check invocations now exit **1** and identify PDP-1 **27/137**, PDP-2 **20/157**, and PDP-3 **21/367** required phase pins as stale. PDP-0 remains independently stale at **18/188**. This makes the existing condition visible to automation; it does not reconcile source pins, change phase status, or admit BUILD.
+
+**Linux ARM64 Whisper Wave 0 selectors:** ran the focused STT source-composite build in the already-cached JDK 27.0.1 Linux ARM64 image `sha256:473d02d477a8152a05dc42fde10b965754f1863d45e586a97763ef298965c48b`, with Docker network disabled, an isolated Gradle home, and 8 GiB / 4 CPU / 512 PID limits. Source inputs were Media `e77bb456` and Shared `13548bf7`.
+
+```bash
+./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt \
+  :services:media:libs:java:common:test \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperOnnxThreadPolicyTest \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperDecoderPolicyTest \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperReferenceModelIntegrationTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain --offline
+# Linux ARM64: 7 passed, 2 skipped
+```
+
+The two skips are opt-in profile/audio model integration cases. The profile, audio, and independent gold-transcript inputs remain unset; no ONNX inference, transcript quality, or c1/c16/c64 benchmark is claimed. The new Linux run complements the prior macOS ARM64 selectors but does not qualify a lawful model/provider or close the original Wave 2 STT row.
+
+The requested V001–V016 test-only snapshot and applied-history CSV remain available at the paths and SHA-256 values recorded in §41.61. Independent review of the current H-02 binding remains `ACCEPT_LOCAL_CANDIDATE_ONLY`; runtime admission is still `NOT_ADMITTED`. Kernel #99 remains Discovery-gated, JC-03 still lacks a real Whisper/provider effect and end-to-end noncooperative-worker proof, and IP-06 still lacks authentic deployed applied-history and old-writer fencing. No source owner acceptance, external rights, production cutover, formal phase acceptance, deployment, or release is inferred from these local results.
