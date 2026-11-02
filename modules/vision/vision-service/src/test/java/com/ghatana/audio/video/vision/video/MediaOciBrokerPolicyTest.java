@@ -1,9 +1,15 @@
 package com.ghatana.audio.video.vision.video;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.ByteArrayInputStream;
+import java.net.StandardProtocolFamily;
+import java.net.UnixDomainSocketAddress;
+import jdk.net.ExtendedSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -15,7 +21,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** Server-side broker policy negatives; no Docker or socket required. */
+/** Server-side broker policy negatives; no Docker required. */
 class MediaOciBrokerPolicyTest {
 
     @TempDir Path root;
@@ -136,6 +142,42 @@ class MediaOciBrokerPolicyTest {
             assertThat(MediaOciBrokerDaemon.peerUserAllowed(channel, "media-client", ignored -> {
                 throw new java.io.IOException("SO_PEERCRED unavailable");
             })).isFalse();
+        }
+    }
+
+    @Test
+    void brokerPeerGateReadsActualUnixSocketCredentialsAndRejectsMismatchedOrUnconnectedPeers() throws Exception {
+        try (SocketChannel probe = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+            Assumptions.assumeTrue(probe.supportedOptions().contains(ExtendedSocketOptions.SO_PEERCRED),
+                    "SO_PEERCRED is unavailable on this host/JDK");
+        } catch (UnsupportedOperationException unsupported) {
+            Assumptions.assumeTrue(false, "Unix domain sockets are unavailable on this host/JDK");
+        }
+
+        Path socketPath = root.resolve("p.sock");
+        String actualUser;
+        try (ServerSocketChannel server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
+            server.bind(UnixDomainSocketAddress.of(socketPath));
+            try (SocketChannel client = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+                client.connect(UnixDomainSocketAddress.of(socketPath));
+                try (SocketChannel accepted = server.accept()) {
+                    var peerCredentials = accepted.getOption(ExtendedSocketOptions.SO_PEERCRED);
+                    assertThat(peerCredentials).isNotNull();
+                    actualUser = peerCredentials.user().getName();
+                    assertThat(actualUser).isNotBlank();
+                    assertThat(MediaOciBrokerDaemon.peerUserAllowed(accepted, actualUser))
+                            .as("the accepted socket's kernel peer credential must match the authorized peer")
+                            .isTrue();
+                    assertThat(MediaOciBrokerDaemon.peerUserAllowed(accepted, actualUser + "-other"))
+                            .as("a caller-supplied or mismatched username must not authorize the peer")
+                            .isFalse();
+                }
+            }
+        }
+        try (SocketChannel unconnected = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+            assertThat(MediaOciBrokerDaemon.peerUserAllowed(unconnected, actualUser))
+                    .as("an unconnected socket without kernel peer credentials must fail closed")
+                    .isFalse();
         }
     }
 
