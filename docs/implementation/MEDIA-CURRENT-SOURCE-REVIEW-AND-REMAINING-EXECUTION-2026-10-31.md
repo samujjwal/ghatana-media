@@ -2139,3 +2139,26 @@ python3 modules/intelligence/speech/libs/speech-audio-rust/scripts/measure-speec
 ```
 
 These local additions do not close RS-02: sustained fuzzing, representative codec/container and worst-case RSS coverage, decoder-internal allocation limits, synchronous codec-call interruption, and same-length source immutability remain unresolved. No cross-host capacity or production qualification is claimed. No further nonduplicative local task was identified in the pasted immediate sequence after this slice: Kernel #99 remains blocked by Kernel's global Discovery gate; H-02 #25 requires source-owner semantics and currentness; JC-03 #26 requires killable host/provider qualification; IP-06 #27 requires authentic deployed history and old-writer fencing. Continue independent local work only when new evidence identifies a bounded task; do not infer owner approval, runtime admission, phase acceptance, or cutover from these fixtures and local tests.
+
+### 41.62 November 2 owner-directed H-02 graph binding and JC-03/IP-06 focused evidence
+
+The user directed the coordinator to supply the requested IP-06 fixture inputs and obtain an independent H-02/PDP-1 disposition. No replacement database snapshot was needed: the test-only V001–V016 snapshot and applied-history artifacts, hashes, synthetic provenance, and earlier 2/2 verification remain recorded in §41.61.
+
+**H-02 explicit graph candidate (`6a923dc9`):** a fresh read-only Luna review of the current H-02 binding returned `ACCEPT_LOCAL_CANDIDATE_ONLY`. PDP-1 input3 is the authoritative per-instance graph and the source mapping requires an exact `stepId` join to `enginesByStep`; the binder had additionally required that graph to equal the legacy `compile(spec)` fixed DAG. `bindSemanticSourceCandidate` now uses only the exact graph-to-engine-key join for this candidate path. It retains source digest, scene, lock, operation-evidence, and fingerprint checks. The result remains only a deterministic effect-free candidate; the legacy `CompiledPlan` path and v3 plan-binding rules were not changed. A second independent review of the tested diff confirmed `ACCEPT_LOCAL_CANDIDATE_ONLY`.
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionAdmissionBindingTest \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest \
+  --tests com.ghatana.media.runtime.MediaProductionSemanticSourceTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+# 52 passed, 0 failed, 0 skipped
+```
+
+The H-02/PDP-1 technical review does not accept operation-definition meaning or engine compatibility. Resolver authority/currentness, a trusted source/rights adapter, project CAS and fenced-lock authority, `MediaRuntime`/`JobAttempt` dispatch, and durable unknown-outcome readback remain absent. PDP-1 source pins remain stale; runtime admission remains `NOT_ADMITTED`, and issue #25 remains open.
+
+**JC-03/JC-04 focused rerun:** with `--rerun-tasks`, the bounded deadline, queue, cancellation, and late-response selectors passed: `RpcDeadlineServerInterceptorTest` 14/14, `RpcDeadlineGrpcStackIntegrationTest` 5/5, `SttBoundedProviderDispatchTest` 9/9, `TtsUnaryBoundedDispatchTest` 13/13, `VisionGrpcServiceBoundedProviderTest` 4/4, `VisionGrpcDeadlineProviderIntegrationTest` 1/1, and `MultimodalGrpcFinalitySurfaceTest` 14/14 (**60 passed; no failures/errors/skips**). These are local synthetic/mock code-path checks. They do not prove durable finality, real provider effects, noncooperative native termination, installed source-free consumers, or host OCI qualification; issue #26 remains open.
+
+**IP-06 local recovery selectors:** the November 2 forced Gradle selection executed 19 tests across `Ip06FlywayProcessCrashRecoveryTest` (1), `Ip06LegacyMigrationCompatibilityTest` (3), `MediaMigrationLineageFixtureTest` (3), `MediaPostgresqlS3IntegrityRestartTest` (4), and `MediaPostgresqlS3ProcessCrashRecoveryTest` (8), with no skips or failures. This includes the PostgreSQL/Testcontainers crash-and-resume, S3 integrity/restart, checked snapshot-forward rehearsal, and an H2-only V030 failure/retry case added in `bc51bef3`. The H2 case verifies the preceding row update rolls back, V030 retains one failed history row, and visible V031 table/data effects remain unapplied before and after retry validation. A Luna reviewer accepted this as `ACCEPT_LOCAL_TEST_ONLY`; it does not establish production or deployed migration history.
+
+IP-06 still requires authentic deployed `flyway_schema_history`, old-writer identity and fencing, authorized single-writer cutover, and rollback evidence; issue #27 remains open. Kernel #99 remains Discovery-gated: its repository-wide Discovery exit still fails, so no Kernel BUILD code or tests were run. Media PDP-1/2/3 currentness and the original Wave 2, Wave 3, and H outcomes are unchanged. No runtime admission, source pin/status mutation, owner acceptance, formal closure, deployment, or release is claimed by this evidence.
