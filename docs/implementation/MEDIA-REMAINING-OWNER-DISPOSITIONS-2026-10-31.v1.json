@@ -333,7 +333,7 @@
       "priority": "P0",
       "title": "H-02 compiler lacks authoritative engine hash, cost, auth and edit-lock semantics",
       "ownerRepo": "ghatana-media",
-      "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
+      "issue": "https://github.com/samujjwal/ghatana-media/issues/25",
       "observed": "MediaProductionSpecCompiler fingerprinted deterministic DAG exists; PDP1 declarative-production-contracts.yaml has runtimeAdmission NOT_ADMITTED and fieldMapping NOT_ASSERTED; no certified engine digest, cost upper bound, current decision or CAS lock",
       "ownerDecision": "Source-owner approve precise new PDP1 production-spec admission fields and canonical execution port semantics before Java changes; preserve version, no parallel authority",
       "action": "Amend PDP1 declarative production contracts and existing op mapping for: engineId/version/digest (or explicit no engine), qualified tariff upper-bound+budget reservation unit/ref, source-rights decisionRef+validity/fence, project revision expectedCAS+manual edit-lock owner/scope/epoch/expiry. Compiler binds these in node/plan fingerprint and rejects stale/unknown/overbudget without effects, then runtime coordinator rechecks at effect.",
@@ -345,7 +345,7 @@
       "priority": "P0",
       "title": "JC-03 bounded retry/quotas without hard RPC deadline and noncooperative interruption",
       "ownerRepo": "ghatana-media",
-      "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
+      "issue": "https://github.com/samujjwal/ghatana-media/issues/26",
       "observed": "66/66 common tests; tenant admission capped but RetryPolicy max elapsed only prevents another attempt; blocked Callable is not interrupted, can return success after budget expiry; no guaranteed RPC deadline",
       "ownerDecision": "Reuse one gRPC interceptor/context and effect-owning bounded executor; never add second quota/boolean fake hard timeout",
       "action": "Define per-method max/caller deadline min, propagate gRPC Context cancellation and clock into child call, bound blocking workers and interrupts; if noncooperative native code use killable worker process, return TIMEOUT only on proven no-effect or UNKNOWN_OUTCOME with exact request/idempotency readback. Revalidate post-result budget before declaring side effect success.",
@@ -369,7 +369,7 @@
       "priority": "P1",
       "title": "IP-06 actual DB crash, S3 and writer cutover not covered by graceful restart fixture",
       "ownerRepo": "ghatana-media",
-      "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
+      "issue": "https://github.com/samujjwal/ghatana-media/issues/27",
       "observed": "IP-06 1e4c571a 18/18 PostgreSQL16 Testcontainers passed graceful persistence factory close/reopen under temp UUID DB",
       "ownerDecision": "Keep accepted narrow test evidence; no release/migration/Stage acceptance from factory restart",
       "action": "Add isolated controlled child process SIGKILL/abrupt crash with in-flight/committed transaction checks; S3 exact object/artifact version, outbox CAS reconcile and DB Flyway applied-history V001–V029 with old writer fenced. Operator-only production cutover after restoration/rollback drill.",
@@ -2924,7 +2924,8 @@
       "engineeringReadback": {
         "reportedStatus": "FOCUSED_HOST_PASS_66_66",
         "remaining": "hard gRPC deadline propagation, finite blocked callable and truthful late success/UNKNOWN, model registry is not license qualified"
-      }
+      },
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26"
     },
     {
       "id": "JC-04",
@@ -2936,7 +2937,8 @@
       "engineeringReadback": {
         "reportedStatus": "SOURCE_COMPOSITE_COMPAT_24_24_REUSED",
         "remaining": "packed installed common/4 provider API and real deadline/cancel, not independent release"
-      }
+      },
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26"
     },
     {
       "id": "MC-01",
@@ -3133,7 +3135,8 @@
         "reportedStatus": "FOCUSED_HOST_PASS_18_18_POSTGRES16",
         "codeCommit": "1e4c571a",
         "remaining": "controlled process kill, S3/Flyway, real source/rights, old writer cutover; IP06 original whole row not accepted"
-      }
+      },
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/27"
     },
     {
       "id": "IP-07",
@@ -3619,7 +3622,8 @@
       "engineeringReadback": {
         "reportedStatus": "COMPILER_DETERMINISTIC_DAG_PRESENT_NOT_RUNTIME_ADMITTED",
         "remaining": "PDP1 engine hash/clock/plan cost auth and manual edit lock semantics/field mapping; fail closed until source review"
-      }
+      },
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/25"
     },
     {
       "id": "H-03",
@@ -3980,5 +3984,41 @@
       "reportedStatus": "LEDGER_32_32_10K_SYNTHETIC_P50_10US_P95_25US",
       "remaining": "remote durability CAS, binary installed consumer and actual Data Cloud owner writer"
     }
+  },
+  "hostReportedCurrentPlanChecks": {
+    "terminalQualification": {
+      "passed": 7,
+      "total": 7
+    },
+    "remainingSurfaces": {
+      "passed": 11,
+      "total": 11
+    },
+    "modalityWave2": {
+      "passed": 7,
+      "total": 7
+    },
+    "r10OwnerResolution": {
+      "passed": 15,
+      "total": 15
+    },
+    "candidateCrosswalk": {
+      "passed": 7,
+      "total": 7
+    },
+    "diffCheck": "PASS reported clean source tip e2b449ea",
+    "claim": "Source/plan checks do not promote original task or lifecycle acceptance"
+  },
+  "ownerIssueBinding": {
+    "H-02": "https://github.com/samujjwal/ghatana-media/issues/25",
+    "JC-03": "https://github.com/samujjwal/ghatana-media/issues/26",
+    "JC-04": "https://github.com/samujjwal/ghatana-media/issues/26",
+    "IP-06": "https://github.com/samujjwal/ghatana-media/issues/27",
+    "OCR-K01": "https://github.com/samujjwal/ghatana-kernel/issues/99",
+    "VIS-09": "https://github.com/samujjwal/ghatana-media/issues/23",
+    "DI-X04": "https://github.com/samujjwal/ghatana/issues/252",
+    "SHARED-EXTRACTION": "https://github.com/samujjwal/ghatana-shared/issues/246",
+    "PDP-0-3": "https://github.com/samujjwal/ghatana-media/issues/19",
+    "KCRIT": "https://github.com/samujjwal/ghatana-media/issues/22"
   }
 }
