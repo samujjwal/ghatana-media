@@ -4,10 +4,10 @@
   "claimsBoundary": "All current topology identities are represented by the four phase matrices. Matrix rows project their source-owned applicability, status and currentness; this roster does not infer owner approval, phase acceptance, closure, or receipt.",
   "sourcePins": {
     ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "a2bd195d5e9a8648a26d1b5aa77e526100fde49683da1b6322dd5bc5c3beea6a",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "328359468a0870713bffe530c9b70cafb0f907d70a90ddeaf60832670a119b5e",
-    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "937995792ae5f46b80565d8dc53637a078433722d734b30f9343bde67fe406d1",
-    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "f5d8e4640a382842bf1d8fa400dfaf8c0acc8fd53797b9c63bf2d6867ce763f3"
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+    "docs/implementation/verification/pdp-38/pdp2-surface-phase-status-matrix.json": "f2f96b0e67ce63f3da06ed814072d3ea4fb84a88bb12501a88b2a88322750adc",
+    "docs/implementation/verification/pdp-38/pdp3-surface-phase-status-matrix.json": "11d397a35f0f2237389ab5db59971efa3004a1dca3efd27ad4a1f27ecaa0786e"
   },
   "census": {
     "physical": 28,
