@@ -347,6 +347,73 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         }
     }
 
+    @Test
+    void artifactInsertFailureAfterS3FinalizeRetriesToOneParityCheckedArtifact() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-insfail-" + runId;
+        String prefix = "ip06/insfail/" + runId;
+        String tenant = "tenant-ip06-artifact-insert-failure-" + runId;
+        String principal = "principal-ip06-artifact-insert-failure-" + runId;
+        byte[] bytes = wav(("artifact-insert-failure-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        createBucket(bucket);
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                    digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+            UploadSession upload = store.begin(request, "ip06-artifact-insert-failure-" + runId);
+            store.append(tenant, principal, upload.uploadId(), 0, bytes);
+            String fingerprint = requestFingerprint(tenant, upload.uploadId());
+            String finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                    + upload.uploadId() + "/" + digest;
+            String stagedChunkKey = prefix + "/uploads/" + opaque(tenant) + "/"
+                    + upload.uploadId() + "/chunks/0";
+
+            // Force the failure after multipart S3 finalization, when the final object
+            // exists but artifact metadata has not crossed its database commit boundary.
+            installArtifactInsertFailureFence();
+            try {
+                assertThatThrownBy(() -> store.complete(tenant, principal, upload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("persist Media artifact");
+            } finally {
+                dropArtifactInsertFailureFence();
+            }
+
+            assertThat(artifactIdForUpload(tenant, upload.uploadId())).isNull();
+            assertThat(tenantArtifactCount(tenant)).isZero();
+            assertThat(objectExists(bucket, finalKey))
+                    .as("finalized bytes remain in the private quarantine namespace without DB publication")
+                    .isTrue();
+            byte[] stagedFinalBytes = getObject(bucket, finalKey);
+            assertThat(stagedFinalBytes).containsExactly(bytes);
+            assertThat(sha256(stagedFinalBytes)).isEqualTo(digest);
+            assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
+
+            MediaArtifact recovered = store.complete(tenant, principal, upload.uploadId());
+
+            String artifactId = recovered.artifactId();
+            assertThat(artifactIdForUpload(tenant, upload.uploadId())).isEqualTo(artifactId);
+            assertThat(recovered.tenantId()).isEqualTo(tenant);
+            assertThat(recovered.principalId()).isEqualTo(principal);
+            assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+            assertThat(recovered.sha256()).isEqualTo(digest);
+            assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+            assertThat(store.artifact(tenant, artifactId)).contains(recovered);
+            assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+            byte[] persistedBytes = getObject(bucket, objectKey(recovered.objectReference()));
+            assertThat(persistedBytes).containsExactly(bytes);
+            assertThat(sha256(persistedBytes)).isEqualTo(recovered.sha256());
+            assertThat(objectExists(bucket, stagedChunkKey)).isFalse();
+            assertThat(requestFingerprint(tenant, upload.uploadId())).isEqualTo(fingerprint);
+        } finally {
+            dropArtifactInsertFailureFenceIfPresent();
+            deleteBucketObjects(bucket);
+        }
+    }
+
     private static Process startWorker(Map<String, String> environment, String applicationName,
             Path marker, Path log, String operation, Path payload, String tenant, String principal,
             String uploadId) throws Exception {
@@ -411,6 +478,27 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         try { dropChunkInsertFence(); } catch (Exception ignored) { /* Testcontainers disposes the isolated DB. */ }
     }
 
+    private static void installArtifactInsertFailureFence() throws Exception {
+        try (Connection connection = databaseConnection(); var statement = connection.createStatement()) {
+            statement.execute("CREATE FUNCTION media_ip06_fail_artifact_insert() RETURNS trigger LANGUAGE plpgsql "
+                    + "AS $$ BEGIN RAISE EXCEPTION 'injected IP-06 artifact metadata insert failure'; END; $$");
+            statement.execute("CREATE TRIGGER media_ip06_fail_artifact_insert BEFORE INSERT ON media_artifacts "
+                    + "FOR EACH ROW EXECUTE FUNCTION media_ip06_fail_artifact_insert()");
+        }
+    }
+
+    private static void dropArtifactInsertFailureFence() throws Exception {
+        try (Connection connection = databaseConnection(); var statement = connection.createStatement()) {
+            statement.execute("DROP TRIGGER IF EXISTS media_ip06_fail_artifact_insert ON media_artifacts");
+            statement.execute("DROP FUNCTION IF EXISTS media_ip06_fail_artifact_insert()");
+        }
+    }
+
+    private static void dropArtifactInsertFailureFenceIfPresent() {
+        try { dropArtifactInsertFailureFence(); }
+        catch (Exception ignored) { /* Testcontainers disposes the isolated DB. */ }
+    }
+
     private static int readChunkCount(String tenant, String uploadId) throws Exception {
         try (Connection connection = databaseConnection();
              var query = connection.prepareStatement(
@@ -440,6 +528,15 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
                      "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND artifact_id=?")) {
             query.setString(1, tenant);
             query.setString(2, artifactId);
+            try (var rows = query.executeQuery()) { rows.next(); return rows.getInt(1); }
+        }
+    }
+
+    private static int tenantArtifactCount(String tenant) throws Exception {
+        try (Connection connection = databaseConnection();
+             var query = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?")) {
+            query.setString(1, tenant);
             try (var rows = query.executeQuery()) { rows.next(); return rows.getInt(1); }
         }
     }
