@@ -2162,3 +2162,27 @@ The H-02/PDP-1 technical review does not accept operation-definition meaning or 
 **IP-06 local recovery selectors:** the November 2 forced Gradle selection executed 19 tests across `Ip06FlywayProcessCrashRecoveryTest` (1), `Ip06LegacyMigrationCompatibilityTest` (3), `MediaMigrationLineageFixtureTest` (3), `MediaPostgresqlS3IntegrityRestartTest` (4), and `MediaPostgresqlS3ProcessCrashRecoveryTest` (8), with no skips or failures. This includes the PostgreSQL/Testcontainers crash-and-resume, S3 integrity/restart, checked snapshot-forward rehearsal, and an H2-only V030 failure/retry case added in `bc51bef3`. The H2 case verifies the preceding row update rolls back, V030 retains one failed history row, and visible V031 table/data effects remain unapplied before and after retry validation. A Luna reviewer accepted this as `ACCEPT_LOCAL_TEST_ONLY`; it does not establish production or deployed migration history.
 
 IP-06 still requires authentic deployed `flyway_schema_history`, old-writer identity and fencing, authorized single-writer cutover, and rollback evidence; issue #27 remains open. Kernel #99 remains Discovery-gated: its repository-wide Discovery exit still fails, so no Kernel BUILD code or tests were run. Media PDP-1/2/3 currentness and the original Wave 2, Wave 3, and H outcomes are unchanged. No runtime admission, source pin/status mutation, owner acceptance, formal closure, deployment, or release is claimed by this evidence.
+
+### 41.63 November 2 multi-scene H-02 binding and V029 crash/recovery follow-through
+
+**H-02 exact multi-scene execution mappings (`09c3cc3d`):** `MediaProductionSemanticSourceTest.semanticCandidateBindRequiresExactMultiSceneSourceEngineAndLockMappings` now exercises a two-scene source graph with exact source-authority keys, exact graph-step/engine keys, and scene-scoped locks. Missing, extra, and wrong scene keys; engine-key mismatch; and missing, extra, wrong-scope, or wrong-target locks all return `NOT_ADMITTED` with no candidate fingerprint. An out-of-spec scene in the graph is also rejected. The focused selector passed **1/1**. Independent Luna review returned `ACCEPT_LOCAL_CANDIDATE_ONLY`; the contract defines key joins but no expected per-scene authority-value tuple, so this does not validate source authority values or runtime admission.
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSemanticSourceTest.semanticCandidateBindRequiresExactMultiSceneSourceEngineAndLockMappings \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# 1 passed
+```
+
+**IP-06 V029 process-crash recovery (`832ea343`):** the PostgreSQL 16/Testcontainers regression constructs a synthetic V001–V028 schema, runs real V029 index DDL inside a child Flyway transaction, and blocks that child before commit. It verifies a separate connection cannot see the uncommitted index, kills the child, confirms V029 history and index effects rolled back while the seeded legacy artifact remains, restores the checked-in V029 bytes, and proves a fresh process applies exactly V029 followed by a zero-migration no-op. The complete focused crash-recovery class passed **2/2**, including its existing V021 case. Independent Luna re-review found no remaining material test-design issue. This is isolated transactional DDL evidence; no production migration or database was modified, and it is not deployed applied-history, single-writer, cutover, or rollback authority.
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.Ip06FlywayProcessCrashRecoveryTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# 2 passed on PostgreSQL 16; no skips
+```
+
+**Kernel OCR boundary/current gate:** Kernel `main@4ef9180c9` remained clean and unchanged. Its current `pnpm check:product-definition-source` returned **7,915 checks, 25 failures, and 1 diagnostic**: 20 exact authored API `commitPoint` binding failures plus four stale accepted-decision material digests, with the aggregate failure. A fresh source-only `verifyPdpSource()` invocation was stopped after more than four minutes without a result or repository write. No safe correction to those Kernel definitions or decision records was established, so no Kernel BUILD code or tests ran; the Kernel #99 Discovery gate remains in force.
+
+The test-only V001–V016 SQL snapshot and applied-history CSV supplied for this work already exist with their hashes and synthetic lineage in §41.61. They are not deployed history. H-02 runtime remains `NOT_ADMITTED`; JC-03 still lacks host-level termination and genuine provider qualification; IP-06 still lacks deployed applied-history and the old-writer fence. The original Wave 2, Wave 3, H outcome, PDP source-currentness, formal acceptance, cutover, deployment, and release gates remain unchanged.
