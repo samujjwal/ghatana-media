@@ -116,6 +116,15 @@ class MediaProductionSemanticSourceTest {
                 Map.of("scene/1@v3", sourceAuthority));
     }
 
+    private static MediaProductionAdmissionBinding.Binding withSourceBindings(
+            MediaProductionAdmissionBinding.Binding binding,
+            Map<String, MediaProductionAdmissionBinding.SceneSourceAuthority> sourceBindings) {
+        return new MediaProductionAdmissionBinding.Binding(binding.schemaVersion(), binding.projectId(),
+                binding.expectedProjectRevision(), binding.requestIdentity(), binding.enginesByStep(),
+                binding.provider(), binding.reservation(), binding.authority(), binding.editLocksByStep(),
+                binding.clocks(), sourceBindings);
+    }
+
     private record GraphFixture(MediaVersionedContractContent.ResolvedContent content,
                                 MediaVersionedContractContent.ResolvedContentFingerprint fingerprint) { }
 
@@ -451,6 +460,86 @@ class MediaProductionSemanticSourceTest {
         assertThat(ambiguous.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
         assertThat(ambiguous.reason()).isEqualTo(MediaProductionSemanticSource.Reason.AMBIGUOUS_OPERATION);
         assertThat(ambiguous.candidateFingerprint()).isNull();
+    }
+
+    @Test
+    void semanticCandidateBindRequiresExactMultiSceneSourceEngineAndLockMappings() throws Exception {
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v3", "scene/2@v4"),
+                "timeline/main@v2", "rights/standard@v1", List.of("profile/1080p@v4"));
+        var semantic = source(List.of(
+                boundNode("step-a", List.of(), List.of("scene/1@v3"),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
+                boundNode("step-b", List.of("step-a"), List.of("scene/2@v4"),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/2@v4"))),
+                boundNode("step-c", List.of("step-b"), List.of(), Optional.empty())));
+        var graphContent = graphFixture(semantic);
+        var sources = resolvedWithSemanticSourceAndOperation(graphContent);
+        var compiler = new MediaProductionSpecCompiler();
+        var locks = Map.of(
+                "step-a", new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"),
+                "step-b", new MediaProductionSemanticSource.LockTarget("SCENE", "scene/2@v4"));
+        var sceneSources = Map.of(
+                "scene/1@v3", new MediaProductionAdmissionBinding.SceneSourceAuthority(
+                        "source/1@v1", D1, "rights/1@v1", "decision/1@v1", Instant.parse("2030-01-01T00:00:00Z"), 1),
+                "scene/2@v4", new MediaProductionAdmissionBinding.SceneSourceAuthority(
+                        "source/2@v1", D2, "rights/2@v1", "decision/2@v1", Instant.parse("2030-01-01T00:00:00Z"), 2));
+
+        var exact = withSourceBindings(binding(List.of("step-a", "step-b", "step-c"), locks, null, D1), sceneSources);
+        var candidate = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), spec, exact, sources, operationEvidence());
+        assertThat(candidate.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(candidate.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(candidate.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
+
+        var missingScene = withSourceBindings(exact, Map.of("scene/1@v3", sceneSources.get("scene/1@v3")));
+        var extraScene = withSourceBindings(exact, Map.of(
+                "scene/1@v3", sceneSources.get("scene/1@v3"),
+                "scene/2@v4", sceneSources.get("scene/2@v4"),
+                "scene/extra@v1", sceneSources.get("scene/2@v4")));
+        var wrongScene = withSourceBindings(exact, Map.of(
+                "scene/1@v3", sceneSources.get("scene/1@v3"),
+                "scene/replaced@v1", sceneSources.get("scene/2@v4")));
+        var mismatchedEngineKeys = withSourceBindings(
+                binding(List.of("step-a", "step-c", "step-extra"), locks, null, D1), sceneSources);
+        var missingLock = withSourceBindings(
+                binding(List.of("step-a", "step-b", "step-c"), Map.of("step-a", locks.get("step-a")), null, D1),
+                sceneSources);
+        var extraLock = withSourceBindings(binding(List.of("step-a", "step-b", "step-c"), Map.of(
+                "step-a", locks.get("step-a"), "step-b", locks.get("step-b"),
+                "step-c", new MediaProductionSemanticSource.LockTarget("OUTPUT", "profile/1080p@v4")), null, D1),
+                sceneSources);
+        var wrongLockScope = withSourceBindings(binding(List.of("step-a", "step-b", "step-c"), Map.of(
+                "step-a", locks.get("step-a"),
+                "step-b", new MediaProductionSemanticSource.LockTarget("OUTPUT", "scene/2@v4")), null, D1),
+                sceneSources);
+        var wrongLockTarget = withSourceBindings(binding(List.of("step-a", "step-b", "step-c"), Map.of(
+                "step-a", locks.get("step-a"),
+                "step-b", new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3")), null, D1),
+                sceneSources);
+
+        for (var invalid : List.of(missingScene, extraScene, wrongScene, mismatchedEngineKeys,
+                missingLock, extraLock, wrongLockScope, wrongLockTarget)) {
+            var rejected = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                    graphContent.fingerprint().sha256(), inputs(), spec, invalid, sources, operationEvidence());
+            assertThat(rejected.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+            assertThat(rejected.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+            assertThat(rejected.candidateFingerprint()).isNull();
+        }
+
+        var outOfSpecSceneGraph = source(List.of(
+                boundNode("step-a", List.of(), List.of("scene/1@v3"),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
+                boundNode("step-b", List.of("step-a"), List.of("scene/3@v1"),
+                        Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/2@v4"))),
+                boundNode("step-c", List.of("step-b"), List.of(), Optional.empty())));
+        var outOfSpecContent = graphFixture(outOfSpecSceneGraph);
+        var outOfSpecRejected = compiler.bindSemanticSourceCandidate(Optional.of(outOfSpecContent.content()), SEMANTIC_REF,
+                outOfSpecContent.fingerprint().sha256(), inputs(), spec, exact,
+                resolvedWithSemanticSourceAndOperation(outOfSpecContent), operationEvidence());
+        assertThat(outOfSpecRejected.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(outOfSpecRejected.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(outOfSpecRejected.candidateFingerprint()).isNull();
     }
 
     @Test
