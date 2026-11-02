@@ -1806,7 +1806,7 @@ caseOperationBindings:
     p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
     p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
 executionAdmissionBinding:
-  id: media.production.execution-admission.v2
+  id: media.production.execution-admission.v3
   structuralType: closed-versioned-object
   canonicalOperationRef: media.recipe.specification.compile
   status: SOURCE_AUTHORED_DEFINITION_ONLY
@@ -1816,6 +1816,7 @@ executionAdmissionBinding:
     - pinnedProviderQualificationAndRights
     - worstCaseCostComputeTimeUnitsTariffQuoteVersionAndReservationId
     - authenticatedTenantPrincipalPurposeAndImmutableSourceVersion
+    - perSceneImmutableSourceVersionDigestRightsOwnerDecisionExpiryAndRevocation
     - currentOwnerDecisionRefExpiryAndRevocationEpoch
     - expectedProjectRevisionCas
     - perStepSceneAndOutputEditLockOwnerLeaseEpochAndExpiry
@@ -1823,9 +1824,9 @@ executionAdmissionBinding:
   schema:
     type: object
     additionalProperties: false
-    required: [schemaVersion, requestIdentity, enginesByStep, providerQualification, reservation, authority, project, editLocksByStep, clocks]
+    required: [schemaVersion, requestIdentity, enginesByStep, providerQualification, reservation, authority, sourceBindingsByScene, project, editLocksByStep, clocks]
     properties:
-      schemaVersion: {const: media.production.execution-admission.v2}
+      schemaVersion: {const: media.production.execution-admission.v3}
       requestIdentity:
         type: object
         additionalProperties: false
@@ -1894,6 +1895,26 @@ executionAdmissionBinding:
           ownerDecisionRef: {$ref: '#/$defs/versionRef'}
           decisionExpiresAt: {type: string, format: date-time}
           revocationEpoch: {$ref: '#/$defs/nonnegativeInt64'}
+      sourceBindingsByScene:
+        description: >-
+          Exact immutable source authority for each ProductionSpec.sceneRefs entry.
+          Keys must equal that list exactly: no missing scene, extra scene, alias,
+          or substituted scene key. Each decision is re-resolved for its exact
+          source version and digest before that scene's dispatch, retry, or restart.
+        type: object
+        minProperties: 1
+        propertyNames: {$ref: '#/$defs/versionRef'}
+        additionalProperties:
+          type: object
+          additionalProperties: false
+          required: [sourceVersionRef, sourceSha256, rightsRef, ownerDecisionRef, decisionExpiresAt, revocationEpoch]
+          properties:
+            sourceVersionRef: {$ref: '#/$defs/versionRef'}
+            sourceSha256: {$ref: '#/$defs/immutableSha256'}
+            rightsRef: {$ref: '#/$defs/versionRef'}
+            ownerDecisionRef: {$ref: '#/$defs/versionRef'}
+            decisionExpiresAt: {type: string, format: date-time}
+            revocationEpoch: {$ref: '#/$defs/nonnegativeInt64'}
       project:
         type: object
         additionalProperties: false
@@ -1950,10 +1971,12 @@ executionAdmissionBinding:
     attempt rather than dispatching it twice. A reused key with another
     fingerprint is an idempotency conflict. Reserved cost, compute, and time
     must each cover their corresponding worst-case bound in the same declared
-    unit. An execution context with one sourceVersionRef cannot authorize a
-    multi-source plan unless a source-bound per-step authority shape is defined;
-    that case remains NOT_ADMITTED. Use the existing operation journal and
-    compare-and-set authority only.
+    unit. sourceBindingsByScene keys must exactly equal ProductionSpec.sceneRefs;
+    each scene's immutable version and digest, rights, owner decision, expiry,
+    and revocation epoch must be re-resolved for that exact scene immediately
+    before each dispatch, retry, and restart. Missing, extra, stale, wrong-scene,
+    expired, or revoked bindings remain NOT_ADMITTED. Use the existing operation
+    journal and compare-and-set authority only.
   operationSchemaRelation:
     operationRef: media.recipe.specification.compile
     relation: COMPILES_PLAN_ADMISSION_CONTEXT
@@ -1964,7 +1987,10 @@ executionAdmissionBinding:
       for the plan candidate produced by this operation. It is not a field in
       ProductionSpec v1 and is not a new compile-operation input; the existing
       six operation slots are unchanged. Compilation remains local candidate
-      preparation with no job, project mutation, or external effect.
+      preparation with no job, project mutation, or external effect. The scene
+      guard checks a compiler-produced plan candidate's capture node and exact
+      scene binding as structural input; candidate provenance is not attested
+      by this envelope and this check does not authorize runtime effects.
     planBindingRules:
       projectId: EXACT_EQUAL_TO_PRODUCTION_SPEC_PROJECT_ID
       expectedProjectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID
@@ -1973,6 +1999,10 @@ executionAdmissionBinding:
       authorityPurposeRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_PURPOSE_REF
       authorityRightsRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_RIGHTS_REF
       enginesByStepKeys: EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS
+      sourceBindingsBySceneKeys: EXACT_EQUAL_TO_PRODUCTION_SPEC_SCENE_REFS
+      sourceBindingAtEachCaptureStep: EXACT_SCENE_REF_AT_SAME_INPUT_INDEX
+      captureGuard: EXACT_COMPILED_CAPTURE_NODE_ID_AND_SINGLETON_SCENE_REF; LOCK_TARGET_MUST_EQUAL_SCENE_REF
+      sourceBindingFingerprint: INCLUDED_IN_STABLE_CONTEXT_AND_MATCHING_CAPTURE_NODE_AND_DESCENDANTS
       compiledPlanSchemaVersion: media.production-plan.v1
       compiledPlanSteps:
         - stepId: validate-spec
@@ -2022,7 +2052,13 @@ executionAdmissionBinding:
         purposeRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_PURPOSE_REF
         rightsRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_RIGHTS_REF
         decision: RE_RESOLVE_CURRENT_OWNER_DECISION_AND_REVOCATION_EPOCH_BEFORE_EACH_EFFECT
-        sourceVersionRef: SINGLE_SOURCE_ONLY_UNTIL_A_SOURCE_BOUND_PER_STEP_SHAPE_EXISTS
+        sourceBindingsByScene:
+          keys: EXACT_EQUAL_TO_PRODUCTION_SPEC_SCENE_REFS; MISSING_EXTRA_OR_WRONG_SCENE_NOT_ADMITTED
+          captureStepIndex: capture-source-{i}_MUST_MATCH_PRODUCTION_SPEC_SCENE_REFS[i]
+          guardIdentity: EXACT_COMPILED_PLAN_CAPTURE_NODE_AND_SCENE_EDIT_LOCK_TARGET
+          sourceVersionAndDigest: EXACT_IMMUTABLE_VERSION_AND_SHA256_PER_SCENE
+          rightsDecision: EXACT_RIGHTS_AND_OWNER_DECISION_EXPIRY_AND_REVOCATION_EPOCH_PER_SCENE
+          recheck: BEFORE_EACH_SCENE_DISPATCH_RETRY_AND_RESTART
       projectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_AND_COMPARE_AND_SET_REQUIRED
       editLock:
         targetRef: EXACT_SCENE_OR_OUTPUT_VERSION_FOR_THE_EFFECT_STEP
@@ -2041,7 +2077,7 @@ executionAdmissionBinding:
       notImplementedInputs: [input1-content-digest-attestation, input2-schema-content-resolution-and-validation, input3-compiler-content-resolution-and-step-kind-semantics, input5-target-schema, input6-migration-transformation]
       schemaMigrationCandidate: NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION
     sourceAndLockCoverage:
-      authoritySourceVersionToEachSceneOrStep: NOT_MAPPED
+      authoritySourceVersionAndRightsDecisionToEachScene: EXACT_SCENE_KEYED_MAP_REQUIRED; COMPILE_CHECKED; EFFECT_RECHECK_REQUIRED
       editLockCardinality: ONE_EXACT_SCENE_OR_OUTPUT_PER_MAPPED_EFFECT_STEP
       oneLockAuthorizesOtherScenesOrOutputsInPlan: false
     effectBoundary:
@@ -2049,7 +2085,7 @@ executionAdmissionBinding:
       beforeProviderDispatchRetryOrRestart:
         required: RECHECK_CURRENT_AUTHORITY_THROUGH_EXISTING_MEDIARUNTIME_JOBATTEMPT
         implementationStatus: NOT_WIRED_TO_H02_EXECUTION_PATH
-        unmappedStepScope: NOT_ADMITTED
+        missingStaleOrWrongSceneSourceBinding: NOT_ADMITTED
       unknownProviderOutcome:
         required: RECONCILE_EXISTING_ATTEMPT_WITHOUT_DUPLICATE_DISPATCH
         implementationStatus: UNKNOWN_UNTIL_AUTHORITY_BACKED_ATTEMPT_READBACK

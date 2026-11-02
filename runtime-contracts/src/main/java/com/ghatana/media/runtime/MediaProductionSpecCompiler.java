@@ -307,10 +307,9 @@ public final class MediaProductionSpecCompiler {
             throw new MediaProductionAdmissionBinding.AdmissionException(
                     MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
         }
-        if (binding != null && spec.sceneRefs().size() > 1) {
-            // The v2 authority envelope binds one source version and has no
-            // source-per-scene mapping. Do not compile an admitted-looking DAG
-            // whose source rights cannot be bound to every scene.
+        if (binding != null && !binding.sourceBindingsByScene().keySet().equals(new TreeSet<>(spec.sceneRefs()))) {
+            // The separately-versioned v3 envelope must bind every exact scene
+            // ref and no other scene; partial/extra mappings cannot authorize a plan.
             throw new MediaProductionAdmissionBinding.AdmissionException(
                     MediaProductionAdmissionBinding.AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
         }
@@ -329,7 +328,7 @@ public final class MediaProductionSpecCompiler {
             planBinding.add("versioned-compiler-contract");
             planBinding.add(inputs.compilerContractRef());
         }
-        if (admissionFingerprint != null) planBinding.add(admissionFingerprint);
+        if (binding != null) planBinding.add(binding.planContextFingerprint());
         planBinding.addAll(engineContext(binding, "validate-spec"));
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
                 List.of(), List.of(spec.revisionId(), spec.purposeRef()), planBinding);
@@ -339,7 +338,8 @@ public final class MediaProductionSpecCompiler {
         for (int i = 0; i < spec.sceneRefs().size(); i++) {
             String id = "capture-source-" + i;
             addNode(nodes, fingerprints, id, "capture", ExecutionMode.AUTOMATIC,
-                    List.of("rights-review"), List.of(spec.sceneRefs().get(i)), engineContext(binding, id));
+                    List.of("rights-review"), List.of(spec.sceneRefs().get(i)),
+                    sourceContext(binding, spec.sceneRefs().get(i), id));
             captureIds.add(id);
         }
         addNode(nodes, fingerprints, "compose-timeline", "compose", ExecutionMode.AUTOMATIC,
@@ -401,6 +401,18 @@ public final class MediaProductionSpecCompiler {
     private static List<String> engineContext(
             MediaProductionAdmissionBinding.Binding binding, String stepId) {
         return binding == null ? List.of() : List.of(binding.engineFingerprint(stepId));
+    }
+
+    private static List<String> sourceContext(MediaProductionAdmissionBinding.Binding binding, String sceneRef, String stepId) {
+        if (binding == null) return List.of();
+        MediaProductionAdmissionBinding.SceneSourceAuthority source = binding.sourceBindingsByScene().get(sceneRef);
+        if (source == null) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        }
+        return List.of(binding.engineFingerprint(stepId), source.sourceVersionRef(), source.sourceSha256(),
+                source.rightsRef(), source.ownerDecisionRef(), source.decisionExpiresAt().toString(),
+                Long.toString(source.revocationEpoch()));
     }
 
     /** Bind only source-defined scene capture and output render nodes to scoped edit locks. */

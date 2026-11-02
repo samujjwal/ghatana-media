@@ -154,6 +154,52 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   for (const [phase, status] of [['PDP-0', c0.status], ['PDP-1', p1.status], ['PDP-2', scope2.status]]) {
     if (status === 'DEV_COMPLETE') fail(phase + ': cannot self-declare current-source DEV_COMPLETE from source authoring alone');
   }
+  const admission = p1.executionAdmissionBinding || {};
+  const admissionSchema = admission.schema || {};
+  const admissionProps = admissionSchema.properties || {};
+  const sourceBindings = admissionProps.sourceBindingsByScene || {};
+  const sceneAuthority = sourceBindings.additionalProperties || {};
+  const sceneAuthorityProps = sceneAuthority.properties || {};
+  const admissionRelation = admission.operationSchemaRelation || {};
+  const admissionPlanRules = admissionRelation.planBindingRules || {};
+  const admissionCurrentAuthority = admissionRelation.admissionContextBindingRules?.currentAuthority || {};
+  const admissionEffectFence = admissionRelation.effectBoundary?.beforeProviderDispatchRetryOrRestart || {};
+  const requiredSceneAuthorityFields = [
+    'sourceVersionRef', 'sourceSha256', 'rightsRef', 'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
+  ];
+  const sceneAuthoritySchemaIsTyped = sceneAuthorityProps.sourceVersionRef?.$ref === '#/$defs/versionRef' &&
+    sceneAuthorityProps.sourceSha256?.$ref === '#/$defs/immutableSha256' &&
+    sceneAuthorityProps.rightsRef?.$ref === '#/$defs/versionRef' &&
+    sceneAuthorityProps.ownerDecisionRef?.$ref === '#/$defs/versionRef' &&
+    sceneAuthorityProps.decisionExpiresAt?.format === 'date-time' &&
+    sceneAuthorityProps.revocationEpoch?.$ref === '#/$defs/nonnegativeInt64';
+  if (admission.id !== 'media.production.execution-admission.v3' ||
+      admissionSchema.properties?.schemaVersion?.const !== 'media.production.execution-admission.v3')
+    fail('PDP-1 H-02: execution admission must use the separately versioned v3 envelope');
+  if (admission.runtimeAdmission !== 'NOT_ADMITTED')
+    fail('PDP-1 H-02: source envelope cannot admit runtime effects');
+  if (!admission.requiredFields?.includes('perSceneImmutableSourceVersionDigestRightsOwnerDecisionExpiryAndRevocation'))
+    fail('PDP-1 H-02: v3 requiredFields omits per-scene immutable source authority');
+  if (!admissionSchema.required?.includes('sourceBindingsByScene') || sourceBindings.type !== 'object' ||
+      sourceBindings.minProperties !== 1 || sourceBindings.additionalProperties?.additionalProperties !== false ||
+      !sameSet(sceneAuthority.required || [], requiredSceneAuthorityFields) ||
+      !sceneAuthoritySchemaIsTyped)
+    fail('PDP-1 H-02: v3 sourceBindingsByScene must be a required closed map of complete per-scene authority');
+  if (!String(admission.executionRule || '').includes('sourceBindingsByScene keys must exactly equal ProductionSpec.sceneRefs') ||
+      !String(admissionCurrentAuthority.sourceBindingsByScene?.keys || '').includes('EXACT_EQUAL_TO_PRODUCTION_SPEC_SCENE_REFS'))
+    fail('PDP-1 H-02: source map keys must exactly cover ProductionSpec.sceneRefs');
+  if (!String(admissionCurrentAuthority.sourceBindingsByScene?.captureStepIndex || '')
+        .includes('capture-source-{i}_MUST_MATCH_PRODUCTION_SPEC_SCENE_REFS[i]') ||
+      !String(admissionPlanRules.captureGuard || '').includes('EXACT_COMPILED_CAPTURE_NODE_ID_AND_SINGLETON_SCENE_REF') ||
+      !String(admissionCurrentAuthority.sourceBindingsByScene?.guardIdentity || '').includes('EXACT_COMPILED_PLAN_CAPTURE_NODE_AND_SCENE_EDIT_LOCK_TARGET'))
+    fail('PDP-1 H-02: capture guard must bind the exact indexed plan scene and matching scene-lock target');
+  if (admissionEffectFence.implementationStatus !== 'NOT_WIRED_TO_H02_EXECUTION_PATH' ||
+      admissionRelation.effectBoundary?.runtimeAdmission !== 'NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER')
+    fail('PDP-1 H-02: runtime effect integration must remain unwired and NOT_ADMITTED');
+  if (!/compiler-produced plan candidate/.test(admissionRelation.sourceOwnerDisposition || '') ||
+      !/provenance is not attested/.test(admissionRelation.sourceOwnerDisposition || '') ||
+      !/does not authorize runtime effects/.test(admissionRelation.sourceOwnerDisposition || ''))
+    fail('PDP-1 H-02: compiler-produced plan candidate trust limitation is not explicit');
   return { errors, stats: { recorderCases: 84, declarativeCases: c0Rows.length, p1Bindings: c1.length, p2Bindings: c2.length, p3Bindings: c3.length, capabilityLeafCount: capIds.size, canonicalOperationIdentities: opIds.size, valueTypes: vals.length, recorderManualEdits: 52, originClasses: knownSourceKinds.length } };
 }
 

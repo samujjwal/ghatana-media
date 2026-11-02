@@ -108,8 +108,9 @@ test('reject a PDP-3 journey/operation drift even with all 61 successor cases pr
 test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds explicit NO_ENGINE identities', () => {
   const source = YAML.parse(read(files.p1));
   const binding = source.executionAdmissionBinding;
-  assert.equal(binding.id, 'media.production.execution-admission.v2');
+  assert.equal(binding.id, 'media.production.execution-admission.v3');
   assert.equal(binding.runtimeAdmission, 'NOT_ADMITTED');
+  assert.ok(binding.requiredFields.includes('perSceneImmutableSourceVersionDigestRightsOwnerDecisionExpiryAndRevocation'));
   assert.equal(binding.operationSchemaRelation.operationRef, 'media.recipe.specification.compile');
   assert.equal(binding.operationSchemaRelation.relation, 'COMPILES_PLAN_ADMISSION_CONTEXT');
   assert.equal(binding.operationSchemaRelation.fieldMapping, 'NOT_APPLICABLE_SEPARATE_VERSIONED_ENVELOPE');
@@ -148,6 +149,12 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.deepEqual(compileOperation.inputSlots.map(slot => slot.slotId),
     ['input1', 'input2', 'input3', 'input4', 'input5', 'input6']);
   assert.deepEqual(binding.schema.properties.requestIdentity.required, ['requestId', 'requestFingerprint']);
+  assert.ok(binding.schema.required.includes('sourceBindingsByScene'));
+  const sourcesByScene = binding.schema.properties.sourceBindingsByScene;
+  assert.equal(sourcesByScene.type, 'object');
+  assert.equal(sourcesByScene.additionalProperties.additionalProperties, false);
+  assert.deepEqual(sourcesByScene.additionalProperties.required,
+    ['sourceVersionRef', 'sourceSha256', 'rightsRef', 'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch']);
   assert.equal(binding.schema.properties.enginesByStep.minProperties, 1);
   const enginesByStep = binding.schema.properties.enginesByStep;
   const engine = enginesByStep.additionalProperties;
@@ -179,11 +186,31 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
     'MUST_EACH_COVER_WORST_CASE_IN_THE_SAME_UNIT');
   assert.equal(mapping.currentAuthority.decision,
     'RE_RESOLVE_CURRENT_OWNER_DECISION_AND_REVOCATION_EPOCH_BEFORE_EACH_EFFECT');
+  assert.match(mapping.currentAuthority.sourceBindingsByScene.keys,
+    /EXACT_EQUAL_TO_PRODUCTION_SPEC_SCENE_REFS/);
+  assert.match(mapping.currentAuthority.sourceBindingsByScene.captureStepIndex,
+    /capture-source-\{i\}_MUST_MATCH_PRODUCTION_SPEC_SCENE_REFS\[i\]/);
+  assert.match(binding.operationSchemaRelation.planBindingRules.captureGuard,
+    /EXACT_COMPILED_CAPTURE_NODE_ID_AND_SINGLETON_SCENE_REF/);
+  assert.match(mapping.currentAuthority.sourceBindingsByScene.recheck,
+    /BEFORE_EACH_SCENE_DISPATCH_RETRY_AND_RESTART/);
   assert.equal(mapping.projectRevision,
     'EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_AND_COMPARE_AND_SET_REQUIRED');
   assert.equal(mapping.editLock.multiTargetCoverage,
     'ONE_EXACT_TARGET_PER_LOCK; NO_IMPLICIT_SHARING');
   assert.equal(mapping.clocks.missingOrAmbiguousMapping, 'NOT_ADMITTED');
   assert.match(binding.executionRule, /reserved cost, compute, and time\s+must each cover their corresponding worst-case bound/iu);
-  assert.match(binding.executionRule, /one sourceVersionRef cannot authorize a\s+multi-source plan/u);
+  assert.match(binding.executionRule, /sourceBindingsByScene keys must exactly equal ProductionSpec\.sceneRefs/u);
+});
+
+test('H-02 source checker rejects a capture index rule that permits a different scene', () => {
+  const source = read(files.p1);
+  const broken = source.replace(
+    'capture-source-{i}_MUST_MATCH_PRODUCTION_SPEC_SCENE_REFS[i]',
+    'capture-source-{i}_MAY_MATCH_ANOTHER_SCENE'
+  );
+  assert.notEqual(source, broken);
+  const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: broken } });
+  assert.ok(result.errors.some(error => /capture guard must bind the exact indexed plan scene/.test(error)),
+    result.errors.join('\n'));
 });

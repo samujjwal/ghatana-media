@@ -17,7 +17,8 @@ import java.util.function.Supplier;
  * owns no persistence and does not itself admit production execution.
  */
 public final class MediaProductionAdmissionBinding {
-    public static final String SCHEMA_VERSION = "media.production.execution-admission.v2";
+    /** v3 intentionally supersedes v2 with mandatory exact per-scene source authority bindings. */
+    public static final String SCHEMA_VERSION = "media.production.execution-admission.v3";
 
     private MediaProductionAdmissionBinding() { }
 
@@ -132,6 +133,19 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
+    /** Exact source authorization attached to one ProductionSpec scene reference. */
+    public record SceneSourceAuthority(String sourceVersionRef, String sourceSha256, String rightsRef,
+            String ownerDecisionRef, Instant decisionExpiresAt, long revocationEpoch) {
+        public SceneSourceAuthority {
+            sourceVersionRef = required(sourceVersionRef, "sceneSource.sourceVersionRef");
+            sourceSha256 = digest(sourceSha256, "sceneSource.sourceSha256");
+            rightsRef = required(rightsRef, "sceneSource.rightsRef");
+            ownerDecisionRef = required(ownerDecisionRef, "sceneSource.ownerDecisionRef");
+            Objects.requireNonNull(decisionExpiresAt, "sceneSource.decisionExpiresAt");
+            if (revocationEpoch < 0) throw new IllegalArgumentException("sceneSource.revocationEpoch must be nonnegative");
+        }
+    }
+
     public record RequestIdentity(String requestId, String requestFingerprint) {
         public RequestIdentity {
             requestId = required(requestId, "requestId");
@@ -196,7 +210,8 @@ public final class MediaProductionAdmissionBinding {
     public record Binding(String schemaVersion, String projectId, String expectedProjectRevision,
             RequestIdentity requestIdentity, Map<String, Engine> enginesByStep,
             ProviderQualification provider, Reservation reservation,
-            Authority authority, Map<String, EditLock> editLocksByStep, ClockBindings clocks) {
+            Authority authority, Map<String, EditLock> editLocksByStep, ClockBindings clocks,
+            Map<String, SceneSourceAuthority> sourceBindingsByScene) {
         public Binding {
             if (!SCHEMA_VERSION.equals(schemaVersion)) throw new IllegalArgumentException("unsupported admission binding version");
             projectId = required(projectId, "projectId");
@@ -217,10 +232,24 @@ public final class MediaProductionAdmissionBinding {
                     required(stepId, "editLock stepId"), Objects.requireNonNull(lock, "editLock")));
             editLocksByStep = Map.copyOf(sortedLocks);
             Objects.requireNonNull(clocks, "clocks");
+            Objects.requireNonNull(sourceBindingsByScene, "sourceBindingsByScene");
+            Map<String, SceneSourceAuthority> sortedSources = new TreeMap<>();
+            sourceBindingsByScene.forEach((sceneRef, source) -> sortedSources.put(
+                    required(sceneRef, "sourceBindingsByScene sceneRef"), Objects.requireNonNull(source, "sceneSourceAuthority")));
+            sourceBindingsByScene = Map.copyOf(sortedSources);
         }
 
         /** Stable shared authority identity; excludes per-node engine digests. */
         public String stableContextFingerprint() {
+            return stableContextFingerprint(true);
+        }
+
+        /** Plan-wide context used before source-specific bindings are added to their capture nodes. */
+        String planContextFingerprint() {
+            return stableContextFingerprint(false);
+        }
+
+        private String stableContextFingerprint(boolean includeSceneSources) {
             return sha256(join(schemaVersion, projectId, expectedProjectRevision,
                     requestIdentity.requestId(), requestIdentity.requestFingerprint(),
                     provider.providerId(), provider.qualificationRef(),
@@ -232,6 +261,10 @@ public final class MediaProductionAdmissionBinding {
                     authority.tenantId(), authority.principalId(), authority.purposeRef(),
                     authority.rightsRef(), authority.sourceVersionRef(), authority.sourceSha256(), authority.ownerDecisionRef(),
                     authority.decisionExpiresAt().toString(), Long.toString(authority.revocationEpoch()),
+                    includeSceneSources ? new TreeMap<>(sourceBindingsByScene).entrySet().stream().map(entry -> join(entry.getKey(),
+                            entry.getValue().sourceVersionRef(), entry.getValue().sourceSha256(), entry.getValue().rightsRef(),
+                            entry.getValue().ownerDecisionRef(), entry.getValue().decisionExpiresAt().toString(),
+                            Long.toString(entry.getValue().revocationEpoch()))).toList().toString() : "scene-sources-attached-to-capture-nodes",
                     new TreeMap<>(editLocksByStep).entrySet().stream().map(entry -> join(entry.getKey(),
                             entry.getValue().scopeKind(), entry.getValue().targetRef(),
                             entry.getValue().ownerPrincipalId(), entry.getValue().leaseId(),
@@ -275,15 +308,52 @@ public final class MediaProductionAdmissionBinding {
             ClockBindings clocks, Instant observedAt) { }
 
     public static void requireCurrent(Binding b, String stepId, CurrentState s) {
+        requireCurrentInternal(b, stepId, null, s, false);
+    }
+
+    /** Scene strings alone are insufficient to authorize a capture node. */
+    public static void requireCurrent(Binding b, String stepId, String sceneRef, CurrentState s) {
+        requireCurrentInternal(b, stepId, sceneRef, s, false);
+    }
+
+    /**
+     * Rechecks a scene source only after matching the guarded step to its compiled
+     * plan node. The supplied plan is a local candidate, not an attested artifact;
+     * runtime admission remains disabled until the authority-backed path exists.
+     */
+    public static void requireCurrent(Binding b, MediaProductionSpecCompiler.CompiledPlan plan,
+            String stepId, String sceneRef, CurrentState s) {
+        requirePlanSceneBinding(b, plan, stepId, sceneRef);
+        requireCurrentInternal(b, stepId, sceneRef, s, true);
+    }
+
+    private static void requireCurrentInternal(Binding b, String stepId, String sceneRef, CurrentState s,
+            boolean planSceneValidated) {
         if (b == null || !hasCompleteAuthorityState(s)) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
         Instant now = s.observedAt();
         Authority a = b.authority();
         if (!a.tenantId().equals(s.tenantId())) fail(AdmissionFailure.TENANT_MISMATCH);
         if (!a.principalId().equals(s.principalId())) fail(AdmissionFailure.PRINCIPAL_MISMATCH);
         if (!a.purposeRef().equals(s.purposeRef())) fail(AdmissionFailure.PURPOSE_MISMATCH);
-        if (!a.sourceVersionRef().equals(s.sourceVersionRef()) || !a.sourceSha256().equals(s.sourceSha256()))
+        SceneSourceAuthority sceneAuthority = null;
+        if (stepId.startsWith("capture-source-")) {
+            if (!planSceneValidated || sceneRef == null) fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+            sceneAuthority = b.sourceBindingsByScene().get(sceneRef);
+            if (sceneAuthority == null) fail(AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        }
+        String expectedSourceVersion = sceneAuthority == null ? a.sourceVersionRef() : sceneAuthority.sourceVersionRef();
+        String expectedSourceSha = sceneAuthority == null ? a.sourceSha256() : sceneAuthority.sourceSha256();
+        String expectedRightsRef = sceneAuthority == null ? a.rightsRef() : sceneAuthority.rightsRef();
+        String expectedDecisionRef = sceneAuthority == null ? a.ownerDecisionRef() : sceneAuthority.ownerDecisionRef();
+        Instant expectedDecisionExpiry = sceneAuthority == null ? a.decisionExpiresAt() : sceneAuthority.decisionExpiresAt();
+        long expectedRevocationEpoch = sceneAuthority == null ? a.revocationEpoch() : sceneAuthority.revocationEpoch();
+        if (!expectedSourceVersion.equals(s.sourceVersionRef()) || !expectedSourceSha.equals(s.sourceSha256()))
             fail(AdmissionFailure.SOURCE_MISMATCH);
-        if (!a.rightsRef().equals(s.rightsRef())) fail(AdmissionFailure.RIGHTS_STALE);
+        if (!expectedRightsRef.equals(s.rightsRef())) fail(AdmissionFailure.RIGHTS_STALE);
+        if (sceneAuthority != null && (!expectedDecisionRef.equals(s.ownerDecisionRef())
+                || !expectedDecisionExpiry.equals(s.rightsExpiresAt()) || !expectedDecisionExpiry.isAfter(now))) {
+            fail(AdmissionFailure.RIGHTS_STALE);
+        }
         // Resolve idempotency only after checking tenant/principal/purpose/source scope.
         if ((s.canonicalRequestId() == null) != (s.canonicalRequestFingerprint() == null))
             fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
@@ -294,9 +364,10 @@ public final class MediaProductionAdmissionBinding {
                 fail(AdmissionFailure.IDEMPOTENCY_CONFLICT);
             fail(AdmissionFailure.RECONCILE_EXISTING_ATTEMPT);
         }
-        if (!a.ownerDecisionRef().equals(s.ownerDecisionRef()) || !a.decisionExpiresAt().equals(s.rightsExpiresAt())
-                || !a.decisionExpiresAt().isAfter(now)) fail(AdmissionFailure.RIGHTS_STALE);
-        if (s.revocationEpoch() != a.revocationEpoch()) fail(AdmissionFailure.RIGHTS_REVOKED);
+        if (sceneAuthority == null && (!expectedDecisionRef.equals(s.ownerDecisionRef())
+                || !expectedDecisionExpiry.equals(s.rightsExpiresAt()) || !expectedDecisionExpiry.isAfter(now)))
+            fail(AdmissionFailure.RIGHTS_STALE);
+        if (s.revocationEpoch() != expectedRevocationEpoch) fail(AdmissionFailure.RIGHTS_REVOKED);
         ProviderQualification p = b.provider();
         Engine engine = b.engineForStep(stepId);
         if (!engine.identityKind().equals(s.engineIdentityKind()) || !engine.identity().equals(s.engineIdentity())
@@ -319,7 +390,32 @@ public final class MediaProductionAdmissionBinding {
                 || !a.principalId().equals(s.lockOwnerPrincipalId()) || !l.leaseId().equals(s.lockLeaseId())
                 || l.epoch() != s.lockEpoch() || !l.expiresAt().equals(s.lockExpiresAt())
                 || !l.expiresAt().isAfter(now)) fail(AdmissionFailure.EDIT_LOCK_INVALID);
+        if (sceneAuthority != null && (!"SCENE".equals(l.scopeKind()) || !sceneRef.equals(l.targetRef())))
+            fail(AdmissionFailure.EDIT_LOCK_INVALID);
         if (!b.clocks().equals(s.clocks())) fail(AdmissionFailure.CLOCK_MISMATCH);
+    }
+
+    private static void requirePlanSceneBinding(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
+            String stepId, String sceneRef) {
+        if (binding == null || plan == null || sceneRef == null
+                || !binding.stableContextFingerprint().equals(plan.admissionBindingFingerprint()))
+            fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        List<MediaProductionSpecCompiler.PlanNode> captures = plan.nodes().stream()
+                .filter(node -> "capture".equals(node.kind())).toList();
+        MediaProductionSpecCompiler.PlanNode node = plan.nodes().stream()
+                .filter(candidate -> stepId.equals(candidate.stepId())).findFirst().orElse(null);
+        if (node == null || !"capture".equals(node.kind()) || node.versionRefs().size() != 1
+                || !sceneRef.equals(node.versionRefs().getFirst())) fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        int index;
+        try {
+            index = Integer.parseInt(stepId.substring("capture-source-".length()));
+        } catch (RuntimeException malformedStep) {
+            fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+            return;
+        }
+        if (index < 0 || index >= captures.size() || !captures.get(index).stepId().equals(stepId)
+                || !captures.get(index).versionRefs().equals(List.of(sceneRef)))
+            fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
     }
 
     private static boolean hasCompleteAuthorityState(CurrentState s) {
@@ -351,8 +447,39 @@ public final class MediaProductionAdmissionBinding {
         fail(AdmissionFailure.SOURCE_REVIEW_NOT_ADMITTED);
     }
 
+    public static void requireAdmitted(Binding b, String stepId, String sceneRef, CurrentState s) {
+        requireCurrent(b, stepId, sceneRef, s);
+        fail(AdmissionFailure.SOURCE_REVIEW_NOT_ADMITTED);
+    }
+
+    public static void requireAdmitted(Binding b, MediaProductionSpecCompiler.CompiledPlan plan,
+            String stepId, String sceneRef, CurrentState s) {
+        requireCurrent(b, plan, stepId, sceneRef, s);
+        fail(AdmissionFailure.SOURCE_REVIEW_NOT_ADMITTED);
+    }
+
     /** Re-read authority state immediately before every initial, retry, or restart effect. */
     public static void beforeEffect(Binding binding, String stepId, Supplier<CurrentState> currentState, Runnable effect) {
+        beforeEffect(binding, stepId, null, currentState, effect);
+    }
+
+    /** Re-read global and per-scene authority immediately before each capture effect. */
+    public static void beforeEffect(Binding binding, String stepId, String sceneRef,
+            Supplier<CurrentState> currentState, Runnable effect) {
+        if (stepId != null && stepId.startsWith("capture-source-")) fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        beforeEffectInternal(binding, stepId, currentState, effect,
+                observed -> requireAdmitted(binding, stepId, sceneRef, observed));
+    }
+
+    /** Re-read the plan-indexed scene authority immediately before each capture effect. */
+    public static void beforeEffect(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
+            String stepId, String sceneRef, Supplier<CurrentState> currentState, Runnable effect) {
+        beforeEffectInternal(binding, stepId, currentState, effect,
+                observed -> requireAdmitted(binding, plan, stepId, sceneRef, observed));
+    }
+
+    private static void beforeEffectInternal(Binding binding, String stepId, Supplier<CurrentState> currentState,
+            Runnable effect, java.util.function.Consumer<CurrentState> admissionCheck) {
         if (currentState == null) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
         CurrentState observed;
         try {
@@ -361,7 +488,7 @@ public final class MediaProductionAdmissionBinding {
             fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
             return;
         }
-        requireAdmitted(binding, stepId, observed);
+        admissionCheck.accept(observed);
         Objects.requireNonNull(effect, "effect").run();
     }
 

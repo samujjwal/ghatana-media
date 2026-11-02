@@ -15,6 +15,7 @@ import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Reservation;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Authority;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.EditLock;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.ProjectEditLockCas;
+import com.ghatana.media.runtime.MediaProductionAdmissionBinding.SceneSourceAuthority;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -52,20 +53,33 @@ class MediaProductionAdmissionBindingTest {
                         "render-profile-0", new EditLock("OUTPUT", "profile/v1", "principal-1", "lease/output", 10,
                                 NOW.plusSeconds(300))),
                 new ClockBindings("story/v1", "media/v1", "simulation/v1", "wall/v1",
-                        List.of(new ClockConversion("story/v1", "media/v1", new Rational(25, 1)))));
+                        List.of(new ClockConversion("story/v1", "media/v1", new Rational(25, 1)))),
+                Map.of("scene/1@v1", new SceneSourceAuthority("source/v4", SHA, "rights/v1",
+                        "decision/rights-4", NOW.plusSeconds(600), 3)));
     }
 
     private static Engine noEngine() { return new Engine("NO_ENGINE", "NO_ENGINE", "NO_ENGINE"); }
 
     private static CurrentState state(Binding b, String stepId) {
+        return state(b, stepId, "scene/1@v1");
+    }
+
+    private static CurrentState state(Binding b, String stepId, String sceneRef) {
         Engine engine = b.engineForStep(stepId);
         EditLock lock = b.editLocksByStep().getOrDefault(stepId,
                 new EditLock("SCENE", "unmapped-target", "principal-1", "unmapped-lease", 1,
                         NOW.plusSeconds(300)));
+        SceneSourceAuthority source = b.sourceBindingsByScene().get(sceneRef);
+        String sourceVersion = source == null ? b.authority().sourceVersionRef() : source.sourceVersionRef();
+        String sourceSha = source == null ? b.authority().sourceSha256() : source.sourceSha256();
+        String rightsRef = source == null ? b.authority().rightsRef() : source.rightsRef();
+        String decisionRef = source == null ? b.authority().ownerDecisionRef() : source.ownerDecisionRef();
+        Instant decisionExpiry = source == null ? b.authority().decisionExpiresAt() : source.decisionExpiresAt();
+        long revocationEpoch = source == null ? b.authority().revocationEpoch() : source.revocationEpoch();
         return new CurrentState(b.authority().tenantId(), b.authority().principalId(), b.authority().purposeRef(),
-                b.authority().sourceVersionRef(), b.authority().sourceSha256(), b.projectId(),
-                b.expectedProjectRevision(), b.authority().rightsRef(), b.authority().ownerDecisionRef(), b.authority().decisionExpiresAt(),
-                b.authority().revocationEpoch(), engine.identityKind(), engine.identity(), engine.buildSha256(),
+                sourceVersion, sourceSha, b.projectId(),
+                b.expectedProjectRevision(), rightsRef, decisionRef, decisionExpiry,
+                revocationEpoch, engine.identityKind(), engine.identity(), engine.buildSha256(),
                 b.provider().providerId(), b.provider().qualificationRef(), b.provider().qualificationSha256(),
                 b.provider().rightsRef(), true, b.reservation().quoteRef(), b.reservation().quoteVersion(),
                 b.reservation().reservationId(), new BoundedAmount(12, "usd-micros"),
@@ -73,6 +87,20 @@ class MediaProductionAdmissionBindingTest {
                 lock.scopeKind(), lock.targetRef(), lock.ownerPrincipalId(), lock.leaseId(),
                 lock.epoch(), lock.expiresAt(),
                 null, null, b.clocks(), NOW);
+    }
+
+    private static Binding withSceneSources(Binding base, Map<String, SceneSourceAuthority> sources) {
+        Map<String, Engine> engines = new java.util.TreeMap<>(base.enginesByStep());
+        Map<String, EditLock> locks = new java.util.TreeMap<>(base.editLocksByStep());
+        for (int i = 0; i < sources.size(); i++) {
+            String stepId = "capture-source-" + i;
+            engines.put(stepId, noEngine());
+            String sceneRef = sources.keySet().stream().sorted().toList().get(i);
+            locks.put(stepId, new EditLock("SCENE", sceneRef, "principal-1", "lease/scene-" + i, 9 + i,
+                    NOW.plusSeconds(300)));
+        }
+        return new Binding(base.schemaVersion(), base.projectId(), base.expectedProjectRevision(), base.requestIdentity(),
+                engines, base.provider(), base.reservation(), base.authority(), locks, base.clocks(), sources);
     }
 
     @Test
@@ -100,7 +128,7 @@ class MediaProductionAdmissionBindingTest {
                 .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
         Binding incompleteEngineMap = new Binding(b1.schemaVersion(), b1.projectId(), b1.expectedProjectRevision(),
                 b1.requestIdentity(), Map.of("validate-spec", noEngine()), b1.provider(), b1.reservation(),
-                b1.authority(), b1.editLocksByStep(), b1.clocks());
+                b1.authority(), b1.editLocksByStep(), b1.clocks(), b1.sourceBindingsByScene());
         assertThatThrownBy(() -> compiler.compile(spec, incompleteEngineMap))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
@@ -108,27 +136,86 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
-    void boundMultiScenePlanFailsBeforeAnyEffectWhenSourceAuthorityHasNoPerSceneMapping() {
+    void boundMultiScenePlanRequiresExactSourceMappingsAndRechecksEachSceneAuthority() {
         var compiler = new MediaProductionSpecCompiler();
         var multiScene = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
-                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1", "scene/2@v1"), "timeline/v1",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1", "scene/2@v3"), "timeline/v1",
                 "rights/v1", List.of("profile/v1"));
-        Binding binding = binding(SHA);
+        Binding base = binding(SHA);
+        Binding binding = withSceneSources(base, Map.of(
+                "scene/1@v1", new SceneSourceAuthority("source/v4", SHA, "rights/v1", "decision/rights-4", NOW.plusSeconds(600), 3),
+                "scene/2@v3", new SceneSourceAuthority("source/v8", "sha256:" + "b".repeat(64), "rights/v2", "decision/rights-8", NOW.plusSeconds(900), 4)));
         AtomicInteger effects = new AtomicInteger();
+        var compiled = compiler.compile(multiScene, binding);
+        Binding changedSecond = withSceneSources(base, Map.of(
+                "scene/1@v1", binding.sourceBindingsByScene().get("scene/1@v1"),
+                "scene/2@v3", new SceneSourceAuthority("source/v9", "sha256:" + "c".repeat(64), "rights/v2", "decision/rights-9", NOW.plusSeconds(900), 4)));
+        assertThat(changedSecond.stableContextFingerprint()).isNotEqualTo(binding.stableContextFingerprint());
+        assertThat(compiler.compile(multiScene, changedSecond).invalidatedAgainst(compiled))
+                .contains("capture-source-1", "compose-timeline", "render-profile-0", "publish-review")
+                .doesNotContain("capture-source-0");
 
-        assertThatThrownBy(() -> {
-            compiler.compile(multiScene, binding);
-            MediaProductionAdmissionBinding.beforeEffect(binding, "capture-source-0",
-                    () -> state(binding, "capture-source-0"), effects::incrementAndGet);
-        }).isInstanceOf(AdmissionException.class)
+        Binding missing = withSceneSources(base, Map.of("scene/1@v1", binding.sourceBindingsByScene().get("scene/1@v1")));
+        Binding extra = withSceneSources(base, Map.of(
+                "scene/1@v1", binding.sourceBindingsByScene().get("scene/1@v1"),
+                "scene/2@v3", binding.sourceBindingsByScene().get("scene/2@v3"),
+                "scene/unreferenced@v1", binding.sourceBindingsByScene().get("scene/2@v3")));
+        for (Binding invalid : List.of(missing, extra)) {
+            assertThatThrownBy(() -> compiler.compile(multiScene, invalid))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(error -> ((AdmissionException) error).failure())
+                    .isEqualTo(AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+        }
+
+        CurrentState second = state(binding, "capture-source-1", "scene/2@v3");
+        MediaProductionAdmissionBinding.requireCurrent(binding, compiled, "capture-source-1", "scene/2@v3", second);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(binding, compiled, "capture-source-1", "scene/2@v3",
+                () -> second, effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
-                .isEqualTo(AdmissionFailure.MULTI_SOURCE_AUTHORITY_UNMAPPED);
+                .isEqualTo(AdmissionFailure.SOURCE_REVIEW_NOT_ADMITTED);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(binding, compiled, "capture-source-1", "scene/2@v3",
+                () -> copyWithSourceSha(second, SHA), effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.SOURCE_MISMATCH);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.requireCurrent(binding, compiled, "capture-source-1", "scene/1@v1", second))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.requireCurrent(binding, compiled, "capture-source-1", "scene/2@v3",
+                copy(second, second.tenantId(), second.principalId(), second.projectRevision(), NOW.minusSeconds(1),
+                        second.reservationId(), second.lockOwnerPrincipalId(), second.lockEpoch(), second.clocks())))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.RIGHTS_STALE);
+        CurrentState revoked = replace(second, second.tenantId(), second.principalId(), second.purposeRef(),
+                second.sourceVersionRef(), 5, second.engineBuildSha256(), second.qualified(), second.quoteVersion(),
+                second.remainingCost(), second.lockOwnerPrincipalId(), second.lockEpoch(), second.lockExpiresAt(), second.clocks());
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.requireCurrent(binding, compiled, "capture-source-1", "scene/2@v3", revoked))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.RIGHTS_REVOKED);
+        assertThat(effects).hasValue(0);
+
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(binding, compiled,
+                "capture-source-0", "scene/2@v3", () -> second, effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        CurrentState mismatchedLock = copyWithLockTarget(state(binding, "capture-source-0", "scene/1@v1"),
+                "SCENE", "scene/2@v3");
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(binding, compiled,
+                "capture-source-0", "scene/1@v1", () -> mismatchedLock, effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
         assertThat(effects).hasValue(0);
 
         var singleScene = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
                 "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1",
                 "rights/v1", List.of("profile/v1"));
-        assertThat(compiler.compile(singleScene, binding).nodes())
+        assertThat(compiler.compile(singleScene, base).nodes())
                 .extracting(node -> node.stepId())
                 .contains("capture-source-0");
     }
@@ -239,11 +326,14 @@ class MediaProductionAdmissionBindingTest {
         assertFailure(b, replace(good, "tenant-1", "principal-1", "purpose/v1", "source/v4", 3,
                 SHA, true, "tariff/old", good.remainingCost(), "principal-1", 9, good.lockExpiresAt(), good.clocks()), AdmissionFailure.QUOTE_STALE);
         assertFailure(b, copyWithLockExpiry(good, NOW.minusSeconds(1)), AdmissionFailure.EDIT_LOCK_INVALID);
-        CurrentState noEngineState = state(b, "capture-source-0");
-        MediaProductionAdmissionBinding.requireCurrent(b, "capture-source-0", noEngineState);
+        CurrentState noEngineState = state(b, "capture-source-0", "scene/1@v1");
+        var captureSpec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var capturePlan = new MediaProductionSpecCompiler().compile(captureSpec, b);
+        MediaProductionAdmissionBinding.requireCurrent(b, capturePlan, "capture-source-0", "scene/1@v1", noEngineState);
         CurrentState engineOnEngineFreeNode = copyWithEngine(noEngineState, "ENGINE", "renderer-v3", SHA);
         AtomicInteger effects = new AtomicInteger();
-        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, "capture-source-0",
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, capturePlan, "capture-source-0", "scene/1@v1",
                 () -> engineOnEngineFreeNode, effects::incrementAndGet))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
@@ -305,7 +395,7 @@ class MediaProductionAdmissionBindingTest {
         engines.put("capture-source-1", noEngine());
         Binding onlyFirstScene = new Binding(b.schemaVersion(), b.projectId(), b.expectedProjectRevision(),
                 b.requestIdentity(), engines, b.provider(), b.reservation(), b.authority(),
-                b.editLocksByStep(), b.clocks());
+                b.editLocksByStep(), b.clocks(), b.sourceBindingsByScene());
         assertThatThrownBy(() -> compiler.compile(spec, onlyFirstScene))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
@@ -371,7 +461,7 @@ class MediaProductionAdmissionBindingTest {
                 "foreign-principal", sceneLock.leaseId(), sceneLock.epoch(), sceneLock.expiresAt()));
         Binding foreignOwner = new Binding(b.schemaVersion(), b.projectId(), b.expectedProjectRevision(),
                 b.requestIdentity(), b.enginesByStep(), b.provider(), b.reservation(), b.authority(),
-                foreignLocks, b.clocks());
+                foreignLocks, b.clocks(), b.sourceBindingsByScene());
         var foreignPlan = compiler.compile(spec, foreignOwner);
         assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(foreignOwner, foreignPlan, cas))
                 .isInstanceOf(AdmissionException.class)
