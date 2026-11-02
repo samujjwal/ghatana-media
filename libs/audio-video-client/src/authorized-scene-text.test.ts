@@ -134,6 +134,30 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     expect(di.parse).not.toHaveBeenCalled();
   });
 
+  it('preserves source NOT_ADMITTED separately from an explicit denial', async () => {
+    const di = diClient();
+    const notAdmitted = {
+      verifyCurrentSource: vi.fn(async () => ({ status: 'NOT_ADMITTED' as const })),
+    };
+    await expect(recognizeAuthorizedMediaSceneText(
+      notAdmitted, di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({ code: 'SOURCE_NOT_ADMITTED' });
+    expect(di.providers).not.toHaveBeenCalled();
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('maps a source-authority outage to UNAVAILABLE without calling DI', async () => {
+    const di = diClient();
+    const unavailable = {
+      verifyCurrentSource: vi.fn(async () => { throw new Error('authority unavailable'); }),
+    };
+    await expect(recognizeAuthorizedMediaSceneText(
+      unavailable, di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({ code: 'SOURCE_UNAVAILABLE' });
+    expect(di.providers).not.toHaveBeenCalled();
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
   it('rejects modified crop bytes before source authority or DI', async () => {
     const di = diClient();
     const source = authorized();

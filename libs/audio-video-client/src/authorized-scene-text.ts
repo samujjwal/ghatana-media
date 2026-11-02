@@ -40,7 +40,7 @@ export interface MediaSceneTextSourceAuthority {
 
 export type MediaSceneTextAdmissionCode =
   | 'INVALID_SOURCE' | 'SOURCE_DIGEST_MISMATCH' | 'SOURCE_VERSION_MISMATCH'
-  | 'SOURCE_DENIED' | 'SOURCE_UNAVAILABLE' | 'RECOGNIZER_RESULT_INVALID';
+  | 'SOURCE_DENIED' | 'SOURCE_NOT_ADMITTED' | 'SOURCE_UNAVAILABLE' | 'RECOGNIZER_RESULT_INVALID';
 
 export class MediaSceneTextAdmissionError extends Error {
   constructor(public readonly code: MediaSceneTextAdmissionCode) {
@@ -114,14 +114,20 @@ export async function recognizeAuthorizedMediaSceneText(
   const hash = Array.from(new Uint8Array(digest), b=>b.toString(16).padStart(2,'0')).join('');
   if (hash !== access.croppedFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
 
-  const current = await sourceAuthority.verifyCurrentSource(Object.freeze({
-    tenantId:access.tenantId,principalId:access.principalId,purposeRef:access.purposeRef,
-    sourceArtifactId:frozenFrame.sourceArtifactId,sourceVersion:frozenFrame.sourceVersion,
-    frameId:frozenFrame.frameId,originalFrameSha256:access.originalFrameSha256,
-  }));
-  if (!current || current.status === 'DENIED' || current.status === 'NOT_ADMITTED') {
-    reject('SOURCE_DENIED');
+  let current: MediaSceneTextDecision;
+  try {
+    current = await sourceAuthority.verifyCurrentSource(Object.freeze({
+      tenantId:access.tenantId,principalId:access.principalId,purposeRef:access.purposeRef,
+      sourceArtifactId:frozenFrame.sourceArtifactId,sourceVersion:frozenFrame.sourceVersion,
+      frameId:frozenFrame.frameId,originalFrameSha256:access.originalFrameSha256,
+    }));
+  } catch {
+    // A failed authority lookup cannot be treated as a denial or as permission.
+    reject('SOURCE_UNAVAILABLE');
   }
+  if (!current) reject('SOURCE_UNAVAILABLE');
+  if (current.status === 'DENIED') reject('SOURCE_DENIED');
+  if (current.status === 'NOT_ADMITTED') reject('SOURCE_NOT_ADMITTED');
   if (current.status !== 'ADMITTED' || signal?.aborted) reject('SOURCE_UNAVAILABLE');
   if (current.sourceVersion !== frozenFrame.sourceVersion) reject('SOURCE_VERSION_MISMATCH');
   if (current.originalFrameSha256 !== access.originalFrameSha256) reject('SOURCE_DIGEST_MISMATCH');
