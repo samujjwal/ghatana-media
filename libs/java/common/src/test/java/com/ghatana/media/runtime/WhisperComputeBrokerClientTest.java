@@ -167,6 +167,32 @@ class WhisperComputeBrokerClientTest {
         assertThat(result.invocationId()).isEqualTo(ID);
     }
 
+    @Test void sharedDeadlineCannotWidenRequestComputeBudget() throws Exception {
+        java.util.concurrent.atomic.AtomicLong nanos = new java.util.concurrent.atomic.AtomicLong(0);
+        var sharedDeadline = MediaRuntimeContracts.ProcessingContext.MonotonicDeadline.after(
+                Duration.ofSeconds(10), nanos::get);
+        try (FakeBroker broker = new FakeBroker(temp, request -> {
+            assertThat(request.get("payload").get("remainingBudgetMillis").longValue()).isEqualTo(1_500);
+            return result(request, "DEADLINE_EXCEEDED", null, "", false, false, false);
+        })) {
+            Result response = broker.client().execute(request(WAV, 1_500), sharedDeadline);
+            assertThat(response.status()).isEqualTo(Status.DEADLINE_EXCEEDED);
+        }
+    }
+
+    @Test void requestComputeBudgetCannotWidenShorterSharedDeadline() throws Exception {
+        java.util.concurrent.atomic.AtomicLong nanos = new java.util.concurrent.atomic.AtomicLong(0);
+        var sharedDeadline = MediaRuntimeContracts.ProcessingContext.MonotonicDeadline.after(
+                Duration.ofMillis(1_500), nanos::get);
+        try (FakeBroker broker = new FakeBroker(temp, request -> {
+            assertThat(request.get("payload").get("remainingBudgetMillis").longValue()).isEqualTo(1_500);
+            return result(request, "DEADLINE_EXCEEDED", null, "", false, false, false);
+        })) {
+            Result response = broker.client().execute(request(WAV, 10_000), sharedDeadline);
+            assertThat(response.status()).isEqualTo(Status.DEADLINE_EXCEEDED);
+        }
+    }
+
     @Test void connectFailureBeforeAnyRequestBytesIsTypedNoEffect() throws Exception {
         Path token = temp.resolve("token-connect");
         Files.writeString(token, TOKEN, StandardCharsets.UTF_8);

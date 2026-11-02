@@ -101,6 +101,7 @@ public final class WhisperComputeBrokerClient implements WhisperComputeClient {
         payload.put("op", "WHISPER_EXECUTE");
         identity(payload, request.invocationId(), request.profileId(), request.locale(), digest);
         payload.put("wavBase64", Base64.getEncoder().encodeToString(wav));
+        payload.put("remainingBudgetMillis", request.remainingBudgetMillis());
         return call(payload, request.invocationId(), request.profileId(), digest,
                 deadline(executeCallTimeoutMillis(request.remainingBudgetMillis())), sharedDeadline);
     }
@@ -146,7 +147,12 @@ public final class WhisperComputeBrokerClient implements WhisperComputeClient {
         }
         long ts = System.currentTimeMillis();
         if (sharedDeadline != null) {
-            long remaining = sharedDeadline.remainingBudgetMillis();
+            JsonNode requestBudgetNode = payload.get("remainingBudgetMillis");
+            if (requestBudgetNode == null || !requestBudgetNode.canConvertToLong()
+                    || requestBudgetNode.longValue() < 1) {
+                throw new IOException("Whisper execute request is missing its bounded compute budget");
+            }
+            long remaining = Math.min(requestBudgetNode.longValue(), sharedDeadline.remainingBudgetMillis());
             if (remaining == 0) return new Result(invocationId, profileId, inputDigest, null, "",
                     Status.DEADLINE_EXCEEDED, false, false, false);
             payload.put("remainingBudgetMillis", remaining);
