@@ -398,8 +398,12 @@ public final class MediaProductionSpecCompiler {
     /**
      * Resolves the three canonical compile inputs and derives the normalized
      * semantic graph from the exact instance-bound compiler contract. The
-     * resolver remains responsible for immutable-version lookup and authority;
-     * this method creates only an effect-free graph candidate.
+     * resolver remains responsible for immutable-version lookup and authority.
+     * Count-only evidence retains the source-defined caller-owned cardinality
+     * behavior; typed evidence additionally verifies the caller-asserted
+     * operationRef-to-definitionRef association and digest. The definition
+     * bytes are not interpreted to prove that association. Neither path
+     * establishes resolver authority, operation semantics, or admission.
      */
     public MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
             ProductionSpec typedSpec,
@@ -407,7 +411,22 @@ public final class MediaProductionSpecCompiler {
             MediaVersionedContractContent.Resolver resolver,
             Map<String, Integer> exactOperationResolutionCounts) {
         return compileSemanticSourceFromResolvedInputs(typedSpec, inputs, null, resolver,
-                exactOperationResolutionCounts);
+                exactOperationResolutionCounts, null);
+    }
+
+    /**
+     * Resolves canonical inputs and caller-asserted operation-definition refs.
+     * Definition refs and digests are checked structurally; the bytes are not
+     * decoded to prove an operation identity. Resolver authority,
+     * source-currentness, operation semantics, and runtime admission remain unproven.
+     */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
+            ProductionSpec typedSpec,
+            CompilationInputs inputs,
+            MediaVersionedContractContent.Resolver resolver,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        return compileSemanticSourceFromResolvedInputs(typedSpec, inputs, null, resolver, null,
+                Objects.requireNonNull(operationEvidence, "operationEvidence"));
     }
 
     /** Resolves canonical inputs only after checking the optional exact revision assertion. */
@@ -417,10 +436,34 @@ public final class MediaProductionSpecCompiler {
             String optionalProjectRevisionRef,
             MediaVersionedContractContent.Resolver resolver,
             Map<String, Integer> exactOperationResolutionCounts) {
+        return compileSemanticSourceFromResolvedInputs(typedSpec, inputs, optionalProjectRevisionRef,
+                resolver, exactOperationResolutionCounts, null);
+    }
+
+    /** Resolves canonical inputs after checking the revision and exact operation evidence. */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
+            ProductionSpec typedSpec,
+            CompilationInputs inputs,
+            String optionalProjectRevisionRef,
+            MediaVersionedContractContent.Resolver resolver,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        return compileSemanticSourceFromResolvedInputs(typedSpec, inputs, optionalProjectRevisionRef,
+                resolver, null, Objects.requireNonNull(operationEvidence, "operationEvidence"));
+    }
+
+    private MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
+            ProductionSpec typedSpec,
+            CompilationInputs inputs,
+            String optionalProjectRevisionRef,
+            MediaVersionedContractContent.Resolver resolver,
+            Map<String, Integer> exactOperationResolutionCounts,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
         Objects.requireNonNull(typedSpec, "typedSpec");
         Objects.requireNonNull(inputs, "inputs");
         Objects.requireNonNull(resolver, "resolver");
-        Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
+        if (operationEvidence == null) {
+            Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
+        }
         requireInputSchemaVersion(typedSpec, inputs);
         if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(typedSpec.revisionId())) {
             return new MediaProductionSemanticSource.CompilationResult(
@@ -446,8 +489,8 @@ public final class MediaProductionSpecCompiler {
         if (specFingerprint == null || schemaFingerprint == null || compilerFingerprint == null) {
             return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
         }
-        List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = List.of(
-                specFingerprint, schemaFingerprint, compilerFingerprint);
+        List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = new ArrayList<>(List.of(
+                specFingerprint, schemaFingerprint, compilerFingerprint));
 
         try {
             validateProductionSpecContent(specContent.content(), schemaContent.content(), typedSpec);
@@ -466,13 +509,42 @@ public final class MediaProductionSpecCompiler {
                         MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH, List.of(), null);
             }
 
+            if (operationEvidence != null) {
+                var evidenceProblem = validateOperationEvidenceCoverage(contract.steps(), operationEvidence);
+                if (evidenceProblem != MediaProductionSemanticSource.Reason.NONE) {
+                    return semanticSourceFailure(evidenceProblem);
+                }
+                Map<String, MediaVersionedContractContent.ResolvedContentFingerprint> operationFingerprints =
+                        new TreeMap<>();
+                for (var definition : operationEvidence.definitions()) {
+                    if (operationFingerprints.containsKey(definition.definitionRef())) continue;
+                    final MediaVersionedContractContent.ResolvedContent operationContent;
+                    try {
+                        operationContent = resolver.resolve(definition.definitionRef());
+                    } catch (RuntimeException unavailable) {
+                        return semanticSourceFailure(MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+                    }
+                    if (operationContent == null) {
+                        return semanticSourceFailure(MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+                    }
+                    var fingerprint = checkedResolverFingerprint(definition.definitionRef(), operationContent);
+                    if (fingerprint == null || !fingerprint.sha256().equals(definition.definitionSha256())) {
+                        return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+                    }
+                    operationFingerprints.put(definition.definitionRef(), fingerprint);
+                }
+                resolved.addAll(operationFingerprints.values());
+            }
+
             var source = new MediaProductionSemanticSource(MediaProductionSemanticSource.SCHEMA_VERSION,
                     new MediaProductionSemanticSource.SourceBindings(
                             inputs.productionSpecRef(), specFingerprint.sha256(),
                             inputs.productionSpecSchemaRef(), schemaFingerprint.sha256(),
                             inputs.compilerContractRef(), compilerFingerprint.sha256()),
                     contract.steps());
-            var graph = source.compileSyntaxCheckedGraphCandidate(inputs, resolved, exactOperationResolutionCounts);
+            var graph = operationEvidence == null
+                    ? source.compileSyntaxCheckedGraphCandidate(inputs, resolved, exactOperationResolutionCounts)
+                    : source.compileSyntaxCheckedGraphCandidate(inputs, resolved, operationEvidence);
             if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) return graph;
             StringBuilder candidateProjection = new StringBuilder();
             appendSemanticField(candidateProjection, "media.production.semantic-graph-resolved-input-candidate.v1");
@@ -544,6 +616,25 @@ public final class MediaProductionSpecCompiler {
         } catch (IllegalArgumentException invalidDigest) {
             return null;
         }
+    }
+
+    private static MediaProductionSemanticSource.Reason validateOperationEvidenceCoverage(
+            List<MediaProductionSemanticSource.Node> steps,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        Set<String> graphOperations = new TreeSet<>();
+        steps.forEach(step -> graphOperations.add(step.operationRef()));
+        Map<String, MediaProductionSemanticSource.OperationDefinitionBinding> evidenceByOperation = new TreeMap<>();
+        for (var definition : operationEvidence.definitions()) {
+            if (evidenceByOperation.put(definition.operationRef(), definition) != null) {
+                return MediaProductionSemanticSource.Reason.AMBIGUOUS_OPERATION;
+            }
+        }
+        if (evidenceByOperation.keySet().equals(graphOperations)) {
+            return MediaProductionSemanticSource.Reason.NONE;
+        }
+        return graphOperations.containsAll(evidenceByOperation.keySet())
+                ? MediaProductionSemanticSource.Reason.UNRESOLVED_OPERATION
+                : MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH;
     }
 
     private static void appendResolvedSemanticInput(
@@ -652,8 +743,10 @@ public final class MediaProductionSpecCompiler {
     /**
      * Verify exact semantic-source bytes, then perform graph syntax/shape and
      * topology checks. Node refs are not resolved; source-binding fingerprints
-     * and operation cardinalities remain caller evidence. This is effect-free
-     * and does not create an admission-bound CompiledPlan.
+     * and operation evidence remain caller-owned. The typed overload checks
+     * operation definition refs and digests against the resolved source set;
+     * the graph fingerprint remains the source-defined structural identity.
+     * This is effect-free and does not create an admission-bound CompiledPlan.
      */
     public MediaProductionSemanticSource.CompilationResult compileSemanticSource(
             Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
@@ -662,6 +755,31 @@ public final class MediaProductionSpecCompiler {
             CompilationInputs expectedInputs,
             List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
             Map<String, Integer> exactOperationResolutionCounts) {
+        return compileSemanticSource(sourceContent, semanticSourceRef, semanticSourceSha256, expectedInputs,
+                resolvedSources, exactOperationResolutionCounts, null);
+    }
+
+    /** Verify semantic-source bytes and caller-asserted operation definition refs/digests. */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSource(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        return compileSemanticSource(sourceContent, semanticSourceRef, semanticSourceSha256, expectedInputs,
+                resolvedSources, null, Objects.requireNonNull(operationEvidence, "operationEvidence"));
+    }
+
+    private MediaProductionSemanticSource.CompilationResult compileSemanticSource(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            Map<String, Integer> exactOperationResolutionCounts,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        if (operationEvidence == null) Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
         if (sourceContent == null || sourceContent.isEmpty()) {
             return new MediaProductionSemanticSource.CompilationResult(MediaProductionSemanticSource.Disposition.UNKNOWN,
                     MediaProductionSemanticSource.Reason.ABSENT_GRAPH, List.of(), null);
@@ -678,7 +796,9 @@ public final class MediaProductionSpecCompiler {
                 return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
             }
             var source = decodeSemanticSource(content.content());
-            var graph = source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts);
+            var graph = operationEvidence == null
+                    ? source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts)
+                    : source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, operationEvidence);
             if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) return graph;
             StringBuilder projection = new StringBuilder();
             appendSemanticField(projection, "media.production.semantic-source-artifact-binding.v1");
@@ -731,10 +851,38 @@ public final class MediaProductionSpecCompiler {
             MediaProductionAdmissionBinding.Binding binding,
             List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
             Map<String, Integer> exactOperationResolutionCounts) {
+        return bindSemanticSourceCandidate(sourceContent, semanticSourceRef, semanticSourceSha256, expectedInputs,
+                spec, binding, resolvedSources, exactOperationResolutionCounts, null);
+    }
+
+    /** Structurally checks caller-asserted operation definition evidence against the unchanged v3 context. */
+    public SemanticCandidateBindResult bindSemanticSourceCandidate(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            ProductionSpec spec,
+            MediaProductionAdmissionBinding.Binding binding,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
+        return bindSemanticSourceCandidate(sourceContent, semanticSourceRef, semanticSourceSha256, expectedInputs,
+                spec, binding, resolvedSources, null, Objects.requireNonNull(operationEvidence, "operationEvidence"));
+    }
+
+    private SemanticCandidateBindResult bindSemanticSourceCandidate(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            ProductionSpec spec,
+            MediaProductionAdmissionBinding.Binding binding,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            Map<String, Integer> exactOperationResolutionCounts,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence) {
         Objects.requireNonNull(spec, "spec");
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(resolvedSources, "resolvedSources");
-        Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
+        if (operationEvidence == null) Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
         if (sourceContent == null || sourceContent.isEmpty()) {
             return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.UNKNOWN,
                     MediaProductionSemanticSource.Reason.ABSENT_GRAPH);
@@ -762,7 +910,9 @@ public final class MediaProductionSpecCompiler {
         if (sourceFingerprint == null || !semanticSourceSha256.equals(sourceFingerprint.sha256())) {
             return failedSemanticBind(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
         }
-        var graph = source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts);
+        var graph = operationEvidence == null
+                ? source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts)
+                : source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, operationEvidence);
         if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) {
             return new SemanticCandidateBindResult(graph.disposition(), graph.reason());
         }

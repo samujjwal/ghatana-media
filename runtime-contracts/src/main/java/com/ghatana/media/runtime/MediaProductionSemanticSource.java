@@ -44,6 +44,28 @@ public record MediaProductionSemanticSource(
         }
     }
 
+    /**
+     * Caller-asserted association to a digest-checked operation-definition ref.
+     * The ref and digest do not prove that its bytes define the named operation.
+     */
+    public record OperationDefinitionBinding(String operationRef, String definitionRef, String definitionSha256) {
+        public OperationDefinitionBinding {
+            requireVersionRef(operationRef, "operationRef");
+            requireVersionRef(definitionRef, "definitionRef");
+            requireDigest(definitionSha256, "definitionSha256");
+        }
+    }
+
+    /** Caller assertions for operation refs; this carries no authority or admission claim. */
+    public record OperationResolutionEvidence(List<OperationDefinitionBinding> definitions) {
+        public OperationResolutionEvidence {
+            definitions = List.copyOf(Objects.requireNonNull(definitions, "definitions"));
+            if (definitions.size() > MAX_NODES) {
+                throw new IllegalArgumentException("operation definition evidence exceeds the graph node bound");
+            }
+        }
+    }
+
     /** kind remains text at the decode boundary so unknown enum values return typed UNKNOWN. */
     public record Node(
             String stepId, String kind, String operationRef,
@@ -79,7 +101,7 @@ public record MediaProductionSemanticSource(
         NONE, ABSENT_GRAPH, DUPLICATE_STEP_ID, UNKNOWN_NODE_KIND,
         UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING,
         SOURCE_BINDING_MISMATCH, MISSING_DEPENDENCY, CYCLIC_GRAPH, EXECUTION_CONTEXT_MISMATCH,
-        INVALID_SEMANTIC_SOURCE_CONTENT, STEP_OPERATION_MAPPING_UNDEFINED
+        INVALID_SEMANTIC_SOURCE_CONTENT
     }
 
     public record NormalizedNode(
@@ -100,15 +122,38 @@ public record MediaProductionSemanticSource(
     /**
      * Package-private graph shape/syntax checks after the owning compiler has
      * digest-verified semantic-source bytes. Node references are not resolved;
-     * source-binding fingerprints and operation cardinalities are caller evidence.
+     * source-binding fingerprints and operation-definition evidence are caller-supplied.
+     * Count-only evidence remains for compatibility. Neither evidence form
+     * changes the source-defined structural graph fingerprint.
      */
     CompilationResult compileSyntaxCheckedGraphCandidate(
             MediaProductionSpecCompiler.CompilationInputs expectedInputs,
             List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
             Map<String, Integer> operationResolutionCounts) {
+        return compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, operationResolutionCounts, null);
+    }
+
+    /**
+     * Effect-free graph validation using exact operation definition refs and digests.
+     * The evidence establishes structural content binding only; it does not
+     * interpret operation semantics or establish resolver authority/currentness.
+     */
+    CompilationResult compileSyntaxCheckedGraphCandidate(
+            MediaProductionSpecCompiler.CompilationInputs expectedInputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            OperationResolutionEvidence operationEvidence) {
+        return compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, null,
+                Objects.requireNonNull(operationEvidence, "operationEvidence"));
+    }
+
+    private CompilationResult compileSyntaxCheckedGraphCandidate(
+            MediaProductionSpecCompiler.CompilationInputs expectedInputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            Map<String, Integer> operationResolutionCounts,
+            OperationResolutionEvidence operationEvidence) {
         Objects.requireNonNull(expectedInputs, "expectedInputs");
         Objects.requireNonNull(resolvedSources, "resolvedSources");
-        Objects.requireNonNull(operationResolutionCounts, "operationResolutionCounts");
+        if (operationEvidence == null) Objects.requireNonNull(operationResolutionCounts, "operationResolutionCounts");
         if (nodes.isEmpty()) return result(Disposition.UNKNOWN, Reason.ABSENT_GRAPH);
         if (!sourceBindings.productionSpecRef().equals(expectedInputs.productionSpecRef())
                 || !sourceBindings.productionSpecSchemaRef().equals(expectedInputs.productionSpecSchemaRef())
@@ -129,15 +174,39 @@ public record MediaProductionSemanticSource(
         }
 
         Map<String, Node> byId = new HashMap<>();
+        Set<String> graphOperations = new TreeSet<>();
         for (Node node : nodes) {
             if (byId.put(node.stepId(), node) != null) return result(Disposition.UNKNOWN, Reason.DUPLICATE_STEP_ID);
             if (!Set.of("DETERMINISTIC", "GENERATIVE", "UNKNOWN").contains(node.kind())) {
                 return result(Disposition.UNKNOWN, Reason.UNKNOWN_NODE_KIND);
             }
-            Integer matches = operationResolutionCounts.get(node.operationRef());
-            if (matches == null || matches == 0) return result(Disposition.UNKNOWN, Reason.UNRESOLVED_OPERATION);
-            if (matches != 1) return result(Disposition.UNKNOWN, Reason.AMBIGUOUS_OPERATION);
+            graphOperations.add(node.operationRef());
             if ("UNKNOWN".equals(node.kind())) return result(Disposition.UNKNOWN, Reason.UNKNOWN_NODE_KIND);
+        }
+        if (operationEvidence == null) {
+            for (String operationRef : graphOperations) {
+                Integer matches = operationResolutionCounts.get(operationRef);
+                if (matches == null || matches == 0) return result(Disposition.UNKNOWN, Reason.UNRESOLVED_OPERATION);
+                if (matches != 1) return result(Disposition.UNKNOWN, Reason.AMBIGUOUS_OPERATION);
+            }
+        } else {
+            Map<String, OperationDefinitionBinding> evidenceByOperation = new HashMap<>();
+            for (OperationDefinitionBinding definition : operationEvidence.definitions()) {
+                if (evidenceByOperation.put(definition.operationRef(), definition) != null) {
+                    return result(Disposition.UNKNOWN, Reason.AMBIGUOUS_OPERATION);
+                }
+            }
+            if (!evidenceByOperation.keySet().equals(graphOperations)) {
+                if (graphOperations.containsAll(evidenceByOperation.keySet())) {
+                    return result(Disposition.UNKNOWN, Reason.UNRESOLVED_OPERATION);
+                }
+                return result(Disposition.UNKNOWN, Reason.SOURCE_BINDING_MISMATCH);
+            }
+            for (OperationDefinitionBinding definition : evidenceByOperation.values()) {
+                if (!matches(definition.definitionRef(), definition.definitionSha256(), byRef)) {
+                    return result(Disposition.UNKNOWN, Reason.SOURCE_BINDING_MISMATCH);
+                }
+            }
         }
         for (Node node : nodes) {
             if (new HashSet<>(node.dependsOn()).size() != node.dependsOn().size()) {

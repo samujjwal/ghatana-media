@@ -61,6 +61,10 @@ class MediaProductionCompilerContractTest {
             byte[] schemaBytes,
             byte[] compilerBytes) { }
 
+    private record OperationFixture(
+            MediaProductionSemanticSource.OperationResolutionEvidence evidence,
+            Map<String, byte[]> contents) { }
+
     private static Fixture fixture(List<Map<String, Object>> steps) throws Exception {
         return fixture(steps, SPEC_REF, null, null, null);
     }
@@ -120,13 +124,57 @@ class MediaProductionCompilerContractTest {
                 }, operationCounts);
     }
 
+    private static OperationFixture operationFixture(List<String> operationRefs) {
+        var bindings = new java.util.ArrayList<MediaProductionSemanticSource.OperationDefinitionBinding>();
+        var contents = new LinkedHashMap<String, byte[]>();
+        for (String operationRef : new java.util.LinkedHashSet<>(operationRefs)) {
+            String definitionRef = "operation-definition/" + operationRef;
+            byte[] bytes = ("definition:" + operationRef).getBytes(StandardCharsets.UTF_8);
+            bindings.add(new MediaProductionSemanticSource.OperationDefinitionBinding(
+                    operationRef, definitionRef, digest(bytes)));
+            contents.put(definitionRef, bytes);
+        }
+        return new OperationFixture(new MediaProductionSemanticSource.OperationResolutionEvidence(bindings),
+                Map.copyOf(contents));
+    }
+
+    private static MediaProductionSemanticSource.CompilationResult compileWithOperationEvidence(
+            Fixture fixture, List<String> operationRefs, AtomicInteger calls) {
+        return compileWithOperationFixture(fixture, operationFixture(operationRefs), calls);
+    }
+
+    private static MediaProductionSemanticSource.CompilationResult compileWithOperationFixture(
+            Fixture fixture, OperationFixture operationFixture, AtomicInteger calls) {
+        Map<String, byte[]> contents = new LinkedHashMap<>();
+        contents.put(SPEC_REF, fixture.specBytes());
+        contents.put(SCHEMA_REF, fixture.schemaBytes());
+        contents.put(COMPILER_REF, fixture.compilerBytes());
+        contents.putAll(operationFixture.contents());
+        return compileWithOperationResolver(fixture, operationFixture,
+                ref -> {
+                    byte[] content = contents.get(ref);
+                    return content == null ? null : resolved(ref, content);
+                }, calls);
+    }
+
+    private static MediaProductionSemanticSource.CompilationResult compileWithOperationResolver(
+            Fixture fixture, OperationFixture operationFixture,
+            MediaVersionedContractContent.Resolver resolver, AtomicInteger calls) {
+        return new MediaProductionSpecCompiler().compileSemanticSourceFromResolvedInputs(
+                fixture.spec(), fixture.inputs(), ref -> {
+                    calls.incrementAndGet();
+                    return resolver.resolve(ref);
+                }, operationFixture.evidence());
+    }
+
     @Test
     void resolvesEachExactInputOnceAndPreservesDeclaredKindsAndFingerprint() throws Exception {
         Fixture fixture = fixture(steps());
         AtomicInteger calls = new AtomicInteger();
-        var result = compile(fixture, Map.of(OP_A, 1, OP_B, 1), calls);
+        var operationFixture = operationFixture(List.of(OP_A, OP_B));
+        var result = compileWithOperationEvidence(fixture, List.of(OP_A, OP_B), calls);
 
-        assertThat(calls).hasValue(3);
+        assertThat(calls).hasValue(5);
         assertThat(result.disposition()).as("reason: " + result.reason())
                 .isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::stepId)
@@ -139,32 +187,130 @@ class MediaProductionCompilerContractTest {
         assertThat(result.nodes().get(1).dependsOn()).containsExactly("prepare");
         assertThat(result.fingerprint()).matches("sha256:[0-9a-f]{64}");
 
+        byte[] alternateDefinition = "alternate definition bytes".getBytes(StandardCharsets.UTF_8);
+        String alternateDefinitionRef = "operation-definition/alternate";
+        var alternateOperationEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(
+                        OP_A, alternateDefinitionRef, digest(alternateDefinition)),
+                new MediaProductionSemanticSource.OperationDefinitionBinding(
+                        OP_B, "operation-definition/" + OP_B,
+                        digest(("definition:" + OP_B).getBytes(StandardCharsets.UTF_8)))));
+        var alternateContents = new LinkedHashMap<String, byte[]>(operationFixture.contents());
+        alternateContents.put(alternateDefinitionRef, alternateDefinition);
+        alternateContents.remove("operation-definition/" + OP_A);
+        var alternate = compileWithOperationFixture(fixture,
+                new OperationFixture(alternateOperationEvidence, Map.copyOf(alternateContents)), new AtomicInteger());
+        assertThat(alternate.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(alternate.fingerprint()).isEqualTo(result.fingerprint());
+
         var specFingerprint = MediaVersionedContractContent.verifyDigestChecked(SPEC_REF,
                 resolved(SPEC_REF, fixture.specBytes()));
         var schemaFingerprint = MediaVersionedContractContent.verifyDigestChecked(SCHEMA_REF,
                 resolved(SCHEMA_REF, fixture.schemaBytes()));
         var compilerFingerprint = MediaVersionedContractContent.verifyDigestChecked(COMPILER_REF,
                 resolved(COMPILER_REF, fixture.compilerBytes()));
+        var operationFingerprints = operationFixture.evidence().definitions().stream()
+                .map(definition -> MediaVersionedContractContent.verifyDigestChecked(definition.definitionRef(),
+                        resolved(definition.definitionRef(), operationFixture.contents().get(definition.definitionRef()))))
+                .toList();
+        var graphSources = new java.util.ArrayList<>(List.of(specFingerprint, schemaFingerprint, compilerFingerprint));
+        graphSources.addAll(operationFingerprints);
         var graphSource = new MediaProductionSemanticSource(MediaProductionSemanticSource.SCHEMA_VERSION,
                 new MediaProductionSemanticSource.SourceBindings(SPEC_REF, specFingerprint.sha256(),
                         SCHEMA_REF, schemaFingerprint.sha256(), COMPILER_REF, compilerFingerprint.sha256()),
                 semanticNodes(steps()));
         var innerGraph = graphSource.compileSyntaxCheckedGraphCandidate(fixture.inputs(),
-                List.of(specFingerprint, schemaFingerprint, compilerFingerprint), Map.of(OP_A, 1, OP_B, 1));
+                graphSources, operationFixture.evidence());
         assertThat(innerGraph.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.fingerprint()).isEqualTo(candidateFingerprintProjection(
                 specFingerprint, schemaFingerprint, compilerFingerprint, innerGraph.fingerprint()));
 
-        var repeated = compile(fixture, Map.of(OP_A, 1, OP_B, 1), new AtomicInteger());
+        var repeated = compileWithOperationEvidence(fixture, List.of(OP_A, OP_B), new AtomicInteger());
         assertThat(repeated.fingerprint()).isEqualTo(result.fingerprint());
 
         Fixture changedContract = fixture(List.of(
                 step("prepare", "DETERMINISTIC", OP_A, List.of(), List.of("scene/1@v3")),
                 step("render", "DETERMINISTIC", OP_B, List.of("prepare"), List.of("scene/2@v1"))));
         assertThat(digest(changedContract.compilerBytes())).isNotEqualTo(digest(fixture.compilerBytes()));
-        var changed = compile(changedContract, Map.of(OP_A, 1, OP_B, 1), new AtomicInteger());
+        var changed = compileWithOperationEvidence(changedContract, List.of(OP_A, OP_B), new AtomicInteger());
         assertThat(changed.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(changed.fingerprint()).isNotEqualTo(result.fingerprint());
+    }
+
+    @Test
+    void operationDefinitionResolverRejectsMissingDuplicateUnreferencedAndStaleEvidence() throws Exception {
+        Fixture fixture = fixture(List.of(step("prepare", "DETERMINISTIC", OP_A, List.of(), List.of("scene/1@v3"))));
+        var valid = operationFixture(List.of(OP_A));
+
+        AtomicInteger missingCalls = new AtomicInteger();
+        var missing = compileWithOperationFixture(fixture,
+                new OperationFixture(new MediaProductionSemanticSource.OperationResolutionEvidence(List.of()), Map.of()),
+                missingCalls);
+        assertThat(missingCalls).hasValue(3);
+        assertResult(missing, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.UNRESOLVED_OPERATION);
+
+        var validBinding = valid.evidence().definitions().getFirst();
+        var duplicateEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(
+                List.of(validBinding, validBinding));
+        AtomicInteger duplicateCalls = new AtomicInteger();
+        var duplicate = compileWithOperationFixture(fixture, new OperationFixture(duplicateEvidence, valid.contents()),
+                duplicateCalls);
+        assertThat(duplicateCalls).hasValue(3);
+        assertResult(duplicate, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.AMBIGUOUS_OPERATION);
+
+        var unreferencedEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(
+                        OP_B, validBinding.definitionRef(), validBinding.definitionSha256())));
+        AtomicInteger unreferencedCalls = new AtomicInteger();
+        var unreferenced = compileWithOperationFixture(fixture,
+                new OperationFixture(unreferencedEvidence, valid.contents()), unreferencedCalls);
+        assertThat(unreferencedCalls).hasValue(3);
+        assertResult(unreferenced, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+
+        var staleDigestEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(
+                        OP_A, validBinding.definitionRef(), "sha256:" + "0".repeat(64))));
+        AtomicInteger staleCalls = new AtomicInteger();
+        var stale = compileWithOperationFixture(fixture,
+                new OperationFixture(staleDigestEvidence, valid.contents()), staleCalls);
+        assertThat(staleCalls).hasValue(4);
+        assertResult(stale, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+
+        String definitionRef = validBinding.definitionRef();
+        Map<String, byte[]> withDefinition = new LinkedHashMap<>();
+        withDefinition.put(SPEC_REF, fixture.specBytes());
+        withDefinition.put(SCHEMA_REF, fixture.schemaBytes());
+        withDefinition.put(COMPILER_REF, fixture.compilerBytes());
+        withDefinition.putAll(valid.contents());
+
+        AtomicInteger unavailableCalls = new AtomicInteger();
+        var unavailable = compileWithOperationResolver(fixture, valid,
+                ref -> ref.equals(definitionRef) ? null : resolved(ref, withDefinition.get(ref)), unavailableCalls);
+        assertThat(unavailableCalls).hasValue(4);
+        assertResult(unavailable, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+
+        AtomicInteger failedCalls = new AtomicInteger();
+        var failedResolver = compileWithOperationResolver(fixture, valid, ref -> {
+            if (ref.equals(definitionRef)) throw new IllegalStateException("resolver unavailable");
+            return resolved(ref, withDefinition.get(ref));
+        }, failedCalls);
+        assertThat(failedCalls).hasValue(4);
+        assertResult(failedResolver, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+
+        AtomicInteger wrongEchoCalls = new AtomicInteger();
+        var wrongEcho = compileWithOperationResolver(fixture, valid, ref -> {
+            byte[] content = withDefinition.get(ref);
+            return ref.equals(definitionRef) ? resolved("alias/" + ref, content) : resolved(ref, content);
+        }, wrongEchoCalls);
+        assertThat(wrongEchoCalls).hasValue(4);
+        assertResult(wrongEcho, MediaProductionSemanticSource.Disposition.UNKNOWN,
+                MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
     }
 
     @Test
@@ -257,13 +403,13 @@ class MediaProductionCompilerContractTest {
     @Test
     void rejectsBadDependenciesCyclesAndUnresolvedOperations() throws Exception {
         Fixture missing = fixture(List.of(step("prepare", "DETERMINISTIC", OP_A, List.of("absent"), List.of())));
-        assertResult(compile(missing, Map.of(OP_A, 1), new AtomicInteger()),
+        assertResult(compileWithOperationEvidence(missing, List.of(OP_A), new AtomicInteger()),
                 MediaProductionSemanticSource.Disposition.UNKNOWN,
                 MediaProductionSemanticSource.Reason.MISSING_DEPENDENCY);
 
         Fixture cycle = fixture(List.of(step("a", "DETERMINISTIC", OP_A, List.of("b"), List.of()),
                 step("b", "GENERATIVE", OP_B, List.of("a"), List.of())));
-        assertResult(compile(cycle, Map.of(OP_A, 1, OP_B, 1), new AtomicInteger()),
+        assertResult(compileWithOperationEvidence(cycle, List.of(OP_A, OP_B), new AtomicInteger()),
                 MediaProductionSemanticSource.Disposition.NOT_ADMITTED,
                 MediaProductionSemanticSource.Reason.CYCLIC_GRAPH);
 

@@ -38,6 +38,18 @@ class MediaProductionSemanticSourceTest {
                 new MediaVersionedContractContent.ResolvedContentFingerprint(COMPILER, D3, 30));
     }
 
+    private static MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence() {
+        return new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, "operation-definition/rev-1", D1)));
+    }
+
+    private static List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedWithOperation() {
+        var values = new java.util.ArrayList<>(resolved());
+        values.add(new MediaVersionedContractContent.ResolvedContentFingerprint(
+                "operation-definition/rev-1", D1, 42));
+        return List.copyOf(values);
+    }
+
     private static MediaProductionSpecCompiler.CompilationInputs inputs() {
         return new MediaProductionSpecCompiler.CompilationInputs(SPEC, SCHEMA,
                 MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, COMPILER);
@@ -134,6 +146,14 @@ class MediaProductionSemanticSourceTest {
         return List.copyOf(values);
     }
 
+    private static List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedWithSemanticSourceAndOperation(
+            GraphFixture fixture) {
+        var values = new java.util.ArrayList<>(resolvedWithSemanticSource(fixture));
+        values.add(new MediaVersionedContractContent.ResolvedContentFingerprint(
+                "operation-definition/rev-1", D1, 42));
+        return List.copyOf(values);
+    }
+
     private static MediaProductionSemanticSource.CompilationResult compile(
             MediaProductionSpecCompiler compiler, MediaProductionSemanticSource source,
             List<MediaVersionedContractContent.ResolvedContentFingerprint> inputFingerprints,
@@ -165,16 +185,16 @@ class MediaProductionSemanticSourceTest {
         var b = source(List.of(node("a-step", "GENERATIVE", List.of()),
                 node("z-step", "DETERMINISTIC", List.of("a-step"))));
 
-        var result = compile(compiler, a, resolved(), Map.of(OP, 1));
-        var repeat = compile(compiler, b, resolved(), Map.of(OP, 1));
-        var identicalRepeat = compile(compiler, a, resolved(), Map.of(OP, 1));
+        var result = a.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation(), operationEvidence());
+        var repeat = b.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation(), operationEvidence());
+        var identicalRepeat = a.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation(), operationEvidence());
         assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::stepId)
                 .containsExactly("a-step", "z-step");
         assertThat(result.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::operationRef)
                 .containsExactly(OP, OP);
         assertThat(result.nodes()).isEqualTo(repeat.nodes());
-        assertThat(result.fingerprint()).isNotEqualTo(repeat.fingerprint()); // Different exact source bytes have different bindings.
+        assertThat(result.fingerprint()).isEqualTo(repeat.fingerprint()); // Node order does not affect the normalized graph.
         assertThat(result.fingerprint()).isEqualTo(identicalRepeat.fingerprint());
         assertThat(result.fingerprint()).startsWith("sha256:");
     }
@@ -194,9 +214,82 @@ class MediaProductionSemanticSourceTest {
                         new MediaProductionSpecCompiler.CompilationInputs("other/spec@v1", SCHEMA,
                                 MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, COMPILER), resolved(), Map.of(OP, 1)),
                 MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
-        assertResult(compile(compiler, source(List.of(node("step", "DETERMINISTIC", List.of("absent")))),
-                        resolved(), Map.of(OP, 1)),
+        assertResult(source(List.of(node("step", "DETERMINISTIC", List.of("absent"))))
+                        .compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation(), operationEvidence()),
                 MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.MISSING_DEPENDENCY);
+    }
+
+    @Test
+    void operationDefinitionEvidenceIsVerifiedButDoesNotChangeStructuralGraphFingerprint() {
+        var semantic = source(List.of(node("step", "DETERMINISTIC", List.of())));
+        String definitionRef = "operation-definition/rev-1";
+        var definitionFingerprint = new MediaVersionedContractContent.ResolvedContentFingerprint(definitionRef, D1, 42);
+        var resolvedWithOperation = new java.util.ArrayList<>(resolved());
+        resolvedWithOperation.add(definitionFingerprint);
+
+        var evidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D1)));
+        var candidate = semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation, evidence);
+        assertThat(candidate.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(candidate.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(candidate.nodes()).hasSize(1);
+        assertThat(candidate.fingerprint()).startsWith("sha256:");
+
+        var changedEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, "operation-definition/rev-2", D2)));
+        var resolvedWithChangedOperation = new java.util.ArrayList<>(resolvedWithOperation);
+        resolvedWithChangedOperation.add(new MediaVersionedContractContent.ResolvedContentFingerprint(
+                "operation-definition/rev-2", D2, 43));
+        var changed = semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithChangedOperation, changedEvidence);
+        assertThat(changed.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(changed.fingerprint()).isEqualTo(candidate.fingerprint());
+
+        String secondOperation = "media.operation.second";
+        String secondDefinition = "operation-definition/second-v1";
+        var twoOperations = source(List.of(node("step-a", "DETERMINISTIC", List.of()),
+                new MediaProductionSemanticSource.Node("step-b", "GENERATIVE", secondOperation,
+                        List.of(), List.of(), List.of("step-a"), List.of(), Optional.empty())));
+        var twoOperationSources = new java.util.ArrayList<>(resolvedWithOperation);
+        twoOperationSources.add(new MediaVersionedContractContent.ResolvedContentFingerprint(secondDefinition, D2, 44));
+        var forwardEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D1),
+                new MediaProductionSemanticSource.OperationDefinitionBinding(secondOperation, secondDefinition, D2)));
+        var reverseEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(secondOperation, secondDefinition, D2),
+                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D1)));
+        var forward = twoOperations.compileSyntaxCheckedGraphCandidate(inputs(), twoOperationSources, forwardEvidence);
+        var reverse = twoOperations.compileSyntaxCheckedGraphCandidate(inputs(), twoOperationSources, reverseEvidence);
+        assertThat(forward.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(reverse.fingerprint()).isEqualTo(forward.fingerprint());
+
+        var legacy = semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation, Map.of(OP, 1));
+        assertThat(legacy.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(legacy.fingerprint()).isEqualTo(candidate.fingerprint());
+    }
+
+    @Test
+    void operationDefinitionEvidenceRejectsMissingDuplicateStaleAndUnreferencedBindings() {
+        var semantic = source(List.of(node("step", "DETERMINISTIC", List.of())));
+        String definitionRef = "operation-definition/rev-1";
+        var resolvedWithOperation = new java.util.ArrayList<>(resolved());
+        resolvedWithOperation.add(new MediaVersionedContractContent.ResolvedContentFingerprint(definitionRef, D1, 42));
+
+        assertResult(semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation,
+                        new MediaProductionSemanticSource.OperationResolutionEvidence(List.of())),
+                MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.UNRESOLVED_OPERATION);
+        assertResult(semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation,
+                        new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D1),
+                                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D1)))),
+                MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.AMBIGUOUS_OPERATION);
+        assertResult(semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation,
+                        new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                                new MediaProductionSemanticSource.OperationDefinitionBinding(OP, definitionRef, D2)))),
+                MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+        assertResult(semantic.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation,
+                        new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                                new MediaProductionSemanticSource.OperationDefinitionBinding("media.operation.other", definitionRef, D1)))),
+                MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
     }
 
     @Test
@@ -209,7 +302,7 @@ class MediaProductionSemanticSourceTest {
                 MediaProductionSemanticSource.Disposition.UNKNOWN, MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
 
         var cycle = source(List.of(node("a", "DETERMINISTIC", List.of("b")), node("b", "GENERATIVE", List.of("a"))));
-        assertResult(compile(compiler, cycle, resolved(), Map.of(OP, 1)),
+        assertResult(cycle.compileSyntaxCheckedGraphCandidate(inputs(), resolvedWithOperation(), operationEvidence()),
                 MediaProductionSemanticSource.Disposition.NOT_ADMITTED, MediaProductionSemanticSource.Reason.CYCLIC_GRAPH);
 
         assertThatThrownBy(() -> source(java.util.stream.IntStream.range(0, MediaProductionSemanticSource.MAX_NODES + 1)
@@ -218,7 +311,7 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
-    void exactStepIdJoinPreparesCandidateWithoutClaimingFixedPlanCompatibility() throws Exception {
+    void candidateBindingPreservesSourceDefinedCardinalityAndAcceptsTypedOperationEvidence() throws Exception {
         var semantic = source(List.of(
                 boundNode("step-a", List.of(), List.of("scene/1@v3"),
                         Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
@@ -234,16 +327,24 @@ class MediaProductionSemanticSourceTest {
         assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
         assertThat(base.candidateFingerprint()).startsWith("sha256:");
 
+        var operationFingerprints = resolvedWithSemanticSourceAndOperation(graphContent);
+        var typedBase = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
+                operationFingerprints, operationEvidence());
+        assertThat(typedBase.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(typedBase.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(typedBase.candidateFingerprint()).isEqualTo(base.candidateFingerprint());
+
         var identical = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
-                allFingerprints, Map.of(OP, 1));
-        assertThat(identical.candidateFingerprint()).isEqualTo(base.candidateFingerprint());
+                operationFingerprints, operationEvidence());
+        assertThat(identical.candidateFingerprint()).isEqualTo(typedBase.candidateFingerprint());
 
         var changedEngineDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), binding("step-b", D2),
-                allFingerprints, Map.of(OP, 1));
+                operationFingerprints, operationEvidence());
         assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(changedEngineDigest.candidateFingerprint()).isNotEqualTo(base.candidateFingerprint());
+        assertThat(changedEngineDigest.candidateFingerprint()).isNotEqualTo(typedBase.candidateFingerprint());
 
         var fixedPlanIds = List.of("validate-spec", "rights-review", "capture-source-0", "compose-timeline",
                 "render-profile-0", "publish-review");
@@ -253,7 +354,7 @@ class MediaProductionSemanticSourceTest {
         var fixedPlanBinding = binding(fixedPlanIds, fixedPlanLocks, null, D1);
         var graphWithArbitraryIds = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()),
                 SEMANTIC_REF, graphContent.fingerprint().sha256(), inputs, productionSpec(), fixedPlanBinding,
-                allFingerprints, Map.of(OP, 1));
+                operationFingerprints, operationEvidence());
         assertThat(graphWithArbitraryIds.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
         assertThat(graphWithArbitraryIds.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
         assertThat(graphWithArbitraryIds.candidateFingerprint()).isNull();
@@ -263,7 +364,7 @@ class MediaProductionSemanticSourceTest {
                 new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3")), null, D1);
         var mismatched = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
                 graphContent.fingerprint().sha256(), inputs, productionSpec(), mismatchedEngineKeys,
-                allFingerprints, Map.of(OP, 1));
+                operationFingerprints, operationEvidence());
         assertThat(mismatched.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
         assertThat(mismatched.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
         assertThat(mismatched.candidateFingerprint()).isNull();
@@ -279,7 +380,7 @@ class MediaProductionSemanticSourceTest {
         var graphContent = graphFixture(semantic);
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var good = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
-                inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
+                inputs(), productionSpec(), binding(null, D1), resolvedWithSemanticSourceAndOperation(graphContent), operationEvidence());
         assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
         assertThat(good.candidateFingerprint()).startsWith("sha256:");
@@ -297,7 +398,8 @@ class MediaProductionSemanticSourceTest {
         var noLockContent = graphFixture(noLockSource);
         var mismatch = compiler.bindSemanticSourceCandidate(Optional.of(noLockContent.content()), SEMANTIC_REF,
                 noLockContent.fingerprint().sha256(), inputs(), productionSpec(), binding(null, D1),
-                resolvedWithSemanticSource(noLockContent), Map.of(OP, 1));
+                resolvedWithSemanticSourceAndOperation(noLockContent), operationEvidence());
+        assertThat(mismatch.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
         assertThat(mismatch.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
         assertThat(mismatch.candidateFingerprint()).isNull();
 
@@ -360,11 +462,31 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
+    void alreadyResolvedSemanticSourceBindsExactOperationDefinitionEvidence() throws Exception {
+        var fixture = graphFixture(source(List.of(node("step", "DETERMINISTIC", List.of()))));
+        var compiler = new MediaProductionSpecCompiler();
+        var resolvedInputs = resolvedWithSemanticSourceAndOperation(fixture);
+
+        var typed = compiler.compileSemanticSource(Optional.of(fixture.content()), SEMANTIC_REF,
+                fixture.fingerprint().sha256(), inputs(), resolvedInputs, operationEvidence());
+        assertThat(typed.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(typed.fingerprint()).matches("sha256:[0-9a-f]{64}");
+
+        var countOnly = compiler.compileSemanticSource(Optional.of(fixture.content()), SEMANTIC_REF,
+                fixture.fingerprint().sha256(), inputs(), resolvedInputs, Map.of(OP, 1));
+        assertThat(countOnly.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(countOnly.fingerprint()).isEqualTo(typed.fingerprint());
+    }
+
+    @Test
     void semanticFingerprintFramesUtf8BytesAndRejectsMalformedOrWhitespaceReferences() throws Exception {
         var unicodeNode = new MediaProductionSemanticSource.Node("step", "DETERMINISTIC", OP,
                 List.of("artifact/café@v1"), List.of("artifact/naïve@v1"), List.of(), List.of(), Optional.empty());
         var semantic = source(List.of(unicodeNode));
-        var result = compile(new MediaProductionSpecCompiler(), semantic, resolved(), Map.of(OP, 1));
+        var fixture = graphFixture(semantic);
+        var result = new MediaProductionSpecCompiler().compileSemanticSource(Optional.of(fixture.content()),
+                SEMANTIC_REF, fixture.fingerprint().sha256(), inputs(),
+                resolvedWithSemanticSourceAndOperation(fixture), operationEvidence());
         assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.fingerprint()).isEqualTo(expectedUtf8Fingerprint(semantic));
 
@@ -381,9 +503,10 @@ class MediaProductionSemanticSourceTest {
                     "operation/left" + whitespace + "right", List.of(), List.of(), List.of(), List.of(), Optional.empty()))
                     .isInstanceOf(IllegalArgumentException.class);
         }
-        var fixture = graphFixture(source(List.of(node("step", "DETERMINISTIC", List.of()))));
-        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileSemanticSource(Optional.of(fixture.content()),
-                "semantic-source/\uD800", fixture.fingerprint().sha256(), inputs(), resolvedWithSemanticSource(fixture), Map.of(OP, 1)))
+        var invalidRefFixture = graphFixture(source(List.of(node("step", "DETERMINISTIC", List.of()))));
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileSemanticSource(Optional.of(invalidRefFixture.content()),
+                "semantic-source/\uD800", invalidRefFixture.fingerprint().sha256(), inputs(),
+                resolvedWithSemanticSource(invalidRefFixture), Map.of(OP, 1)))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
