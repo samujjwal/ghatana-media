@@ -25,9 +25,13 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
+import com.google.protobuf.ByteString;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /** Compiles against the installed candidate artifact, with no Media source project on this build path. */
@@ -42,10 +47,24 @@ public final class GrpcApiConsumerSmoke {
     private GrpcApiConsumerSmoke() {}
 
     public static void main(String[] args) throws Exception {
-        assertService(STTServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.stt.grpc.STTService", "Transcribe");
-        assertService(TTSServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.tts.grpc.TTSService", "Synthesize");
-        assertService(VisionServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.vision.grpc.VisionService", "DetectObjects");
-        assertService(MultimodalServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.multimodal.grpc.MultimodalService", "ProcessMultimodal");
+        assertService(STTServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.stt.grpc.STTService",
+                Set.of("Transcribe", "StreamTranscribe", "LoadModel", "UnloadModel", "ListModels", "AdaptModel",
+                        "GetStatus", "HealthCheck", "CreateProfile", "GetProfile", "UpdateProfile",
+                        "SubmitCorrection"),
+                Map.of("StreamTranscribe", MethodDescriptor.MethodType.BIDI_STREAMING));
+        assertService(TTSServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.tts.grpc.TTSService",
+                Set.of("Synthesize", "StreamSynthesize", "GetStatus", "GetMetrics", "GetVoices", "LoadVoice",
+                        "CreateProfile", "GetProfile", "UpdateProfile", "CloneVoice", "SubmitFeedback"),
+                Map.of("StreamSynthesize", MethodDescriptor.MethodType.SERVER_STREAMING));
+        assertService(VisionServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.vision.grpc.VisionService",
+                Set.of("DetectObjects", "AnalyzeImage", "ClassifyImage", "RecognizeSceneText", "AnalyzeVideoFile",
+                        "ProcessVideo", "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck"),
+                Map.of("ProcessVideo", MethodDescriptor.MethodType.BIDI_STREAMING));
+        assertService(MultimodalServiceGrpc.getServiceDescriptor(),
+                "com.ghatana.audio.video.multimodal.grpc.MultimodalService",
+                Set.of("ProcessMultimodal", "AnalyzeVideoWithAudio", "GenerateDescription", "AnalyzeCrossModal",
+                        "GetInsights", "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck"),
+                Map.of());
 
         // Touch the canonical file descriptors too, proving message descriptors are present.
         require(SttServiceProto.getDescriptor().getServices().size() == 1, "STT proto descriptor missing");
@@ -122,7 +141,214 @@ public final class GrpcApiConsumerSmoke {
             server.shutdownNow();
         }
 
+        assertInstalledArtifactStreamingRoundTrips();
         assertInstalledStubDeadlineAndCancellation();
+    }
+
+    private static void assertInstalledArtifactStreamingRoundTrips() throws Exception {
+        AtomicInteger sttStreamCalls = new AtomicInteger();
+        AtomicInteger sttMessages = new AtomicInteger();
+        AtomicInteger ttsStreamCalls = new AtomicInteger();
+        AtomicInteger visionStreamCalls = new AtomicInteger();
+        AtomicInteger visionMessages = new AtomicInteger();
+        CountDownLatch sttServerCompleted = new CountDownLatch(1);
+        CountDownLatch sttClientCompleted = new CountDownLatch(1);
+        CountDownLatch ttsClientCompleted = new CountDownLatch(1);
+        CountDownLatch visionServerCompleted = new CountDownLatch(1);
+        CountDownLatch visionClientCompleted = new CountDownLatch(1);
+        AtomicReference<Throwable> sttFailure = new AtomicReference<>();
+        AtomicReference<Throwable> ttsFailure = new AtomicReference<>();
+        AtomicReference<Throwable> visionFailure = new AtomicReference<>();
+        List<com.ghatana.stt.core.grpc.proto.Transcription> sttResponses = new CopyOnWriteArrayList<>();
+        List<com.ghatana.tts.core.grpc.proto.AudioChunk> ttsResponses = new CopyOnWriteArrayList<>();
+        List<com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse> visionResponses =
+                new CopyOnWriteArrayList<>();
+        String serverName = "media-grpc-api-streaming-consumer-" + UUID.randomUUID();
+
+        Server server = InProcessServerBuilder.forName(serverName)
+                .directExecutor()
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override public StreamObserver<com.ghatana.stt.core.grpc.proto.AudioChunk> streamTranscribe(
+                            StreamObserver<com.ghatana.stt.core.grpc.proto.Transcription> observer) {
+                        sttStreamCalls.incrementAndGet();
+                        return new StreamObserver<>() {
+                            @Override public void onNext(com.ghatana.stt.core.grpc.proto.AudioChunk chunk) {
+                                require(chunk.getAudioData().equals(ByteString.copyFromUtf8("stt-frame"))
+                                                && chunk.getSequence() == 7,
+                                        "Installed STT stream request did not preserve its synthetic payload");
+                                sttMessages.incrementAndGet();
+                                observer.onNext(com.ghatana.stt.core.grpc.proto.Transcription.newBuilder()
+                                        .setText("stt-stream-result")
+                                        .setIsFinal(true)
+                                        .setAcceptedSequenceSnapshot(7)
+                                        .build());
+                            }
+
+                            @Override public void onError(Throwable failure) {
+                                sttFailure.compareAndSet(null, failure);
+                                sttServerCompleted.countDown();
+                            }
+
+                            @Override public void onCompleted() {
+                                observer.onCompleted();
+                                sttServerCompleted.countDown();
+                            }
+                        };
+                    }
+                })
+                .addService(new TTSServiceGrpc.TTSServiceImplBase() {
+                    @Override public void streamSynthesize(SynthesizeRequest request,
+                            StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer) {
+                        ttsStreamCalls.incrementAndGet();
+                        require(request.getText().equals("synthetic speech"),
+                                "Installed TTS stream request did not preserve its synthetic text");
+                        observer.onNext(com.ghatana.tts.core.grpc.proto.AudioChunk.newBuilder()
+                                .setAudioData(ByteString.copyFromUtf8("tts-part-1"))
+                                .setSampleRate(24_000)
+                                .setTimestampMs(0)
+                                .build());
+                        observer.onNext(com.ghatana.tts.core.grpc.proto.AudioChunk.newBuilder()
+                                .setAudioData(ByteString.copyFromUtf8("tts-part-2"))
+                                .setSampleRate(24_000)
+                                .setTimestampMs(10)
+                                .setIsFinal(true)
+                                .build());
+                        observer.onCompleted();
+                    }
+                })
+                .addService(new VisionServiceGrpc.VisionServiceImplBase() {
+                    @Override public StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest>
+                            processVideo(StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse>
+                                    observer) {
+                        visionStreamCalls.incrementAndGet();
+                        return new StreamObserver<>() {
+                            @Override public void onNext(
+                                    com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest frame) {
+                                require(frame.getFrameData().equals(ByteString.copyFromUtf8(
+                                                "vision-frame-" + frame.getFrameNumber())),
+                                        "Installed Vision stream request payload did not match its frame number");
+                                visionMessages.incrementAndGet();
+                                observer.onNext(com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse
+                                        .newBuilder()
+                                        .setFrameNumber(frame.getFrameNumber())
+                                        .setTimestampMs(frame.getTimestampMs())
+                                        .build());
+                            }
+
+                            @Override public void onError(Throwable failure) {
+                                visionFailure.compareAndSet(null, failure);
+                                visionServerCompleted.countDown();
+                            }
+
+                            @Override public void onCompleted() {
+                                observer.onCompleted();
+                                visionServerCompleted.countDown();
+                            }
+                        };
+                    }
+                })
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+        try {
+            StreamObserver<com.ghatana.stt.core.grpc.proto.AudioChunk> sttRequest =
+                    STTServiceGrpc.newStub(channel).streamTranscribe(new StreamObserver<>() {
+                        @Override public void onNext(com.ghatana.stt.core.grpc.proto.Transcription value) {
+                            sttResponses.add(value);
+                        }
+
+                        @Override public void onError(Throwable failure) {
+                            sttFailure.compareAndSet(null, failure);
+                            sttClientCompleted.countDown();
+                        }
+
+                        @Override public void onCompleted() {
+                            sttClientCompleted.countDown();
+                        }
+                    });
+            sttRequest.onNext(com.ghatana.stt.core.grpc.proto.AudioChunk.newBuilder()
+                    .setAudioData(ByteString.copyFromUtf8("stt-frame"))
+                    .setSampleRate(16_000)
+                    .setSequence(7)
+                    .build());
+            sttRequest.onCompleted();
+
+            TTSServiceGrpc.newStub(channel).streamSynthesize(
+                    SynthesizeRequest.newBuilder().setText("synthetic speech").build(), new StreamObserver<>() {
+                        @Override public void onNext(com.ghatana.tts.core.grpc.proto.AudioChunk value) {
+                            ttsResponses.add(value);
+                        }
+
+                        @Override public void onError(Throwable failure) {
+                            ttsFailure.compareAndSet(null, failure);
+                            ttsClientCompleted.countDown();
+                        }
+
+                        @Override public void onCompleted() {
+                            ttsClientCompleted.countDown();
+                        }
+                    });
+
+            StreamObserver<com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest> visionRequest =
+                    VisionServiceGrpc.newStub(channel).processVideo(new StreamObserver<>() {
+                        @Override public void onNext(
+                                com.ghatana.audio.video.vision.grpc.proto.VideoFrameResponse value) {
+                            visionResponses.add(value);
+                        }
+
+                        @Override public void onError(Throwable failure) {
+                            visionFailure.compareAndSet(null, failure);
+                            visionClientCompleted.countDown();
+                        }
+
+                        @Override public void onCompleted() {
+                            visionClientCompleted.countDown();
+                        }
+                    });
+            for (int frame = 1; frame <= 2; frame++) {
+                visionRequest.onNext(com.ghatana.audio.video.vision.grpc.proto.VideoFrameRequest.newBuilder()
+                        .setFrameData(ByteString.copyFromUtf8("vision-frame-" + frame))
+                        .setFrameNumber(frame)
+                        .setTimestampMs(frame * 40L)
+                        .build());
+            }
+            visionRequest.onCompleted();
+
+            await(sttServerCompleted, "STT streaming server did not complete");
+            await(sttClientCompleted, "STT streaming client did not complete");
+            await(ttsClientCompleted, "TTS streaming client did not complete");
+            await(visionServerCompleted, "Vision streaming server did not complete");
+            await(visionClientCompleted, "Vision streaming client did not complete");
+            require(sttFailure.get() == null, "Installed STT streaming failed: " + sttFailure.get());
+            require(ttsFailure.get() == null, "Installed TTS streaming failed: " + ttsFailure.get());
+            require(visionFailure.get() == null, "Installed Vision streaming failed: " + visionFailure.get());
+            require(sttStreamCalls.get() == 1 && sttMessages.get() == 1 && sttResponses.size() == 1
+                            && sttResponses.get(0).getText().equals("stt-stream-result")
+                            && sttResponses.get(0).getIsFinal()
+                            && sttResponses.get(0).getAcceptedSequenceSnapshot() == 7,
+                    "Installed STT bidi stream did not dispatch and return its exact response");
+            require(ttsStreamCalls.get() == 1 && ttsResponses.size() == 2
+                            && ttsResponses.get(0).getAudioData().equals(ByteString.copyFromUtf8("tts-part-1"))
+                            && ttsResponses.get(0).getTimestampMs() == 0
+                            && !ttsResponses.get(0).getIsFinal()
+                            && ttsResponses.get(1).getAudioData().equals(ByteString.copyFromUtf8("tts-part-2"))
+                            && ttsResponses.get(1).getTimestampMs() == 10
+                            && ttsResponses.get(1).getIsFinal(),
+                    "Installed TTS server stream did not return both ordered chunks exactly");
+            require(visionStreamCalls.get() == 1 && visionMessages.get() == 2 && visionResponses.size() == 2
+                            && visionResponses.get(0).getFrameNumber() == 1
+                            && visionResponses.get(0).getTimestampMs() == 40
+                            && visionResponses.get(1).getFrameNumber() == 2
+                            && visionResponses.get(1).getTimestampMs() == 80,
+                    "Installed Vision bidi stream did not echo both ordered frame identities exactly");
+        } finally {
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
+    private static void await(CountDownLatch latch, String failureMessage) throws InterruptedException {
+        require(latch.await(3, TimeUnit.SECONDS), failureMessage);
     }
 
     private static void assertInstalledStubDeadlineAndCancellation() throws Exception {
@@ -262,12 +488,20 @@ public final class GrpcApiConsumerSmoke {
         Object invoke();
     }
 
-    private static void assertService(ServiceDescriptor descriptor, String fullName, String requiredMethod) {
+    private static void assertService(ServiceDescriptor descriptor, String fullName, Set<String> expectedMethods,
+            Map<String, MethodDescriptor.MethodType> expectedStreamingMethods) {
         require(fullName.equals(descriptor.getName()), "Unexpected service descriptor: " + descriptor.getName());
-        Set<String> methods = descriptor.getMethods().stream()
-                .map(MethodDescriptor::getBareMethodName)
-                .collect(Collectors.toSet());
-        require(methods.contains(requiredMethod), "Missing method " + requiredMethod + " in " + fullName);
+        Map<String, MethodDescriptor.MethodType> methods = descriptor.getMethods().stream()
+                .collect(Collectors.toMap(MethodDescriptor::getBareMethodName, MethodDescriptor::getType));
+        require(methods.keySet().equals(expectedMethods),
+                "RPC inventory drift in " + fullName + ": expected " + expectedMethods + " but got "
+                        + methods.keySet());
+        Map<String, MethodDescriptor.MethodType> actualStreamingMethods = methods.entrySet().stream()
+                .filter(entry -> entry.getValue() != MethodDescriptor.MethodType.UNARY)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        require(actualStreamingMethods.equals(expectedStreamingMethods),
+                "Streaming shape drift in " + fullName + ": expected " + expectedStreamingMethods + " but got "
+                        + actualStreamingMethods);
     }
 
     private static void require(boolean condition, String message) {
