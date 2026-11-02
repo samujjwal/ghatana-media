@@ -1836,3 +1836,43 @@ GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
 ```
 
 This is a synthetic stale-consent authorization regression only. It does not prove an authoritative rights record, real policy service, licensed model, provider effect, current source status, G02 whole-row acceptance, or runtime admission.
+
+### 41.49 November 2 read-only Kernel OCR source reconciliation (2026-11-02)
+
+The local Kernel checkout is `main@bb07a172d84a488090d5bb134812fad28082def5`, clean and six commits ahead of its local `origin/main@f3026479515e471285015e032f965f5d2ccfb58f`. This is a local source comparison only; no live GitHub ref was checked. The formerly missing `DiOcrProvider` and `DiOcrProviderTest` are present locally. The six local commits add caller-scoped `(tenant, workspace, principal, operationId)` identity, request-fingerprint/idempotency checks, exact payload digest and source-authority validation, authority revalidation for processing/status/cancel, generation-bound cancel with only matching acknowledged cancellation treated as final, UNKNOWN for ambiguous post-dispatch outcomes, and bounded worker/ledger capacity. The local tests include cross-tenant/status/cancel, digest, revocation, idempotency, lost-delete-ack, and public-not-admitted cases; this review ran no Kernel tests.
+
+The outstanding Kernel residual is durable operation history and restart reconciliation: `DiOcrProvider` stores operation records in an in-memory map, and the local test demonstrates that a fresh instance cannot read the previous instance's operation. Production-facing constructors remain `PROVIDER_NOT_ADMITTED` without model/rights qualification and durable operation state. Separately, Kernel's own [AGENTS.md](/Users/samujjwal/Development/ghatana-kernel/AGENTS.md) retains its Discovery-first barrier; its current PDP-0..3 sources are `REVIEW_REQUIRED` and stale, so no Kernel BUILD edit or test was made. Continue Media as a DI v1 consumer and preserve explicit `NOT_ADMITTED` until the source and durable-state gates are resolved. No Kernel change, push, admission, or acceptance is claimed.
+
+### 41.50 November 2 Data Cloud publication replay binds source timing (2026-11-02)
+
+At Media `main@258365d8`, `MediaObservationPublicationCoordinator.bindingFingerprintOf` now includes source-timestamp presence, status, PTS, rational timebase, derived milliseconds, and unknown-state reason. `MediaDerivedObservation` caps unknown reason text at 512 characters and preserves in-bound values exactly. The fingerprint domain is `media.data-cloud-publication-binding.v2`; the prior v1 canonicalization omitted source time. A replay of the same tenant/event/artifact version with changed source timing is `NOT_ADMITTED`, returns no receipt, and does not dispatch again. Existing v1 records and atomic-claim readbacks also fail closed rather than being generically accepted, because those fingerprints cannot prove whether source timing was bound. The regression computes the actual historical v1 serialization/hash for its source fixture and verifies rejection without redispatch.
+
+The focused coordinator and projector selectors passed **23/23** and **9/9**, respectively, with `ghatana.media.compositeScope=FULL`:
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
+  -Pghatana.media.compositeScope=FULL \
+  :services:media:adapters:data-cloud-media:test \
+  --tests com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinatorTest \
+  --tests com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjectorTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --no-configuration-cache --rerun-tasks
+# BUILD SUCCESSFUL; 91 actionable tasks, 32 selected tests passed
+```
+
+This is local coordinator and in-memory outbox-fixture evidence only. It does not establish a real Data Cloud client/publication/readback, production outbox migration, or DC-02/DC-04 whole-row acceptance. Any existing persisted v1 records remain `NOT_ADMITTED` unless a source-authorized migration can re-establish their exact source-timing binding; no production outbox was changed.
+
+### 41.51 November 2 RunLedger constraint metadata allowlist (2026-11-02)
+
+At Media `main@cef577c5`, the LD-03 audit found that the provider policy-constraint parser accepted any uppercase-shaped token, allowing arbitrary text such as `ALICE_EXAMPLE` to pass as a constraint. `AudioVideoRunLedgerAdapter` now retains only `BLOCKING_AUDIT_REQUIRED`, `NO_CACHE`, `NO_STORE`, and `ESCALATE_TO_ADMIN`, the exact constraint values recognized by the upstream `WorkflowPolicySnapshot` behavior inspected in the read-only Data Cloud source tree. Both provider metadata and serialized input parameters use this allowlist. Mixed lists retain recognized values and omit unknown tokens, including credential-like text; an input parameter entry is counted once in `sanitizedParamsDropped` when any of its tokens are rejected. Tests prove all four known values survive and PII-shaped tokens do not serialize.
+
+The complete focused `AudioVideoRunLedgerAdapterTest` class passed **24/24** (0 skipped/failures/errors):
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
+  :services:media:adapters:ledger:test \
+  --tests com.ghatana.audiovideo.adapter.ledger.AudioVideoRunLedgerAdapterTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# BUILD SUCCESSFUL; 24 tests passed
+```
+
+This is adapter projection evidence only: the four-value vocabulary is the only upstream-defined set found, so other future constraints are intentionally omitted pending an owning contract update. Pattern and allowlist filtering is not general DLP, and no authenticated ledger owner, durable RunLedger write/readback, LD-03 whole-row acceptance, or runtime admission is established.
