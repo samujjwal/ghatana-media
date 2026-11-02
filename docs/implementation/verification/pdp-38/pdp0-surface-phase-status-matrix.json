@@ -7,7 +7,7 @@
     "sourceBaselineCommit": "ebcbdfca77aecfd8a1d1b3b252259fe914fd0208",
     "status": "IN_PROGRESS"
   },
-  "generatedAt": "2026-11-01T17:41:14.499Z",
+  "generatedAt": "2026-11-02T07:33:40.713Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
   "statusRecordSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
   "sourceFingerprintSetSha256": "13a6d8c3a7150de81655633ef7e57ad5be506c0bf2980dfc560d094e23eda30b",
@@ -3380,7 +3380,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -5017,7 +5017,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -6641,7 +6641,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -8271,7 +8271,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -9898,7 +9898,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -11626,7 +11626,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -13425,7 +13425,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -15219,7 +15219,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -17119,7 +17119,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -18743,7 +18743,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -20370,7 +20370,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -22007,7 +22007,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -23660,7 +23660,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -25301,7 +25301,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -26942,7 +26942,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -28677,7 +28677,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -30323,7 +30323,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -31946,7 +31946,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -33583,7 +33583,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -35274,7 +35274,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -36980,7 +36980,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -38645,7 +38645,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -40306,7 +40306,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -41960,7 +41960,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -43631,7 +43631,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -45359,7 +45359,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -47109,7 +47109,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -48775,7 +48775,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -50479,7 +50479,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -52150,7 +52150,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -53848,7 +53848,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -55532,7 +55532,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -57316,7 +57316,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -59093,7 +59093,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -60828,7 +60828,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -62962,7 +62962,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -65105,7 +65105,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -66895,7 +66895,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -68559,7 +68559,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -70224,7 +70224,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -71895,7 +71895,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -73589,7 +73589,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -75736,7 +75736,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -77884,7 +77884,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -79535,7 +79535,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -81172,7 +81172,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -82827,7 +82827,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -84587,7 +84587,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -86443,7 +86443,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -88074,7 +88074,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "NOT_ACTIVE_ARCHIVED",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -89719,7 +89719,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -91397,7 +91397,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -93052,7 +93052,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -94743,7 +94743,7 @@
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 17 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -96554,7 +96554,7 @@
   "phaseSourceCurrentness": {
     "status": "STALE",
     "sourcePinCount": 188,
-    "staleSourcePinCount": 17,
+    "staleSourcePinCount": 18,
     "staleSourcePins": [
       {
         "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -96612,6 +96612,11 @@
         "currentSha256": "847981ee3ae38078f807a630f3f14ceaf2bcc9f41ddca524275993db86614de2"
       },
       {
+        "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
+        "expectedSha256": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
+        "currentSha256": "1212853677c85b0b4d47d2dd7a5eb291d3ad7633a7e80e286c986f03cbeffc53"
+      },
+      {
         "sourceRef": "tests/pdp-migration-preservation-identity-wire-claims.test.mjs",
         "expectedSha256": "9b24dc18d65af9020f7c0aad1ad698252d2104d3a529a23b691eb9a08f8b9b66",
         "currentSha256": "7ca86a83747755b321bd93a8d2ef99d3761fed02490623b08b761189862bedfd"
@@ -96619,7 +96624,7 @@
       {
         "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
         "expectedSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
-        "currentSha256": "a769c576e7d9540f785fc6bea0b1937753753d5fd28a6d51387b19b13510e991"
+        "currentSha256": "44d5c1f6050c09711e3aed9e49af71894a46cc4c35423bd314febaa4d65b755c"
       },
       {
         "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
@@ -96629,7 +96634,7 @@
       {
         "sourceRef": "tests/media-pdp-readiness.test.mjs",
         "expectedSha256": "909d17e5bce12cd49f9ff3dba4e4968458bbeecfa45f413ae941c6d6726e18f7",
-        "currentSha256": "82f26f786e53a9bff3e98d3a34565980b7d2c89826f4218be779521afceae2b7"
+        "currentSha256": "c96e6e9eae39a8a8d56dd250489b0196a091938d2275738621ed150acabb137d"
       },
       {
         "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#PDP-0-projection",
@@ -96639,7 +96644,7 @@
       {
         "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
         "expectedSha256": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-        "currentSha256": "2658afe37bbbcff465fdf13e01405706e479d35856e3454ab4edf26e1792ec3c"
+        "currentSha256": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514"
       }
     ],
     "note": "Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections."

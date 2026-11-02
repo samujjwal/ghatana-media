@@ -14,14 +14,14 @@
   "semanticReviewSha256": "a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
   "pdp0PredecessorStatusRef": "docs/implementation/pdp-0-phase-dev-status.json",
   "pdp0PredecessorStatusSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-  "sourceFingerprintSetSha256": "508cf8eea3847b2cb2ef255518fe1befdbbb760b845119f63fd8ea2f47a7e9c0",
+  "sourceFingerprintSetSha256": "9053c3dc80f7d61ba0e624c085f74e756adf9a9b87fcba2de089ccdd62487049",
   "sourceFingerprints": {
     ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
     ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
     ".product-experience/decision-log.md": "0d4c518af9ac6023475467f01711606ab9388ef34ac51b9bb47f917615c89298",
     ".product-experience/interface-parity/README.md": "367de42d6811606adc3a23d367a153fb5c35a0644477f15011b1f23c874cb5e8",
     ".product-experience/interface-parity/current-source-review.json": "d813b74cd5164fd3f0df0004cd21610683a1c5348d1cadd9a0d96686c1d564f6",
-    ".product-experience/interface-parity/operation-parity.yaml": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
+    ".product-experience/interface-parity/operation-parity.yaml": "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22",
     ".product-experience/interface-parity/typed-contract-bindings.json": "402c7fd54a2f7dd1d262996a6e058144fc45a114392ea4bcc7dfd23f813f0143",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
     ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be",
@@ -32,7 +32,7 @@
     ".product-experience/pdp-1-domain-data/authority.yaml": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
     ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
-    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8",
     ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
     ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
     ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
@@ -65,45 +65,45 @@
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
     ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
     ".product-experience/traceability.yaml": "90fc9960e880e3d26c20d5fc0aa12309799f25218f4b7440d59a4413eb112725",
-    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
-    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
-    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
-    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java": "f54111e122c3dd4a37be29b675c4aaff07747d6b88709465d9132196cd3ff0ac",
+    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java": "c376e9c3c3425fba84bb7f2ecc363c10ba0b8f678d308314d348a6779187f179",
+    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java": "aa0bbb8a7c86ddb4ca14e9c9919d2a9721df56ae40fe9bfbb615e9869ca8ea9c",
+    "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java": "f77b683eecd758ec9ec92a3eb0a24f3b16f3e45ac965e6e0ac90f2d8d7dd88fa",
     "contracts/openapi/media.yaml": "bb9d1717b5e820c1809d2d7c4ce0899931fec2c3d1883780d523201d05274a06",
     "docs/implementation/pdp-0-phase-dev-status.json": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
     "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
-    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "a2bd195d5e9a8648a26d1b5aa77e526100fde49683da1b6322dd5bc5c3beea6a",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
     "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
-    "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "8c840ff515593ddd7f8c1b0e88643f7694b0b37d8d9da1e6234dae1e8a41a6b2",
+    "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json": "45a36b4c06c6da6308c9d32801f048d6c8708623882d705e13e6c6570aa7c606",
     "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java": "7c092eb511c910940d9b25e7acad261831fbd4c699a028a0dbcf98a118b08f59",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.integration.test.ts": "32ff96088e5b8f0054166c15a86364ccfaaea145f3278ffefede7305dc17576b",
     "libs/audio-video-client/src/__tests__/AudioVideoClient.test.ts": "f56a78d60d402866345d108200b9788f8ba2848590d49a9e8481616df0530803",
-    "libs/audio-video-client/src/canonical-routes.ts": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
-    "libs/audio-video-client/src/cli.test.ts": "87b568a5567c65696b08502644ca821ed95da0d931bea111fdccf4e090ad1629",
-    "libs/audio-video-client/src/cli.ts": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
-    "libs/audio-video-client/src/index.ts": "689d2b67a71b199602e94d22fc5e570ade1a0658256087e9f0b5d7c8ed8e765d",
-    "libs/audio-video-client/src/operations.test.ts": "3528f59de611a9222674827d179200a278605c5491efc11b87ee1ef4dd5c84ce",
-    "libs/audio-video-client/src/operations.ts": "0f7331b96eca6029ead1d4d2906b32c1050006c37d1254d52b1addb2ab1153ed",
+    "libs/audio-video-client/src/canonical-routes.ts": "36fd99c60fc8b73ce2d2d8a8c5f30b95e1e0aecc8d1baf0f22f572c7e483fcb5",
+    "libs/audio-video-client/src/cli.test.ts": "f5d01335d51badbc4cc09fa004bb4410c2cda4801f3313c5fa6606a6a05a1dbe",
+    "libs/audio-video-client/src/cli.ts": "4cb46def07a8cbe65ed9cbaba5bba434c3b7b55e075ebce39b8fd1512e8b8237",
+    "libs/audio-video-client/src/index.ts": "fc76d68e16b1619b965165a8e2b86d04a14898fc47d50e5d57e85a04bc903512",
+    "libs/audio-video-client/src/operations.test.ts": "911048acc6c465496db4e573f8fb0fa2e15dbd2b316472def434bf373145c2c5",
+    "libs/audio-video-client/src/operations.ts": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642",
     "libs/audio-video-client/src/scene-text-adapter.test.ts": "7259c578466c154f0b27e9095f31d3c5901d1ea9562ee3a3254f9e27bb1175da",
     "libs/audio-video-client/src/scene-text-adapter.ts": "76ce901b03e18dc159a9e9e06133d6037b8a9dd34681b486a340805c63bb5bf3",
     "libs/audio-video-types/src/__tests__/types.contract.test.ts": "f3be4c3fcd33d2e81900696750566acc5f5acacd7302c2cd7844223178c35ba4",
-    "libs/audio-video-types/src/contracts.test.ts": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0",
-    "libs/audio-video-types/src/contracts.ts": "fd8296f252046efdefee1184bf486c3f760c460269f973c0468b58ec9601829e",
+    "libs/audio-video-types/src/contracts.test.ts": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f",
+    "libs/audio-video-types/src/contracts.ts": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93",
     "libs/audio-video-types/src/index.d.ts": "67a2e9e55f02989d33e14501c06c56977ccdb7a48fbedadccf35e413de953b84",
     "libs/audio-video-types/src/index.js": "71ef7a1ad8255fab4f6a9132993dc074f0b2acf6c81b6d7ceab2e587996a6eb3",
-    "libs/audio-video-types/src/index.ts": "bcb3f7bca4e42e62ab4e7a7b3e8f60fea84d9e88e1a5f50ebb4ed42e416d9b67",
+    "libs/audio-video-types/src/index.ts": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436",
     "libs/media-experience-simulation/src/cli.ts": "e44fb50cb9a8e86b246858e9503217fe143dd1363bf977515932a8b16911eb8a",
     "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "1206da4d2648e74b012e88935e35afd6f6f354c094ac901769fcfc5d95b5f6ed",
     "modules/speech/stt-service/src/main/proto/stt_service.proto": "e7061eb499cc71a9bfd0a98c417188295efdd6a14b5efdcfffb3dda4815b2048",
     "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
     "modules/vision/vision-service/src/main/proto/vision_service.proto": "ca240751d00795885660235511cb7c984526299f47ad903c68d65b598cbbab4c",
-    "scripts/check-media-contract-parity.mjs": "15981b8b84c2178ff527d15ab8c37228889c963df9d9ffce037125c8815a4b91",
-    "tests/media-agent-tool-contracts.test.mjs": "3c80b0c592f98c5dad4a9404089da4c6409ddf141f0b25bd30f840595e1d9b88",
+    "scripts/check-media-contract-parity.mjs": "c7f12422fdc74a9031be5a2a8431a9a8379bab8f55b024d6548b6973a8dda4f2",
+    "tests/media-agent-tool-contracts.test.mjs": "295b11a67f721253d3278c5cae0ff4a2a28f699d9da4a2fbe470d53b19570dcc",
     "tests/media-agent-tool-definition-contracts.test.mjs": "436a97babff05d4f605f0fa592f7783c758328ef14a0edf2e31fdab1be971686",
     "tests/media-caption-version-operation-definitions.test.mjs": "8304392d559b59825c1955835249ee46265464c6b9a7a9d9b78a5afc5c0989b9",
     "tests/media-caption-version-operation-parity.test.mjs": "60c88c1a02868c54380b0dd6752256ccea9847e99671f08135b43b525bbd9890",
     "tests/media-contract-parity-definition-only-cli.test.mjs": "c94d5e4ca285ea685d911ff3a8ddafc65763384aae41a9b5d9b624380f56ab01",
-    "tests/media-contract-parity.test.mjs": "c6e9ebde36c12ff491fda3093d7a6eb3d0ad495edd312fb2bc11792fe3ce0cad",
+    "tests/media-contract-parity.test.mjs": "230b3c50967aeaeaf84c37606562b083c3cfd7611ad94887620abc9e4f03bdd3",
     "tests/media-declarative-production-p1-definitions.test.mjs": "2ed38bf756e71e895b8ec32db751dd57994515c08ca334fac08060d5b3714421",
     "tests/media-descriptor-definition-oracles.test.mjs": "3bc62a2a6f0eb0ed4ad8c151d1f3c413e89a35d1766e156398c69a153d44d7b0",
     "tests/media-domain-identity-reconciliation.test.mjs": "3c83563e21bf113bdcaf0223fbc8cbdb6b26d019cfc2573e422a6e00e4573d65",
@@ -122,7 +122,7 @@
     "tests/pdp-job-submit-parameter-contract.test.mjs": "07da01bd6339741694ec207f715704c7f67aed9dbe7ae015b2b99d5e3fd544a3",
     "tests/pdp-truth-domain-erasure-contract.test.mjs": "27984c0f8e2b38f6a2e2a410fc49e5faeeed4868da860bdda7afb0eb1b748554",
     "tests/pdp-truth-domain-event-delivery.test.mjs": "29fa77ca218a2a6e03367a07cdcb53394f4679b253683359348da6cacf16b22d",
-    "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "a769c576e7d9540f785fc6bea0b1937753753d5fd28a6d51387b19b13510e991",
+    "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "44d5c1f6050c09711e3aed9e49af71894a46cc4c35423bd314febaa4d65b755c",
     "tests/pdp-truth-domain-owner-identity-contracts.test.mjs": "a3926c840770db5cf25e8b0b5852771f06f6bd39c64c574cdc1894bed6bceddc",
     "tests/pdp-truth-domain-policy-fallback-offline.test.mjs": "7c100c89368ac96c7e752db97b20efbb4dbdcd2d3e2c419cb95e303f9507bb9e",
     "tests/pdp-truth-domain-race-semantics.test.mjs": "eea58ef2ddb773ec134d0bed91e0a457b7d2ec83d1be1ff27df65e6b85409e12",
@@ -159,12 +159,17 @@
   "phaseSourceCurrentness": {
     "status": "STALE",
     "sourcePinCount": 137,
-    "staleSourcePinCount": 16,
+    "staleSourcePinCount": 27,
     "staleSourcePins": [
       {
         "sourceRef": ".product-experience/interface-parity/operation-parity.yaml",
         "expectedSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-        "currentSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f"
+        "currentSha256": "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+        "expectedSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+        "currentSha256": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8"
       },
       {
         "sourceRef": ".product-experience/source-manifest.yaml",
@@ -179,7 +184,7 @@
       {
         "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
         "expectedSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
-        "currentSha256": "a2bd195d5e9a8648a26d1b5aa77e526100fde49683da1b6322dd5bc5c3beea6a"
+        "currentSha256": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90"
       },
       {
         "sourceRef": "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json",
@@ -189,17 +194,37 @@
       {
         "sourceRef": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
         "expectedSha256": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
-        "currentSha256": "8c840ff515593ddd7f8c1b0e88643f7694b0b37d8d9da1e6234dae1e8a41a6b2"
+        "currentSha256": "45a36b4c06c6da6308c9d32801f048d6c8708623882d705e13e6c6570aa7c606"
+      },
+      {
+        "sourceRef": "libs/audio-video-client/src/canonical-routes.ts",
+        "expectedSha256": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+        "currentSha256": "36fd99c60fc8b73ce2d2d8a8c5f30b95e1e0aecc8d1baf0f22f572c7e483fcb5"
+      },
+      {
+        "sourceRef": "libs/audio-video-client/src/cli.test.ts",
+        "expectedSha256": "87b568a5567c65696b08502644ca821ed95da0d931bea111fdccf4e090ad1629",
+        "currentSha256": "f5d01335d51badbc4cc09fa004bb4410c2cda4801f3313c5fa6606a6a05a1dbe"
+      },
+      {
+        "sourceRef": "libs/audio-video-client/src/cli.ts",
+        "expectedSha256": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
+        "currentSha256": "4cb46def07a8cbe65ed9cbaba5bba434c3b7b55e075ebce39b8fd1512e8b8237"
+      },
+      {
+        "sourceRef": "libs/audio-video-client/src/index.ts",
+        "expectedSha256": "689d2b67a71b199602e94d22fc5e570ade1a0658256087e9f0b5d7c8ed8e765d",
+        "currentSha256": "fc76d68e16b1619b965165a8e2b86d04a14898fc47d50e5d57e85a04bc903512"
       },
       {
         "sourceRef": "libs/audio-video-client/src/operations.test.ts",
         "expectedSha256": "34f33840ab2f7523dc2c7b8402343b24a6553746dbbdd792f3e0e689bb211b2c",
-        "currentSha256": "3528f59de611a9222674827d179200a278605c5491efc11b87ee1ef4dd5c84ce"
+        "currentSha256": "911048acc6c465496db4e573f8fb0fa2e15dbd2b316472def434bf373145c2c5"
       },
       {
         "sourceRef": "libs/audio-video-client/src/operations.ts",
         "expectedSha256": "818fcd1f9d12c02ef53af049032bfbf7551a577d41ca209ba77fb332a9f70166",
-        "currentSha256": "0f7331b96eca6029ead1d4d2906b32c1050006c37d1254d52b1addb2ab1153ed"
+        "currentSha256": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642"
       },
       {
         "sourceRef": "libs/audio-video-types/src/__tests__/types.contract.test.ts",
@@ -207,9 +232,14 @@
         "currentSha256": "f3be4c3fcd33d2e81900696750566acc5f5acacd7302c2cd7844223178c35ba4"
       },
       {
+        "sourceRef": "libs/audio-video-types/src/contracts.test.ts",
+        "expectedSha256": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0",
+        "currentSha256": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f"
+      },
+      {
         "sourceRef": "libs/audio-video-types/src/contracts.ts",
         "expectedSha256": "5c0223c1a205416379bc2900a996a143511d9436a98eddc980ad32a1b6a6a2b3",
-        "currentSha256": "fd8296f252046efdefee1184bf486c3f760c460269f973c0468b58ec9601829e"
+        "currentSha256": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93"
       },
       {
         "sourceRef": "libs/audio-video-types/src/index.js",
@@ -219,30 +249,55 @@
       {
         "sourceRef": "libs/audio-video-types/src/index.ts",
         "expectedSha256": "f7504a370c24e9ba9673fb2f4fd10cd1ea1c6ea44f710db885410389eb89ea5a",
-        "currentSha256": "bcb3f7bca4e42e62ab4e7a7b3e8f60fea84d9e88e1a5f50ebb4ed42e416d9b67"
+        "currentSha256": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436"
       },
       {
         "sourceRef": "scripts/check-media-contract-parity.mjs",
         "expectedSha256": "426885485ac10b7f06fb714b53f5190395ffac00b9ff2dfeef0e7a64a3669359",
-        "currentSha256": "15981b8b84c2178ff527d15ab8c37228889c963df9d9ffce037125c8815a4b91"
+        "currentSha256": "c7f12422fdc74a9031be5a2a8431a9a8379bab8f55b024d6548b6973a8dda4f2"
       },
       {
         "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
         "expectedSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
-        "currentSha256": "a769c576e7d9540f785fc6bea0b1937753753d5fd28a6d51387b19b13510e991"
+        "currentSha256": "44d5c1f6050c09711e3aed9e49af71894a46cc4c35423bd314febaa4d65b755c"
       },
       {
         "sourceRef": "tests/media-contract-parity.test.mjs",
         "expectedSha256": "526a1feb926330d708daf3069be3146d59356971511cc0e4954b7a82852a9fe2",
-        "currentSha256": "c6e9ebde36c12ff491fda3093d7a6eb3d0ad495edd312fb2bc11792fe3ce0cad"
+        "currentSha256": "230b3c50967aeaeaf84c37606562b083c3cfd7611ad94887620abc9e4f03bdd3"
       },
       {
         "sourceRef": "tests/media-contract-parity-definition-only-cli.test.mjs",
         "expectedSha256": "fb5844bcafe7e5d6dfbc6ce19dfbbd68c84476855089ce17b0a353d31ae663e4",
         "currentSha256": "c94d5e4ca285ea685d911ff3a8ddafc65763384aae41a9b5d9b624380f56ab01"
+      },
+      {
+        "sourceRef": "tests/media-agent-tool-contracts.test.mjs",
+        "expectedSha256": "3c80b0c592f98c5dad4a9404089da4c6409ddf141f0b25bd30f840595e1d9b88",
+        "currentSha256": "295b11a67f721253d3278c5cae0ff4a2a28f699d9da4a2fbe470d53b19570dcc"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+        "expectedSha256": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+        "currentSha256": "f54111e122c3dd4a37be29b675c4aaff07747d6b88709465d9132196cd3ff0ac"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+        "expectedSha256": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+        "currentSha256": "c376e9c3c3425fba84bb7f2ecc363c10ba0b8f678d308314d348a6779187f179"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+        "expectedSha256": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+        "currentSha256": "aa0bbb8a7c86ddb4ca14e9c9919d2a9721df56ae40fe9bfbb615e9869ca8ea9c"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+        "expectedSha256": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+        "currentSha256": "f77b683eecd758ec9ec92a3eb0a24f3b16f3e45ac965e6e0ac90f2d8d7dd88fa"
       }
     ],
-    "semanticReviewPinIssueCount": 30,
+    "semanticReviewPinIssueCount": 37,
     "semanticReviewPinIssues": [
       {
         "sourceRef": ".product-experience/decision-log.md",
@@ -254,7 +309,7 @@
         "sourceRef": ".product-experience/interface-parity/operation-parity.yaml",
         "statusSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
         "reviewSha256": "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-        "currentSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f"
+        "currentSha256": "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22"
       },
       {
         "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -267,6 +322,12 @@
         "statusSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
         "reviewSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
         "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+      },
+      {
+        "sourceRef": ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
+        "statusSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+        "reviewSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
+        "currentSha256": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8"
       },
       {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
@@ -302,13 +363,13 @@
         "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
         "statusSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
         "reviewSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
-        "currentSha256": "a2bd195d5e9a8648a26d1b5aa77e526100fde49683da1b6322dd5bc5c3beea6a"
+        "currentSha256": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90"
       },
       {
         "sourceRef": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
         "statusSha256": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
         "reviewSha256": "ddacf6712c2396ee183b865c268e450cf2fea584bdecf9011f2bb201a489b208",
-        "currentSha256": "8c840ff515593ddd7f8c1b0e88643f7694b0b37d8d9da1e6234dae1e8a41a6b2"
+        "currentSha256": "45a36b4c06c6da6308c9d32801f048d6c8708623882d705e13e6c6570aa7c606"
       },
       {
         "sourceRef": "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java",
@@ -317,28 +378,40 @@
         "currentSha256": "7c092eb511c910940d9b25e7acad261831fbd4c699a028a0dbcf98a118b08f59"
       },
       {
+        "sourceRef": "libs/audio-video-client/src/canonical-routes.ts",
+        "statusSha256": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+        "reviewSha256": "dd15c9ec5cf5454b0e1b25728c709b21825004875674e28b5b584b9684d773b9",
+        "currentSha256": "36fd99c60fc8b73ce2d2d8a8c5f30b95e1e0aecc8d1baf0f22f572c7e483fcb5"
+      },
+      {
         "sourceRef": "libs/audio-video-client/src/cli.test.ts",
         "statusSha256": "87b568a5567c65696b08502644ca821ed95da0d931bea111fdccf4e090ad1629",
         "reviewSha256": "fac5cb92ba4451336ad2a4190253e51668ed04c9e8197d9abf0e08a3d9fe44ff",
-        "currentSha256": "87b568a5567c65696b08502644ca821ed95da0d931bea111fdccf4e090ad1629"
+        "currentSha256": "f5d01335d51badbc4cc09fa004bb4410c2cda4801f3313c5fa6606a6a05a1dbe"
+      },
+      {
+        "sourceRef": "libs/audio-video-client/src/cli.ts",
+        "statusSha256": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
+        "reviewSha256": "7ea04574e426b5e37cb0a7ed73f10ff53e6ac87a31ec646c668e8ab8304d8aca",
+        "currentSha256": "4cb46def07a8cbe65ed9cbaba5bba434c3b7b55e075ebce39b8fd1512e8b8237"
       },
       {
         "sourceRef": "libs/audio-video-client/src/index.ts",
         "statusSha256": "689d2b67a71b199602e94d22fc5e570ade1a0658256087e9f0b5d7c8ed8e765d",
         "reviewSha256": "08458d366a6a8de4efc7cf9253541c0f85174c6915f5e4982d2c3bbd1bbe9701",
-        "currentSha256": "689d2b67a71b199602e94d22fc5e570ade1a0658256087e9f0b5d7c8ed8e765d"
+        "currentSha256": "fc76d68e16b1619b965165a8e2b86d04a14898fc47d50e5d57e85a04bc903512"
       },
       {
         "sourceRef": "libs/audio-video-client/src/operations.test.ts",
         "statusSha256": "34f33840ab2f7523dc2c7b8402343b24a6553746dbbdd792f3e0e689bb211b2c",
         "reviewSha256": "da635a54787832df158d0c78a7df90f4a260b6b75843aa6ca9cea2fdaf8d6985",
-        "currentSha256": "3528f59de611a9222674827d179200a278605c5491efc11b87ee1ef4dd5c84ce"
+        "currentSha256": "911048acc6c465496db4e573f8fb0fa2e15dbd2b316472def434bf373145c2c5"
       },
       {
         "sourceRef": "libs/audio-video-client/src/operations.ts",
         "statusSha256": "818fcd1f9d12c02ef53af049032bfbf7551a577d41ca209ba77fb332a9f70166",
         "reviewSha256": "2acebaf784aca759c58815ba71b670abf10e5cc87dd139b8203bf8369eb946e5",
-        "currentSha256": "0f7331b96eca6029ead1d4d2906b32c1050006c37d1254d52b1addb2ab1153ed"
+        "currentSha256": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642"
       },
       {
         "sourceRef": "libs/audio-video-types/src/__tests__/types.contract.test.ts",
@@ -350,13 +423,13 @@
         "sourceRef": "libs/audio-video-types/src/contracts.test.ts",
         "statusSha256": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0",
         "reviewSha256": "6c9e625526bec6e38ac06e8708d01a41b734b6d4d96e32df4422a67a21f14b43",
-        "currentSha256": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0"
+        "currentSha256": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f"
       },
       {
         "sourceRef": "libs/audio-video-types/src/contracts.ts",
         "statusSha256": "5c0223c1a205416379bc2900a996a143511d9436a98eddc980ad32a1b6a6a2b3",
         "reviewSha256": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
-        "currentSha256": "fd8296f252046efdefee1184bf486c3f760c460269f973c0468b58ec9601829e"
+        "currentSha256": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93"
       },
       {
         "sourceRef": "libs/audio-video-types/src/index.d.ts",
@@ -374,7 +447,31 @@
         "sourceRef": "libs/audio-video-types/src/index.ts",
         "statusSha256": "f7504a370c24e9ba9673fb2f4fd10cd1ea1c6ea44f710db885410389eb89ea5a",
         "reviewSha256": "f7504a370c24e9ba9673fb2f4fd10cd1ea1c6ea44f710db885410389eb89ea5a",
-        "currentSha256": "bcb3f7bca4e42e62ab4e7a7b3e8f60fea84d9e88e1a5f50ebb4ed42e416d9b67"
+        "currentSha256": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+        "statusSha256": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+        "reviewSha256": "017ed353bcafa8f7c6ac81952e0d6147228b9cb2fb92459b6538460c2e2de4f6",
+        "currentSha256": "f54111e122c3dd4a37be29b675c4aaff07747d6b88709465d9132196cd3ff0ac"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+        "statusSha256": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+        "reviewSha256": "4101a6f0c1e605ed689e19f72146f4f2d47233b2cdecb6b49daccb9d0e07af3a",
+        "currentSha256": "c376e9c3c3425fba84bb7f2ecc363c10ba0b8f678d308314d348a6779187f179"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+        "statusSha256": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+        "reviewSha256": "4059c8a7016f9cadb6fcb5805d1b6efa8b85422b99d8f1a74f0a8859187b6a54",
+        "currentSha256": "aa0bbb8a7c86ddb4ca14e9c9919d2a9721df56ae40fe9bfbb615e9869ca8ea9c"
+      },
+      {
+        "sourceRef": "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
+        "statusSha256": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+        "reviewSha256": "aa337579330d5b4e74157c9d446c6b48a9fc0baf9aa1ad238357c7253e732bf5",
+        "currentSha256": "f77b683eecd758ec9ec92a3eb0a24f3b16f3e45ac965e6e0ac90f2d8d7dd88fa"
       },
       {
         "sourceRef": "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
@@ -398,13 +495,13 @@
         "sourceRef": "scripts/check-media-contract-parity.mjs",
         "statusSha256": "426885485ac10b7f06fb714b53f5190395ffac00b9ff2dfeef0e7a64a3669359",
         "reviewSha256": "c443ba57cc5273864cc90ebdd111114eef764629080ff4979cfb734da8d25485",
-        "currentSha256": "15981b8b84c2178ff527d15ab8c37228889c963df9d9ffce037125c8815a4b91"
+        "currentSha256": "c7f12422fdc74a9031be5a2a8431a9a8379bab8f55b024d6548b6973a8dda4f2"
       },
       {
         "sourceRef": "tests/media-agent-tool-contracts.test.mjs",
         "statusSha256": "3c80b0c592f98c5dad4a9404089da4c6409ddf141f0b25bd30f840595e1d9b88",
         "reviewSha256": "6b538362a0ac2143a36bc38976293e35580f3a6945b70543141e80963c6d4fd4",
-        "currentSha256": "3c80b0c592f98c5dad4a9404089da4c6409ddf141f0b25bd30f840595e1d9b88"
+        "currentSha256": "295b11a67f721253d3278c5cae0ff4a2a28f699d9da4a2fbe470d53b19570dcc"
       },
       {
         "sourceRef": "tests/media-contract-parity-definition-only-cli.test.mjs",
@@ -416,13 +513,13 @@
         "sourceRef": "tests/media-contract-parity.test.mjs",
         "statusSha256": "526a1feb926330d708daf3069be3146d59356971511cc0e4954b7a82852a9fe2",
         "reviewSha256": "51ee7194a1ce2c917f9bedd0e766278f7f745b5a270d019ef4d4b436fb01773d",
-        "currentSha256": "c6e9ebde36c12ff491fda3093d7a6eb3d0ad495edd312fb2bc11792fe3ce0cad"
+        "currentSha256": "230b3c50967aeaeaf84c37606562b083c3cfd7611ad94887620abc9e4f03bdd3"
       },
       {
         "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
         "statusSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
         "reviewSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
-        "currentSha256": "a769c576e7d9540f785fc6bea0b1937753753d5fd28a6d51387b19b13510e991"
+        "currentSha256": "44d5c1f6050c09711e3aed9e49af71894a46cc4c35423bd314febaa4d65b755c"
       }
     ],
     "note": "PDP-1 sourceShaSet byte pins and semantic-review source pins are checked against live files; stale inputs block DEV_COMPLETE projection."
@@ -441,6 +538,7 @@
       "scripts/check-media-pdp0-surface-denominator.mjs",
       "scripts/check-product-definition-authority.mjs",
       "scripts/generate-media-pdp0-surface-phase-status-matrix.mjs",
+      "tests/pdp-migration-semantic-reconciliation.test.mjs",
       "tests/pdp-migration-preservation-identity-wire-claims.test.mjs",
       "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
       "tests/media-pdp0-surface-denominator.test.mjs",
@@ -458,6 +556,7 @@
       ".product-experience/interface-parity/operation-parity.yaml",
       ".product-experience/pdp-0-product-truth/capabilities.yaml",
       ".product-experience/pdp-0-product-truth/requirements.yaml",
+      ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
       ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
       ".product-experience/source-manifest.yaml",
       ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -466,7 +565,9 @@
       "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
       "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
       "launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java",
+      "libs/audio-video-client/src/canonical-routes.ts",
       "libs/audio-video-client/src/cli.test.ts",
+      "libs/audio-video-client/src/cli.ts",
       "libs/audio-video-client/src/index.ts",
       "libs/audio-video-client/src/operations.test.ts",
       "libs/audio-video-client/src/operations.ts",
@@ -476,6 +577,10 @@
       "libs/audio-video-types/src/index.d.ts",
       "libs/audio-video-types/src/index.js",
       "libs/audio-video-types/src/index.ts",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/SpeechToTextToolHandler.java",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/TextToSpeechToolHandler.java",
+      "adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/VisionAnalysisToolHandler.java",
       "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto",
       "modules/speech/stt-service/src/main/proto/stt_service.proto",
       "modules/vision/vision-service/src/main/proto/vision_service.proto",
@@ -556,7 +661,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -597,7 +702,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -638,7 +743,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -679,7 +784,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -720,7 +825,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -759,7 +864,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -800,7 +905,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -842,7 +947,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -886,7 +991,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -929,7 +1034,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -974,7 +1079,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1013,7 +1118,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1052,7 +1157,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1095,7 +1200,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1135,7 +1240,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1178,7 +1283,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1222,7 +1327,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1264,7 +1369,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1305,7 +1410,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1344,7 +1449,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1386,7 +1491,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1428,7 +1533,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1468,7 +1573,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1511,7 +1616,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1553,7 +1658,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1593,7 +1698,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1635,7 +1740,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1680,7 +1785,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1720,7 +1825,7 @@
         ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1777,7 +1882,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1827,7 +1932,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1875,7 +1980,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1921,7 +2026,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -1967,7 +2072,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2016,7 +2121,7 @@
         ".product-experience/pdp-1-domain-data/operations.yaml": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2072,7 +2177,7 @@
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2126,7 +2231,7 @@
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2179,7 +2284,7 @@
         "contracts/openapi/media.yaml": "bb9d1717b5e820c1809d2d7c4ce0899931fec2c3d1883780d523201d05274a06"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2239,7 +2344,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2298,7 +2403,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2353,7 +2458,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2408,7 +2513,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2463,7 +2568,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2515,10 +2620,10 @@
       "sourceFingerprints": {
         ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
-        "libs/audio-video-client/src/operations.ts": "0f7331b96eca6029ead1d4d2906b32c1050006c37d1254d52b1addb2ab1153ed"
+        "libs/audio-video-client/src/operations.ts": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2575,7 +2680,7 @@
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2630,7 +2735,7 @@
         ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml": "aa0045ddd67c4a6137b15576a9c32d71774ebe9eae7993e682b0f952f2aa9151"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2684,7 +2789,7 @@
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2745,7 +2850,7 @@
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2807,7 +2912,7 @@
         ".product-experience/pdp-1-domain-data/DOMAIN-MODEL.md": "b46a686882a662cac9c0422b5cc1c762bb308f59046dd8f78d1b915622ccfad6"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2861,7 +2966,7 @@
         ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2918,7 +3023,7 @@
         ".product-experience/source-manifest.yaml": "23f63bf813690bf8dccf940d5f339f651c6a415f298cef7d305a03035c4d5893"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -2969,7 +3074,7 @@
         ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "NOT_ACTIVE_ARCHIVED",
       "remainingPhaseLocalTaskIds": [],
       "remainingPhaseLocalTaskMapping": "NOT_APPLICABLE_ARCHIVED",
@@ -3017,7 +3122,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -3075,7 +3180,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -3130,7 +3235,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
@@ -3187,7 +3292,7 @@
         ".product-experience/pdp-0-product-truth/recorder-studio-extension.yaml": "a1e1dacce60a8bc868e0459f6faf40fc036dfc496d2886f494b87715455d06be"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-1 source pins are stale (16 status pins; 30 review pins).",
+      "sourceCurrentBasis": "PDP-1 source pins are stale (27 status pins; 37 review pins).",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": null,
       "remainingPhaseLocalTaskMapping": "UNKNOWN_PHASE_LOCAL_OWNERSHIP",
