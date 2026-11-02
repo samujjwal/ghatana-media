@@ -1,10 +1,14 @@
 package com.ghatana.media.provider.aws;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.exception.FlywayValidateException;
 import org.flywaydb.core.api.output.MigrateResult;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +38,15 @@ class MediaMigrationLineageFixtureTest {
         var configured = Flyway.configure()
                 .dataSource(ds)
                 .locations("classpath:db/media-runtime")
+                .validateMigrationNaming(true);
+        if (target != null) configured = configured.target(target);
+        return configured.load();
+    }
+
+    private static Flyway flywayWithExtraLocation(JdbcDataSource ds, String target, Path extraLocation) {
+        var configured = Flyway.configure()
+                .dataSource(ds)
+                .locations("classpath:db/media-runtime", "filesystem:" + extraLocation.toAbsolutePath())
                 .validateMigrationNaming(true);
         if (target != null) configured = configured.target(target);
         return configured.load();
@@ -152,6 +165,86 @@ class MediaMigrationLineageFixtureTest {
             try (ResultSet rows = pending.executeQuery()) {
                 rows.next();
                 assertThat(rows.getLong(1)).isZero();
+            }
+        }
+    }
+
+    @Test
+    void failedForwardMigrationLeavesHistoryFailClosedWithoutRepair(@TempDir Path migrationDirectory)
+            throws Exception {
+        // H2 fault-injection only; real PostgreSQL process-death recovery and applied legacy
+        // history remain separate Testcontainers/operator evidence.
+        JdbcDataSource ds = dataSource();
+        MigrateResult seeded = flyway(ds, "29").migrate();
+        assertThat(seeded.migrationsExecuted).isEqualTo(29);
+        try (Connection connection = ds.getConnection()) {
+            insertJob(connection, "job-ip06-retry", "req-ip06-retry", "FAILED", FINGERPRINT);
+        }
+
+        Path migration = migrationDirectory.resolve("V030__ip06_recovery_probe.sql");
+        Files.writeString(migration, "UPDATE media_processing_jobs SET result_json='partial'"
+                + " WHERE job_id='job-ip06-retry';\n"
+                + "INSERT INTO ip06_missing_recovery_table (id) VALUES (2);\n");
+        Files.writeString(migrationDirectory.resolve("V031__ip06_after_failure_probe.sql"),
+                "CREATE TABLE ip06_v031_applied_marker (id INTEGER PRIMARY KEY);\n"
+                        + "INSERT INTO ip06_v031_applied_marker (id) VALUES (31);\n");
+
+        assertThatThrownBy(() -> flywayWithExtraLocation(ds, null, migrationDirectory).migrate())
+                .isInstanceOf(RuntimeException.class);
+        try (Connection connection = ds.getConnection();
+             PreparedStatement state = connection.prepareStatement(
+                     "SELECT result_json FROM media_processing_jobs WHERE job_id='job-ip06-retry'");
+             ResultSet rows = state.executeQuery()) {
+            assertThat(rows.next()).isTrue();
+            assertThat(rows.getString(1)).isEqualTo("{}");
+        }
+        try (Connection connection = ds.getConnection();
+             PreparedStatement history = connection.prepareStatement(
+                     "SELECT COUNT(*), SUM(CASE WHEN success=FALSE THEN 1 ELSE 0 END),"
+                             + " SUM(CASE WHEN success=TRUE THEN 1 ELSE 0 END)"
+                             + " FROM flyway_schema_history WHERE CAST(version AS INTEGER)=30");
+             ResultSet rows = history.executeQuery()) {
+            rows.next();
+            assertThat(rows.getLong(1)).isEqualTo(1);
+            assertThat(rows.getLong(2)).isEqualTo(1);
+            assertThat(rows.getLong(3)).isZero();
+        }
+        try (Connection connection = ds.getConnection()) {
+            assertThat(tableExists(connection, "ip06_v031_applied_marker")).isFalse();
+        }
+        try (Connection connection = ds.getConnection();
+             PreparedStatement history = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM flyway_schema_history"
+                             + " WHERE CAST(version AS INTEGER)=31");
+             ResultSet rows = history.executeQuery()) {
+            rows.next();
+            assertThat(rows.getLong(1)).isZero();
+        }
+
+        // H2 keeps a failed history row, so retry without a separately authorized repair
+        // must fail validation before V031's visible table/data side effect can run.
+        assertThatThrownBy(() -> flywayWithExtraLocation(ds, null, migrationDirectory).migrate())
+                .isInstanceOf(FlywayValidateException.class);
+        try (Connection connection = ds.getConnection()) {
+            assertThat(tableExists(connection, "ip06_v031_applied_marker")).isFalse();
+        }
+        try (Connection connection = ds.getConnection();
+             PreparedStatement history = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM flyway_schema_history"
+                             + " WHERE CAST(version AS INTEGER)=31");
+             ResultSet rows = history.executeQuery()) {
+            rows.next();
+            assertThat(rows.getLong(1)).isZero();
+        }
+    }
+
+    private static boolean tableExists(Connection connection, String tableName) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE UPPER(table_name)=UPPER(?)")) {
+            statement.setString(1, tableName);
+            try (ResultSet rows = statement.executeQuery()) {
+                rows.next();
+                return rows.getLong(1) > 0;
             }
         }
     }
