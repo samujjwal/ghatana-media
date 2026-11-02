@@ -21,6 +21,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -54,8 +55,15 @@ public final class WhisperOnnxEngine implements SttEngine {
     private static final long REFERENCE_DECODER_BYTES = 30_719_241L;
     private static final String REFERENCE_DECODER_SHA256 = "25e807a962b6349356d0ea5d0dfe530b7e5bf0e2a484aeca0359d03143faddd3";
     private static final int MAX_GENERATED_TOKENS = 444;
+    private static final Duration DEFAULT_TRANSCRIPTION_TIMEOUT = Duration.ofSeconds(30);
     private static final boolean DEBUG_DECODER_TOKENS =
             LOG.isLoggable(java.util.logging.Level.FINE);
+    private static final ScheduledExecutorService TIMEOUT_EXECUTOR =
+            Executors.newSingleThreadScheduledExecutor(task -> {
+                Thread thread = new Thread(task, "whisper-onnx-timeouts");
+                thread.setDaemon(true);
+                return thread;
+            });
     private static final double[][] DFT_COS = referenceDftCos();
     private static final double[][] DFT_SIN = referenceDftSin();
     private static final double[] REFERENCE_HANN_WINDOW = referenceHannWindow();
@@ -75,6 +83,68 @@ public final class WhisperOnnxEngine implements SttEngine {
     private final AtomicLong errorCount = new AtomicLong(0);
     private final AtomicLong totalLatency = new AtomicLong(0);
     private final AtomicReference<EngineStatus.State> state;
+
+    /** Minimal bridge for request cancellation without coupling this engine to runtime contracts. */
+    public interface CancellationSignal {
+        boolean cancelled();
+        AutoCloseable onCancel(Runnable callback);
+
+        CancellationSignal NONE = new CancellationSignal() {
+            @Override public boolean cancelled() { return false; }
+            @Override public AutoCloseable onCancel(Runnable callback) { return () -> { }; }
+        };
+    }
+
+    enum CancellationReason { CANCELLED, TIMED_OUT }
+
+    @FunctionalInterface
+    interface RunTermination { void terminate() throws Exception; }
+
+    /** Request-local state; never shared between concurrent transcriptions. */
+    static final class InvocationControl {
+        private final RunTermination terminate;
+        private final Runnable close;
+        private final AtomicReference<CancellationReason> reason = new AtomicReference<>();
+        private final AtomicReference<Throwable> terminationFailure = new AtomicReference<>();
+        private boolean closed;
+
+        InvocationControl(RunTermination terminate, Runnable close) {
+            this.terminate = Objects.requireNonNull(terminate, "terminate");
+            this.close = Objects.requireNonNull(close, "close");
+        }
+
+        synchronized void cancel(CancellationReason cancellationReason) {
+            if (closed || !reason.compareAndSet(null, cancellationReason)) return;
+            try {
+                terminate.terminate();
+            } catch (Exception failure) {
+                terminationFailure.compareAndSet(null, failure);
+            }
+        }
+
+        void throwIfCancelled(boolean externallyCancelled) {
+            Throwable failure = terminationFailure.get();
+            if (failure != null) throw new InferenceError(
+                    "Whisper ONNX cancellation request could not be delivered", failure, false);
+            CancellationReason cancellationReason = reason.get();
+            if (cancellationReason == CancellationReason.TIMED_OUT) {
+                throw new TranscriptionTimeoutException("Whisper transcription exceeded its timeout");
+            }
+            if (cancellationReason == CancellationReason.CANCELLED || externallyCancelled) {
+                throw new CancellationException("Whisper transcription cancelled");
+            }
+        }
+
+        synchronized void close() {
+            if (closed) return;
+            closed = true;
+            close.run();
+        }
+    }
+
+    private static final class TranscriptionTimeoutException extends RuntimeException {
+        private TranscriptionTimeoutException(String message) { super(message); }
+    }
 
     public WhisperOnnxEngine(SttConfig config, AudioVideoLibrary.LibraryState libraryState) throws ModelLoadingError {
         this.config = config;
@@ -155,7 +225,19 @@ public final class WhisperOnnxEngine implements SttEngine {
 
     @Override
     public TranscriptionResult transcribe(AudioData audio, TranscriptionOptions options) {
+        return transcribe(audio, options, CancellationSignal.NONE);
+    }
+
+    /** Transcribe with a request-owned cancellation signal supplied by the owning runtime. */
+    public TranscriptionResult transcribe(
+            AudioData audio, TranscriptionOptions options, CancellationSignal cancellation) {
         ensureReady();
+        Objects.requireNonNull(options, "options");
+        Objects.requireNonNull(cancellation, "cancellation");
+        if (options.timeout() != null && (options.timeout().isZero() || options.timeout().isNegative())) {
+            throw new ValidationError("Whisper transcription timeout must be positive");
+        }
+        if (cancellation.cancelled()) throw new CancellationException("Whisper transcription cancelled");
         validateAudio(audio);
         if (splitWhisperProfile && options.enableTimestamps()) {
             throw new ValidationError("Pinned Whisper reference profile does not provide qualified word timestamps");
@@ -167,8 +249,23 @@ public final class WhisperOnnxEngine implements SttEngine {
             errorCount.incrementAndGet();
             throw new ResourceExhaustedError("Whisper request concurrency limit is saturated");
         }
+        OrtSession.RunOptions runOptions = null;
+        InvocationControl control = null;
+        AutoCloseable cancellationRegistration = () -> { };
+        ScheduledFuture<?> timeoutTask = null;
         try {
-            String text = runAudioInference(audio, options);
+            runOptions = new OrtSession.RunOptions();
+            OrtSession.RunOptions ownedRunOptions = runOptions;
+            control = new InvocationControl(
+                    () -> ownedRunOptions.setTerminate(true), ownedRunOptions::close);
+            InvocationControl ownedControl = control;
+            cancellationRegistration = cancellation.onCancel(
+                    () -> ownedControl.cancel(CancellationReason.CANCELLED));
+            Duration timeout = effectiveTimeout(options.timeout());
+            timeoutTask = scheduleTimeout(timeout, ownedControl, TIMEOUT_EXECUTOR);
+            control.throwIfCancelled(cancellation.cancelled());
+            String text = runAudioInference(audio, options, runOptions, control, cancellation);
+            control.throwIfCancelled(cancellation.cancelled());
 
             long latency = System.currentTimeMillis() - startTime;
             totalLatency.addAndGet(latency);
@@ -177,7 +274,7 @@ public final class WhisperOnnxEngine implements SttEngine {
             // synthesize equal-duration words and present them as timing observations.
             List<WordTiming> words = List.of();
 
-            return resultWithoutConfidence(
+            TranscriptionResult result = resultWithoutConfidence(
                 text,
                 words,
                 List.of(), // alternatives
@@ -185,11 +282,36 @@ public final class WhisperOnnxEngine implements SttEngine {
                 options.language().toLanguageTag(),
                 config.modelId()
             );
+            control.throwIfCancelled(cancellation.cancelled());
+            return result;
+        } catch (CancellationException e) {
+            errorCount.incrementAndGet();
+            throw e;
+        } catch (TranscriptionTimeoutException e) {
+            errorCount.incrementAndGet();
+            throw new InferenceError("Transcription timed out", e, true);
         } catch (Exception e) {
             errorCount.incrementAndGet();
+            if (control != null) {
+                try {
+                    control.throwIfCancelled(cancellation.cancelled());
+                } catch (TranscriptionTimeoutException timeoutFailure) {
+                    throw new InferenceError("Transcription timed out", timeoutFailure, true);
+                }
+            }
             throw new InferenceError("Transcription failed", e, false);
         } finally {
-            concurrencyLimiter.release();
+            if (timeoutTask != null) timeoutTask.cancel(false);
+            try {
+                cancellationRegistration.close();
+            } catch (Exception ignored) {
+                // Listener removal is best-effort; the invocation control is sealed below.
+            }
+            try {
+                if (control != null) control.close();
+            } finally {
+                concurrencyLimiter.release();
+            }
         }
     }
 
@@ -282,7 +404,9 @@ public final class WhisperOnnxEngine implements SttEngine {
         try {
             // Run a dummy inference to warm up caches
             float[][] dummyInput = new float[3000][N_MELS];
-            runInference(dummyInput, TranscriptionOptions.defaults());
+            try (OrtSession.RunOptions runOptions = new OrtSession.RunOptions()) {
+                runInference(dummyInput, TranscriptionOptions.defaults(), runOptions, null, CancellationSignal.NONE);
+            }
             LOG.info("Warmup complete");
         } catch (Exception e) {
             LOG.warning("Warmup failed: " + e.getMessage());
@@ -342,6 +466,30 @@ public final class WhisperOnnxEngine implements SttEngine {
         }
     }
 
+    static void checkActive(InvocationControl control, CancellationSignal cancellation) {
+        if (control == null) {
+            if (cancellation.cancelled()) throw new CancellationException("Whisper transcription cancelled");
+            return;
+        }
+        control.throwIfCancelled(cancellation.cancelled());
+    }
+
+    static ScheduledFuture<?> scheduleTimeout(
+            Duration timeout, InvocationControl control, ScheduledExecutorService scheduler) {
+        long timeoutNanos;
+        try {
+            timeoutNanos = timeout.toNanos();
+        } catch (ArithmeticException overflow) {
+            timeoutNanos = Long.MAX_VALUE;
+        }
+        return scheduler.schedule(
+                () -> control.cancel(CancellationReason.TIMED_OUT), timeoutNanos, TimeUnit.NANOSECONDS);
+    }
+
+    static Duration effectiveTimeout(Duration configured) {
+        return configured == null ? DEFAULT_TRANSCRIPTION_TIMEOUT : configured;
+    }
+
     private void validateAudio(AudioData audio) {
         if (audio == null) {
             throw new ValidationError("Audio data cannot be null");
@@ -372,34 +520,48 @@ public final class WhisperOnnxEngine implements SttEngine {
     /**
      * Preprocess audio to mel spectrogram.
      */
-    private float[][] preprocess(AudioData audio) {
+    private float[][] preprocess(AudioData audio, InvocationControl control, CancellationSignal cancellation) {
         // Convert bytes to float samples
-        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample());
+        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample(), control, cancellation);
+        checkActive(control, cancellation);
 
         // Pad or trim to N_SAMPLES
         if (samples.length > N_SAMPLES) {
-            samples = Arrays.copyOf(samples, N_SAMPLES);
+            samples = copySamples(samples, N_SAMPLES, control, cancellation);
         } else if (samples.length < N_SAMPLES) {
-            samples = Arrays.copyOf(samples, N_SAMPLES); // Zero-pad
+            samples = copySamples(samples, N_SAMPLES, control, cancellation); // Zero-pad
         }
 
-        if (splitWhisperProfile) return computeReferenceMelSpectrogram(samples, pinnedMelFilters);
+        if (splitWhisperProfile) {
+            return computeReferenceMelSpectrogram(samples, pinnedMelFilters, control, cancellation);
+        }
         // Compute mel spectrogram for the legacy single-graph compatibility profile.
-        return computeMelSpectrogram(samples, SAMPLE_RATE, N_MELS, N_FFT, HOP_LENGTH);
+        return computeMelSpectrogram(samples, SAMPLE_RATE, N_MELS, N_FFT, HOP_LENGTH, control, cancellation);
     }
 
-    private String runAudioInference(AudioData audio, TranscriptionOptions options) throws OrtException {
-        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample());
-        if (isExactlySilent(samples)) return "";
-        if (!splitWhisperProfile) return runInference(preprocess(audio), options);
+    private String runAudioInference(AudioData audio, TranscriptionOptions options,
+            OrtSession.RunOptions runOptions, InvocationControl control,
+            CancellationSignal cancellation) throws OrtException {
+        checkActive(control, cancellation);
+        float[] samples = bytesToFloats(audio.data(), audio.bitsPerSample(), control, cancellation);
+        if (isExactlySilent(samples, control, cancellation)) return "";
+        if (!splitWhisperProfile) {
+            float[][] mel = preprocess(audio, control, cancellation);
+            checkActive(control, cancellation);
+            return runInference(mel, options, runOptions, control, cancellation);
+        }
 
         StringBuilder result = new StringBuilder();
         for (int offset = 0; offset < samples.length; offset += N_SAMPLES) {
+            checkActive(control, cancellation);
             int length = Math.min(N_SAMPLES, samples.length - offset);
-            float[] chunk = Arrays.copyOfRange(samples, offset, offset + length);
-            if (isExactlySilent(chunk)) continue;
-            float[][] melSpectrogram = computeReferenceMelSpectrogram(chunk, pinnedMelFilters);
-            String chunkText = runSplitWhisperInference(melSpectrogram, options);
+            float[] chunk = copySampleRange(samples, offset, length, control, cancellation);
+            if (isExactlySilent(chunk, control, cancellation)) continue;
+            float[][] melSpectrogram = computeReferenceMelSpectrogram(
+                    chunk, pinnedMelFilters, control, cancellation);
+            checkActive(control, cancellation);
+            String chunkText = runSplitWhisperInference(
+                    melSpectrogram, options, runOptions, control, cancellation);
             if (!chunkText.isBlank()) {
                 if (!result.isEmpty()) result.append(' ');
                 result.append(chunkText.trim());
@@ -409,15 +571,79 @@ public final class WhisperOnnxEngine implements SttEngine {
     }
 
     private static boolean isExactlySilent(float[] values) {
-        for (float value : values) if (value != 0.0f) return false;
+        return isExactlySilent(values, null, CancellationSignal.NONE);
+    }
+
+    static boolean isExactlySilent(
+            float[] values, InvocationControl control, CancellationSignal cancellation) {
+        for (int i = 0; i < values.length; i++) {
+            if ((i & 1023) == 0) checkActive(control, cancellation);
+            if (values[i] != 0.0f) return false;
+        }
+        checkActive(control, cancellation);
         return true;
     }
 
     private float[] bytesToFloats(byte[] data, int bitsPerSample) {
-        return AudioConverter.pcmToFloatSamples(data, bitsPerSample);
+        return bytesToFloats(data, bitsPerSample, null, CancellationSignal.NONE);
     }
 
-    private float[][] computeMelSpectrogram(float[] samples, int sampleRate, int nMels, int nFft, int hopLength) {
+    static float[] bytesToFloats(byte[] data, int bitsPerSample,
+            InvocationControl control, CancellationSignal cancellation) {
+        Objects.requireNonNull(data, "data cannot be null");
+        if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24 && bitsPerSample != 32) {
+            throw new IllegalArgumentException("bitsPerSample must be one of 8, 16, 24, or 32");
+        }
+        int bytesPerSample = bitsPerSample / 8;
+        if (data.length % bytesPerSample != 0) {
+            throw new IllegalArgumentException("PCM data must contain complete samples");
+        }
+        int sampleCount = data.length / bytesPerSample;
+        if (sampleCount > 16_000_000) {
+            throw new IllegalArgumentException("PCM sample count exceeds the supported conversion limit");
+        }
+        float[] samples = new float[sampleCount];
+        float maxAmplitude = (float) Math.scalb(1.0d, bitsPerSample - 1);
+        for (int sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++) {
+            if ((sampleIndex & 1023) == 0) checkActive(control, cancellation);
+            int sample = 0;
+            int baseOffset = sampleIndex * bytesPerSample;
+            for (int byteIndex = 0; byteIndex < bytesPerSample; byteIndex++) {
+                sample |= (data[baseOffset + byteIndex] & 0xFF) << (byteIndex * 8);
+            }
+            int shift = Integer.SIZE - bitsPerSample;
+            sample = (sample << shift) >> shift;
+            samples[sampleIndex] = Math.max(-1.0f, Math.min(1.0f, sample / maxAmplitude));
+        }
+        checkActive(control, cancellation);
+        return samples;
+    }
+
+    private static float[] copySamples(float[] source, int targetLength,
+            InvocationControl control, CancellationSignal cancellation) {
+        float[] copy = new float[targetLength];
+        int count = Math.min(source.length, targetLength);
+        for (int i = 0; i < count; i++) {
+            if ((i & 1023) == 0) checkActive(control, cancellation);
+            copy[i] = source[i];
+        }
+        checkActive(control, cancellation);
+        return copy;
+    }
+
+    private static float[] copySampleRange(float[] source, int offset, int length,
+            InvocationControl control, CancellationSignal cancellation) {
+        float[] copy = new float[length];
+        for (int i = 0; i < length; i++) {
+            if ((i & 1023) == 0) checkActive(control, cancellation);
+            copy[i] = source[offset + i];
+        }
+        checkActive(control, cancellation);
+        return copy;
+    }
+
+    private float[][] computeMelSpectrogram(float[] samples, int sampleRate, int nMels, int nFft, int hopLength,
+            InvocationControl control, CancellationSignal cancellation) {
         int nFrames = (samples.length - nFft) / hopLength + 1;
         if (nFrames <= 0) {
             nFrames = 1;
@@ -432,10 +658,12 @@ public final class WhisperOnnxEngine implements SttEngine {
             melCacheKey,
             ignored -> computeMelFilterbank(sampleRate, nFft, nMels)
         );
+        checkActive(control, cancellation);
 
         float[][] logMelSpec = new float[nFrames][nMels];
 
         for (int frame = 0; frame < nFrames; frame++) {
+            checkActive(control, cancellation);
             int start = frame * hopLength;
 
             // Extract and window the frame
@@ -463,12 +691,14 @@ public final class WhisperOnnxEngine implements SttEngine {
         // Normalise: bring max to 0, then clip at -8 and scale to [-1, 1]
         float maxVal = Float.NEGATIVE_INFINITY;
         for (float[] row : logMelSpec) {
+            checkActive(control, cancellation);
             for (float v : row) {
                 if (v > maxVal) maxVal = v;
             }
         }
         if (maxVal != Float.NEGATIVE_INFINITY) {
             for (float[] row : logMelSpec) {
+                checkActive(control, cancellation);
                 for (int j = 0; j < row.length; j++) {
                     row[j] = (Math.max(row[j], maxVal - 8f) + 4f) / 4f;
                 }
@@ -483,6 +713,11 @@ public final class WhisperOnnxEngine implements SttEngine {
      * STFT, power spectrum, the source mel matrix, log10 floor, dynamic range clipping and scaling.
      */
     static float[][] computeReferenceMelSpectrogram(float[] input, float[][] filters) {
+        return computeReferenceMelSpectrogram(input, filters, null, CancellationSignal.NONE);
+    }
+
+    static float[][] computeReferenceMelSpectrogram(float[] input, float[][] filters,
+            InvocationControl control, CancellationSignal cancellation) {
         if (input == null || filters == null || filters.length != N_MELS) {
             throw new IllegalArgumentException("Whisper frontend requires audio and the pinned 80-band filter bank");
         }
@@ -492,8 +727,10 @@ public final class WhisperOnnxEngine implements SttEngine {
             }
         }
 
-        float[] samples = Arrays.copyOf(input, N_SAMPLES);
-        for (float sample : samples) {
+        float[] samples = copySamples(input, N_SAMPLES, control, cancellation);
+        for (int i = 0; i < samples.length; i++) {
+            if ((i & 1023) == 0) checkActive(control, cancellation);
+            float sample = samples[i];
             if (!Float.isFinite(sample) || Math.abs(sample) > 1.0f) {
                 throw new IllegalArgumentException("Whisper frontend samples must be finite and normalized to [-1,1]");
             }
@@ -505,6 +742,7 @@ public final class WhisperOnnxEngine implements SttEngine {
                 Math.max(1, (samples.length + N_FFT / 2 + HOP_LENGTH - 1) / HOP_LENGTH));
         double[] power = new double[N_FFT / 2 + 1];
         for (int frame = 0; frame < framesWithInput; frame++) {
+            checkActive(control, cancellation);
             int frameStart = frame * HOP_LENGTH - N_FFT / 2;
             Arrays.fill(power, 0.0d);
             for (int bin = 0; bin < power.length; bin++) {
@@ -527,14 +765,17 @@ public final class WhisperOnnxEngine implements SttEngine {
 
         float maximum = -10.0f;
         for (float[] row : logMel) {
+            checkActive(control, cancellation);
             for (float value : row) maximum = Math.max(maximum, value);
         }
         float floor = maximum - 8.0f;
         for (float[] row : logMel) {
+            checkActive(control, cancellation);
             for (int mel = 0; mel < row.length; mel++) {
                 row[mel] = (Math.max(row[mel], floor) + 4.0f) / 4.0f;
             }
         }
+        checkActive(control, cancellation);
         return logMel;
     }
 
@@ -814,8 +1055,12 @@ public final class WhisperOnnxEngine implements SttEngine {
      * <p>Token IDs are decoded with the vocab.json/merges.txt profile adjacent
      * to the configured model. A missing profile is a model-loading failure.
      */
-    private String runInference(float[][] melSpectrogram, TranscriptionOptions options) throws OrtException {
-        if (splitWhisperProfile) return runSplitWhisperInference(melSpectrogram, options);
+    private String runInference(float[][] melSpectrogram, TranscriptionOptions options,
+            OrtSession.RunOptions runOptions, InvocationControl control,
+            CancellationSignal cancellation) throws OrtException {
+        if (splitWhisperProfile) {
+            return runSplitWhisperInference(melSpectrogram, options, runOptions, control, cancellation);
+        }
         int nFrames = melSpectrogram.length;
 
         // Flatten [nFrames × N_MELS] → float[1 × N_MELS × nFrames] (batch=1)
@@ -836,28 +1081,32 @@ public final class WhisperOnnxEngine implements SttEngine {
         Map<String, OnnxTensor> inputs = new HashMap<>();
         inputs.put(inputName, inputTensor);
 
-        try (OrtSession.Result results = session.run(inputs)) {
-            // Locate the first scalar-text or sequence output
-            for (Map.Entry<String, OnnxValue> entry : results) {
-                OnnxValue value = entry.getValue();
-                if (value.getType() == OnnxValue.OnnxValueType.ONNX_TYPE_TENSOR) {
-                    OnnxTensor outTensor = (OnnxTensor) value;
-                    TensorInfo info = outTensor.getInfo();
+        try {
+            checkActive(control, cancellation);
+            try (OrtSession.Result results = session.run(inputs, runOptions)) {
+                checkActive(control, cancellation);
+                // Locate the first scalar-text or sequence output
+                for (Map.Entry<String, OnnxValue> entry : results) {
+                    OnnxValue value = entry.getValue();
+                    if (value.getType() == OnnxValue.OnnxValueType.ONNX_TYPE_TENSOR) {
+                        OnnxTensor outTensor = (OnnxTensor) value;
+                        TensorInfo info = outTensor.getInfo();
 
-                    // String tensor: decoder has already detokenised
-                    if (info.type == OnnxJavaType.STRING) {
-                        Object raw = outTensor.getValue();
-                        if (raw instanceof String[][] arr && arr.length > 0 && arr[0].length > 0) {
-                            return arr[0][0].trim();
+                        // String tensor: decoder has already detokenised
+                        if (info.type == OnnxJavaType.STRING) {
+                            Object raw = outTensor.getValue();
+                            if (raw instanceof String[][] arr && arr.length > 0 && arr[0].length > 0) {
+                                return arr[0][0].trim();
+                            }
+                            if (raw instanceof String[] arr && arr.length > 0) {
+                                return arr[0].trim();
+                            }
                         }
-                        if (raw instanceof String[] arr && arr.length > 0) {
-                            return arr[0].trim();
-                        }
-                    }
 
-                    // Integer / long token-ID tensor: perform greedy decoding
-                    if (info.type == OnnxJavaType.INT64 || info.type == OnnxJavaType.INT32) {
-                        return decodeTokenIds(outTensor);
+                        // Integer / long token-ID tensor: perform greedy decoding
+                        if (info.type == OnnxJavaType.INT64 || info.type == OnnxJavaType.INT32) {
+                            return decodeTokenIds(outTensor);
+                        }
                     }
                 }
             }
@@ -868,7 +1117,9 @@ public final class WhisperOnnxEngine implements SttEngine {
         return "";
     }
 
-    private String runSplitWhisperInference(float[][] melSpectrogram, TranscriptionOptions options)
+    private String runSplitWhisperInference(float[][] melSpectrogram, TranscriptionOptions options,
+            OrtSession.RunOptions runOptions, InvocationControl control,
+            CancellationSignal cancellation)
             throws OrtException {
         int frames = melSpectrogram.length;
         float[] flatInput = new float[N_MELS * frames];
@@ -877,94 +1128,106 @@ public final class WhisperOnnxEngine implements SttEngine {
         }
         OnnxTensor features = OnnxTensor.createTensor(environment, FloatBuffer.wrap(flatInput),
                 new long[]{1L, N_MELS, frames});
-        try (OrtSession.Result encoded = encoderSession.run(Map.of("input_features", features))) {
-            OnnxTensor hiddenStates = findTensor(encoded, "last_hidden_state");
-            long[] decoderIds = WhisperTokenizer.transcriptionPrompt(options.language());
-            long[] generated = new long[MAX_GENERATED_TOKENS];
-            int generatedCount = 0;
-            double sumLogProbability = 0.0d;
-            double noSpeechProbability = Double.NaN;
-            boolean useCache = false;
-            OrtSession.Result priorDecoderResult = null;
-            OrtSession.Result firstDecoderResult = null;
-            try {
-                for (int step = 0; step < MAX_GENERATED_TOKENS; step++) {
-                    Map<String, OnnxTensor> inputs = new HashMap<>();
-                    List<OnnxTensor> temporary = new ArrayList<>();
-                    OnnxTensor tokenTensor = OnnxTensor.createTensor(environment, LongBuffer.wrap(decoderIds),
-                            new long[]{1L, decoderIds.length});
-                    ByteBuffer cacheBranchValue = ByteBuffer.allocateDirect(1);
-                    cacheBranchValue.put((byte) (useCache ? 1 : 0)).flip();
-                    OnnxTensor cacheBranch = OnnxTensor.createTensor(environment,
-                            cacheBranchValue, new long[]{1L}, OnnxJavaType.BOOL);
-                    temporary.add(tokenTensor);
-                    temporary.add(cacheBranch);
-                    inputs.put("input_ids", tokenTensor);
-                    inputs.put("encoder_hidden_states", hiddenStates);
-                    inputs.put("use_cache_branch", cacheBranch);
-                    for (String inputName : decoderSession.getInputNames()) {
-                        if (!inputName.startsWith("past_key_values.")) continue;
-                        String outputName = inputName.replaceFirst("^past_key_values\\.", "present.");
-                        if (priorDecoderResult == null) {
-                            OnnxTensor emptyCache = OnnxTensor.createTensor(environment, FloatBuffer.allocate(0),
-                                    new long[]{1L, 6L, 0L, 64L});
-                            temporary.add(emptyCache);
-                            inputs.put(inputName, emptyCache);
-                        } else if (inputName.contains(".encoder.")) {
-                            // The merged decoder's cache branch emits a dummy empty
-                            // present.*.encoder.* tensor; only the first (no-past)
-                            // step returns real cross-attention keys/values. Reuse
-                            // those rather than echoing the dummy back as past.
-                            inputs.put(inputName, findTensor(firstDecoderResult, outputName));
-                        } else {
-                            inputs.put(inputName, findTensor(priorDecoderResult, outputName));
+        try {
+            checkActive(control, cancellation);
+            try (OrtSession.Result encoded = encoderSession.run(Map.of("input_features", features), runOptions)) {
+                checkActive(control, cancellation);
+                OnnxTensor hiddenStates = findTensor(encoded, "last_hidden_state");
+                long[] decoderIds = WhisperTokenizer.transcriptionPrompt(options.language());
+                long[] generated = new long[MAX_GENERATED_TOKENS];
+                int generatedCount = 0;
+                double sumLogProbability = 0.0d;
+                double noSpeechProbability = Double.NaN;
+                boolean useCache = false;
+                OrtSession.Result priorDecoderResult = null;
+                OrtSession.Result firstDecoderResult = null;
+                try {
+                    for (int step = 0; step < MAX_GENERATED_TOKENS; step++) {
+                        checkActive(control, cancellation);
+                        Map<String, OnnxTensor> inputs = new HashMap<>();
+                        List<OnnxTensor> temporary = new ArrayList<>();
+                        OnnxTensor tokenTensor = OnnxTensor.createTensor(environment, LongBuffer.wrap(decoderIds),
+                                new long[]{1L, decoderIds.length});
+                        ByteBuffer cacheBranchValue = ByteBuffer.allocateDirect(1);
+                        cacheBranchValue.put((byte) (useCache ? 1 : 0)).flip();
+                        OnnxTensor cacheBranch = OnnxTensor.createTensor(environment,
+                                cacheBranchValue, new long[]{1L}, OnnxJavaType.BOOL);
+                        temporary.add(tokenTensor);
+                        temporary.add(cacheBranch);
+                        inputs.put("input_ids", tokenTensor);
+                        inputs.put("encoder_hidden_states", hiddenStates);
+                        inputs.put("use_cache_branch", cacheBranch);
+                        for (String inputName : decoderSession.getInputNames()) {
+                            if (!inputName.startsWith("past_key_values.")) continue;
+                            String outputName = inputName.replaceFirst("^past_key_values\\.", "present.");
+                            if (priorDecoderResult == null) {
+                                OnnxTensor emptyCache = OnnxTensor.createTensor(environment, FloatBuffer.allocate(0),
+                                        new long[]{1L, 6L, 0L, 64L});
+                                temporary.add(emptyCache);
+                                inputs.put(inputName, emptyCache);
+                            } else if (inputName.contains(".encoder.")) {
+                                // The merged decoder's cache branch emits a dummy empty
+                                // present.*.encoder.* tensor; only the first (no-past)
+                                // step returns real cross-attention keys/values. Reuse
+                                // those rather than echoing the dummy back as past.
+                                inputs.put(inputName, findTensor(firstDecoderResult, outputName));
+                            } else {
+                                inputs.put(inputName, findTensor(priorDecoderResult, outputName));
+                            }
                         }
-                    }
 
-                    OrtSession.Result current = null;
-                    try {
-                        current = decoderSession.run(inputs);
-                    } finally {
-                        for (OnnxTensor tensor : temporary) tensor.close();
+                        OrtSession.Result current = null;
+                        try {
+                            checkActive(control, cancellation);
+                            current = decoderSession.run(inputs, runOptions);
+                        } finally {
+                            for (OnnxTensor tensor : temporary) tensor.close();
+                        }
+                        try {
+                            checkActive(control, cancellation);
+                        } catch (RuntimeException cancelled) {
+                            current.close();
+                            throw cancelled;
+                        }
+                        DecoderStep decoderStep;
+                        try {
+                            decoderStep = selectDecoderStep(findTensor(current, "logits"), step == 0);
+                        } catch (RuntimeException | OrtException failure) {
+                            current.close();
+                            throw failure;
+                        }
+                        if (step == 0) noSpeechProbability = decoderStep.noSpeechProbability();
+                        sumLogProbability += decoderStep.logProbability();
+                        long nextToken = decoderStep.tokenId();
+                        if (nextToken == WhisperTokenizer.endOfTextToken()) {
+                            current.close();
+                            return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
+                        }
+                        generated[generatedCount++] = nextToken;
+                        if (DEBUG_DECODER_TOKENS) {
+                            LOG.fine("WHISPER_DECODE_STEP step=" + step
+                                    + " token=" + nextToken
+                                    + " logP=" + decoderStep.logProbability());
+                        }
+                        if (priorDecoderResult != null && priorDecoderResult != firstDecoderResult) {
+                            priorDecoderResult.close();
+                        }
+                        if (firstDecoderResult == null) firstDecoderResult = current;
+                        priorDecoderResult = current;
+                        decoderIds = new long[]{nextToken};
+                        useCache = true;
                     }
-                    DecoderStep decoderStep;
-                    try {
-                        decoderStep = selectDecoderStep(findTensor(current, "logits"), step == 0);
-                    } catch (RuntimeException | OrtException failure) {
-                        current.close();
-                        throw failure;
+                    // Reaching the token ceiling without an EOT is not a complete
+                    // transcription. Preserve failure instead of persisting a
+                    // truncated, apparently successful provider result.
+                    throw new InferenceError(
+                            "Whisper reference decoder reached the bounded token limit without end-of-text",
+                            null, false);
+                } finally {
+                    if (priorDecoderResult != null) priorDecoderResult.close();
+                    if (firstDecoderResult != null && firstDecoderResult != priorDecoderResult) {
+                        firstDecoderResult.close();
                     }
-                    if (step == 0) noSpeechProbability = decoderStep.noSpeechProbability();
-                    sumLogProbability += decoderStep.logProbability();
-                    long nextToken = decoderStep.tokenId();
-                    if (nextToken == WhisperTokenizer.endOfTextToken()) {
-                        current.close();
-                        return finishDecodedTranscript(generated, generatedCount, sumLogProbability, noSpeechProbability);
-                    }
-                    generated[generatedCount++] = nextToken;
-                    if (DEBUG_DECODER_TOKENS) {
-                        LOG.fine("WHISPER_DECODE_STEP step=" + step
-                                + " token=" + nextToken
-                                + " logP=" + decoderStep.logProbability());
-                    }
-                    if (priorDecoderResult != null && priorDecoderResult != firstDecoderResult) {
-                        priorDecoderResult.close();
-                    }
-                    if (firstDecoderResult == null) firstDecoderResult = current;
-                    priorDecoderResult = current;
-                    decoderIds = new long[]{nextToken};
-                    useCache = true;
-                }
-                // Reaching the token ceiling without an EOT is not a complete
-                // transcription. Preserve failure instead of persisting a
-                // truncated, apparently successful provider result.
-                throw new InferenceError(
-                        "Whisper reference decoder reached the bounded token limit without end-of-text",
-                        null, false);
-            } finally {
-                if (priorDecoderResult != null) priorDecoderResult.close();
-                if (firstDecoderResult != null && firstDecoderResult != priorDecoderResult) {
-                    firstDecoderResult.close();
                 }
             }
         } finally {

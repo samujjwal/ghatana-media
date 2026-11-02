@@ -1,7 +1,11 @@
 package com.ghatana.stt.provider;
 
 import org.junit.jupiter.api.Test;
+import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.stt.api.TranscriptionOptions;
+import com.ghatana.media.stt.api.TranscriptionResult;
+import com.ghatana.media.stt.engine.onnx.WhisperOnnxEngine;
 import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.runtime.MediaModalityContracts;
@@ -24,9 +28,16 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CancellationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 /**
  * Source-tick emission coverage for the Whisper provider result path. The pinned
@@ -165,6 +176,121 @@ class WhisperOnnxSttProviderTest {
     }
 
     @Test
+    void sourceStagingChecksCancellationWithinLargeReaderWrites() {
+        byte[] source = new byte[192 * 1024];
+        Cancellation cancellation = new Cancellation();
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            target.write(source);
+            return receipt(source, source);
+        }, cancellation);
+        AtomicInteger checks = new AtomicInteger();
+
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.readVerifiedSourceContent(
+                context, source.length, () -> {
+                    if (checks.incrementAndGet() == 3) cancellation.cancel();
+                    cancellation.throwIfCancelled();
+                }))
+                .isInstanceOf(CancellationException.class);
+        assertThat(checks).hasValue(3);
+    }
+
+    @Test
+    void providerCancellationSignalForwardsRuntimeCancellationAndLateRegistration() throws Exception {
+        byte[] source = "cancel-source".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            target.write(source);
+            return receipt(source, source);
+        });
+        var signal = WhisperOnnxSttProvider.cancellationSignal(context);
+        AtomicInteger callbacks = new AtomicInteger();
+        AutoCloseable registration = signal.onCancel(callbacks::incrementAndGet);
+
+        context.cancellation().cancel();
+        registration.close();
+        assertThat(signal.cancelled()).isTrue();
+        assertThat(callbacks).hasValue(1);
+
+        AtomicInteger lateCallback = new AtomicInteger();
+        AutoCloseable late = signal.onCancel(lateCallback::incrementAndGet);
+        late.close();
+        assertThat(lateCallback).hasValue(1);
+    }
+
+    @Test
+    void cancellationAfterInferenceCannotBecomeAProviderSuccess() {
+        byte[] source = "post-inference-cancel".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            target.write(source);
+            return receipt(source, source);
+        });
+        WhisperOnnxEngine engine = mock(WhisperOnnxEngine.class);
+        doAnswer(invocation -> {
+            context.cancellation().cancel();
+            return mock(TranscriptionResult.class);
+        }).when(engine).transcribe(any(AudioData.class), any(TranscriptionOptions.class),
+                any(WhisperOnnxEngine.CancellationSignal.class));
+        AudioData audio = new AudioData(new byte[320], 16_000, 1, 16,
+                java.time.Duration.ofMillis(10), AudioFormat.PCM);
+
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.transcribeWithCancellationFence(
+                engine, audio, TranscriptionOptions.defaults(), context))
+                .isInstanceOf(CancellationException.class);
+    }
+
+    @Test
+    void cancellationImmediatelyBeforeSubmissionCannotReturnSucceeded() {
+        byte[] source = "pre-submit-cancel".getBytes(StandardCharsets.US_ASCII);
+        ProcessingContext context = contextFor(source, (target, maxBytes) -> {
+            target.write(source);
+            return receipt(source, source);
+        });
+        context.cancellation().cancel();
+
+        assertThatThrownBy(() -> WhisperOnnxSttProvider.ensureSubmissionNotCancelled(
+                context, com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission.unknown()))
+                .isInstanceOf(CancellationException.class);
+    }
+
+    @Test
+    void cancellationListenerRegistrationRaceInvokesExactlyOnce() throws Exception {
+        for (int iteration = 0; iteration < 100; iteration++) {
+            Cancellation cancellation = new Cancellation();
+            AtomicInteger callbacks = new AtomicInteger();
+            AtomicReference<AutoCloseable> registration = new AtomicReference<>();
+            CountDownLatch ready = new CountDownLatch(2);
+            CountDownLatch start = new CountDownLatch(1);
+            var register = java.util.concurrent.CompletableFuture.runAsync(() -> {
+                ready.countDown();
+                await(start);
+                try {
+                    registration.set(cancellation.onCancel(callbacks::incrementAndGet));
+                } catch (Exception failure) {
+                    throw new AssertionError(failure);
+                }
+            });
+            var cancel = java.util.concurrent.CompletableFuture.runAsync(() -> {
+                ready.countDown();
+                await(start);
+                cancellation.cancel();
+            });
+            ready.await();
+            start.countDown();
+            java.util.concurrent.CompletableFuture.allOf(register, cancel).join();
+            registration.get().close();
+            assertThat(callbacks).hasValue(1);
+        }
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError(interrupted);
+        }
+    }
+
+    @Test
     void exactStagingLimitIsAcceptedOnlyWithMatchingReceiptAndArtifactVersion() throws Exception {
         byte[] source = "exact-cap".getBytes(StandardCharsets.US_ASCII);
         ProcessingContext context = contextFor(source, (target, maxBytes) -> {
@@ -194,13 +320,18 @@ class WhisperOnnxSttProviderTest {
     }
 
     private static ProcessingContext contextFor(byte[] source, MediaArtifactContentReader reader) {
+        return contextFor(source, reader, new Cancellation());
+    }
+
+    private static ProcessingContext contextFor(
+            byte[] source, MediaArtifactContentReader reader, Cancellation cancellation) {
         String sourceHash = sha256(source);
         var artifact = new MediaArtifact("tenant", "principal", "artifact", "source.wav", "audio/wav",
                 source.length, sourceHash, "object://source", "INTERNAL", Instant.now(),
                 Instant.now().plusSeconds(60), Map.of());
         var request = new ProcessingJobRequest("request", "tenant", "principal", "correlation", "artifact",
                 artifact.version().value(), JobType.SPEECH_TO_TEXT, "whisper-provider", Map.of());
-        return new ProcessingContext(request, artifact, new Cancellation(), null, reader);
+        return new ProcessingContext(request, artifact, cancellation, null, reader);
     }
 
     private static ArtifactContentReadReceipt receipt(byte[] bytesToHash, byte[] copiedBytes) {

@@ -2377,10 +2377,61 @@ public final class MediaRuntimeContracts {
 
     public static final class Cancellation {
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
+        private final java.util.concurrent.ConcurrentMap<Long, CancellationListener> listeners =
+                new java.util.concurrent.ConcurrentHashMap<>();
+        private final java.util.concurrent.atomic.AtomicLong listenerIds =
+                new java.util.concurrent.atomic.AtomicLong();
+        private final Object listenerLock = new Object();
         public boolean cancelled() { return cancelled.get(); }
-        public void cancel() { cancelled.set(true); }
+        public void cancel() {
+            java.util.List<CancellationListener> notify;
+            synchronized (listenerLock) {
+                if (!cancelled.compareAndSet(false, true)) return;
+                notify = java.util.List.copyOf(listeners.values());
+                listeners.clear();
+            }
+            notify.forEach(CancellationListener::invoke);
+        }
+
+        /**
+         * Register a cancellation callback. Registration and cancellation are race-safe:
+         * a callback registered concurrently with cancellation runs exactly once.
+         */
+        public AutoCloseable onCancel(Runnable callback) {
+            java.util.Objects.requireNonNull(callback, "callback");
+            CancellationListener listener = new CancellationListener(callback);
+            long id;
+            synchronized (listenerLock) {
+                if (cancelled.get()) {
+                    listener.invoke();
+                    return () -> { };
+                }
+                id = listenerIds.incrementAndGet();
+                listeners.put(id, listener);
+            }
+            return () -> {
+                synchronized (listenerLock) {
+                    listeners.remove(id, listener);
+                }
+            };
+        }
+
         public void throwIfCancelled() {
             if (cancelled()) throw new java.util.concurrent.CancellationException("Media operation cancelled");
+        }
+
+        private static final class CancellationListener {
+            private final Runnable callback;
+            private final AtomicBoolean invoked = new AtomicBoolean();
+            private CancellationListener(Runnable callback) { this.callback = callback; }
+            private void invoke() {
+                if (!invoked.compareAndSet(false, true)) return;
+                try {
+                    callback.run();
+                } catch (RuntimeException ignored) {
+                    // Cancellation is best-effort and one listener cannot suppress the others.
+                }
+            }
         }
     }
 

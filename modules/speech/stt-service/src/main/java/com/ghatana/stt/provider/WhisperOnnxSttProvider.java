@@ -288,6 +288,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     @Override public CompletableFuture<ProviderSubmission> processAttempt(
             ProcessingContext context, ProviderAttemptContext attempt) {
         try {
+            context.cancellation().throwIfCancelled();
             if (context.sourceAuthorization() == null) {
                 return CompletableFuture.failedFuture(new IllegalStateException(
                         "STT provider invoked without admitted source authorization"));
@@ -297,14 +298,16 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
                         "custom glossary application is not supported by this provider profile"));
             }
             VerifiedStagedSource staged = readVerifiedSourceContent(context,
-                    Math.min(maxSourceBytes, SttAudioInputDecoder.MAX_INPUT_BYTES));
+                    Math.min(maxSourceBytes, SttAudioInputDecoder.MAX_INPUT_BYTES),
+                    context.cancellation()::throwIfCancelled);
+            context.cancellation().throwIfCancelled();
             ArtifactContentReadReceipt receipt = staged.receipt();
             AudioData audio = wavPcm16Mono16k(staged.bytes());
             TranscriptionOptions options = TranscriptionOptions.builder()
                     .language(requestLanguage(context))
                     .enableTimestamps(false)
                     .build();
-            TranscriptionResult result = engine.transcribe(audio, options);
+            TranscriptionResult result = transcribeWithCancellationFence(engine, audio, options, context);
             String text = result.getText();
             String outputSha = sha256(text.getBytes(StandardCharsets.UTF_8));
             String transcriptVersionRef = "transcript:v1:sha256:" + outputSha;
@@ -341,15 +344,40 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
                     transcriptResponse.put("segments", List.of(segment));
                 }
             }
-            return CompletableFuture.completedFuture(new ProviderSubmission(
+            ProviderSubmission submission = new ProviderSubmission(
                     AttemptFinality.SUCCEEDED, operationId, receiptId,
-                    submissionResult, provenance, Instant.now()));
+                    submissionResult, provenance, Instant.now());
+            return CompletableFuture.completedFuture(ensureSubmissionNotCancelled(context, submission));
         } catch (RuntimeException | java.io.IOException failure) {
             return CompletableFuture.failedFuture(failure);
         } catch (Exception failure) {
             return CompletableFuture.failedFuture(new IllegalStateException(
                     "Whisper inference failed", failure));
         }
+    }
+
+    static WhisperOnnxEngine.CancellationSignal cancellationSignal(ProcessingContext context) {
+        java.util.Objects.requireNonNull(context, "context");
+        return new WhisperOnnxEngine.CancellationSignal() {
+            @Override public boolean cancelled() { return context.cancellation().cancelled(); }
+            @Override public AutoCloseable onCancel(Runnable callback) {
+                return context.cancellation().onCancel(callback);
+            }
+        };
+    }
+
+    static TranscriptionResult transcribeWithCancellationFence(
+            WhisperOnnxEngine engine, AudioData audio, TranscriptionOptions options,
+            ProcessingContext context) {
+        TranscriptionResult result = engine.transcribe(audio, options, cancellationSignal(context));
+        context.cancellation().throwIfCancelled();
+        return result;
+    }
+
+    static ProviderSubmission ensureSubmissionNotCancelled(
+            ProcessingContext context, ProviderSubmission submission) {
+        context.cancellation().throwIfCancelled();
+        return submission;
     }
 
     /**
@@ -426,13 +454,22 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     /** Reads through a physically bounded sink and verifies the receipt against the pinned artifact. */
     static VerifiedStagedSource readVerifiedSourceContent(ProcessingContext context, long requestedMaxBytes)
             throws IOException {
+        return readVerifiedSourceContent(context, requestedMaxBytes, () -> { });
+    }
+
+    static VerifiedStagedSource readVerifiedSourceContent(
+            ProcessingContext context, long requestedMaxBytes, Runnable cancellationCheck)
+            throws IOException {
+        java.util.Objects.requireNonNull(cancellationCheck, "cancellationCheck");
+        cancellationCheck.run();
         MediaArtifact artifact = context.artifact();
         long cap = Math.min(requestedMaxBytes, SttAudioInputDecoder.MAX_INPUT_BYTES);
         if (cap < 1 || cap > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("STT source staging limit must be between 1 byte and 4 MiB");
         }
-        BoundedStagingSink sink = new BoundedStagingSink((int) cap);
+        BoundedStagingSink sink = new BoundedStagingSink((int) cap, cancellationCheck);
         ArtifactContentReadReceipt receipt = context.copySourceContentTo(sink, cap);
+        cancellationCheck.run();
         byte[] staged = sink.toByteArray();
         String actualSha256 = sha256(staged);
         if (staged.length != receipt.bytesCopied()
@@ -448,17 +485,21 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
 
     /** Fixed-capacity staging: a nonconforming reader cannot grow memory past its declared ceiling. */
     private static final class BoundedStagingSink extends OutputStream {
+        private static final int CANCELLATION_CHECK_BYTES = 64 * 1024;
         private final int capacity;
+        private final Runnable cancellationCheck;
         private byte[] buffer;
         private int size;
 
-        private BoundedStagingSink(int capacity) {
+        private BoundedStagingSink(int capacity, Runnable cancellationCheck) {
             this.capacity = capacity;
+            this.cancellationCheck = cancellationCheck;
             buffer = new byte[Math.min(capacity, 8 * 1024)];
         }
 
         @Override public void write(int value) throws IOException {
             requireCapacity(1);
+            if (size % CANCELLATION_CHECK_BYTES == 0) cancellationCheck.run();
             ensureCapacity(size + 1);
             buffer[size++] = (byte) value;
         }
@@ -466,9 +507,19 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         @Override public void write(byte[] bytes, int offset, int length) throws IOException {
             java.util.Objects.checkFromIndexSize(offset, length, bytes.length);
             requireCapacity(length);
-            ensureCapacity(size + length);
-            System.arraycopy(bytes, offset, buffer, size, length);
-            size += length;
+            int remaining = length;
+            int sourceOffset = offset;
+            if (remaining == 0) cancellationCheck.run();
+            while (remaining > 0) {
+                cancellationCheck.run();
+                int untilCheck = CANCELLATION_CHECK_BYTES - (size % CANCELLATION_CHECK_BYTES);
+                int chunk = Math.min(remaining, untilCheck);
+                ensureCapacity(size + chunk);
+                System.arraycopy(bytes, sourceOffset, buffer, size, chunk);
+                size += chunk;
+                sourceOffset += chunk;
+                remaining -= chunk;
+            }
         }
 
         private void requireCapacity(int additional) throws IOException {
