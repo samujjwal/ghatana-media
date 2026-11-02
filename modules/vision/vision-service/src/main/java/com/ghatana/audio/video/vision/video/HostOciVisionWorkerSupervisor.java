@@ -64,6 +64,14 @@ final class HostOciVisionWorkerSupervisor {
         return required != null && (required.equalsIgnoreCase("true") || required.equals("1"));
     }
 
+    /** Fails before any direct Docker CLI fallback when the selected runtime requires the broker. */
+    static void requireBrokerConfigured(boolean required, boolean configured) throws IOException {
+        if (required && !configured) {
+            throw new IOException("Vision native media processing is unavailable: "
+                    + "the authenticated OCI broker is required and unconfigured");
+        }
+    }
+
     /**
      * Runs one bounded codec worker entirely through the authenticated OCI broker.
      * The Media JVM neither invokes a Docker CLI nor holds an engine socket: it

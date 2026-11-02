@@ -53,6 +53,25 @@ import java.util.concurrent.TimeUnit;
 public class VideoFrameExtractor {
 
     private static final Logger LOG = LoggerFactory.getLogger(VideoFrameExtractor.class);
+    private final boolean requireAuthenticatedBroker;
+
+    public VideoFrameExtractor() {
+        this(false);
+    }
+
+    /**
+     * Creates an extractor whose codec commands may require the authenticated host broker.
+     * Production composition sets this flag; local development can retain the existing
+     * sandboxed direct-worker path when it is explicitly selected.
+     */
+    public VideoFrameExtractor(boolean requireAuthenticatedBroker) {
+        this.requireAuthenticatedBroker = requireAuthenticatedBroker
+                || HostOciVisionWorkerSupervisor.brokerRequired();
+    }
+
+    boolean requiresAuthenticatedBroker() {
+        return requireAuthenticatedBroker;
+    }
 
     private static final String FFMPEG_COMMAND = "ffmpeg";
     private static final int DEFAULT_TIMEOUT_SECONDS = 300;
@@ -505,7 +524,7 @@ public class VideoFrameExtractor {
     }
 
     ProcessResult runProbeProcess(List<String> command, Duration timeout, int maxDiagnosticBytes) throws IOException {
-        return runProcess(command, timeout, maxDiagnosticBytes);
+        return runProcess(command, timeout, maxDiagnosticBytes, null, Long.MAX_VALUE, requireAuthenticatedBroker);
     }
 
     static AudioStreamMetadata parseAudioStreamMetadata(String output) throws IOException {
@@ -797,7 +816,8 @@ public class VideoFrameExtractor {
 
     ProcessResult runFFmpegProcess(List<String> command, Duration timeout, int maxDiagnosticBytes,
             Path monitoredOutput, long maxOutputBytes) throws IOException {
-        return runProcess(command, timeout, maxDiagnosticBytes, monitoredOutput, maxOutputBytes);
+        return runProcess(command, timeout, maxDiagnosticBytes, monitoredOutput, maxOutputBytes,
+                requireAuthenticatedBroker);
     }
 
     List<String> buildFFmpegCommand(Path videoPath, Path outputDir, ExtractionConfig config) throws IOException {
@@ -1071,11 +1091,18 @@ public class VideoFrameExtractor {
      * when an untrusted input causes the child to emit a large amount of text.
      */
     static ProcessResult runProcess(List<String> command, Duration timeout, int maxOutputChars) throws IOException {
-        return runProcess(command, timeout, maxOutputChars, null, Long.MAX_VALUE);
+        return runProcess(command, timeout, maxOutputChars, null, Long.MAX_VALUE,
+                HostOciVisionWorkerSupervisor.brokerRequired());
     }
 
     static ProcessResult runProcess(List<String> command, Duration timeout, int maxOutputChars,
             Path monitoredOutput, long maxOutputBytes) throws IOException {
+        return runProcess(command, timeout, maxOutputChars, monitoredOutput, maxOutputBytes,
+                HostOciVisionWorkerSupervisor.brokerRequired());
+    }
+
+    static ProcessResult runProcess(List<String> command, Duration timeout, int maxOutputChars,
+            Path monitoredOutput, long maxOutputBytes, boolean requireAuthenticatedBroker) throws IOException {
         if (timeout.isNegative() || timeout.isZero()) throw new IllegalArgumentException("timeout must be positive");
         if (maxOutputChars < 0) throw new IllegalArgumentException("maxOutputChars must not be negative");
         if (monitoredOutput != null && maxOutputBytes <= 0) {
@@ -1089,15 +1116,13 @@ public class VideoFrameExtractor {
                 if (!command.stream().skip(1).anyMatch("-version"::equals)) {
                     sandboxWorkspace = LinuxVisionWorkerSandbox.workspaceFor(command);
                 }
-                if (HostOciVisionWorkerSupervisor.brokerConfigured()) {
+                boolean brokerConfigured = HostOciVisionWorkerSupervisor.brokerConfigured();
+                if (brokerConfigured) {
                     return HostOciVisionWorkerSupervisor.runViaBroker(
                             command, sandboxWorkspace, monitoredOutput, timeout,
                             maxOutputBytes, maxOutputChars);
                 }
-                if (HostOciVisionWorkerSupervisor.brokerRequired()) {
-                    throw new IOException("Vision native media processing is unavailable: "
-                            + "the authenticated OCI broker is required and unconfigured");
-                }
+                HostOciVisionWorkerSupervisor.requireBrokerConfigured(requireAuthenticatedBroker, false);
                 hostOciWorker = HostOciVisionWorkerSupervisor.prepare(
                         command, sandboxWorkspace, monitoredOutput, maxOutputBytes);
                 launchCommand = hostOciWorker.command();

@@ -3,6 +3,8 @@ package com.ghatana.audio.video.vision.video;
 import java.io.IOException;
 import java.net.UnixDomainSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,13 +23,31 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public final class MediaOciBrokerClient implements MediaOciBroker {
 
+    private static final int MAX_REQUEST_BYTES = 64 * 1024;
+    private static final int MAX_RESPONSE_BYTES = 128 * 1024;
+    private static final java.time.Duration DEFAULT_CONNECT_TIMEOUT = java.time.Duration.ofSeconds(2);
+    private static final java.time.Duration DEFAULT_WRITE_TIMEOUT = java.time.Duration.ofSeconds(2);
+    private static final java.time.Duration DEFAULT_RESPONSE_TIMEOUT = java.time.Duration.ofSeconds(30);
+
     private final Path socketPath;
     private final Path tokenFile;
+    private final java.time.Duration connectTimeout;
+    private final java.time.Duration writeTimeout;
+    private final java.time.Duration responseTimeout;
     private final SecureRandom random = new SecureRandom();
 
     public MediaOciBrokerClient(Path socketPath, Path tokenFile) {
+        this(socketPath, tokenFile, DEFAULT_CONNECT_TIMEOUT, DEFAULT_WRITE_TIMEOUT,
+                DEFAULT_RESPONSE_TIMEOUT);
+    }
+
+    MediaOciBrokerClient(Path socketPath, Path tokenFile, java.time.Duration connectTimeout,
+            java.time.Duration writeTimeout, java.time.Duration responseTimeout) {
         this.socketPath = java.util.Objects.requireNonNull(socketPath, "socketPath");
         this.tokenFile = java.util.Objects.requireNonNull(tokenFile, "tokenFile");
+        this.connectTimeout = positive(connectTimeout, "connectTimeout");
+        this.writeTimeout = positive(writeTimeout, "writeTimeout");
+        this.responseTimeout = positive(responseTimeout, "responseTimeout");
     }
 
     @Override
@@ -81,33 +101,125 @@ public final class MediaOciBrokerClient implements MediaOciBroker {
 
     private String exchange(String request) throws IOException {
         byte[] bytes = request.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length == 0 || bytes.length > MAX_REQUEST_BYTES) {
+            throw new IOException("Broker request exceeds its framed byte limit");
+        }
         try (SocketChannel channel = SocketChannel.open(java.net.StandardProtocolFamily.UNIX)) {
-            channel.connect(UnixDomainSocketAddress.of(socketPath));
-            ByteBuffer out = ByteBuffer.allocate(4 + bytes.length);
-            out.putInt(bytes.length);
-            out.put(bytes);
-            out.flip();
-            while (out.hasRemaining()) channel.write(out);
-            channel.shutdownOutput();
-            ByteBuffer header = ByteBuffer.allocate(4);
-            if (readFully(channel, header) < 4) throw new IOException("Broker truncated response");
-            header.flip();
-            int length = header.getInt();
-            if (length < 0 || length > 128 * 1024) throw new IOException("Broker response out of bounds");
-            ByteBuffer body = ByteBuffer.allocate(length);
-            if (readFully(channel, body) < length) throw new IOException("Broker truncated response body");
-            return new String(body.array(), StandardCharsets.UTF_8);
+            channel.configureBlocking(false);
+            try (Selector selector = Selector.open()) {
+                long connectDeadline = deadline(connectTimeout);
+                if (!channel.connect(UnixDomainSocketAddress.of(socketPath))) {
+                    SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT);
+                    while (!channel.finishConnect()) {
+                        if (!awaitReady(selector, key, SelectionKey.OP_CONNECT, connectDeadline)) {
+                            throw new IOException("Broker connection timed out before request transmission");
+                        }
+                    }
+                }
+                ByteBuffer out = ByteBuffer.allocate(4 + bytes.length);
+                out.putInt(bytes.length);
+                out.put(bytes);
+                out.flip();
+                SelectionKey key = channel.keyFor(selector);
+                if (key == null) key = channel.register(selector, SelectionKey.OP_WRITE);
+                else key.interestOps(SelectionKey.OP_WRITE);
+                long writeDeadline = deadline(writeTimeout);
+                while (out.hasRemaining()) {
+                    if (System.nanoTime() >= writeDeadline) {
+                        throw new IOException("Broker request write timed out before completion");
+                    }
+                    if (channel.write(out) == 0
+                            && !awaitReady(selector, key, SelectionKey.OP_WRITE, writeDeadline)) {
+                        throw new IOException("Broker request write timed out before completion");
+                    }
+                }
+                if (System.nanoTime() >= writeDeadline) {
+                    throw new UnknownOutcomeException(
+                            "UNKNOWN_OUTCOME: broker may have accepted the completed launch request",
+                            new IOException("Broker request write deadline elapsed"));
+                }
+                try {
+                    channel.shutdownOutput();
+                } catch (IOException shutdownFailure) {
+                    throw new UnknownOutcomeException(
+                            "UNKNOWN_OUTCOME: broker may have accepted the completed launch request",
+                            shutdownFailure);
+                }
+                key.interestOps(SelectionKey.OP_READ);
+                long responseDeadline = deadline(responseTimeout);
+                try {
+                    ByteBuffer header = ByteBuffer.allocate(4);
+                    if (readFully(channel, selector, key, header, responseDeadline) < 4) {
+                        throw new IOException("Broker truncated response");
+                    }
+                    header.flip();
+                    int length = header.getInt();
+                    if (length < 0 || length > MAX_RESPONSE_BYTES) {
+                        throw new IOException("Broker response out of bounds");
+                    }
+                    ByteBuffer body = ByteBuffer.allocate(length);
+                    if (readFully(channel, selector, key, body, responseDeadline) < length) {
+                        throw new IOException("Broker truncated response body");
+                    }
+                    return new String(body.array(), StandardCharsets.UTF_8);
+                } catch (IOException responseFailure) {
+                    throw new UnknownOutcomeException(
+                            "UNKNOWN_OUTCOME: broker did not return a complete launch result", responseFailure);
+                }
+            }
         }
     }
 
-    private static int readFully(SocketChannel channel, ByteBuffer buffer) throws IOException {
+    private static int readFully(SocketChannel channel, Selector selector, SelectionKey key,
+            ByteBuffer buffer, long deadline) throws IOException {
         int total = 0;
         while (buffer.hasRemaining()) {
+            if (System.nanoTime() >= deadline) throw new IOException("Broker response read timed out");
             int n = channel.read(buffer);
             if (n < 0) return total;
             total += n;
+            if (n == 0 && !awaitReady(selector, key, SelectionKey.OP_READ, deadline)) {
+                throw new IOException("Broker response read timed out");
+            }
         }
         return total;
+    }
+
+    private static boolean awaitReady(Selector selector, SelectionKey key, int operation, long deadline)
+            throws IOException {
+        while (true) {
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) return false;
+            key.interestOps(operation);
+            long millis = Math.max(1L, java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(remainingNanos));
+            int ready = selector.select(millis);
+            if (ready == 0) continue;
+            var selected = selector.selectedKeys().iterator();
+            while (selected.hasNext()) {
+                SelectionKey selectedKey = selected.next();
+                selected.remove();
+                if (selectedKey == key && selectedKey.isValid()
+                        && (selectedKey.readyOps() & operation) != 0) return true;
+            }
+        }
+    }
+
+    private static long deadline(java.time.Duration timeout) {
+        return System.nanoTime() + timeout.toNanos();
+    }
+
+    private static java.time.Duration positive(java.time.Duration value, String name) {
+        java.time.Duration duration = java.util.Objects.requireNonNull(value, name);
+        if (duration.isZero() || duration.isNegative()) {
+            throw new IllegalArgumentException(name + " must be positive");
+        }
+        return duration;
+    }
+
+    /** A launch was completely written, but no definitive broker result arrived. */
+    public static final class UnknownOutcomeException extends IOException {
+        public UnknownOutcomeException(String message, Throwable cause) { super(message, cause); }
+        public String code() { return "UNKNOWN_OUTCOME"; }
     }
 
     private byte[] randomBytes(int length) {

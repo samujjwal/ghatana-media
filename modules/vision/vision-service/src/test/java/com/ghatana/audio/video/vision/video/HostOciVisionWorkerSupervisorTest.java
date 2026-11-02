@@ -20,6 +20,19 @@ class HostOciVisionWorkerSupervisorTest {
     @TempDir Path temporaryDirectory;
 
     @Test
+    void productionCompositionCanRequireTheBrokerAndDirectFallbackGuardIsFailClosed() throws Exception {
+        assertThat(new VideoFrameExtractor(true).requiresAuthenticatedBroker()).isTrue();
+        assertThat(new VideoFrameExtractor(false).requiresAuthenticatedBroker())
+                .isEqualTo(HostOciVisionWorkerSupervisor.brokerRequired());
+
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.requireBrokerConfigured(true, false))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("authenticated OCI broker is required and unconfigured");
+        HostOciVisionWorkerSupervisor.requireBrokerConfigured(false, false);
+        HostOciVisionWorkerSupervisor.requireBrokerConfigured(true, true);
+    }
+
+    @Test
     void launchPlanPinsTheWorkerAndLimitsItToPrivateSourceAndOutputMounts() throws Exception {
         Path workspace = privateDirectory("request");
         Path source = workspace.resolve("input.mp4");

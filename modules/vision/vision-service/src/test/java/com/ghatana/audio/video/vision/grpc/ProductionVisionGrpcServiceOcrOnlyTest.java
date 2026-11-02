@@ -92,6 +92,20 @@ class ProductionVisionGrpcServiceOcrOnlyTest {
     }
 
     @Test
+    void endpointMustBeIndependentlyAllowlisted() {
+        Map<String, String> environment = environment();
+        environment.remove("DI_ALLOWED_HOSTS");
+        assertThatThrownBy(() -> ProductionVisionGrpcService.compose(environment, new FakePort()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("independently allowlist");
+
+        environment.put("DI_ALLOWED_HOSTS", "di.owner-selected.invalid");
+        assertThatThrownBy(() -> ProductionVisionGrpcService.compose(environment, new FakePort()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not in the independently configured");
+    }
+
+    @Test
     void unknownCapabilityProfileIsRejected() {
         Map<String, String> environment = environment();
         environment.put("VISION_CAPABILITY_PROFILE", "SOMETHING_ELSE");
@@ -104,6 +118,7 @@ class ProductionVisionGrpcServiceOcrOnlyTest {
         Map<String, String> environment = new HashMap<>();
         environment.put("VISION_CAPABILITY_PROFILE", "OCR_ONLY");
         environment.put("DI_ENDPOINT", "http://127.0.0.1:" + di.getAddress().getPort());
+        environment.put("DI_ALLOWED_HOSTS", "127.0.0.1");
         environment.put("DI_PROVIDER_REF", "di.ocr.en");
         environment.put("DI_PROVIDER_VERSION", "2.4.1");
         environment.put("DI_MODEL_REF", "model.scene-text.en");

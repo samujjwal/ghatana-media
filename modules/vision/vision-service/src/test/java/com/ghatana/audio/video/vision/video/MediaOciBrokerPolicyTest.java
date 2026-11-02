@@ -55,17 +55,81 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
-    void workerArgsRejectUrlsTraversalAndDangerousFlags() {
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of(
-                "-nostdin", "-hide_banner", "-loglevel", "error",
-                "-i", "/source/input", "-y", "/output/result.out"))).isTrue();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-i", "http://evil/x"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-i", "s3://bucket/x"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-i", "/source/../../etc/passwd"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-i", "/etc/passwd"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-filter_script", "/tmp/x"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("-sdp_file", "/output/x"))).isFalse();
-        assertThat(MediaOciBrokerPolicy.workerArgsAllowed(List.of("x".repeat(600)))).isFalse();
+    void workerArgsAllowOnlyCurrentExtractorAndBrokerFixtureLaunchPlans() {
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/result.out"))).isTrue();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
+                "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
+                "-filter_threads", "1", "-f", "mov", "-i", "/source/input",
+                "-threads", "2", "-vf",
+                "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/2)',showinfo,scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
+                "-fps_mode", "passthrough", "-enc_time_base", "demux", "-frames:v", "120",
+                "-q:v", "2", "/output/frame_%04d.jpg", "-n"))).isTrue();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffprobe", List.of(
+                "-v", "error", "-protocol_whitelist", "file", "-f", "mov",
+                "-max_alloc", "268435456", "-select_streams", "v:0", "-show_entries",
+                "stream=width,height,duration,nb_frames,r_frame_rate,time_base", "-of",
+                "default=noprint_wrappers=1", "/source/input"))).isTrue();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffprobe", List.of(
+                "-v", "error", "-protocol_whitelist", "file", "-f", "mov",
+                "-max_alloc", "268435456", "-select_streams", "a:0", "-show_entries",
+                "stream=index,time_base,start_pts,sample_rate,channels,duration_ts", "-of",
+                "default=noprint_wrappers=1", "/source/input"))).isTrue();
+    }
+
+    @Test
+    void generatedExtractorCommandSurvivesBrokerPathRewriteAndMatchesGrammar() throws Exception {
+        Path source = root.resolve("input.mp4");
+        Path output = root.resolve("frames");
+        List<String> generated = new VideoFrameExtractor().buildFFmpegCommand(source, output,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(3).maxFrames(25)
+                        .resolution(640, 480).format("png").build());
+        List<String> workerArgs = generated.subList(1, generated.size()).stream()
+                .map(argument -> argument.equals(source.toString()) ? "/source/input"
+                        : argument.startsWith(output.toString() + "/")
+                                ? argument.replace(output.toString() + "/", "/output/") : argument)
+                .toList();
+
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", workerArgs)).isTrue();
+        java.util.ArrayList<String> alteredFilter = new java.util.ArrayList<>(workerArgs);
+        int filterArgumentIndex = alteredFilter.indexOf("-vf") + 1;
+        alteredFilter.set(filterArgumentIndex, alteredFilter.get(filterArgumentIndex)
+                .replace(",showinfo,scale=", ",volume=1,showinfo,scale="));
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", alteredFilter)).isFalse();
+    }
+
+    @Test
+    void workerArgsRejectAnythingOutsideTheExactGrammarBeforeWorkerLaunch() {
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "http://evil/x",
+                "-y", "/output/result.out"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "s3://bucket/x",
+                "-y", "/output/result.out"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/result.out", ";", "sh", "-c", "id"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/tmp/extra-output"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-filter_complex", "movie=/source/input", "/output/result.out"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/result.out", "-protocol_whitelist", "file,https"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("sh", List.of("-c", "ffmpeg"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/../../etc/passwd",
+                "-y", "/output/result.out"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-filter_script", "/tmp/x"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/result.out", "x".repeat(600)))).isFalse();
     }
 
     @Test

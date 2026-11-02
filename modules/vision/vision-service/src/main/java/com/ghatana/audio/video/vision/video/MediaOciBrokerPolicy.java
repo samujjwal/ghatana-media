@@ -28,12 +28,7 @@ final class MediaOciBrokerPolicy {
     static final long MAX_REQUEST_SKEW_MS = Duration.ofMinutes(5).toMillis();
     static final int MAX_ARG_LENGTH = 512;
 
-    /** ffmpeg/ffprobe flags that escape the sandboxed codec shape. */
-    private static final Set<String> FORBIDDEN_WORKER_FLAGS = Set.of(
-            "-filter_script", "-filter_complex_script", "-filter:script",
-            "-vstats_file", "-sdp_file", "-hls_playlist", "-scp", "-sftp",
-            "-dump_attachment", "-allow", "-pre", "-fpre", "-override_ffserver",
-            "-reconnect", "-reconnect_at_eof", "-reconnect_streamed");
+    private static final Set<String> INPUT_FORMATS = Set.of("mov", "matroska", "avi", "webm");
 
     private MediaOciBrokerPolicy() { }
 
@@ -69,22 +64,97 @@ final class MediaOciBrokerPolicy {
         return uid == policy.workerUid() && gid == policy.workerGid();
     }
 
-    /**
-     * Codec worker arguments: bounded length, no network URLs, no parent traversal,
-     * no forbidden flags, and absolute paths only under the sandbox mount points.
-     */
-    static boolean workerArgsAllowed(List<String> args) {
+    /** Exact argument grammar for the extractor's FFmpeg and FFprobe launch plans. */
+    static boolean workerArgsAllowed(String executable, List<String> args) {
+        if (executable == null || args == null || args.isEmpty() || args.size() > 64) return false;
         for (String arg : args) {
             if (arg == null || arg.isBlank() || arg.length() > MAX_ARG_LENGTH
-                    || arg.chars().anyMatch(Character::isISOControl)) return false;
-            if (arg.contains("://") || arg.contains("..")) return false;
-            if (FORBIDDEN_WORKER_FLAGS.contains(arg)) return false;
-            if (arg.startsWith("/") && !arg.startsWith("/source/")
-                    && !arg.startsWith("/output/") && !arg.startsWith("/tmp/")) {
-                return false;
-            }
+                    || arg.chars().anyMatch(Character::isISOControl)
+                    || arg.contains("://") || arg.contains("..")) return false;
         }
+        return switch (executable) {
+            case "ffmpeg" -> ffmpegArgsAllowed(args);
+            case "ffprobe" -> ffprobeArgsAllowed(args);
+            default -> false;
+        };
+    }
+
+    private static boolean ffmpegArgsAllowed(List<String> args) {
+        // Narrow fixture-worker plan used by the OCI boundary suite.
+        if (args.size() == 8 && args.get(0).equals("-nostdin")
+                && args.get(1).equals("-hide_banner") && args.get(2).equals("-loglevel")
+                && args.get(3).equals("error") && args.get(4).equals("-i")
+                && args.get(5).equals("/source/input")
+                && (args.get(6).equals("-y") || args.get(6).equals("-n"))) {
+            return outputFile(args.get(7));
+        }
+        // Production VideoFrameExtractor frame extraction plan, including its bounded
+        // select/scale filter and fixed output format/options.
+        if (args.size() != 32 || !args.subList(0, 16).equals(List.of(
+                "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
+                "-max_alloc", "268435456", "-max_pixels", args.get(9), "-threads", "2",
+                "-filter_threads", "1", "-f", args.get(15)))
+                || !args.get(9).equals("16000000")
+                || !INPUT_FORMATS.contains(args.get(15)) || !args.get(16).equals("-i")
+                || !args.get(17).equals("/source/input") || !args.get(18).equals("-threads")
+                || !args.get(19).equals("2") || !args.get(20).equals("-vf")
+                || !safeFrameFilter(args.get(21)) || !args.get(22).equals("-fps_mode")
+                || !args.get(23).equals("passthrough") || !args.get(24).equals("-enc_time_base")
+                || !args.get(25).equals("demux") || !args.get(26).equals("-frames:v")
+                || !positiveInt(args.get(27), 10_000) || !args.get(28).equals("-q:v")
+                || !positiveInt(args.get(29), 31) || !outputPattern(args.get(30))
+                || !args.get(31).equals("-n")) return false;
         return true;
+    }
+
+    private static boolean ffprobeArgsAllowed(List<String> args) {
+        if (args.size() != 15) return false;
+        if (!args.subList(0, 4).equals(List.of("-v", "error", "-protocol_whitelist", "file"))
+                || !args.get(4).equals("-f") || !INPUT_FORMATS.contains(args.get(5))
+                || !args.get(6).equals("-max_alloc") || !args.get(7).equals("268435456")
+                || !args.get(8).equals("-select_streams") || !args.get(10).equals("-show_entries")
+                || !args.get(12).equals("-of")
+                || !args.get(13).equals("default=noprint_wrappers=1")
+                || !args.get(14).equals("/source/input")) return false;
+        String stream = args.get(9);
+        boolean audio = stream.equals("a:0")
+                && args.get(11).equals("stream=index,time_base,start_pts,sample_rate,channels,duration_ts");
+        boolean video = stream.equals("v:0")
+                && args.get(11).equals("stream=width,height,duration,nb_frames,r_frame_rate,time_base");
+        return audio || video;
+    }
+
+    private static boolean safeFrameFilter(String filter) {
+        if (filter == null || filter.length() > MAX_ARG_LENGTH) return false;
+        String selection = "select='isnan\\(prev_selected_t\\)\\+gte\\(t-prev_selected_t,1/"
+                + "(?:[1-9]|[1-5][0-9]|60)\\)',showinfo,";
+        String defaultScale = "scale='min\\(4096,iw\\)':'min\\(4096,ih\\)':force_original_aspect_ratio=decrease";
+        if (filter.matches(selection + defaultScale)) return true;
+        java.util.regex.Matcher dimensions = java.util.regex.Pattern.compile(
+                selection + "scale=([1-9][0-9]{0,3}):([1-9][0-9]{0,3})").matcher(filter);
+        if (!dimensions.matches()) return false;
+        try {
+            int width = Integer.parseInt(dimensions.group(1));
+            int height = Integer.parseInt(dimensions.group(2));
+            return width <= 8192 && height <= 8192 && (long) width * height <= 16_000_000L;
+        } catch (NumberFormatException invalid) {
+            return false;
+        }
+    }
+
+    private static boolean outputFile(String path) {
+        return path != null && path.matches("/output/[A-Za-z0-9_.-]{1,180}")
+                && !path.equals("/output/.") && !path.equals("/output/..");
+    }
+
+    private static boolean outputPattern(String path) {
+        return path != null && path.matches("/output/frame_%04d\\.(?:jpg|jpeg|png|bmp|tiff)");
+    }
+
+    private static boolean positiveInt(String value, int maximum) {
+        if (value == null || !value.matches("[1-9][0-9]{0,7}")) return false;
+        try { return Integer.parseInt(value) <= maximum; }
+        catch (NumberFormatException invalid) { return false; }
     }
 
     /**

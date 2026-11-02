@@ -171,7 +171,7 @@ public final class MediaOciBrokerDaemon {
                 || executable == null || !EXECUTABLE.matcher(executable).matches()
                 || uid <= 0 || workerArgs.size() > MAX_ARGS
                 || !MediaOciBrokerPolicy.workerIdentityAllowed(policy, uid, gid)
-                || !MediaOciBrokerPolicy.workerArgsAllowed(workerArgs)
+                || !MediaOciBrokerPolicy.workerArgsAllowed(executable, workerArgs)
                 || !MediaOciBrokerPolicy.sourceAllowed(policy, source, sourceSha256)
                 || !MediaOciBrokerPolicy.outputAllowed(policy, output)) {
             writeResult(client, -2, "rejected"); return;

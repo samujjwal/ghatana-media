@@ -39,6 +39,7 @@ class VisionGrpcServerMainProcessTest {
                 Map.entry("VISION_GRPC_PORT", Integer.toString(port)),
                 Map.entry("AV_HEALTH_PORT", Integer.toString(healthPort)),
                 Map.entry("DI_ENDPOINT", "http://127.0.0.1:9"),
+                Map.entry("DI_ALLOWED_HOSTS", "127.0.0.1"),
                 Map.entry("DI_PROVIDER_REF", "test-only-unadmitted-provider"),
                 Map.entry("DI_PROVIDER_VERSION", "1"),
                 Map.entry("DI_MODEL_REF", "test-only-unadmitted-model"),

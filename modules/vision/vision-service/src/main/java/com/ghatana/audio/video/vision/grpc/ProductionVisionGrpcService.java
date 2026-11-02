@@ -120,12 +120,14 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     static Composition compose(Map<String, String> environment, MediaProcessingRuntimePort mediaRuntimePort) {
         Objects.requireNonNull(environment, "environment");
         VisionCapabilityProfile capability = VisionCapabilityProfile.fromEnvironment(environment);
+        boolean productionLike = MediaDeploymentProfiles.productionLike(environment.getOrDefault(
+                "MEDIA_RUNTIME_ENVIRONMENT", environment.getOrDefault("MEDIA_PROFILE", "local")));
         if (capability == VisionCapabilityProfile.OCR_ONLY) {
             if (mediaRuntimePort == null) {
                 throw new IllegalStateException(
                         "OCR_ONLY requires the canonical Media runtime port for source authority and trusted frame access");
             }
-            return new Composition(null, new VideoFrameExtractor(), null, capability,
+            return new Composition(null, new VideoFrameExtractor(productionLike), null, capability,
                     composeSceneText(environment, mediaRuntimePort, true));
         }
         VisionModelProfile profile = VisionModelProfile.fromEnvironment(environment);
@@ -143,7 +145,7 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
                         "Vision detector did not become initialized");
             }
             sceneText = composeSceneText(environment, mediaRuntimePort, false);
-            return new Composition(detector, new VideoFrameExtractor(), profile, capability, sceneText);
+            return new Composition(detector, new VideoFrameExtractor(productionLike), profile, capability, sceneText);
         } catch (LinkageError | RuntimeException failure) {
             if (sceneText != null) sceneText.close();
             detector.close();
@@ -175,11 +177,14 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
                 "MEDIA_RUNTIME_ENVIRONMENT", environment.getOrDefault("MEDIA_PROFILE", "local")));
         URI baseUri = URI.create(endpoint);
         String host = baseUri.getHost() == null ? "" : baseUri.getHost().toLowerCase(java.util.Locale.ROOT);
-        Set<String> allowedHosts = new java.util.LinkedHashSet<>();
-        if (!host.isEmpty()) allowedHosts.add(host);
-        allowedHosts.addAll(csv(environment.get("DI_ALLOWED_HOSTS")));
+        Set<String> allowedHosts = csv(environment.get("DI_ALLOWED_HOSTS")).stream()
+                .map(value -> value.toLowerCase(java.util.Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
         if (allowedHosts.isEmpty()) {
-            throw new IllegalArgumentException("DI_ENDPOINT must name an allowlisted host");
+            throw new IllegalArgumentException("DI_ALLOWED_HOSTS must independently allowlist the DI_ENDPOINT host");
+        }
+        if (host.isEmpty() || !allowedHosts.contains(host)) {
+            throw new IllegalArgumentException("DI_ENDPOINT host is not in the independently configured DI_ALLOWED_HOSTS");
         }
         DocumentIntelligenceHttpClient.EndpointPolicy endpointPolicy =
                 new DocumentIntelligenceHttpClient.EndpointPolicy(
