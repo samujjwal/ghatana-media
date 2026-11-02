@@ -1876,3 +1876,18 @@ GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
 ```
 
 This is adapter projection evidence only: the four-value vocabulary is the only upstream-defined set found, so other future constraints are intentionally omitted pending an owning contract update. Pattern and allowlist filtering is not general DLP, and no authenticated ledger owner, durable RunLedger write/readback, LD-03 whole-row acceptance, or runtime admission is established.
+
+### 41.52 November 2 Rust decoder rejects truncated codec packets (2026-11-02)
+
+At Media `main@d63fc586`, `decode_audio_bounded_with_time_budget` no longer treats `UnexpectedEof` from decoding an already-returned compressed packet as successful end-of-stream. Packet decode failures now pass through `map_packet_decode_error`; truncated packet EOF is a typed `SpeechAudioError::Decode`, and existing `DecodeError`/other codec mappings are preserved. The `format.next_packet()` EOF branch still marks stream completion, since that API does not distinguish clean demux EOF from a partial trailing packet without format-specific framing evidence.
+
+```bash
+cargo test --locked -p speech-audio-rust
+# 42/42 passed
+cargo clippy --locked -p speech-audio-rust --all-targets -- -D warnings
+# passed
+cargo fmt --check
+# passed
+```
+
+This closes only decoder-level truncated-packet handling. Fuzz-target coverage, peak-RSS measurements, interruption of synchronous codec calls, concurrent file-growth protection, decoder-internal allocation bounds, and demux-level partial-tail distinction remain open; RS-02 is not complete.
