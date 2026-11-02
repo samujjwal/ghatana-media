@@ -2450,7 +2450,7 @@ The focused selector passed **1/1** with `--rerun-tasks`; `git diff --check` pas
   --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
 ```
 
-**QUAL-PROVIDER-SOURCE snapshot integrity:** `FrozenHoldoutQualityEvidence.parse/load` now require an explicit lowercase `sha256:` pin and compare the exact bounded input bytes before parsing. The earlier public method shapes remain present but fail closed when no pin is provided. Tests cover absent, malformed, and mismatched pins. A focused rerun passed **9/9**. The test fixture's digest is calculated from its own bytes; no externally pinned FLEURS evaluation report, licensed model, or real provider measurement was supplied. The helper still provides telemetry evidence only, not qualification or traffic admission.
+**QUAL-PROVIDER-SOURCE snapshot integrity:** `FrozenHoldoutQualityEvidence.parse/load` now require an explicit lowercase `sha256:` pin and compare the exact bounded input bytes before parsing. Parsing hashes and reads one defensive byte snapshot, closing a caller-mutation race found in independent review. The earlier public method shapes remain present but fail closed when no pin is provided. Tests cover absent, malformed, and mismatched pins. A focused rerun passed **9/9**. The test fixture's digest is calculated from its own bytes; no externally pinned FLEURS evaluation report, licensed model, or real provider measurement was supplied. Repository search found no production composition caller that supplies an independently provisioned pin, so this remains a telemetry-loader integrity slice, not qualification or traffic admission.
 
 ```bash
 ./gradlew :services:media:modules:speech:stt-service:test \
