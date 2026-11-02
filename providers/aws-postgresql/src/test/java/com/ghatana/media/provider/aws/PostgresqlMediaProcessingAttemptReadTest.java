@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -352,6 +353,59 @@ class PostgresqlMediaProcessingAttemptReadTest {
     }
 
     @Test
+    void simulatedLateFailedCommitAcknowledgementPreservesDurableSuccessWithoutRetryOrUnknownEvent() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-attempt-late-commit-ack-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        AtomicBoolean failNextCommitAcknowledgement = new AtomicBoolean(false);
+        AtomicBoolean delegateCommitCompleted = new AtomicBoolean(false);
+        AtomicInteger targetedCommitCalls = new AtomicInteger();
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     integrationEnvironment(bucket), null,
+                     connection -> failAcknowledgementAfterCommit(
+                             connection, failNextCommitAcknowledgement, delegateCommitCompleted,
+                             targetedCommitCalls));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-" + suffix;
+            String jobId = "job-" + suffix;
+            AttemptFixture started = startAttempt(store, tenant, jobId);
+            var attempt = store.recordProviderReceipt(started.attempt(), started.lease(),
+                    "operation-late-ack", "receipt-late-ack");
+            Map<String, Object> providerResult = Map.of("label", "synthetic");
+            Instant observedAt = Instant.now();
+            ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                    AttemptFinality.SUCCEEDED, "receipt-late-ack", providerResult, PROVENANCE, observedAt);
+            ProcessingJob completed = terminal(started.running(), JobStatus.COMPLETED, providerResult);
+            MediaLifecycleEvent successEvent = event(completed, "MEDIA_JOB_COMPLETED");
+
+            failNextCommitAcknowledgement.set(true);
+            assertThatThrownBy(() -> store.commitFinalOutcome(
+                    started.running(), attempt, completed, observation, successEvent,
+                    MonotonicDeadline.after(Duration.ofSeconds(5))))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThat(failNextCommitAcknowledgement).isFalse();
+            assertThat(targetedCommitCalls).hasValue(1);
+            assertThat(delegateCommitCompleted).isTrue();
+
+            ProcessingJob durableJob = store.find(tenant, jobId).orElseThrow();
+            assertThat(durableJob.status()).isEqualTo(JobStatus.COMPLETED);
+            assertThat(durableJob.result()).containsEntry("label", "synthetic");
+            var durableAttempt = store.findProcessingAttempt(tenant, jobId, 1).orElseThrow();
+            assertThat(durableAttempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(durableAttempt.providerOperationId()).isEqualTo("operation-late-ack");
+            assertThat(durableAttempt.providerReceiptId()).isEqualTo("receipt-late-ack");
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                    + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_COMPLETED'",
+                    tenant, jobId)).isEqualTo(1);
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                    + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_OUTCOME_UNKNOWN'",
+                    tenant, jobId)).isZero();
+        }
+    }
+
+    @Test
     void preservesProviderSuccessEvidenceWhenMediaJobMustRemainUnknown() throws Exception {
         String suffix = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-attempt-success-unknown-" + suffix;
@@ -436,6 +490,37 @@ class PostgresqlMediaProcessingAttemptReadTest {
                             Thread.currentThread().interrupt();
                             throw new SQLException("injected pre-commit delay was interrupted", interrupted);
                         }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+    }
+
+    private static Connection failAcknowledgementAfterCommit(
+            Connection delegate, AtomicBoolean failNextAcknowledgement,
+            AtomicBoolean delegateCommitCompleted, AtomicInteger targetedCommitCalls) {
+        return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
+                new Class<?>[] {Connection.class}, (proxy, method, arguments) -> {
+                    if ("commit".equals(method.getName()) && failNextAcknowledgement.compareAndSet(true, false)) {
+                        targetedCommitCalls.incrementAndGet();
+                        try {
+                            method.invoke(delegate, arguments);
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
+                        }
+                        delegateCommitCompleted.set(true);
+                        // Simulate a late failed acknowledgement after the real delegate commit returned.
+                        try {
+                            Thread.sleep(5_200);
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                            throw new SQLException("injected post-commit acknowledgement delay was interrupted",
+                                    interrupted);
+                        }
+                        throw new SQLException("injected lost acknowledgement after successful commit", "08006");
                     }
                     try {
                         return method.invoke(delegate, arguments);
