@@ -1,6 +1,7 @@
 package com.ghatana.media.provider.aws;
 
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -82,7 +83,7 @@ class Ip06FlywayProcessCrashRecoveryTest {
         // The child died without returning through Flyway. PostgreSQL must discard V021's
         // transactional DDL and Flyway history insert while retaining the committed V001–V020.
         awaitNoActiveMigration(schema, app);
-        assertHistory(schema, 20);
+        assertHistory(schema, 20, locations);
         assertThat(columnExists(schema, "media_transcript_revisions", "purpose_ref")).isFalse();
         assertThat(count(schema, "media_artifacts", "artifact_id='ip06-crash-artifact'")).isEqualTo(1);
         assertThat(output).doesNotExist();
@@ -94,7 +95,7 @@ class Ip06FlywayProcessCrashRecoveryTest {
                 "ip06-v021-resume-" + schema, schema, resumeLocations);
         awaitExit(resume, tempDir.resolve("resumed-child.log"));
         assertThat(Files.readString(resumed)).isEqualTo("MIGRATED:9");
-        assertHistory(schema, 29);
+        assertHistory(schema, 29, resumeLocations);
         assertThat(columnExists(schema, "media_transcript_revisions", "purpose_ref")).isTrue();
         assertThat(count(schema, "media_artifacts", "artifact_id='ip06-crash-artifact'")).isEqualTo(1);
 
@@ -103,12 +104,13 @@ class Ip06FlywayProcessCrashRecoveryTest {
                 "ip06-v021-noop-" + schema, schema, resumeLocations);
         awaitExit(second, tempDir.resolve("noop-child.log"));
         assertThat(Files.readString(noop)).isEqualTo("MIGRATED:0");
-        assertHistory(schema, 29);
+        assertHistory(schema, 29, resumeLocations);
     }
 
     private static Flyway flyway(String location, String schema) {
         return Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                .locations(location).schemas(schema).defaultSchema(schema).validateMigrationNaming(true).load();
+                .locations(location.split(",")).schemas(schema).defaultSchema(schema)
+                .validateMigrationNaming(true).load();
     }
 
     private static Process child(Path output, Path log, String app, String schema, String locations) throws Exception {
@@ -167,16 +169,39 @@ class Ip06FlywayProcessCrashRecoveryTest {
         throw new AssertionError("migration backend remained active for schema " + schema);
     }
 
-    private static void assertHistory(String schema, int expected) throws Exception {
+    private static void assertHistory(String schema, int expected, String locations) throws Exception {
+        MigrationInfo[] source = flyway(locations, schema).info().all();
+        // The history query below intentionally reconciles versioned migrations only. Flyway's
+        // schema-creation marker is the sole allowed versionless row; repeatables are absent.
+        assertThat(countHistoryRows(schema, "version IS NULL AND type='SCHEMA'")).isEqualTo(1);
+        assertThat(countHistoryRows(schema, "version IS NULL AND type<>'SCHEMA'")).isZero();
         try (Connection connection = connection(); var statement = connection.createStatement();
-             ResultSet rows = statement.executeQuery("SELECT version::integer,success FROM " + schema
+             ResultSet rows = statement.executeQuery("SELECT installed_rank,version,description,script,checksum,success FROM " + schema
                      + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
             int seen = 0;
             while (rows.next()) {
-                assertThat(rows.getInt(1)).isEqualTo(++seen);
-                assertThat(rows.getBoolean(2)).isTrue();
+                int version = ++seen;
+                assertThat(rows.getInt("version")).isEqualTo(version);
+                MigrationInfo expectedSource = java.util.Arrays.stream(source)
+                        .filter(migration -> migration.getVersion() != null
+                                && Integer.parseInt(migration.getVersion().getVersion()) == version)
+                        .findFirst().orElseThrow(() -> new AssertionError("missing source V" + version));
+                assertThat(rows.getInt("installed_rank")).isEqualTo(expectedSource.getInstalledRank());
+                assertThat(rows.getString("description")).isEqualTo(expectedSource.getDescription());
+                assertThat(rows.getString("script")).isEqualTo(expectedSource.getScript());
+                assertThat(rows.getObject("checksum", Integer.class)).isEqualTo(expectedSource.getChecksum());
+                assertThat(rows.getBoolean("success")).isTrue();
             }
             assertThat(seen).isEqualTo(expected);
+        }
+    }
+
+    private static long countHistoryRows(String schema, String predicate) throws Exception {
+        try (Connection connection = connection(); var statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery("SELECT COUNT(*) FROM " + schema
+                     + ".flyway_schema_history WHERE " + predicate)) {
+            rows.next();
+            return rows.getLong(1);
         }
     }
 
