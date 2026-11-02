@@ -332,7 +332,13 @@ impl Resampler {
                 continue;
             }
             for sum in &acc {
-                output.push((*sum / weight_sum) as f32);
+                let sample = (*sum / weight_sum) as f32;
+                if !sample.is_finite() {
+                    return Err(SpeechAudioError::ResourceLimit(
+                        "resampled sample exceeds finite f32 range".to_string(),
+                    ));
+                }
+                output.push(sample);
             }
         }
 
@@ -1658,6 +1664,25 @@ mod tests {
         assert!(matches!(
             Resampler::with_options(16_000, 24, 1.5),
             Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn resampler_rejects_finite_input_that_overflows_f32_output() {
+        let mut samples = vec![0.0; 96];
+        samples[24..48].fill(f32::MAX);
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        assert!(matches!(
+            Resampler::new(16_000).resample(&input),
+            Err(SpeechAudioError::ResourceLimit(_))
         ));
     }
 
