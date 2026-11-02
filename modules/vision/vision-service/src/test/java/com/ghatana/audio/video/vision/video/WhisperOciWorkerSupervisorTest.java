@@ -114,6 +114,8 @@ class WhisperOciWorkerSupervisorTest {
             assertThat(context.supervisor().execute(id(0), PROFILE, "en-US", INPUT_SHA,
                     WAV.getBytes(StandardCharsets.UTF_8), 30_000)).isEqualTo(executed);
             assertThat(runner.commands.stream().filter(command -> command.get(1).equals("create"))).hasSize(1);
+            assertThat(runner.commands).anySatisfy(command -> assertThat(command)
+                    .contains("image", "inspect", "--format", "{{.Id}}|{{json .RepoDigests}}"));
             assertThat(new String(runner.lastStdin, StandardCharsets.UTF_8))
                     .contains("\"wavBase64\":\"" + Base64.getEncoder()
                             .encodeToString(WAV.getBytes(StandardCharsets.UTF_8)) + "\"");
@@ -434,7 +436,7 @@ class WhisperOciWorkerSupervisorTest {
             return switch (op) {
                 case "image" -> imageMissing
                         ? new WhisperOciWorkerSupervisor.CommandResult(1, new byte[0], bytes("missing"), false, false)
-                        : ok("sha256:" + "d".repeat(64) + "|" + IMAGE);
+                        : ok("sha256:" + "d".repeat(64) + "|[\"" + IMAGE + "\"]");
                 case "ps" -> failList ? new WhisperOciWorkerSupervisor.CommandResult(1,
                         new byte[0], bytes("docker unavailable"), false, false) : ok(orphanIds);
                 case "create" -> create();

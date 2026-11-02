@@ -422,16 +422,26 @@ final class WhisperOciWorkerSupervisor {
             WhisperWorkerServerConfig.validateModelRoot(config.modelRoot(),
                     config.modelSha256(), config.bundleSha256());
             Duration imageBudget = bounded(CREATE_TIMEOUT, deadline, monotonicClock);
+            boolean localImageId = config.imageDigest().matches("sha256:[0-9a-f]{64}");
+            String inspectFormat = localImageId
+                    ? "{{.Id}}" : "{{.Id}}|{{json .RepoDigests}}";
             CommandResult image = runner.run(List.of(docker, "image", "inspect", "--format",
-                    "{{.Id}}|{{join .RepoDigests \",\"}}", config.imageDigest()),
+                    inspectFormat, config.imageDigest()),
                     null, imageBudget, 4096, 1024);
             if (image.timedOut() || image.exitCode() != 0 || image.outputExceeded()) return false;
-            String[] pins = stdoutText(image).trim().split("\\|", -1);
-            if (config.imageDigest().matches("sha256:[0-9a-f]{64}")) {
-                return pins.length == 2 && config.imageDigest().equals(pins[0]);
+            String inspected = stdoutText(image).trim();
+            if (localImageId) {
+                return config.imageDigest().equals(inspected);
             }
+            String[] pins = inspected.split("\\|", 2);
             if (pins.length != 2) return false;
-            return java.util.Arrays.asList(pins[1].split(",", -1)).contains(config.imageDigest());
+            JsonNode repoDigests = JSON.readTree(pins[1]);
+            if (!pins[0].matches("sha256:[0-9a-f]{64}") || !repoDigests.isArray()) return false;
+            for (JsonNode repoDigest : repoDigests) {
+                if (!repoDigest.isTextual()) return false;
+                if (config.imageDigest().equals(repoDigest.asText())) return true;
+            }
+            return false;
         } catch (IOException unavailable) { return false; }
     }
 
