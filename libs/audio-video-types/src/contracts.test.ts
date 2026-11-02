@@ -127,6 +127,34 @@ describe("media contracts", () => {
     ).toThrow();
   });
 
+  it("rejects blank identity values without normalizing opaque identifiers", () => {
+    const artifact = {
+      id: "artifact-1",
+      tenantId: "tenant-1",
+      kind: "AUDIO",
+      status: "AVAILABLE",
+      fileName: "source.wav",
+      mimeType: "audio/wav",
+      sizeBytes: 0,
+      checksumSha256: "a".repeat(64),
+      classification: "CONFIDENTIAL",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      ownerId: "user-1",
+      provenance: { sourceArtifactIds: [], providerId: "provider-1" },
+      metadata: {},
+    };
+
+    for (const blank of ["", " ", "\t\n"]) {
+      expect(MediaArtifactSchema.safeParse({ ...artifact, tenantId: blank }).success).toBe(false);
+      expect(MediaArtifactSchema.safeParse({
+        ...artifact,
+        provenance: { ...artifact.provenance, providerId: blank },
+      }).success).toBe(false);
+    }
+    expect(MediaArtifactSchema.parse({ ...artifact, id: " artifact-1 " }).id).toBe(" artifact-1 ");
+  });
+
   it("rejects fractional, negative, and unsafe byte counts without rounding", () => {
     const artifact = {
       id: "artifact-1",

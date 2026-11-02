@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-const IdentifierSchema = z.string().min(1).max(256);
+// Identity-bearing wire fields must contain a visible character. Keep the
+// original spelling intact (identifiers are opaque), but reject whitespace-only
+// values that otherwise pass `.min(1)` and can become ambiguous in logs/storage.
+const IdentifierSchema = z.string().min(1).max(256).refine((value) => value.trim().length > 0, {
+  message: "identifier must not be blank",
+});
 const IsoTimestampSchema = z.string().datetime({ offset: true });
 const ConfidenceSchema = z.number().min(0).max(1);
 const PercentageSchema = z.number().min(0).max(100);
