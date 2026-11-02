@@ -14,7 +14,7 @@
   "semanticReviewSha256": "a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
   "pdp0PredecessorStatusRef": "docs/implementation/pdp-0-phase-dev-status.json",
   "pdp0PredecessorStatusSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-  "sourceFingerprintSetSha256": "9053c3dc80f7d61ba0e624c085f74e756adf9a9b87fcba2de089ccdd62487049",
+  "sourceFingerprintSetSha256": "1c9b562733df14bd7d6b546e2f204b274631c93983ae0c9ea49d03f23117e243",
   "sourceFingerprints": {
     ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
     ".product-experience/authority-map.yaml": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
@@ -32,7 +32,7 @@
     ".product-experience/pdp-1-domain-data/authority.yaml": "433f13db1adde6b7136656491125612a5894cfe8ad6d50e3f4c23d99223102ec",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
     ".product-experience/pdp-1-domain-data/decisions.yaml": "21ae2214b7e1db961e826b95022fa5a69a41fef83afd923701d79f9c8aef18b8",
-    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8",
+    ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml": "6cf4be161ecf3f1991bfb155dc8bbc0bd16d1245ef9fbdd1f4f8717fe07fd400",
     ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
     ".product-experience/pdp-1-domain-data/events.yaml": "7a3c91161e1d7597f4e378163b0f9a652c3f316d9b11346ea074f64f0954bf3d",
     ".product-experience/pdp-1-domain-data/evidence.yaml": "aa1319db9ec6c5f3f9a68d12911aca3f978a8f9278fbb79559916472e44b2f3b",
@@ -87,8 +87,8 @@
     "libs/audio-video-client/src/scene-text-adapter.test.ts": "7259c578466c154f0b27e9095f31d3c5901d1ea9562ee3a3254f9e27bb1175da",
     "libs/audio-video-client/src/scene-text-adapter.ts": "76ce901b03e18dc159a9e9e06133d6037b8a9dd34681b486a340805c63bb5bf3",
     "libs/audio-video-types/src/__tests__/types.contract.test.ts": "f3be4c3fcd33d2e81900696750566acc5f5acacd7302c2cd7844223178c35ba4",
-    "libs/audio-video-types/src/contracts.test.ts": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f",
-    "libs/audio-video-types/src/contracts.ts": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93",
+    "libs/audio-video-types/src/contracts.test.ts": "115f8e614d5162322f971120688f6475b8a405fd5adf0b859affb9362f092775",
+    "libs/audio-video-types/src/contracts.ts": "7109bc2ad67520ae1e5f9b829e81c401158efe2bb466d55174ef304193e84863",
     "libs/audio-video-types/src/index.d.ts": "67a2e9e55f02989d33e14501c06c56977ccdb7a48fbedadccf35e413de953b84",
     "libs/audio-video-types/src/index.js": "71ef7a1ad8255fab4f6a9132993dc074f0b2acf6c81b6d7ceab2e587996a6eb3",
     "libs/audio-video-types/src/index.ts": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436",
@@ -169,7 +169,7 @@
       {
         "sourceRef": ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
         "expectedSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
-        "currentSha256": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8"
+        "currentSha256": "6cf4be161ecf3f1991bfb155dc8bbc0bd16d1245ef9fbdd1f4f8717fe07fd400"
       },
       {
         "sourceRef": ".product-experience/source-manifest.yaml",
@@ -234,12 +234,12 @@
       {
         "sourceRef": "libs/audio-video-types/src/contracts.test.ts",
         "expectedSha256": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0",
-        "currentSha256": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f"
+        "currentSha256": "115f8e614d5162322f971120688f6475b8a405fd5adf0b859affb9362f092775"
       },
       {
         "sourceRef": "libs/audio-video-types/src/contracts.ts",
         "expectedSha256": "5c0223c1a205416379bc2900a996a143511d9436a98eddc980ad32a1b6a6a2b3",
-        "currentSha256": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93"
+        "currentSha256": "7109bc2ad67520ae1e5f9b829e81c401158efe2bb466d55174ef304193e84863"
       },
       {
         "sourceRef": "libs/audio-video-types/src/index.js",
@@ -327,7 +327,7 @@
         "sourceRef": ".product-experience/pdp-1-domain-data/declarative-production-contracts.yaml",
         "statusSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
         "reviewSha256": "6dbf0bde8965f8745b1e1ea76644ea05b41b63f65a4acb4b8538aa167c668cc7",
-        "currentSha256": "09d3c9fd660cffc8b0ad017f0af4319573b903de22b51597aff9927f22196bd8"
+        "currentSha256": "6cf4be161ecf3f1991bfb155dc8bbc0bd16d1245ef9fbdd1f4f8717fe07fd400"
       },
       {
         "sourceRef": ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml",
@@ -423,13 +423,13 @@
         "sourceRef": "libs/audio-video-types/src/contracts.test.ts",
         "statusSha256": "2398db33566e76d97088fbd7c6a4c4652d054252ff76ee14d5abaddf6f2e67f0",
         "reviewSha256": "6c9e625526bec6e38ac06e8708d01a41b734b6d4d96e32df4422a67a21f14b43",
-        "currentSha256": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f"
+        "currentSha256": "115f8e614d5162322f971120688f6475b8a405fd5adf0b859affb9362f092775"
       },
       {
         "sourceRef": "libs/audio-video-types/src/contracts.ts",
         "statusSha256": "5c0223c1a205416379bc2900a996a143511d9436a98eddc980ad32a1b6a6a2b3",
         "reviewSha256": "dcde1914f3219c64b3401510a34c2f372ca5bff568cb581fd8d0f25b43aacb5b",
-        "currentSha256": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93"
+        "currentSha256": "7109bc2ad67520ae1e5f9b829e81c401158efe2bb466d55174ef304193e84863"
       },
       {
         "sourceRef": "libs/audio-video-types/src/index.d.ts",
