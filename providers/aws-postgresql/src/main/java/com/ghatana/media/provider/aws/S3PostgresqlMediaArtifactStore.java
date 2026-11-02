@@ -293,12 +293,16 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         require(principalId, "principalId");
         FinalizationClaim claim = claimFinalization(tenantId, principalId, uploadId);
         if (claim.existingArtifact() != null) {
+            String uploadFinalKey = artifactKey(tenantId, uploadId, claim.row().expectedSha256());
+            if (!claim.existingArtifact().objectReference().equals("s3://" + state.bucket() + "/" + uploadFinalKey)) {
+                deleteFinalObjectBestEffort(uploadFinalKey);
+            }
             // Artifact metadata is already durable. Chunk-object removal is best effort after
             // commit, so a lost delete acknowledgement or transient S3 failure can leave staged
             // objects behind. The committed chunk manifest remains the ownership record and lets
             // an idempotent completion retry remove only this upload's staged keys.
             try {
-                deleteChunks(chunks(tenantId, uploadId));
+                deleteChunks(tenantId, uploadId, chunks(tenantId, uploadId));
             } catch (RuntimeException ignored) {
                 // Cleanup must not turn a completed upload into a failed/ambiguous completion.
             }
@@ -310,6 +314,10 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         boolean objectCompleted = false;
         boolean scanRejected = false;
         try {
+            // Read and validate the complete manifest before starting any multipart S3 operation.
+            // Every later GET uses this immutable local snapshot of deterministic owned keys.
+            List<ChunkRow> chunks = chunks(tenantId, uploadId);
+            if (chunks.isEmpty()) throw new IllegalStateException("Upload has no chunks");
             var create = state.s3().createMultipartUpload(CreateMultipartUploadRequest.builder()
                     .bucket(state.bucket())
                     .key(finalKey)
@@ -326,8 +334,6 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             ByteArrayOutputStream signaturePrefix = new ByteArrayOutputStream(32);
             long totalBytes = 0L;
             int partNumber = 1;
-            List<ChunkRow> chunks = chunks(tenantId, uploadId);
-            if (chunks.isEmpty()) throw new IllegalStateException("Upload has no chunks");
             for (ChunkRow chunk : chunks) {
                 ResponseBytes<GetObjectResponse> object = state.s3().getObjectAsBytes(GetObjectRequest.builder()
                         .bucket(state.bucket()).key(chunk.objectKey()).build());
@@ -386,9 +392,14 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             }
             MediaArtifact artifact = persistArtifact(claim, finalKey, totalBytes, actualDigest, scan, verification);
             if (!artifact.objectReference().equals("s3://" + state.bucket() + "/" + finalKey)) {
-                state.s3().deleteObject(DeleteObjectRequest.builder().bucket(state.bucket()).key(finalKey).build());
+                deleteFinalObjectBestEffort(finalKey);
             }
-            deleteChunks(chunks);
+            try {
+                deleteChunks(tenantId, uploadId, chunks);
+            } catch (RuntimeException ignored) {
+                // The artifact transaction is already committed. Preserve its successful result;
+                // the exact-key validation prevents malformed manifest rows from deleting other data.
+            }
             return new UploadCompletionResult(artifact, true);
         } catch (RuntimeException failure) {
             if (objectCompleted && !scanRejected) recordScanStatus(tenantId, uploadId, claim.token(), null, "UNAVAILABLE");
@@ -1060,7 +1071,11 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
                 while (result.next()) {
                     int index = result.getInt(1);
                     if (index != expected++) throw new IllegalStateException("Media upload chunk manifest is not contiguous");
-                    values.add(new ChunkRow(index, result.getString(2), result.getLong(3), result.getString(4)));
+                    String objectKey = result.getString(2);
+                    if (!chunkKey(tenantId, uploadId, index).equals(objectKey)) {
+                        throw new IllegalStateException("Media upload chunk manifest contains an unexpected object key");
+                    }
+                    values.add(new ChunkRow(index, objectKey, result.getLong(3), result.getString(4)));
                 }
             }
             return List.copyOf(values);
@@ -1069,7 +1084,15 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
         }
     }
 
-    private void deleteChunks(List<ChunkRow> chunks) {
+    private void deleteChunks(String tenantId, String uploadId, List<ChunkRow> chunks) {
+        // Validate the complete manifest before issuing any S3 deletes. The database row is the
+        // ownership record, but its key must still match this tenant/upload/index to prevent a
+        // malformed row from directing cleanup at another object's key in the shared bucket.
+        for (ChunkRow chunk : chunks) {
+            if (!chunkKey(tenantId, uploadId, chunk.index()).equals(chunk.objectKey())) {
+                throw new IllegalStateException("Media upload chunk manifest contains an unexpected object key");
+            }
+        }
         for (ChunkRow chunk : chunks) {
             try {
                 state.s3().deleteObject(DeleteObjectRequest.builder()
@@ -1077,6 +1100,15 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             } catch (RuntimeException ignored) {
                 // Final artifact and metadata are already durable; lifecycle cleanup may retry orphan removal.
             }
+        }
+    }
+
+    private void deleteFinalObjectBestEffort(String objectKey) {
+        try {
+            state.s3().deleteObject(DeleteObjectRequest.builder().bucket(state.bucket()).key(objectKey).build());
+        } catch (RuntimeException ignored) {
+            // The database's existing artifact reference is already durable. Replays derive this
+            // exact upload-owned key and retry cleanup without changing the committed result.
         }
     }
 

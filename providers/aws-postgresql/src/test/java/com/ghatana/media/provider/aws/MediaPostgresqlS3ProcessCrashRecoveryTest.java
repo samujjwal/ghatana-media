@@ -38,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 /** IP-06 S3/PostgreSQL object and metadata crash boundary, isolated to disposable test services. */
@@ -179,9 +180,16 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
             assertThat(replay).isEqualTo(recovered);
             assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
 
-            // Simulate a staged-object delete that failed after the artifact commit. The durable
-            // chunk manifest must let an exact completion replay retry cleanup without creating
-            // another artifact or changing the request fingerprint.
+            // A corrupted manifest must not direct replay cleanup at another object's key.
+            String foreignKey = prefix + "/uploads/foreign-tenant/foreign-upload/chunks/0";
+            putObject(bucket, foreignKey, bytes);
+            updateChunkObjectKey(tenant, upload.uploadId(), 0, foreignKey);
+            assertThat(restarted.complete(tenant, principal, upload.uploadId())).isEqualTo(recovered);
+            assertThat(objectExists(bucket, foreignKey)).isTrue();
+            updateChunkObjectKey(tenant, upload.uploadId(), 0, stagedChunkKey);
+
+            // Simulate a leftover staged object after commit. An exact completion replay retries
+            // cleanup without creating another artifact or changing the request fingerprint.
             putObject(bucket, stagedChunkKey, bytes);
             assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
             assertThat(restarted.complete(tenant, principal, upload.uploadId())).isEqualTo(recovered);
@@ -190,6 +198,92 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
             assertThat(requestFingerprint(tenant, upload.uploadId())).isEqualTo(fingerprint);
         } finally {
             dropChunkInsertFenceIfPresent();
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
+    void completionRejectsTamperedChunkKeyBeforeReadingOrPublishingForeignObject() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-manifest-" + runId;
+        String prefix = "ip06/manifest/" + runId;
+        String tenant = "tenant-ip06-manifest-" + runId;
+        String principal = "principal-ip06-manifest-" + runId;
+        byte[] bytes = wav(("manifest-key-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        createBucket(bucket);
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                    digest, "RESTRICTED", Duration.ofDays(7),
+                    Map.of("sourceArtifactId", "source-" + runId, "sourceVersion", "sha256:" + digest));
+            UploadSession upload = store.begin(request, "ip06-manifest-upload-" + runId);
+            store.append(tenant, principal, upload.uploadId(), 0, bytes);
+            String artifactId = artifactIdForUpload(tenant, upload.uploadId());
+
+            String foreignTenant = "other-tenant-" + runId;
+            String foreignKey = prefix + "/uploads/" + opaque(foreignTenant) + "/foreign-upload/chunks/0";
+            putObject(bucket, foreignKey, bytes);
+            updateChunkObjectKey(tenant, upload.uploadId(), 0, foreignKey);
+
+            assertThatThrownBy(() -> store.complete(tenant, principal, upload.uploadId()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("unexpected object key");
+            assertThat(artifactCount(tenant, artifactId)).isZero();
+            assertThat(objectExists(bucket, foreignKey)).isTrue();
+
+            // Restore the exact owned key and confirm normal completion remains possible.
+            String ownedChunkKey = prefix + "/uploads/" + opaque(tenant) + "/" + upload.uploadId() + "/chunks/0";
+            updateChunkObjectKey(tenant, upload.uploadId(), 0, ownedChunkKey);
+            MediaArtifact recovered = store.complete(tenant, principal, upload.uploadId());
+            assertThat(recovered.sha256()).isEqualTo(digest);
+            assertThat(getObject(bucket, objectKey(recovered.objectReference()))).containsExactly(bytes);
+            assertThat(objectExists(bucket, foreignKey)).isTrue();
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
+    void deduplicatedArtifactReplayRetriesCleanupOfItsOwnFinalObject() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-dedupe-" + runId;
+        String prefix = "ip06/dedupe/" + runId;
+        String tenant = "tenant-ip06-dedupe-" + runId;
+        String principal = "principal-ip06-dedupe-" + runId;
+        byte[] bytes = wav(("ip06-dedupe-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        createBucket(bucket);
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                    digest, "RESTRICTED", Duration.ofDays(7),
+                    Map.of("sourceArtifactId", "source-" + runId, "sourceVersion", "sha256:" + digest));
+
+            UploadSession originalUpload = store.begin(request, "ip06-dedupe-original-" + runId);
+            store.append(tenant, principal, originalUpload.uploadId(), 0, bytes);
+            MediaArtifact canonical = store.complete(tenant, principal, originalUpload.uploadId());
+
+            UploadSession duplicateUpload = store.begin(request, "ip06-dedupe-duplicate-" + runId);
+            store.append(tenant, principal, duplicateUpload.uploadId(), 0, bytes);
+            MediaArtifact deduplicated = store.complete(tenant, principal, duplicateUpload.uploadId());
+            assertThat(deduplicated.artifactId()).isEqualTo(canonical.artifactId());
+
+            String duplicateFinalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                    + duplicateUpload.uploadId() + "/" + digest;
+            assertThat(objectExists(bucket, duplicateFinalKey)).isFalse();
+
+            // Recreate the owned orphan to model a failed post-commit cleanup; exact replay must retry it.
+            putObject(bucket, duplicateFinalKey, bytes);
+            assertThat(objectExists(bucket, duplicateFinalKey)).isTrue();
+            assertThat(store.complete(tenant, principal, duplicateUpload.uploadId())).isEqualTo(canonical);
+            assertThat(objectExists(bucket, duplicateFinalKey)).isFalse();
+            assertThat(artifactCount(tenant, canonical.artifactId())).isEqualTo(1);
+        } finally {
             deleteBucketObjects(bucket);
         }
     }
@@ -265,6 +359,19 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
             query.setString(1, tenant);
             query.setString(2, uploadId);
             try (var rows = query.executeQuery()) { rows.next(); return rows.getInt(1); }
+        }
+    }
+
+    private static void updateChunkObjectKey(String tenant, String uploadId, int chunkIndex, String objectKey)
+            throws Exception {
+        try (Connection connection = databaseConnection();
+             var update = connection.prepareStatement(
+                     "UPDATE media_upload_chunks SET object_key=? WHERE tenant_id=? AND upload_id=? AND chunk_index=?")) {
+            update.setString(1, objectKey);
+            update.setString(2, tenant);
+            update.setString(3, uploadId);
+            update.setInt(4, chunkIndex);
+            assertThat(update.executeUpdate()).isEqualTo(1);
         }
     }
 
