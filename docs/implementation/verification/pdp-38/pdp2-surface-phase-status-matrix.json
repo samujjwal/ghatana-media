@@ -7,7 +7,7 @@
     "sourceBaselineCommit": "ebcbdfca77aecfd8a1d1b3b252259fe914fd0208",
     "status": "IN_PROGRESS"
   },
-  "generatedAt": "2026-11-02T07:33:41.378Z",
+  "generatedAt": "2026-11-02T12:55:52.936Z",
   "statusRecordRef": "docs/implementation/pdp-2-phase-dev-status.json",
   "statusRecordSha256": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
   "predecessorStatusRefs": [
@@ -24,9 +24,9 @@
   ],
   "predecessorMatrixSha256": {
     "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
   },
-  "sourceFingerprintSetSha256": "2e947c34fbb83736adb4894ae6dcb6d91a2dfc259162cc9bf3b91a8104bd888e",
+  "sourceFingerprintSetSha256": "c771928fb7137ffc41a79ce89522747f1491238fa3b09ac83f9cf6cb7550f0e0",
   "sourceFingerprintSetAlgorithm": "SHA-256 of compact JSON.stringify over sorted [repository-relative path, file SHA-256] tuples",
   "sourceFingerprints": {
     ".product-experience/explorer/EXPERIENCE-EXPLORER.md": "0331b71c41e8867dc9a16833c967bf28964814ac1ea2eaaa0ee62a2e111dc145",
@@ -352,19 +352,19 @@
     "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
     "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
     "docs/implementation/verification/pdp-38/pdp1-development-semantic-review.json": "a0b12cbdfc58d0ecb06f1772aab7d82a33d69b4904c0e5400a68ca320bd4ed6d",
-    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+    "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
     "libs/audio-video-client/src/operations.ts": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642",
     "libs/audio-video-types/.gitignore": "1f511367346e5ae8502b0cdabd16ae8fddaf47d6375951604bb3bf0aa717a4c1",
     "libs/audio-video-types/README.md": "2ff94ee8274418b7c3c22acabbfcee7d1f7cbc503e80cd35814384846d5bcb9f",
     "libs/audio-video-types/cjs-package.json": "8005a3491db7d92f36ac66369861589f9c47123d3a7c71e643fc2c06168cd45a",
-    "libs/audio-video-types/dist-cjs/contracts.js": "7b3ad5c71302922aef5e56b5912f7bc812153681437aa69dd36677a72ce9b1d8",
+    "libs/audio-video-types/dist-cjs/contracts.js": "9311fb3513df076d52dea3fda8ae0f78a4f31cd226c1e256ee0b30dfce649d5a",
     "libs/audio-video-types/dist-cjs/index.js": "67ef399dbe19f5ceb711cdd95155f248cf89a18297a2e38c90ee5260f6d9b1da",
     "libs/audio-video-types/dist-cjs/package.json": "8005a3491db7d92f36ac66369861589f9c47123d3a7c71e643fc2c06168cd45a",
     "libs/audio-video-types/dist-cjs/production.js": "444fe02b49fa2fd7ef3d89da8c239b182d7aeb6ee9ca11d6b75f3b23024fbf87",
     "libs/audio-video-types/dist/contracts.d.ts": "e15125a28250077576f3f77398ea7a564405f707fa254a6fb86f71730031b4df",
-    "libs/audio-video-types/dist/contracts.d.ts.map": "e86b089bf32c6d6ad60b148e77f9c3e2f05f4125a68fed2fa4f75ad39ade8e71",
-    "libs/audio-video-types/dist/contracts.js": "fbc35a39d97356d2030b9d051aa4263bfe20567d76ace2132c83b4a15d94048a",
-    "libs/audio-video-types/dist/contracts.js.map": "4514b2a3ad102d73f7bce831ea90909ca3802f9021333eb1899acfa02512d2ea",
+    "libs/audio-video-types/dist/contracts.d.ts.map": "027a0e8ab09d01e6128b49efe5fbcf96af8897a95eb3c75a2eccc8e64735ee62",
+    "libs/audio-video-types/dist/contracts.js": "95cffc1ae65fe3f3a97785b2ea66659d24c4c0d6ea4f2e33262f4d5d02877731",
+    "libs/audio-video-types/dist/contracts.js.map": "93db8e27aebf03fff0ae39ccf963ca24c944688a867c8a7cfbf15ff14f8e667a",
     "libs/audio-video-types/dist/index.d.ts": "f1e6f3faef7bfd3d780ec8fbc5200b1035495eca80978dea33c37b6e61e49193",
     "libs/audio-video-types/dist/index.d.ts.map": "2cd37b38fc7aec1372d0b193d87bb13604a6a19b5cf423d2738265b70af6879c",
     "libs/audio-video-types/dist/index.js": "77ff44ff3b85ad744efa9b0d1ed1009a857e0e0c72a79bd7fa758c87c8bb8ef7",
@@ -387,15 +387,15 @@
     "libs/audio-video-types/scripts/test-isolated-package-consumer.mjs": "47a94322b16c6d685cbdd44d2c3809d72e370a8d9f9bd9adcb81e25c5c61f87b",
     "libs/audio-video-types/src/__tests__/protocol-projection.snapshot.json": "6113089b1573431022d419924753a2a63e593001e912130cba65a7fc3d355e6c",
     "libs/audio-video-types/src/__tests__/types.contract.test.ts": "f3be4c3fcd33d2e81900696750566acc5f5acacd7302c2cd7844223178c35ba4",
-    "libs/audio-video-types/src/contracts.test.ts": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f",
-    "libs/audio-video-types/src/contracts.ts": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93",
+    "libs/audio-video-types/src/contracts.test.ts": "115f8e614d5162322f971120688f6475b8a405fd5adf0b859affb9362f092775",
+    "libs/audio-video-types/src/contracts.ts": "7109bc2ad67520ae1e5f9b829e81c401158efe2bb466d55174ef304193e84863",
     "libs/audio-video-types/src/index.d.ts": "67a2e9e55f02989d33e14501c06c56977ccdb7a48fbedadccf35e413de953b84",
     "libs/audio-video-types/src/index.js": "71ef7a1ad8255fab4f6a9132993dc074f0b2acf6c81b6d7ceab2e587996a6eb3",
     "libs/audio-video-types/src/index.ts": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436",
     "libs/audio-video-types/src/production.test.ts": "f298352102dfafc29e23d75eada145a995c91c69fbb25c882144a0e4f3045dbb",
     "libs/audio-video-types/src/production.ts": "172bfcef57ec158f6a628bbacb0ccb4774697b709afa3d1e14888e299c8f5079",
     "libs/audio-video-types/tsconfig.build.json": "2c98ffe4b713886ec73c6bf7dccf015b3f74e347498b26b5ca58043f454c23b2",
-    "libs/audio-video-types/tsconfig.build.tsbuildinfo": "3501cc5b7833c64320e8158a402e206a8b100d4fc33bb47dc87ac44e690422df",
+    "libs/audio-video-types/tsconfig.build.tsbuildinfo": "05e620cbd062943c4bad8be17f9a04092a30c70bd7fd97d8e1b91248c82e4adf",
     "libs/audio-video-types/tsconfig.cjs.json": "f0356fd0bce4dc8cbf0fa9d71f32c5d7f150a4850d490d585e37f33fd04ebfdc",
     "libs/audio-video-types/tsconfig.json": "96da11ed12786e6124a3a75f91f01c5da714bea99d2f25379e97484d71de4147",
     "libs/audio-video-types/tsconfig.tsbuildinfo": "a0c21c0029cf53a545fe25241aa65feee04da1358f81318c08bb2d4e4bcf97c5",
@@ -868,7 +868,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -924,7 +924,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1049,7 +1049,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1117,7 +1117,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1242,7 +1242,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1362,7 +1362,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1484,7 +1484,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1610,7 +1610,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1738,7 +1738,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1865,7 +1865,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -1994,7 +1994,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2114,7 +2114,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2234,7 +2234,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2358,7 +2358,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2482,7 +2482,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2606,7 +2606,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2731,7 +2731,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2854,7 +2854,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -2976,7 +2976,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3046,7 +3046,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3172,7 +3172,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3298,7 +3298,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3419,7 +3419,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3546,7 +3546,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3672,7 +3672,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3796,7 +3796,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -3922,7 +3922,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4048,7 +4048,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4225,7 +4225,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4368,7 +4368,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4504,7 +4504,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4638,7 +4638,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4770,7 +4770,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -4902,7 +4902,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -5037,7 +5037,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -5208,7 +5208,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -5373,7 +5373,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -5443,7 +5443,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -5522,7 +5522,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "1206da4d2648e74b012e88935e35afd6f6f354c094ac901769fcfc5d95b5f6ed",
         "modules/speech/stt-service/src/main/proto/stt_service.proto": "e7061eb499cc71a9bfd0a98c417188295efdd6a14b5efdcfffb3dda4815b2048",
         "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6",
@@ -5600,7 +5600,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "modules/speech/stt-service/src/main/proto/stt_service.proto": "e7061eb499cc71a9bfd0a98c417188295efdd6a14b5efdcfffb3dda4815b2048"
       },
       "sourceCurrent": false,
@@ -5671,7 +5671,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "modules/speech/tts-service/src/main/proto/tts_service.proto": "79cb7f271b9720aecc63a3e46adef8137330b9fe53875c883c83fc7751b501b6"
       },
       "sourceCurrent": false,
@@ -5742,7 +5742,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "modules/vision/vision-service/src/main/proto/vision_service.proto": "ca240751d00795885660235511cb7c984526299f47ad903c68d65b598cbbab4c"
       },
       "sourceCurrent": false,
@@ -5813,7 +5813,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "modules/intelligence/multimodal-service/src/main/proto/multimodal_service.proto": "1206da4d2648e74b012e88935e35afd6f6f354c094ac901769fcfc5d95b5f6ed"
       },
       "sourceCurrent": false,
@@ -5885,7 +5885,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "libs/audio-video-client/src/operations.ts": "739a0f519d3efaec68142fa90bfb1ec4efe81d5d18f40475a3ab6f76dc796642"
       },
       "sourceCurrent": false,
@@ -5959,7 +5959,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -6032,7 +6032,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -6104,7 +6104,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -6183,7 +6183,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -6306,18 +6306,18 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "libs/audio-video-types/.gitignore": "1f511367346e5ae8502b0cdabd16ae8fddaf47d6375951604bb3bf0aa717a4c1",
         "libs/audio-video-types/README.md": "2ff94ee8274418b7c3c22acabbfcee7d1f7cbc503e80cd35814384846d5bcb9f",
         "libs/audio-video-types/cjs-package.json": "8005a3491db7d92f36ac66369861589f9c47123d3a7c71e643fc2c06168cd45a",
-        "libs/audio-video-types/dist-cjs/contracts.js": "7b3ad5c71302922aef5e56b5912f7bc812153681437aa69dd36677a72ce9b1d8",
+        "libs/audio-video-types/dist-cjs/contracts.js": "9311fb3513df076d52dea3fda8ae0f78a4f31cd226c1e256ee0b30dfce649d5a",
         "libs/audio-video-types/dist-cjs/index.js": "67ef399dbe19f5ceb711cdd95155f248cf89a18297a2e38c90ee5260f6d9b1da",
         "libs/audio-video-types/dist-cjs/package.json": "8005a3491db7d92f36ac66369861589f9c47123d3a7c71e643fc2c06168cd45a",
         "libs/audio-video-types/dist-cjs/production.js": "444fe02b49fa2fd7ef3d89da8c239b182d7aeb6ee9ca11d6b75f3b23024fbf87",
         "libs/audio-video-types/dist/contracts.d.ts": "e15125a28250077576f3f77398ea7a564405f707fa254a6fb86f71730031b4df",
-        "libs/audio-video-types/dist/contracts.d.ts.map": "e86b089bf32c6d6ad60b148e77f9c3e2f05f4125a68fed2fa4f75ad39ade8e71",
-        "libs/audio-video-types/dist/contracts.js": "fbc35a39d97356d2030b9d051aa4263bfe20567d76ace2132c83b4a15d94048a",
-        "libs/audio-video-types/dist/contracts.js.map": "4514b2a3ad102d73f7bce831ea90909ca3802f9021333eb1899acfa02512d2ea",
+        "libs/audio-video-types/dist/contracts.d.ts.map": "027a0e8ab09d01e6128b49efe5fbcf96af8897a95eb3c75a2eccc8e64735ee62",
+        "libs/audio-video-types/dist/contracts.js": "95cffc1ae65fe3f3a97785b2ea66659d24c4c0d6ea4f2e33262f4d5d02877731",
+        "libs/audio-video-types/dist/contracts.js.map": "93db8e27aebf03fff0ae39ccf963ca24c944688a867c8a7cfbf15ff14f8e667a",
         "libs/audio-video-types/dist/index.d.ts": "f1e6f3faef7bfd3d780ec8fbc5200b1035495eca80978dea33c37b6e61e49193",
         "libs/audio-video-types/dist/index.d.ts.map": "2cd37b38fc7aec1372d0b193d87bb13604a6a19b5cf423d2738265b70af6879c",
         "libs/audio-video-types/dist/index.js": "77ff44ff3b85ad744efa9b0d1ed1009a857e0e0c72a79bd7fa758c87c8bb8ef7",
@@ -6340,15 +6340,15 @@
         "libs/audio-video-types/scripts/test-isolated-package-consumer.mjs": "47a94322b16c6d685cbdd44d2c3809d72e370a8d9f9bd9adcb81e25c5c61f87b",
         "libs/audio-video-types/src/__tests__/protocol-projection.snapshot.json": "6113089b1573431022d419924753a2a63e593001e912130cba65a7fc3d355e6c",
         "libs/audio-video-types/src/__tests__/types.contract.test.ts": "f3be4c3fcd33d2e81900696750566acc5f5acacd7302c2cd7844223178c35ba4",
-        "libs/audio-video-types/src/contracts.test.ts": "61893092cd3f3a3dab74ef052e58a747028a315037a47d51926736b64496d99f",
-        "libs/audio-video-types/src/contracts.ts": "6d310a862b6ef73b53d6ae55f92d4ad3b5fc42bb935a50aef91073f156516f93",
+        "libs/audio-video-types/src/contracts.test.ts": "115f8e614d5162322f971120688f6475b8a405fd5adf0b859affb9362f092775",
+        "libs/audio-video-types/src/contracts.ts": "7109bc2ad67520ae1e5f9b829e81c401158efe2bb466d55174ef304193e84863",
         "libs/audio-video-types/src/index.d.ts": "67a2e9e55f02989d33e14501c06c56977ccdb7a48fbedadccf35e413de953b84",
         "libs/audio-video-types/src/index.js": "71ef7a1ad8255fab4f6a9132993dc074f0b2acf6c81b6d7ceab2e587996a6eb3",
         "libs/audio-video-types/src/index.ts": "b41ae4c1ad03f099fdfdd1619d545585da1e03ecfb2fde8545fee848bda88436",
         "libs/audio-video-types/src/production.test.ts": "f298352102dfafc29e23d75eada145a995c91c69fbb25c882144a0e4f3045dbb",
         "libs/audio-video-types/src/production.ts": "172bfcef57ec158f6a628bbacb0ccb4774697b709afa3d1e14888e299c8f5079",
         "libs/audio-video-types/tsconfig.build.json": "2c98ffe4b713886ec73c6bf7dccf015b3f74e347498b26b5ca58043f454c23b2",
-        "libs/audio-video-types/tsconfig.build.tsbuildinfo": "3501cc5b7833c64320e8158a402e206a8b100d4fc33bb47dc87ac44e690422df",
+        "libs/audio-video-types/tsconfig.build.tsbuildinfo": "05e620cbd062943c4bad8be17f9a04092a30c70bd7fd97d8e1b91248c82e4adf",
         "libs/audio-video-types/tsconfig.cjs.json": "f0356fd0bce4dc8cbf0fa9d71f32c5d7f150a4850d490d585e37f33fd04ebfdc",
         "libs/audio-video-types/tsconfig.json": "96da11ed12786e6124a3a75f91f01c5da714bea99d2f25379e97484d71de4147",
         "libs/audio-video-types/tsconfig.tsbuildinfo": "a0c21c0029cf53a545fe25241aa65feee04da1358f81318c08bb2d4e4bcf97c5",
@@ -6501,7 +6501,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd",
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe",
         "libs/audio-video-ui/dist/components/MediaComponentFamilies.js": "80a5dd4b03257ae836fd4cf790aa6b6b045d038f16cbc15adc30d599298ce2d7",
         "libs/audio-video-ui/dist/components/MediaComponentInputSchemas.js": "8dc66ed44e8cdea694edaafaccd20d7e1b2dac0a29154fb20e69feeec041cbdb",
         "libs/audio-video-ui/dist/components/MediaComponentRuntimeContracts.js": "46840ede2f23d77734b2a3912318bf596f50d93544b2c82ac344469a29fa5508",
@@ -6653,7 +6653,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -7078,7 +7078,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -7143,7 +7143,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -7217,7 +7217,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -7289,7 +7289,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",
@@ -7362,7 +7362,7 @@
         "docs/implementation/pdp-1-phase-dev-status.json": "d9fe564b68e5412e44aa9baa89f0032a0159803e7699fd729c545b249f13852a",
         "docs/implementation/pdp-2-phase-dev-status.json": "65b582dece7a3ae5fcad88e100f218801fd8f2a70a86b46e2b106bc902d65f97",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "d773670938cc46f00fe889c0c0e35929b92e236512500a51d19ce835e0705b90",
-        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "019759dc3d8aa2807d13103f589039a911bb72b6d77ff371465102a3439e38fd"
+        "docs/implementation/verification/pdp-38/pdp1-surface-phase-status-matrix.json": "ddf0e52d769895f2ce539702b99644ccbce8626b7feb98788fe72f8706d2cbfe"
       },
       "sourceCurrent": false,
       "sourceCurrentBasis": "PDP-2 source currentness is STALE; 20 of 157 native source pins are stale or unsupported.",

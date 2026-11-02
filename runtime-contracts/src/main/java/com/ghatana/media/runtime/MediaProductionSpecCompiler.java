@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -487,6 +488,249 @@ public final class MediaProductionSpecCompiler {
         }
         return new SchemaMigrationAssessment(disposition, sourceInputs.productionSpecRef(),
                 sourceInputs.productionSpecSchemaRef(), request.targetSchemaRef(), request.transformationRef());
+    }
+
+    /**
+     * Verify exact semantic-source bytes, then perform graph syntax/shape and
+     * topology checks. Node refs are not resolved; source-binding fingerprints
+     * and operation cardinalities remain caller evidence. This is effect-free
+     * and does not create an admission-bound CompiledPlan.
+     */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSource(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            Map<String, Integer> exactOperationResolutionCounts) {
+        if (sourceContent == null || sourceContent.isEmpty()) {
+            return new MediaProductionSemanticSource.CompilationResult(MediaProductionSemanticSource.Disposition.UNKNOWN,
+                    MediaProductionSemanticSource.Reason.ABSENT_GRAPH, List.of(), null);
+        }
+        requireSemanticSourceRef(semanticSourceRef);
+        requireSemanticSourceDigest(semanticSourceSha256);
+        try {
+            var content = sourceContent.orElseThrow();
+            var fingerprint = MediaVersionedContractContent.verifyDigestChecked(semanticSourceRef, content);
+            if (!fingerprint.sha256().equals(semanticSourceSha256)) {
+                return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+            }
+            if (!containsFingerprint(resolvedSources, semanticSourceRef, semanticSourceSha256)) {
+                return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+            }
+            var source = decodeSemanticSource(content.content());
+            var graph = source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts);
+            if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) return graph;
+            StringBuilder projection = new StringBuilder();
+            appendSemanticField(projection, "media.production.semantic-source-artifact-binding.v1");
+            appendSemanticField(projection, semanticSourceRef);
+            appendSemanticField(projection, semanticSourceSha256);
+            appendSemanticField(projection, graph.fingerprint());
+            return new MediaProductionSemanticSource.CompilationResult(graph.disposition(), graph.reason(), graph.nodes(),
+                    "sha256:" + sha256(projection.toString()));
+        } catch (IOException | RuntimeException failure) {
+            return semanticSourceFailure(MediaProductionSemanticSource.Reason.INVALID_SEMANTIC_SOURCE_CONTENT);
+        }
+    }
+
+    public record SemanticCandidateBindResult(
+            MediaProductionSemanticSource.Disposition disposition,
+            MediaProductionSemanticSource.Reason reason) {
+        public SemanticCandidateBindResult {
+            Objects.requireNonNull(disposition, "disposition");
+            Objects.requireNonNull(reason, "reason");
+        }
+    }
+
+    /**
+     * Compares graph structure with the unchanged v3 context. PDP-1 leaves the
+     * step-to-operation mapping undefined and v3 names a fixed plan, so a
+     * structurally matching graph remains UNKNOWN and produces no bound candidate.
+     */
+    public SemanticCandidateBindResult bindSemanticSourceCandidate(
+            Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
+            String semanticSourceRef,
+            String semanticSourceSha256,
+            CompilationInputs expectedInputs,
+            ProductionSpec spec,
+            MediaProductionAdmissionBinding.Binding binding,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedSources,
+            Map<String, Integer> exactOperationResolutionCounts) {
+        Objects.requireNonNull(spec, "spec");
+        Objects.requireNonNull(binding, "binding");
+        Objects.requireNonNull(resolvedSources, "resolvedSources");
+        Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
+        if (sourceContent == null || sourceContent.isEmpty()) {
+            return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.UNKNOWN,
+                    MediaProductionSemanticSource.Reason.ABSENT_GRAPH);
+        }
+        requireSemanticSourceRef(semanticSourceRef);
+        requireSemanticSourceDigest(semanticSourceSha256);
+        final MediaProductionSemanticSource source;
+        try {
+            var sourceBytes = sourceContent.orElseThrow();
+            var sourceContentFingerprint = MediaVersionedContractContent.verifyDigestChecked(semanticSourceRef, sourceBytes);
+            if (!semanticSourceSha256.equals(sourceContentFingerprint.sha256())) {
+                return failedSemanticBind(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+            }
+            source = decodeSemanticSource(sourceBytes.content());
+        } catch (IOException | RuntimeException failure) {
+            return failedSemanticBind(MediaProductionSemanticSource.Reason.INVALID_SEMANTIC_SOURCE_CONTENT);
+        }
+        var resolvedByRef = new LinkedHashMap<String, MediaVersionedContractContent.ResolvedContentFingerprint>();
+        for (var fingerprint : resolvedSources) {
+            if (fingerprint != null && resolvedByRef.put(fingerprint.versionRef(), fingerprint) != null) {
+                return failedSemanticBind(MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+            }
+        }
+        var sourceFingerprint = resolvedByRef.get(semanticSourceRef);
+        if (sourceFingerprint == null || !semanticSourceSha256.equals(sourceFingerprint.sha256())) {
+            return failedSemanticBind(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+        }
+        var graph = source.compileSyntaxCheckedGraphCandidate(expectedInputs, resolvedSources, exactOperationResolutionCounts);
+        if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) {
+            return new SemanticCandidateBindResult(graph.disposition(), graph.reason());
+        }
+        if (!spec.projectId().equals(binding.projectId())
+                || !spec.revisionId().equals(binding.expectedProjectRevision())
+                || !spec.tenantId().equals(binding.authority().tenantId())
+                || !spec.purposeRef().equals(binding.authority().purposeRef())
+                || !spec.rightsRef().equals(binding.authority().rightsRef())
+                || !new TreeSet<>(spec.sceneRefs()).equals(new TreeSet<>(binding.sourceBindingsByScene().keySet()))) {
+            return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        }
+        Set<String> graphStepIds = new TreeSet<>();
+        graph.nodes().forEach(node -> graphStepIds.add(node.stepId()));
+        if (!graphStepIds.equals(binding.enginesByStep().keySet())) {
+            return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        }
+        Set<String> specSceneRefs = new TreeSet<>(spec.sceneRefs());
+        Map<String, MediaProductionSemanticSource.LockTarget> declaredLocks = new TreeMap<>();
+        for (var node : graph.nodes()) {
+            if (!specSceneRefs.containsAll(source.nodes().stream().filter(n -> n.stepId().equals(node.stepId()))
+                    .findFirst().orElseThrow().sourceSceneRefs())) {
+                return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+            }
+            var sourceNode = source.nodes().stream().filter(n -> n.stepId().equals(node.stepId())).findFirst().orElseThrow();
+            sourceNode.manualLockTarget().ifPresent(lock -> declaredLocks.put(node.stepId(), lock));
+        }
+        if (!declaredLocks.keySet().equals(binding.editLocksByStep().keySet())) {
+            return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        }
+        for (var entry : declaredLocks.entrySet()) {
+            var actual = binding.editLocksByStep().get(entry.getKey());
+            var expected = entry.getValue();
+            if (!expected.scopeKind().equals(actual.scopeKind()) || !expected.targetRef().equals(actual.targetRef())
+                    || !binding.authority().principalId().equals(actual.ownerPrincipalId())) {
+                return notAdmittedSemanticBind(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+            }
+        }
+
+        return failedSemanticBind(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+    }
+
+    private static SemanticCandidateBindResult failedSemanticBind(MediaProductionSemanticSource.Reason reason) {
+        return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.UNKNOWN, reason);
+    }
+
+    private static MediaProductionSemanticSource.CompilationResult semanticSourceFailure(
+            MediaProductionSemanticSource.Reason reason) {
+        return new MediaProductionSemanticSource.CompilationResult(MediaProductionSemanticSource.Disposition.UNKNOWN,
+                reason, List.of(), null);
+    }
+
+    private static boolean containsFingerprint(
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> sources, String ref, String digest) {
+        if (sources == null) return false;
+        long matches = sources.stream().filter(Objects::nonNull).filter(item -> ref.equals(item.versionRef())
+                && digest.equals(item.sha256())).count();
+        return matches == 1;
+    }
+
+    private static MediaProductionSemanticSource decodeSemanticSource(byte[] bytes) throws IOException {
+        JsonNode root = CONTRACT_JSON.readTree(strictUtf8(bytes));
+        requireExactFields(root, Set.of("schemaVersion", "sourceBindings", "nodes"));
+        String schemaVersion = requiredText(root, "schemaVersion");
+        JsonNode sourceBindingsNode = root.get("sourceBindings");
+        requireExactFields(sourceBindingsNode, Set.of("productionSpecRef", "productionSpecSha256",
+                "productionSpecSchemaRef", "productionSpecSchemaSha256", "compilerContractRef", "compilerContractSha256"));
+        var sourceBindings = new MediaProductionSemanticSource.SourceBindings(
+                requiredText(sourceBindingsNode, "productionSpecRef"), requiredText(sourceBindingsNode, "productionSpecSha256"),
+                requiredText(sourceBindingsNode, "productionSpecSchemaRef"), requiredText(sourceBindingsNode, "productionSpecSchemaSha256"),
+                requiredText(sourceBindingsNode, "compilerContractRef"), requiredText(sourceBindingsNode, "compilerContractSha256"));
+        JsonNode nodeArray = root.get("nodes");
+        if (nodeArray == null || !nodeArray.isArray() || nodeArray.isEmpty()
+                || nodeArray.size() > MediaProductionSemanticSource.MAX_NODES) {
+            throw new IllegalArgumentException("semantic source nodes are absent or outside the bound");
+        }
+        List<MediaProductionSemanticSource.Node> nodes = new ArrayList<>(nodeArray.size());
+        for (JsonNode node : nodeArray) {
+            requireExactFields(node, Set.of("stepId", "kind", "operationRef", "inputArtifactVersionRefs",
+                    "outputArtifactVersionRefs", "dependsOn", "sourceSceneRefs", "manualLockTarget"));
+            JsonNode lockNode = node.get("manualLockTarget");
+            Optional<MediaProductionSemanticSource.LockTarget> lock;
+            if (lockNode == null || lockNode.isNull()) {
+                lock = Optional.empty();
+            } else {
+                requireExactFields(lockNode, Set.of("scopeKind", "targetRef"));
+                lock = Optional.of(new MediaProductionSemanticSource.LockTarget(
+                        requiredText(lockNode, "scopeKind"), requiredText(lockNode, "targetRef")));
+            }
+            nodes.add(new MediaProductionSemanticSource.Node(requiredText(node, "stepId"),
+                    requiredText(node, "kind"), requiredText(node, "operationRef"),
+                    possiblyEmptyTextList(node, "inputArtifactVersionRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(node, "outputArtifactVersionRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(node, "dependsOn", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(node, "sourceSceneRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE), lock));
+        }
+        return new MediaProductionSemanticSource(schemaVersion, sourceBindings, nodes);
+    }
+
+    private static void requireExactFields(JsonNode object, Set<String> expected) {
+        if (object == null || !object.isObject() || !new HashSet<>(object.propertyNames()).equals(expected)) {
+            throw new IllegalArgumentException("semantic source object is not closed or complete");
+        }
+    }
+
+    private static List<String> possiblyEmptyTextList(JsonNode object, String field, int maximumItems) {
+        JsonNode value = object.get(field);
+        if (value == null || !value.isArray() || value.size() > maximumItems) {
+            throw new IllegalArgumentException("semantic source list is invalid: " + field);
+        }
+        List<String> values = new ArrayList<>(value.size());
+        for (JsonNode item : value) {
+            if (!item.isString()) throw new IllegalArgumentException("semantic source list contains non-text");
+            values.add(item.asString());
+        }
+        return List.copyOf(values);
+    }
+
+    private static void requireSemanticSourceDigest(String value) {
+        if (value == null || !value.matches("sha256:[0-9a-f]{64}")) {
+            throw new IllegalArgumentException("semanticSourceSha256 must be a lowercase SHA-256 digest");
+        }
+    }
+
+    private static void appendSemanticField(StringBuilder target, String value) {
+        if (!hasWellFormedUtf16(value)) throw new IllegalArgumentException("malformed UTF-16 in semantic fingerprint input");
+        target.append(value.getBytes(StandardCharsets.UTF_8).length).append(':').append(value);
+    }
+
+    private static SemanticCandidateBindResult notAdmittedSemanticBind(MediaProductionSemanticSource.Reason reason) {
+        return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.NOT_ADMITTED, reason);
+    }
+
+    private static void requireSemanticSourceRef(String value) {
+        if (!isValidSemanticVersionRef(value)) {
+            throw new IllegalArgumentException("semanticSourceRef is invalid");
+        }
+    }
+
+    private static boolean isValidSemanticVersionRef(String value) {
+        return value != null && !value.isEmpty() && value.codePointCount(0, value.length()) <= 384
+                && hasWellFormedUtf16(value)
+                && value.codePoints().noneMatch(ch -> Character.isWhitespace(ch)
+                        || Character.isSpaceChar(ch) || ch == 0xFEFF);
     }
 
     /**

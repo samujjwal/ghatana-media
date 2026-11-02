@@ -1805,6 +1805,163 @@ caseOperationBindings:
     p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema/outcomeRules"
     p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
     p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
+semanticSource:
+  id: media.production.semantic-source.v1
+  structuralType: closed-versioned-object
+  status: SOURCE_AUTHORED_DEFINITION_ONLY
+  runtimeAdmission: NOT_ADMITTED
+  canonicalOperationAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
+  candidateOnly: true
+  apiBinding:
+    required: [semanticSourceRef, semanticSourceSha256]
+    schema:
+      type: object
+      additionalProperties: false
+      required: [semanticSourceRef, semanticSourceSha256]
+      properties:
+        semanticSourceRef:
+          type: string
+          format: opaque-versioned-reference
+          minLength: 1
+          maxLength: 384
+          pattern: '^[^\u0009-\u000D\u001C-\u0020\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]+$'
+        semanticSourceSha256: {$ref: '#/$defs/immutableSha256'}
+  sourceBindings:
+    description: >-
+      Bind the graph to the exact resolved immutable production-spec, its exact
+      schema, and compiler-contract references. Each reference is paired with
+      the SHA-256 of the corresponding content. The compiler compares these
+      values to caller-supplied fingerprint records but cannot prove those
+      records came from an authoritative resolver. Resolution and source
+      authorization remain the responsibility of the caller.
+    required: [productionSpecRef, productionSpecSha256, productionSpecSchemaRef, productionSpecSchemaSha256, compilerContractRef, compilerContractSha256]
+    fields:
+      productionSpecRef: {$ref: '#/semanticSource/schema/$defs/semanticVersionRef'}
+      productionSpecSha256: {$ref: '#/$defs/immutableSha256'}
+      productionSpecSchemaRef: {$ref: '#/semanticSource/schema/$defs/semanticVersionRef'}
+      productionSpecSchemaSha256: {$ref: '#/$defs/immutableSha256'}
+      compilerContractRef: {$ref: '#/semanticSource/schema/$defs/semanticVersionRef'}
+      compilerContractSha256: {$ref: '#/$defs/immutableSha256'}
+  schema:
+    type: object
+    additionalProperties: false
+    $defs:
+      semanticVersionRef:
+        type: string
+        format: opaque-versioned-reference
+        minLength: 1
+        maxLength: 384
+        pattern: '^[^\u0009-\u000D\u001C-\u0020\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]+$'
+      semanticSha256:
+        type: string
+        pattern: '^sha256:[0-9a-f]{64}$'
+      semanticStepId:
+        type: string
+        format: opaque-id
+        minLength: 1
+        maxLength: 128
+        pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+      semanticVersionRefList:
+        type: array
+        uniqueItems: true
+        maxItems: 512
+        items: {$ref: '#/$defs/semanticVersionRef'}
+      semanticStepIdList:
+        type: array
+        uniqueItems: true
+        maxItems: 512
+        items: {$ref: '#/$defs/semanticStepId'}
+    required: [schemaVersion, sourceBindings, nodes]
+    properties:
+      schemaVersion: {const: media.production.semantic-source.v1}
+      sourceBindings:
+        type: object
+        additionalProperties: false
+        required: [productionSpecRef, productionSpecSha256, productionSpecSchemaRef, productionSpecSchemaSha256, compilerContractRef, compilerContractSha256]
+        properties:
+          productionSpecRef: {$ref: '#/$defs/semanticVersionRef'}
+          productionSpecSha256: {$ref: '#/$defs/semanticSha256'}
+          productionSpecSchemaRef: {$ref: '#/$defs/semanticVersionRef'}
+          productionSpecSchemaSha256: {$ref: '#/$defs/semanticSha256'}
+          compilerContractRef: {$ref: '#/$defs/semanticVersionRef'}
+          compilerContractSha256: {$ref: '#/$defs/semanticSha256'}
+      nodes:
+        type: array
+        minItems: 1
+        maxItems: 512
+        items:
+          type: object
+          additionalProperties: false
+          required: [stepId, kind, operationRef, inputArtifactVersionRefs, outputArtifactVersionRefs, dependsOn, sourceSceneRefs, manualLockTarget]
+          properties:
+            stepId: {$ref: '#/$defs/semanticStepId'}
+            kind: {enum: [DETERMINISTIC, GENERATIVE, UNKNOWN]}
+            operationRef:
+              allOf:
+                - {$ref: '#/$defs/semanticVersionRef'}
+              description: Exact operation reference resolved by caller against the canonical PDP-1 operation authority; never inferred from stepId or kind.
+            inputArtifactVersionRefs: {$ref: '#/$defs/semanticVersionRefList'}
+            outputArtifactVersionRefs: {$ref: '#/$defs/semanticVersionRefList'}
+            dependsOn: {$ref: '#/$defs/semanticStepIdList'}
+            sourceSceneRefs: {$ref: '#/$defs/semanticVersionRefList'}
+            manualLockTarget:
+              oneOf:
+                - {type: 'null'}
+                - type: object
+                  additionalProperties: false
+                  required: [scopeKind, targetRef]
+                  properties:
+                    scopeKind: {enum: [SCENE, OUTPUT]}
+                    targetRef: {$ref: '#/$defs/semanticVersionRef'}
+  canonicalization:
+    nodeOrder: TOPOLOGICAL_THEN_LEXICOGRAPHIC_READY_STEP_ID
+    dependencyOrder: LEXICOGRAPHIC_STEP_ID
+    artifactReferenceOrder: LEXICOGRAPHIC_EXACT_VERSION_REF
+    lengthPrefix: UTF8_BYTE_LENGTH_COLON_VALUE
+    graphFingerprint:
+      algorithm: SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS
+      orderedFields: [schemaVersion, productionSpecRef, productionSpecSha256, productionSpecSchemaRef, productionSpecSchemaSha256, compilerContractRef, compilerContractSha256, nodeCount, nodes]
+      nodeFields: [stepId, kind, operationRef, inputArtifactVersionRefs, outputArtifactVersionRefs, dependsOn, sourceSceneRefs, manualLockTarget.scopeKindOrNO_LOCK, manualLockTarget.targetRefOrNO_LOCK]
+      listEncoding: DECIMAL_ITEM_COUNT_THEN_EACH_ITEM_AS_LENGTH_PREFIXED_FIELD
+    sourceBoundFingerprint:
+      algorithm: SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS
+      orderedFields: [media.production.semantic-source-artifact-binding.v1, semanticSourceRef, verifiedSemanticSourceSha256, graphFingerprint]
+      outputField: publicCompilationResult.fingerprint
+    refResolution: >-
+      Node input/output artifact refs, sourceSceneRefs, and manualLockTarget refs
+      receive syntax and shape validation only. The result does not resolve
+      those references or claim they exist. Source-binding fingerprint records
+      and operation-resolution cardinalities are caller-owned evidence.
+  resultSemantics:
+    CANDIDATE_PREPARED: Exact semantic-source bytes are digest-checked and the closed graph passes syntax, shape, and topology checks only; this does not resolve node refs or bind the graph to v3 execution admission.
+    operationResolutionBoundary: >-
+      A caller-owned resolver supplies exact operation-reference resolution evidence.
+      The compiler checks the supplied cardinality but does not prove resolver
+      authority, source-currentness, or operation existence.
+    UNKNOWN: [ABSENT_GRAPH, UNKNOWN_NODE_KIND, UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING, SOURCE_BINDING_MISMATCH, INVALID_SEMANTIC_SOURCE_CONTENT, MISSING_DEPENDENCY, STEP_OPERATION_MAPPING_UNDEFINED]
+    NOT_ADMITTED: [CYCLIC_GRAPH, EXECUTION_CONTEXT_MISMATCH]
+    effect: No dispatch, job creation, project mutation, provider call, or admission decision is produced by semantic-source compilation.
+  executionAdmissionMapping:
+    target: executionAdmissionBinding
+    version: media.production.execution-admission.v3
+    relation: SEMANTIC_SOURCE_INPUT_TO_SEPARATE_EXECUTION_CONTEXT
+    stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
+    mappings:
+      semanticSourceRefAndSha256: exact_resolved_source_ref_and_digest_checked_bytes
+      graphStepIds: enginesByStep_keys_exactly
+      sourceSceneRefs: each_node_subset_of_ProductionSpec_sceneRefs; sourceBindingsByScene_keys_exactly_ProductionSpec_sceneRefs
+      manualLockTarget: each_declared_step_exactly_matches_editLocksByStep_scope_and_target; editLocksByStep_keys_exactly_declared_lock_steps
+      engineIdentity: each_node_exactly_uses_v3_engine_for_matching_stepId
+      semanticNodeOperationRef: exact_source_context_only; v3_has_no_operation_ref_field
+      artifactVersionRefs: source_bindings_and_existing_v3_authority_refs_only; no_implicit_authority
+    rule: >-
+      stepOperationMapping is NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE, as recorded
+      below in the v3 operation mapping. Therefore a structurally matching v3
+      envelope and arbitrary semantic graph remain UNKNOWN/NOT_ADMITTED; this
+      document does not claim a bound execution candidate. The source resolver
+      remains caller-owned. No v3 schema or bytes/API semantics are changed.
+  acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
+
 executionAdmissionBinding:
   id: media.production.execution-admission.v3
   structuralType: closed-versioned-object
