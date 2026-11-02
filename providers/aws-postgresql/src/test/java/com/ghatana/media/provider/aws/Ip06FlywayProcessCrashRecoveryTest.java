@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Test-only IP-06 process kill while V021 DDL is open in a PostgreSQL transaction. */
+/** Test-only IP-06 process kills while V021 and V029 DDL are open in PostgreSQL transactions. */
 @Testcontainers(disabledWithoutDocker = true)
 class Ip06FlywayProcessCrashRecoveryTest {
     private static final String LEGACY = "classpath:db/legacy-media-runtime-v001-v016";
@@ -71,7 +71,7 @@ class Ip06FlywayProcessCrashRecoveryTest {
             statement.execute("SELECT pg_advisory_lock(" + LOCK_KEY + ")");
             Process child = child(output, log, app, schema, locations);
             try {
-                awaitBlockedV021(child, app, log);
+                awaitBlockedMigration(child, app, log);
                 child.destroyForcibly();
                 assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
             } finally {
@@ -107,9 +107,89 @@ class Ip06FlywayProcessCrashRecoveryTest {
         assertHistory(schema, 29, resumeLocations);
     }
 
+    @Test
+    void killedV029TransactionRollsBackIndexAndFreshProcessResumesOnlyV029(@TempDir Path tempDir)
+            throws Exception {
+        String schema = "ip06_v029_kill_" + java.util.UUID.randomUUID().toString().replace("-", "");
+        Path tail = Files.createDirectories(tempDir.resolve("v029-tail"));
+        for (String script : TAIL) {
+            try (var input = getClass().getResourceAsStream("/db/media-runtime/" + script)) {
+                assertThat(input).as(script).isNotNull();
+                Files.copy(input, tail.resolve(script));
+            }
+        }
+
+        String location = LEGACY + ",filesystem:" + tail.toAbsolutePath();
+        assertThat(flyway(LEGACY, schema).migrate().migrationsExecuted).isEqualTo(16);
+        seedLegacyArtifact(schema);
+        assertThat(flywayThrough(location, schema, "28").migrate().migrationsExecuted)
+                .isEqualTo(12);
+        assertHistory(schema, 28, location);
+        assertThat(indexExists(schema, "media_transcript_attempt_version_ref_idx")).isFalse();
+
+        Path v029 = tail.resolve(TAIL[12]);
+        byte[] exactV029 = Files.readAllBytes(v029);
+        byte[] barrier = ("\n-- TEST-ONLY transaction barrier; never part of the production migration.\n"
+                + "SELECT pg_advisory_lock(" + LOCK_KEY + ");\n").getBytes(StandardCharsets.UTF_8);
+        byte[] blockedV029 = java.util.Arrays.copyOf(exactV029, exactV029.length + barrier.length);
+        System.arraycopy(barrier, 0, blockedV029, exactV029.length, barrier.length);
+        Files.write(v029, blockedV029);
+
+        Path output = tempDir.resolve("v029-blocked-child.out");
+        Path log = tempDir.resolve("v029-blocked-child.log");
+        String app = "ip06-v029-block-" + schema;
+        try (Connection lock = connection(); var statement = lock.createStatement()) {
+            statement.execute("SELECT pg_advisory_lock(" + LOCK_KEY + ")");
+            Process child = child(output, log, app, schema, location);
+            try {
+                awaitBlockedMigration(child, app, log);
+                // The index DDL has run inside V029's transaction, but PostgreSQL must
+                // not expose the uncommitted catalog entry to this separate connection.
+                assertThat(indexExists(schema, "media_transcript_attempt_version_ref_idx")).isFalse();
+                child.destroyForcibly();
+                assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            } finally {
+                if (child.isAlive()) child.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+                statement.execute("SELECT pg_advisory_unlock(" + LOCK_KEY + ")");
+            }
+        }
+
+        // PostgreSQL must discard both V029's index DDL and history insert when its JVM dies.
+        awaitNoActiveMigration(schema, app);
+        assertHistory(schema, 28, location);
+        assertThat(indexExists(schema, "media_transcript_attempt_version_ref_idx")).isFalse();
+        assertThat(count(schema, "media_artifacts", "artifact_id='ip06-crash-artifact'")).isEqualTo(1);
+        assertThat(output).doesNotExist();
+
+        // Restore the checked-in V029 bytes, then recover it in a fresh Flyway process.
+        Files.write(v029, exactV029);
+        Path resumed = tempDir.resolve("v029-resumed-child.out");
+        Process resume = child(resumed, tempDir.resolve("v029-resumed-child.log"),
+                "ip06-v029-resume-" + schema, schema, location);
+        awaitExit(resume, tempDir.resolve("v029-resumed-child.log"));
+        assertThat(Files.readString(resumed)).isEqualTo("MIGRATED:1");
+        assertHistory(schema, 29, location);
+        assertThat(indexExists(schema, "media_transcript_attempt_version_ref_idx")).isTrue();
+        assertThat(count(schema, "media_artifacts", "artifact_id='ip06-crash-artifact'")).isEqualTo(1);
+
+        Path noop = tempDir.resolve("v029-noop-child.out");
+        Process second = child(noop, tempDir.resolve("v029-noop-child.log"),
+                "ip06-v029-noop-" + schema, schema, location);
+        awaitExit(second, tempDir.resolve("v029-noop-child.log"));
+        assertThat(Files.readString(noop)).isEqualTo("MIGRATED:0");
+        assertHistory(schema, 29, location);
+        assertThat(indexExists(schema, "media_transcript_attempt_version_ref_idx")).isTrue();
+    }
+
     private static Flyway flyway(String location, String schema) {
         return Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations(location.split(",")).schemas(schema).defaultSchema(schema)
+                .validateMigrationNaming(true).load();
+    }
+
+    private static Flyway flywayThrough(String location, String schema, String target) {
+        return Flyway.configure().dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+                .locations(location.split(",")).schemas(schema).defaultSchema(schema).target(target)
                 .validateMigrationNaming(true).load();
     }
 
@@ -126,7 +206,7 @@ class Ip06FlywayProcessCrashRecoveryTest {
         return builder.start();
     }
 
-    private static void awaitBlockedV021(Process child, String app, Path log) throws Exception {
+    private static void awaitBlockedMigration(Process child, String app, Path log) throws Exception {
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(25);
         while (System.nanoTime() < deadline) {
             if (!child.isAlive()) throw new AssertionError("migration child exited early: " + readLog(log));
@@ -139,7 +219,7 @@ class Ip06FlywayProcessCrashRecoveryTest {
             }
             Thread.sleep(50);
         }
-        throw new AssertionError("timed out waiting for V021 transaction barrier: " + readLog(log));
+        throw new AssertionError("timed out waiting for Flyway transaction barrier: " + readLog(log));
     }
 
     private static void awaitExit(Process process, Path log) throws Exception {
@@ -210,6 +290,15 @@ class Ip06FlywayProcessCrashRecoveryTest {
                 "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema=?"
                         + " AND table_name=? AND column_name=?)")) {
             statement.setString(1, schema); statement.setString(2, table); statement.setString(3, column);
+            try (ResultSet rows = statement.executeQuery()) { rows.next(); return rows.getBoolean(1); }
+        }
+    }
+
+    private static boolean indexExists(String schema, String index) throws Exception {
+        try (Connection connection = connection(); var statement = connection.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname=? AND indexname=?)")) {
+            statement.setString(1, schema);
+            statement.setString(2, index);
             try (ResultSet rows = statement.executeQuery()) { rows.next(); return rows.getBoolean(1); }
         }
     }
