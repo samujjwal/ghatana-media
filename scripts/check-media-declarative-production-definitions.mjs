@@ -170,12 +170,17 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     if (status === 'DEV_COMPLETE') fail(phase + ': cannot self-declare current-source DEV_COMPLETE from source authoring alone');
   }
   const admission = p1.executionAdmissionBinding || {};
+  const semanticSource = p1.semanticSource || {};
+  const semanticPath = semanticSource.compilationPath || {};
+  const semanticMapping = semanticSource.executionAdmissionMapping || {};
+  const semanticPathSeparation = semanticMapping.pathSeparation || {};
   const admissionSchema = admission.schema || {};
   const admissionProps = admissionSchema.properties || {};
   const sourceBindings = admissionProps.sourceBindingsByScene || {};
   const sceneAuthority = sourceBindings.additionalProperties || {};
   const sceneAuthorityProps = sceneAuthority.properties || {};
   const admissionRelation = admission.operationSchemaRelation || {};
+  const semanticCandidateRules = admissionRelation.semanticCandidateBindingRules || {};
   const admissionPlanRules = admissionRelation.planBindingRules || {};
   const admissionCurrentAuthority = admissionRelation.admissionContextBindingRules?.currentAuthority || {};
   const admissionAuthenticatedIdentity = admissionRelation.admissionContextBindingRules?.authenticatedIdentity || {};
@@ -207,6 +212,28 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     fail('PDP-1 H-02: execution admission must use the separately versioned v3 envelope');
   if (admission.runtimeAdmission !== 'NOT_ADMITTED')
     fail('PDP-1 H-02: source envelope cannot admit runtime effects');
+  const unresolvedStates = new Set(['UNPROVEN', 'REVIEW_REQUIRED']);
+  const compatibilityStates = [
+    semanticPath.operationToEngineCompatibility,
+    semanticPathSeparation.operationToEngineCompatibility,
+    semanticCandidateRules.operationToEngineCompatibility,
+  ];
+  const resolverStates = [
+    semanticPath.resolverAuthorityAndSourceCurrentness,
+    semanticPathSeparation.resolverAuthorityAndCurrentness,
+    semanticCandidateRules.resolverAuthorityAndSourceCurrentness,
+  ];
+  if (compatibilityStates.some(state => !unresolvedStates.has(state)) ||
+      resolverStates.some(state => !unresolvedStates.has(state)) ||
+      semanticSource.runtimeAdmission !== 'NOT_ADMITTED' ||
+      semanticPath.runtimeAdmission !== 'NOT_ADMITTED' ||
+      semanticPathSeparation.runtimeAdmission !== 'NOT_ADMITTED' ||
+      semanticCandidateRules.runtimeAdmission !== 'NOT_ADMITTED' ||
+      semanticMapping.pathSeparation?.candidateDisposition !== 'EFFECT_FREE_CANDIDATE_ONLY' ||
+      semanticCandidateRules.resultKind !== 'EFFECT_FREE_SEMANTIC_SOURCE_V3_CANDIDATE' ||
+      !['COMPILED_PLAN', 'EXECUTABLE_PLAN', 'DISPATCH', 'JOB', 'ADMISSION']
+        .every(effect => (semanticCandidateRules.doesNotProduce || []).includes(effect)))
+    fail('PDP-1 H-02: unresolved operation compatibility or resolver authority/currentness must keep semantic candidates effect-free and NOT_ADMITTED');
   const engineRequired = ['identityKind', 'identity', 'immutableBuildSha256'];
   const reservationRequired = ['quoteRef', 'quoteVersion', 'reservationId', 'worstCaseCost', 'reservedCost', 'worstCaseCompute', 'reservedCompute', 'worstCaseTime', 'reservedTime'];
   const lockRequired = ['scopeKind', 'targetRef', 'ownerPrincipalId', 'leaseId', 'epoch', 'expiresAt'];

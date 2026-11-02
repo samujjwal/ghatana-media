@@ -439,6 +439,75 @@ test('H-02 source checker rejects a capture index rule that permits a different 
     result.errors.join('\n'));
 });
 
+test('H-02 source checker keeps unresolved operation/resolver bindings NOT_ADMITTED', () => {
+  const source = YAML.parse(read(files.p1));
+  const compatibilityClaim = structuredClone(source);
+  compatibilityClaim.semanticSource.compilationPath.operationToEngineCompatibility = 'PROVEN';
+  compatibilityClaim.semanticSource.compilationPath.runtimeAdmission = 'ADMITTED';
+  const compatibilityResult = verifyDeclarativeProductionDefinitions({
+    overrides: { p1: YAML.stringify(compatibilityClaim) },
+  });
+  assert.ok(compatibilityResult.errors.some(error => /unresolved operation compatibility or resolver authority\/currentness/.test(error)),
+    compatibilityResult.errors.join('\n'));
+
+  const resolverClaim = structuredClone(source);
+  resolverClaim.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules
+    .resolverAuthorityAndSourceCurrentness = 'CURRENT';
+  resolverClaim.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules.runtimeAdmission = 'ADMITTED';
+  const resolverResult = verifyDeclarativeProductionDefinitions({
+    overrides: { p1: YAML.stringify(resolverClaim) },
+  });
+  assert.ok(resolverResult.errors.some(error => /unresolved operation compatibility or resolver authority\/currentness/.test(error)),
+    resolverResult.errors.join('\n'));
+
+  const statusOnlyClaims = [
+    ['semantic source operation compatibility', candidate => {
+      candidate.semanticSource.compilationPath.operationToEngineCompatibility = 'PROVEN';
+    }],
+    ['path-separation operation compatibility', candidate => {
+      candidate.semanticSource.executionAdmissionMapping.pathSeparation.operationToEngineCompatibility = 'PROVEN';
+    }],
+    ['semantic candidate operation compatibility', candidate => {
+      candidate.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules
+        .operationToEngineCompatibility = 'PROVEN';
+    }],
+    ['semantic source resolver currentness', candidate => {
+      candidate.semanticSource.compilationPath.resolverAuthorityAndSourceCurrentness = 'CURRENT';
+    }],
+    ['path-separation resolver currentness', candidate => {
+      candidate.semanticSource.executionAdmissionMapping.pathSeparation.resolverAuthorityAndCurrentness = 'CURRENT';
+    }],
+    ['semantic candidate resolver currentness', candidate => {
+      candidate.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules
+        .resolverAuthorityAndSourceCurrentness = 'CURRENT';
+    }],
+  ];
+  for (const [claim, mutate] of statusOnlyClaims) {
+    const statusOnlyClaim = structuredClone(source);
+    mutate(statusOnlyClaim);
+    assert.equal(statusOnlyClaim.executionAdmissionBinding.runtimeAdmission, 'NOT_ADMITTED');
+    const statusOnlyResult = verifyDeclarativeProductionDefinitions({
+      overrides: { p1: YAML.stringify(statusOnlyClaim) },
+    });
+    assert.ok(statusOnlyResult.errors.some(error => /unresolved operation compatibility or resolver authority\/currentness/.test(error)),
+      `checker accepted status-only claim: ${claim}\n${statusOnlyResult.errors.join('\n')}`);
+  }
+
+  const reviewRequired = structuredClone(source);
+  reviewRequired.semanticSource.compilationPath.operationToEngineCompatibility = 'REVIEW_REQUIRED';
+  reviewRequired.semanticSource.executionAdmissionMapping.pathSeparation.operationToEngineCompatibility = 'REVIEW_REQUIRED';
+  reviewRequired.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules
+    .operationToEngineCompatibility = 'REVIEW_REQUIRED';
+  reviewRequired.semanticSource.compilationPath.resolverAuthorityAndSourceCurrentness = 'REVIEW_REQUIRED';
+  reviewRequired.semanticSource.executionAdmissionMapping.pathSeparation.resolverAuthorityAndCurrentness = 'REVIEW_REQUIRED';
+  reviewRequired.executionAdmissionBinding.operationSchemaRelation.semanticCandidateBindingRules
+    .resolverAuthorityAndSourceCurrentness = 'REVIEW_REQUIRED';
+  const reviewResult = verifyDeclarativeProductionDefinitions({
+    overrides: { p1: YAML.stringify(reviewRequired) },
+  });
+  assert.deepEqual(reviewResult.errors, [], reviewResult.errors.join('\n'));
+});
+
 test('H-02 source checker rejects an unbound or caller-supplied identity context', () => {
   const source = read(files.p1);
   const broken = source.replace(
