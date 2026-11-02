@@ -154,33 +154,58 @@ public final class MediaProductionSpecCompiler {
      * fingerprints bind exact version refs for descendant invalidation.
      */
     public CompiledPlan compile(ProductionSpec spec) {
+        return compile(spec, null);
+    }
+
+    /** Compile with a separately versioned execution binding in every node identity. */
+    public CompiledPlan compile(ProductionSpec spec, MediaProductionAdmissionBinding.Binding binding) {
         Objects.requireNonNull(spec, "spec");
+        if (binding != null && (!binding.projectId().equals(spec.projectId())
+                || !binding.expectedProjectRevision().equals(spec.revisionId())
+                || !binding.authority().tenantId().equals(spec.tenantId())
+                || !binding.authority().purposeRef().equals(spec.purposeRef())
+                || !binding.authority().rightsRef().equals(spec.rightsRef()))) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
+        }
+        String admissionFingerprint = binding == null ? null : binding.stableContextFingerprint();
         Map<String, String> fingerprints = new LinkedHashMap<>();
         List<PlanNode> nodes = new ArrayList<>();
 
+        List<String> planBinding = new ArrayList<>(List.of(
+                spec.tenantId(), spec.projectId(), spec.schemaVersion(), spec.originClass()));
+        if (admissionFingerprint != null) planBinding.add(admissionFingerprint);
+        planBinding.addAll(engineContext(binding, "validate-spec"));
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
-                List.of(), List.of(spec.revisionId(), spec.purposeRef()),
-                List.of(spec.tenantId(), spec.projectId(), spec.schemaVersion(), spec.originClass()));
+                List.of(), List.of(spec.revisionId(), spec.purposeRef()), planBinding);
         addNode(nodes, fingerprints, "rights-review", "rights-review", ExecutionMode.MANUAL_GATE,
-                List.of("validate-spec"), List.of(spec.rightsRef()));
+                List.of("validate-spec"), List.of(spec.rightsRef()), engineContext(binding, "rights-review"));
         List<String> captureIds = new ArrayList<>();
         for (int i = 0; i < spec.sceneRefs().size(); i++) {
             String id = "capture-source-" + i;
             addNode(nodes, fingerprints, id, "capture", ExecutionMode.AUTOMATIC,
-                    List.of("rights-review"), List.of(spec.sceneRefs().get(i)));
+                    List.of("rights-review"), List.of(spec.sceneRefs().get(i)), engineContext(binding, id));
             captureIds.add(id);
         }
         addNode(nodes, fingerprints, "compose-timeline", "compose", ExecutionMode.AUTOMATIC,
-                captureIds, List.of(spec.timelineRef));
+                captureIds, List.of(spec.timelineRef), engineContext(binding, "compose-timeline"));
         List<String> renderIds = new ArrayList<>();
         for (int i = 0; i < spec.outputProfileRefs().size(); i++) {
             String id = "render-profile-" + i;
             addNode(nodes, fingerprints, id, "render", ExecutionMode.AUTOMATIC,
-                    List.of("compose-timeline"), List.of(spec.outputProfileRefs().get(i)));
+                    List.of("compose-timeline"), List.of(spec.outputProfileRefs().get(i)), engineContext(binding, id));
             renderIds.add(id);
         }
         addNode(nodes, fingerprints, "publish-review", "publish-review", ExecutionMode.MANUAL_GATE,
-                renderIds, List.of(spec.revisionId()));
+                renderIds, List.of(spec.revisionId()), engineContext(binding, "publish-review"));
+
+        if (binding != null) {
+            Set<String> nodeIds = new TreeSet<>();
+            nodes.forEach(node -> nodeIds.add(node.stepId()));
+            if (!nodeIds.equals(binding.enginesByStep().keySet())) {
+                throw new IllegalArgumentException("enginesByStep must bind exactly every compiled plan node");
+            }
+        }
 
         // Length framing makes the digest unambiguous even when a reference
         // itself contains punctuation used by prior delimiter-based projections.
@@ -192,6 +217,7 @@ public final class MediaProductionSpecCompiler {
         appendField(projection, spec.originClass());
         appendField(projection, spec.purposeRef());
         appendField(projection, spec.rightsRef());
+        if (admissionFingerprint != null) appendField(projection, admissionFingerprint);
         appendField(projection, Integer.toString(nodes.size()));
         for (PlanNode node : nodes) {
             appendField(projection, node.stepId());
@@ -203,6 +229,11 @@ public final class MediaProductionSpecCompiler {
                 spec.originClass(),
                 nodes,
                 "sha256:" + sha256(projection.toString()));
+    }
+
+    private static List<String> engineContext(
+            MediaProductionAdmissionBinding.Binding binding, String stepId) {
+        return binding == null ? List.of() : List.of(binding.engineFingerprint(stepId));
     }
 
     private static void addNode(

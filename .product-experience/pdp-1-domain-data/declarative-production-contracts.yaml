@@ -629,6 +629,20 @@ $defs:
       algorithmRef: {$ref: '#/$defs/versionRef'}
       value: {type: string, minLength: 1, maxLength: 384, pattern: '\S'}
       subjectVersionRef: {$ref: '#/$defs/versionRef'}
+  immutableSha256: {type: string, pattern: '^sha256:[0-9a-f]{64}$'}
+  digestOrNoEngine: {oneOf: [{$ref: '#/$defs/immutableSha256'}, {const: NO_ENGINE}]}
+  positiveInt64: {$ref: '#/$defs/positiveInt64Decimal'}
+  nonnegativeInt64:
+    allOf:
+      - {$ref: '#/$defs/signedInt64Decimal'}
+      - {type: string, pattern: '^(0|[1-9][0-9]*)$'}
+  boundedQuantity:
+    type: object
+    additionalProperties: false
+    required: [amount, unit]
+    properties:
+      amount: {$ref: '#/$defs/positiveInt64'}
+      unit: {$ref: '#/$defs/versionRef'}
   resourceBounds:
     type: object
     additionalProperties: false
@@ -1791,4 +1805,146 @@ caseOperationBindings:
     p1ResultOutcomeSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/resultSchema/outcomeRules"
     p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
     p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
+executionAdmissionBinding:
+  id: media.production.execution-admission.v1
+  structuralType: closed-versioned-object
+  canonicalOperationRef: media.recipe.specification.compile
+  status: SOURCE_AUTHORED_DEFINITION_ONLY
+  runtimeAdmission: NOT_ADMITTED
+  requiredFields:
+    - perNodeEngineModelSolverIdentityAndImmutableBuildSha256OrNoEngine
+    - pinnedProviderQualificationAndRights
+    - worstCaseCostComputeTimeUnitsTariffQuoteVersionAndReservationId
+    - authenticatedTenantPrincipalPurposeAndImmutableSourceVersion
+    - currentOwnerDecisionRefExpiryAndRevocationEpoch
+    - expectedProjectRevisionCas
+    - sceneScopedEditLockOwnerLeaseEpochAndExpiry
+    - storyMediaSimulationAndWallClockIdentitiesAndRationalConversions
+  schema:
+    type: object
+    additionalProperties: false
+    required: [schemaVersion, requestIdentity, enginesByStep, providerQualification, reservation, authority, project, sceneEditLock, clocks]
+    properties:
+      schemaVersion: {const: media.production.execution-admission.v1}
+      requestIdentity:
+        type: object
+        additionalProperties: false
+        required: [requestId, requestFingerprint]
+        properties:
+          requestId: {$ref: '#/$defs/opaqueId'}
+          requestFingerprint: {$ref: '#/$defs/immutableSha256'}
+      enginesByStep:
+        type: object
+        minProperties: 1
+        propertyNames: {$ref: '#/$defs/opaqueId'}
+        additionalProperties:
+          type: object
+          additionalProperties: false
+          required: [identityKind, identity, immutableBuildSha256]
+          properties:
+            identityKind: {enum: [ENGINE, MODEL, SOLVER, NO_ENGINE]}
+            identity: {type: string, minLength: 1}
+            immutableBuildSha256: {$ref: '#/$defs/digestOrNoEngine'}
+          allOf:
+            - if: {properties: {identityKind: {const: NO_ENGINE}}, required: [identityKind]}
+              then:
+                properties:
+                  identity: {const: NO_ENGINE}
+                  immutableBuildSha256: {const: NO_ENGINE}
+            - if: {properties: {identityKind: {not: {const: NO_ENGINE}}}, required: [identityKind]}
+              then:
+                properties:
+                  identity: {not: {const: NO_ENGINE}}
+                  immutableBuildSha256: {$ref: '#/$defs/immutableSha256'}
+      providerQualification:
+        type: object
+        additionalProperties: false
+        required: [providerId, qualificationRef, qualificationSha256, state, rightsRef]
+        properties:
+          providerId: {$ref: '#/$defs/opaqueId'}
+          qualificationRef: {$ref: '#/$defs/versionRef'}
+          qualificationSha256: {$ref: '#/$defs/immutableSha256'}
+          state: {const: QUALIFIED}
+          rightsRef: {$ref: '#/$defs/versionRef'}
+      reservation:
+        type: object
+        additionalProperties: false
+        required: [quoteRef, quoteVersion, reservationId, worstCaseCost, reservedCost, worstCaseCompute, reservedCompute, worstCaseTime, reservedTime]
+        properties:
+          quoteRef: {$ref: '#/$defs/versionRef'}
+          quoteVersion: {$ref: '#/$defs/versionRef'}
+          reservationId: {$ref: '#/$defs/opaqueId'}
+          worstCaseCost: {$ref: '#/$defs/boundedQuantity'}
+          reservedCost: {$ref: '#/$defs/boundedQuantity'}
+          worstCaseCompute: {$ref: '#/$defs/boundedQuantity'}
+          reservedCompute: {$ref: '#/$defs/boundedQuantity'}
+          worstCaseTime: {$ref: '#/$defs/boundedQuantity'}
+          reservedTime: {$ref: '#/$defs/boundedQuantity'}
+      authority:
+        type: object
+        additionalProperties: false
+        required: [tenantId, principalId, purposeRef, rightsRef, sourceVersionRef, sourceSha256, ownerDecisionRef, decisionExpiresAt, revocationEpoch]
+        properties:
+          tenantId: {$ref: '#/$defs/opaqueId'}
+          principalId: {$ref: '#/$defs/opaqueId'}
+          purposeRef: {$ref: '#/$defs/versionRef'}
+          rightsRef: {$ref: '#/$defs/versionRef'}
+          sourceVersionRef: {$ref: '#/$defs/versionRef'}
+          sourceSha256: {$ref: '#/$defs/immutableSha256'}
+          ownerDecisionRef: {$ref: '#/$defs/versionRef'}
+          decisionExpiresAt: {type: string, format: date-time}
+          revocationEpoch: {$ref: '#/$defs/nonnegativeInt64'}
+      project:
+        type: object
+        additionalProperties: false
+        required: [projectId, expectedRevision, compareAndSet]
+        properties:
+          projectId: {$ref: '#/$defs/opaqueId'}
+          expectedRevision: {$ref: '#/$defs/versionRef'}
+          compareAndSet: {const: REQUIRED}
+      sceneEditLock:
+        type: object
+        additionalProperties: false
+        required: [sceneId, ownerPrincipalId, leaseId, epoch, expiresAt]
+        properties:
+          sceneId: {$ref: '#/$defs/opaqueId'}
+          ownerPrincipalId: {$ref: '#/$defs/opaqueId'}
+          leaseId: {$ref: '#/$defs/opaqueId'}
+          epoch: {$ref: '#/$defs/positiveInt64'}
+          expiresAt: {type: string, format: date-time}
+      clocks:
+        type: object
+        additionalProperties: false
+        required: [storyClockRef, mediaClockRef, simulationClockRef, wallClockRef, conversions]
+        properties:
+          storyClockRef: {$ref: '#/$defs/versionRef'}
+          mediaClockRef: {$ref: '#/$defs/versionRef'}
+          simulationClockRef: {$ref: '#/$defs/versionRef'}
+          wallClockRef: {$ref: '#/$defs/versionRef'}
+          conversions:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              additionalProperties: false
+              required: [fromClockRef, toClockRef, numerator, denominator]
+              properties:
+                fromClockRef: {$ref: '#/$defs/versionRef'}
+                toClockRef: {$ref: '#/$defs/versionRef'}
+                numerator: {$ref: '#/$defs/positiveInt64'}
+                denominator: {$ref: '#/$defs/positiveInt64'}
+  executionRule: >-
+    Missing, unknown, expired, revoked, stale, unbounded, or insufficient data is
+    NOT_ADMITTED before effect. Read and validate the current authoritative
+    project, rights, qualification, reservation, source and edit-lock state again
+    before each dispatch, retry and restart; resolve the request identity through
+    the existing MediaRuntime/JobAttempt authority and reconcile an existing exact
+    attempt rather than dispatching it twice. A reused key with another
+    fingerprint is an idempotency conflict. Use the existing operation journal
+    and compare-and-set authority only.
+  operationSchemaRelation:
+    operationRef: media.recipe.specification.compile
+    fieldMapping: NOT_ASSERTED
+    status: SOURCE_REVIEW_REQUIRED
+    sourceReviewRequirement: Independently review the exact mapping and source cut before any runtime admission.
 nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]
