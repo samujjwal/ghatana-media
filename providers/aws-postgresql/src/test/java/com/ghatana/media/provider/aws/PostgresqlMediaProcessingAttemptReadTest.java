@@ -353,6 +353,83 @@ class PostgresqlMediaProcessingAttemptReadTest {
     }
 
     @Test
+    void deadlineCancelsDeferredCommitAndPreservesProviderSuccessAsUnknown() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-commit-cancel-" + suffix;
+        String tenant = "tenant-" + suffix;
+        String jobId = "job-" + suffix;
+        String triggerName = "media_commit_sleep_" + suffix;
+        String functionName = "media_commit_sleep_fn_" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(integrationEnvironment(bucket));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            try {
+                AttemptFixture started = startAttempt(store, tenant, jobId);
+                var attempt = store.recordProviderReceipt(started.attempt(), started.lease(),
+                        "operation-active-commit", "receipt-active-commit");
+                Map<String, Object> providerResult = Map.of("label", "synthetic");
+                ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                        AttemptFinality.SUCCEEDED, "receipt-active-commit", providerResult, PROVENANCE, Instant.now());
+                ProcessingJob completed = terminal(started.running(), JobStatus.COMPLETED, providerResult);
+                MediaLifecycleEvent completion = event(completed, "MEDIA_JOB_COMPLETED");
+
+                try (Connection connection = DriverManager.getConnection(
+                             POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = connection.createStatement()) {
+                    statement.execute("CREATE FUNCTION public." + functionName + "() RETURNS trigger LANGUAGE plpgsql AS $$ "
+                            + "BEGIN IF NEW.tenant_id = '" + tenant + "' AND NEW.job_id = '" + jobId
+                            + "' AND NEW.status = 'COMPLETED' THEN PERFORM pg_sleep(8); END IF; "
+                            + "RETURN NEW; END $$");
+                    statement.execute("CREATE CONSTRAINT TRIGGER " + triggerName
+                            + " AFTER UPDATE ON media_processing_jobs DEFERRABLE INITIALLY DEFERRED "
+                            + "FOR EACH ROW EXECUTE FUNCTION public." + functionName + "()");
+                }
+
+                long startedAt = System.nanoTime();
+                Throwable failure = org.assertj.core.api.Assertions.catchThrowable(() -> store.commitFinalOutcome(
+                        started.running(), attempt, completed, observation, completion,
+                        MonotonicDeadline.after(Duration.ofSeconds(4))));
+                long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+                assertThat(failure).isInstanceOf(MediaJobFinalizationDeadlineExceededException.class);
+                assertThat(failure.getCause()).isInstanceOf(SQLException.class);
+                assertThat(((SQLException) failure.getCause()).getSQLState()).isEqualTo("57014");
+                assertThat(elapsedMillis).isBetween(2_500L, 6_000L);
+
+                assertThat(store.find(tenant, jobId).orElseThrow().status()).isEqualTo(JobStatus.RUNNING);
+                assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                        .isEqualTo(AttemptFinality.UNKNOWN);
+                assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                        + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_COMPLETED'",
+                        tenant, jobId)).isZero();
+
+                ProcessingJob unknown = terminal(started.running(), JobStatus.OUTCOME_UNKNOWN, Map.of(),
+                        "PROCESSING_FINALIZATION_OUTCOME_UNKNOWN");
+                MediaLifecycleEvent unknownEvent = event(unknown, "MEDIA_JOB_OUTCOME_UNKNOWN");
+                store.recordProviderSuccessWithUnknownJob(
+                        started.running(), attempt, unknown, observation, unknownEvent);
+                assertThat(store.find(tenant, jobId).orElseThrow().status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                        .isEqualTo(AttemptFinality.SUCCEEDED);
+                assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                        + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_COMPLETED'",
+                        tenant, jobId)).isZero();
+                assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                        + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_OUTCOME_UNKNOWN'",
+                        tenant, jobId)).isEqualTo(1);
+            } finally {
+                try (Connection connection = DriverManager.getConnection(
+                             POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = connection.createStatement()) {
+                    statement.execute("DROP TRIGGER IF EXISTS " + triggerName + " ON media_processing_jobs");
+                    statement.execute("DROP FUNCTION IF EXISTS public." + functionName + "()");
+                }
+            }
+        }
+    }
+
+    @Test
     void simulatedLateFailedCommitAcknowledgementPreservesDurableSuccessWithoutRetryOrUnknownEvent() throws Exception {
         String suffix = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-attempt-late-commit-ack-" + suffix;

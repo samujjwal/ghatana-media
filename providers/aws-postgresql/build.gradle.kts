@@ -28,7 +28,7 @@ dependencies {
     implementation(libs.flyway.postgresql)
     implementation(platform(libs.aws.sdk.bom))
     implementation(libs.aws.s3)
-    runtimeOnly(libs.postgresql)
+    implementation(libs.postgresql)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)

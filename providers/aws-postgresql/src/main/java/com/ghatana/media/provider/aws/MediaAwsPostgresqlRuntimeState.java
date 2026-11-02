@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaDeploymentProfiles;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
+import org.postgresql.PGConnection;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
@@ -16,16 +17,25 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
 /** Shared lifecycle for Media PostgreSQL metadata and S3 object storage. */
 final class MediaAwsPostgresqlRuntimeState {
+    private static final int MAX_PARALLEL_COMMIT_CANCEL_REQUESTS = 4;
     private static final Object LOCK = new Object();
     private static MediaAwsPostgresqlRuntimeState shared;
     private static int references;
@@ -39,6 +49,13 @@ final class MediaAwsPostgresqlRuntimeState {
     private final boolean productionEligible;
     private final boolean sharedLifecycle;
     private final UnaryOperator<Connection> connectionDecorator;
+    private final ScheduledThreadPoolExecutor commitCancelTimer = new ScheduledThreadPoolExecutor(
+            1, runnable -> daemonThread(runnable, "media-postgresql-commit-deadline"));
+    private final ThreadPoolExecutor commitCancelWorkers = new ThreadPoolExecutor(
+            MAX_PARALLEL_COMMIT_CANCEL_REQUESTS, MAX_PARALLEL_COMMIT_CANCEL_REQUESTS,
+            0, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(MAX_PARALLEL_COMMIT_CANCEL_REQUESTS),
+            runnable -> daemonThread(runnable, "media-postgresql-cancel-io"));
+    private final Semaphore commitCancelPermits = new Semaphore(MAX_PARALLEL_COMMIT_CANCEL_REQUESTS);
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private MediaAwsPostgresqlRuntimeState(
@@ -46,6 +63,7 @@ final class MediaAwsPostgresqlRuntimeState {
             UnaryOperator<Connection> connectionDecorator) {
         this.sharedLifecycle = sharedLifecycle;
         this.connectionDecorator = connectionDecorator;
+        commitCancelTimer.setRemoveOnCancelPolicy(true);
         String jdbcUrl = environment.getOrDefault("MEDIA_POSTGRES_JDBC_URL", "").trim();
         String bucketValue = environment.getOrDefault("MEDIA_S3_BUCKET", "").trim();
         if (jdbcUrl.isBlank() || bucketValue.isBlank()) {
@@ -84,6 +102,8 @@ final class MediaAwsPostgresqlRuntimeState {
         pool.setConnectionTimeout(integer(
                 environment, "MEDIA_POSTGRES_CONNECTION_TIMEOUT_MS", 10_000, 100, 120_000));
         pool.setPoolName("media-runtime-postgresql");
+        // Keep the bounded cancel workers from remaining stuck on one cancel socket for the pgjdbc default 10s.
+        pool.addDataSourceProperty("cancelSignalTimeout", "1");
         pool.setAutoCommit(true);
         dataSource = new HikariDataSource(pool);
 
@@ -216,13 +236,88 @@ final class MediaAwsPostgresqlRuntimeState {
             Connection connection = dataSource.getConnection();
             if (connectionDecorator == null) return connection;
             try {
-                return connectionDecorator.apply(connection);
+                Connection decorated = connectionDecorator.apply(connection);
+                return (Connection) Proxy.newProxyInstance(MediaAwsPostgresqlRuntimeState.class.getClassLoader(),
+                        new Class<?>[] {Connection.class, PooledConnectionHandle.class}, (proxy, method, arguments) -> {
+                            if (method.getDeclaringClass() == PooledConnectionHandle.class) return connection;
+                            try {
+                                return method.invoke(decorated, arguments);
+                            } catch (InvocationTargetException failure) {
+                                throw failure.getCause();
+                            }
+                        });
             } catch (RuntimeException failure) {
                 try { connection.close(); } catch (SQLException closeFailure) { failure.addSuppressed(closeFailure); }
                 throw failure;
             }
         }
         catch (Exception failure) { throw new IllegalStateException("Media PostgreSQL state is unavailable", failure); }
+    }
+
+    void evictConnection(Connection connection) {
+        ensureConfigured();
+        Connection pooledConnection = connection instanceof PooledConnectionHandle handle
+                ? handle.pooledConnection() : connection;
+        dataSource.evictConnection(pooledConnection);
+    }
+
+    CommitCancelTask scheduleCommitCancel(Connection connection, long delayNanos) {
+        try {
+            PGConnection pgConnection = connection.unwrap(PGConnection.class);
+            return new CommitCancelTask(pgConnection, Math.max(0, delayNanos));
+        } catch (SQLException | RuntimeException unavailable) {
+            return null;
+        }
+    }
+
+    final class CommitCancelTask {
+        private final Object lock = new Object();
+        private final ScheduledFuture<?> timer;
+        private boolean finished;
+        private boolean requested;
+
+        private CommitCancelTask(PGConnection pgConnection, long delayNanos) {
+            timer = commitCancelTimer.schedule(() -> {
+                synchronized (lock) {
+                    if (finished || !commitCancelPermits.tryAcquire()) return;
+                    requested = true;
+                    try {
+                        commitCancelWorkers.execute(() -> {
+                            try {
+                                pgConnection.cancelQuery();
+                            } catch (SQLException | RuntimeException ignored) {
+                                // Best effort only. COMMIT result and durable readback decide finality.
+                            } finally {
+                                commitCancelPermits.release();
+                            }
+                        });
+                    } catch (RuntimeException rejected) {
+                        requested = false;
+                        commitCancelPermits.release();
+                    }
+                }
+            }, delayNanos, TimeUnit.NANOSECONDS);
+        }
+
+        boolean requested() {
+            synchronized (lock) { return requested; }
+        }
+
+        void finish(Connection connection) {
+            boolean evict;
+            synchronized (lock) {
+                finished = true;
+                timer.cancel(false);
+                evict = requested;
+            }
+            // Even after a successful COMMIT ack, a cancel request can be in flight. Do not return
+            // that physical session to the pool where the request might hit a later borrower.
+            if (evict) evictConnection(connection);
+        }
+    }
+
+    private interface PooledConnectionHandle {
+        Connection pooledConnection();
     }
 
     boolean ready() {
@@ -263,12 +358,20 @@ final class MediaAwsPostgresqlRuntimeState {
 
     void close() {
         if (!closed.compareAndSet(false, true)) return;
+        commitCancelTimer.shutdownNow();
+        commitCancelWorkers.shutdownNow();
         RuntimeException failure = null;
         if (s3 != null) {
             try { s3.close(); } catch (RuntimeException closeFailure) { failure = closeFailure; }
         }
         if (dataSource != null) dataSource.close();
         if (failure != null) throw failure;
+    }
+
+    private static Thread daemonThread(Runnable runnable, String name) {
+        Thread thread = new Thread(runnable, name);
+        thread.setDaemon(true);
+        return thread;
     }
 
     private static void configureStaticCredentials(

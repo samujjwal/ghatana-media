@@ -904,8 +904,59 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 if (databaseDeadline != null) {
                     applyFinalizationIdleTimeout(connection, databaseDeadline);
                 }
-                connection.commit();
-                return persistable;
+                int priorNetworkTimeoutMillis = 0;
+                boolean networkTimeoutChanged = false;
+                if (databaseDeadline != null) {
+                    try {
+                        priorNetworkTimeoutMillis = connection.getNetworkTimeout();
+                        long remainingNanos = jobDeadline.remainingNanos();
+                        long remainingMillis = remainingNanos <= 0 ? 1
+                                : Math.max(1, java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(remainingNanos)
+                                        + (remainingNanos % 1_000_000 == 0 ? 0 : 1));
+                        connection.setNetworkTimeout(Runnable::run,
+                                (int) Math.min(Integer.MAX_VALUE, remainingMillis));
+                        networkTimeoutChanged = true;
+                    } catch (SQLException | RuntimeException unsupportedNetworkTimeout) {
+                        throw new IllegalStateException(
+                                "Unable to bound Media finalization commit wait with the active JDBC driver",
+                                unsupportedNetworkTimeout);
+                    }
+                }
+                long cancelDelayNanos = jobDeadline == null ? Long.MAX_VALUE : jobDeadline.remainingNanos();
+                if (jobDeadline != null) {
+                    cancelDelayNanos = Math.max(0, cancelDelayNanos
+                            - java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(25));
+                }
+                MediaAwsPostgresqlRuntimeState.CommitCancelTask cancellation = databaseDeadline == null
+                        ? null : state.scheduleCommitCancel(connection, cancelDelayNanos);
+                boolean commitAcknowledged = false;
+                try {
+                    connection.commit();
+                    commitAcknowledged = true;
+                    return persistable;
+                } catch (SQLException failure) {
+                    rollback(connection, failure);
+                    if (databaseDeadline != null && isFinalizationDeadlineCancellation(failure)) {
+                        throw new MediaJobFinalizationDeadlineExceededException(
+                                "PostgreSQL canceled Media job finalization at its deadline", failure);
+                    }
+                    if (cancellation != null && cancellation.requested() && isStatementCancellation(failure)) {
+                        throw new MediaJobFinalizationDeadlineExceededException(
+                                "PostgreSQL canceled active Media job COMMIT at its deadline", failure);
+                    }
+                    if (isConnectionFailure(failure)) state.evictConnection(connection);
+                    throw databaseFailure("commit atomic Media final outcome", failure);
+                } finally {
+                    if (cancellation != null) cancellation.finish(connection);
+                    if (commitAcknowledged && networkTimeoutChanged
+                            && (cancellation == null || !cancellation.requested())) {
+                        try {
+                            connection.setNetworkTimeout(Runnable::run, priorNetworkTimeoutMillis);
+                        } catch (SQLException | RuntimeException restoreFailure) {
+                            state.evictConnection(connection);
+                        }
+                    }
+                }
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
@@ -993,6 +1044,21 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             // PostgreSQL 25P03 is an idle transaction session terminated by
             // idle_in_transaction_session_timeout.
             if ("25P03".equals(current.getSQLState())) return true;
+        }
+        return false;
+    }
+
+    private static boolean isStatementCancellation(SQLException failure) {
+        for (SQLException current = failure; current != null; current = current.getNextException()) {
+            if ("57014".equals(current.getSQLState())) return true;
+        }
+        return false;
+    }
+
+    private static boolean isConnectionFailure(SQLException failure) {
+        for (SQLException current = failure; current != null; current = current.getNextException()) {
+            String state = current.getSQLState();
+            if (state != null && state.startsWith("08")) return true;
         }
         return false;
     }

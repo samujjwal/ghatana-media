@@ -1661,3 +1661,35 @@ This bound covers the client-idle gap immediately before COMMIT. Two separate PG
 The source verifier itself is a non-authoritative observation; Kernel's current owner-decision digests remain stale against generated package digests. A deterministic `export-phase-package.mjs --all` refresh was attempted through the authorized escalation path, but automatic approval review rejected the cross-repository Kernel write. No workaround or indirect write was attempted. This leaves the fresh package export, stale snapshot, visual approval decisions, and owner digest reaffirmation open; exact permission to write the Kernel root is needed before that projection repair can be performed. Do not run Kernel OCR Build code or tests before its global Discovery exit.
 
 For Media Build selector continuity, an independent Luna read-only audit mapped the same-path current PDP-2 files (`gui/explorer-workbench.yaml`, `recorder-studio-interface.yaml`, and `source-audit-interface-review.json`) and their current checks, but found no exact successors for the Explorer documents, PDP-0/PDP-1 matrices, historical audit crosswalks, topology files, or the remaining historical selectors absent stable-ID source bindings. File-name similarity and referenced historical artifacts do not prove semantic successor identity. The 23-selector error therefore remains unresolved pending owning source adjudication; no selectors, pins, denominator, or current status were edited.
+
+### 41.40 November 2 owner-directed artifact and independent H-02 disposition readback (2026-11-02)
+
+The requested test-only V001–V016 snapshot and applied history already exist in this repository and were re-hashed at Media `main@73fcad0c`:
+
+| Artifact | SHA-256 | Provenance |
+| --- | --- | --- |
+| `providers/aws-postgresql/src/test/resources/db/legacy-media-runtime-v001-v016-snapshot/test-snapshot.sql` | `1afad850c7e3f1098dc09216c327d715f2d4ed7bf3ce47a620ad2bbf1b14c883` | Synthetic `ip06-*` test rows; not a deployed database snapshot. |
+| `providers/aws-postgresql/src/test/resources/db/legacy-media-runtime-v001-v016-snapshot/applied-history.csv` | `8aebbf666624dc73cf2dea461b89ac755a1077b63cee45f0898045f4dc7a2667` | Isolated PostgreSQL 16/Testcontainers readback of 16 fixture migrations (`installed_by=test`); not deployed `flyway_schema_history`. |
+| `providers/aws-postgresql/src/test/resources/db/legacy-media-runtime-v001-v016/manifest.csv` | `d54d17682c8b322f41457457831503b55342264989876bf7bd19cf34e06678b0` | Historical migration-source manifest; it pins the 16 copied SQL files. |
+
+The fixture migrations match the read-only legacy source at `ghatana/services/media@d62557fdaac7a324e036ca25f672d2a62ac532ea`; local evidence search found no authentic installed database snapshot or applied-history export. The fixture supports compatibility replay only. It does not provide an old-writer fence, production cutover, or rollback/restore evidence.
+
+A fresh independent read-only Luna review of H-02 at Media `73fcad0c` returned **`ACCEPT_LOCAL_CANDIDATE_ONLY`** for the effect-free semantic-graph syntax/topology compiler and v3 binding guards. It found the locally implementable guards consistent with source, but did not accept the canonical compile operation. PDP-1 still leaves the versioned compiler-contract content and shared `$defs` materialization unimplemented, operation resolver authority/currentness unproven, and `stepOperationMapping` undefined (`declarative-production-contracts.yaml:1948-1962, 2228-2247`; `operations.yaml:256939-257001`). There is no authority-backed `MediaRuntime`/`JobAttempt` dispatch or durable restart/unknown-outcome reconciliation (`declarative-production-contracts.yaml:2252-2258`). This technical review is not PDP-1 source-currentness or formal independent acceptance. Keep H-02 runtime `NOT_ADMITTED`.
+
+The owner-directed evidence lookup therefore supplied the existing reproducible test materials and a fresh technical disposition without substituting either for deployed database evidence or formal PDP-1 authority. No PDP source, pin, status, matrix, runtime-admission state, writer fence, cutover, or release state changed.
+
+### 41.41 November 2 JC-03 active COMMIT deadline cancellation (2026-11-02)
+
+`PostgresqlMediaJobStore` now bounds the JDBC wait for final-outcome COMMIT to the remaining monotonic budget and schedules PostgreSQL's protocol CancelRequest 25 ms before that cutoff. The runtime state uses one timer thread, four cancellation workers, four in-flight permits, a one-second pgjdbc cancel-socket timeout, and removes canceled timer entries. If cancellation may have been sent, the underlying Hikari connection is evicted before it can be reused, including when COMMIT returns a late success acknowledgement. A confirmed SQLSTATE `57014` maps to the typed finalization-deadline result; connection loss follows the existing durable job/attempt readback path. Unsupported JDBC network-timeout setup fails before COMMIT and rolls back.
+
+The full `PostgresqlMediaProcessingAttemptReadTest` class passed **7/7** on PostgreSQL 16/Testcontainers with:
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.PostgresqlMediaProcessingAttemptReadTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+The new deferred-trigger case holds COMMIT in an eight-second server-side trigger against a four-second deadline. It observed `57014`, verified transaction rollback, no completion outbox event, and the job still `RUNNING`; then the exact provider success was persisted as `OUTCOME_UNKNOWN` and read back. Existing class cases also passed for the pre-COMMIT idle timeout and simulated late failed acknowledgement after a successful real delegate COMMIT. An independent Luna read-only code review found no concrete defect in the cancellation race, bounded workers, Hikari eviction, and failure/readback paths.
+
+This is focused local PG16 evidence, not a hard end-to-end deadline guarantee. If the CancelRequest cannot reach PostgreSQL, the network timeout bounds the tested client's socket wait but the server may still finish COMMIT after the client loses its connection. That outcome remains ambiguous until exact durable readback. Production pgjdbc/proxy/network combinations and cancellation saturation remain unqualified; JC-03 is still in progress against its whole-row requirements.
