@@ -114,6 +114,28 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
+    void incompleteAuthorityReadbackUsesTypedUnavailableFailureBeforeEffect() {
+        Binding b = binding(SHA);
+        CurrentState good = state(b, "render-profile-0");
+        assertFailure(b, copy(good, good.tenantId(), good.principalId(), null, good.rightsExpiresAt(),
+                good.reservationId(), good.lockOwnerPrincipalId(), good.lockEpoch(), good.clocks()),
+                AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        assertFailure(b, replace(good, good.tenantId(), good.principalId(), good.purposeRef(),
+                good.sourceVersionRef(), good.revocationEpoch(), good.engineBuildSha256(), good.qualified(),
+                good.quoteVersion(), null, good.lockOwnerPrincipalId(), good.lockEpoch(), good.lockExpiresAt(),
+                good.clocks()), AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        assertFailure(b, copyWithLockExpiry(good, null), AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        AtomicInteger effects = new AtomicInteger();
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, "render-profile-0", () -> {
+            throw new IllegalStateException("authority store unavailable");
+        }, effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        assertThat(effects).hasValue(0);
+    }
+
+    @Test
     void dispatchRetryAndRestartEachRecheckCurrentAuthorityBeforeAnyEffect() {
         Binding b = binding(SHA);
         CurrentState stale = copy(state(b, "render-profile-0"), "tenant-else", "principal-1", "rev-7", NOW.plusSeconds(600),

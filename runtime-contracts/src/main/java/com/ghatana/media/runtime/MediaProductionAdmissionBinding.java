@@ -237,7 +237,7 @@ public final class MediaProductionAdmissionBinding {
             ClockBindings clocks, Instant observedAt) { }
 
     public static void requireCurrent(Binding b, String stepId, CurrentState s) {
-        if (b == null || s == null || s.observedAt() == null) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        if (b == null || !hasCompleteAuthorityState(s)) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
         Instant now = s.observedAt();
         Authority a = b.authority();
         if (!a.tenantId().equals(s.tenantId())) fail(AdmissionFailure.TENANT_MISMATCH);
@@ -283,6 +283,25 @@ public final class MediaProductionAdmissionBinding {
         if (!b.clocks().equals(s.clocks())) fail(AdmissionFailure.CLOCK_MISMATCH);
     }
 
+    private static boolean hasCompleteAuthorityState(CurrentState s) {
+        return s != null
+                && present(s.tenantId()) && present(s.principalId()) && present(s.purposeRef())
+                && present(s.sourceVersionRef()) && present(s.sourceSha256())
+                && present(s.projectId()) && present(s.projectRevision())
+                && present(s.rightsRef()) && present(s.ownerDecisionRef()) && s.rightsExpiresAt() != null
+                && s.revocationEpoch() >= 0
+                && present(s.engineIdentityKind()) && present(s.engineIdentity()) && present(s.engineBuildSha256())
+                && present(s.providerId()) && present(s.qualificationRef()) && present(s.qualificationSha256())
+                && present(s.providerRightsRef())
+                && present(s.quoteRef()) && present(s.quoteVersion()) && present(s.reservationId())
+                && s.remainingCost() != null && s.remainingCompute() != null && s.remainingTime() != null
+                && present(s.lockSceneId()) && present(s.lockOwnerPrincipalId()) && present(s.lockLeaseId())
+                && s.lockEpoch() > 0 && s.lockExpiresAt() != null
+                && s.clocks() != null && s.observedAt() != null;
+    }
+
+    private static boolean present(String value) { return value != null && !value.isBlank(); }
+
     /**
      * Source-review admission remains hard-disabled in this implementation
      * cut. The caller cannot turn it on with an input field or fixture.
@@ -295,7 +314,14 @@ public final class MediaProductionAdmissionBinding {
     /** Re-read authority state immediately before every initial, retry, or restart effect. */
     public static void beforeEffect(Binding binding, String stepId, Supplier<CurrentState> currentState, Runnable effect) {
         if (currentState == null) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
-        requireAdmitted(binding, stepId, currentState.get());
+        CurrentState observed;
+        try {
+            observed = currentState.get();
+        } catch (RuntimeException unavailable) {
+            fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+            return;
+        }
+        requireAdmitted(binding, stepId, observed);
         Objects.requireNonNull(effect, "effect").run();
     }
 
