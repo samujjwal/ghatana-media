@@ -242,3 +242,24 @@ tasks.register("buildFull") {
     description = "Builds Media Java, TypeScript and Rust source"
     dependsOn("buildMediaJvm", "buildPnpm", "buildCargo")
 }
+
+val grpcApiPublicationProject = rootProject.findProject(":services:media:api:grpc-api")
+    ?: rootProject.findProject(":media:api:grpc-api")
+    ?: throw GradleException("Media gRPC API project is not included in this build")
+
+tasks.register<Exec>("verifyPublishedGrpcApiConsumer") {
+    group = "verification"
+    description = "Publishes the candidate gRPC API to an isolated local Maven repository and compiles/runs a source-free consumer."
+    dependsOn("${grpcApiPublicationProject.path}:publishGrpcApiPublicationToIsolatedLocalRepository")
+    workingDir = rootDir
+    commandLine(
+        File(rootDir, "gradlew").absolutePath,
+        "--no-daemon",
+        "-p",
+        "api/grpc-consumer",
+        "run",
+        "-PgrpcApiRepo=${layout.buildDirectory.dir("grpc-api-maven-repository").get().asFile.absolutePath}",
+        "-PgrpcApiVersion=$version"
+    )
+    outputs.upToDateWhen { false }
+}
