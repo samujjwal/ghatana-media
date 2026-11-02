@@ -161,7 +161,7 @@ public final class MediaProductionSpecCompiler {
         }
     }
 
-    /** Exact immutable identities for source-spec input 1 and contract inputs 2 and 3. */
+    /** Exact references for source-spec input 1 and contract inputs 2 and 3. */
     public record CompilationInputs(
             String productionSpecRef,
             String productionSpecSchemaRef,
@@ -270,21 +270,46 @@ public final class MediaProductionSpecCompiler {
      * the source-semantic compiler operation and cannot admit external effects.
      */
     public CompiledPlan compile(ProductionSpec spec) {
-        return compileInternal(spec, null, null, null);
+        return compileInternal(spec, null, null, null, List.of());
     }
 
     /**
-     * Compiles a local reference-bound prototype with the exact versioned source,
-     * schema, and compiler-contract identities. This does not resolve or interpret
+     * Compiles a local reference-bound prototype with versioned source, schema,
+     * and compiler-contract references. This does not resolve or interpret
      * external contract content and is not a source-semantic candidate or admission.
      */
     public CompiledPlan compileWithInputs(ProductionSpec spec, CompilationInputs inputs) {
-        return compileInternal(spec, null, null, Objects.requireNonNull(inputs, "inputs"));
+        return compileInternal(spec, null, null, Objects.requireNonNull(inputs, "inputs"), List.of());
+    }
+
+    /**
+     * Resolves the spec, schema, and compiler-contract references and binds
+     * digest-checked resolver response bytes into the local candidate fingerprint.
+     * The bytes remain opaque and are not proven to be the source of the separate
+     * typed {@code spec}; the resolver must enforce immutable-version lookup and
+     * authorization. This does not interpret schema/compiler semantics, establish
+     * source-defined step semantics, or admit runtime effects. Each already-
+     * materialized response is limited by {@link MediaVersionedContractContent#MAX_CONTENT_BYTES};
+     * the resolver must also bound reads before materializing content.
+     */
+    public CompiledPlan compileWithResolvedContentFingerprints(
+            ProductionSpec spec,
+            CompilationInputs inputs,
+            MediaVersionedContractContent.Resolver resolver) {
+        Objects.requireNonNull(spec, "spec");
+        Objects.requireNonNull(inputs, "inputs");
+        Objects.requireNonNull(resolver, "resolver");
+        requireInputSchemaVersion(spec, inputs);
+        List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = List.of(
+                MediaVersionedContractContent.resolveDigestChecked(inputs.productionSpecRef(), resolver),
+                MediaVersionedContractContent.resolveDigestChecked(inputs.productionSpecSchemaRef(), resolver),
+                MediaVersionedContractContent.resolveDigestChecked(inputs.compilerContractRef(), resolver));
+        return compileInternal(spec, null, null, inputs, resolved);
     }
 
     /** Compile with a separately versioned execution binding in every node identity. */
     public CompiledPlan compile(ProductionSpec spec, MediaProductionAdmissionBinding.Binding binding) {
-        return compileInternal(spec, null, binding, null);
+        return compileInternal(spec, null, binding, null, List.of());
     }
 
     /** Compile reference-bound operation inputs with an optional revision assertion. */
@@ -293,7 +318,8 @@ public final class MediaProductionSpecCompiler {
             CompilationInputs inputs,
             String optionalProjectRevisionRef,
             MediaProductionAdmissionBinding.Binding binding) {
-        return compileInternal(spec, optionalProjectRevisionRef, binding, Objects.requireNonNull(inputs, "inputs"));
+        return compileInternal(spec, optionalProjectRevisionRef, binding,
+                Objects.requireNonNull(inputs, "inputs"), List.of());
     }
 
     /**
@@ -328,18 +354,17 @@ public final class MediaProductionSpecCompiler {
             ProductionSpec spec,
             String optionalProjectRevisionRef,
             MediaProductionAdmissionBinding.Binding binding) {
-        return compileInternal(spec, optionalProjectRevisionRef, binding, null);
+        return compileInternal(spec, optionalProjectRevisionRef, binding, null, List.of());
     }
 
     private CompiledPlan compileInternal(
             ProductionSpec spec,
             String optionalProjectRevisionRef,
             MediaProductionAdmissionBinding.Binding binding,
-            CompilationInputs inputs) {
+            CompilationInputs inputs,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> resolvedContents) {
         Objects.requireNonNull(spec, "spec");
-        if (inputs != null && !spec.schemaVersion().equals(inputs.productionSpecSchemaVersion())) {
-            throw new IllegalArgumentException("productionSpecSchemaVersion must match the specification schemaVersion");
-        }
+        if (inputs != null) requireInputSchemaVersion(spec, inputs);
         if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(spec.revisionId())) {
             throw new MediaProductionAdmissionBinding.AdmissionException(
                     MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
@@ -373,6 +398,7 @@ public final class MediaProductionSpecCompiler {
             planBinding.add("versioned-compiler-contract");
             planBinding.add(inputs.compilerContractRef());
         }
+        appendResolvedContent(planBinding, resolvedContents);
         if (binding != null) planBinding.add(binding.planContextFingerprint());
         planBinding.addAll(engineContext(binding, "validate-spec"));
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
@@ -427,6 +453,7 @@ public final class MediaProductionSpecCompiler {
             appendField(projection, "versioned-compiler-contract");
             appendField(projection, inputs.compilerContractRef());
         }
+        appendResolvedContent(projection, resolvedContents);
         if (admissionFingerprint != null) appendField(projection, admissionFingerprint);
         appendField(projection, Integer.toString(nodes.size()));
         for (PlanNode node : nodes) {
@@ -450,6 +477,32 @@ public final class MediaProductionSpecCompiler {
         return binding == null ? List.of() : List.of(binding.engineFingerprint(stepId));
     }
 
+    private static void appendResolvedContent(
+            List<String> target,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> contents) {
+        if (contents.isEmpty()) return;
+        target.add("resolved-versioned-contract-content");
+        target.add(Integer.toString(contents.size()));
+        for (MediaVersionedContractContent.ResolvedContentFingerprint content : contents) {
+            target.add(content.versionRef());
+            target.add(content.sha256());
+            target.add(Integer.toString(content.byteLength()));
+        }
+    }
+
+    private static void appendResolvedContent(
+            StringBuilder target,
+            List<MediaVersionedContractContent.ResolvedContentFingerprint> contents) {
+        if (contents.isEmpty()) return;
+        appendField(target, "resolved-versioned-contract-content");
+        appendField(target, Integer.toString(contents.size()));
+        for (MediaVersionedContractContent.ResolvedContentFingerprint content : contents) {
+            appendField(target, content.versionRef());
+            appendField(target, content.sha256());
+            appendField(target, Integer.toString(content.byteLength()));
+        }
+    }
+
     private static List<String> sourceContext(MediaProductionAdmissionBinding.Binding binding, String sceneRef, String stepId) {
         if (binding == null) return List.of();
         MediaProductionAdmissionBinding.SceneSourceAuthority source = binding.sourceBindingsByScene().get(sceneRef);
@@ -460,6 +513,12 @@ public final class MediaProductionSpecCompiler {
         return List.of(binding.engineFingerprint(stepId), source.sourceVersionRef(), source.sourceSha256(),
                 source.rightsRef(), source.ownerDecisionRef(), source.decisionExpiresAt().toString(),
                 Long.toString(source.revocationEpoch()));
+    }
+
+    private static void requireInputSchemaVersion(ProductionSpec spec, CompilationInputs inputs) {
+        if (!spec.schemaVersion().equals(inputs.productionSpecSchemaVersion())) {
+            throw new IllegalArgumentException("productionSpecSchemaVersion must match the specification schemaVersion");
+        }
     }
 
     /** Bind only source-defined scene capture and output render nodes to scoped edit locks. */

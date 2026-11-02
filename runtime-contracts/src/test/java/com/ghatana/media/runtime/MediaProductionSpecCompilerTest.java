@@ -5,8 +5,13 @@ import com.ghatana.media.runtime.MediaProductionSpecCompiler.ExecutionMode;
 import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -106,6 +111,94 @@ class MediaProductionSpecCompilerTest {
                 first.nodes().stream().map(node -> node.stepId()).toList());
         assertThat(changedSpecVersion.invalidatedAgainst(first)).containsExactlyElementsOf(
                 first.nodes().stream().map(node -> node.stepId()).toList());
+    }
+
+    @Test
+    void digestCheckedOpaqueContentIsFingerprintBoundWithoutClaimingSourceSemantics() throws Exception {
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+        Map<String, byte[]> contents = Map.of(
+                inputs.productionSpecRef(), "spec bytes".getBytes(StandardCharsets.UTF_8),
+                inputs.productionSpecSchemaRef(), "schema bytes".getBytes(StandardCharsets.UTF_8),
+                inputs.compilerContractRef(), "compiler bytes".getBytes(StandardCharsets.UTF_8));
+        var compiler = new MediaProductionSpecCompiler();
+        var first = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved(ref, contents.get(ref)));
+        var repeat = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved(ref, contents.get(ref)));
+        assertThat(repeat.planFingerprint()).isEqualTo(first.planFingerprint());
+
+        Map<String, byte[]> changed = Map.of(
+                inputs.productionSpecRef(), contents.get(inputs.productionSpecRef()),
+                inputs.productionSpecSchemaRef(), "changed schema bytes".getBytes(StandardCharsets.UTF_8),
+                inputs.compilerContractRef(), contents.get(inputs.compilerContractRef()));
+        var changedSchemaContent = compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved(ref, changed.get(ref)));
+        assertThat(changedSchemaContent.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(changedSchemaContent.invalidatedAgainst(first)).containsExactlyElementsOf(
+                first.nodes().stream().map(node -> node.stepId()).toList());
+
+        assertThatThrownBy(() -> compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> resolved("alias/for/" + ref, contents.get(ref))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("different version reference");
+        assertThatThrownBy(() -> compiler.compileWithResolvedContentFingerprints(spec(), inputs,
+                ref -> new MediaVersionedContractContent.ResolvedContent(ref, contents.get(ref),
+                        "sha256:" + "0".repeat(64))))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("digest does not match");
+    }
+
+    @Test
+    void schemaMismatchIsRejectedBeforeResolvingContent() {
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                "media.declarative.value.production-spec.v2", "production-compiler-contract/v3");
+        AtomicInteger calls = new AtomicInteger();
+
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
+                spec(), inputs, ref -> {
+                    calls.incrementAndGet();
+                    return resolved(ref, new byte[0]);
+                }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must match");
+        assertThat(calls).hasValue(0);
+    }
+
+    private static MediaVersionedContractContent.ResolvedContent resolved(String ref, byte[] content) {
+        try {
+            String digest = "sha256:" + HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(content));
+            return new MediaVersionedContractContent.ResolvedContent(ref, content, digest);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
+    void opaqueContentResponseIsDefensiveAndBoundedBeforeItIsCopied() throws Exception {
+        byte[] supplied = "not necessarily a serialized production spec".getBytes(StandardCharsets.UTF_8);
+        String digest = "sha256:" + HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(supplied));
+        var response = new MediaVersionedContractContent.ResolvedContent("contract/rev-1", supplied, digest);
+        java.util.Arrays.fill(supplied, (byte) 0);
+        byte[] exposed = response.content();
+        java.util.Arrays.fill(exposed, (byte) 0);
+
+        var checked = MediaVersionedContractContent.resolveDigestChecked("contract/rev-1", ignored -> response);
+        assertThat(checked.sha256()).isEqualTo(digest);
+        assertThat(checked.byteLength()).isEqualTo("not necessarily a serialized production spec".length());
+
+        byte[] maximum = new byte[MediaVersionedContractContent.MAX_CONTENT_BYTES];
+        var atLimit = resolved("contract/at-limit", maximum);
+        assertThat(MediaVersionedContractContent.resolveDigestChecked("contract/at-limit", ignored -> atLimit)
+                .byteLength()).isEqualTo(MediaVersionedContractContent.MAX_CONTENT_BYTES);
+        assertThatThrownBy(() -> new MediaVersionedContractContent.ResolvedContent("contract/oversized",
+                new byte[MediaVersionedContractContent.MAX_CONTENT_BYTES + 1], "sha256:" + "0".repeat(64)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("operational byte limit");
     }
 
     @Test
