@@ -1955,6 +1955,81 @@ mod tests {
             slice_audio_buffer(&zero_rate, 0.0, 1.0),
             Err(SpeechAudioError::InvalidInput(_))
         ));
+
+        let incomplete_stereo = AudioBuffer::new(
+            vec![0.0],
+            AudioConfig {
+                sample_rate: 2,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            slice_audio_buffer(&incomplete_stereo, 0.0, 1.0),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+
+        let zero_channels = AudioBuffer::new(
+            vec![],
+            AudioConfig {
+                sample_rate: 2,
+                channels: 0,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        assert!(matches!(
+            slice_audio_buffer(&zero_channels, 0.0, 1.0),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn mix_audio_validates_shape_and_preserves_silence() {
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        assert!(matches!(
+            mix_audio(&[], &[]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+
+        let stereo = AudioBuffer::new(vec![0.0, 0.0], config);
+        assert!(matches!(
+            mix_audio(std::slice::from_ref(&stereo), &[]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert_eq!(
+            mix_audio(std::slice::from_ref(&stereo), &[1.0])
+                .unwrap()
+                .samples,
+            vec![0.0, 0.0]
+        );
+
+        let incomplete_stereo = AudioBuffer::new(vec![0.0], config);
+        assert!(matches!(
+            mix_audio(&[incomplete_stereo], &[1.0]),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+
+        let same_shape_other_rate = AudioBuffer::new(
+            vec![0.0, 0.0],
+            AudioConfig {
+                sample_rate: 8_000,
+                ..config
+            },
+        );
+        assert!(matches!(
+            mix_audio(
+                &[
+                    AudioBuffer::new(vec![0.0, 0.0], config),
+                    same_shape_other_rate,
+                ],
+                &[1.0, 1.0]
+            ),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
     }
 
     #[test]
@@ -2607,6 +2682,116 @@ mod tests {
     }
 
     #[test]
+    fn public_decoder_rejects_hostile_riff_corpus_with_typed_errors() {
+        let temp = tempdir().unwrap();
+        let source_path = temp.path().join("source.wav");
+        let hostile_path = temp.path().join("hostile.wav");
+        write_wav(
+            &source_path,
+            &AudioBuffer::new(
+                vec![0.125; 4_096],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let valid = std::fs::read(source_path).unwrap();
+
+        // Each row is a deterministic mutation of a valid RIFF/WAVE source.
+        // The public bounded decoder must reject it before returning samples,
+        // with a stable typed error appropriate to the violated invariant.
+        let mut wrong_riff_length = valid.clone();
+        wrong_riff_length[4..8].copy_from_slice(&0u32.to_le_bytes());
+
+        let mut oversized_data_chunk = valid.clone();
+        let (_, data_size_offset, _) = wav_chunk(&valid, b"data");
+        oversized_data_chunk[data_size_offset..data_size_offset + 4]
+            .copy_from_slice(&u32::MAX.to_le_bytes());
+
+        let mut too_many_channels = valid.clone();
+        let (_, _, fmt_payload_offset) = wav_chunk(&valid, b"fmt ");
+        too_many_channels[fmt_payload_offset + 2..fmt_payload_offset + 4]
+            .copy_from_slice(&3u16.to_le_bytes());
+
+        let mut excessive_rate = valid.clone();
+        excessive_rate[fmt_payload_offset + 4..fmt_payload_offset + 8]
+            .copy_from_slice(&48_001u32.to_le_bytes());
+
+        let cases = [
+            (
+                "wrong RIFF byte count",
+                wrong_riff_length,
+                DecodeLimits::DEFAULT,
+                "Decode",
+                "RIFF size declares 8 bytes but file has 16452",
+            ),
+            (
+                "data chunk extending past RIFF end",
+                oversized_data_chunk,
+                DecodeLimits::DEFAULT,
+                "Decode",
+                "RIFF chunk \"data\" extends beyond declared container size",
+            ),
+            (
+                "channel count above caller cap",
+                too_many_channels,
+                DecodeLimits {
+                    max_channels: 2,
+                    ..DecodeLimits::DEFAULT
+                },
+                "ResourceLimit",
+                "WAVE channel count 3 or sample rate 16000 exceeds decode limits",
+            ),
+            (
+                "sample rate above caller cap",
+                excessive_rate,
+                DecodeLimits {
+                    max_sample_rate: 48_000,
+                    ..DecodeLimits::DEFAULT
+                },
+                "ResourceLimit",
+                "WAVE channel count 1 or sample rate 48001 exceeds decode limits",
+            ),
+        ];
+
+        for (label, bytes, limits, expected_kind, expected_message) in cases {
+            std::fs::write(&hostile_path, bytes).unwrap();
+            let outcome =
+                std::panic::catch_unwind(|| load_audio_buffer_bounded(&hostile_path, limits));
+            assert!(outcome.is_ok(), "public decoder panicked for {label}");
+            match outcome.unwrap() {
+                Err(SpeechAudioError::Decode(message))
+                    if expected_kind == "Decode" && message == expected_message => {}
+                Err(SpeechAudioError::ResourceLimit(message))
+                    if expected_kind == "ResourceLimit" && message == expected_message => {}
+                other => panic!(
+                    "{label} must return {expected_kind}({expected_message:?}), got {other:?}"
+                ),
+            }
+        }
+
+        std::fs::write(&hostile_path, &valid).unwrap();
+        let limited = std::panic::catch_unwind(|| {
+            load_audio_buffer_bounded(
+                &hostile_path,
+                DecodeLimits {
+                    max_decoded_samples: 1,
+                    ..DecodeLimits::DEFAULT
+                },
+            )
+        });
+        assert!(limited.is_ok(), "public decoder panicked at the sample cap");
+        assert!(matches!(
+            limited.unwrap(),
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message == "container declares 4096 samples, exceeding the 1 sample budget"
+        ));
+    }
+
+    #[test]
     fn malformed_compressed_codec_packet_is_not_silently_skipped() {
         let temp = tempdir().unwrap();
         let path = temp.path().join("corrupt.mp3");
@@ -2651,6 +2836,10 @@ mod tests {
 
         assert_eq!(waveform.len(), 4);
         assert!(waveform.iter().all(|sample| *sample >= 0.0));
+        assert!(matches!(
+            extract_waveform(&path, 0),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
     }
 
     #[test]
