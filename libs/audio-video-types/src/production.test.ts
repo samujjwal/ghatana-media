@@ -21,10 +21,32 @@ describe('TY-04 headless declarative parsers', () => {
   it('accepts a well-formed production spec', () => {
     expect(ProductionSpecSchema.safeParse(spec).success).toBe(true);
   });
+  it('requires every declared production-spec field and preserves ordered immutable references', () => {
+    const requiredFields = [
+      'tenantId', 'projectId', 'revisionId', 'schemaVersion', 'originClass',
+      'purposeRef', 'sceneRefs', 'timelineRef', 'rightsRef', 'outputProfileRefs',
+    ] as const;
+    for (const field of requiredFields) {
+      const missing = { ...spec } as Record<string, unknown>;
+      delete missing[field];
+      expect(ProductionSpecSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+
+    const ordered = ProductionSpecSchema.parse({
+      ...spec,
+      sceneRefs: ['scene/z', 'scene/a'],
+      outputProfileRefs: ['profile/z', 'profile/a'],
+    });
+    expect(ordered.sceneRefs).toEqual(['scene/z', 'scene/a']);
+    expect(ordered.outputProfileRefs).toEqual(['profile/z', 'profile/a']);
+  });
   it('rejects unknown fields, wrong schemaVersion and empty ref lists', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, extra: 1 }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, schemaVersion: 'v2' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: [] }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, outputProfileRefs: [] }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, outputProfileRefs: [''] }).success).toBe(false);
+    expect(ProductionSpecSchema.safeParse({ ...spec, outputProfileRefs: [ref, ref] }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, originClass: 'BOGUS' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, tenantId: 'bad id!' }).success).toBe(false);
   });
@@ -36,8 +58,19 @@ describe('TY-04 headless declarative parsers', () => {
       semanticAnchorRefs: ['anchor-1'], accessibilityRef: ref,
     };
     expect(SceneBindingSchema.safeParse(scene).success).toBe(true);
+    const requiredFields = [
+      'schemaVersion', 'sceneId', 'sceneGraphRef', 'animationGraphRef',
+      'modelStateRefOrNull', 'sourceRefs', 'temporalMappingRef',
+      'semanticAnchorRefs', 'accessibilityRef',
+    ] as const;
+    for (const field of requiredFields) {
+      const missing = { ...scene } as Record<string, unknown>;
+      delete missing[field];
+      expect(SceneBindingSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
     expect(SceneBindingSchema.safeParse({ ...scene, extra: true }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, sourceRefs: [] }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, sourceRefs: [ref, ref] }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, modelStateRefOrNull: ' ' }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor-1', 'anchor-1'] }).success).toBe(false);
   });
