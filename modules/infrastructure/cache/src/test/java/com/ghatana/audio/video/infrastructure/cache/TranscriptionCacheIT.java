@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static com.ghatana.audio.video.infrastructure.cache.AsyncOperationTestSupport.await;
 
@@ -73,8 +75,8 @@ class TranscriptionCacheIT {
     }
 
     @Test
-    @DisplayName("Should store in Redis while direct protected read remains a miss")
-    void shouldWriteToRedisButNeverReturnAnUnrevalidatedHit() throws Exception {
+    @DisplayName("Should skip Redis persistence without a complete protected scope")
+    void shouldSkipUnscopedTranscriptPersistence() {
         String tenantId = "tenant-cache-1";
         TranscriptionEntity entity = buildEntity(tenantId);
 
@@ -83,10 +85,7 @@ class TranscriptionCacheIT {
         Optional<String> stored = await(cachePort.get(cacheKey(tenantId, entity.getId())));
         Optional<TranscriptionEntity> protectedRead = await(cacheService.getTranscription(tenantId, entity.getId()));
 
-        assertThat(stored).isPresent();
-        TranscriptionEntity serialized = objectMapper.readValue(stored.orElseThrow(), TranscriptionEntity.class);
-        assertThat(serialized.getId()).isEqualTo(entity.getId());
-        assertThat(serialized.getText()).isEqualTo(entity.getText());
+        assertThat(stored).isEmpty();
         assertThat(protectedRead).isEmpty();
     }
 
@@ -106,7 +105,6 @@ class TranscriptionCacheIT {
         String tenant2 = "tenant-iso-2";
         UUID sharedId = UUID.randomUUID();
 
-        // Redis keeps tenant-scoped values distinct, but protected reads stay misses.
         TranscriptionEntity entity1 = buildEntityWithIdAndText(tenant1, sharedId, "Transcript for tenant-1");
         TranscriptionEntity entity2 = buildEntityWithIdAndText(tenant2, sharedId, "Transcript for tenant-2");
 
@@ -118,34 +116,22 @@ class TranscriptionCacheIT {
         Optional<TranscriptionEntity> t1Result = await(cacheService.getTranscription(tenant1, sharedId));
         Optional<TranscriptionEntity> t2Result = await(cacheService.getTranscription(tenant2, sharedId));
 
-        assertThat(t1Stored).isPresent();
-        assertThat(t2Stored).isPresent();
-        assertThat(objectMapper.readValue(t1Stored.orElseThrow(), TranscriptionEntity.class).getText())
-                .isEqualTo("Transcript for tenant-1");
-        assertThat(objectMapper.readValue(t2Stored.orElseThrow(), TranscriptionEntity.class).getText())
-                .isEqualTo("Transcript for tenant-2");
+        assertThat(t1Stored).isEmpty();
+        assertThat(t2Stored).isEmpty();
         assertThat(t1Result).isEmpty();
         assertThat(t2Result).isEmpty();
     }
 
     @Test
-    @DisplayName("Should evict entry after short TTL")
-    void shouldEvictAfterTtl() throws InterruptedException {
+    @DisplayName("Should not persist a transcription through the unscoped TTL API")
+    void shouldSkipUnscopedTtlWrite() {
         String tenantId = "tenant-ttl";
         TranscriptionEntity entity = buildEntity(tenantId);
 
-        // Cache with a 1-second TTL
         await(cacheService.cacheTranscription(tenantId, entity, Duration.ofSeconds(1)));
 
         String key = cacheKey(tenantId, entity.getId());
-        assertThat(await(cachePort.get(key))).isPresent();
-        assertThat(await(cacheService.getTranscription(tenantId, entity.getId()))).isEmpty();
-
-        // Wait for TTL to expire
-        Thread.sleep(1500);
-
-        Optional<String> after = await(cachePort.get(key));
-        assertThat(after).isEmpty();
+        assertThat(await(cachePort.get(key))).isEmpty();
         assertThat(await(cacheService.getTranscription(tenantId, entity.getId()))).isEmpty();
     }
 
@@ -155,8 +141,8 @@ class TranscriptionCacheIT {
         String tenantId = "tenant-inval";
         TranscriptionEntity entity = buildEntity(tenantId);
 
-        await(cacheService.cacheTranscription(tenantId, entity));
         String key = cacheKey(tenantId, entity.getId());
+        await(cachePort.put(key, "stale", Duration.ofMinutes(1)));
         assertThat(await(cachePort.get(key))).isPresent();
         assertThat(await(cacheService.getTranscription(tenantId, entity.getId()))).isEmpty();
 
@@ -168,8 +154,8 @@ class TranscriptionCacheIT {
     }
 
     @Test
-    @DisplayName("Should load from current source on every read and persist only as an optimization")
-    void shouldLoadCurrentSourceAndWriteRedisEntryAcrossServiceInstances() throws Exception {
+    @DisplayName("Should load current source without persisting protected transcript")
+    void shouldLoadCurrentSourceWithoutRedisEntry() {
         String tenantId = "tenant-load";
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity expected = buildEntityWithIdAndText(
@@ -185,30 +171,18 @@ class TranscriptionCacheIT {
         ));
 
         assertThat(result.getText()).isEqualTo("Current authorized source result");
-        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isPresent();
+        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isEmpty();
 
-        // A new service instance sees persisted Redis data but cannot serve it as
-        // an authoritative transcript; the current source/authorization loader runs.
-        AsyncRedisCacheBackend secondBackend = new AsyncRedisCacheBackend(
-                REDIS.getHost(), REDIS.getFirstMappedPort(), null, 0, 2_000);
-        try {
-            DistributedCacheService secondPort = new DistributedCacheService(
-                    secondBackend, "transcription-cache-it");
-            TranscriptionCacheService secondService = new TranscriptionCacheService(secondPort, objectMapper);
-            assertThat(await(secondPort.get(cacheKey(tenantId, transcriptionId)))).isPresent();
-            TranscriptionEntity readback = await(secondService.getOrLoadTranscription(
+        TranscriptionEntity readback = await(cacheService.getOrLoadTranscription(
                 tenantId, transcriptionId,
-                    id -> {
-                        currentSourceLoads.incrementAndGet();
-                        return AsyncOperation.success(Optional.of(expected));
-                    }));
-
-            assertThat(readback.getId()).isEqualTo(transcriptionId);
-            assertThat(readback.getText()).isEqualTo("Current authorized source result");
-            assertThat(currentSourceLoads).hasValue(2);
-        } finally {
-            secondBackend.close();
-        }
+                id -> {
+                    currentSourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(expected));
+                }));
+        assertThat(readback.getId()).isEqualTo(transcriptionId);
+        assertThat(readback.getText()).isEqualTo("Current authorized source result");
+        assertThat(currentSourceLoads).hasValue(2);
+        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isEmpty();
     }
 
     @Test
@@ -225,13 +199,11 @@ class TranscriptionCacheIT {
                 ignored -> AsyncOperation.success(Optional.empty())));
 
         assertThat(current).isNull();
-        // Redis may still hold an optimization entry, but the protected read path
-        // only returns what its current source/authorization loader supplied.
-        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isPresent();
+        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isEmpty();
     }
 
     @Test
-    @DisplayName("Should return the same current source result with Redis writes enabled or disabled")
+    @DisplayName("Should return the same current source result without Redis transcript writes")
     @SuppressWarnings("unchecked")
     void shouldHaveCacheOnCacheOffSourceEquivalence() {
         String tenantId = "tenant-cache-equivalence";
@@ -239,7 +211,6 @@ class TranscriptionCacheIT {
         TranscriptionEntity authoritative = buildEntityWithIdAndText(
                 tenantId, transcriptionId, "Same current source result");
         DistributedCachePort<String, String> cacheOffPort = mock(DistributedCachePort.class);
-        when(cacheOffPort.put(any(), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService cacheOffService = new TranscriptionCacheService(cacheOffPort, objectMapper);
 
         TranscriptionEntity cacheOn = await(cacheService.getOrLoadTranscription(tenantId, transcriptionId,
@@ -250,7 +221,9 @@ class TranscriptionCacheIT {
         assertThat(cacheOn.getId()).isEqualTo(cacheOff.getId());
         assertThat(cacheOn.getTenantId()).isEqualTo(cacheOff.getTenantId());
         assertThat(cacheOn.getText()).isEqualTo(cacheOff.getText());
-        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isPresent();
+        assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isEmpty();
+        verify(cacheOffPort, never()).get(any());
+        verify(cacheOffPort, never()).put(any(), any(), any(Duration.class));
     }
 
     private String cacheKey(String tenantId, UUID transcriptionId) {

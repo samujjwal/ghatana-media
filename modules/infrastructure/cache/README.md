@@ -4,7 +4,7 @@ Media caching adapter source; not an independently deployed cache service or a r
 
 ## Purpose
 
-Provides a unified facade for writing transcription results and audio-video artefact metadata while keeping services decoupled from the underlying cache backend. Transcript reads do not return a cached entity because the current entity/cache contracts cannot revalidate authorization, consent, retention, source version, or immutable transcript revision. `getOrLoadTranscription` calls its current source/authorization loader on every request; a matching non-deleted result may then be written to cache. Direct cache lookup methods return a miss without deserializing a stored transcript.
+Provides a unified facade for audio-video cache operations while keeping services decoupled from the underlying cache backend. Transcription APIs currently do not read or write transcript values: their inputs lack authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, and authoritative source fingerprint. `getOrLoadTranscription` calls the current source/authorization loader on every request and returns only its matching non-deleted result. Direct cache lookup methods return a miss. A future protected transcript cache path requires these scope dimensions from the current authorized source path before it can persist or serve bytes.
 
 ## Layer
 
@@ -15,7 +15,7 @@ Provides a unified facade for writing transcription results and audio-video arte
 | Class | Responsibility |
 |---|---|
 | `AudioVideoCache` | Cache facade; read-through / write-through helper for audio artefacts |
-| `TranscriptionCacheService` | Writes tenant-scoped transcription optimization entries; reads require the current source loader and never trust cache entries as authorization or revision authority |
+| `TranscriptionCacheService` | Source-backed transcript reads; unscoped transcript cache reads and writes fail closed |
 
 ## Configuration
 
@@ -43,4 +43,4 @@ Focused unit tests:
 ./gradlew :services:media:modules:infrastructure:cache:test --tests 'com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheServiceTest'
 ```
 
-The Redis integration test uses Testcontainers to verify serialization writes, tenant-key separation, TTL expiry, explicit invalidation, cache-on/cache-off source-result equivalence, and write visibility from a fresh service instance. It calls the current source/authorization loader on each protected read, including after a Redis write. Redis persistence does not prove consent, retention, source-version, transcript-revision, or Shared adapter acceptance.
+The Redis integration test uses Testcontainers to verify that unscoped transcript methods do not persist protected values, source-backed reads preserve current source results, and explicit key invalidation works through the Shared cache port. Redis persistence does not prove consent, retention, source-version, transcript-revision, or Shared adapter acceptance. TTL and generic `AudioVideoCache` behavior are tested separately; transcript Redis persistence remains unavailable until the public API carries complete current protected scope.

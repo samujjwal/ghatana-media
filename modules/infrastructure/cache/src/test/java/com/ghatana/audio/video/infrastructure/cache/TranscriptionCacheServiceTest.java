@@ -13,12 +13,10 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -29,7 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -85,7 +82,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void equalAudioIdentityAcrossTenantsUsesSeparateKeysAndNeverReadsAcrossScope() {
+    void equalAudioIdentityAcrossTenantsIsNotPersistedWithoutProtectedScope() {
         UUID sharedAudioId = UUID.randomUUID();
         UUID transcriptAId = UUID.randomUUID();
         UUID transcriptBId = UUID.randomUUID();
@@ -93,20 +90,12 @@ class TranscriptionCacheServiceTest {
         tenantA.setAudioFileId(sharedAudioId);
         TranscriptionEntity tenantB = entity("tenant-private-b", transcriptBId, false);
         tenantB.setAudioFileId(sharedAudioId);
-        String keyA = key("tenant-private-a", "audio:" + sharedAudioId);
-        String keyB = key("tenant-private-b", "audio:" + sharedAudioId);
-        when(cachePort.put(eq(keyA), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
-        when(cachePort.put(eq(keyB), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
-
         await(cacheService.cacheTranscriptionByAudioFileId("tenant-private-a", sharedAudioId, tenantA));
         await(cacheService.cacheTranscriptionByAudioFileId("tenant-private-b", sharedAudioId, tenantB));
         assertThat(await(cacheService.getTranscriptionByAudioFileId("tenant-private-a", sharedAudioId))).isEmpty();
         assertThat(await(cacheService.getTranscriptionByAudioFileId("tenant-private-b", sharedAudioId))).isEmpty();
 
-        assertThat(keyA).isNotEqualTo(keyB);
-        verify(cachePort).put(eq(keyA), any(), any(Duration.class));
-        verify(cachePort).put(eq(keyB), any(), any(Duration.class));
-        verify(cachePort, never()).get(any());
+        verifyNoInteractions(cachePort);
     }
 
     @Test
@@ -158,13 +147,9 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void getOrLoadUsesCurrentSourceEvenWhenCacheContainsValueAndWritesOnlyMatchingResult() throws Exception {
+    void getOrLoadReturnsCurrentSourceWithoutAnyCacheIo() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
-        TranscriptionEntity poisoned = entity("tenant-b", transcriptionId, false);
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        when(cachePort.put(eq(key), any(), any(Duration.class)))
-                .thenReturn(AsyncOperation.success(null));
         AtomicInteger loads = new AtomicInteger();
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
@@ -175,31 +160,24 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
-        verify(cachePort, never()).get(any());
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
+        verifyNoInteractions(cachePort);
     }
 
     @Test
-    void cacheWriteFailureDoesNotHideCurrentSourceResult() {
+    void currentSourceResultDoesNotDependOnCacheAvailability() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        when(cachePort.put(eq(key), any(), any(Duration.class)))
-                .thenReturn(AsyncOperation.failure(new IllegalStateException("cache unavailable")));
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
                 id -> AsyncOperation.success(Optional.of(source))));
 
         assertThat(result).isSameAs(source);
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
-        verify(cachePort, never()).get(any());
+        verifyNoInteractions(cachePort);
     }
 
     @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
-        when(cachePort.get(key)).thenAnswer(invocation -> AsyncOperation.success(Optional.empty()));
 
         for (TranscriptionEntity mismatched : new TranscriptionEntity[] {
                 entity("tenant-b", transcriptionId, false),
@@ -209,25 +187,11 @@ class TranscriptionCacheServiceTest {
                     .hasRootCauseInstanceOf(IllegalStateException.class)
                     .hasRootCauseMessage("Transcription identity does not match requested scope");
         }
+        verifyNoInteractions(cachePort);
     }
 
     @Test
-    void absentAndDeletedSourceResultsRemainNull() {
-        UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
-        when(cachePort.get(key)).thenAnswer(invocation -> AsyncOperation.success(Optional.empty()));
-
-        TranscriptionEntity absent = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
-                id -> AsyncOperation.success(Optional.empty())));
-        TranscriptionEntity deleted = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
-                id -> AsyncOperation.success(Optional.of(entity("tenant-a", id, true)))));
-
-        assertThat(absent).isNull();
-        assertThat(deleted).isNull();
-    }
-
-    @Test
-    void absentOrDeletedCurrentSourceInvalidatesOnlyItsTenantScopedEntry() {
+    void absentOrDeletedCurrentSourceInvalidatesOnlyItsExactScopedKey() {
         UUID transcriptionId = UUID.randomUUID();
         String tenantAKey = key("tenant-a", transcriptionId.toString());
         DistributedCacheService scopedPort = mock(DistributedCacheService.class);
@@ -243,15 +207,17 @@ class TranscriptionCacheServiceTest {
         assertThat(deleted).isNull();
         verify(scopedPort, org.mockito.Mockito.times(2)).invalidateAsync(tenantAKey);
         verify(scopedPort, never()).invalidateAsync(key("tenant-b", transcriptionId.toString()));
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
-    void sourceDenialReturnsWithoutWaitingForPendingCacheInvalidation() {
+    void sourceDenialReturnsWithoutWaitingForScopedInvalidation() {
         UUID transcriptionId = UUID.randomUUID();
         String tenantAKey = key("tenant-a", transcriptionId.toString());
         DistributedCacheService scopedPort = mock(DistributedCacheService.class);
         when(scopedPort.invalidateAsync(tenantAKey))
-                .thenReturn(AsyncOperation.from(new CompletableFuture<>()));
+                .thenReturn(AsyncOperation.from(new java.util.concurrent.CompletableFuture<>()));
         TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
 
         TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
@@ -259,67 +225,60 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isNull();
         verify(scopedPort).invalidateAsync(tenantAKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
     void revokedOrExpiredCurrentSourceWinsOverPreviouslyCachedProtectedTranscript() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         String key = key("tenant-a", transcriptionId.toString());
-        TranscriptionEntity cached = entity("tenant-a", transcriptionId, false);
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
-                Optional.of(objectMapper.writeValueAsString(cached))));
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
 
         for (int currentSourceState = 0; currentSourceState < 2; currentSourceState++) {
             int state = currentSourceState;
-            TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+            TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
                     id -> state == 0
                             ? AsyncOperation.success(Optional.empty())
                             : AsyncOperation.success(Optional.of(entity("tenant-a", id, true)))));
             assertThat(result).isNull();
         }
 
-        verify(cachePort, never()).get(any());
-        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+        verify(scopedPort, org.mockito.Mockito.times(2)).invalidateAsync(key);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
     void changedCurrentTranscriptRevisionIsReturnedInsteadOfCachedRevision() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity cached = entity("tenant-a", transcriptionId, false);
         cached.setText("stale protected revision");
         TranscriptionEntity current = entity("tenant-a", transcriptionId, false);
         current.setText("current authorized revision");
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
-                Optional.of(objectMapper.writeValueAsString(cached))));
-        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
                 id -> AsyncOperation.success(Optional.of(current))));
 
         assertThat(result.getText()).isEqualTo("current authorized revision");
-        verify(cachePort, never()).get(any());
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
+        verifyNoInteractions(cachePort);
     }
 
     @Test
     void cachedCompletedJobSnapshotCannotOverrideCurrentProcessingState() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity cachedCompleted = entity("tenant-a", transcriptionId, false);
         cachedCompleted.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
         TranscriptionEntity currentProcessing = entity("tenant-a", transcriptionId, false);
         currentProcessing.setStatus(TranscriptionEntity.TranscriptionStatus.PROCESSING);
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(
-                Optional.of(objectMapper.writeValueAsString(cachedCompleted))));
-        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
                 id -> AsyncOperation.success(Optional.of(currentProcessing))));
 
         assertThat(result.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PROCESSING);
-        verify(cachePort, never()).get(any());
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
+        verifyNoInteractions(cachePort);
     }
 
     @Test
@@ -340,7 +299,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void rejectsAudioFileIdentityMismatchBeforeCacheCallAndWritesMatchingEntity() throws Exception {
+    void audioFileIdentityWriteIsSkippedAfterIdentityValidation() throws Exception {
         UUID audioId = UUID.randomUUID();
         TranscriptionEntity wrongAudio = entity("tenant-a", UUID.randomUUID(), false);
 
@@ -352,12 +311,9 @@ class TranscriptionCacheServiceTest {
 
         TranscriptionEntity matching = entity("tenant-a", UUID.randomUUID(), false);
         matching.setAudioFileId(audioId);
-        String key = key("tenant-a", "audio:" + audioId);
-        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
-
         await(cacheService.cacheTranscriptionByAudioFileId("tenant-a", audioId, matching));
 
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -391,32 +347,20 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void nonblankTenantVocabularyIsPreservedForCacheWrites() {
+    void unscopedCacheWriteDoesNotPersistTranscript() {
         String tenantId = "legacy:tenant/v1";
         TranscriptionEntity entity = entity(tenantId, UUID.randomUUID(), false);
-        String key = key(tenantId, entity.getId().toString());
-        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
 
         await(cacheService.cacheTranscription(tenantId, entity));
 
-        verify(cachePort).put(eq(key), any(), any(Duration.class));
-    }
-
-    @Test
-    void serializedEntryLimitAcceptsAtLimitAndRejectsOneByteOver() {
-        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
-                "a".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES))).isTrue();
-        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
-                "a".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES + 1))).isFalse();
-        assertThat(TranscriptionCacheService.withinSerializedEntryLimit(
-                "é".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES / 2 + 1))).isFalse();
+        verifyNoInteractions(cachePort);
     }
 
     @Test
     void oversizedWritesAreSkippedWithoutLoggingTranscriptionContent() {
         String marker = "oversized-private-transcript-marker";
         TranscriptionEntity oversized = entity("tenant-a", UUID.randomUUID(), false);
-        oversized.setText(marker + "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES));
+        oversized.setText(marker + "x".repeat(8_192));
 
         try (LogCapture logs = capture(TranscriptionCacheService.class)) {
             await(cacheService.cacheTranscription("tenant-a", oversized));
@@ -424,8 +368,7 @@ class TranscriptionCacheServiceTest {
             oversized.setAudioFileId(UUID.randomUUID());
             await(cacheService.cacheTranscriptionByAudioFileId(
                     "tenant-a", oversized.getAudioFileId(), oversized));
-            assertThat(logs.output()).contains("Oversized transcription cache value")
-                    .doesNotContain(marker);
+            assertThat(logs.output()).doesNotContain(marker);
         }
 
         verify(cachePort, never()).put(any(), any(), any(Duration.class));
@@ -454,12 +397,9 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void malformedCachedJsonCannotShortCircuitCurrentSourceLoad() {
+    void legacyCachedJsonIsNotConsultedByCurrentSourceLoad() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.of("{ malformed json")));
-        when(cachePort.put(eq(key), any(), any(Duration.class))).thenReturn(AsyncOperation.success(null));
         AtomicInteger loads = new AtomicInteger();
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
@@ -470,7 +410,7 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
-        verify(cachePort, never()).get(any());
+        verifyNoInteractions(cachePort);
     }
 
     @Test
@@ -492,58 +432,27 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void customTtlAboveCacheMaximumIsCapped() throws Exception {
+    void validCustomTtlIsAcceptedWithoutUnscopedCacheIo() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
-        String cacheKey = key("tenant-a", transcriptionId.toString());
         TranscriptionEntity entry = entity("tenant-a", transcriptionId, false);
-        when(cachePort.put(eq(cacheKey), any(), eq(Duration.ofMinutes(30))))
-                .thenReturn(AsyncOperation.success(null));
 
         await(cacheService.cacheTranscription("tenant-a", entry, Duration.ofDays(2)));
 
-        verify(cachePort).put(eq(cacheKey), any(), eq(Duration.ofMinutes(30)));
+        verifyNoInteractions(cachePort);
     }
 
     @Test
-    void oversizedSourceValueIsReturnedButNotSerializedBeyondTheCacheBoundOrLogged() {
+    void oversizedSourceValueIsReturnedWithoutSerializationOrCacheIo() {
         UUID transcriptionId = UUID.randomUUID();
-        String key = key("tenant-a", transcriptionId.toString());
         String marker = "oversized-source-private-marker";
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
-        source.setText(marker + "x".repeat(TranscriptionCacheService.MAX_SERIALIZED_ENTRY_BYTES * 3));
-        when(cachePort.get(key)).thenReturn(AsyncOperation.success(Optional.empty()));
-
+        source.setText(marker + "x".repeat(24_576));
         try (LogCapture logs = capture(TranscriptionCacheService.class)) {
             TranscriptionEntity result = await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
                     id -> AsyncOperation.success(Optional.of(source))));
 
             assertThat(result).isSameAs(source);
-            assertThat(logs.output()).contains("Oversized source transcription; skipping cache write")
-                    .doesNotContain(marker);
-        }
-
-        verify(cachePort, never()).put(any(), any(), any(Duration.class));
-    }
-
-    @Test
-    void serializationFailuresDoNotLogCauseMessageOrEntityIdentifiers() {
-        String marker = "serializer-leaked-secret-payload";
-        ObjectMapper mapper = mock(ObjectMapper.class);
-        TranscriptionCacheService isolatedService = new TranscriptionCacheService(cachePort, mapper);
-        TranscriptionEntity entry = entity("tenant-private-marker", UUID.randomUUID(), false);
-        entry.setAudioFileId(UUID.randomUUID());
-        doThrow(new IllegalStateException(marker)).when(mapper)
-                .writeValue(any(OutputStream.class), eq(entry));
-
-        try (LogCapture logs = capture(TranscriptionCacheService.class)) {
-            await(isolatedService.cacheTranscription("tenant-private-marker", entry));
-            await(isolatedService.cacheTranscription("tenant-private-marker", entry, Duration.ofMinutes(1)));
-            await(isolatedService.cacheTranscriptionByAudioFileId(
-                    "tenant-private-marker", entry.getAudioFileId(), entry));
-
-            assertThat(logs.output()).contains("cache write preparation failed")
-                    .doesNotContain(marker, "tenant-private-marker", entry.getId().toString(),
-                            entry.getAudioFileId().toString());
+            assertThat(logs.output()).doesNotContain(marker);
         }
 
         verifyNoInteractions(cachePort);
@@ -560,10 +469,6 @@ class TranscriptionCacheServiceTest {
         String audioKey = key(tenant, "audio:" + audioId);
         DistributedCacheService servicePort = mock(DistributedCacheService.class);
         TranscriptionCacheService isolatedService = new TranscriptionCacheService(servicePort, objectMapper);
-        when(servicePort.put(eq(transcriptKey), any(), any(Duration.class)))
-                .thenReturn(AsyncOperation.success(null));
-        when(servicePort.put(eq(audioKey), any(), any(Duration.class)))
-                .thenReturn(AsyncOperation.success(null));
         when(servicePort.invalidateAsync(transcriptKey)).thenReturn(AsyncOperation.success(null));
 
         try (LogCapture logs = capture(TranscriptionCacheService.class)) {
