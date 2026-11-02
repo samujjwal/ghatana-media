@@ -791,7 +791,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 // The purge first sees the committed expired value, then must wait on this row
                 // lock before it can remove the object. Under the former implementation it
                 // deleted the S3 object while waiting on the later metadata DELETE.
-                awaitBlockedStatement(jdbcUrl, "SELECT OBJECT_REFERENCE FROM MEDIA_ARTIFACTS");
+                awaitBlockedStatement(jdbcUrl,
+                        "SELECT OBJECT_REFERENCE,LEGAL_HOLD,EXPIRES_AT,SHA256 FROM MEDIA_ARTIFACTS");
                 assertThat(admin.headObject(HeadObjectRequest.builder()
                         .bucket(bucket).key(objectKey(artifact.objectReference())).build()).contentLength())
                         .isGreaterThan(0);

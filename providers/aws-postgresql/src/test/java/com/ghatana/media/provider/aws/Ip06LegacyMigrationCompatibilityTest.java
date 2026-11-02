@@ -10,11 +10,14 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -210,15 +213,38 @@ class Ip06LegacyMigrationCompatibilityTest {
     private static Map<Integer, LegacyRow> readManifest() throws Exception {
         try (var input = Ip06LegacyMigrationCompatibilityTest.class.getResourceAsStream(MANIFEST)) {
             assertThat(input).isNotNull();
-            try (var reader = new BufferedReader(new InputStreamReader(input))) {
-                return reader.lines().skip(2).filter(line -> !line.isBlank()).map(line -> line.split(",", -1))
+            try (var reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+                return reader.lines().filter(line -> !line.isBlank() && !line.startsWith("#")
+                                && !line.startsWith("version,"))
+                        .map(line -> line.split(",", -1))
                         .collect(Collectors.toMap(parts -> Integer.parseInt(parts[0]),
-                                parts -> new LegacyRow(parts[1], parts[2].isBlank()
-                                        ? null : Integer.valueOf(parts[2])), (first, ignored) -> first,
+                                parts -> {
+                                    assertThat(parts).hasSize(4);
+                                    int version = Integer.parseInt(parts[0]);
+                                    String script = String.format("V%03d__%s.sql", version,
+                                            parts[1].replace(' ', '_'));
+                                    assertThat(parts[3]).matches("[0-9a-f]{64}");
+                                    try (var migration = Ip06LegacyMigrationCompatibilityTest.class
+                                            .getResourceAsStream("/db/legacy-media-runtime-v001-v016/" + script)) {
+                                        assertThat(migration).as("fixture migration %s", script).isNotNull();
+                                        assertThat(sha256(migration.readAllBytes()))
+                                                .as("pinned legacy source SHA-256 for %s", script)
+                                                .isEqualTo(parts[3]);
+                                    } catch (Exception error) {
+                                        throw new IllegalStateException(
+                                                "could not verify fixture migration " + script, error);
+                                    }
+                                    return new LegacyRow(parts[1], parts[2].isBlank()
+                                            ? null : Integer.valueOf(parts[2]), parts[3]);
+                                }, (first, ignored) -> first,
                                 LinkedHashMap::new));
             }
         }
     }
 
-    private record LegacyRow(String description, Integer checksum) { }
+    private static String sha256(byte[] value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
+    }
+
+    private record LegacyRow(String description, Integer checksum, String sourceSha256) { }
 }

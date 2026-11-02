@@ -1,7 +1,11 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanDecision;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanVerdict;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactScanner;
+import com.ghatana.media.runtime.MediaRuntimeContracts.QuarantinedArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import org.junit.jupiter.api.Test;
@@ -16,9 +20,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.io.ByteArrayOutputStream;
@@ -26,10 +32,22 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
 import java.util.UUID;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,6 +63,75 @@ class MediaPostgresqlS3IntegrityRestartTest {
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
+
+    @Test
+    void rejectedQuarantinedObjectIsRecordedAndDeletedWithoutArtifactPublication() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-quarantine-" + runId;
+        String prefix = "ip06-quarantine/" + runId;
+        String tenant = "tenant-ip06-quarantine-" + runId;
+        String principal = "principal-ip06-quarantine-" + runId;
+        byte[] bytes = wav(("scanner-rejected:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        UploadSession upload;
+        String stagedChunkKey;
+        AtomicInteger rejectScans = new AtomicInteger();
+        AtomicInteger cleanScans = new AtomicInteger();
+        AtomicBoolean failDeleteAfterCommit = new AtomicBoolean(true);
+        AtomicReference<String> finalizedKey = new AtomicReference<>();
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> failAfterDeleteAcknowledgement(delegate, bucket, finalizedKey,
+                                 failDeleteAfterCommit));
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore(
+                         rejectingScanner(rejectScans))) {
+                upload = store.begin(new UploadRequest(tenant, principal, "rejected.wav", "audio/wav",
+                        bytes.length, digest, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                        "ip06-quarantine-" + runId);
+                store.append(tenant, principal, upload.uploadId(), 0, bytes);
+                stagedChunkKey = chunkObjectKey(tenant, upload.uploadId());
+                finalizedKey.set(prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                        + upload.uploadId() + "/" + digest);
+                assertThat(s3Object(bucket, "s3://" + bucket + "/" + stagedChunkKey)).containsExactly(bytes);
+
+                assertThatThrownBy(() -> store.complete(tenant, principal, upload.uploadId()))
+                        .isInstanceOf(S3Exception.class)
+                        .hasMessageContaining("injected after-delete acknowledgement loss");
+
+                UploadSession rejected = store.upload(tenant, upload.uploadId()).orElseThrow();
+                assertThat(rejected.status())
+                        .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.FINALIZING);
+                assertThat(rejectScans).hasValue(1);
+                assertThat(cleanScans).hasValue(0);
+                assertThat(quarantineObjectCount(bucket, prefix)).as("rejected finalized bytes are deleted").isZero();
+                assertThat(s3ObjectCount(bucket, stagedChunkKey)).as("staged bytes remain owned for retry").isEqualTo(1);
+                assertThat(chunkRowCount(tenant, upload.uploadId())).as("staged manifest remains retryable").isEqualTo(1);
+                assertThat(artifactCountForTenant(tenant)).as("rejected bytes never become artifact metadata").isZero();
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("REJECTED");
+            }
+            makeFinalizationStale(tenant, upload.uploadId());
+            try (AutoCloseable restartedEnvironment = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore(
+                         cleanScanner(cleanScans))) {
+                assertThatThrownBy(() -> restarted.complete(tenant, principal, upload.uploadId()))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("scan did not return a clean verdict: REJECT");
+                assertThat(restarted.upload(tenant, upload.uploadId()).orElseThrow().status())
+                        .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.ABORTED);
+                assertThat(cleanScans).as("persisted rejection bypasses the replacement CLEAN scanner").hasValue(0);
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("REJECTED");
+                assertThat(artifactCountForTenant(tenant)).isZero();
+                assertThat(s3ObjectCount(bucket, finalizedKey.get())).isZero();
+                assertThat(s3ObjectCount(bucket, stagedChunkKey)).isZero();
+                assertThat(chunkRowCount(tenant, upload.uploadId())).isZero();
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
 
     @Test
     void restartedReaderRejectsDriftedObjectWithoutPublishingAnUnverifiedPrefix() throws Exception {
@@ -100,6 +187,65 @@ class MediaPostgresqlS3IntegrityRestartTest {
             assertThat(artifactCount(tenant, committed.artifactId())).isEqualTo(1);
             assertThat(restarted.artifact("wrong-tenant-" + runId, committed.artifactId())).isEmpty();
         } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
+    void staleRejectScannerCannotDeleteObjectPublishedByNewFinalizationToken() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-stale-reject-" + runId;
+        String prefix = "ip06-stale-reject/" + runId;
+        String tenant = "tenant-ip06-stale-reject-" + runId;
+        String principal = "principal-ip06-stale-reject-" + runId;
+        byte[] bytes = wav(("stale-reject-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        createBucket(bucket);
+        Map<String, String> environment = environment(bucket, prefix);
+        CountDownLatch rejectScannerEntered = new CountDownLatch(1);
+        CountDownLatch releaseRejectScanner = new CountDownLatch(1);
+        AtomicInteger staleScans = new AtomicInteger();
+        AtomicInteger currentScans = new AtomicInteger();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore staleStore = new S3PostgresqlMediaArtifactStore(
+                         blockingRejectScanner(staleScans, rejectScannerEntered, releaseRejectScanner));
+                 S3PostgresqlMediaArtifactStore currentStore = new S3PostgresqlMediaArtifactStore(
+                         cleanScanner(currentScans))) {
+                UploadSession upload = staleStore.begin(new UploadRequest(tenant, principal, "source.wav", "audio/wav",
+                        bytes.length, digest, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                        "ip06-stale-reject-" + runId);
+                staleStore.append(tenant, principal, upload.uploadId(), 0, bytes);
+                Future<?> staleCompletion = executor.submit(
+                        () -> staleStore.complete(tenant, principal, upload.uploadId()));
+                assertThat(rejectScannerEntered.await(10, TimeUnit.SECONDS))
+                        .as("first finalizer reaches scanner after S3 finalize").isTrue();
+                makeFinalizationStale(tenant, upload.uploadId());
+
+                MediaArtifact currentArtifact = currentStore.complete(tenant, principal, upload.uploadId());
+                assertThat(currentArtifact.sha256()).isEqualTo(digest);
+                String finalKey = objectKey(currentArtifact.objectReference());
+                assertThat(s3Object(bucket, currentArtifact.objectReference())).containsExactly(bytes);
+                assertThat(artifactCountForTenant(tenant)).isEqualTo(1);
+
+                releaseRejectScanner.countDown();
+                assertThatThrownBy(() -> staleCompletion.get(15, TimeUnit.SECONDS))
+                        .isInstanceOf(ExecutionException.class)
+                        .hasRootCauseInstanceOf(IllegalStateException.class)
+                        .hasRootCauseMessage("Media upload finalization ownership changed before scanner status was recorded");
+                assertThat(staleScans).hasValue(1);
+                assertThat(currentScans).hasValue(1);
+                assertThat(staleStore.upload(tenant, upload.uploadId()).orElseThrow().status())
+                        .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.COMPLETED);
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("CLEAN");
+                assertThat(artifactCountForTenant(tenant)).isEqualTo(1);
+                assertThat(s3Object(bucket, "s3://" + bucket + "/" + finalKey)).containsExactly(bytes);
+            }
+        } finally {
+            releaseRejectScanner.countDown();
+            executor.shutdownNow();
             deleteBucketObjects(bucket);
         }
     }
@@ -179,6 +325,175 @@ class MediaPostgresqlS3IntegrityRestartTest {
                 return rows.getInt(1);
             }
         }
+    }
+
+    private static int artifactCountForTenant(String tenant) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?")) {
+            query.setString(1, tenant);
+            try (var rows = query.executeQuery()) {
+                rows.next();
+                return rows.getInt(1);
+            }
+        }
+    }
+
+    private static String scanStatus(String tenant, String uploadId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT scan_status FROM media_upload_sessions WHERE tenant_id=? AND upload_id=?")) {
+            query.setString(1, tenant);
+            query.setString(2, uploadId);
+            try (var rows = query.executeQuery()) {
+                if (!rows.next()) throw new AssertionError("rejected upload row disappeared");
+                return rows.getString(1);
+            }
+        }
+    }
+
+    private static int quarantineObjectCount(String bucket, String prefix) {
+        try (S3Client s3 = s3Client()) {
+            return s3.listObjectsV2(ListObjectsV2Request.builder()
+                    .bucket(bucket).prefix(prefix + "/quarantine/finalized/").build()).contents().size();
+        }
+    }
+
+    private static int s3ObjectCount(String bucket, String key) {
+        try (S3Client s3 = s3Client()) {
+            return s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket).prefix(key).build())
+                    .contents().size();
+        }
+    }
+
+    private static int chunkRowCount(String tenant, String uploadId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+            query.setString(1, tenant);
+            query.setString(2, uploadId);
+            try (var rows = query.executeQuery()) {
+                rows.next();
+                return rows.getInt(1);
+            }
+        }
+    }
+
+    private static String chunkObjectKey(String tenant, String uploadId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=? AND chunk_index=0")) {
+            query.setString(1, tenant);
+            query.setString(2, uploadId);
+            try (var rows = query.executeQuery()) {
+                if (!rows.next()) throw new AssertionError("staged chunk manifest row is missing");
+                return rows.getString(1);
+            }
+        }
+    }
+
+    private static MediaArtifactScanner rejectingScanner(AtomicInteger scans) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-test-rejector"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                Instant now = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.REJECT,
+                        now, now.plusSeconds(60));
+            }
+        };
+    }
+
+    private static MediaArtifactScanner cleanScanner(AtomicInteger scans) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-test-clean-retry"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                Instant now = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.CLEAN,
+                        now, now.plusSeconds(60));
+            }
+        };
+    }
+
+    private static MediaArtifactScanner blockingRejectScanner(
+            AtomicInteger scans, CountDownLatch entered, CountDownLatch release) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-test-blocking-rejector"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                entered.countDown();
+                try {
+                    if (!release.await(15, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("test scanner release timed out");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("test scanner was interrupted", interrupted);
+                }
+                Instant now = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.REJECT,
+                        now, now.plusSeconds(60));
+            }
+        };
+    }
+
+    private static S3Client failAfterDeleteAcknowledgement(
+            S3Client delegate, String bucket, AtomicReference<String> targetKey, AtomicBoolean failOnce) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    Object result;
+                    try {
+                        result = method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                    if ("deleteObject".equals(method.getName()) && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof DeleteObjectRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetKey.get())
+                            && failOnce.compareAndSet(true, false)) {
+                        throw S3Exception.builder().statusCode(503)
+                                .message("injected after-delete acknowledgement loss").build();
+                    }
+                    return result;
+                });
+    }
+
+    private static void makeFinalizationStale(String tenant, String uploadId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var update = connection.prepareStatement(
+                     "UPDATE media_upload_sessions SET finalization_started_at=? WHERE tenant_id=? AND upload_id=?")) {
+            update.setLong(1, System.currentTimeMillis() - Duration.ofMinutes(16).toMillis());
+            update.setString(2, tenant);
+            update.setString(3, uploadId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static String opaque(String value) throws Exception {
+        return sha256(value.getBytes(StandardCharsets.UTF_8)).substring(0, 32);
     }
 
     private static String objectKey(String reference) {

@@ -50,6 +50,8 @@ class MediaLegacyMigrationSnapshotArtifactTest {
 
         for (Migration migration : migrations) {
             String script = resourceText(FIXTURE + migration.script());
+            assertThat(sha256(script)).as("pinned legacy source SHA-256 for %s", migration.script())
+                    .isEqualTo(migration.sourceSha256());
             sql.append("-- BEGIN ").append(migration.script()).append(" sha256=")
                     .append(sha256(script)).append("\n")
                     .append(script);
@@ -120,14 +122,17 @@ class MediaLegacyMigrationSnapshotArtifactTest {
         try (var input = MediaLegacyMigrationSnapshotArtifactTest.class.getResourceAsStream(MANIFEST)) {
             assertThat(input).isNotNull();
             try (var reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
-                return reader.lines().skip(2).filter(line -> !line.isBlank()).map(line -> line.split(",", -1))
+                return reader.lines().filter(line -> !line.isBlank() && !line.startsWith("#")
+                                && !line.startsWith("version,"))
+                        .map(line -> line.split(",", -1))
                         .map(parts -> {
                             int version = Integer.parseInt(parts[0]);
                             String script = String.format("V%03d__%s.sql", version,
                                     parts[1].replace(' ', '_'));
-                            assertThat(parts).hasSize(3);
+                            assertThat(parts).hasSize(4);
                             assertThat(parts[2]).as("manifest checksum V%03d", version).isNotBlank();
-                            return new Migration(version, parts[1], Integer.parseInt(parts[2]), script);
+                            assertThat(parts[3]).matches("[0-9a-f]{64}");
+                            return new Migration(version, parts[1], Integer.parseInt(parts[2]), script, parts[3]);
                         }).collect(Collectors.toList());
             }
         }
@@ -195,5 +200,5 @@ class MediaLegacyMigrationSnapshotArtifactTest {
                 .digest(value.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private record Migration(int version, String description, int checksum, String script) { }
+    private record Migration(int version, String description, int checksum, String script, String sourceSha256) { }
 }

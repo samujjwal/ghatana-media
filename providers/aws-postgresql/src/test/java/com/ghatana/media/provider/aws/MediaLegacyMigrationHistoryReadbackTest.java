@@ -10,10 +10,12 @@ import org.testcontainers.utility.DockerImageName;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,8 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MediaLegacyMigrationHistoryReadbackTest {
     private static final String SOURCE_COMMIT = "d62557fdaac7a324e036ca25f672d2a62ac532ea";
     private static final String LOCATION = "classpath:db/legacy-media-runtime-v001-v016";
+    private static final String FIXTURE = "/db/legacy-media-runtime-v001-v016/";
     private static final String SCHEMA = "ip06_history_readback";
-    private static final String MANIFEST = "/db/legacy-media-runtime-v001-v016/manifest.csv";
+    private static final String MANIFEST = FIXTURE + "manifest.csv";
 
     @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
@@ -32,6 +35,7 @@ class MediaLegacyMigrationHistoryReadbackTest {
 
     @Test
     void emitsAppliedHistoryWithSyntheticRowsAndValidatesManifest() throws Exception {
+        List<History> expected = readManifest();
         Flyway flyway = Flyway.configure()
                 .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations(LOCATION)
@@ -42,7 +46,6 @@ class MediaLegacyMigrationHistoryReadbackTest {
         assertThat(flyway.migrate().migrationsExecuted).isEqualTo(16);
         seedSyntheticRows();
 
-        List<History> expected = readManifest();
         List<AppliedHistory> applied = new ArrayList<>();
         try (Connection connection = connection();
              var statement = connection.prepareStatement(
@@ -128,14 +131,32 @@ class MediaLegacyMigrationHistoryReadbackTest {
             assertThat(input).isNotNull();
             try (var reader = new java.io.BufferedReader(
                     new java.io.InputStreamReader(input, StandardCharsets.UTF_8))) {
-                return reader.lines().skip(2).filter(line -> !line.isBlank()).map(line -> line.split(",", -1))
+                return reader.lines().filter(line -> !line.isBlank() && !line.startsWith("#")
+                                && !line.startsWith("version,"))
+                        .map(line -> line.split(",", -1))
                         .map(parts -> {
+                            assertThat(parts).hasSize(4);
                             int version = Integer.parseInt(parts[0]);
-                            return new History(version, parts[1], Integer.parseInt(parts[2]),
-                                    String.format("V%03d__%s.sql", version, parts[1].replace(' ', '_')));
+                            String script = String.format("V%03d__%s.sql", version,
+                                    parts[1].replace(' ', '_'));
+                            assertThat(parts[3]).matches("[0-9a-f]{64}");
+                            try (var migration = MediaLegacyMigrationHistoryReadbackTest.class
+                                    .getResourceAsStream(FIXTURE + script)) {
+                                assertThat(migration).as("fixture migration %s", script).isNotNull();
+                                assertThat(sha256(migration.readAllBytes()))
+                                        .as("pinned legacy source SHA-256 for %s", script)
+                                        .isEqualTo(parts[3]);
+                            } catch (Exception error) {
+                                throw new IllegalStateException("could not verify fixture migration " + script, error);
+                            }
+                            return new History(version, parts[1], Integer.parseInt(parts[2]), script, parts[3]);
                         }).toList();
             }
         }
+    }
+
+    private static String sha256(byte[] value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }
 
     private static String renderCsv(List<AppliedHistory> rows) {
@@ -161,7 +182,7 @@ class MediaLegacyMigrationHistoryReadbackTest {
         return DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
     }
 
-    private record History(int version, String description, int checksum, String script) { }
+    private record History(int version, String description, int checksum, String script, String sourceSha256) { }
     private record AppliedHistory(int installedRank, String version, String description, String type, String script,
                                   int checksum, String installedBy, String installedOn, int executionTime,
                                   boolean success) { }

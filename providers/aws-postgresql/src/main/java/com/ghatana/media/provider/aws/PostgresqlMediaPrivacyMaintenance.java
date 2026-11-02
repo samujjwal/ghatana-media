@@ -3,7 +3,6 @@ package com.ghatana.media.provider.aws;
 import com.ghatana.media.runtime.MediaPrivacyMaintenance;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -102,40 +101,37 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
 
     /** Deletes derived descendants with their source so no derived bytes outlive their lineage. */
     private int purgeArtifactTree(String tenantId, String rootArtifactId, long now, boolean requireExpiredRoot) {
-        LinkedHashMap<String, ArtifactNode> tree = new LinkedHashMap<>();
-        collectArtifactTree(tenantId, rootArtifactId, tree);
-        ArtifactNode root = tree.get(rootArtifactId);
-        if (root == null || root.legalHold()
-                || requireExpiredRoot && root.expiresAt() > now
-                || tree.values().stream().anyMatch(ArtifactNode::legalHold)) return 0;
-
-        // Delete all bytes before metadata. A failure leaves every row and lineage available for retry.
-        List<ArtifactNode> reverse;
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
-                // Lock every lineage row before touching bytes so a concurrent retention renewal
-                // or legal-hold change commits first and is re-evaluated under the lock.
+                // This tenant lock fences lineage insertion while the tree is collected and
+                // deleted. registerDerived uses the same transaction-level lock before it
+                // revalidates its source and commits new lineage.
+                MediaArtifactObjectOwnership.lockTenantMutation(connection, tenantId);
+                LinkedHashMap<String, ArtifactNode> tree = new LinkedHashMap<>();
+                collectArtifactTree(connection, tenantId, rootArtifactId, tree);
+                ArtifactNode root = tree.get(rootArtifactId);
+                if (root == null || root.legalHold()
+                        || requireExpiredRoot && root.expiresAt() > now
+                        || tree.values().stream().anyMatch(ArtifactNode::legalHold)) {
+                    connection.commit();
+                    return 0;
+                }
+
+                // Lock every lineage row before touching bytes so retention renewal or legal-hold
+                // changes that do not participate in the advisory protocol are rechecked.
                 List<ArtifactNode> locked = new ArrayList<>();
                 for (ArtifactNode node : tree.values()) {
-                    String objectKey;
                     try (PreparedStatement lock = connection.prepareStatement(
-                            "SELECT object_reference FROM media_artifacts "
+                            "SELECT object_reference,legal_hold,expires_at,sha256 FROM media_artifacts "
                                     + "WHERE tenant_id=? AND artifact_id=? FOR UPDATE")) {
                         lock.setString(1, tenantId); lock.setString(2, node.artifactId());
                         try (ResultSet result = lock.executeQuery()) {
                             if (!result.next()) continue;
-                            objectKey = objectKey(result.getString(1));
-                        }
-                    }
-                    try (PreparedStatement recheck = connection.prepareStatement(
-                            "SELECT legal_hold,expires_at FROM media_artifacts "
-                                    + "WHERE tenant_id=? AND artifact_id=?")) {
-                        recheck.setString(1, tenantId); recheck.setString(2, node.artifactId());
-                        try (ResultSet result = recheck.executeQuery()) {
-                            if (!result.next()) continue;
-                            locked.add(new ArtifactNode(node.artifactId(), objectKey,
-                                    result.getBoolean(1), result.getLong(2)));
+                            String objectReference = result.getString(1);
+                            locked.add(new ArtifactNode(node.artifactId(), objectReference,
+                                    objectKey(tenantId, node.artifactId(), result.getString(4), objectReference),
+                                    result.getBoolean(2), result.getLong(3), result.getString(4)));
                         }
                     }
                 }
@@ -147,8 +143,17 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                     connection.commit();
                     return 0;
                 }
-                for (ArtifactNode node : locked) deleteObject(node.objectKey());
-                reverse = new ArrayList<>(locked);
+                Map<String, Long> treeReferences = locked.stream().collect(java.util.stream.Collectors.groupingBy(
+                        ArtifactNode::objectReference, java.util.LinkedHashMap::new, java.util.stream.Collectors.counting()));
+                for (Map.Entry<String, Long> entry : treeReferences.entrySet()) {
+                    if (!hasSurvivingArtifactReference(connection, entry.getKey(), entry.getValue())) {
+                        ArtifactNode node = locked.stream()
+                                .filter(candidate -> candidate.objectReference().equals(entry.getKey()))
+                                .findFirst().orElseThrow();
+                        deleteObject(node.objectKey());
+                    }
+                }
+                List<ArtifactNode> reverse = new ArrayList<>(locked);
                 java.util.Collections.reverse(reverse);
                 for (ArtifactNode node : locked) {
                     try (PreparedStatement transcripts = connection.prepareStatement(
@@ -179,21 +184,41 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
             } catch (SQLException failure) {
                 try { connection.rollback(); } catch (SQLException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
                 throw failure;
+            } catch (RuntimeException failure) {
+                try { connection.rollback(); } catch (SQLException rollbackFailure) { failure.addSuppressed(rollbackFailure); }
+                throw failure;
             }
         } catch (SQLException failure) {
             throw databaseFailure("purge expired Media artifact lineage", failure);
         }
     }
 
-    private void collectArtifactTree(String tenantId, String artifactId, Map<String, ArtifactNode> tree) {
+    private boolean hasSurvivingArtifactReference(Connection connection, String reference, long treeReferenceCount)
+            throws SQLException {
+        try (PreparedStatement count = connection.prepareStatement(
+                "SELECT COUNT(*) FROM media_artifacts WHERE object_reference=?")) {
+            count.setString(1, reference);
+            try (ResultSet result = count.executeQuery()) {
+                if (!result.next()) throw new SQLException("artifact reference count returned no row");
+                return result.getLong(1) > treeReferenceCount;
+            }
+        }
+    }
+
+    private void collectArtifactTree(
+            Connection connection, String tenantId, String artifactId, Map<String, ArtifactNode> tree)
+            throws SQLException {
         if (tree.containsKey(artifactId)) return;
-        try (Connection connection = state.connection(); PreparedStatement artifact = connection.prepareStatement(
-                "SELECT object_reference,legal_hold,expires_at FROM media_artifacts WHERE tenant_id=? AND artifact_id=?")) {
+        try (PreparedStatement artifact = connection.prepareStatement(
+                "SELECT object_reference,legal_hold,expires_at,sha256 FROM media_artifacts "
+                        + "WHERE tenant_id=? AND artifact_id=?")) {
             artifact.setString(1, tenantId); artifact.setString(2, artifactId);
             try (ResultSet result = artifact.executeQuery()) {
                 if (!result.next()) return;
-                tree.put(artifactId, new ArtifactNode(artifactId, objectKey(result.getString(1)),
-                        result.getBoolean(2), result.getLong(3)));
+                String reference = result.getString(1);
+                tree.put(artifactId, new ArtifactNode(artifactId, reference,
+                        objectKey(tenantId, artifactId, result.getString(4), reference),
+                        result.getBoolean(2), result.getLong(3), result.getString(4)));
             }
             try (PreparedStatement children = connection.prepareStatement(
                     "SELECT derived_artifact_id FROM media_artifact_lineage WHERE tenant_id=? AND source_artifact_id=?")) {
@@ -201,11 +226,9 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                 try (ResultSet rows = children.executeQuery()) {
                     List<String> ids = new ArrayList<>();
                     while (rows.next()) ids.add(rows.getString(1));
-                    for (String child : ids) collectArtifactTree(tenantId, child, tree);
+                    for (String child : ids) collectArtifactTree(connection, tenantId, child, tree);
                 }
             }
-        } catch (SQLException failure) {
-            throw databaseFailure("read derived Media artifact lineage", failure);
         }
     }
 
@@ -402,18 +425,14 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                 .build());
     }
 
-    private String objectKey(String objectReference) {
-        URI reference = URI.create(objectReference);
-        if (!"s3".equalsIgnoreCase(reference.getScheme())
-                || reference.getHost() == null
-                || !state.bucket().equals(reference.getHost())) {
-            throw new IllegalStateException("Media artifact object reference is outside the configured S3 bucket");
+    private String objectKey(String tenantId, String artifactId, String sha256, String objectReference) {
+        try {
+            return MediaArtifactObjectOwnership.tenantOwnedArtifactKey(objectReference, state.bucket(),
+                    state.key("quarantine/finalized/"), state.key("quarantine/derived/"),
+                    tenantId, artifactId, sha256);
+        } catch (SecurityException unowned) {
+            throw new IllegalStateException(unowned.getMessage(), unowned);
         }
-        String path = reference.getPath();
-        if (path == null || path.isBlank() || "/".equals(path)) {
-            throw new IllegalStateException("Media artifact object reference has no object key");
-        }
-        return path.startsWith("/") ? path.substring(1) : path;
     }
 
     private void ensureOpen() {
@@ -456,7 +475,9 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
     }
 
     private record ArtifactDelete(String tenantId, String artifactId) { }
-    private record ArtifactNode(String artifactId, String objectKey, boolean legalHold, long expiresAt) { }
+    private record ArtifactNode(
+            String artifactId, String objectReference, String objectKey,
+            boolean legalHold, long expiresAt, String sha256) { }
     private record JobDelete(String tenantId, String jobId) { }
     private record UploadDelete(String tenantId, String uploadId) { }
     private record UploadPurge(int uploads, int chunks) { }

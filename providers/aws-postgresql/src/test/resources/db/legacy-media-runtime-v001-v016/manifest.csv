@@ -1,18 +1,19 @@
-# Test-only source-derived fixture; Flyway checksums are filled from PostgreSQL run.
-version,description,flyway_checksum
-1,media runtime state,2011091060
-2,media upload finalization claim,-1739934140
-3,media consent authority,-1700736947
-4,media principal ownership,-106672087
-5,media job worker lease,-1755849979
-6,media job cancellation truth,1500389172
-7,media job unknown provider outcome,-2036800623
-8,media job artifact content version,-863726996
-9,media job attempts and outbox,-392192638
-10,media artifact format verification,-2015988551
-11,media job submission digest,-1104155036
-12,media outbox delivery attempts,1299987228
-13,media artifact quarantine and lineage,-1451326476
-14,media attempt finality and lifecycle outbox,548832866
-15,media transcript revisions,659110515
-16,media lifecycle outbox leases,-1645731082
+# Test-only source-derived fixture; Flyway checksums are from the isolated PostgreSQL readback.
+# source_sha256 is independently pinned from immutable legacy source commit d62557fdaac7a324e036ca25f672d2a62ac532ea.
+version,description,flyway_checksum,source_sha256
+1,media runtime state,2011091060,14fdc8290e91509ad58f14d118c144ec20abcb1f5445c31f64e9282c6edd392f
+2,media upload finalization claim,-1739934140,112a0e6d7d59187eb4cbe360112fddacd8adbd54031b36bc70bcb6694c03c3c1
+3,media consent authority,-1700736947,6ddf65f4d7625fd4c31350338e7cfc1d2b5dd763cad5df967b0203a39440fa4c
+4,media principal ownership,-106672087,28c2555b75bd73fac3b58f1f122a59ef5557205e275047603f7a9d9d4ce8245b
+5,media job worker lease,-1755849979,ee4ea78b33f298cb148891f380e46c264b8d6b21ca0361834834e6842b0d5293
+6,media job cancellation truth,1500389172,0205b444c44df722e4a9cb2bec2651a613376aa0bb0590dcf9a44d7ff5aae0e0
+7,media job unknown provider outcome,-2036800623,94a2349a06c99a6de0e55d2c8ddb24f91538b4689f0c69aa33a12299e901e8a6
+8,media job artifact content version,-863726996,670b8964675c705c4bc2499b1370074f5d5098815964dc81802c90c1b6999bd1
+9,media job attempts and outbox,-392192638,db57c348b7475c3fc1431a99dda67d55a6ecfb78a291ea600bd0ed4691f80454
+10,media artifact format verification,-2015988551,e3438c15f638eeb9cd55abedce4b4a9816fcb374aa9196fafc74606fbb50f5c9
+11,media job submission digest,-1104155036,ed2df1e589003ccd736ae62f1fe2e92b5574089dba939e647cfc0beeedaad656
+12,media outbox delivery attempts,1299987228,845f9e376b1f574d11ff5704c6f102199513c9f4149e1eb34399088e8708fd6f
+13,media artifact quarantine and lineage,-1451326476,804bf943a2a0fe7fa35bf9d2c9585e9220e2df7560d146cc0894d4212fbe8efb
+14,media attempt finality and lifecycle outbox,548832866,5eb66603a65e1bfc311f12e0fd6121cdd926fae5290b06f269c90d0f6439aa53
+15,media transcript revisions,659110515,d2e3137fa658d53589caae47e0dd4b825058d4720a56ba2746c5e7f84795ef78
+16,media lifecycle outbox leases,-1645731082,0156a7f668892758e0b77d813a608d5961ba49ee71accff388181337b0c62271
