@@ -673,6 +673,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     .asRuntimeException());
             return;
         }
+        boolean cropDeclarationAbsent = request.getCroppedBytes().isEmpty()
+                && request.getCroppedFrameSha256().isEmpty();
+        byte[] declaredCropBytes = cropDeclarationAbsent ? null : request.getCroppedBytes().toByteArray();
+        String declaredCropSha256 = cropDeclarationAbsent ? null : request.getCroppedFrameSha256();
         var frameRequest = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest(
                 request.getOperationId(), tenantId, resolveUserId(), request.getPurposeRef(),
                 request.getSourceArtifactId(), request.getSourceVersion(), request.getFrameId(),
@@ -680,8 +684,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Roi(
                         request.getRoi().getX(), request.getRoi().getY(),
                         request.getRoi().getWidth(), request.getRoi().getHeight()),
-                request.getMediaType(), request.getCroppedBytes().toByteArray(),
-                request.getOriginalFrameSha256(), request.getCroppedFrameSha256(),
+                request.getMediaType(), declaredCropBytes,
+                request.getOriginalFrameSha256(), declaredCropSha256,
                 request.getLanguageHint().isBlank()
                         ? Optional.empty() : Optional.of(request.getLanguageHint()));
         var cancellation = new com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation();
