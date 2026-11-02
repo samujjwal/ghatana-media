@@ -2551,7 +2551,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 denial.put("providerOutcome", "NO_EFFECT_PROVEN");
                 Throwable denialCause = cause.getCause();
                 boolean policyDenied = false;
-                if (denialCause instanceof MediaAuthorizationDeniedException denied) {
+                boolean deadlineExpiredBeforeProvider = denialCause instanceof PreDispatchDeadlineExceededException;
+                if (deadlineExpiredBeforeProvider) {
+                    denial.put("deadlineOutcome", "EXPIRED_BEFORE_PROVIDER_HANDOFF");
+                } else if (denialCause instanceof MediaAuthorizationDeniedException denied) {
                     denial.put("authorizationOutcome", "DENIED");
                     denial.put("authorizationDenialReason", denied.reasonCode());
                 } else if (denialCause instanceof MediaCapabilityNotAdmittedException denied) {
@@ -2566,7 +2569,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 workflowMetrics.record(MediaWorkflowMetrics.Event.DENIED);
                 terminal = transition(value, JobStatus.FAILED,
                         denial,
-                        policyDenied ? "MEDIA_POLICY_DENIED"
+                        deadlineExpiredBeforeProvider ? "PROCESSING_DEADLINE_EXCEEDED_BEFORE_PROVIDER"
+                                : policyDenied ? "MEDIA_POLICY_DENIED"
                                 : denialCause instanceof MediaCapabilityNotAdmittedException
                                         ? "MEDIA_CAPABILITY_NOT_ADMITTED"
                                         : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
@@ -2845,6 +2849,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             // effect boundary. The source reader repeats this check before each content copy.
             requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
                     authenticated);
+            if (jobBudget.expired()) {
+                throw new PreDispatchDeadlineExceededException();
+            }
             providerHandoffStarted = true;
             if (attempt == null) {
                 raw = java.util.Objects.requireNonNull(provider.process(context),
@@ -3536,7 +3543,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     private static boolean isPreDispatchNoEffect(Throwable failure) {
         return failure instanceof MediaAuthorizationDeniedException
-                || failure instanceof MediaCapabilityNotAdmittedException;
+                || failure instanceof MediaCapabilityNotAdmittedException
+                || failure instanceof PreDispatchDeadlineExceededException;
     }
 
     private static boolean isProviderTimeout(Throwable failure) {
@@ -3988,6 +3996,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
         private PreDispatchNoEffectException(Throwable cause) {
             super("Media policy denied before provider handoff", cause);
+        }
+    }
+
+    private static final class PreDispatchDeadlineExceededException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        private PreDispatchDeadlineExceededException() {
+            super("Media job deadline expired before provider handoff");
         }
     }
 

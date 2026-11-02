@@ -46,6 +46,11 @@ class RpcDeadlineGrpcStackIntegrationTest {
     private static final String METHOD = "Transcribe";
     private static final String FULL_METHOD = SERVICE + "/" + METHOD;
     private static final String TEST_JWT_SECRET = "jc03-deadline-stack-secret-0123456789";
+    private static final List<ProviderMethod> PROVIDERS = List.of(
+            new ProviderMethod("com.ghatana.audio.video.stt.grpc.STTService", "Transcribe"),
+            new ProviderMethod("com.ghatana.audio.video.tts.grpc.TTSService", "Synthesize"),
+            new ProviderMethod("com.ghatana.audio.video.vision.grpc.VisionService", "AnalyzeImage"),
+            new ProviderMethod("com.ghatana.audio.video.multimodal.grpc.MultimodalService", "ProcessMultimodal"));
 
     private String priorJwtSecret;
     private String priorMethodDeadline;
@@ -258,6 +263,150 @@ class RpcDeadlineGrpcStackIntegrationTest {
         }
     }
 
+    @Test
+    void serverDeadlineEffectPathIsBoundedAcrossAllFourProviderMethods() throws Exception {
+        configureJwtSecret();
+        for (ProviderMethod provider : PROVIDERS) {
+            String fullMethod = provider.fullMethodName();
+            String deadlineProperty = RpcDeadlineServerInterceptor.METHOD_MAX_DEADLINE_MILLIS_PROPERTY_PREFIX
+                    + fullMethod;
+            String previousDeadline = System.getProperty(deadlineProperty);
+            System.setProperty(deadlineProperty, "150");
+
+            ThreadPoolExecutor workers = workerPool();
+            CountDownLatch childStarted = new CountDownLatch(1);
+            CountDownLatch releaseChild = new CountDownLatch(1);
+            CountDownLatch lateEffectCommitted = new CountDownLatch(1);
+            AtomicInteger dispatches = new AtomicInteger();
+            AtomicInteger successfulResponses = new AtomicInteger();
+            AtomicReference<Status.Code> childOutcome = new AtomicReference<>();
+            var executor = new ContextAwareBoundedExecutor(workers);
+            var service = service(provider.serviceName(), provider.methodName(), (request, response) -> {
+                var submission = executor.submit(() -> {
+                    dispatches.incrementAndGet();
+                    childStarted.countDown();
+                    while (true) {
+                        try {
+                            if (releaseChild.await(10, TimeUnit.MILLISECONDS)) break;
+                        } catch (InterruptedException ignored) {
+                            // Model provider/native work that may commit despite interruption.
+                        }
+                    }
+                    lateEffectCommitted.countDown();
+                    return "late-effect";
+                });
+                submission.result().whenComplete((value, failure) -> {
+                    if (failure != null) {
+                        childOutcome.set(Status.fromThrowable(failure).getCode());
+                        response.onError(failure);
+                    } else {
+                        successfulResponses.incrementAndGet();
+                        response.onNext(StringValue.of(value));
+                        response.onCompleted();
+                    }
+                });
+            });
+
+            try (RunningServer running = start(service)) {
+                Channel authenticated = authenticated(running.channel(), token());
+                assertThatThrownBy(() -> unary(authenticated, provider, "effect-capable", 2_000))
+                        .as("server deadline for %s", fullMethod)
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(error -> ((StatusRuntimeException) error).getStatus().getCode())
+                        .isEqualTo(Status.Code.UNKNOWN);
+                assertThat(childStarted.await(1, TimeUnit.SECONDS)).as(fullMethod).isTrue();
+                awaitOutcome(childOutcome);
+                assertThat(childOutcome.get()).as(fullMethod).isEqualTo(Status.Code.UNKNOWN);
+                assertThat(dispatches).as(fullMethod).hasValue(1);
+
+                releaseChild.countDown();
+                assertThat(lateEffectCommitted.await(1, TimeUnit.SECONDS)).as(fullMethod).isTrue();
+                assertThat(successfulResponses).as(fullMethod).hasValue(0);
+                assertThat(dispatches).as(fullMethod).hasValue(1);
+            } finally {
+                releaseChild.countDown();
+                workers.shutdownNow();
+                workers.awaitTermination(1, TimeUnit.SECONDS);
+                restore(deadlineProperty, previousDeadline);
+            }
+        }
+    }
+
+    @Test
+    void effectCapableCallerDeadlineReportsDeadlineAndNeverReturnsLateSuccessAcrossProviders() throws Exception {
+        configureJwtSecret();
+        for (ProviderMethod provider : PROVIDERS) {
+            String fullMethod = provider.fullMethodName();
+            String deadlineProperty = RpcDeadlineServerInterceptor.METHOD_MAX_DEADLINE_MILLIS_PROPERTY_PREFIX
+                    + fullMethod;
+            String previousDeadline = System.getProperty(deadlineProperty);
+            System.setProperty(deadlineProperty, "5000");
+
+            ThreadPoolExecutor workers = workerPool();
+            CountDownLatch childStarted = new CountDownLatch(1);
+            CountDownLatch releaseChild = new CountDownLatch(1);
+            CountDownLatch childInterrupted = new CountDownLatch(1);
+            CountDownLatch lateEffectCommitted = new CountDownLatch(1);
+            AtomicInteger dispatches = new AtomicInteger();
+            AtomicInteger successfulResponses = new AtomicInteger();
+            AtomicReference<Status.Code> childOutcome = new AtomicReference<>();
+            var executor = new ContextAwareBoundedExecutor(workers);
+            var service = service(provider.serviceName(), provider.methodName(), (request, response) -> {
+                var submission = executor.submit(() -> {
+                    dispatches.incrementAndGet();
+                    childStarted.countDown();
+                    while (true) {
+                        try {
+                            if (releaseChild.await(10, TimeUnit.MILLISECONDS)) break;
+                        } catch (InterruptedException ignored) {
+                            childInterrupted.countDown();
+                            // The external effect may still commit after transport cancellation.
+                        }
+                    }
+                    lateEffectCommitted.countDown();
+                    return "late-effect";
+                });
+                submission.result().whenComplete((value, failure) -> {
+                    if (failure == null) {
+                        successfulResponses.incrementAndGet();
+                        response.onNext(StringValue.of(value));
+                        response.onCompleted();
+                    } else {
+                        childOutcome.set(Status.fromThrowable(failure).getCode());
+                        response.onError(failure);
+                    }
+                });
+            });
+
+            try (RunningServer running = start(service)) {
+                Channel authenticated = authenticated(running.channel(), token());
+                assertThatThrownBy(() -> unary(
+                                authenticated, provider, "effect-capable-client-deadline", 150))
+                        .as("client deadline for %s", fullMethod)
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(error -> ((StatusRuntimeException) error).getStatus().getCode())
+                        .isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+                assertThat(childStarted.await(1, TimeUnit.SECONDS)).as(fullMethod).isTrue();
+                assertThat(childInterrupted.await(1, TimeUnit.SECONDS)).as(fullMethod).isTrue();
+                awaitOutcome(childOutcome);
+                // This synthetic service has no canonical operation/attempt store. UNKNOWN records
+                // post-dispatch ambiguity only; it does not establish durable readback.
+                assertThat(childOutcome.get()).as(fullMethod).isEqualTo(Status.Code.UNKNOWN);
+                assertThat(dispatches).as(fullMethod).hasValue(1);
+
+                releaseChild.countDown();
+                assertThat(lateEffectCommitted.await(1, TimeUnit.SECONDS)).as(fullMethod).isTrue();
+                assertThat(successfulResponses).as(fullMethod).hasValue(0);
+                assertThat(dispatches).as(fullMethod).hasValue(1);
+            } finally {
+                releaseChild.countDown();
+                workers.shutdownNow();
+                workers.awaitTermination(1, TimeUnit.SECONDS);
+                restore(deadlineProperty, previousDeadline);
+            }
+        }
+    }
+
     private void configure(String maximumMillis) {
         priorJwtSecret = System.getProperty("AV_JWT_SECRET");
         priorMethodDeadline = System.getProperty(
@@ -267,14 +416,24 @@ class RpcDeadlineGrpcStackIntegrationTest {
                 maximumMillis);
     }
 
+    private void configureJwtSecret() {
+        priorJwtSecret = System.getProperty("AV_JWT_SECRET");
+        System.setProperty("AV_JWT_SECRET", TEST_JWT_SECRET);
+    }
+
     private static ThreadPoolExecutor workerPool() {
         return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1));
     }
 
     private static io.grpc.ServerServiceDefinition service(
             ServiceHandler handler) {
-        return io.grpc.ServerServiceDefinition.builder(SERVICE)
-                .addMethod(method(), ServerCalls.asyncUnaryCall(handler::invoke))
+        return service(SERVICE, METHOD, handler);
+    }
+
+    private static io.grpc.ServerServiceDefinition service(
+            String serviceName, String methodName, ServiceHandler handler) {
+        return io.grpc.ServerServiceDefinition.builder(serviceName)
+                .addMethod(method(serviceName, methodName), ServerCalls.asyncUnaryCall(handler::invoke))
                 .build();
     }
 
@@ -295,14 +454,23 @@ class RpcDeadlineGrpcStackIntegrationTest {
     }
 
     private static StringValue unary(Channel channel, String value, long deadlineMillis) {
-        return ClientCalls.blockingUnaryCall(channel, method(),
+        return unary(channel, new ProviderMethod(SERVICE, METHOD), value, deadlineMillis);
+    }
+
+    private static StringValue unary(
+            Channel channel, ProviderMethod provider, String value, long deadlineMillis) {
+        return ClientCalls.blockingUnaryCall(channel, method(provider.serviceName(), provider.methodName()),
                 CallOptions.DEFAULT.withDeadlineAfter(deadlineMillis, TimeUnit.MILLISECONDS), StringValue.of(value));
     }
 
     private static MethodDescriptor<StringValue, StringValue> method() {
+        return method(SERVICE, METHOD);
+    }
+
+    private static MethodDescriptor<StringValue, StringValue> method(String serviceName, String methodName) {
         return MethodDescriptor.<StringValue, StringValue>newBuilder()
                 .setType(MethodDescriptor.MethodType.UNARY)
-                .setFullMethodName(FULL_METHOD)
+                .setFullMethodName(MethodDescriptor.generateFullMethodName(serviceName, methodName))
                 .setRequestMarshaller(ProtoUtils.marshaller(StringValue.getDefaultInstance()))
                 .setResponseMarshaller(ProtoUtils.marshaller(StringValue.getDefaultInstance()))
                 .build();
@@ -348,6 +516,12 @@ class RpcDeadlineGrpcStackIntegrationTest {
     @FunctionalInterface
     private interface ServiceHandler {
         void invoke(StringValue request, StreamObserver<StringValue> response);
+    }
+
+    private record ProviderMethod(String serviceName, String methodName) {
+        private String fullMethodName() {
+            return MethodDescriptor.generateFullMethodName(serviceName, methodName);
+        }
     }
 
     private record RunningServer(Server server, ManagedChannel channel) implements AutoCloseable {

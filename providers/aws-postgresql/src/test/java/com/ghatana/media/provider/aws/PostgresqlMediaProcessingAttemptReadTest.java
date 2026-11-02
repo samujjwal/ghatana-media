@@ -9,6 +9,11 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -155,7 +160,8 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(failedRead.observedAt()).isEqualTo(failedObservedAt);
 
             var noEffect = startAttempt(store, "tenant-" + suffix, "no-effect-" + suffix);
-            ProcessingJob refused = terminal(noEffect.running(), JobStatus.FAILED, Map.of());
+            ProcessingJob refused = terminal(noEffect.running(), JobStatus.FAILED, Map.of(),
+                    "PROCESSING_DEADLINE_EXCEEDED_BEFORE_PROVIDER");
             store.markPreDispatchNoEffect(noEffect.running(), noEffect.attempt(), refused,
                     event(refused, "MEDIA_JOB_FAILED"));
             var noEffectRead = store.findProcessingAttempt(noEffect.tenantId(), noEffect.running().jobId(), 1)
@@ -167,6 +173,12 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(noEffectRead.resultDigest()).isBlank();
             assertThat(noEffectRead.provenanceDigest()).isBlank();
             assertThat(noEffectRead.observedAt()).isNotNull();
+            String noEffectObservation = persistedObservation(noEffect.tenantId(), noEffect.running().jobId(), 1);
+            assertThat(noEffectObservation)
+                    .contains("\"finality\":\"NO_EFFECT_PROVEN\"")
+                    .contains("\"reason\":\"PRE_DISPATCH_NO_EFFECT\"")
+                    .contains("\"failureCode\":\"PROCESSING_DEADLINE_EXCEEDED_BEFORE_PROVIDER\"")
+                    .doesNotContain("POLICY_DENIED");
 
             assertThat(store.findProcessingAttempt("wrong-tenant", dispatch.running().jobId(), 1)).isEmpty();
             assertThat(store.findProcessingAttempt(dispatch.tenantId(), "wrong-job", 1)).isEmpty();
@@ -188,10 +200,31 @@ class PostgresqlMediaProcessingAttemptReadTest {
     }
 
     private static ProcessingJob terminal(ProcessingJob running, JobStatus status, Map<String, Object> result) {
+        return terminal(running, status, result, "");
+    }
+
+    private static ProcessingJob terminal(
+            ProcessingJob running, JobStatus status, Map<String, Object> result, String failureCode) {
         return new ProcessingJob(running.jobId(), running.requestId(), running.tenantId(), running.principalId(),
                 running.artifactId(), running.jobType(), running.providerId(), status, running.createdAt(),
-                running.startedAt(), Instant.now(), result, "", running.version() + 1,
+                running.startedAt(), Instant.now(), result, failureCode, running.version() + 1,
                 running.expectedArtifactVersion(), running.requestFingerprint());
+    }
+
+    private static String persistedObservation(String tenantId, String jobId, int attemptNumber) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             PreparedStatement query = connection.prepareStatement(
+                     "SELECT observation_json FROM media_processing_attempts "
+                             + "WHERE tenant_id=? AND job_id=? AND attempt_number=?")) {
+            query.setString(1, tenantId);
+            query.setString(2, jobId);
+            query.setInt(3, attemptNumber);
+            try (ResultSet result = query.executeQuery()) {
+                assertThat(result.next()).isTrue();
+                return result.getString(1);
+            }
+        }
     }
 
     private static void assertIdentity(

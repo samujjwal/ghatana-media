@@ -1021,7 +1021,10 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                 + "observation_json=?,observed_at=?,updated_at=? WHERE tenant_id=? AND job_id=? "
                                 + "AND attempt_number=? AND fencing_token=? AND state='DISPATCH_INTENDED' "
                                 + "AND provider_operation_id IS NULL AND provider_receipt_id IS NULL")) {
-                    updateAttempt.setString(1, json(Map.of("finality", "NO_EFFECT_PROVEN", "reason", "POLICY_DENIED")));
+                    updateAttempt.setString(1, json(Map.of(
+                            "finality", "NO_EFFECT_PROVEN",
+                            "reason", "PRE_DISPATCH_NO_EFFECT",
+                            "failureCode", failed.failureCode())));
                     updateAttempt.setLong(2, now);
                     updateAttempt.setLong(3, now);
                     updateAttempt.setString(4, attempt.tenantId());
