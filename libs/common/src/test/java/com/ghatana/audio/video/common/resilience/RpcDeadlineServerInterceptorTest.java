@@ -182,7 +182,7 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
-    void alreadyCancelledContextNeverDispatchesCallable() throws Exception {
+    void alreadyCancelledContextNeverDispatchesCallableAndReturnsCancelled() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         try {
             Context.CancellableContext request = Context.current().withCancellation();
@@ -198,7 +198,7 @@ class RpcDeadlineServerInterceptorTest {
             } finally {
                 request.detach(previous);
             }
-            assertStatus(submission, Status.Code.DEADLINE_EXCEEDED);
+            assertStatus(submission, Status.Code.CANCELLED);
             assertThat(dispatches).hasValue(0);
         } finally {
             pool.shutdownNow();
@@ -282,7 +282,7 @@ class RpcDeadlineServerInterceptorTest {
             assertStatus(first, Status.Code.UNKNOWN);
             assertThat(effects).hasValue(0);
             queued.cancel();
-            assertStatus(queued, Status.Code.DEADLINE_EXCEEDED);
+            assertStatus(queued, Status.Code.CANCELLED);
             release.countDown();
             assertThat(pool.awaitTermination(10, TimeUnit.MILLISECONDS)).isFalse();
             assertThatThrownBy(() -> first.result().get(50, TimeUnit.MILLISECONDS))
@@ -301,7 +301,7 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
-    void cancellationOfKnownNoEffectWorkReturnsDeadlineExceeded() throws Exception {
+    void explicitCancellationOfKnownNoEffectWorkReturnsCancelled() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         CountDownLatch started = new CountDownLatch(1);
         try {
@@ -312,6 +312,30 @@ class RpcDeadlineServerInterceptorTest {
             }, false);
             assertThat(started.await(1, TimeUnit.SECONDS)).isTrue();
             submission.cancel();
+            assertStatus(submission, Status.Code.CANCELLED);
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void deadlineCancellationOfKnownNoEffectWorkReturnsDeadlineExceeded() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        CountDownLatch started = new CountDownLatch(1);
+        try {
+            Context request = Context.current().withDeadline(Deadline.after(50, TimeUnit.MILLISECONDS), TIMER);
+            Context previous = request.attach();
+            ContextAwareBoundedExecutor.Submission<String> submission;
+            try {
+                submission = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                    started.countDown();
+                    new CountDownLatch(1).await();
+                    return "no effect";
+                }, false);
+            } finally {
+                request.detach(previous);
+            }
+            assertThat(started.await(1, TimeUnit.SECONDS)).isTrue();
             assertStatus(submission, Status.Code.DEADLINE_EXCEEDED);
         } finally {
             pool.shutdownNow();

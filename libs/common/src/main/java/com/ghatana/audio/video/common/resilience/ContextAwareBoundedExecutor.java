@@ -43,7 +43,7 @@ public final class ContextAwareBoundedExecutor {
                 T value = callable.call();
                 if (context.isCancelled() || deadlineExpired(context) || terminal.get()) {
                     terminal.set(true);
-                    result.completeExceptionally(cancellationOutcome(effectMayCommit));
+                    result.completeExceptionally(cancellationOutcome(context, effectMayCommit));
                 } else {
                     terminal.set(true);
                     result.complete(value);
@@ -51,7 +51,7 @@ public final class ContextAwareBoundedExecutor {
             } catch (Throwable failure) {
                 terminal.set(true);
                 result.completeExceptionally(context.isCancelled() || deadlineExpired(context)
-                        ? cancellationOutcome(effectMayCommit) : failure);
+                        ? cancellationOutcome(context, effectMayCommit) : failure);
             }
         });
         try {
@@ -79,10 +79,31 @@ public final class ContextAwareBoundedExecutor {
                 .asRuntimeException();
     }
 
-    private static RuntimeException cancellationOutcome(boolean effectMayCommit) {
+    private static RuntimeException cancellationOutcome(Context context, boolean effectMayCommit) {
         return effectMayCommit ? unknownOutcome()
-                : Status.DEADLINE_EXCEEDED.withDescription("RPC cancelled; child operation is known to have no effect")
-                        .asRuntimeException();
+                : knownNoEffectCancellation(context);
+    }
+
+    private static RuntimeException preDispatchCancellation(Context context) {
+        if (deadlineExpired(context)) {
+            return Status.DEADLINE_EXCEEDED
+                    .withDescription("RPC deadline elapsed before child dispatch")
+                    .asRuntimeException();
+        }
+        return Status.CANCELLED
+                .withDescription("RPC cancelled before child dispatch")
+                .asRuntimeException();
+    }
+
+    private static RuntimeException knownNoEffectCancellation(Context context) {
+        if (deadlineExpired(context)) {
+            return Status.DEADLINE_EXCEEDED
+                    .withDescription("RPC deadline elapsed; child operation is known to have no effect")
+                    .asRuntimeException();
+        }
+        return Status.CANCELLED
+                .withDescription("RPC cancelled; child operation is known to have no effect")
+                .asRuntimeException();
     }
 
     private static boolean deadlineExpired(Context context) {
@@ -117,9 +138,7 @@ public final class ContextAwareBoundedExecutor {
                 if (terminal.get()) return false;
                 if (context.isCancelled() || deadlineExpired(context)) {
                     terminal.set(true);
-                    result.completeExceptionally(Status.DEADLINE_EXCEEDED
-                            .withDescription("RPC cancelled or expired before child dispatch")
-                            .asRuntimeException());
+                    result.completeExceptionally(preDispatchCancellation(context));
                     return false;
                 }
                 // Linearization point: cancellation after this point is classified as a started
@@ -135,8 +154,7 @@ public final class ContextAwareBoundedExecutor {
                 if (!terminal.compareAndSet(false, true)) return;
                 running = task.get();
                 result.completeExceptionally(started.get() && effectMayCommit ? unknownOutcome()
-                        : Status.DEADLINE_EXCEEDED.withDescription("RPC cancelled; no effect-capable child was dispatched")
-                                .asRuntimeException());
+                        : knownNoEffectCancellation(context));
             }
             if (running != null) running.cancel(true);
         }
