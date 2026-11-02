@@ -31,22 +31,24 @@
       "targetRef": ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#/openDecisions/@id=consent-and-rights-authority/question",
       "historicalTargetValueSha256": "a9c9c301109c2a267241495e9f0b1326ec3e803271a353d6f5002bd5ca8c65c9",
       "currentTargetValueSha256": "c61782587c1c3390c7354190b5037b7755cf8b985560ce1ad9dfa842ca55f316",
-      "currentSourceFileSha256": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+      "previousObservedCurrentSourceFileSha256": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+      "currentSourceFileSha256": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
       "semanticEquivalence": "NOT_ASSERTED",
       "acceptanceEffect": "none",
-      "observation": "Claim-scoped current-source byte observation only. The owner question retains the current typed-reference distinction and explicitly leaves authority-issued keys, policy semantics, currentness, and effects with consent/policy authorities. This observation does not establish full claim parity for ProvenanceManifest or promote the pending locator disposition."
+      "observation": "Claim-scoped current-source byte observation only. The prior raw-source pin is preserved; the current PDP-1 file was re-observed with the same exact owner-question projection. The owner question retains the current typed-reference distinction and explicitly leaves authority-issued keys, policy semantics, currentness, and effect decisions with consent/policy authorities. This observation does not establish full claim parity for ProvenanceManifest or promote the pending locator disposition."
     },
     {
       "claimId": "MPSEM-0303-C002",
       "targetRef": ".product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk",
       "historicalTargetValueSha256": "5fd9e16cdd9812126ad5bbf56ee3bc6d5c5aed58f6e4a551added40a2ff5b3fd",
       "currentTargetValueSha256": "d5f6f00dfde6fb8eaef4ea064b65016216fc5db44791b627adcf5dceb1c483e0",
-      "previousObservedCurrentSourceFileSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
-      "currentSourceFileSha256": "7495821ea1a05ad6631f57d49722e5653bde93b416cf6f1c47d89fd6f66b5dee",
+      "earlierObservedCurrentSourceFileSha256": "792f8ee0fe09096d68a6fa92065b56423d192b0b7445fac0408a9d73f61d7ac5",
+      "previousObservedCurrentSourceFileSha256": "7495821ea1a05ad6631f57d49722e5653bde93b416cf6f1c47d89fd6f66b5dee",
+      "currentSourceFileSha256": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b",
       "priorReviewRef": "docs/implementation/verification/pdp-38/migration-coordinator-p2-review-97.json#/records/@claimId=MPSEM-0303-C002",
       "semanticEquivalence": "NOT_ASSERTED",
       "acceptanceEffect": "none",
-      "observation": "Current raw-source-file pin refreshed after PDP-1 source updates; the prior raw source-file pin and exact selected operation projection remain recorded and unchanged. The historical target pin is preserved; no semantic parity or acceptance is re-adjudicated."
+      "observation": "Current raw-source-file pin refreshed after later PDP-1 source updates. Both earlier raw source-file observations are preserved, and the exact selected operation projection remains unchanged. The historical target pin is preserved; no semantic parity or acceptance is re-adjudicated."
     },
     {
       "claimId": "MPSEM-0450-C002",
@@ -67,6 +69,14 @@
       "currentSourceFileSha256": "46c986feec71c284db1d2f4c553c203c2edaea285dc7194d806a84c77f8ca75d",
       "semanticEquivalence": "NOT_ASSERTED",
       "acceptanceEffect": "none",
+      "currentValueDriftObservation": {
+        "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+        "ref": ".product-experience/acceptance.yaml#/recordedHumanDecisionInputs",
+        "recordedTargetValueSha256": "f350ed2443b0e52167e21c290c05fa11a6d20435ad4b6802cd33fc869f005b78",
+        "observedTargetValueSha256": "cd4f0b4926f55680d220794379ba98019cc8ed89407813a4097e3a44feb31366",
+        "acceptanceEffect": "none",
+        "reason": "The registered compact-JSON source test resolves the live selector to the preserved historical target digest rather than the observation's recorded current digest. Preserve both hashes pending owner review of this source observation's hash encoding and lineage; do not infer or change any decision input."
+      },
       "observation": "Additive current-byte observation after the shared acceptance record changed. The historical target pin remains unchanged; no current owner decision, receipt, or semantic equivalence is asserted by this source-byte refresh."
     },
     {

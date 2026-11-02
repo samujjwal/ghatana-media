@@ -864,9 +864,13 @@ test("PXD-173/PXD-183/PXD-185 remain history and PXD-196 advances current PDP-0 
     assert.equal(owner.ownerPhase, "PDP-0", `${observationId} remains within the PDP-0 denominator`);
     const binding = owner.ownerSemanticReview.materialBindings[bindingIndex];
     assert.equal(binding.ref, targetRef, `${observationId} matches its exact current PDP-0 binding`);
+    const predecessorRef = `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=${observationId}`;
+    const currentSuccessors = pxd210Reconciliation.records.filter((record) =>
+      record.claimId === claimId && record.predecessorRef === predecessorRef);
+    assert.equal(currentSuccessors.length, 1, `${observationId} has one exact additive PXD-210 successor`);
     assert.equal(binding.currentProposalObservation.currentSourceSuccessorRef,
-      `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=${observationId}`,
-      `${observationId} candidate pointer resolves to its exact successor`);
+      `docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json#/records/@recordId=${currentSuccessors[0].recordId}`,
+      `${observationId} candidate pointer resolves to its exact PXD-210 successor`);
   }
   for (const successor of refreshed) {
     const owner = candidate.records.find((record) => record.claimId === successor.claimId);
@@ -887,7 +891,18 @@ test("PXD-173/PXD-183/PXD-185 remain history and PXD-196 advances current PDP-0 
     }
     if (successor.claimId === "MPSEM-0022-C002") assert.ok(pxd185Predecessor,
       "MPSEM-0022-C002 retains its PXD-185 predecessor pin");
-    if (observation.currentSourceSuccessorRef?.includes("successor-pxd196.json")) {
+    const pxd196Ref = `docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd196.json#/records/@observationId=${successor.observationId}`;
+    const currentSuccessors = pxd210Reconciliation.records.filter((record) =>
+      record.claimId === successor.claimId && record.predecessorRef === pxd196Ref);
+    if (observation.currentSourceSuccessorRef?.includes("current-source-reconciliation-pxd210.json")) {
+      assert.equal(currentSuccessors.length, 1, `${successor.observationId} has one exact PXD-210 successor`);
+      assert.equal(observation.currentSourceSuccessorRef,
+        `docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json#/records/@recordId=${currentSuccessors[0].recordId}`);
+      assert.equal(currentSuccessors[0].predecessorRawSourceSha256, successor.currentSourceFileSha256);
+      assert.equal(currentSuccessors[0].predecessorProjectionSha256, successor.currentTargetValueSha256);
+      assert.equal(currentSuccessors[0].semanticEquivalence, "NOT_ASSERTED");
+      assert.equal(currentSuccessors[0].acceptanceEffect, "none");
+    } else if (observation.currentSourceSuccessorRef?.includes("successor-pxd196.json")) {
       assert.equal(observation.currentSourceSuccessorPredecessorFileSha256, successor.predecessorCurrentSourceFileSha256);
       assert.equal(observation.currentSourceFileSha256, successor.currentSourceFileSha256);
       assert.equal(observation.currentTargetValueSha256 ?? observation.currentSourceValueSha256, successor.currentTargetValueSha256);
