@@ -145,6 +145,126 @@ class MediaPostgresqlS3IntegrityRestartTest {
     }
 
     @Test
+    void concurrentWorkersReclaimExpiredFinalizationLeaseWithOneScanAndArtifact() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-claim-race-" + runId;
+        String prefix = "ip06/finalization-claim-race/" + runId;
+        String tenant = "tenant-ip06-finalization-claim-race-" + runId;
+        String principal = "principal-ip06-finalization-claim-race-" + runId;
+        byte[] bytes = wav(("finalization-claim-race:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        String finalKey;
+        String uploadId;
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore seed = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession upload = seed.begin(new UploadRequest(tenant, principal, "source.wav", "audio/wav",
+                        bytes.length, digest, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                        "ip06-finalization-claim-race-" + runId);
+                uploadId = upload.uploadId();
+                seed.append(tenant, principal, uploadId, 0, bytes);
+            }
+
+            long staleSince = System.currentTimeMillis() - Duration.ofMinutes(16).toMillis();
+            try (var connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var update = connection.prepareStatement(
+                         "UPDATE media_upload_sessions SET status='FINALIZING',finalization_token=?,"
+                                 + "finalization_started_at=? WHERE tenant_id=? AND upload_id=?")) {
+                update.setString(1, "expired-worker-token-" + runId);
+                update.setLong(2, staleSince);
+                update.setString(3, tenant);
+                update.setString(4, uploadId);
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            // Seed the exact deterministic object to model a worker that finalized S3 and died
+            // before it could scan or publish artifact metadata.
+            finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/" + uploadId + "/" + digest;
+            try (S3Client s3 = s3Client()) {
+                s3.putObject(PutObjectRequest.builder().bucket(bucket).key(finalKey)
+                                .contentType("audio/wav").metadata(Map.of(
+                                        "sha256", digest, "classification", "RESTRICTED"))
+                                .build(), RequestBody.fromBytes(bytes));
+            }
+
+            AtomicInteger scanCalls = new AtomicInteger();
+            CountDownLatch scannerEntered = new CountDownLatch(1);
+            CountDownLatch releaseScanner = new CountDownLatch(1);
+            CountDownLatch ready = new CountDownLatch(2);
+            CountDownLatch start = new CountDownLatch(1);
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore firstStore = new S3PostgresqlMediaArtifactStore(
+                         blockingCleanScanner(scanCalls, scannerEntered, releaseScanner));
+                 S3PostgresqlMediaArtifactStore secondStore = new S3PostgresqlMediaArtifactStore(
+                         blockingCleanScanner(scanCalls, scannerEntered, releaseScanner))) {
+                Future<MediaArtifact> first = executor.submit(() -> {
+                    ready.countDown();
+                    if (!start.await(5, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("first finalization worker start timed out");
+                    }
+                    return firstStore.complete(tenant, principal, uploadId);
+                });
+                Future<MediaArtifact> second = executor.submit(() -> {
+                    ready.countDown();
+                    if (!start.await(5, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("second finalization worker start timed out");
+                    }
+                    return secondStore.complete(tenant, principal, uploadId);
+                });
+
+                assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+                assertThat(scannerEntered.await(10, TimeUnit.SECONDS))
+                        .as("one worker reclaimed the expired lease and reached scanning after S3 finalize")
+                        .isTrue();
+                assertThat(s3Object(bucket, "s3://" + bucket + "/" + finalKey)).containsExactly(bytes);
+                assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+                assertThat(artifactCountForTenant(tenant)).isZero();
+
+                long loserDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+                while (!first.isDone() && !second.isDone() && System.nanoTime() < loserDeadline) {
+                    Thread.sleep(10);
+                }
+                assertThat(first.isDone()).isNotEqualTo(second.isDone());
+                Future<MediaArtifact> loser = first.isDone() ? first : second;
+                Future<MediaArtifact> winner = first.isDone() ? second : first;
+                assertThat(winner.isDone()).isFalse();
+                assertThatThrownBy(() -> loser.get(5, TimeUnit.SECONDS))
+                        .isInstanceOf(ExecutionException.class)
+                        .hasRootCauseInstanceOf(IllegalStateException.class)
+                        .hasRootCauseMessage("Upload is not available for finalization: FINALIZING");
+                assertThat(scanCalls).as("the losing claimant does not repeat the scan").hasValue(1);
+                assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+
+                releaseScanner.countDown();
+                MediaArtifact recovered = winner.get(15, TimeUnit.SECONDS);
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(artifactIdForUpload(tenant, uploadId)).isEqualTo(recovered.artifactId());
+                assertThat(artifactCountForTenant(tenant)).isEqualTo(1);
+                assertThat(scanStatus(tenant, uploadId)).isEqualTo("CLEAN");
+                assertThat(scanCalls).hasValue(1);
+                assertThat(s3ObjectCount(bucket, finalKey)).isEqualTo(1);
+                assertThat(s3Object(bucket, recovered.objectReference())).containsExactly(bytes);
+            } finally {
+                releaseScanner.countDown();
+                executor.shutdownNow();
+                assertThat(executor.awaitTermination(15, TimeUnit.SECONDS)).isTrue();
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
     void rejectedQuarantinedObjectIsRecordedAndDeletedWithoutArtifactPublication() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-quarantine-" + runId;
@@ -596,6 +716,34 @@ class MediaPostgresqlS3IntegrityRestartTest {
             @Override
             public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
                 scans.incrementAndGet();
+                Instant now = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.CLEAN,
+                        now, now.plusSeconds(60));
+            }
+        };
+    }
+
+    private static MediaArtifactScanner blockingCleanScanner(
+            AtomicInteger scans, CountDownLatch entered, CountDownLatch release) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-test-blocking-clean"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                entered.countDown();
+                try {
+                    if (!release.await(15, TimeUnit.SECONDS)) {
+                        throw new IllegalStateException("test scanner release timed out");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("test scanner was interrupted", interrupted);
+                }
                 Instant now = Instant.now();
                 return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
                         artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
