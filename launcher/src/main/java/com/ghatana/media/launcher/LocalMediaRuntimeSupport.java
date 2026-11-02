@@ -9,6 +9,9 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
@@ -16,6 +19,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
@@ -890,6 +894,35 @@ public final class LocalMediaRuntimeSupport {
             synchronized (jobKey.intern()) {
                 if (!leaseValid(lease)) throw new IllegalStateException("Media job lease fence is stale");
                 return update(expected, updated);
+            }
+        }
+        @Override public ProcessingJob commitFinalOutcome(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+                ProcessingContext.MonotonicDeadline jobDeadline) {
+            synchronized (key(expected.tenantId(), expected.jobId()).intern()) {
+                requireBeforeDeadline(jobDeadline);
+                throw new UnsupportedOperationException(
+                        "local job store cannot atomically persist attempt finality and lifecycle outbox");
+            }
+        }
+        @Override public ProcessingJob commitFinalOutcomeWithTranscript(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+                com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore transcriptStore,
+                com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+                String transcriptVersionRef, ProcessingContext.MonotonicDeadline jobDeadline) {
+            synchronized (key(expected.tenantId(), expected.jobId()).intern()) {
+                requireBeforeDeadline(jobDeadline);
+                throw new UnsupportedOperationException(
+                        "local job store cannot atomically persist STT, transcript, and lifecycle outboxes");
+            }
+        }
+        private static void requireBeforeDeadline(ProcessingContext.MonotonicDeadline jobDeadline) {
+            if (jobDeadline == null) throw new IllegalArgumentException("job deadline is required");
+            if (jobDeadline.expired()) {
+                throw new MediaJobFinalizationDeadlineExceededException(
+                        "Media job processing deadline elapsed before finalization");
             }
         }
         private static boolean terminal(JobStatus status) {

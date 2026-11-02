@@ -1,12 +1,17 @@
 package com.ghatana.media.provider.aws;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.Connection;
@@ -15,9 +20,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -183,6 +193,180 @@ class PostgresqlMediaProcessingAttemptReadTest {
             assertThat(store.findProcessingAttempt("wrong-tenant", dispatch.running().jobId(), 1)).isEmpty();
             assertThat(store.findProcessingAttempt(dispatch.tenantId(), "wrong-job", 1)).isEmpty();
             assertThat(store.findProcessingAttempt(dispatch.tenantId(), dispatch.running().jobId(), 2)).isEmpty();
+        }
+    }
+
+    @Test
+    void expiredDeadlineWhileBlockedOnJobRowRollsBackAttemptJobTranscriptAndOutbox() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-attempt-deadline-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(integrationEnvironment(bucket));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+             com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStore transcripts =
+                     new com.ghatana.media.provider.aws.PostgresqlMediaTranscriptStore()) {
+            String tenant = "tenant-" + suffix;
+            String jobId = "job-" + suffix;
+            String digest = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            String sourceVersion = "sha256:" + digest;
+            ProcessingJob accepted = new ProcessingJob(jobId, "request-" + suffix, tenant, "principal-a",
+                    "artifact-a", JobType.SPEECH_TO_TEXT, "provider-a", JobStatus.ACCEPTED, Instant.now(),
+                    null, null, Map.of(), "", 1, sourceVersion, FINGERPRINT);
+            store.create(accepted, FINGERPRINT, new SttSubmissionSnapshot(
+                    SttSubmissionSnapshot.VERSION, null, null));
+            var lease = store.claim(accepted, "worker-a", Instant.now().plusSeconds(30));
+            ProcessingJob running = new ProcessingJob(jobId, accepted.requestId(), tenant, "principal-a",
+                    "artifact-a", JobType.SPEECH_TO_TEXT, "provider-a", JobStatus.RUNNING, accepted.createdAt(),
+                    Instant.now(), null, Map.of(), "", accepted.version() + 1, sourceVersion, FINGERPRINT);
+            var started = store.startAttempt(accepted, running, lease, 1, FINGERPRINT);
+            var attempt = store.recordProviderReceipt(started.attempt(), lease, "operation", "receipt");
+            Instant observedAt = Instant.now();
+            ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                    AttemptFinality.SUCCEEDED, "receipt", Map.of("text", "hello"), PROVENANCE, observedAt);
+            ProcessingJob completed = terminal(started.running(), JobStatus.COMPLETED, Map.of("text", "hello"));
+            MediaLifecycleEvent completion = event(completed, "MEDIA_JOB_COMPLETED");
+            TranscriptDraft draft = new TranscriptDraft(tenant, "principal-a", "transcript-" + suffix,
+                    "artifact-a", sourceVersion, digest, jobId, "profile-a", "provider-a", "model-a",
+                    "en-US", "milliseconds", "hello", "consent-a", "rights-a", "policy-a",
+                    "urn:media:purpose:transcription", "transcription");
+            MonotonicDeadline deadline = MonotonicDeadline.after(Duration.ofSeconds(2));
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            try (Connection blocker = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())) {
+                blocker.setAutoCommit(false);
+                try (PreparedStatement lock = blocker.prepareStatement(
+                        "SELECT 1 FROM media_processing_jobs WHERE tenant_id=? AND job_id=? FOR UPDATE")) {
+                    lock.setString(1, tenant);
+                    lock.setString(2, jobId);
+                    try (ResultSet row = lock.executeQuery()) { assertThat(row.next()).isTrue(); }
+                }
+                Future<ProcessingJob> finalization = executor.submit(() -> store.commitFinalOutcomeWithTranscript(
+                        started.running(), attempt, completed, observation, completion,
+                        transcripts, draft, "transcript-version-1", deadline));
+                try {
+                    awaitFinalizationLockWait();
+                    while (!deadline.expired()) Thread.sleep(10);
+                } finally {
+                    blocker.rollback();
+                }
+                assertThatThrownBy(() -> finalization.get(10, TimeUnit.SECONDS))
+                        .hasCauseInstanceOf(MediaJobFinalizationDeadlineExceededException.class);
+            } finally {
+                executor.shutdownNow();
+            }
+            assertThat(store.find(tenant, jobId).orElseThrow().status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                    .isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    completion.eventId())).isZero();
+            assertThat(count("SELECT count(*) FROM media_transcript_revisions WHERE tenant_id=? AND transcript_id=?",
+                    tenant, draft.transcriptId())).isZero();
+
+            ProcessingJob unknown = terminal(started.running(), JobStatus.OUTCOME_UNKNOWN, Map.of(),
+                    "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN");
+            MediaLifecycleEvent unknownEvent = event(unknown, "MEDIA_JOB_OUTCOME_UNKNOWN");
+            store.recordProviderSuccessWithUnknownJob(
+                    started.running(), attempt, unknown, observation, unknownEvent);
+
+            ProcessingJob reconciledJob = store.find(tenant, jobId).orElseThrow();
+            assertThat(reconciledJob.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(reconciledJob.result()).isEmpty();
+            var reconciledAttempt = store.findProcessingAttempt(tenant, jobId, 1).orElseThrow();
+            assertThat(reconciledAttempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(reconciledAttempt.providerOperationId()).isEqualTo("operation");
+            assertThat(reconciledAttempt.providerReceiptId()).isEqualTo("receipt");
+            assertThat(reconciledAttempt.resultDigest()).isEqualTo(sha256("{\"text\":\"hello\"}"));
+            assertThat(reconciledAttempt.provenanceDigest()).isEqualTo(PROVENANCE);
+            assertThat(reconciledAttempt.observedAt()).isEqualTo(Instant.ofEpochMilli(observedAt.toEpochMilli()));
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    completion.eventId())).isZero();
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    unknownEvent.eventId())).isEqualTo(1);
+            assertThat(count("SELECT count(*) FROM media_transcript_revisions WHERE tenant_id=? AND transcript_id=?",
+                    tenant, draft.transcriptId())).isZero();
+        }
+    }
+
+    @Test
+    void preservesProviderSuccessEvidenceWhenMediaJobMustRemainUnknown() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-attempt-success-unknown-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(integrationEnvironment(bucket));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-" + suffix;
+            String jobId = "job-" + suffix;
+            String digest = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+            String sourceVersion = "sha256:" + digest;
+            ProcessingJob accepted = new ProcessingJob(jobId, "request-" + suffix, tenant, "principal-a",
+                    "artifact-a", JobType.SPEECH_TO_TEXT, "provider-a", JobStatus.ACCEPTED, Instant.now(),
+                    null, null, Map.of(), "", 1, sourceVersion, FINGERPRINT);
+            store.create(accepted, FINGERPRINT, new SttSubmissionSnapshot(
+                    SttSubmissionSnapshot.VERSION, null, null));
+            var lease = store.claim(accepted, "worker-a", Instant.now().plusSeconds(60));
+            ProcessingJob running = new ProcessingJob(jobId, accepted.requestId(), tenant, "principal-a",
+                    "artifact-a", JobType.SPEECH_TO_TEXT, "provider-a", JobStatus.RUNNING, accepted.createdAt(),
+                    Instant.now(), null, Map.of(), "", accepted.version() + 1, sourceVersion, FINGERPRINT);
+            var started = store.startAttempt(accepted, running, lease, 1, FINGERPRINT);
+            var attempt = store.recordProviderReceipt(started.attempt(), lease, "operation-exact", "receipt-exact");
+            Instant observedAt = Instant.now();
+            Map<String, Object> providerResult = Map.of("text", "provider transcript remains internal");
+            ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                    AttemptFinality.SUCCEEDED, "receipt-exact", providerResult, PROVENANCE, observedAt);
+            ProcessingJob unknown = terminal(started.running(), JobStatus.OUTCOME_UNKNOWN, Map.of(),
+                    "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN");
+            MediaLifecycleEvent unknownEvent = event(unknown, "MEDIA_JOB_OUTCOME_UNKNOWN");
+
+            store.recordProviderSuccessWithUnknownJob(
+                    started.running(), attempt, unknown, observation, unknownEvent);
+
+            ProcessingJob readJob = store.find(tenant, jobId).orElseThrow();
+            assertThat(readJob.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(readJob.result()).isEmpty();
+            var readAttempt = store.findProcessingAttempt(tenant, jobId, 1).orElseThrow();
+            assertThat(readAttempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(readAttempt.providerOperationId()).isEqualTo("operation-exact");
+            assertThat(readAttempt.providerReceiptId()).isEqualTo("receipt-exact");
+            assertThat(readAttempt.resultDigest()).isEqualTo(sha256("{\"text\":\"provider transcript remains internal\"}"));
+            assertThat(readAttempt.provenanceDigest()).isEqualTo(PROVENANCE);
+            assertThat(readAttempt.observedAt()).isEqualTo(Instant.ofEpochMilli(observedAt.toEpochMilli()));
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    unknownEvent.eventId())).isEqualTo(1);
+            assertThat(count("SELECT count(*) FROM media_transcript_revisions WHERE tenant_id=? AND job_id=?",
+                    tenant, jobId)).isZero();
+        }
+    }
+
+    private static void awaitFinalizationLockWait() throws Exception {
+        long until = System.nanoTime() + TimeUnit.SECONDS.toNanos(8);
+        while (System.nanoTime() < until) {
+            try (Connection connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 PreparedStatement query = connection.prepareStatement(
+                         "SELECT count(*) FROM pg_stat_activity WHERE wait_event_type='Lock' "
+                                 + "AND query LIKE 'UPDATE media_processing_jobs SET provider_id=%'")) {
+                try (ResultSet rows = query.executeQuery()) {
+                    if (rows.next() && rows.getLong(1) > 0) return;
+                }
+            }
+            Thread.sleep(20);
+        }
+        throw new AssertionError("finalization did not reach the locked job row");
+    }
+
+    private static long count(String sql, String... args) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             PreparedStatement query = connection.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) query.setString(i + 1, args[i]);
+            try (ResultSet rows = query.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                return rows.getLong(1);
+            }
         }
     }
 

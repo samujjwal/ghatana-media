@@ -31,6 +31,11 @@ public final class MediaRuntimeContracts {
         public MediaJobStoreConflictException(String message) { super(message); }
     }
 
+    /** Finalization was fenced because the job processing deadline elapsed before durable commit. */
+    public static final class MediaJobFinalizationDeadlineExceededException extends IllegalStateException {
+        public MediaJobFinalizationDeadlineExceededException(String message) { super(message); }
+    }
+
     public enum UploadStatus { OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED }
     public enum ArtifactScanVerdict { CLEAN, REJECT, UNAVAILABLE }
     /** Logical job outcome and observation; OUTCOME_UNKNOWN is never a replay or failure signal. */
@@ -2011,6 +2016,25 @@ public final class MediaRuntimeContracts {
                 ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
             throw new UnsupportedOperationException("atomic attempt finalization is not supported");
         }
+        /** Deadline-aware atomic finalization. Stores must enforce the deadline at their commit boundary. */
+        default ProcessingJob commitFinalOutcome(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+                ProcessingContext.MonotonicDeadline jobDeadline) {
+            throw new UnsupportedOperationException(
+                    "deadline-aware atomic attempt finalization is not supported");
+        }
+        /**
+         * Atomically records definitive provider success while keeping the Media job outcome
+         * unknown. Implementations must keep provider result/evidence on the internal attempt,
+         * clear the job result, append only the unknown lifecycle event, and create no transcript.
+         */
+        default ProcessingJob recordProviderSuccessWithUnknownJob(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob unknown,
+                ProviderAttemptObservation successfulObservation, MediaLifecycleEvent lifecycleEvent) {
+            throw new UnsupportedOperationException(
+                    "atomic provider success with unknown Media job outcome is not supported");
+        }
         /**
          * Atomically commits a successful STT attempt, its completed job/lifecycle event, and
          * the exact transcript revision/attempt binding/transcript outbox event. Stores that
@@ -2024,6 +2048,16 @@ public final class MediaRuntimeContracts {
                 String transcriptVersionRef) {
             throw new UnsupportedOperationException(
                     "atomic successful STT and transcript finalization is not supported");
+        }
+        /** Deadline-aware atomic STT finalization, including the transcript revision and both outbox effects. */
+        default ProcessingJob commitFinalOutcomeWithTranscript(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+                com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore transcriptStore,
+                com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+                String transcriptVersionRef, ProcessingContext.MonotonicDeadline jobDeadline) {
+            throw new UnsupportedOperationException(
+                    "deadline-aware atomic successful STT and transcript finalization is not supported");
         }
         default ProcessingJob markOutcomeUnknown(
                 ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob unknown,

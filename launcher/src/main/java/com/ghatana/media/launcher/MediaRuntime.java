@@ -20,6 +20,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactContentReade
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaConsentAuthority;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
@@ -2432,7 +2433,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             Cancellation cancellation,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
-        final ProcessingContext.MonotonicDeadline jobBudget = ProcessingContext.MonotonicDeadline.after(config.jobTimeout());
+        final ProcessingContext.MonotonicDeadline jobBudget =
+                ProcessingContext.MonotonicDeadline.after(config.jobTimeout());
         final Instant jobDeadline = Instant.now().plus(config.jobTimeout());
         ArtifactVersion expectedVersion;
         try {
@@ -2663,6 +2665,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     ? Map.of() : submission.result(),
                             submission.provenanceDigest(), submission.observedAt());
                     if (terminal.status() == JobStatus.COMPLETED
+                            && successFinalizationFenceLost(cancellation, jobBudget)) {
+                        terminal = unknownAfterSuccessfulFinalization(value, cancellation);
+                    }
+                    if (terminal.status() == JobStatus.OUTCOME_UNKNOWN
+                            && submission.finality() == AttemptFinality.SUCCEEDED) {
+                        terminal = transition(value, JobStatus.OUTCOME_UNKNOWN, Map.of(),
+                                terminal.failureCode().isBlank() ? "PROCESSING_OUTCOME_UNKNOWN"
+                                        : terminal.failureCode());
+                        terminal = jobStore.recordProviderSuccessWithUnknownJob(value, recorded, terminal,
+                                observation,
+                                unknownOutcomeEvent(terminal, dispatchArtifact.classification(),
+                                        request.correlationId()));
+                    } else if (terminal.status() == JobStatus.COMPLETED
                             && submission.finality() == AttemptFinality.SUCCEEDED
                             && request.jobType()
                                     == com.ghatana.media.runtime.MediaRuntimeContracts.JobType
@@ -2670,12 +2685,36 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         Map.Entry<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft, String>
                                 transcript = speechTranscriptFinalization(request, dispatchArtifact, value,
                                         submission, providers.getFirst(), sourceAuthorization, authenticated);
-                        terminal = jobStore.commitFinalOutcomeWithTranscript(value, recorded, terminal,
-                                observation, lifecycleEvent(value, terminal, request, dispatchArtifact),
-                                transcriptStore, transcript.getKey(), transcript.getValue());
+                        MediaLifecycleEvent completedEvent = lifecycleEvent(value, terminal, request, dispatchArtifact);
+                        if (successFinalizationFenceLost(cancellation, jobBudget)) {
+                            terminal = unknownAfterSuccessfulFinalization(value, cancellation);
+                            terminal = jobStore.recordProviderSuccessWithUnknownJob(value, recorded, terminal,
+                                    observation,
+                                    unknownOutcomeEvent(terminal, dispatchArtifact.classification(),
+                                            request.correlationId()));
+                        } else {
+                            terminal = jobStore.commitFinalOutcomeWithTranscript(value, recorded, terminal,
+                                    observation, completedEvent, transcriptStore, transcript.getKey(),
+                                    transcript.getValue(), jobBudget);
+                        }
                     } else {
-                        jobStore.commitFinalOutcome(value, recorded, terminal, observation,
-                                lifecycleEvent(value, terminal, request, dispatchArtifact));
+                        MediaLifecycleEvent finalEvent = lifecycleEvent(value, terminal, request, dispatchArtifact);
+                        if (terminal.status() == JobStatus.COMPLETED
+                                && submission.finality() == AttemptFinality.SUCCEEDED
+                                && successFinalizationFenceLost(cancellation, jobBudget)) {
+                            terminal = unknownAfterSuccessfulFinalization(value, cancellation);
+                            terminal = jobStore.recordProviderSuccessWithUnknownJob(value, recorded, terminal,
+                                    observation,
+                                    unknownOutcomeEvent(terminal, dispatchArtifact.classification(),
+                                            request.correlationId()));
+                        } else if (terminal.status() == JobStatus.COMPLETED) {
+                            jobStore.commitFinalOutcome(value, recorded, terminal, observation, finalEvent,
+                                    jobBudget);
+                        } else {
+                            // Known provider failures and governance refusals remain final when the
+                            // processing budget elapsed; the deadline fences late success only.
+                            jobStore.commitFinalOutcome(value, recorded, terminal, observation, finalEvent);
+                        }
                     }
                 } else if (dispatchAttempt != null) {
                     ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN ? terminal
@@ -2686,6 +2725,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             lifecycleEvent(value, unknown, request, dispatchArtifact));
                     terminal = unknown;
                 } else {
+                    if (terminal.status() == JobStatus.COMPLETED
+                            && successFinalizationFenceLost(cancellation, jobBudget)) {
+                        terminal = unknownAfterSuccessfulFinalization(value, cancellation);
+                    }
                     jobStore.update(value, terminal);
                 }
                 audit.info("MEDIA_JOB_TERMINAL tenantId={} jobId={} type={} provider={} status={} failureCode={}",
@@ -2700,9 +2743,41 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "status", terminal.status().name(),
                                 "failureCode", terminal.failureCode()));
             } catch (RuntimeException updateFailure) {
-                if (dispatchAttempt != null
-                        && request.jobType()
-                                == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                if (updateFailure instanceof MediaJobFinalizationDeadlineExceededException) {
+                    try {
+                        ProcessingJob latestJob = jobStore.find(value.tenantId(), value.jobId()).orElse(value);
+                        if (latestJob.status() == JobStatus.RUNNING
+                                && dispatchAttempt != null && submission != null
+                                && submission.finality() == AttemptFinality.SUCCEEDED) {
+                            ProcessingAttempt currentAttempt = jobStore.findProcessingAttempt(
+                                    value.tenantId(), value.jobId(), dispatchAttempt.attemptNumber())
+                                    .orElse(dispatchAttempt);
+                            ProcessingJob unknown = transition(latestJob, JobStatus.OUTCOME_UNKNOWN,
+                                    Map.of(),
+                                    "PROCESSING_OUTCOME_UNKNOWN");
+                            ProviderAttemptObservation successfulObservation = new ProviderAttemptObservation(
+                                    currentAttempt.query(), submission.finality(), submission.providerReceiptId(),
+                                    submission.result(), submission.provenanceDigest(), submission.observedAt());
+                            terminal = unknown;
+                            jobStore.recordProviderSuccessWithUnknownJob(latestJob, currentAttempt, unknown,
+                                    successfulObservation,
+                                    unknownOutcomeEvent(unknown, dispatchArtifact.classification(),
+                                            request.correlationId()));
+                        } else if (latestJob.status() == JobStatus.RUNNING && dispatchAttempt == null) {
+                            ProcessingJob unknown = transition(latestJob, JobStatus.OUTCOME_UNKNOWN,
+                                    Map.of(),
+                                    "PROCESSING_OUTCOME_UNKNOWN");
+                            terminal = unknown;
+                            terminal = jobStore.update(latestJob, unknown);
+                        } else if (terminal(latestJob.status())) {
+                            // A concurrent owner result is authoritative; never relabel it UNKNOWN.
+                            terminal = latestJob;
+                        }
+                    } catch (RuntimeException unknownFailure) {
+                        audit.error("MEDIA_JOB_FINALIZATION_DEADLINE_UNKNOWN tenantId={} jobId={} failureType={}",
+                                value.tenantId(), value.jobId(), unknownFailure.getClass().getSimpleName());
+                    }
+                } else if (dispatchAttempt != null
                         && submission != null && submission.finality() == AttemptFinality.SUCCEEDED) {
                     try {
                         ProcessingJob latestJob = jobStore.find(value.tenantId(), value.jobId()).orElse(value);
@@ -2711,15 +2786,20 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                     value.tenantId(), value.jobId(), dispatchAttempt.attemptNumber())
                                     .orElse(dispatchAttempt);
                             ProcessingJob unknown = transition(latestJob, JobStatus.OUTCOME_UNKNOWN,
-                                    Map.of("providerOutcome", "UNKNOWN",
-                                            "transcriptFinalization", "ATOMIC_COMMIT_UNCONFIRMED"),
-                                    "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN");
-                            jobStore.markOutcomeUnknown(latestJob, currentAttempt, unknown,
-                                    Map.of("providerOutcome", "UNKNOWN",
-                                            "transcriptFinalization", "ATOMIC_COMMIT_UNCONFIRMED",
-                                            "attemptNumber", currentAttempt.attemptNumber()),
-                                    lifecycleEvent(latestJob, unknown, request, dispatchArtifact));
+                                    Map.of(),
+                                    request.jobType()
+                                                    == com.ghatana.media.runtime.MediaRuntimeContracts.JobType
+                                                            .SPEECH_TO_TEXT
+                                            ? "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN"
+                                            : "PROCESSING_FINALIZATION_OUTCOME_UNKNOWN");
+                            ProviderAttemptObservation successfulObservation = new ProviderAttemptObservation(
+                                    currentAttempt.query(), submission.finality(), submission.providerReceiptId(),
+                                    submission.result(), submission.provenanceDigest(), submission.observedAt());
                             terminal = unknown;
+                            jobStore.recordProviderSuccessWithUnknownJob(latestJob, currentAttempt, unknown,
+                                    successfulObservation,
+                                    unknownOutcomeEvent(unknown, dispatchArtifact.classification(),
+                                            request.correlationId()));
                         } else if (latestJob.status() == JobStatus.OUTCOME_UNKNOWN
                                 || latestJob.status() == JobStatus.COMPLETED
                                 || latestJob.status() == JobStatus.FAILED
@@ -2727,7 +2807,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             terminal = latestJob;
                         }
                     } catch (RuntimeException unknownFailure) {
-                        audit.error("MEDIA_STT_TRANSCRIPT_ATOMIC_FINALIZATION_UNKNOWN tenantId={} jobId={} failureType={}",
+                        audit.error("MEDIA_PROVIDER_SUCCESS_FINALIZATION_UNKNOWN tenantId={} jobId={} failureType={}",
                                 value.tenantId(), value.jobId(), unknownFailure.getClass().getSimpleName());
                     }
                 }
@@ -2909,7 +2989,28 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         timed.whenComplete((value, failure) -> {
             workflowMetrics.stopTimer(providerSample, MediaWorkflowMetrics.Stage.PROVIDER);
             if (result.isDone()) return;
+            ProviderSubmission completedSubmission = submission.get();
+            if (completedSubmission != null
+                    && (failure != null || cancellation.cancelled() || jobBudget.expired())) {
+                // Carry exact typed finality to the terminal writer even if cancellation or
+                // the timeout future wins the race. The finalization fence will keep late
+                // success UNKNOWN without discarding definitive provider evidence.
+                result.complete(new ProcessingOutcome(
+                        provider, consent, completedSubmission.result(), completedSubmission));
+                return;
+            }
             if (failure == null) {
+                if (cancellation.cancelled()) {
+                    result.completeExceptionally(new java.util.concurrent.CancellationException(
+                            "Provider completed after Media job cancellation"));
+                    return;
+                }
+                if (jobBudget.expired()) {
+                    cancellation.cancel();
+                    result.completeExceptionally(new TimeoutException(
+                            "Provider completed after the Media job deadline"));
+                    return;
+                }
                 result.complete(new ProcessingOutcome(
                         provider, consent, Map.copyOf(value == null ? Map.of() : value), submission.get()));
                 return;
@@ -3349,6 +3450,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         "failureCode", terminal.failureCode(), "priorVersion", prior.version()));
     }
 
+    private static MediaLifecycleEvent unknownOutcomeEvent(
+            ProcessingJob unknown, String classification, String correlationId) {
+        return new MediaLifecycleEvent(
+                "media:MEDIA_JOB_OUTCOME_UNKNOWN:" + unknown.jobId() + ":" + unknown.version(),
+                "MEDIA_JOB_OUTCOME_UNKNOWN", unknown.tenantId(), unknown.principalId(), correlationId,
+                unknown.requestId(), "job", unknown.jobId(), unknown.version(), classification,
+                Instant.now(), Map.of());
+    }
+
     private List<MediaProcessingProvider> selectProcessingProviders(ProcessingJobRequest request) {
         return selectProcessingProviders(request.jobType(), request.providerHint());
     }
@@ -3569,6 +3679,26 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return failure instanceof TimeoutException
                 || failure instanceof ProviderHandoffFailure handoff
                 && handoff.getCause() instanceof TimeoutException;
+    }
+
+    private static boolean successFinalizationFenceLost(
+            Cancellation cancellation,
+            ProcessingContext.MonotonicDeadline jobBudget) {
+        return cancellation.cancelled() || jobBudget.expired();
+    }
+
+    private ProcessingJob unknownAfterSuccessfulFinalization(
+            ProcessingJob expected,
+            Cancellation cancellation) {
+        if (cancellation.cancelled()) {
+            return transition(expected, JobStatus.OUTCOME_UNKNOWN,
+                    Map.of(),
+                    "PROCESSING_CANCELLED_UNCONFIRMED");
+        }
+        cancellation.cancel();
+        return transition(expected, JobStatus.OUTCOME_UNKNOWN,
+                Map.of(),
+                "PROCESSING_OUTCOME_UNKNOWN");
     }
 
     private static Map<String, Object> governedStreamMetadata(

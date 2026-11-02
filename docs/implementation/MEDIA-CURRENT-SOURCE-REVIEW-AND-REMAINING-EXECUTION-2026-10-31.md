@@ -1588,3 +1588,28 @@ Read-only checks returned PDP-0 `--check` exit **0** while its source status rem
 `WhisperOciWorkerSupervisorTest.cancellationDuringCreateKillsCreatedContainerWithoutStartingWorker` closes a cancellation window before the OCI container ID is published to the active operation. A fake command runner blocks `create`; the test starts cancellation, observes its normal wait after the cancellation flag is set, then releases `create`. It verifies the newly created container is killed and removed, `start` is never invoked, execution/cancellation/status/journal all remain `UNKNOWN_OUTCOME`, and both threads finish before the journal closes. No production code changed.
 
 The focused `WhisperOciWorkerSupervisorTest` selector passed **13/13**, with zero skips, failures, or errors. Independent Luna engineering review accepted the final test diff. This proves supervisor control flow with a fake runner only; it does not prove Docker process termination, cgroup/OOM enforcement, or native host qualification. JC-03 whole-row acceptance remains open.
+
+### 41.35 November 2 owner-directed artifact readback, Kernel PDP-0 projections, and JC-03 durable deadline fencing (2026-11-02)
+
+The owner-directed request for V001–V016 test inputs and an independent H-02/PDP-1 disposition required no new database artifact. The existing synthetic snapshot, isolated PostgreSQL 16 applied-history CSV, and 16-file migration manifest were rechecked at their recorded SHA-256 values in §41.28. `MediaLegacyMigrationSnapshotArtifactTest` and `MediaLegacyMigrationHistoryReadbackTest` passed **2/2** against the current local Media source. The readback used an isolated Testcontainers PostgreSQL 16 database with synthetic `ip06-*` rows; no shared or deployed database was contacted. An independent Luna technical review returned **`ACCEPT_LOCAL_CANDIDATE_ONLY`** for the current effect-free H-02 binding. `stepOperationMapping` remains undefined, so this is not canonical PDP-1 acceptance, owner closure, source-currentness, or runtime admission. Keep H-02 runtime `NOT_ADMITTED`; the fixture is not deployed `flyway_schema_history`, writer-fence, cutover, or rollback evidence.
+
+Kernel's authorized PDP-0 projection repair is committed locally as `bb07a172d` (`docs(kernel): refresh PDP surface projections`), with no push. The native census, matrix, and source-manifest metadata checks pass; the matrix contains **856** identities, **666** contract leaves, and **78** events, while the source manifest reconciles **99 = 93 materialized + 6 generated projections**. The focused four-script source selector reported **81/82** before one more stale expected leaf count was found; after updating that exact expectation from 665 to 666, the affected matrix assertion passed **1/1**. No PDP owner decision, acceptance status, or Kernel OCR code changed. The latest product-definition validator remains **7,915 checks / 28 failures / 1 diagnostic**: 20 mutation `commitPoint` gaps, stale PDP-0/PDP-3 phase guides, stale phase snapshot, and four stale owner material digests. Kernel Discovery and OCR admission remain closed.
+
+For JC-03, `MediaJobStore` now accepts the in-process monotonic deadline for atomic success finalization. PostgreSQL samples `clock_timestamp()`, maps the remaining monotonic budget onto that earlier database timestamp, checks the cutoff on the job-row update, after lock acquisition, and before commit; attempt, job, transcript, and lifecycle outbox remain in one transaction. If a definitive provider success has reached Media but the success transaction expires or rolls back, `recordProviderSuccessWithUnknownJob` stores the exact provider receipt, finality, result digest, provenance, and observation on the attempt while keeping the job `OUTCOME_UNKNOWN` with an empty result and only a content-free unknown lifecycle event. It creates no transcript revision or success event. Provider failure and proven no-effect outcomes keep their known failed disposition. The callback carries a typed submission already received when timeout/cancellation races with result mapping, and success finalization never falls back to another provider after an effect-capable dispatch.
+
+Focused verification on the current Media source passed **5/5** across `MediaRuntimeJobTimeoutTest` and `LocalMediaJobFinalizationDeadlineTest`, and **4/4** in `PostgresqlMediaProcessingAttemptReadTest` on PostgreSQL 16:
+
+```bash
+./gradlew :services:media:launcher:test \
+  --tests com.ghatana.media.launcher.MediaRuntimeJobTimeoutTest \
+  --tests com.ghatana.media.launcher.LocalMediaJobFinalizationDeadlineTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 5/5 passed
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.PostgresqlMediaProcessingAttemptReadTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 4/4 passed on PostgreSQL 16
+```
+
+The PostgreSQL selector forces finalization to wait on the job row past the deadline, verifies the completion transaction rolls back, then confirms the Media job is `OUTCOME_UNKNOWN`, the attempt reads back as provider `SUCCEEDED`, and there is no transcript revision or completion event. Independent Luna review found no remaining callback, lease, fallback, transcript, or outbox defect. One strict-deadline limit remains: JDBC/PostgreSQL may stall inside `connection.commit()` after the final clock check; current code cannot prove that the commit acknowledgment itself arrives before expiry. JC-03 remains `IN_PROGRESS` for that boundary, noncooperative/native host qualification, and the real installed-consumer/provider evidence in its original acceptance row.

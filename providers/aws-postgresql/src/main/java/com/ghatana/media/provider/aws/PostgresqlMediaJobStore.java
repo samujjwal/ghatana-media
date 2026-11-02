@@ -10,6 +10,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StartedJobAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
@@ -24,6 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -721,7 +723,17 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
             ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
         return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
-                null, null, null);
+                null, null, null, null);
+    }
+
+    @Override
+    public ProcessingJob commitFinalOutcome(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+            ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+            com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline jobDeadline) {
+        java.util.Objects.requireNonNull(jobDeadline, "jobDeadline");
+        return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
+                null, null, null, jobDeadline);
     }
 
     @Override
@@ -748,7 +760,36 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             throw new IllegalArgumentException("atomic STT transcript finalization identity is invalid");
         }
         return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
-                postgresTranscriptStore, transcriptDraft, transcriptVersionRef);
+                postgresTranscriptStore, transcriptDraft, transcriptVersionRef, null);
+    }
+
+    @Override
+    public ProcessingJob commitFinalOutcomeWithTranscript(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+            ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+            com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore transcriptStore,
+            com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+            String transcriptVersionRef,
+            com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline jobDeadline) {
+        java.util.Objects.requireNonNull(jobDeadline, "jobDeadline");
+        if (!(transcriptStore instanceof PostgresqlMediaTranscriptStore postgresTranscriptStore)
+                || !postgresTranscriptStore.sharesState(state)) {
+            throw new UnsupportedOperationException(
+                    "successful STT and transcript must share the canonical PostgreSQL runtime state");
+        }
+        if (attempt == null || transcriptDraft == null || transcriptVersionRef == null || transcriptVersionRef.isBlank()
+                || expected.jobType() != JobType.SPEECH_TO_TEXT || terminal.status() != JobStatus.COMPLETED
+                || observation == null || observation.finality() != AttemptFinality.SUCCEEDED
+                || !expected.tenantId().equals(transcriptDraft.tenantId())
+                || !expected.principalId().equals(transcriptDraft.principalId())
+                || !expected.jobId().equals(transcriptDraft.jobId())
+                || !expected.artifactId().equals(transcriptDraft.sourceArtifactId())
+                || !expected.expectedArtifactVersion().equals(transcriptDraft.sourceVersion())
+                || !attempt.providerId().equals(transcriptDraft.providerId())) {
+            throw new IllegalArgumentException("atomic STT transcript finalization identity is invalid");
+        }
+        return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
+                postgresTranscriptStore, transcriptDraft, transcriptVersionRef, jobDeadline);
     }
 
     private ProcessingJob commitFinalOutcomeInternal(
@@ -756,7 +797,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
             PostgresqlMediaTranscriptStore transcriptStore,
             com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
-            String transcriptVersionRef) {
+            String transcriptVersionRef,
+            com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline jobDeadline) {
         ensureOpen();
         validateUpdate(expected, terminal);
         if (!terminal(terminal.status())) throw new IllegalArgumentException("final outcome requires a terminal job state");
@@ -783,6 +825,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
+                Timestamp databaseDeadline = jobDeadline == null
+                        ? null : databaseDeadline(connection, jobDeadline);
                 String stateName = switch (observation.finality()) {
                     case SUCCEEDED -> "SUCCEEDED";
                     case FAILED -> "FAILED";
@@ -813,7 +857,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 }
                 String jobSql = "UPDATE media_processing_jobs SET provider_id=?,status=?,started_at=?,completed_at=?,"
                         + "result_json=?,failure_code=?,version=? WHERE tenant_id=? AND job_id=? AND version=? "
-                        + "AND COALESCE(expected_artifact_version,'')=? AND lease_owner=? AND lease_token=? AND lease_expires_at>?";
+                        + "AND COALESCE(expected_artifact_version,'')=? AND lease_owner=? AND lease_token=? AND lease_expires_at>?"
+                        + (databaseDeadline == null ? "" : " AND ? > clock_timestamp()");
                 try (PreparedStatement updateJob = connection.prepareStatement(jobSql)) {
                     updateJob.setString(1, persistable.providerId());
                     updateJob.setString(2, persistable.status().name());
@@ -829,7 +874,21 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     updateJob.setString(12, attemptLeaseOwner(connection, attempt));
                     updateJob.setLong(13, attempt.fencingToken());
                     updateJob.setLong(14, System.currentTimeMillis());
-                    if (updateJob.executeUpdate() != 1) throw new IllegalStateException("Media job finality fence changed");
+                    if (databaseDeadline != null) updateJob.setTimestamp(15, databaseDeadline);
+                    if (updateJob.executeUpdate() != 1) {
+                        if (databaseDeadline != null && deadlineElapsed(connection, databaseDeadline)) {
+                            throw new MediaJobFinalizationDeadlineExceededException(
+                                    "Media job processing deadline elapsed before durable finalization");
+                        }
+                        throw new IllegalStateException("Media job finality fence changed");
+                    }
+                }
+                // PostgreSQL may evaluate volatile predicates before a row-lock wait. Recheck
+                // after acquiring/updating the job row so a blocked transaction cannot continue
+                // into transcript/outbox writes after the processing budget has elapsed.
+                if (databaseDeadline != null && deadlineElapsed(connection, databaseDeadline)) {
+                    throw new MediaJobFinalizationDeadlineExceededException(
+                            "Media job processing deadline elapsed after acquiring the finalization fence");
                 }
                 if (transcriptStore != null) {
                     transcriptStore.appendFromSuccessfulAttemptInTransaction(connection, transcriptDraft, 0,
@@ -837,6 +896,10 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                             transcriptVersionRef);
                 }
                 insertOutbox(connection, lifecycleEvent);
+                if (databaseDeadline != null && deadlineElapsed(connection, databaseDeadline)) {
+                    throw new MediaJobFinalizationDeadlineExceededException(
+                            "Media job processing deadline elapsed before durable commit");
+                }
                 connection.commit();
                 return persistable;
             } catch (RuntimeException | SQLException failure) {
@@ -846,6 +909,40 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             }
         } catch (SQLException failure) {
             throw databaseFailure("open Media final outcome transaction", failure);
+        }
+    }
+
+    /** Uses PostgreSQL wall clock (not transaction-start time) so lock waits consume the budget. */
+    private static Timestamp databaseDeadline(Connection connection,
+            com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline jobDeadline)
+            throws SQLException {
+        Timestamp databaseNow;
+        try (PreparedStatement statement = connection.prepareStatement("SELECT clock_timestamp()")) {
+            try (ResultSet row = statement.executeQuery()) {
+                if (!row.next()) throw new SQLException("database did not return finalization clock");
+                databaseNow = row.getTimestamp(1);
+            }
+        }
+        // Translate the monotonic local budget to PostgreSQL's own clock. Read DB time first,
+        // then compute the remaining budget after the response; this makes the mapped cutoff
+        // conservative by at least the DB round-trip latency.
+        long remainingNanos = jobDeadline.remainingNanos();
+        if (remainingNanos == Long.MAX_VALUE) return null;
+        if (remainingNanos <= 0) {
+            throw new MediaJobFinalizationDeadlineExceededException(
+                    "Media job processing deadline elapsed before durable finalization");
+        }
+        return Timestamp.from(databaseNow.toInstant().plusNanos(remainingNanos));
+    }
+
+    private static boolean deadlineElapsed(Connection connection, Timestamp deadline) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT clock_timestamp() >= ?")) {
+            statement.setTimestamp(1, deadline);
+            try (ResultSet row = statement.executeQuery()) {
+                if (!row.next()) throw new SQLException("database did not return deadline comparison");
+                return row.getBoolean(1);
+            }
         }
     }
 
@@ -997,6 +1094,93 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             }
         } catch (SQLException failure) {
             throw databaseFailure("open unknown Media outcome transaction", failure);
+        }
+    }
+
+    @Override
+    public ProcessingJob recordProviderSuccessWithUnknownJob(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob unknown,
+            ProviderAttemptObservation successfulObservation, MediaLifecycleEvent lifecycleEvent) {
+        ensureOpen();
+        validateUpdate(expected, unknown);
+        if (unknown.status() != JobStatus.OUTCOME_UNKNOWN || !unknown.result().isEmpty()
+                || attempt == null || successfulObservation == null
+                || successfulObservation.finality() != AttemptFinality.SUCCEEDED
+                || lifecycleEvent == null || !"MEDIA_JOB_OUTCOME_UNKNOWN".equals(lifecycleEvent.eventType())
+                || !lifecycleEvent.attributes().isEmpty()
+                || !successfulObservation.query().equals(attempt.query())
+                || !expected.tenantId().equals(attempt.tenantId())
+                || !expected.jobId().equals(attempt.jobId())
+                || !expected.requestId().equals(attempt.requestId())
+                || !lifecycleEvent.tenantId().equals(expected.tenantId())
+                || !lifecycleEvent.aggregateId().equals(expected.jobId())
+                || lifecycleEvent.aggregateVersion() != unknown.version()) {
+            throw new IllegalArgumentException(
+                    "provider success with unknown job outcome requires exact success evidence and a content-free unknown job");
+        }
+        ProcessingJob persistable = sanitizeForPersistence(unknown);
+        String resultJson = json(successfulObservation.result());
+        String resultDigest = sha256(resultJson);
+        long now = System.currentTimeMillis();
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement updateAttempt = connection.prepareStatement(
+                        "UPDATE media_processing_attempts SET state='SUCCEEDED',result_json=?,result_digest=?,"
+                                + "provenance_json=?,observation_json=?,observed_at=?,updated_at=? "
+                                + "WHERE tenant_id=? AND job_id=? AND attempt_number=? AND fencing_token=? "
+                                + "AND provider_operation_id=? AND provider_receipt_id=? "
+                                + "AND state IN ('DISPATCH_INTENDED','OUTCOME_UNKNOWN')")) {
+                    updateAttempt.setString(1, resultJson);
+                    updateAttempt.setString(2, successfulObservation.result().isEmpty() ? null : resultDigest);
+                    updateAttempt.setString(3, json(Map.of("providerId", attempt.providerId(),
+                            "requestFingerprint", attempt.requestFingerprint(), "resultDigest", resultDigest,
+                            "provenanceDigest", successfulObservation.provenanceDigest())));
+                    updateAttempt.setString(4, json(successfulObservation));
+                    updateAttempt.setLong(5, successfulObservation.observedAt().toEpochMilli());
+                    updateAttempt.setLong(6, now);
+                    updateAttempt.setString(7, attempt.tenantId());
+                    updateAttempt.setString(8, attempt.jobId());
+                    updateAttempt.setInt(9, attempt.attemptNumber());
+                    updateAttempt.setLong(10, attempt.fencingToken());
+                    updateAttempt.setString(11, successfulObservation.query().providerOperationId());
+                    updateAttempt.setString(12, successfulObservation.query().providerReceiptId());
+                    if (updateAttempt.executeUpdate() != 1) {
+                        throw new IllegalStateException("Media successful provider evidence fence changed");
+                    }
+                }
+                try (PreparedStatement updateJob = connection.prepareStatement(
+                        "UPDATE media_processing_jobs SET provider_id=?,status='OUTCOME_UNKNOWN',started_at=?,"
+                                + "completed_at=?,result_json='{}',failure_code=?,version=? "
+                                + "WHERE tenant_id=? AND job_id=? AND version=? "
+                                + "AND COALESCE(expected_artifact_version,'')=? AND lease_owner=? AND lease_token=? "
+                                + "AND lease_expires_at>?")) {
+                    updateJob.setString(1, persistable.providerId());
+                    nullableLong(updateJob, 2, persistable.startedAt());
+                    nullableLong(updateJob, 3, persistable.completedAt());
+                    updateJob.setString(4, persistable.failureCode());
+                    updateJob.setLong(5, persistable.version());
+                    updateJob.setString(6, expected.tenantId());
+                    updateJob.setString(7, expected.jobId());
+                    updateJob.setLong(8, expected.version());
+                    updateJob.setString(9, expected.expectedArtifactVersion());
+                    updateJob.setString(10, attemptLeaseOwner(connection, attempt));
+                    updateJob.setLong(11, attempt.fencingToken());
+                    updateJob.setLong(12, now);
+                    if (updateJob.executeUpdate() != 1) {
+                        throw new IllegalStateException("Media unknown-job finality fence changed");
+                    }
+                }
+                insertOutbox(connection, lifecycleEvent);
+                connection.commit();
+                return persistable;
+            } catch (RuntimeException | SQLException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw databaseFailure("persist provider success with unknown Media job outcome", (SQLException) failure);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("open provider success with unknown Media job transaction", failure);
         }
     }
 
