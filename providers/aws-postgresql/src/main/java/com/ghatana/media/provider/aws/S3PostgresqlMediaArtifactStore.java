@@ -600,8 +600,20 @@ public final class S3PostgresqlMediaArtifactStore implements MediaArtifactStore 
             byte[] buffer = new byte[64 * 1024];
             long total = 0;
             int read;
-            while ((read = object.read(buffer)) != -1) {
+            while (true) {
+                if (total > expectedSize) {
+                    throw new SecurityException(
+                            "Artifact object bytes exceed the declared immutable version size");
+                }
+                long remaining = expectedSize - total;
+                int readLimit = remaining >= buffer.length ? buffer.length : (int) remaining + 1;
+                read = object.read(buffer, 0, readLimit);
+                if (read == -1) break;
                 total = Math.addExact(total, read);
+                if (total > expectedSize) {
+                    throw new SecurityException(
+                            "Artifact object bytes exceed the declared immutable version size");
+                }
                 digest.update(buffer, 0, read);
             }
             String actual = HexFormat.of().formatHex(digest.digest());

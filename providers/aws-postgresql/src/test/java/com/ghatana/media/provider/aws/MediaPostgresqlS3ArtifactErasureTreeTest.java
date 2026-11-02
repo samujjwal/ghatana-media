@@ -18,7 +18,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.AbortableInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
@@ -29,6 +31,11 @@ import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.Duration;
@@ -43,6 +50,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -347,6 +355,59 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
             }
             executor.shutdownNow();
             if (triggerInstalled) dropArtifactDeleteBarrier();
+            deleteBucket(bucket);
+        }
+    }
+
+    @Test
+    void derivedRegistrationStopsReadingObjectOnceDeclaredSizeIsExceeded() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-derived-size-" + runId;
+        String prefix = "ip06-derived-size/" + runId;
+        String tenant = "tenant-ip06-derived-size-" + runId;
+        String principal = "principal-ip06-derived-size-" + runId;
+        String jobId = "job-ip06-derived-size-" + runId;
+        String consentId = "consent-" + runId;
+        createBucket(bucket);
+        Map<String, String> environment = environment(bucket, prefix);
+        AtomicInteger scannerCalls = new AtomicInteger();
+        AtomicInteger consumedObjectBytes = new AtomicInteger();
+        AtomicReference<String> countedObjectKey = new AtomicReference<>();
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                     delegate -> countObjectBodyBytes(delegate, bucket, countedObjectKey, consumedObjectBytes));
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore(cleanScanner(scannerCalls));
+             S3Client admin = s3Client()) {
+            MediaArtifact source = complete(store, tenant, principal, "size-source.wav", "size-source:" + runId);
+            scannerCalls.set(0);
+            insertDerivedJobAndConsent(tenant, principal, source, jobId, consentId, "derived-profile");
+
+            byte[] declaredBytes = ("declared-derived:" + runId).getBytes(StandardCharsets.UTF_8);
+            byte[] oversizedBytes = new byte[declaredBytes.length + 4 * 1024 * 1024];
+            System.arraycopy(declaredBytes, 0, oversizedBytes, 0, declaredBytes.length);
+            String digest = sha256(declaredBytes);
+            String derivedId = "oversized-derived-" + runId;
+            String key = prefix + "/quarantine/derived/" + opaque(tenant) + "/"
+                    + opaque(derivedId) + "/" + digest;
+            countedObjectKey.set(key);
+            admin.putObject(PutObjectRequest.builder().bucket(bucket).key(key)
+                    .contentLength((long) oversizedBytes.length).build(), RequestBody.fromBytes(oversizedBytes));
+            MediaArtifact derived = new MediaArtifact(tenant, principal, derivedId, "derived.bin",
+                    "application/octet-stream", declaredBytes.length, digest, "s3://" + bucket + "/" + key,
+                    "RESTRICTED", Instant.now(), Instant.now().plus(Duration.ofDays(30)), Map.of());
+            ArtifactLineage lineage = new ArtifactLineage(tenant, source.artifactId(), source.version(),
+                    jobId, "derived-profile", consentId, "rights-" + runId, "policy-v1");
+
+            assertThatThrownBy(() -> store.registerDerived(derived, lineage))
+                    .isInstanceOf(SecurityException.class)
+                    .hasMessageContaining("exceed the declared immutable version size");
+            assertThat(consumedObjectBytes).as("verification consumes at most one excess byte")
+                    .hasValue(declaredBytes.length + 1);
+            assertThat(scannerCalls).as("oversized bytes are rejected before content scanning").hasValue(0);
+            assertThat(artifactExists(tenant, derivedId)).isFalse();
+            assertThat(lineageCount(tenant, derivedId)).isZero();
+            assertObjectAbsent(admin, bucket, key);
+        } finally {
             deleteBucket(bucket);
         }
     }
@@ -692,6 +753,45 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(
                         LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build()).build();
+    }
+
+    private static S3Client countObjectBodyBytes(
+            S3Client delegate, String bucket, AtomicReference<String> targetKey, AtomicInteger consumedBytes) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    Object result;
+                    try {
+                        result = method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                    if ("getObject".equals(method.getName()) && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof GetObjectRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetKey.get())
+                            && result instanceof ResponseInputStream<?> response) {
+                        @SuppressWarnings("unchecked")
+                        ResponseInputStream<software.amazon.awssdk.services.s3.model.GetObjectResponse> object =
+                                (ResponseInputStream<software.amazon.awssdk.services.s3.model.GetObjectResponse>) response;
+                        InputStream countedBody = new FilterInputStream(object) {
+                            @Override
+                            public int read() throws IOException {
+                                int value = super.read();
+                                if (value >= 0) consumedBytes.incrementAndGet();
+                                return value;
+                            }
+
+                            @Override
+                            public int read(byte[] bytes, int offset, int length) throws IOException {
+                                int count = super.read(bytes, offset, length);
+                                if (count > 0) consumedBytes.addAndGet(count);
+                                return count;
+                            }
+                        };
+                        return new ResponseInputStream<>(object.response(),
+                                AbortableInputStream.create(countedBody, object::abort));
+                    }
+                    return result;
+                });
     }
 
     private static void createBucket(String bucket) {
