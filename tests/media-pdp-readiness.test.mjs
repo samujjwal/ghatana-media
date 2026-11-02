@@ -448,7 +448,7 @@ broadTest('PDP-0 development status stays separate from the historical 38-task a
 
 test('PDP-0 development status can close only with the exact full source inventory and no outstanding meaning', () => {
  const criteria=['P0-01','P0-02','P0-03','P0-04','P0-05','P0-06','P0-07','P0-08'];
- const verification=Object.fromEntries(criteria.map(id=>[id,{status:'PASS',command:`node --test ${id}`,testCount:id==='P0-03'?30:1,passedTestCount:1,skippedTestCount:id==='P0-03'?29:0,outputSha256:'observed',testSourceFingerprints:{'tests/p0.test.mjs':'abc'},sourceCut:{fingerprints:{'tests/p0.test.mjs':'abc'},changedDuringVerification:[],changedBeforeReport:[]}}]));
+ const verification=Object.fromEntries(criteria.map(id=>[id,{status:'PASS',command:`node --test ${id}`,testCount:id==='P0-03'?31:1,passedTestCount:1,skippedTestCount:id==='P0-03'?30:0,outputSha256:'observed',testSourceFingerprints:{'tests/p0.test.mjs':'abc'},sourceCut:{fingerprints:{'tests/p0.test.mjs':'abc'},changedDuringVerification:[],changedBeforeReport:[]}}]));
  const counts={capabilityLeafAdjudications:462,requirementGroups:38,intents:19,journeys:30,profileBoundCapabilityLeaves:462,qualityDimensions:6,qualityMetricDefinitions:16,qualityApplicabilityLeaves:462,channelApplicabilityLeaves:462,featureReviewDimensions:15,featureReviewCapabilityLeaves:462,masterPlanClaims:129,constitutionalRequirements:32};
  const integrityChecks={capabilities:true,profiles:true,quality:true,features:true,claims:true,requirements:true,constitution:true,handoff:true,pdp0SurfaceDenominatorComplete:true,pdp0AuditDispositionsComplete:true};
  const p0ScopeReviews=Object.fromEntries(['P0-01','P0-02','P0-05','P0-06','P0-07'].map(id=>[id,{
@@ -466,7 +466,7 @@ test('PDP-0 development status can close only with the exact full source invento
  assert.deepEqual(dev.outstandingMeaningIds,[]);
  assert.equal(Object.keys(dev.directDevelopmentCriteria).length,8);
  assert.equal(dev.testsActuallyRun['P0-01'].testCount,1);
- assert.equal(dev.testsActuallyRun['P0-03'].skippedTestCount,29);
+ assert.equal(dev.testsActuallyRun['P0-03'].skippedTestCount,30);
  assert.equal(dev.testsActuallyRun['P0-01'].outputSha256,'observed');
  assert.deepEqual(dev.sourceReconciliations,[{id:'legacy-summary',status:'HISTORICAL_SOURCE_ONLY',currentOwnerRef:'current-owner.yaml#/records'}]);
  assert.deepEqual(dev.exportedHandoffIds,handoffs.sort());

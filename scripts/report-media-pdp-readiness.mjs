@@ -529,9 +529,9 @@ export function buildPdp0DevStatus({mainSha, sourceShaSet, verification = {}, de
   const openIds = [...new Set(outstandingMeaningIds)].sort();
   const completeTestEvidence = p0Criteria.every(id => {
     const result=verification[id];
-    // Fourteen existing P0-03 assertions are inapplicable to this phase and
-    // fifteen explicitly phase-gated PDP-1 locator assertions share a test file.
-    const expectedSkippedTestCount=id==='P0-03'?29:0;
+    // The current P0 selector skips 26 checks in the 199-row owner-candidate file
+    // (20 PDP-1 source observations and six P1 job/UI operation checks), plus four later-phase checks.
+    const expectedSkippedTestCount=id==='P0-03'?30:0;
     return result?.status==='PASS' && result.command?.trim() && result.outputSha256?.trim()
       && result.testCount>0 && result.passedTestCount>0
       && result.skippedTestCount===expectedSkippedTestCount
@@ -1866,9 +1866,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const testCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.testCount,0) : Number((result.stdout??'').match(/# tests\s+(\d+)/)?.[1] ?? 0);
     const passedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.passedTestCount,0) : Number((result.stdout??'').match(/# pass\s+(\d+)/)?.[1] ?? 0);
     const skippedTestCount=p103Groups ? Object.values(groupResults).reduce((sum,group)=>sum+group.skippedTestCount,0) : Number((result.stdout??'').match(/# skipped\s+(\d+)/)?.[1] ?? 0);
-    // Fourteen existing P0-03 assertions are inapplicable to this phase and
-    // fifteen explicitly phase-gated PDP-1 locator assertions share a test file.
-    const expectedSkippedTestCount=id==='P0-03'?29:0;
+    // The current P0 selector skips 26 checks in the 199-row owner-candidate file
+    // (20 PDP-1 source observations and six P1 job/UI operation checks), plus four later-phase checks.
+    const expectedSkippedTestCount=id==='P0-03'?30:0;
     const status=(p103Groups ? Object.values(groupResults).every(group=>group.status==='PASS') : result.status===0 && !result.error) && testCount>0 && passedTestCount>0
       && skippedTestCount===expectedSkippedTestCount
       && passedTestCount+skippedTestCount===testCount?'PASS':'FAIL';
