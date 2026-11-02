@@ -1613,3 +1613,33 @@ Focused verification on the current Media source passed **5/5** across `MediaRun
 ```
 
 The PostgreSQL selector forces finalization to wait on the job row past the deadline, verifies the completion transaction rolls back, then confirms the Media job is `OUTCOME_UNKNOWN`, the attempt reads back as provider `SUCCEEDED`, and there is no transcript revision or completion event. Independent Luna review found no remaining callback, lease, fallback, transcript, or outbox defect. One strict-deadline limit remains: JDBC/PostgreSQL may stall inside `connection.commit()` after the final clock check; current code cannot prove that the commit acknowledgment itself arrives before expiry. JC-03 remains `IN_PROGRESS` for that boundary, noncooperative/native host qualification, and the real installed-consumer/provider evidence in its original acceptance row.
+
+### 41.36 November 2 IP-06 interrupted S3 body read (2026-11-02)
+
+`MediaPostgresqlS3IntegrityRestartTest.interruptedObjectBodyDoesNotPublishPrefixAndSameVersionCanBeRetried` adds a test-only LocalStack failure at the exact committed bucket/key. The injected GET yields 16 bytes and then throws. The test verifies `copyContent` returns an `IOException`, the caller's output remains empty, the interrupted stream is closed, and the tenant-scoped artifact metadata/count remain unchanged. A fresh provider lifecycle then retries the same immutable version and verifies the exact bytes plus version, SHA-256, and byte-count receipt, with one artifact row throughout. Independent Luna review found no concrete issue in the exact-key injection, prefix handling, staging, and retry behavior.
+
+The focused `MediaPostgresqlS3IntegrityRestartTest` selector passed **4/4**, with zero failures/errors/skips, using PostgreSQL 16 and LocalStack/Testcontainers:
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaPostgresqlS3IntegrityRestartTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+```
+
+This strengthens local IP-06 S3 integrity/retry evidence only. It does not establish deployed applied Flyway history, the legacy writer inventory/fence, a cutover/rollback rehearsal, production S3 version fencing, or original IP-06 row acceptance.
+
+### 41.37 November 2 H-02 schema identity correction and JC-03 pre-COMMIT idle bound (2026-11-02)
+
+The first local draft added a check matching a present resolved schema `$id` to the supplied version. Source review against `.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml:2238-2242` found that this is explicitly outside the contract: the source requires the exact versioned schema reference and agreement between the supplied version and typed `ProductionSpec.schemaVersion`, while stating `RESOLVED_SCHEMA_DOCUMENT_$ID_IS_NOT_MATCHED_TO_THE_SUPPLIED_VERSION`. I removed the `$id` check and its new tests before commit. The existing focused compiler test is rerun against the corrected implementation below. No PDP source/pin/status, operation mapping, v1 wire shape, or runtime admission changed. H-02 remains `NOT_ADMITTED`; `stepOperationMapping`, schema/compiler content resolution, declared step-kind interpretation, normalized semantic graph, and authority-backed runtime dispatch/readback remain undefined.
+
+For JC-03, `PostgresqlMediaJobStore` now arms transaction-local `idle_in_transaction_session_timeout` immediately before commit, derived from the mapped PostgreSQL cutoff with a 25ms guard. A guarded test-only connection decorator delays the final commit call for four seconds after reading back that positive configured value. The commit then fails; durable readback confirms the job remains `RUNNING`, the attempt remains `UNKNOWN`, and no completion outbox event was committed. A separate durable update records the exact provider success as an `OUTCOME_UNKNOWN` job with no success event. The test verifies the configured timeout and durable result but does not assert the driver SQLSTATE or directly inspect server session termination. The entire `PostgresqlMediaProcessingAttemptReadTest` class passed **5/5** on PostgreSQL 16.
+
+This bound covers the client-idle gap immediately before COMMIT. A deferred-trigger experiment with a ten-second delay showed that PostgreSQL 16 did not cancel active COMMIT work from the transaction-local `statement_timeout`; that attempted production setting was removed. Active COMMIT processing and lost/late acknowledgment remain unresolved and require exact durable job/attempt readback. This does not prove an end-to-end hard deadline, noncooperative/native worker termination, installed four-service compatibility, or JC-03 row acceptance.
+
+`MediaProductionSpecCompilerTest` passed **16/16** after removing the source-inconsistent `$id` check:
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSpecCompilerTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+```

@@ -824,8 +824,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         long now = System.currentTimeMillis();
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
+            Timestamp databaseDeadline = null;
             try {
-                Timestamp databaseDeadline = jobDeadline == null
+                databaseDeadline = jobDeadline == null
                         ? null : databaseDeadline(connection, jobDeadline);
                 String stateName = switch (observation.finality()) {
                     case SUCCEEDED -> "SUCCEEDED";
@@ -900,11 +901,18 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     throw new MediaJobFinalizationDeadlineExceededException(
                             "Media job processing deadline elapsed before durable commit");
                 }
+                if (databaseDeadline != null) {
+                    applyFinalizationIdleTimeout(connection, databaseDeadline);
+                }
                 connection.commit();
                 return persistable;
             } catch (RuntimeException | SQLException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
+                if (databaseDeadline != null && isFinalizationDeadlineCancellation((SQLException) failure)) {
+                    throw new MediaJobFinalizationDeadlineExceededException(
+                            "PostgreSQL canceled Media job finalization at its deadline", failure);
+                }
                 throw databaseFailure("commit atomic Media final outcome", (SQLException) failure);
             }
         } catch (SQLException failure) {
@@ -944,6 +952,49 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 return row.getBoolean(1);
             }
         }
+    }
+
+    /**
+     * Bound the client-idle gap before commit from the same mapped absolute cutoff
+     * as the job-row fence. This does not bound active COMMIT processing or a lost
+     * commit acknowledgement; those cases still require durable readback.
+     */
+    private static void applyFinalizationIdleTimeout(Connection connection, Timestamp deadline) throws SQLException {
+        String sql = """
+                WITH cutoff AS (
+                    SELECT ?::timestamptz AS deadline, clock_timestamp() AS sampled_at
+                ), remaining AS (
+                    SELECT CASE WHEN deadline <= sampled_at THEN 0::bigint
+                        ELSE LEAST(2147483647::numeric,
+                            GREATEST(0::numeric,
+                                FLOOR(EXTRACT(EPOCH FROM (deadline - sampled_at)) * 1000) - 25))::bigint
+                        END AS timeout_ms
+                    FROM cutoff
+                )
+                SELECT timeout_ms,
+                    set_config('idle_in_transaction_session_timeout', timeout_ms::text || 'ms', true)
+                FROM remaining
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setTimestamp(1, deadline);
+            try (ResultSet row = statement.executeQuery()) {
+                if (!row.next()) throw new SQLException("database did not return finalization timeout budget");
+                long timeoutMillis = row.getLong(1);
+                if (timeoutMillis <= 0) {
+                    throw new MediaJobFinalizationDeadlineExceededException(
+                            "Media job processing deadline elapsed before durable commit");
+                }
+            }
+        }
+    }
+
+    private static boolean isFinalizationDeadlineCancellation(SQLException failure) {
+        for (SQLException current = failure; current != null; current = current.getNextException()) {
+            // PostgreSQL 25P03 is an idle transaction session terminated by
+            // idle_in_transaction_session_timeout.
+            if ("25P03".equals(current.getSQLState())) return true;
+        }
+        return false;
     }
 
     @Override

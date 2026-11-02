@@ -34,6 +34,9 @@ public final class MediaRuntimeContracts {
     /** Finalization was fenced because the job processing deadline elapsed before durable commit. */
     public static final class MediaJobFinalizationDeadlineExceededException extends IllegalStateException {
         public MediaJobFinalizationDeadlineExceededException(String message) { super(message); }
+        public MediaJobFinalizationDeadlineExceededException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     public enum UploadStatus { OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED }

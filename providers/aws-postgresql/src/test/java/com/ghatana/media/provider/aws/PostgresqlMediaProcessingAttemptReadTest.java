@@ -13,6 +13,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.Monoton
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
 import java.nio.charset.StandardCharsets;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,6 +30,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -290,6 +294,64 @@ class PostgresqlMediaProcessingAttemptReadTest {
     }
 
     @Test
+    void idleTimeoutTerminatesStalledPreCommitClientAndPreservesProviderSuccessAsUnknown() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-attempt-commit-deadline-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        AtomicBoolean pauseNextCommit = new AtomicBoolean(false);
+        AtomicReference<Long> configuredIdleTimeoutMillis = new AtomicReference<>();
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     integrationEnvironment(bucket), null,
+                     connection -> delayNextCommit(connection, pauseNextCommit, configuredIdleTimeoutMillis));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-" + suffix;
+            String jobId = "job-" + suffix;
+            AttemptFixture started = startAttempt(store, tenant, jobId);
+            var attempt = store.recordProviderReceipt(started.attempt(), started.lease(),
+                    "operation-deadline", "receipt-deadline");
+            Instant observedAt = Instant.now();
+            ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                    AttemptFinality.SUCCEEDED, "receipt-deadline", Map.of("text", "hello"), PROVENANCE, observedAt);
+            ProcessingJob completed = terminal(started.running(), JobStatus.COMPLETED, Map.of("text", "hello"));
+            MediaLifecycleEvent completion = event(completed, "MEDIA_JOB_COMPLETED");
+
+            pauseNextCommit.set(true);
+            assertThatThrownBy(() -> store.commitFinalOutcome(
+                    started.running(), attempt, completed, observation, completion,
+                    MonotonicDeadline.after(Duration.ofSeconds(3))))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThat(pauseNextCommit).as("the finalization COMMIT reached the delay seam").isFalse();
+            assertThat(configuredIdleTimeoutMillis.get())
+                    .as("the transaction-local idle timeout is armed below the deadline")
+                    .isBetween(1L, 3_000L);
+
+            assertThat(store.find(tenant, jobId).orElseThrow().status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                    .isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    completion.eventId())).isZero();
+
+            ProcessingJob unknown = terminal(started.running(), JobStatus.OUTCOME_UNKNOWN, Map.of(),
+                    "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN");
+            MediaLifecycleEvent unknownEvent = event(unknown, "MEDIA_JOB_OUTCOME_UNKNOWN");
+            store.recordProviderSuccessWithUnknownJob(started.running(), attempt, unknown, observation, unknownEvent);
+
+            assertThat(store.find(tenant, jobId).orElseThrow().status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(store.find(tenant, jobId).orElseThrow().result()).isEmpty();
+            assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                    .isEqualTo(AttemptFinality.SUCCEEDED);
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    completion.eventId())).isZero();
+            assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox WHERE event_id=?",
+                    unknownEvent.eventId())).isEqualTo(1);
+            assertThat(count("SELECT count(*) FROM media_transcript_revisions WHERE tenant_id=? AND job_id=?",
+                    tenant, jobId)).isZero();
+        }
+    }
+
+    @Test
     void preservesProviderSuccessEvidenceWhenMediaJobMustRemainUnknown() throws Exception {
         String suffix = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-attempt-success-unknown-" + suffix;
@@ -356,6 +418,31 @@ class PostgresqlMediaProcessingAttemptReadTest {
             Thread.sleep(20);
         }
         throw new AssertionError("finalization did not reach the locked job row");
+    }
+
+    private static Connection delayNextCommit(
+            Connection delegate, AtomicBoolean pauseNextCommit, AtomicReference<Long> idleTimeoutMillis) {
+        return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
+                new Class<?>[] {Connection.class}, (proxy, method, arguments) -> {
+                    if ("commit".equals(method.getName()) && pauseNextCommit.compareAndSet(true, false)) {
+                        try (var statement = delegate.createStatement();
+                             ResultSet result = statement.executeQuery("SELECT ceil(EXTRACT(EPOCH FROM "
+                                     + "current_setting('idle_in_transaction_session_timeout')::interval) * 1000)::bigint")) {
+                            if (result.next()) idleTimeoutMillis.set(result.getLong(1));
+                        }
+                        try {
+                            Thread.sleep(4_000);
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                            throw new SQLException("injected pre-commit delay was interrupted", interrupted);
+                        }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
     }
 
     private static long count(String sql, String... args) throws SQLException {

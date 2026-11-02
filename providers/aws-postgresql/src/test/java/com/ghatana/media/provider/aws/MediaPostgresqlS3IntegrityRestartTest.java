@@ -16,6 +16,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
@@ -26,8 +27,12 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.AbortableInputStream;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.sql.DriverManager;
@@ -186,6 +191,68 @@ class MediaPostgresqlS3IntegrityRestartTest {
             assertThat(s3Object(bucket, committed.objectReference())).containsExactly(tamperedBytes);
             assertThat(artifactCount(tenant, committed.artifactId())).isEqualTo(1);
             assertThat(restarted.artifact("wrong-tenant-" + runId, committed.artifactId())).isEmpty();
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
+    void interruptedObjectBodyDoesNotPublishPrefixAndSameVersionCanBeRetried() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-read-interrupt-" + runId;
+        String prefix = "ip06-read-interrupt/" + runId;
+        String tenant = "tenant-ip06-read-interrupt-" + runId;
+        String principal = "principal-ip06-read-interrupt-" + runId;
+        byte[] sourceBytes = wav(("interrupted-object-body:" + runId).getBytes(StandardCharsets.UTF_8));
+        String sourceHash = sha256(sourceBytes);
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        MediaArtifact committed;
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore writer = new S3PostgresqlMediaArtifactStore()) {
+            UploadSession upload = writer.begin(new UploadRequest(tenant, principal, "source.wav", "audio/wav",
+                    sourceBytes.length, sourceHash, "RESTRICTED", Duration.ofDays(7), Map.of()),
+                    "ip06-read-interrupt-" + runId);
+            writer.append(tenant, principal, upload.uploadId(), 0, sourceBytes);
+            committed = writer.complete(tenant, principal, upload.uploadId());
+            assertThat(committed.sha256()).isEqualTo(sourceHash);
+            assertThat(s3Object(bucket, committed.objectReference())).containsExactly(sourceBytes);
+        }
+
+        String objectKey = objectKey(committed.objectReference());
+        AtomicBoolean failOnce = new AtomicBoolean(true);
+        AtomicBoolean interruptedBodyClosed = new AtomicBoolean(false);
+        AtomicInteger emittedPrefixBytes = new AtomicInteger();
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> failAfterObjectReadPrefix(delegate, bucket, objectKey, failOnce,
+                                 emittedPrefixBytes, interruptedBodyClosed));
+                 S3PostgresqlMediaArtifactStore interruptedReader = new S3PostgresqlMediaArtifactStore()) {
+                ByteArrayOutputStream callerSink = new ByteArrayOutputStream();
+                assertThatThrownBy(() -> interruptedReader.copyContent(tenant, principal, committed.artifactId(),
+                        ArtifactVersion.fromSha256(sourceHash), callerSink, sourceBytes.length))
+                        .isInstanceOf(IOException.class)
+                        .hasMessageContaining("injected after S3 body prefix");
+                assertThat(emittedPrefixBytes).as("the GET body yielded a nonempty prefix").hasValue(16);
+                assertThat(interruptedBodyClosed).as("the interrupted S3 body is closed").isTrue();
+                assertThat(callerSink.size()).as("partial bytes stay in private staging").isZero();
+                assertThat(interruptedReader.artifact(tenant, committed.artifactId())).contains(committed);
+                assertThat(artifactCount(tenant, committed.artifactId())).isEqualTo(1);
+            }
+
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restartedReader = new S3PostgresqlMediaArtifactStore()) {
+                ByteArrayOutputStream callerSink = new ByteArrayOutputStream();
+                var receipt = restartedReader.copyContent(tenant, principal, committed.artifactId(),
+                        ArtifactVersion.fromSha256(sourceHash), callerSink, sourceBytes.length).orElseThrow();
+                assertThat(callerSink.toByteArray()).containsExactly(sourceBytes);
+                assertThat(receipt.version()).isEqualTo(ArtifactVersion.fromSha256(sourceHash));
+                assertThat(receipt.sha256()).isEqualTo(sourceHash);
+                assertThat(receipt.bytesCopied()).isEqualTo(sourceBytes.length);
+                assertThat(restartedReader.artifact(tenant, committed.artifactId())).contains(committed);
+                assertThat(artifactCount(tenant, committed.artifactId())).isEqualTo(1);
+            }
         } finally {
             deleteBucketObjects(bucket);
         }
@@ -475,6 +542,68 @@ class MediaPostgresqlS3IntegrityRestartTest {
                             && failOnce.compareAndSet(true, false)) {
                         throw S3Exception.builder().statusCode(503)
                                 .message("injected after-delete acknowledgement loss").build();
+                    }
+                    return result;
+                });
+    }
+
+    private static S3Client failAfterObjectReadPrefix(
+            S3Client delegate, String bucket, String targetKey, AtomicBoolean failOnce,
+            AtomicInteger emittedPrefixBytes, AtomicBoolean interruptedBodyClosed) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    Object result;
+                    try {
+                        result = method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                    if ("getObject".equals(method.getName()) && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof GetObjectRequest request
+                            && bucket.equals(request.bucket()) && targetKey.equals(request.key())
+                            && failOnce.compareAndSet(true, false)
+                            && result instanceof ResponseInputStream<?> response) {
+                        @SuppressWarnings("unchecked")
+                        ResponseInputStream<software.amazon.awssdk.services.s3.model.GetObjectResponse> object =
+                                (ResponseInputStream<software.amazon.awssdk.services.s3.model.GetObjectResponse>) response;
+                        InputStream interruptedBody = new FilterInputStream(object) {
+                            private static final int PREFIX_BYTES = 16;
+                            private int remaining = PREFIX_BYTES;
+
+                            @Override
+                            public int read() throws IOException {
+                                if (remaining == 0) throw injectedReadFailure();
+                                int value = super.read();
+                                if (value >= 0) {
+                                    remaining--;
+                                    emittedPrefixBytes.incrementAndGet();
+                                }
+                                return value;
+                            }
+
+                            @Override
+                            public int read(byte[] bytes, int offset, int length) throws IOException {
+                                if (remaining == 0) throw injectedReadFailure();
+                                int count = super.read(bytes, offset, Math.min(length, remaining));
+                                if (count > 0) {
+                                    remaining -= count;
+                                    emittedPrefixBytes.addAndGet(count);
+                                }
+                                return count;
+                            }
+
+                            private IOException injectedReadFailure() {
+                                return new IOException("injected after S3 body prefix");
+                            }
+
+                            @Override
+                            public void close() throws IOException {
+                                interruptedBodyClosed.set(true);
+                                super.close();
+                            }
+                        };
+                        return new ResponseInputStream<>(object.response(),
+                                AbortableInputStream.create(interruptedBody, object::abort));
                     }
                     return result;
                 });

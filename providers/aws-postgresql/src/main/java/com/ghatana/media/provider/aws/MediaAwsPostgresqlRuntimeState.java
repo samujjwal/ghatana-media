@@ -19,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
@@ -37,11 +38,14 @@ final class MediaAwsPostgresqlRuntimeState {
     private final boolean configured;
     private final boolean productionEligible;
     private final boolean sharedLifecycle;
+    private final UnaryOperator<Connection> connectionDecorator;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private MediaAwsPostgresqlRuntimeState(
-            Map<String, String> environment, boolean sharedLifecycle, UnaryOperator<S3Client> s3Decorator) {
+            Map<String, String> environment, boolean sharedLifecycle, UnaryOperator<S3Client> s3Decorator,
+            UnaryOperator<Connection> connectionDecorator) {
         this.sharedLifecycle = sharedLifecycle;
+        this.connectionDecorator = connectionDecorator;
         String jdbcUrl = environment.getOrDefault("MEDIA_POSTGRES_JDBC_URL", "").trim();
         String bucketValue = environment.getOrDefault("MEDIA_S3_BUCKET", "").trim();
         if (jdbcUrl.isBlank() || bucketValue.isBlank()) {
@@ -125,7 +129,7 @@ final class MediaAwsPostgresqlRuntimeState {
     static MediaAwsPostgresqlRuntimeState acquire() {
         synchronized (LOCK) {
             if (shared == null || shared.closed.get()) {
-                shared = new MediaAwsPostgresqlRuntimeState(System.getenv(), true, null);
+                shared = new MediaAwsPostgresqlRuntimeState(System.getenv(), true, null, null);
             }
             references++;
             return shared;
@@ -152,11 +156,20 @@ final class MediaAwsPostgresqlRuntimeState {
     /** Test-only S3 client decoration for deterministic provider fault injection. */
     static AutoCloseable installForTesting(
             Map<String, String> environment, UnaryOperator<S3Client> s3Decorator) {
+        return installForTesting(environment, s3Decorator, null);
+    }
+
+    /** Test-only JDBC connection decoration for deterministic commit-boundary faults. */
+    static AutoCloseable installForTesting(
+            Map<String, String> environment,
+            UnaryOperator<S3Client> s3Decorator,
+            UnaryOperator<Connection> connectionDecorator) {
         synchronized (LOCK) {
             if (shared != null || references != 0) {
                 throw new IllegalStateException("Media provider shared lifecycle is already active");
             }
-            shared = new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), true, s3Decorator);
+            shared = new MediaAwsPostgresqlRuntimeState(
+                    Map.copyOf(environment), true, s3Decorator, connectionDecorator);
             return () -> {
                 synchronized (LOCK) {
                     if (references != 0) {
@@ -173,7 +186,7 @@ final class MediaAwsPostgresqlRuntimeState {
     }
 
     static MediaAwsPostgresqlRuntimeState create(Map<String, String> environment) {
-        return new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), false, null);
+        return new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), false, null, null);
     }
 
     void release() {
@@ -199,7 +212,16 @@ final class MediaAwsPostgresqlRuntimeState {
 
     Connection connection() {
         ensureConfigured();
-        try { return dataSource.getConnection(); }
+        try {
+            Connection connection = dataSource.getConnection();
+            if (connectionDecorator == null) return connection;
+            try {
+                return connectionDecorator.apply(connection);
+            } catch (RuntimeException failure) {
+                try { connection.close(); } catch (SQLException closeFailure) { failure.addSuppressed(closeFailure); }
+                throw failure;
+            }
+        }
         catch (Exception failure) { throw new IllegalStateException("Media PostgreSQL state is unavailable", failure); }
     }
 
