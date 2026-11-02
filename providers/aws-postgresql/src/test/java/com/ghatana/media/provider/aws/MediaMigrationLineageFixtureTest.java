@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
@@ -126,6 +127,32 @@ class MediaMigrationLineageFixtureTest {
             assertThat(column(connection,
                     "SELECT submission_digest FROM media_processing_jobs WHERE job_id='job-hist-fp'"))
                     .isEqualTo(FINGERPRINT);
+        }
+    }
+
+    @Test
+    void mismatchedAppliedChecksumFailsClosedBeforeApplyingAnotherVersion() throws Exception {
+        JdbcDataSource ds = dataSource();
+        MigrateResult seeded = flyway(ds, "16").migrate();
+        assertThat(seeded.migrationsExecuted).isEqualTo(16);
+
+        try (Connection connection = ds.getConnection();
+             PreparedStatement tamper = connection.prepareStatement(
+                     "UPDATE flyway_schema_history SET checksum = checksum + 1 WHERE CAST(version AS INTEGER) = 7")) {
+            assertThat(tamper.executeUpdate()).isEqualTo(1);
+        }
+
+        assertThatThrownBy(() -> flyway(ds, null).migrate())
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("checksum");
+
+        try (Connection connection = ds.getConnection();
+             PreparedStatement pending = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM flyway_schema_history WHERE CAST(version AS INTEGER) = 17")) {
+            try (ResultSet rows = pending.executeQuery()) {
+                rows.next();
+                assertThat(rows.getLong(1)).isZero();
+            }
         }
     }
 

@@ -22,10 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HexFormat;
@@ -33,9 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -101,6 +105,243 @@ class MediaCanonicalOperationExecutorTest {
         } finally {
             request.detach(previous);
         }
+    }
+
+    @Test
+    void blockedSourceReadStopsAtOperationDeadlineAndCannotContinueToSubmit() throws Exception {
+        CountDownLatch readStarted = new CountDownLatch(1);
+        CountDownLatch releaseRead = new CountDownLatch(1);
+        CountDownLatch readReturned = new CountDownLatch(1);
+        AtomicBoolean fused = new AtomicBoolean();
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
+                if ("src".equals(artifactId)) {
+                    readStarted.countDown();
+                    awaitIgnoringInterrupts(releaseRead);
+                    readReturned.countDown();
+                }
+                return super.artifact(tenantId, principalId, artifactId);
+            }
+        };
+        port.withSource(Map.of());
+        var executor = executor(port, Duration.ofMillis(100), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null, outcome -> { fused.set(true); return outcome; });
+
+        try {
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                    .isInstanceOf(io.grpc.StatusRuntimeException.class)
+                    .satisfies(failure -> assertThat(io.grpc.Status.fromThrowable((Throwable) failure).getCode())
+                            .isEqualTo(io.grpc.Status.Code.DEADLINE_EXCEEDED));
+            assertThat(readStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(port.submitted).isEmpty();
+        } finally {
+            releaseRead.countDown();
+        }
+        assertThat(readReturned.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(port.submitted).isEmpty();
+        assertThat(fused).isFalse();
+    }
+
+    @Test
+    void expiredCallerDeadlineRejectsBeforeSourceReadOrSubmit() {
+        var port = new FixturePort().withSource(Map.of());
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        Context.CancellableContext request = Context.current()
+                .withDeadline(Deadline.after(-1, TimeUnit.MILLISECONDS), DEADLINE_TIMER);
+        Context previous = request.attach();
+        try {
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation(), AUTH))
+                    .isInstanceOf(io.grpc.StatusRuntimeException.class)
+                    .satisfies(failure -> assertThat(io.grpc.Status.fromThrowable((Throwable) failure).getCode())
+                            .isEqualTo(io.grpc.Status.Code.DEADLINE_EXCEEDED));
+            assertThat(port.artifactReads.get()).isZero();
+            assertThat(port.submitted).isEmpty();
+        } finally {
+            request.detach(previous);
+            request.cancel(null);
+        }
+    }
+
+    @Test
+    void blockedSubmitTimesOutUnknownAndLateJobReturnCannotFuseSuccess() throws Exception {
+        CountDownLatch submitStarted = new CountDownLatch(1);
+        CountDownLatch releaseSubmit = new CountDownLatch(1);
+        CountDownLatch submitReturned = new CountDownLatch(1);
+        AtomicBoolean fused = new AtomicBoolean();
+        FixturePort port = new FixturePort() {
+            @Override public ProcessingJob submit(
+                    ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
+                submitStarted.countDown();
+                awaitIgnoringInterrupts(releaseSubmit);
+                ProcessingJob job = super.submit(request, authenticated);
+                submitReturned.countDown();
+                return job;
+            }
+        };
+        port.withSource(Map.of());
+        var executor = executor(port, Duration.ofMillis(100), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null, outcome -> { fused.set(true); return outcome; });
+
+        try {
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                    .isInstanceOf(CanonicalOperationUnknownException.class)
+                    .satisfies(failure -> assertThat(
+                            ((CanonicalOperationUnknownException) failure).jobId()).isNull());
+            assertThat(submitStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(port.submitted).isEmpty();
+        } finally {
+            releaseSubmit.countDown();
+        }
+        assertThat(submitReturned.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(port.submitted).hasSize(1);
+        assertThat(fused).isFalse();
+    }
+
+    @Test
+    void startedInlineUploadTimeoutIsUnknownAndDoesNotContinueWithLateSession() throws Exception {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        CountDownLatch uploadStarted = new CountDownLatch(1);
+        CountDownLatch releaseUpload = new CountDownLatch(1);
+        CountDownLatch uploadReturned = new CountDownLatch(1);
+        FixturePort port = new FixturePort() {
+            @Override public UploadSession beginUpload(
+                    UploadRequest request, String idempotencyKey, AuthenticatedPrincipal authenticated) {
+                uploadStarted.countDown();
+                awaitIgnoringInterrupts(releaseUpload);
+                UploadSession session = super.beginUpload(request, idempotencyKey, authenticated);
+                uploadReturned.countDown();
+                return session;
+            }
+        };
+        port.withSource(Map.of());
+        var executor = executor(port, Duration.ofMillis(100), Duration.ofMillis(5));
+
+        try {
+            assertThatThrownBy(() -> executor.execute(binding(), "op", inlineOperation(payload), AUTH))
+                    .isInstanceOf(CanonicalOperationUnknownException.class)
+                    .satisfies(failure -> assertThat(
+                            ((CanonicalOperationUnknownException) failure).jobId()).isNull());
+            assertThat(uploadStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(port.submitted).isEmpty();
+        } finally {
+            releaseUpload.countDown();
+        }
+        assertThat(uploadReturned.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void boundedPortQueueRejectsExcessCallersAsResourceExhausted() throws Exception {
+        CountDownLatch firstReadStarted = new CountDownLatch(1);
+        CountDownLatch releaseFirstRead = new CountDownLatch(1);
+        AtomicInteger sourceCalls = new AtomicInteger();
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
+                if ("src".equals(artifactId) && sourceCalls.incrementAndGet() == 1) {
+                    firstReadStarted.countDown();
+                    awaitIgnoringInterrupts(releaseFirstRead);
+                }
+                return super.artifact(tenantId, principalId, artifactId);
+            }
+        };
+        port.withSource(Map.of());
+        ThreadPoolExecutor boundedWorkers = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1), runnable -> {
+                    Thread thread = new Thread(runnable, "multimodal-port-saturation-test");
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
+        var executor = new MediaCanonicalOperationExecutor(
+                port, Duration.ofSeconds(3), Duration.ofMillis(5), boundedWorkers);
+        CanonicalOperationBinding staleBinding = binding().toBuilder()
+                .setSourceVersionId("sha256:" + "cd".repeat(32)).build();
+        AtomicReference<Throwable> firstFailure = new AtomicReference<>();
+        AtomicReference<Throwable> secondFailure = new AtomicReference<>();
+        Thread first = startExecution(executor, staleBinding, firstFailure);
+        Thread second = null;
+        try {
+            assertThat(firstReadStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            second = startExecution(executor, staleBinding, secondFailure);
+            long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (boundedWorkers.getQueue().size() != 1 && System.nanoTime() < queueDeadline) {
+                Thread.onSpinWait();
+            }
+            assertThat(boundedWorkers.getQueue()).hasSize(1);
+
+            assertThatThrownBy(() -> executor.execute(staleBinding, "op", operation(), AUTH))
+                    .isInstanceOf(io.grpc.StatusRuntimeException.class)
+                    .satisfies(failure -> assertThat(io.grpc.Status.fromThrowable((Throwable) failure).getCode())
+                            .isEqualTo(io.grpc.Status.Code.RESOURCE_EXHAUSTED));
+        } finally {
+            releaseFirstRead.countDown();
+            first.join(1_000);
+            if (second != null) second.join(1_000);
+            boundedWorkers.shutdownNow();
+        }
+        assertThat(first.isAlive()).isFalse();
+        assertThat(second).isNotNull();
+        assertThat(second.isAlive()).isFalse();
+        assertThat(firstFailure.get()).isInstanceOf(IllegalArgumentException.class);
+        assertThat(secondFailure.get()).isInstanceOf(IllegalArgumentException.class);
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
+    void contextCancellationInterruptsStartedSubmitAndReturnsUnknown() throws Exception {
+        CountDownLatch submitStarted = new CountDownLatch(1);
+        CountDownLatch releaseSubmit = new CountDownLatch(1);
+        CountDownLatch submitReturned = new CountDownLatch(1);
+        AtomicBoolean fused = new AtomicBoolean();
+        FixturePort port = new FixturePort() {
+            @Override public ProcessingJob submit(
+                    ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
+                submitStarted.countDown();
+                awaitIgnoringInterrupts(releaseSubmit);
+                ProcessingJob job = super.submit(request, authenticated);
+                submitReturned.countDown();
+                return job;
+            }
+        };
+        port.withSource(Map.of());
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                CanonicalOperations.plan("cap", List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
+                () -> null, outcome -> { fused.set(true); return outcome; });
+        Context.CancellableContext request = Context.current().withCancellation();
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread caller = Thread.startVirtualThread(() -> {
+            Context previous = request.attach();
+            try {
+                executor.execute(binding(), "op", operation, AUTH);
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+            } finally {
+                request.detach(previous);
+            }
+        });
+        try {
+            assertThat(submitStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            request.cancel(null);
+            caller.join(1_000);
+            assertThat(caller.isAlive()).isFalse();
+            assertThat(failure.get()).isInstanceOf(CanonicalOperationUnknownException.class)
+                    .satisfies(thrown -> assertThat(
+                            ((CanonicalOperationUnknownException) thrown).jobId()).isNull());
+        } finally {
+            releaseSubmit.countDown();
+            caller.join(1_000);
+            request.cancel(null);
+        }
+        assertThat(submitReturned.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(port.submitted).hasSize(1);
+        assertThat(fused).isFalse();
     }
 
     @Test
@@ -364,7 +605,33 @@ class MediaCanonicalOperationExecutorTest {
 
     private static MediaCanonicalOperationExecutor executor(
             FixturePort port, Duration deadline, Duration poll) {
-        return new MediaCanonicalOperationExecutor(port, deadline, poll, Clock.systemUTC());
+        return new MediaCanonicalOperationExecutor(port, deadline, poll);
+    }
+
+    private static Thread startExecution(
+            MediaCanonicalOperationExecutor executor,
+            CanonicalOperationBinding binding,
+            AtomicReference<Throwable> failure) {
+        return Thread.startVirtualThread(() -> {
+            try {
+                executor.execute(binding, "op", operation(), AUTH);
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+            }
+        });
+    }
+
+    private static void awaitIgnoringInterrupts(CountDownLatch latch) {
+        boolean interrupted = false;
+        while (true) {
+            try {
+                latch.await();
+                break;
+            } catch (InterruptedException ignored) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) Thread.currentThread().interrupt();
     }
 
     private static CanonicalOperation<CanonicalOperationOutcome> operation() {
@@ -410,10 +677,11 @@ class MediaCanonicalOperationExecutorTest {
         }
     }
 
-    private static final class FixturePort implements MediaProcessingRuntimePort {
+    private static class FixturePort implements MediaProcessingRuntimePort {
         private final Deque<ProcessingJobRequest> submitted = new ConcurrentLinkedDeque<>();
         private final Deque<UploadRequest> uploads = new ConcurrentLinkedDeque<>();
-        private final Deque<JobStatus> statuses = new ArrayDeque<>();
+        private final Deque<JobStatus> statuses = new ConcurrentLinkedDeque<>();
+        private final AtomicInteger artifactReads = new AtomicInteger();
         private MediaArtifact source;
         private RuntimeException submitFailure;
         private RuntimeException beginUploadFailure;
@@ -476,6 +744,7 @@ class MediaCanonicalOperationExecutorTest {
 
         @Override public Optional<MediaArtifact> artifact(
                 String tenantId, String principalId, String artifactId) {
+            artifactReads.incrementAndGet();
             if (source != null && artifactId.equals(source.artifactId())) {
                 return Optional.of(source);
             }

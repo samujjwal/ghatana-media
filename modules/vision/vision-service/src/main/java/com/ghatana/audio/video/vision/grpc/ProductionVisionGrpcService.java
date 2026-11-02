@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -46,6 +47,7 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
     private final VisionCapabilityProfile capabilityProfile;
     private final SceneTextBinding sceneText;
     private final MediaProcessingRuntimePort mediaRuntimePort;
+    private final ExecutorService inferenceWorkers;
     private AutoCloseable ownedRuntimePort;
     private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -83,6 +85,17 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
         this.capabilityProfile = composition.capabilityProfile();
         this.sceneText = composition.sceneText();
         this.mediaRuntimePort = mediaRuntimePort;
+        int inferenceConcurrency = (int) boundedLong(System.getenv(),
+                "VISION_INFERENCE_MAX_CONCURRENT", 2L, 1L, 16L);
+        int inferenceQueueCapacity = (int) boundedLong(System.getenv(),
+                "VISION_INFERENCE_QUEUE_CAPACITY", 16L, 1L, 256L);
+        this.inferenceWorkers = new ThreadPoolExecutor(inferenceConcurrency, inferenceConcurrency, 0L,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(inferenceQueueCapacity), runnable -> {
+                    Thread thread = new Thread(runnable, "vision-inference-worker");
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
+        bindProviderExecutor(inferenceWorkers);
         if (sceneText != null) {
             bindSceneTextService(sceneText.service(), sceneText.workers());
         }
@@ -230,8 +243,30 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
 
     @Override public void close() {
         if (closed.compareAndSet(false, true)) {
+            cancelProviderDispatch();
+            inferenceWorkers.shutdown();
+            boolean workersStopped = awaitInferenceWorkers();
+            if (!workersStopped) {
+                inferenceWorkers.shutdownNow();
+                workersStopped = awaitInferenceWorkers();
+            }
             try {
-                if (detector != null) detector.close();
+                if (detector != null && workersStopped) {
+                    detector.close();
+                } else if (detector != null) {
+                    org.slf4j.LoggerFactory.getLogger(ProductionVisionGrpcService.class)
+                            .error("Vision detector remains open because an inference worker did not stop during shutdown");
+                    Thread deferredClose = new Thread(() -> {
+                        try {
+                            inferenceWorkers.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                            detector.close();
+                        } catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }, "vision-detector-deferred-close");
+                    deferredClose.setDaemon(true);
+                    deferredClose.start();
+                }
             } finally {
                 try {
                     if (sceneText != null) sceneText.close();
@@ -245,6 +280,15 @@ public final class ProductionVisionGrpcService extends VisionGrpcService impleme
                     }
                 }
             }
+        }
+    }
+
+    private boolean awaitInferenceWorkers() {
+        try {
+            return inferenceWorkers.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            return false;
         }
     }
 

@@ -4,6 +4,8 @@ import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.grpc.Context;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
@@ -16,7 +18,6 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.Authenticated
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,7 +26,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Production canonical operation executor for the multimodal gRPC boundary.
@@ -50,25 +62,44 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
     private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(100);
     private static final int UPLOAD_CHUNK_BYTES = 256 * 1024;
     private static final Duration UPLOAD_RETENTION = Duration.ofDays(1);
+    private static final int MAX_PORT_CALL_WORKERS = 8;
+    private static final int PORT_CALL_QUEUE_CAPACITY = 64;
+    /** Process-scoped bounded pool: executor instances created by service composition do not own threads. */
+    private static final ThreadPoolExecutor PORT_CALL_WORKERS = createPortCallWorkers();
 
     private final MediaProcessingRuntimePort port;
     private final Duration operationDeadline;
     private final Duration pollInterval;
-    private final Clock clock;
+    private final ThreadPoolExecutor portCallWorkers;
 
     public MediaCanonicalOperationExecutor(MediaProcessingRuntimePort port) {
-        this(port, DEFAULT_OPERATION_DEADLINE, DEFAULT_POLL_INTERVAL, Clock.systemUTC());
+        this(port, DEFAULT_OPERATION_DEADLINE, DEFAULT_POLL_INTERVAL, PORT_CALL_WORKERS);
     }
 
+    MediaCanonicalOperationExecutor(
+            MediaProcessingRuntimePort port, Duration operationDeadline, Duration pollInterval) {
+        this(port, operationDeadline, pollInterval, PORT_CALL_WORKERS);
+    }
+
+    /** Package-private bounded-worker seam for deterministic saturation and cancellation tests. */
     MediaCanonicalOperationExecutor(
             MediaProcessingRuntimePort port,
             Duration operationDeadline,
             Duration pollInterval,
-            Clock clock) {
+            ThreadPoolExecutor portCallWorkers) {
         this.port = Objects.requireNonNull(port, "port");
         this.operationDeadline = Objects.requireNonNull(operationDeadline, "operationDeadline");
         this.pollInterval = Objects.requireNonNull(pollInterval, "pollInterval");
-        this.clock = Objects.requireNonNull(clock, "clock");
+        this.portCallWorkers = Objects.requireNonNull(portCallWorkers, "portCallWorkers");
+        if (portCallWorkers.getQueue().remainingCapacity() == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("port call worker queue must be bounded");
+        }
+        if (operationDeadline.isZero() || operationDeadline.isNegative()) {
+            throw new IllegalArgumentException("operation deadline must be positive");
+        }
+        if (pollInterval.isZero() || pollInterval.isNegative()) {
+            throw new IllegalArgumentException("poll interval must be positive");
+        }
     }
 
     /** A raw closure is never the operation; production dispatch requires the typed plan. */
@@ -87,6 +118,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(operation, "operation");
         Objects.requireNonNull(authenticated, "authenticated");
+        OperationBudget budget = new OperationBudget(Context.current(), operationDeadline);
         CanonicalOperationPlan plan = Objects.requireNonNull(operation.plan(), "operation plan");
         if (plan.children().isEmpty()) {
             throw new IllegalArgumentException(
@@ -95,17 +127,17 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         // Resolve and version-check the caller's canonical source before ingesting any
         // inline child payload. Otherwise a stale/mismatched source binding can leave
         // durable child artifacts behind even though the parent operation is refused.
-        MediaArtifact source = sourceArtifact(binding, authenticated);
+        MediaArtifact source = sourceArtifact(binding, authenticated, budget);
         MultimodalOperationSpec.SourceClockBinding sourceClock = sourceClockBinding(plan, source);
         var governance = governanceFor(binding);
         // Resolve every referenced child before the first inline upload. A missing later
         // reference must not leave earlier inline children durably ingested.
-        List<MediaArtifact> referencedChildren = resolveReferencedChildren(plan, authenticated);
+        List<MediaArtifact> referencedChildren = resolveReferencedChildren(plan, authenticated, budget);
         InlineUploadAttempt uploadAttempt = new InlineUploadAttempt();
         final ProcessingJobRequest jobRequest;
         try {
             List<MultimodalOperationSpec.ChildOperationSpec> children =
-                    resolveChildren(plan, authenticated, referencedChildren, uploadAttempt);
+                    resolveChildren(plan, authenticated, referencedChildren, uploadAttempt, budget);
             MultimodalOperationSpec spec = new MultimodalOperationSpec(
                     MultimodalOperationSpec.SPEC_VERSION,
                     plan.capabilityRef(),
@@ -131,7 +163,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                     parameters,
                     governance);
         } catch (RuntimeException failureAfterUploadAttempt) {
-            if (uploadAttempt.started) {
+            if (uploadAttempt.started.get()) {
                 throw new CanonicalOperationUnknownException(null, failureAfterUploadAttempt);
             }
             throw failureAfterUploadAttempt;
@@ -141,13 +173,18 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         // artifact; report UNKNOWN so callers do not blindly repeat the operation.
         final ProcessingJob submitted;
         try {
-            requireActiveRequest();
-            submitted = port.submit(jobRequest, authenticated);
+            submitted = portCall(budget, PortCallKind.SUBMIT, null, uploadAttempt.started.get(),
+                    null, () -> port.submit(jobRequest, authenticated));
         } catch (MediaCapabilityNotAdmittedException | IllegalArgumentException provenNoEffect) {
-            if (uploadAttempt.started) {
+            if (uploadAttempt.started.get()) {
                 throw new CanonicalOperationUnknownException(null, provenNoEffect);
             }
             throw provenNoEffect;
+        } catch (CanonicalOperationResourceExhaustedException saturated) {
+            if (uploadAttempt.started.get()) {
+                throw new CanonicalOperationUnknownException(null, saturated);
+            }
+            throw saturated;
         } catch (RuntimeException ambiguous) {
             throw new CanonicalOperationUnknownException(null, ambiguous);
         }
@@ -155,11 +192,9 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 submitted.jobId(), submitted.requestId());
         final CanonicalOperationOutcome outcome;
         try {
-            outcome = awaitTerminal(
-                    authenticated, submitted.jobId(), clock.instant().plus(operationDeadline));
-        } catch (InterruptedException interrupted) {
-            Thread.currentThread().interrupt();
-            throw new CanonicalOperationUnknownException(submitted.jobId(), interrupted);
+            outcome = awaitTerminal(authenticated, submitted.jobId(), budget);
+        } catch (CanonicalOperationUnknownException unknown) {
+            throw unknown;
         } catch (RuntimeException postSubmit) {
             throw new CanonicalOperationUnknownException(submitted.jobId(), postSubmit);
         }
@@ -170,19 +205,29 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             return operation.fuse(new CanonicalOperationOutcome(
                     submitted.jobId(), outcome.status(), Map.of(), outcome.failureCode()));
         }
-        return operation.fuse(
-                CanonicalOperationOutcome.completed(submitted.jobId(), outcome.result()));
+        if (!budget.isActive()) {
+            throw new CanonicalOperationUnknownException(submitted.jobId());
+        }
+        CanonicalOperationOutcome completed = CanonicalOperationOutcome.completed(
+                submitted.jobId(), outcome.result());
+        T fused = operation.fuse(completed);
+        if (!budget.isActive()) {
+            throw new CanonicalOperationUnknownException(submitted.jobId());
+        }
+        return fused;
     }
 
     private List<MediaArtifact> resolveReferencedChildren(
-            CanonicalOperationPlan plan, AuthenticatedPrincipal authenticated) {
+            CanonicalOperationPlan plan, AuthenticatedPrincipal authenticated, OperationBudget budget)
+            throws CanonicalOperationUnknownException {
         List<MediaArtifact> referencedChildren = new ArrayList<>(plan.children().size());
         for (CanonicalChildSelection selection : plan.children()) {
             if (selection.inlineSource().length > 0) {
                 referencedChildren.add(null);
             } else {
-                MediaArtifact artifact = port.artifact(
-                                authenticated.tenantId(), authenticated.principalId(), selection.artifactId())
+                MediaArtifact artifact = portCall(budget, PortCallKind.READ, null, false, null,
+                        () -> port.artifact(authenticated.tenantId(), authenticated.principalId(),
+                                selection.artifactId()))
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "multimodal child source artifact is unavailable: "
                                         + selection.artifactId()));
@@ -194,13 +239,14 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
 
     private List<MultimodalOperationSpec.ChildOperationSpec> resolveChildren(
             CanonicalOperationPlan plan, AuthenticatedPrincipal authenticated,
-            List<MediaArtifact> referencedChildren, InlineUploadAttempt uploadAttempt) {
+            List<MediaArtifact> referencedChildren, InlineUploadAttempt uploadAttempt, OperationBudget budget)
+            throws CanonicalOperationUnknownException {
         List<MultimodalOperationSpec.ChildOperationSpec> children =
                 new ArrayList<>(plan.children().size());
         for (int index = 0; index < plan.children().size(); index++) {
             CanonicalChildSelection selection = plan.children().get(index);
             MediaArtifact artifact = selection.inlineSource().length > 0
-                    ? ingest(selection, authenticated, uploadAttempt)
+                    ? ingest(selection, authenticated, uploadAttempt, budget)
                     : referencedChildren.get(index);
             children.add(new MultimodalOperationSpec.ChildOperationSpec(
                     selection.childKey(), selection.jobType(), artifact.artifactId(),
@@ -217,8 +263,9 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
      * alone does not establish a parent operation or its outcome.
      */
     private MediaArtifact ingest(CanonicalChildSelection selection, AuthenticatedPrincipal authenticated,
-                                InlineUploadAttempt uploadAttempt) {
-        requireActiveRequest();
+                                 InlineUploadAttempt uploadAttempt, OperationBudget budget)
+            throws CanonicalOperationUnknownException {
+        budget.requireActive(PortCallKind.EFFECT, null, uploadAttempt.started.get());
         byte[] bytes = selection.inlineSource();
         String sha256 = sha256Hex(bytes);
         Map<String, Object> metadata = Map.of("purpose", "multimodal-operation-ingest");
@@ -227,44 +274,38 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 selection.childKey() + "-source", selection.inlineContentType(),
                 bytes.length, sha256, "CONFIDENTIAL", UPLOAD_RETENTION, metadata);
         String idempotencyKey = "mm-upload:" + sha256;
-        // From this boundary onward begin/append/complete may have committed even if the
-        // transport reports an exception, so retries must first reconcile the effect.
-        uploadAttempt.started = true;
-        UploadSession session = port.beginUpload(uploadRequest, idempotencyKey, authenticated);
+        // Each call marks the upload as started at the worker dispatch boundary. Once any
+        // upload call starts, cancellation/deadline requires reconciliation before replay.
+        UploadSession session = portCall(budget, PortCallKind.EFFECT, null,
+                uploadAttempt.started.get(), () -> uploadAttempt.started.set(true),
+                () -> port.beginUpload(uploadRequest, idempotencyKey, authenticated));
         int chunks = Math.max(1, (bytes.length + UPLOAD_CHUNK_BYTES - 1) / UPLOAD_CHUNK_BYTES);
         for (int index = 0; index < chunks; index++) {
-            requireActiveRequest();
             int offset = index * UPLOAD_CHUNK_BYTES;
             int length = Math.min(UPLOAD_CHUNK_BYTES, bytes.length - offset);
+            int chunkIndex = index;
             byte[] chunk = java.util.Arrays.copyOfRange(bytes, offset, offset + length);
-            session = port.appendUploadChunk(authenticated, session.uploadId(), index, chunk);
+            UploadSession priorSession = session;
+            session = portCall(budget, PortCallKind.EFFECT, null,
+                    uploadAttempt.started.get(), () -> uploadAttempt.started.set(true),
+                    () -> port.appendUploadChunk(authenticated, priorSession.uploadId(), chunkIndex, chunk));
         }
-        requireActiveRequest();
-        return port.completeUpload(authenticated, session.uploadId());
-    }
-
-    private static void requireActiveRequest() {
-        if (requestCancelledOrExpired()) {
-            throw new IllegalStateException(
-                    "RPC deadline/cancellation reached; stop child dispatch and reconcile any started effect");
-        }
-    }
-
-    private static boolean requestCancelledOrExpired() {
-        Context context = Context.current();
-        return context.isCancelled()
-                || context.getDeadline() != null && context.getDeadline().isExpired();
+        UploadSession completedSession = session;
+        return portCall(budget, PortCallKind.EFFECT, null, uploadAttempt.started.get(),
+                () -> uploadAttempt.started.set(true),
+                () -> port.completeUpload(authenticated, completedSession.uploadId()));
     }
 
     private static final class InlineUploadAttempt {
-        private boolean started;
+        private final AtomicBoolean started = new AtomicBoolean();
     }
 
     private MediaArtifact sourceArtifact(
-            CanonicalOperationBinding binding, AuthenticatedPrincipal authenticated) {
-        MediaArtifact source = port.artifact(
-                        authenticated.tenantId(), authenticated.principalId(),
-                        binding.getSourceArtifactId())
+            CanonicalOperationBinding binding, AuthenticatedPrincipal authenticated, OperationBudget budget)
+            throws CanonicalOperationUnknownException {
+        MediaArtifact source = portCall(budget, PortCallKind.READ, null, false, null,
+                () -> port.artifact(authenticated.tenantId(), authenticated.principalId(),
+                        binding.getSourceArtifactId()))
                 .orElseThrow(() -> new IllegalArgumentException(
                         "multimodal source artifact is unavailable: " + binding.getSourceArtifactId()));
         if (!source.version().value().equals(binding.getSourceVersionId())) {
@@ -328,15 +369,15 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
      * later exact reconciliation — the response is never fabricated.
      */
     private CanonicalOperationOutcome awaitTerminal(
-            AuthenticatedPrincipal authenticated, String jobId, Instant deadline)
-            throws InterruptedException {
+            AuthenticatedPrincipal authenticated, String jobId, OperationBudget budget)
+            throws CanonicalOperationUnknownException {
         while (true) {
-            if (requestCancelledOrExpired()) return CanonicalOperationOutcome.unknown(jobId);
-            ProcessingJob current = port.job(
-                            authenticated.tenantId(), authenticated.principalId(), jobId)
+            if (!budget.isActive()) return CanonicalOperationOutcome.unknown(jobId);
+            ProcessingJob current = portCall(budget, PortCallKind.READBACK, jobId, false, null,
+                    () -> port.job(authenticated.tenantId(), authenticated.principalId(), jobId))
                     .orElseThrow(() -> new IllegalStateException(
                             "multimodal parent job is not readable by its principal"));
-            if (requestCancelledOrExpired()) return CanonicalOperationOutcome.unknown(jobId);
+            if (!budget.isActive()) return CanonicalOperationOutcome.unknown(jobId);
             switch (current.status()) {
                 case COMPLETED:
                     return CanonicalOperationOutcome.completed(jobId, current.result());
@@ -349,11 +390,162 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                 default:
                     break;
             }
-            if (!clock.instant().isBefore(deadline)) {
+            long remainingNanos = budget.remainingNanos();
+            if (remainingNanos <= 0) {
                 return CanonicalOperationOutcome.unknown(jobId);
             }
-            Thread.sleep(pollInterval.toMillis());
+            try {
+                TimeUnit.NANOSECONDS.sleep(Math.min(safeToNanos(pollInterval), remainingNanos));
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new CanonicalOperationUnknownException(jobId, interrupted);
+            }
         }
+    }
+
+    /**
+     * Calls a synchronous runtime-port method away from the gRPC caller thread. The caller
+     * stops waiting at the effective deadline even when an implementation ignores interrupt;
+     * such a late result is never observed as the operation's success.
+     */
+    private <T> T portCall(
+            OperationBudget budget,
+            PortCallKind kind,
+            String jobId,
+            boolean priorEffectStarted,
+            Runnable onDispatch,
+            Callable<T> action) throws CanonicalOperationUnknownException {
+        budget.requireActive(kind, jobId, priorEffectStarted);
+        AtomicBoolean dispatched = new AtomicBoolean();
+        final Future<T> future;
+        try {
+            future = portCallWorkers.submit(budget.context.wrap(() -> {
+                budget.requireActive(kind, jobId, priorEffectStarted);
+                dispatched.set(true);
+                if (onDispatch != null) onDispatch.run();
+                return action.call();
+            }));
+        } catch (RejectedExecutionException saturated) {
+            if (kind == PortCallKind.READBACK || priorEffectStarted) {
+                throw new CanonicalOperationUnknownException(jobId, saturated);
+            }
+            throw new CanonicalOperationResourceExhaustedException(saturated);
+        }
+
+        Context.CancellationListener cancelChild = ignored -> future.cancel(true);
+        budget.context.addListener(cancelChild, Runnable::run);
+        try {
+            long remainingNanos = budget.remainingNanos();
+            if (remainingNanos <= 0) {
+                future.cancel(true);
+                throwCallOutcome(kind, jobId, dispatched.get(), priorEffectStarted, null);
+            }
+            T value = future.get(remainingNanos, TimeUnit.NANOSECONDS);
+            if (!budget.isActive()) {
+                future.cancel(true);
+                throwCallOutcome(kind, jobId, dispatched.get(), priorEffectStarted, null);
+            }
+            return value;
+        } catch (TimeoutException | CancellationException expired) {
+            future.cancel(true);
+            throwCallOutcome(kind, jobId, dispatched.get(), priorEffectStarted, expired);
+            throw new AssertionError("unreachable");
+        } catch (InterruptedException interrupted) {
+            future.cancel(true);
+            Thread.currentThread().interrupt();
+            throwCallOutcome(kind, jobId, dispatched.get(), priorEffectStarted, interrupted);
+            throw new AssertionError("unreachable");
+        } catch (ExecutionException failed) {
+            Throwable cause = failed.getCause() == null ? failed : failed.getCause();
+            if (!budget.isActive()) {
+                throwCallOutcome(kind, jobId, dispatched.get(), priorEffectStarted, cause);
+            }
+            if (kind == PortCallKind.SUBMIT
+                    && cause instanceof MediaCapabilityNotAdmittedException notAdmitted
+                    && !priorEffectStarted) {
+                throw notAdmitted;
+            }
+            if (kind == PortCallKind.SUBMIT
+                    && cause instanceof IllegalArgumentException invalid && !priorEffectStarted) {
+                throw invalid;
+            }
+            if (kind == PortCallKind.READBACK || kind == PortCallKind.SUBMIT
+                    && (dispatched.get() || priorEffectStarted)
+                    || kind == PortCallKind.EFFECT
+                    && (dispatched.get() || priorEffectStarted)) {
+                throw new CanonicalOperationUnknownException(jobId, cause);
+            }
+            if (cause instanceof RuntimeException runtime) throw runtime;
+            throw new IllegalStateException("Multimodal runtime port call failed", cause);
+        } finally {
+            budget.context.removeListener(cancelChild);
+        }
+    }
+
+    private static void throwCallOutcome(
+            PortCallKind kind, String jobId, boolean dispatched, boolean priorEffectStarted, Throwable cause)
+            throws CanonicalOperationUnknownException {
+        if (kind == PortCallKind.READBACK || kind == PortCallKind.SUBMIT
+                && (dispatched || priorEffectStarted)
+                || kind == PortCallKind.EFFECT
+                && (dispatched || priorEffectStarted)) {
+            throw new CanonicalOperationUnknownException(jobId, cause);
+        }
+        throw new CanonicalOperationDeadlineExceededException(cause);
+    }
+
+    private enum PortCallKind { READ, EFFECT, SUBMIT, READBACK }
+
+    private static final class OperationBudget {
+        private final Context context;
+        private final long operationBudgetNanos;
+        private final long startedNanos;
+
+        private OperationBudget(Context context, Duration operationDeadline) {
+            this.context = context;
+            this.operationBudgetNanos = safeToNanos(operationDeadline);
+            this.startedNanos = System.nanoTime();
+        }
+
+        private long remainingNanos() {
+            long remaining = operationBudgetNanos - (System.nanoTime() - startedNanos);
+            if (context.getDeadline() != null) {
+                remaining = Math.min(remaining, context.getDeadline().timeRemaining(TimeUnit.NANOSECONDS));
+            }
+            return remaining;
+        }
+
+        private boolean isActive() {
+            return !context.isCancelled() && remainingNanos() > 0;
+        }
+
+        private void requireActive(PortCallKind kind, String jobId, boolean priorEffectStarted)
+                throws CanonicalOperationUnknownException {
+            if (!isActive()) throwCallOutcome(kind, jobId, false, priorEffectStarted, null);
+        }
+    }
+
+    private static long safeToNanos(Duration duration) {
+        try {
+            return duration.toNanos();
+        } catch (ArithmeticException overflow) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+    private static ThreadPoolExecutor createPortCallWorkers() {
+        int threads = Math.max(2, Math.min(MAX_PORT_CALL_WORKERS,
+                Runtime.getRuntime().availableProcessors()));
+        AtomicInteger threadNumber = new AtomicInteger();
+        ThreadFactory threadFactory = runnable -> {
+            Thread thread = new Thread(runnable,
+                    "media-multimodal-port-" + threadNumber.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
+        };
+        return new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(PORT_CALL_QUEUE_CAPACITY), threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
     }
 
     private static com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext
@@ -392,4 +584,26 @@ final class CanonicalOperationUnknownException extends Exception {
         this.jobId = jobId;
     }
     String jobId() { return jobId; }
+}
+
+/** Known no-effect deadline/cancellation result emitted only before an effect can start. */
+final class CanonicalOperationDeadlineExceededException extends StatusRuntimeException {
+    CanonicalOperationDeadlineExceededException() {
+        this(null);
+    }
+
+    CanonicalOperationDeadlineExceededException(Throwable cause) {
+        super(Status.DEADLINE_EXCEEDED
+                .withDescription("MULTIMODAL_OPERATION_DEADLINE_EXCEEDED")
+                .withCause(cause));
+    }
+}
+
+/** Local bounded-worker saturation before a runtime-port call starts. */
+final class CanonicalOperationResourceExhaustedException extends StatusRuntimeException {
+    CanonicalOperationResourceExhaustedException(Throwable cause) {
+        super(Status.RESOURCE_EXHAUSTED
+                .withDescription("MULTIMODAL_PORT_CAPACITY_UNAVAILABLE")
+                .withCause(cause));
+    }
 }

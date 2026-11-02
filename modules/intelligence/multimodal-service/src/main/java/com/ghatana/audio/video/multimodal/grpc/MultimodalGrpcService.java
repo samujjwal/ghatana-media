@@ -885,6 +885,14 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
     }
 
     private Status safeFailureStatus(Exception exception, String context) {
+        if (exception instanceof CanonicalOperationDeadlineExceededException) {
+            return Status.DEADLINE_EXCEEDED
+                    .withDescription("MULTIMODAL_OPERATION_DEADLINE_EXCEEDED");
+        }
+        if (exception instanceof CanonicalOperationResourceExhaustedException) {
+            return Status.RESOURCE_EXHAUSTED
+                    .withDescription("MULTIMODAL_PORT_CAPACITY_UNAVAILABLE");
+        }
         if (exception instanceof CanonicalOperationFailedException failed) {
             if (failed.status() == com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus.CANCELLED) {
                 return Status.CANCELLED.withDescription(
@@ -996,6 +1004,9 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new OperationOutcomeUnknownException(interrupted);
+        } catch (CanonicalOperationDeadlineExceededException
+                 | CanonicalOperationResourceExhaustedException knownNoEffect) {
+            throw knownNoEffect;
         } catch (OperationOutcomeUnknownException unknown) {
             throw unknown;
         } catch (CanonicalOperationUnknownException unknown) {

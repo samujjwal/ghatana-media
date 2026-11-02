@@ -100,6 +100,45 @@ class MultimodalGrpcFinalitySurfaceTest {
                             .isEqualTo(Status.Code.INVALID_ARGUMENT));
     }
 
+    @Test
+    void knownNoEffectDeadlineMapsToSanitizedDeadlineExceeded() throws Exception {
+        start(executorThrowing(new CanonicalOperationDeadlineExceededException(
+                new IllegalStateException("private adapter detail"))));
+        assertThatThrownBy(() -> stub().processMultimodal(request()))
+                .isInstanceOfSatisfying(StatusRuntimeException.class, error -> {
+                    assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+                    assertThat(error.getStatus().getDescription())
+                            .isEqualTo("MULTIMODAL_OPERATION_DEADLINE_EXCEEDED")
+                            .doesNotContain("private adapter detail");
+                });
+    }
+
+    @Test
+    void localPortCapacityRefusalMapsToSanitizedResourceExhausted() throws Exception {
+        start(executorThrowing(new CanonicalOperationResourceExhaustedException(
+                new IllegalStateException("private queue detail"))));
+        assertThatThrownBy(() -> stub().processMultimodal(request()))
+                .isInstanceOfSatisfying(StatusRuntimeException.class, error -> {
+                    assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.RESOURCE_EXHAUSTED);
+                    assertThat(error.getStatus().getDescription())
+                            .isEqualTo("MULTIMODAL_PORT_CAPACITY_UNAVAILABLE")
+                            .doesNotContain("private queue detail");
+                });
+    }
+
+    @Test
+    void genericDeadlineFromExecutorRemainsUnknownBecauseEffectFinalityIsUnproven() throws Exception {
+        start(executorThrowing(Status.DEADLINE_EXCEEDED
+                .withDescription("untrusted downstream detail").asRuntimeException()));
+        assertThatThrownBy(() -> stub().processMultimodal(request()))
+                .isInstanceOfSatisfying(StatusRuntimeException.class, error -> {
+                    assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.UNKNOWN);
+                    assertThat(error.getStatus().getDescription())
+                            .contains("MULTIMODAL_OPERATION_OUTCOME_UNKNOWN")
+                            .doesNotContain("untrusted downstream detail");
+                });
+    }
+
     // ── Harness ─────────────────────────────────────────────────────────────
 
     private void start(CanonicalOperationExecutor executor) throws Exception {

@@ -114,7 +114,7 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
-        assertAdmissionBoundary("success", 2);
+        assertAdmissionBoundary("success", 3);
         assertDecodeBoundary("success");
         assertProviderBoundary("success");
         assertResponseBoundary("success");
@@ -158,7 +158,8 @@ class SttGrpcServiceTest {
         assertThat(exact.getValue().getText()).isEqualTo("authorized transcript");
         assertThat(observedDigests).containsExactly(
                 java.util.HexFormat.of().formatHex(
-                        java.security.MessageDigest.getInstance("SHA-256").digest(alteredBytes)), sourceDigest);
+                        java.security.MessageDigest.getInstance("SHA-256").digest(alteredBytes)),
+                sourceDigest, sourceDigest);
         verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
     }
 

@@ -83,7 +83,7 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
 
     private ProductionSttGrpcService(Composition composition) {
         super(composition.library(), composition.metrics(), composition.tracer(),
-                composition.authorization());
+                composition.authorization(), SttGrpcService.configuredDispatchExecutor(System.getenv()));
         this.ownedLibrary = composition.library();
         this.mediaRuntimePort = composition.mediaRuntimePort();
         this.authorizationResource = composition.authorizationResource();
@@ -179,6 +179,15 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
             SttRequestAuthorization requestAuthorization) {
         this(library, metrics, io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
                 requestAuthorization, null);
+    }
+
+    ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics,
+            SttRequestAuthorization requestAuthorization, java.util.concurrent.Executor dispatchExecutor) {
+        super(library, metrics, io.opentelemetry.api.GlobalOpenTelemetry.getTracer("ghatana-media-stt"),
+                requestAuthorization, dispatchExecutor);
+        this.ownedLibrary = Objects.requireNonNull(library, "library");
+        this.mediaRuntimePort = null;
+        this.authorizationResource = null;
     }
 
     ProductionSttGrpcService(AudioVideoLibrary library, MeterRegistry metrics, Tracer tracer) {
@@ -496,7 +505,9 @@ public final class ProductionSttGrpcService extends SttGrpcService implements Au
         try {
             safeClose(authorizationResource);
         } finally {
-            ownedLibrary.close();
+            if (stopTranscriptionWorkers()) {
+                ownedLibrary.close();
+            }
         }
     }
 

@@ -44,6 +44,7 @@ import java.util.function.Function;
  */
 public final class ProductionTtsGrpcService extends TtsGrpcService implements AutoCloseable {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ProductionTtsGrpcService.class);
     private static final long DEFAULT_TTS_MAX_MEMORY_BYTES = 256L * 1024 * 1024;
     private static final long MAX_TTS_MODEL_BYTES = 4L * 1024 * 1024 * 1024;
 
@@ -822,7 +823,11 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
 
     @Override
     public void close() {
-        ownedLibrary.close();
+        if (stopSynthesisWorkers()) {
+            ownedLibrary.close();
+        } else {
+            LOG.error("TTS provider library left open because an active worker may still use it");
+        }
     }
 
     private static int parseBoundedInt(

@@ -83,6 +83,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
     private volatile com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService sceneTextService;
     /** Bounded worker pool for the blocking DI call; direct execution unless production binds one. */
     private volatile java.util.concurrent.Executor sceneTextExecutor = Runnable::run;
+    /** Blocking detector calls use a separate finite pool in production; tests keep direct execution. */
+    private volatile java.util.concurrent.Executor providerExecutor = Runnable::run;
+    private final java.util.Set<com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission<?>>
+            providerSubmissions = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private final java.util.concurrent.atomic.AtomicBoolean providerExecutorClosing =
+            new java.util.concurrent.atomic.AtomicBoolean();
 
     /** Package-private constructor for tests that inject an in-memory {@link VisionDetector}. */
     VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor) {
@@ -135,6 +141,18 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             java.util.concurrent.Executor sceneTextExecutor) {
         this.sceneTextExecutor = Objects.requireNonNull(sceneTextExecutor, "sceneTextExecutor");
         this.sceneTextService = service;
+    }
+
+    /** Production seam: detector inference runs on a bounded worker pool, away from gRPC threads. */
+    void bindProviderExecutor(java.util.concurrent.Executor providerExecutor) {
+        this.providerExecutor = Objects.requireNonNull(providerExecutor, "providerExecutor");
+    }
+
+    /** Fences accepted inference submissions during service shutdown. */
+    void cancelProviderDispatch() {
+        providerExecutorClosing.set(true);
+        providerSubmissions.forEach(
+                com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission::cancel);
     }
 
     private VisionGrpcService(VisionDetector detector, VideoFrameExtractor frameExtractor,
@@ -194,7 +212,9 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public void detectObjects(DetectRequest request, StreamObserver<DetectResponse> responseObserver) {
+        io.grpc.Context operationContext = io.grpc.Context.current();
         Span trace = tracingService.startVisionDetectionSpan(null, resolveTenantId(), request.getConfidenceThreshold());
+        StreamObserver<DetectResponse> cancellationObserver = responseObserver;
         TracedResponse<DetectResponse> traced = tracedResponse("detectObjects", trace, responseObserver);
         responseObserver = traced.observer;
         try (Scope scope = tracingService.createScope(trace)) {
@@ -271,45 +291,34 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             }
             DetectionOptions options = optionsBuilder.build();
 
-            if (rpcCancelled(responseObserver)) {
+            if (rpcCancelled(cancellationObserver, operationContext)) {
                 traced.finishUnknown();
                 return;
             }
-            List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
-                request.getImageData().toByteArray(), options));
-            tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
-                    detectedObjects.stream().mapToDouble(DetectedObject::getConfidence).max().orElse(Double.NaN));
-
-            long processingTime = System.currentTimeMillis() - startTime;
-            totalProcessingTime.addAndGet(processingTime);
-            mediaMetrics.recordSucceeded("vision.detect", processingTime);
-            recordResponseBoundary(() -> {
-                DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
-                for (DetectedObject obj : detectedObjects) {
-                    Detection detection = Detection.newBuilder()
-                        .setClassName(obj.getClassName())
-                        .setConfidence(obj.getConfidence())
-                        .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
-                            .setX(obj.getBoundingBox().getX())
-                            .setY(obj.getBoundingBox().getY())
-                            .setWidth(obj.getBoundingBox().getWidth())
-                            .setHeight(obj.getBoundingBox().getHeight())
-                            .build())
-                        .putAllAttributes(convertAttributes(obj.getAttributes()))
-                        .build();
-                    responseBuilder.addDetections(detection);
+            final int imageSizeBytes = dataSize;
+            var submission = submitProviderExecution(() -> detector.detectObjects(
+                    request.getImageData().toByteArray(), options));
+            submission.result().whenComplete((detectedObjects, failure) -> {
+                try (Scope completionScope = tracingService.createScope(trace)) {
+                    if (failure != null) {
+                        reportDetectionFailure(traced, cancellationObserver, operationContext,
+                                tenantId, userId, imageSizeBytes, failure);
+                        return;
+                    }
+                    try {
+                        completeDetectionResponse(trace, traced, cancellationObserver, operationContext,
+                                tenantId, userId, imageSizeBytes, startTime, detectedObjects);
+                    } catch (RuntimeException completionFailure) {
+                        reportDetectionFailure(traced, cancellationObserver, operationContext,
+                                tenantId, userId, imageSizeBytes, completionFailure);
+                    }
                 }
-                return responseBuilder.setProcessingTimeMs(processingTime).build();
-            }, responseObserver);
+            });
+            return;
 
-            LOG.info("Detected {} objects in {}ms", detectedObjects.size(), processingTime);
-
-            // AV-P1-012: Emit audit event for successful detection
-            emitVisionAudit(tenantId, userId, "vision.detect", "SUCCESS",
-                Map.of("objectCount", String.valueOf(detectedObjects.size()),
-                       "processingTimeMs", String.valueOf(processingTime),
-                       "imageSizeBytes", String.valueOf(dataSize)));
-
+        } catch (io.grpc.StatusRuntimeException e) {
+            mediaMetrics.recordFailed("vision.detect");
+            recordResponseFailure(responseObserver, e);
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
             mediaMetrics.recordFailed("vision.detect");
             recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
@@ -351,6 +360,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         }
     }
 
+    private com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission<List<DetectedObject>>
+            submitProviderExecution(Supplier<List<DetectedObject>> invocation) {
+        if (providerExecutorClosing.get()) {
+            return new com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor(Runnable::run)
+                    .submit(() -> { throw io.grpc.Status.UNAVAILABLE
+                            .withDescription("Vision provider is shutting down")
+                            .asRuntimeException(); }, false);
+        }
+        var submission = new com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor(providerExecutor)
+                .submit(() -> recordProviderExecution(invocation));
+        providerSubmissions.add(submission);
+        submission.result().whenComplete((ignored, failure) -> providerSubmissions.remove(submission));
+        if (providerExecutorClosing.get()) submission.cancel();
+        return submission;
+    }
+
     private List<DetectedObject> recordProviderExecution(Supplier<List<DetectedObject>> invocation) {
         MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
                 MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.PROVIDER);
@@ -365,19 +390,116 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                     throw new IllegalStateException("Provider returned an invalid detection result");
                 }
             }
-            if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            if (!rpcCancelled(null)) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
             return result;
         } finally {
             modalityMetrics.stopModalityTimer(sample, outcome);
         }
     }
 
+    private void completeDetectionResponse(Span trace, TracedResponse<DetectResponse> traced,
+            StreamObserver<DetectResponse> cancellationObserver, io.grpc.Context operationContext,
+            String tenantId, String userId,
+            int imageSizeBytes, long startTime, List<DetectedObject> detectedObjects) {
+        if (rpcCancelled(cancellationObserver, operationContext)) {
+            mediaMetrics.recordFailed("vision.detect");
+            recordResponseBoundary(() -> null, traced.observer, traced, cancellationObserver, operationContext);
+            return;
+        }
+        tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
+                detectedObjects.stream().mapToDouble(DetectedObject::getConfidence).max().orElse(Double.NaN));
+        long processingTime = System.currentTimeMillis() - startTime;
+        boolean delivered = recordResponseBoundary(() -> {
+            DetectResponse.Builder responseBuilder = DetectResponse.newBuilder();
+            for (DetectedObject obj : detectedObjects) {
+                Detection detection = Detection.newBuilder()
+                    .setClassName(obj.getClassName())
+                    .setConfidence(obj.getConfidence())
+                    .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
+                        .setX(obj.getBoundingBox().getX())
+                        .setY(obj.getBoundingBox().getY())
+                        .setWidth(obj.getBoundingBox().getWidth())
+                        .setHeight(obj.getBoundingBox().getHeight())
+                        .build())
+                    .putAllAttributes(convertAttributes(obj.getAttributes()))
+                    .build();
+                responseBuilder.addDetections(detection);
+            }
+            return responseBuilder.setProcessingTimeMs(processingTime).build();
+        }, traced.observer, traced, cancellationObserver, operationContext);
+        if (!delivered) {
+            mediaMetrics.recordFailed("vision.detect");
+            return;
+        }
+        totalProcessingTime.addAndGet(processingTime);
+        mediaMetrics.recordSucceeded("vision.detect", processingTime);
+        LOG.info("Detected {} objects in {}ms", detectedObjects.size(), processingTime);
+        emitVisionAudit(tenantId, userId, "vision.detect", "SUCCESS",
+                Map.of("objectCount", String.valueOf(detectedObjects.size()),
+                        "processingTimeMs", String.valueOf(processingTime),
+                        "imageSizeBytes", String.valueOf(imageSizeBytes)));
+    }
+
+    private void reportDetectionFailure(TracedResponse<DetectResponse> traced,
+            StreamObserver<DetectResponse> cancellationObserver, io.grpc.Context operationContext,
+            String tenantId, String userId,
+            int imageSizeBytes, Throwable failure) {
+        Throwable cause = failure;
+        while (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        mediaMetrics.recordFailed("vision.detect");
+        if (rpcCancelled(cancellationObserver, operationContext)) {
+            responseBoundaryFailurePending.remove();
+            recordResponseBoundary(() -> null, traced.observer, traced, cancellationObserver, operationContext);
+            return;
+        }
+        if (cause instanceof io.grpc.StatusRuntimeException statusFailure) {
+            recordResponseFailure(traced.observer, statusFailure);
+        } else if (cause instanceof com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException) {
+            recordResponseFailure(traced.observer, io.grpc.Status.UNIMPLEMENTED
+                    .withDescription("Unsupported image metadata").asRuntimeException());
+        } else if (cause instanceof VisionDetector.DetectionException) {
+            LOG.error("Object detection engine failure ({})", cause.getClass().getSimpleName());
+            emitVisionAudit(tenantId, userId, "vision.detect", "FAILED",
+                    Map.of("errorCode", "DETECTION_FAILED", "imageSizeBytes", String.valueOf(imageSizeBytes)));
+            recordResponseFailure(traced.observer, io.grpc.Status.INTERNAL
+                    .withDescription("Detection engine error").asRuntimeException());
+        } else if (cause instanceof IllegalArgumentException) {
+            LOG.warn("Invalid detection request ({})", cause.getClass().getSimpleName());
+            emitVisionAudit(tenantId, userId, "vision.detect", "INVALID",
+                    Map.of("errorCode", "INVALID_REQUEST", "imageSizeBytes", String.valueOf(imageSizeBytes)));
+            recordResponseFailure(traced.observer, io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Invalid detection request").asRuntimeException());
+        } else {
+            LOG.error("Unexpected error during object detection ({})", cause.getClass().getSimpleName());
+            emitVisionAudit(tenantId, userId, "vision.detect", "ERROR",
+                    Map.of("errorCode", "INTERNAL_ERROR", "imageSizeBytes", String.valueOf(imageSizeBytes)));
+            recordResponseFailure(traced.observer, io.grpc.Status.INTERNAL
+                    .withDescription("Internal detection error").asRuntimeException());
+        }
+    }
+
     /** Measures response mapping and observer delivery, keeping ambiguous transport failures UNKNOWN. */
-    private <T> void recordResponseBoundary(Supplier<T> responseMapping, StreamObserver<T> observer) {
+    private <T> boolean recordResponseBoundary(Supplier<T> responseMapping, StreamObserver<T> observer) {
+        return recordResponseBoundary(responseMapping, observer, null, null);
+    }
+
+    private <T> boolean recordResponseBoundary(Supplier<T> responseMapping, StreamObserver<T> observer,
+            TracedResponse<T> traced, StreamObserver<?> cancellationObserver) {
+        return recordResponseBoundary(responseMapping, observer, traced, cancellationObserver, null);
+    }
+
+    private <T> boolean recordResponseBoundary(Supplier<T> responseMapping, StreamObserver<T> observer,
+            TracedResponse<T> traced, StreamObserver<?> cancellationObserver, io.grpc.Context operationContext) {
         MediaWorkflowMetrics.ModalityTimingSample sample = modalityMetrics.startModalityTimer(
                 MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.RESPONSE);
         MediaWorkflowMetrics.Outcome outcome = MediaWorkflowMetrics.Outcome.UNKNOWN;
         try {
+            if (cancellationObserver != null && rpcCancelled(cancellationObserver, operationContext)) {
+                if (traced != null) traced.finishUnknown();
+                return false;
+            }
             T response;
             try {
                 response = responseMapping.get();
@@ -390,6 +512,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 responseBoundaryFailurePending.set(true);
                 throw mappingFailure;
             }
+            if (cancellationObserver != null && rpcCancelled(cancellationObserver, operationContext)) {
+                if (traced != null) traced.finishUnknown();
+                return false;
+            }
             try {
                 observer.onNext(response);
                 observer.onCompleted();
@@ -399,14 +525,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 responseBoundaryFailurePending.set(true);
                 throw ambiguousDelivery;
             }
-            if (!Context.current().isCancelled()) outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            if (!rpcCancelled(cancellationObserver == null ? observer : cancellationObserver)) {
+                outcome = MediaWorkflowMetrics.Outcome.SUCCESS;
+            }
+            return outcome == MediaWorkflowMetrics.Outcome.SUCCESS;
         } finally {
             modalityMetrics.stopModalityTimer(sample, outcome);
         }
     }
 
     private static boolean rpcCancelled(StreamObserver<?> observer) {
-        return Context.current().isCancelled()
+        return rpcCancelled(observer, Context.current());
+    }
+
+    private static boolean rpcCancelled(StreamObserver<?> observer, Context operationContext) {
+        return operationContext != null && (operationContext.isCancelled()
+                || operationContext.getDeadline() != null && operationContext.getDeadline().isExpired())
                 || observer instanceof ServerCallStreamObserver<?> call && call.isCancelled();
     }
 
@@ -867,6 +1001,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             LOG.info("Video analysis completed: {} frames, {}ms", frames.size(), processingTime);
 
+        } catch (io.grpc.StatusRuntimeException e) {
+            recordResponseFailure(responseObserver, e);
         } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
             recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Unsupported video metadata").asRuntimeException());
@@ -905,33 +1041,44 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
     @Override
     public StreamObserver<VideoFrameRequest> processVideo(StreamObserver<VideoFrameResponse> responseObserver) {
+        Context operationContext = Context.current();
         Span trace = tracingService.startGrpcStreamingSpan("ProcessVideo", resolveTenantId());
         TracedResponse<VideoFrameResponse> traced = tracedResponse("processVideo", trace, responseObserver);
         StreamObserver<VideoFrameResponse> tracedObserver = traced.observer;
+        ServerCallStreamObserver<VideoFrameResponse> serverObserver =
+                responseObserver instanceof ServerCallStreamObserver<?> raw
+                        ? castServerObserver(raw) : null;
         java.util.concurrent.atomic.AtomicBoolean terminal = new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicBoolean frameInFlight = new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicBoolean inputCompleted = new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicReference<com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission<?>>
+                pendingFrame = new java.util.concurrent.atomic.AtomicReference<>();
         MediaWorkflowMetrics.ModalityTimingSample responseSample = modalityMetrics.startModalityTimer(
                 MediaWorkflowMetrics.Modality.VISION, MediaWorkflowMetrics.Boundary.RESPONSE);
         java.util.concurrent.atomic.AtomicBoolean responseBoundaryRecorded = new java.util.concurrent.atomic.AtomicBoolean();
         java.util.concurrent.atomic.AtomicBoolean responseDeliveryAmbiguous = new java.util.concurrent.atomic.AtomicBoolean();
-        if (responseObserver instanceof ServerCallStreamObserver<?> raw) {
-            @SuppressWarnings("unchecked")
-            ServerCallStreamObserver<VideoFrameResponse> serverObserver =
-                    (ServerCallStreamObserver<VideoFrameResponse>) raw;
+        if (serverObserver != null) {
+            serverObserver.disableAutoRequest();
             serverObserver.setOnCancelHandler(() -> {
                 terminal.set(true);
+                var submission = pendingFrame.get();
+                if (submission != null) submission.cancel();
                 traced.finishUnknown();
                 finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
             });
+            serverObserver.request(1);
         }
         return new StreamObserver<VideoFrameRequest>() {
             private final VideoStreamBudget budget = new VideoStreamBudget();
 
             private void sendFailure(Throwable failure) {
-                terminal.set(true);
+                if (!terminal.compareAndSet(false, true)) return;
+                var submission = pendingFrame.get();
+                if (submission != null) submission.cancel();
                 try {
                     tracedObserver.onError(failure);
                     MediaWorkflowMetrics.Outcome outcome = responseDeliveryAmbiguous.get()
-                            || Context.current().isCancelled()
+                            || rpcCancelled(responseObserver, operationContext)
                             ? MediaWorkflowMetrics.Outcome.UNKNOWN : MediaWorkflowMetrics.Outcome.FAILURE;
                     finishResponseBoundary(responseSample, responseBoundaryRecorded, outcome);
                 } catch (RuntimeException | Error callbackFailure) {
@@ -940,9 +1087,47 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 }
             }
 
+            private void finishInboundStream() {
+                if (!terminal.compareAndSet(false, true)) return;
+                try (Scope scope = tracingService.createScope(trace)) {
+                    tracedObserver.onCompleted();
+                    MediaWorkflowMetrics.Outcome outcome = responseDeliveryAmbiguous.get()
+                            || rpcCancelled(responseObserver, operationContext)
+                            ? MediaWorkflowMetrics.Outcome.UNKNOWN : MediaWorkflowMetrics.Outcome.SUCCESS;
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, outcome);
+                } catch (RuntimeException | Error callbackFailure) {
+                    finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
+                    throw callbackFailure;
+                }
+                LOG.info("Video processing stream completed");
+            }
+
+            private void finishUnknown() {
+                if (!terminal.compareAndSet(false, true)) return;
+                var submission = pendingFrame.get();
+                if (submission != null) submission.cancel();
+                traced.finishUnknown();
+                finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
+            }
+
+            private void requestNextFrame() {
+                frameInFlight.set(false);
+                if (inputCompleted.get()) {
+                    finishInboundStream();
+                } else if (!terminal.get() && serverObserver != null) {
+                    serverObserver.request(1);
+                }
+            }
+
             @Override
             public void onNext(VideoFrameRequest request) {
                 if (terminal.get()) return;
+                if (!frameInFlight.compareAndSet(false, true)) {
+                    sendFailure(io.grpc.Status.RESOURCE_EXHAUSTED
+                            .withDescription("A prior video frame is still being processed")
+                            .asRuntimeException());
+                    return;
+                }
                 try (Scope scope = tracingService.createScope(trace)) {
                 try {
                     String tenantId = resolveTenantId();
@@ -989,39 +1174,80 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         .maxDetections(50)
                         .confidenceThreshold(0.6)
                         .build();
-
-                    List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
+                    var submission = submitProviderExecution(() -> detector.detectObjects(
                             request.getFrameData().toByteArray(), options));
-
-                    VideoFrameResponse.Builder responseBuilder = VideoFrameResponse.newBuilder()
-                        .setTimestampMs(request.getTimestampMs())
-                        .setFrameNumber(request.getFrameNumber());
-
-                    for (DetectedObject obj : detectedObjects) {
-                        Detection detection = Detection.newBuilder()
-                            .setClassName(obj.getClassName())
-                            .setConfidence(obj.getConfidence())
-                            .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
-                                .setX(obj.getBoundingBox().getX())
-                                .setY(obj.getBoundingBox().getY())
-                                .setWidth(obj.getBoundingBox().getWidth())
-                                .setHeight(obj.getBoundingBox().getHeight())
-                                .build())
-                            .putAllAttributes(convertAttributes(obj.getAttributes()))
-                            .build();
-
-                        responseBuilder.addDetections(detection);
+                    pendingFrame.set(submission);
+                    if (terminal.get() || rpcCancelled(responseObserver, operationContext)) {
+                        submission.cancel();
+                        return;
                     }
+                    submission.result().whenComplete((detectedObjects, failure) -> {
+                        try (Scope completionScope = tracingService.createScope(trace)) {
+                            pendingFrame.compareAndSet(submission, null);
+                            if (terminal.get()) {
+                                frameInFlight.set(false);
+                                return;
+                            }
+                            if (failure != null) {
+                                Throwable cause = failure instanceof java.util.concurrent.CompletionException
+                                        && failure.getCause() != null ? failure.getCause() : failure;
+                                if (rpcCancelled(responseObserver, operationContext)) {
+                                    finishUnknown();
+                                } else if (cause instanceof io.grpc.StatusRuntimeException statusFailure) {
+                                    sendFailure(statusFailure);
+                                } else if (cause instanceof com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException) {
+                                    sendFailure(io.grpc.Status.UNIMPLEMENTED
+                                            .withDescription("Unsupported video frame metadata").asRuntimeException());
+                                } else {
+                                    LOG.error("Video frame processing failed ({})", cause.getClass().getSimpleName());
+                                    sendFailure(io.grpc.Status.INTERNAL
+                                            .withDescription("Video frame processing failed").asRuntimeException());
+                                }
+                                return;
+                            }
+                            if (rpcCancelled(responseObserver, operationContext)) {
+                                finishUnknown();
+                                return;
+                            }
+                            try {
+                                VideoFrameResponse.Builder responseBuilder = VideoFrameResponse.newBuilder()
+                                        .setTimestampMs(request.getTimestampMs())
+                                        .setFrameNumber(request.getFrameNumber());
+                                for (DetectedObject obj : detectedObjects) {
+                                    responseBuilder.addDetections(Detection.newBuilder()
+                                            .setClassName(obj.getClassName())
+                                            .setConfidence(obj.getConfidence())
+                                            .setBoundingBox(com.ghatana.audio.video.vision.grpc.proto.BoundingBox.newBuilder()
+                                                    .setX(obj.getBoundingBox().getX())
+                                                    .setY(obj.getBoundingBox().getY())
+                                                    .setWidth(obj.getBoundingBox().getWidth())
+                                                    .setHeight(obj.getBoundingBox().getHeight())
+                                                    .build())
+                                            .putAllAttributes(convertAttributes(obj.getAttributes()))
+                                            .build());
+                                }
+                                if (rpcCancelled(responseObserver, operationContext)) {
+                                    finishUnknown();
+                                    return;
+                                }
+                                try {
+                                    tracedObserver.onNext(responseBuilder.build());
+                                } catch (RuntimeException | Error observerFailure) {
+                                    responseDeliveryAmbiguous.set(true);
+                                    sendFailure(io.grpc.Status.INTERNAL
+                                            .withDescription("Video frame response delivery failed").asRuntimeException());
+                                    return;
+                                }
+                                requestNextFrame();
+                            } catch (RuntimeException mappingFailure) {
+                                sendFailure(io.grpc.Status.INTERNAL
+                                        .withDescription("Video frame response mapping failed").asRuntimeException());
+                            }
+                        }
+                    });
 
-                    try {
-                        tracedObserver.onNext(responseBuilder.build());
-                    } catch (RuntimeException | Error observerFailure) {
-                        responseDeliveryAmbiguous.set(true);
-                        finishResponseBoundary(responseSample, responseBoundaryRecorded,
-                                MediaWorkflowMetrics.Outcome.UNKNOWN);
-                        throw observerFailure;
-                    }
-
+                } catch (io.grpc.StatusRuntimeException e) {
+                    sendFailure(e);
                 } catch (com.ghatana.audio.video.vision.image.BoundedImageDecoder.UnsupportedImageMetadataException e) {
                     sendFailure(io.grpc.Status.UNIMPLEMENTED
                             .withDescription("Unsupported video frame metadata").asRuntimeException());
@@ -1036,6 +1262,8 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             @Override
             public void onError(Throwable t) {
                 if (terminal.compareAndSet(false, true)) {
+                    var submission = pendingFrame.get();
+                    if (submission != null) submission.cancel();
                     traced.finishUnknown();
                     finishResponseBoundary(responseSample, responseBoundaryRecorded,
                             MediaWorkflowMetrics.Outcome.UNKNOWN);
@@ -1045,20 +1273,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
 
             @Override
             public void onCompleted() {
-                if (!terminal.compareAndSet(false, true)) return;
-                try (Scope scope = tracingService.createScope(trace)) {
-                    tracedObserver.onCompleted();
-                    MediaWorkflowMetrics.Outcome outcome = responseDeliveryAmbiguous.get()
-                            || Context.current().isCancelled()
-                            ? MediaWorkflowMetrics.Outcome.UNKNOWN : MediaWorkflowMetrics.Outcome.SUCCESS;
-                    finishResponseBoundary(responseSample, responseBoundaryRecorded, outcome);
-                } catch (RuntimeException | Error callbackFailure) {
-                    finishResponseBoundary(responseSample, responseBoundaryRecorded, MediaWorkflowMetrics.Outcome.UNKNOWN);
-                    throw callbackFailure;
-                }
-                LOG.info("Video processing stream completed");
+                inputCompleted.set(true);
+                if (!frameInFlight.get()) finishInboundStream();
             }
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static ServerCallStreamObserver<VideoFrameResponse> castServerObserver(ServerCallStreamObserver<?> observer) {
+        return (ServerCallStreamObserver<VideoFrameResponse>) observer;
     }
 
     /** Tracks finite request-stream work independently of per-frame decoder bounds. */
