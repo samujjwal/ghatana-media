@@ -1,0 +1,24 @@
+gradle.projectsEvaluated {
+    if (gradle.rootProject.name != 'audio-video') {
+        return
+    }
+    def provider = gradle.rootProject.findProject(':services:media:providers:aws-postgresql')
+    if (provider == null) {
+        throw new GradleException('Could not find :services:media:providers:aws-postgresql')
+    }
+    def testSourceSet = provider.extensions.getByName('sourceSets').getByName('test')
+    provider.tasks.register('ip06HistoryCandidateReconcile', JavaExec) {
+        group = 'verification'
+        description = 'Read-only candidate comparison of an operator-supplied Flyway history CSV.'
+        dependsOn provider.tasks.named('testClasses')
+        classpath = testSourceSet.runtimeClasspath
+        mainClass.set('com.ghatana.media.provider.aws.Ip06FlywayHistoryCandidateReconciler')
+        doFirst {
+            def csv = provider.findProperty('ip06Csv')
+            if (csv == null || csv.toString().isBlank()) {
+                throw new GradleException('Pass -Pip06Csv=/absolute/path/to/flyway-history.csv')
+            }
+            args(csv.toString())
+        }
+    }
+}

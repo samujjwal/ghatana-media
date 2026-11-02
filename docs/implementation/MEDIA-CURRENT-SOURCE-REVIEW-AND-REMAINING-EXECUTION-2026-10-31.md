@@ -2293,3 +2293,32 @@ MEDIA_WHISPER_DOCKER_TIMEOUT_TEST_IMAGE_ID=sha256:363659dd16eed6b68a73b5d8418742
   --no-daemon --no-parallel --max-workers=2 --console=plain --offline
 # WhisperComputeBrokerClientTest: 15 passed; broker-to-OCI deadline test: 1 passed
 ```
+
+### 41.68 November 2 DI resolver-owned crop ingress and review
+
+**Vision scene-text gRPC omitted-crop normalization (`ba40b4b0`):** proto3 omitted `croppedBytes` and `croppedFrameSha256` now map together to `null/null`, allowing the existing trusted source/ROI resolver to derive pixels. Any partial declaration still reaches the service's existing consistency rejection. The generated in-process gRPC regression proves authenticated tenant/principal/source context reaches source verification, resolver-produced crop bytes reach the DI client request, and digest-only and bytes-only declarations return `INVALID_REQUEST` before source or DI access. No protobuf contract, OCR executor, or runtime admission was added.
+
+```bash
+./gradlew :services:media:modules:vision:vision-service:test \
+  --tests com.ghatana.audio.video.vision.grpc.VisionGrpcServiceInProcessIntegrationTest
+# 6 passed, 0 failed; existing VisionGrpcServiceTest deprecation warnings during test compilation
+```
+
+Independent read-only review accepted the normalization and test coverage for this local path. The positive test uses an in-memory DI fake: it proves the resolver pixels cross the Media service-to-DI-client interface, not HTTP transport or a real DI provider effect. Ghatana #252, owner-qualified Kernel OCR, current PDP acceptance, and production/runtime admission remain separate gates.
+
+### 41.69 November 2 owner-requested evidence use and IP-06 source-derived history candidate
+
+**Owner-provided evidence path:** the requested test-only V001–V016 snapshot/history and current H-02 technical disposition already exist in this repository and are recorded in §41.67. Their source hashes and independent review do not become deployed operator evidence or source-owner approval. The current H-02 disposition remains `ACCEPT_LOCAL_CANDIDATE_ONLY`; operation/engine compatibility and authority-backed runtime adapters remain unresolved, so H-02 runtime admission stays `NOT_ADMITTED`.
+
+**IP-06 history candidate utility:** added `Ip06FlywayHistoryCandidateReconciler` and its `scripts/ip06/` launcher. It verifies the V001–V016 manifest against each checked-in historical SQL fixture digest, then uses Flyway `info()` with a unique in-memory H2 datasource to derive current V017–V029 script/type/description/checksum metadata; it does not call `migrate()` or accept a target database connection. Strict CSV validation, bounded 2 MiB file reads, contiguous installed-rank checks, mismatch exit status, and explicit V007–V009 legacy/current lineage distinctions are covered. Every report remains `UNVERIFIED_CANDIDATE_PENDING_OPERATOR_PROVENANCE`.
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.Ip06FlywayHistoryCandidateReconcilerTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# 12 passed; no failures
+```
+
+An independent Luna review accepted the hardened read-only comparison path. Running its init-script task against the existing synthetic V001–V016 CSV reported export SHA-256 `8aebbf666624dc73cf2dea461b89ac755a1077b63cee45f0898045f4dc7a2667`, comparison status `SOURCE_MISMATCH_OR_INCOMPLETE`, three informational V007–V009 lineage notes and missing V017–V029, with exit code 1. That is expected for a 16-row fixture and does not indicate a test failure. The script wrapper itself is blocked in this sandbox by the Gradle distribution lock under `~/.gradle`; the equivalent direct Gradle init-script invocation worked. No deployed export, credentials, database, writer, migration, or operator authority was used.
+
+**Fresh read-only currentness and acceptance checks:** the four native matrix `--check` commands remain fail-closed at PDP-0 **18/188**, PDP-1 **27/137**, PDP-2 **20/157**, and PDP-3 **21/367** stale pins. No PDP matrix, source pin, status, or receipt was edited. The existing generator refreshed only `docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json`; `pnpm check:surface-roster` and `pnpm test:surface-roster` pass at **56 identities / 56 matrix-bound / 0 unbound** and **3/3**. `pnpm check:build-bridge-blockers` passes at **3,188 identities / 8,668 edges / 0 unresolved**; `pnpm check:contract-parity` passes structural checks with semantic binding still `REVIEW_REQUIRED` (46 dispositioned, zero unresolved). No formal PDP currentness, acceptance, phase admission, or closure is claimed.
