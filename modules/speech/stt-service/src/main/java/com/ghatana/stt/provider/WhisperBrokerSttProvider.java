@@ -348,7 +348,10 @@ public final class WhisperBrokerSttProvider implements MediaProcessingProvider {
 
     static boolean notDispatched(Result result, UUID invocation, String profile, String digest) {
         return exactIdentity(result, invocation, profile, digest)
-                && (result.status() == Status.NOT_ADMITTED || result.status() == Status.DEADLINE_EXCEEDED)
+                // DEADLINE_EXCEEDED is not a no-effect proof: the broker may have started
+                // inference before the deadline elapsed. Only an explicit admission rejection
+                // is currently defined as proof that dispatch did not occur.
+                && result.status() == Status.NOT_ADMITTED
                 && !result.complete() && !result.endOfTask() && !result.tokenLimitReached()
                 && result.transcript().isEmpty();
     }

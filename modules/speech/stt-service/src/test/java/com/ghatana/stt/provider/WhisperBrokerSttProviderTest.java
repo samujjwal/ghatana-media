@@ -154,7 +154,7 @@ class WhisperBrokerSttProviderTest {
     }
 
     @Test
-    void authenticatedPreDispatchNotAdmittedDispositionIsExactIdentityBound() {
+    void onlyAuthenticatedNotAdmittedDispositionProvesPreDispatchNoEffect() {
         UUID id = UUID.randomUUID();
         var rejected = new Result(id, "profile.en", "c".repeat(64), null, "",
                 Status.NOT_ADMITTED, false, false, false);
@@ -167,7 +167,7 @@ class WhisperBrokerSttProviderTest {
         var deadline = new Result(id, "profile.en", "c".repeat(64), null, "",
                 Status.DEADLINE_EXCEEDED, false, false, false);
         assertThat(WhisperBrokerSttProvider.notDispatched(
-                deadline, id, "profile.en", "c".repeat(64))).isTrue();
+                deadline, id, "profile.en", "c".repeat(64))).isFalse();
         assertThat(WhisperBrokerSttProvider.notDispatched(
                 deadline, UUID.randomUUID(), "profile.en", "c".repeat(64))).isFalse();
     }
