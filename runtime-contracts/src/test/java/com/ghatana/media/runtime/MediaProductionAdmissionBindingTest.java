@@ -1,6 +1,5 @@
 package com.ghatana.media.runtime;
 
-import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionException;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionFailure;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionException;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding;
@@ -14,8 +13,8 @@ import com.ghatana.media.runtime.MediaProductionAdmissionBinding.RequestIdentity
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Rational;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Reservation;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.Authority;
-import com.ghatana.media.runtime.MediaProductionAdmissionBinding.SceneEditLock;
-import com.ghatana.media.runtime.MediaProductionAdmissionBinding.SceneLockCas;
+import com.ghatana.media.runtime.MediaProductionAdmissionBinding.EditLock;
+import com.ghatana.media.runtime.MediaProductionAdmissionBinding.ProjectEditLockCas;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -47,7 +46,11 @@ class MediaProductionAdmissionBindingTest {
                         new BoundedAmount(500, "wall-ms"), new BoundedAmount(600, "wall-ms")),
                 new Authority("tenant-1", "principal-1", "purpose/v1", "rights/v1", "source/v4", SHA,
                         "decision/rights-4", NOW.plusSeconds(600), 3),
-                new SceneEditLock("scene-1", "principal-1", "lease/l1", 9, NOW.plusSeconds(300)),
+                Map.of(
+                        "capture-source-0", new EditLock("SCENE", "scene/1@v1", "principal-1", "lease/scene", 9,
+                                NOW.plusSeconds(300)),
+                        "render-profile-0", new EditLock("OUTPUT", "profile/v1", "principal-1", "lease/output", 10,
+                                NOW.plusSeconds(300))),
                 new ClockBindings("story/v1", "media/v1", "simulation/v1", "wall/v1",
                         List.of(new ClockConversion("story/v1", "media/v1", new Rational(25, 1)))));
     }
@@ -56,6 +59,9 @@ class MediaProductionAdmissionBindingTest {
 
     private static CurrentState state(Binding b, String stepId) {
         Engine engine = b.engineForStep(stepId);
+        EditLock lock = b.editLocksByStep().getOrDefault(stepId,
+                new EditLock("SCENE", "unmapped-target", "principal-1", "unmapped-lease", 1,
+                        NOW.plusSeconds(300)));
         return new CurrentState(b.authority().tenantId(), b.authority().principalId(), b.authority().purposeRef(),
                 b.authority().sourceVersionRef(), b.authority().sourceSha256(), b.projectId(),
                 b.expectedProjectRevision(), b.authority().rightsRef(), b.authority().ownerDecisionRef(), b.authority().decisionExpiresAt(),
@@ -64,8 +70,9 @@ class MediaProductionAdmissionBindingTest {
                 b.provider().rightsRef(), true, b.reservation().quoteRef(), b.reservation().quoteVersion(),
                 b.reservation().reservationId(), new BoundedAmount(12, "usd-micros"),
                 new BoundedAmount(120, "cpu-ms"), new BoundedAmount(600, "wall-ms"),
-                b.editLock().sceneId(), b.editLock().ownerPrincipalId(), b.editLock().leaseId(),
-                b.editLock().epoch(), b.editLock().expiresAt(), null, null, b.clocks(), NOW);
+                lock.scopeKind(), lock.targetRef(), lock.ownerPrincipalId(), lock.leaseId(),
+                lock.epoch(), lock.expiresAt(),
+                null, null, b.clocks(), NOW);
     }
 
     @Test
@@ -93,7 +100,7 @@ class MediaProductionAdmissionBindingTest {
                 .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
         Binding incompleteEngineMap = new Binding(b1.schemaVersion(), b1.projectId(), b1.expectedProjectRevision(),
                 b1.requestIdentity(), Map.of("validate-spec", noEngine()), b1.provider(), b1.reservation(),
-                b1.authority(), b1.editLock(), b1.clocks());
+                b1.authority(), b1.editLocksByStep(), b1.clocks());
         assertThatThrownBy(() -> compiler.compile(spec, incompleteEngineMap))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
@@ -206,11 +213,11 @@ class MediaProductionAdmissionBindingTest {
         assertFailure(b, replace(good, "tenant-1", "principal-1", "purpose/v1", "source/v4", 3,
                 SHA, true, "tariff/old", good.remainingCost(), "principal-1", 9, good.lockExpiresAt(), good.clocks()), AdmissionFailure.QUOTE_STALE);
         assertFailure(b, copyWithLockExpiry(good, NOW.minusSeconds(1)), AdmissionFailure.EDIT_LOCK_INVALID);
-        CurrentState noEngineState = state(b, "validate-spec");
-        MediaProductionAdmissionBinding.requireCurrent(b, "validate-spec", noEngineState);
+        CurrentState noEngineState = state(b, "capture-source-0");
+        MediaProductionAdmissionBinding.requireCurrent(b, "capture-source-0", noEngineState);
         CurrentState engineOnEngineFreeNode = copyWithEngine(noEngineState, "ENGINE", "renderer-v3", SHA);
         AtomicInteger effects = new AtomicInteger();
-        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, "validate-spec",
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, "capture-source-0",
                 () -> engineOnEngineFreeNode, effects::incrementAndGet))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
@@ -247,23 +254,104 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
-    void concurrentSameRevisionLockCasHasOneWinner() throws Exception {
+    void sceneAndOutputLocksMustMatchTheirExactCompiledTargetsBeforeEffect() {
         Binding b = binding(SHA);
-        AtomicReference<SceneEditLock> current = new AtomicReference<>();
-        SceneLockCas cas = (project, revision, claim) -> project.equals("project-1")
+        CurrentState renderState = state(b, "render-profile-0");
+        CurrentState wrongScope = copyWithLockTarget(renderState, "SCENE", "scene/1@v1");
+        assertFailure(b, wrongScope, AdmissionFailure.EDIT_LOCK_INVALID);
+
+        CurrentState wrongOutput = copyWithLockTarget(renderState, "OUTPUT", "profile/other@v1");
+        assertFailure(b, wrongOutput, AdmissionFailure.EDIT_LOCK_INVALID);
+
+        AtomicInteger unmappedEffect = new AtomicInteger();
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(b, "compose-timeline",
+                () -> state(b, "compose-timeline"), unmappedEffect::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
+        assertThat(unmappedEffect).hasValue(0);
+
+        var compiler = new MediaProductionSpecCompiler();
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1", "scene/2@v1"), "timeline/v1", "rights/v1",
+                List.of("profile/v1"));
+        Map<String, Engine> engines = new java.util.TreeMap<>(b.enginesByStep());
+        engines.put("capture-source-1", noEngine());
+        Binding onlyFirstScene = new Binding(b.schemaVersion(), b.projectId(), b.expectedProjectRevision(),
+                b.requestIdentity(), engines, b.provider(), b.reservation(), b.authority(),
+                b.editLocksByStep(), b.clocks());
+        assertThatThrownBy(() -> compiler.compile(spec, onlyFirstScene))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
+    }
+
+    @Test
+    void concurrentSameRevisionScopedLockCasHasOneWinner() throws Exception {
+        Binding b = binding(SHA);
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, b);
+        AtomicReference<Map<String, EditLock>> current = new AtomicReference<>();
+        ProjectEditLockCas cas = (project, revision, claim) -> project.equals("project-1")
                 && revision.equals("rev-7") && current.compareAndSet(null, claim);
         CountDownLatch start = new CountDownLatch(1);
         var pool = Executors.newFixedThreadPool(2);
         try {
-            var a = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireSceneLock(b, cas); });
-            var c = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireSceneLock(b, cas); });
+            var a = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireEditLocks(b, plan, cas); });
+            var c = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireEditLocks(b, plan, cas); });
             start.countDown();
             assertThat(List.of(a.get(2, TimeUnit.SECONDS), c.get(2, TimeUnit.SECONDS)))
                     .containsExactlyInAnyOrder(true, false);
-            assertThat(current.get()).isEqualTo(b.editLock());
+            assertThat(current.get()).isEqualTo(b.editLocksByStep());
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @Test
+    void editLockCasRejectsStalePlanAndForeignLockOwnerBeforeCallingAuthority() {
+        Binding b = binding(SHA);
+        var compiler = new MediaProductionSpecCompiler();
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = compiler.compile(spec, b);
+        AtomicInteger casCalls = new AtomicInteger();
+        ProjectEditLockCas cas = (project, revision, locks) -> {
+            casCalls.incrementAndGet();
+            return true;
+        };
+
+        var stalePlan = new MediaProductionSpecCompiler.CompiledPlan(plan.schemaVersion(), "rev-8",
+                plan.originClass(), plan.nodes(), plan.planFingerprint(), plan.inputProvenance(),
+                plan.admissionBindingFingerprint());
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, stalePlan, cas))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.PROJECT_REVISION_STALE);
+        assertThat(casCalls).hasValue(0);
+
+        var unboundPlan = new MediaProductionSpecCompiler.CompiledPlan(plan.schemaVersion(), plan.projectRevision(),
+                plan.originClass(), plan.nodes(), plan.planFingerprint(), plan.inputProvenance());
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, unboundPlan, cas))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        assertThat(casCalls).hasValue(0);
+
+        Map<String, EditLock> foreignLocks = new java.util.TreeMap<>(b.editLocksByStep());
+        EditLock sceneLock = foreignLocks.get("capture-source-0");
+        foreignLocks.put("capture-source-0", new EditLock(sceneLock.scopeKind(), sceneLock.targetRef(),
+                "foreign-principal", sceneLock.leaseId(), sceneLock.epoch(), sceneLock.expiresAt()));
+        Binding foreignOwner = new Binding(b.schemaVersion(), b.projectId(), b.expectedProjectRevision(),
+                b.requestIdentity(), b.enginesByStep(), b.provider(), b.reservation(), b.authority(),
+                foreignLocks, b.clocks());
+        var foreignPlan = compiler.compile(spec, foreignOwner);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(foreignOwner, foreignPlan, cas))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
+        assertThat(casCalls).hasValue(0);
     }
 
     private static void assertFailure(Binding b, CurrentState current, AdmissionFailure failure) {
@@ -287,7 +375,7 @@ class MediaProductionAdmissionBindingTest {
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
                 s.quoteVersion(), reservation, s.remainingCost(), s.remainingCompute(), s.remainingTime(),
-                s.lockSceneId(), lockOwner, s.lockLeaseId(), lockEpoch, s.lockExpiresAt(), s.canonicalRequestId(),
+                s.lockScopeKind(), s.lockTargetRef(), lockOwner, s.lockLeaseId(), lockEpoch, s.lockExpiresAt(), s.canonicalRequestId(),
                 s.canonicalRequestFingerprint(), clocks, s.observedAt());
     }
 
@@ -296,7 +384,7 @@ class MediaProductionAdmissionBindingTest {
                 s.projectId(), s.projectRevision(), rightsRef, s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
-                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockSceneId(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
                 s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
     }
@@ -306,7 +394,7 @@ class MediaProductionAdmissionBindingTest {
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
-                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockSceneId(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), requestId, fingerprint,
                 s.clocks(), s.observedAt());
     }
@@ -316,7 +404,7 @@ class MediaProductionAdmissionBindingTest {
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
-                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockSceneId(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
                 s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
     }
@@ -326,8 +414,18 @@ class MediaProductionAdmissionBindingTest {
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
-                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockSceneId(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), expiry, s.canonicalRequestId(),
+                s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+    }
+
+    private static CurrentState copyWithLockTarget(CurrentState s, String scopeKind, String targetRef) {
+        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+                s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
+                s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
+                s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), scopeKind, targetRef,
+                s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(), s.canonicalRequestId(),
                 s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
     }
 
@@ -336,7 +434,7 @@ class MediaProductionAdmissionBindingTest {
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 kind, identity, digest, s.providerId(), s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(),
                 s.qualified(), s.quoteRef(), s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(),
-                s.remainingTime(), s.lockSceneId(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
+                s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
                 s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
     }
 
@@ -348,7 +446,7 @@ class MediaProductionAdmissionBindingTest {
                 s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), revocationEpoch,
                 s.engineIdentityKind(), s.engineIdentity(), engineDigest, s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), qualified, s.quoteRef(), quoteVersion,
-                s.reservationId(), remainingCost, s.remainingCompute(), s.remainingTime(), s.lockSceneId(),
+                s.reservationId(), remainingCost, s.remainingCompute(), s.remainingTime(), s.lockScopeKind(), s.lockTargetRef(),
                 lockOwner, s.lockLeaseId(), lockEpoch, lockExpiry, s.canonicalRequestId(),
                 s.canonicalRequestFingerprint(), clocks, s.observedAt());
     }

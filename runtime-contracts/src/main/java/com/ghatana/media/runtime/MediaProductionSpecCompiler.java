@@ -174,7 +174,8 @@ public final class MediaProductionSpecCompiler {
             String originClass,
             List<PlanNode> nodes,
             String planFingerprint,
-            CompilationInputs inputProvenance) {
+            CompilationInputs inputProvenance,
+            String admissionBindingFingerprint) {
         /** Source-compatible constructor for previously compiled local candidates. */
         public CompiledPlan(
                 String schemaVersion,
@@ -182,7 +183,18 @@ public final class MediaProductionSpecCompiler {
                 String originClass,
                 List<PlanNode> nodes,
                 String planFingerprint) {
-            this(schemaVersion, projectRevision, originClass, nodes, planFingerprint, null);
+            this(schemaVersion, projectRevision, originClass, nodes, planFingerprint, null, null);
+        }
+
+        /** Source-compatible constructor for previously compiled reference-bound candidates. */
+        public CompiledPlan(
+                String schemaVersion,
+                String projectRevision,
+                String originClass,
+                List<PlanNode> nodes,
+                String planFingerprint,
+                CompilationInputs inputProvenance) {
+            this(schemaVersion, projectRevision, originClass, nodes, planFingerprint, inputProvenance, null);
         }
 
         public CompiledPlan {
@@ -341,6 +353,7 @@ public final class MediaProductionSpecCompiler {
             if (!nodeIds.equals(binding.enginesByStep().keySet())) {
                 throw new IllegalArgumentException("enginesByStep must bind exactly every compiled plan node");
             }
+            validateEditLockTargets(spec, binding);
         }
 
         // Length framing makes the digest unambiguous even when a reference
@@ -374,12 +387,44 @@ public final class MediaProductionSpecCompiler {
                 spec.originClass(),
                 nodes,
                 "sha256:" + sha256(projection.toString()),
-                inputs);
+                inputs,
+                admissionFingerprint);
     }
 
     private static List<String> engineContext(
             MediaProductionAdmissionBinding.Binding binding, String stepId) {
         return binding == null ? List.of() : List.of(binding.engineFingerprint(stepId));
+    }
+
+    /** Bind only source-defined scene capture and output render nodes to scoped edit locks. */
+    private static void validateEditLockTargets(
+            ProductionSpec spec, MediaProductionAdmissionBinding.Binding binding) {
+        Map<String, MediaProductionAdmissionBinding.EditLock> locks = binding.editLocksByStep();
+        Set<String> expectedLockSteps = new TreeSet<>();
+        for (int i = 0; i < spec.sceneRefs().size(); i++) {
+            String stepId = "capture-source-" + i;
+            expectedLockSteps.add(stepId);
+            MediaProductionAdmissionBinding.EditLock lock = locks.get(stepId);
+            if (lock == null || !"SCENE".equals(lock.scopeKind())
+                    || !spec.sceneRefs().get(i).equals(lock.targetRef())) {
+                throw new MediaProductionAdmissionBinding.AdmissionException(
+                        MediaProductionAdmissionBinding.AdmissionFailure.EDIT_LOCK_INVALID);
+            }
+        }
+        for (int i = 0; i < spec.outputProfileRefs().size(); i++) {
+            String stepId = "render-profile-" + i;
+            expectedLockSteps.add(stepId);
+            MediaProductionAdmissionBinding.EditLock lock = locks.get(stepId);
+            if (lock == null || !"OUTPUT".equals(lock.scopeKind())
+                    || !spec.outputProfileRefs().get(i).equals(lock.targetRef())) {
+                throw new MediaProductionAdmissionBinding.AdmissionException(
+                        MediaProductionAdmissionBinding.AdmissionFailure.EDIT_LOCK_INVALID);
+            }
+        }
+        if (!expectedLockSteps.equals(locks.keySet())) {
+            throw new MediaProductionAdmissionBinding.AdmissionException(
+                    MediaProductionAdmissionBinding.AdmissionFailure.BINDING_SPEC_MISMATCH);
+        }
     }
 
     private static void addNode(

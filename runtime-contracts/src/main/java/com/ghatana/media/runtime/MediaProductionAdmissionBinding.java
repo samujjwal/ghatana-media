@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  * owns no persistence and does not itself admit production execution.
  */
 public final class MediaProductionAdmissionBinding {
-    public static final String SCHEMA_VERSION = "media.production.execution-admission.v1";
+    public static final String SCHEMA_VERSION = "media.production.execution-admission.v2";
 
     private MediaProductionAdmissionBinding() { }
 
@@ -138,10 +138,12 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
-    public record SceneEditLock(String sceneId, String ownerPrincipalId, String leaseId,
+    public record EditLock(String scopeKind, String targetRef, String ownerPrincipalId, String leaseId,
             long epoch, Instant expiresAt) {
-        public SceneEditLock {
-            sceneId = required(sceneId, "sceneId");
+        public EditLock {
+            if (!"SCENE".equals(scopeKind) && !"OUTPUT".equals(scopeKind))
+                throw new IllegalArgumentException("edit-lock scopeKind must be SCENE or OUTPUT");
+            targetRef = required(targetRef, "editLock.targetRef");
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
             leaseId = required(leaseId, "leaseId");
             if (epoch < 1) throw new IllegalArgumentException("lock epoch must be positive");
@@ -151,21 +153,49 @@ public final class MediaProductionAdmissionBinding {
 
     /** Adapter to the canonical project revision CAS/operation journal. No state is stored here. */
     @FunctionalInterface
-    public interface SceneLockCas {
-        boolean compareAndSet(String projectId, String expectedProjectRevision, SceneEditLock lock);
+    public interface ProjectEditLockCas {
+        /** Claims every declared effect lock atomically against one project revision. */
+        boolean compareAndSet(String projectId, String expectedProjectRevision, Map<String, EditLock> locksByStep);
     }
 
-    /** Atomic scene lock claim delegated to the existing project/job authority. */
-    public static boolean acquireSceneLock(Binding binding, SceneLockCas authority) {
+    /** Atomic scoped lock claim delegated to the existing project/job authority. */
+    public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
+            ProjectEditLockCas authority) {
         Objects.requireNonNull(binding, "binding");
+        Objects.requireNonNull(plan, "plan");
+        if (!binding.expectedProjectRevision().equals(plan.projectRevision())) {
+            fail(AdmissionFailure.PROJECT_REVISION_STALE);
+        }
+        if (plan.admissionBindingFingerprint() == null
+                || !binding.stableContextFingerprint().equals(plan.admissionBindingFingerprint())) {
+            fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        }
+        Map<String, String> requiredScopes = new TreeMap<>();
+        for (MediaProductionSpecCompiler.PlanNode node : plan.nodes()) {
+            if ("capture".equals(node.kind())) requiredScopes.put(node.stepId(), "SCENE");
+            if ("render".equals(node.kind())) requiredScopes.put(node.stepId(), "OUTPUT");
+        }
+        if (!requiredScopes.keySet().equals(binding.editLocksByStep().keySet())) {
+            fail(AdmissionFailure.EDIT_LOCK_INVALID);
+        }
+        for (Map.Entry<String, String> expected : requiredScopes.entrySet()) {
+            MediaProductionSpecCompiler.PlanNode node = plan.nodes().stream()
+                    .filter(candidate -> candidate.stepId().equals(expected.getKey())).findFirst().orElseThrow();
+            EditLock lock = binding.editLocksByStep().get(expected.getKey());
+            if (!expected.getValue().equals(lock.scopeKind()) || node.versionRefs().size() != 1
+                    || !node.versionRefs().getFirst().equals(lock.targetRef())
+                    || !binding.authority().principalId().equals(lock.ownerPrincipalId())) {
+                fail(AdmissionFailure.EDIT_LOCK_INVALID);
+            }
+        }
         return Objects.requireNonNull(authority, "authority").compareAndSet(
-                binding.projectId(), binding.expectedProjectRevision(), binding.editLock());
+                binding.projectId(), binding.expectedProjectRevision(), binding.editLocksByStep());
     }
 
     public record Binding(String schemaVersion, String projectId, String expectedProjectRevision,
             RequestIdentity requestIdentity, Map<String, Engine> enginesByStep,
             ProviderQualification provider, Reservation reservation,
-            Authority authority, SceneEditLock editLock, ClockBindings clocks) {
+            Authority authority, Map<String, EditLock> editLocksByStep, ClockBindings clocks) {
         public Binding {
             if (!SCHEMA_VERSION.equals(schemaVersion)) throw new IllegalArgumentException("unsupported admission binding version");
             projectId = required(projectId, "projectId");
@@ -180,7 +210,11 @@ public final class MediaProductionAdmissionBinding {
             Objects.requireNonNull(provider, "provider");
             Objects.requireNonNull(reservation, "reservation");
             Objects.requireNonNull(authority, "authority");
-            Objects.requireNonNull(editLock, "editLock");
+            Objects.requireNonNull(editLocksByStep, "editLocksByStep");
+            Map<String, EditLock> sortedLocks = new TreeMap<>();
+            editLocksByStep.forEach((stepId, lock) -> sortedLocks.put(
+                    required(stepId, "editLock stepId"), Objects.requireNonNull(lock, "editLock")));
+            editLocksByStep = Map.copyOf(sortedLocks);
             Objects.requireNonNull(clocks, "clocks");
         }
 
@@ -197,8 +231,11 @@ public final class MediaProductionAdmissionBinding {
                     authority.tenantId(), authority.principalId(), authority.purposeRef(),
                     authority.rightsRef(), authority.sourceVersionRef(), authority.sourceSha256(), authority.ownerDecisionRef(),
                     authority.decisionExpiresAt().toString(), Long.toString(authority.revocationEpoch()),
-                    editLock.sceneId(), editLock.ownerPrincipalId(), editLock.leaseId(),
-                    Long.toString(editLock.epoch()), editLock.expiresAt().toString(),
+                    new TreeMap<>(editLocksByStep).entrySet().stream().map(entry -> join(entry.getKey(),
+                            entry.getValue().scopeKind(), entry.getValue().targetRef(),
+                            entry.getValue().ownerPrincipalId(), entry.getValue().leaseId(),
+                            Long.toString(entry.getValue().epoch()), entry.getValue().expiresAt().toString()))
+                            .toList().toString(),
                     clocks.storyClock(), clocks.mediaClock(), clocks.simulationClock(), clocks.wallClock(),
                     clocks.conversions().stream().map(c -> join(c.fromClock(), c.toClock(),
                             Long.toString(c.ratio().numerator()), Long.toString(c.ratio().denominator()))).toList().toString()));
@@ -232,7 +269,7 @@ public final class MediaProductionAdmissionBinding {
             String qualificationSha256, String providerRightsRef, boolean qualified,
             String quoteRef, String quoteVersion, String reservationId,
             BoundedAmount remainingCost, BoundedAmount remainingCompute, BoundedAmount remainingTime,
-            String lockSceneId, String lockOwnerPrincipalId, String lockLeaseId, long lockEpoch,
+            String lockScopeKind, String lockTargetRef, String lockOwnerPrincipalId, String lockLeaseId, long lockEpoch,
             Instant lockExpiresAt, String canonicalRequestId, String canonicalRequestFingerprint,
             ClockBindings clocks, Instant observedAt) { }
 
@@ -275,8 +312,9 @@ public final class MediaProductionAdmissionBinding {
                 || !covers(s.remainingTime(), b.reservation().worstCaseTime())) fail(AdmissionFailure.BUDGET_EXCEEDED);
         if (!b.projectId().equals(s.projectId()) || !b.expectedProjectRevision().equals(s.projectRevision()))
             fail(AdmissionFailure.PROJECT_REVISION_STALE);
-        SceneEditLock l = b.editLock();
-        if (!l.sceneId().equals(s.lockSceneId()) || !l.ownerPrincipalId().equals(s.lockOwnerPrincipalId())
+        EditLock l = b.editLocksByStep().get(stepId);
+        if (l == null || !l.scopeKind().equals(s.lockScopeKind()) || !l.targetRef().equals(s.lockTargetRef())
+                || !l.ownerPrincipalId().equals(s.lockOwnerPrincipalId())
                 || !a.principalId().equals(s.lockOwnerPrincipalId()) || !l.leaseId().equals(s.lockLeaseId())
                 || l.epoch() != s.lockEpoch() || !l.expiresAt().equals(s.lockExpiresAt())
                 || !l.expiresAt().isAfter(now)) fail(AdmissionFailure.EDIT_LOCK_INVALID);
@@ -295,7 +333,8 @@ public final class MediaProductionAdmissionBinding {
                 && present(s.providerRightsRef())
                 && present(s.quoteRef()) && present(s.quoteVersion()) && present(s.reservationId())
                 && s.remainingCost() != null && s.remainingCompute() != null && s.remainingTime() != null
-                && present(s.lockSceneId()) && present(s.lockOwnerPrincipalId()) && present(s.lockLeaseId())
+                && present(s.lockScopeKind()) && present(s.lockTargetRef())
+                && present(s.lockOwnerPrincipalId()) && present(s.lockLeaseId())
                 && s.lockEpoch() > 0 && s.lockExpiresAt() != null
                 && s.clocks() != null && s.observedAt() != null;
     }

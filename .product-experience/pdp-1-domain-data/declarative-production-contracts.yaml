@@ -1806,7 +1806,7 @@ caseOperationBindings:
     p1ErrorOutcomesSource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/errors"
     p1FinalitySource: ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-deliver-interactive-scene-bundle/finality"
 executionAdmissionBinding:
-  id: media.production.execution-admission.v1
+  id: media.production.execution-admission.v2
   structuralType: closed-versioned-object
   canonicalOperationRef: media.recipe.specification.compile
   status: SOURCE_AUTHORED_DEFINITION_ONLY
@@ -1818,14 +1818,14 @@ executionAdmissionBinding:
     - authenticatedTenantPrincipalPurposeAndImmutableSourceVersion
     - currentOwnerDecisionRefExpiryAndRevocationEpoch
     - expectedProjectRevisionCas
-    - sceneScopedEditLockOwnerLeaseEpochAndExpiry
+    - perStepSceneAndOutputEditLockOwnerLeaseEpochAndExpiry
     - storyMediaSimulationAndWallClockIdentitiesAndRationalConversions
   schema:
     type: object
     additionalProperties: false
-    required: [schemaVersion, requestIdentity, enginesByStep, providerQualification, reservation, authority, project, sceneEditLock, clocks]
+    required: [schemaVersion, requestIdentity, enginesByStep, providerQualification, reservation, authority, project, editLocksByStep, clocks]
     properties:
-      schemaVersion: {const: media.production.execution-admission.v1}
+      schemaVersion: {const: media.production.execution-admission.v2}
       requestIdentity:
         type: object
         additionalProperties: false
@@ -1902,16 +1902,24 @@ executionAdmissionBinding:
           projectId: {$ref: '#/$defs/opaqueId'}
           expectedRevision: {$ref: '#/$defs/versionRef'}
           compareAndSet: {const: REQUIRED}
-      sceneEditLock:
+      editLocksByStep:
+        description: >-
+          Exact per-step scene/output lock receipts. A lock is never implicitly
+          shared by another scene or output in this plan.
         type: object
-        additionalProperties: false
-        required: [sceneId, ownerPrincipalId, leaseId, epoch, expiresAt]
-        properties:
-          sceneId: {$ref: '#/$defs/opaqueId'}
-          ownerPrincipalId: {$ref: '#/$defs/opaqueId'}
-          leaseId: {$ref: '#/$defs/opaqueId'}
-          epoch: {$ref: '#/$defs/positiveInt64'}
-          expiresAt: {type: string, format: date-time}
+        minProperties: 2
+        propertyNames: {$ref: '#/$defs/opaqueId'}
+        additionalProperties:
+          type: object
+          additionalProperties: false
+          required: [scopeKind, targetRef, ownerPrincipalId, leaseId, epoch, expiresAt]
+          properties:
+            scopeKind: {enum: [SCENE, OUTPUT]}
+            targetRef: {$ref: '#/$defs/versionRef'}
+            ownerPrincipalId: {$ref: '#/$defs/opaqueId'}
+            leaseId: {$ref: '#/$defs/opaqueId'}
+            epoch: {$ref: '#/$defs/positiveInt64'}
+            expiresAt: {type: string, format: date-time}
       clocks:
         type: object
         additionalProperties: false
@@ -1950,9 +1958,9 @@ executionAdmissionBinding:
     sourceOwnerDisposition: >-
       The execution-admission envelope is a separate versioned runtime context
       for the plan candidate produced by this operation. It is not a field in
-      ProductionSpec v1 and is not a new compile-operation input. Compilation
-      remains local candidate preparation with no job, project mutation, or
-      external effect.
+      ProductionSpec v1 and is not a new compile-operation input; the existing
+      six operation slots are unchanged. Compilation remains local candidate
+      preparation with no job, project mutation, or external effect.
     planBindingRules:
       projectId: EXACT_EQUAL_TO_PRODUCTION_SPEC_PROJECT_ID
       expectedProjectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID
@@ -1990,6 +1998,10 @@ executionAdmissionBinding:
           dependsOn: all_render_profile_steps_in_output_profile_order
       planFingerprint: INCLUDES_STABLE_ADMISSION_CONTEXT_AND_PER_STEP_ENGINE_DIGESTS
       changedEngineDigest: INVALIDATES_ONLY_THAT_STEP_AND_DESCENDANTS
+      editLocksByStep:
+        capture-source-{zeroBasedSceneIndex}: EXACT_SCENE_REF_AT_SAME_INPUT_INDEX
+        render-profile-{zeroBasedOutputProfileIndex}: EXACT_OUTPUT_PROFILE_REF_AT_SAME_INPUT_INDEX
+        allOtherSteps: NO_IMPLICIT_SCENE_OR_OUTPUT_LOCK_MAPPING; EFFECT_NOT_ADMITTED
       stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
     operationInputCoverage:
       scope: EFFECT_FREE_REFERENCE_BOUND_FIXED_DAG_PROTOTYPE_ONLY
@@ -2001,19 +2013,20 @@ executionAdmissionBinding:
       schemaMigrationCandidate: NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION
     sourceAndLockCoverage:
       authoritySourceVersionToEachSceneOrStep: NOT_MAPPED
-      sceneEditLockCardinality: ONE_EXACT_SCENE_PER_EFFECT
-      oneLockAuthorizesEverySceneInPlan: false
+      editLockCardinality: ONE_EXACT_SCENE_OR_OUTPUT_PER_MAPPED_EFFECT_STEP
+      oneLockAuthorizesOtherScenesOrOutputsInPlan: false
     effectBoundary:
       compileOperation: LOCAL_CANDIDATE_ONLY_NO_JOB_OR_EXTERNAL_EFFECT
       beforeProviderDispatchRetryOrRestart:
         required: RECHECK_CURRENT_AUTHORITY_THROUGH_EXISTING_MEDIARUNTIME_JOBATTEMPT
         implementationStatus: NOT_WIRED_TO_H02_EXECUTION_PATH
+        unmappedStepScope: NOT_ADMITTED
       unknownProviderOutcome:
         required: RECONCILE_EXISTING_ATTEMPT_WITHOUT_DUPLICATE_DISPATCH
         implementationStatus: UNKNOWN_UNTIL_AUTHORITY_BACKED_ATTEMPT_READBACK
-      sceneEditLockScope:
-        cardinality: ONE_EXACT_SCENE_PER_EFFECT
-        authorizesOtherScenesInMultiScenePlan: false
+      editLockScope:
+        cardinality: ONE_EXACT_SCENE_OR_OUTPUT_PER_MAPPED_EFFECT_STEP
+        authorizesOtherTargetsInMultiScenePlan: false
       runtimeAdmission: NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER
     sourceReviewRequirement: Independently review the owner-authored plan binding rules and exact source cut before any runtime admission.
 nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]
