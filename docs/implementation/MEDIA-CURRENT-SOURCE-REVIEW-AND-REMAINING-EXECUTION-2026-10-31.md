@@ -2205,3 +2205,14 @@ The test-only V001–V016 SQL snapshot and applied-history CSV supplied for this
 The two skipped cases are the opt-in real profile/audio integration checks. `GHATANA_MEDIA_WHISPER_PROFILE`, `GHATANA_MEDIA_WHISPER_AUDIO`, and `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT` are unset. No ONNX inference, independent transcript match, quality score, or `WhisperPerformanceQualificationTest` A/B result is claimed. The JDK 27 run is macOS ARM64 only; Linux ARM64 qualification remains open.
 
 **JC-03 host worker availability:** the trusted host OCI integration requires a broker socket, owner-only token file, and digest-pinned worker image. `GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET`, `GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE`, and `GHATANA_MEDIA_VISION_WORKER_IMAGE` are unset. The local Docker CLI probe failed with `permission denied` for `/Users/samujjwal/.docker/run/docker.sock`. Therefore host OCI resource-limit/cancellation qualification and the real Whisper image/model run remain unexecuted; fake-runner and unit tests do not replace them. No worker credentials or external effect were created.
+
+### 41.65 November 2 trusted host OCI broker boundary qualification
+
+The earlier §41.64 availability observation was followed by an authorized read-only Docker daemon probe, which identified Docker `29.1.3`, Linux/aarch64. The repository-owned broker-mode selector rebuilt the pinned test-only fixture offline from the checked-in Dockerfile, generated a temporary owner-only token, started the trusted broker, and ran the integration class. The fixture image ID was `sha256:bba142f65503b62611927bead70f5db1a5579ce8ecd77602ecb9ec7c0ec58978`. `HostOciVisionBrokerIntegrationTest` passed **8/8** with no skips: timeout kill; bounded success with no Docker access from the Media JVM; kernel PID, CPU quota, OOM, no-file, file-size and tmpfs enforcement; and no partial output on OOM/tmpfs failure. The script's exit cleanup left no worker containers or broker temp directory.
+
+```bash
+bash scripts/qualification/run-wave2-vision-oci-checks.sh broker
+# 8 passed; Verified dedicated OCI test JVM mode=broker
+```
+
+This is real local Docker/Linux ARM64 enforcement for the synthetic OCI fixture and authenticated host-broker path. It does not qualify FFmpeg with a production codec set, a Whisper or other real model, model quality, lawful source/weight rights, provider/job/outbox effect finality, another host/platform, or deployment. The actual broker environment was temporary and the token was removed by the script. JC-03 host timeout/resource-boundary evidence is improved; issue #26 and the terminal real-provider qualification remain open.
