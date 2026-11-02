@@ -16,13 +16,18 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListMultipartUploadsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.lang.reflect.InvocationTargetException;
@@ -52,6 +57,76 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class MediaPostgresqlS3ProcessCrashRecoveryTest {
     private static final int ADVISORY_LOCK_CLASS = 802406;
     private static final int ADVISORY_LOCK_ID = 6;
+
+    @Test
+    void lostUploadPartAcknowledgementAbortsExactMultipartUploadAndRetriesOnSameKey() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-upload-part-acklost-" + runId;
+        String prefix = "ip06/upload-part-acklost/" + runId;
+        String tenant = "tenant-ip06-upload-part-acklost-" + runId;
+        String principal = "principal-ip06-upload-part-acklost-" + runId;
+        byte[] bytes = wav(("upload-part-acklost-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        AtomicReference<String> targetFinalKey = new AtomicReference<>();
+        AtomicReference<String> multipartId = new AtomicReference<>();
+        AtomicBoolean loseFirstAcknowledgement = new AtomicBoolean(true);
+        AtomicInteger matchingPartCalls = new AtomicInteger();
+        AtomicInteger matchingAbortCalls = new AtomicInteger();
+        createBucket(bucket);
+
+        String uploadId;
+        String finalKey;
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> uploadPartThenLoseAcknowledgement(delegate, targetFinalKey, multipartId,
+                                 loseFirstAcknowledgement, matchingPartCalls, matchingAbortCalls, bucket));
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+                UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                        digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+                UploadSession upload = store.begin(request, "ip06-upload-part-acklost-" + runId);
+                uploadId = upload.uploadId();
+                store.append(tenant, principal, uploadId, 0, bytes);
+                finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/" + uploadId + "/" + digest;
+                targetFinalKey.set(finalKey);
+
+                assertThatThrownBy(() -> store.complete(tenant, principal, uploadId))
+                        .isInstanceOf(S3Exception.class)
+                        .hasMessageContaining("lost S3 UploadPart acknowledgement");
+                assertThat(multipartId.get()).isNotBlank();
+                assertThat(matchingPartCalls).hasValue(1);
+                assertThat(matchingAbortCalls).hasValue(1);
+                assertThat(store.upload(tenant, uploadId).orElseThrow().status().name()).isEqualTo("OPEN");
+                assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+                assertThat(tenantArtifactCount(tenant)).isZero();
+                assertThat(objectExists(bucket, finalKey)).isFalse();
+                try (S3Client client = s3Client()) {
+                    assertThat(client.listMultipartUploads(ListMultipartUploadsRequest.builder()
+                                    .bucket(bucket).prefix(finalKey).build()).uploads())
+                            .noneMatch(uploadEntry -> uploadEntry.key().equals(finalKey));
+                }
+            }
+
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> uploadPartThenLoseAcknowledgement(delegate, targetFinalKey, multipartId,
+                                 loseFirstAcknowledgement, matchingPartCalls, matchingAbortCalls, bucket));
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+                MediaArtifact recovered = restarted.complete(tenant, principal, uploadId);
+                assertThat(artifactIdForUpload(tenant, uploadId)).isEqualTo(recovered.artifactId());
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(artifactCount(tenant, recovered.artifactId())).isEqualTo(1);
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
+                assertThat(matchingPartCalls).hasValue(2);
+                assertThat(matchingAbortCalls).hasValue(1);
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
 
     @Test
     void childDeathAfterS3MultipartFinalizeBeforeArtifactMetadataRecoversOnSameKey(@TempDir Path tempDir)
@@ -913,6 +988,68 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
                                     .message("injected one-time IP-06 S3 DeleteObject failure")
                                     .statusCode(503)
                                     .build();
+                        }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+    }
+
+    private static S3Client uploadPartThenLoseAcknowledgement(
+            S3Client delegate,
+            AtomicReference<String> targetFinalKey,
+            AtomicReference<String> multipartId,
+            AtomicBoolean loseFirstAcknowledgement,
+            AtomicInteger matchingPartCalls,
+            AtomicInteger matchingAbortCalls,
+            String bucket) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("createMultipartUpload") && arguments != null
+                            && arguments.length > 0
+                            && arguments[0] instanceof CreateMultipartUploadRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetFinalKey.get())) {
+                        try {
+                            CreateMultipartUploadResponse response = (CreateMultipartUploadResponse)
+                                    method.invoke(delegate, arguments);
+                            multipartId.set(response.uploadId());
+                            return response;
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
+                        }
+                    }
+                    if (method.getName().equals("uploadPart") && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof UploadPartRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetFinalKey.get())
+                            && request.uploadId().equals(multipartId.get())) {
+                        try {
+                            Object response = method.invoke(delegate, arguments);
+                            matchingPartCalls.incrementAndGet();
+                            if (loseFirstAcknowledgement.compareAndSet(true, false)) {
+                                throw S3Exception.builder()
+                                        .message("injected IP-06 lost S3 UploadPart acknowledgement")
+                                        .statusCode(503)
+                                        .build();
+                            }
+                            return response;
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
+                        }
+                    }
+                    if (method.getName().equals("abortMultipartUpload") && arguments != null
+                            && arguments.length > 0
+                            && arguments[0] instanceof AbortMultipartUploadRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetFinalKey.get())
+                            && request.uploadId().equals(multipartId.get())) {
+                        try {
+                            Object response = method.invoke(delegate, arguments);
+                            matchingAbortCalls.incrementAndGet();
+                            return response;
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
                         }
                     }
                     try {
