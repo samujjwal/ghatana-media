@@ -1,10 +1,16 @@
 package com.ghatana.media.provider.aws;
 
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanDecision;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanVerdict;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactScanner;
+import com.ghatana.media.runtime.MediaRuntimeContracts.QuarantinedArtifact;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
+import java.time.Instant;
 import java.util.Map;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -40,6 +46,12 @@ public final class MediaPostgresqlS3ProcessCrashWorker {
             try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(
                          Map.copyOf(System.getenv()), delegate -> pauseAfterSuccessfulFinalize(delegate, marker));
                  S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+                write(marker, "READY");
+                store.complete(tenant, principal, uploadId);
+            }
+        } else if (operation.equals("complete-block-in-scanner")) {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(Map.copyOf(System.getenv()));
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore(blockingScanner(marker))) {
                 write(marker, "READY");
                 store.complete(tenant, principal, uploadId);
             }
@@ -95,6 +107,27 @@ public final class MediaPostgresqlS3ProcessCrashWorker {
                         throw failure.getCause();
                     }
                 });
+    }
+
+    private static MediaArtifactScanner blockingScanner(Path marker) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-process-crash-blocking-scanner"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                try {
+                    write(marker, "SCANNING");
+                    while (true) Thread.sleep(60_000);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("test-only scanner interrupted", interrupted);
+                } catch (Exception failure) {
+                    throw new IllegalStateException("test-only scanner marker failed", failure);
+                }
+            }
+        };
     }
 
     private static void write(Path marker, String value) throws Exception {

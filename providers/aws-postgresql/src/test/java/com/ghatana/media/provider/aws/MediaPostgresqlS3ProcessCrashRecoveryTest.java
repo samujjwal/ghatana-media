@@ -1,6 +1,10 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanDecision;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactScanVerdict;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactScanner;
+import com.ghatana.media.runtime.MediaRuntimeContracts.QuarantinedArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaUploadRequestFingerprint;
@@ -39,6 +43,7 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HexFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -224,6 +229,96 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
                 assertThat(sha256(stored)).isEqualTo(digest);
                 assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
                 assertThat(objectExists(bucket, stagedKey)).isFalse();
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
+    void childDeathDuringQuarantineScanReclaimsFinalizationAndPublishesOnce(@TempDir Path tempDir) throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-scan-crash-" + runId;
+        String prefix = "ip06/scan-crash/" + runId;
+        String tenant = "tenant-ip06-scan-crash-" + runId;
+        String principal = "principal-ip06-scan-crash-" + runId;
+        String application = "media-ip06-s3-scan-crash-" + runId;
+        byte[] bytes = wav(("ip06-s3-scan-crash-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        Path payloadFile = tempDir.resolve("scan-crash-source.wav");
+        Path scanningMarker = tempDir.resolve("scan-crash.marker");
+        Path workerLog = tempDir.resolve("scan-crash-worker.log");
+        Files.write(payloadFile, bytes);
+        createBucket(bucket);
+
+        UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+        UploadSession upload;
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            upload = store.begin(request, "ip06-scan-crash-" + runId);
+            store.append(tenant, principal, upload.uploadId(), 0, bytes);
+        }
+
+        String finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/"
+                + upload.uploadId() + "/" + digest;
+        String stagedKey = prefix + "/uploads/" + opaque(tenant) + "/"
+                + upload.uploadId() + "/chunks/0";
+        try {
+            Process child = startWorker(environment, application, scanningMarker, workerLog,
+                    "complete-block-in-scanner", payloadFile, tenant, principal, upload.uploadId());
+            try {
+                awaitMarker(child, scanningMarker, "SCANNING", workerLog);
+                // The finalized object exists, but the scanner has not returned a verdict and
+                // neither artifact metadata nor a clean scan receipt may be visible.
+                assertThat(objectExists(bucket, finalKey)).isTrue();
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
+                try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                     S3PostgresqlMediaArtifactStore observer = new S3PostgresqlMediaArtifactStore()) {
+                    assertThat(artifactIdForUpload(tenant, upload.uploadId())).isNull();
+                    assertThat(tenantArtifactCount(tenant)).isZero();
+                    assertThat(observer.upload(tenant, upload.uploadId()).orElseThrow().status().name())
+                            .isEqualTo("FINALIZING");
+                    assertThat(objectExists(bucket, stagedKey)).isTrue();
+                }
+                child.destroyForcibly();
+                assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            } finally {
+                if (child.isAlive()) child.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+            }
+
+            // Reclaim only after the killed process is gone. This isolated test advances the
+            // persisted lease past its production expiry without changing runtime policy.
+            try (Connection connection = databaseConnection(); var update = connection.prepareStatement(
+                    "UPDATE media_upload_sessions SET finalization_started_at=? WHERE tenant_id=? AND upload_id=?")) {
+                update.setLong(1, System.currentTimeMillis() - Duration.ofMinutes(16).toMillis());
+                update.setString(2, tenant);
+                update.setString(3, upload.uploadId());
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            AtomicInteger recoveredScans = new AtomicInteger();
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore(
+                         cleanScanner(recoveredScans))) {
+                MediaArtifact recovered = restarted.complete(tenant, principal, upload.uploadId());
+                assertThat(recoveredScans).hasValue(1);
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(scanStatus(tenant, upload.uploadId())).isEqualTo("CLEAN");
+                assertThat(artifactIdForUpload(tenant, upload.uploadId())).isEqualTo(recovered.artifactId());
+                assertThat(artifactCount(tenant, recovered.artifactId())).isEqualTo(1);
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
+                assertThat(objectExists(bucket, stagedKey)).isFalse();
+
+                assertThat(restarted.complete(tenant, principal, upload.uploadId())).isEqualTo(recovered);
+                assertThat(recoveredScans).as("durable completion replay does not rescan or republish").hasValue(1);
+                assertThat(artifactCount(tenant, recovered.artifactId())).isEqualTo(1);
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
             }
         } finally {
             deleteBucketObjects(bucket);
@@ -906,6 +1001,34 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
             query.setString(2, uploadId);
             try (var rows = query.executeQuery()) { assertThat(rows.next()).isTrue(); return rows.getString(1); }
         }
+    }
+
+    private static String scanStatus(String tenant, String uploadId) throws Exception {
+        try (Connection connection = databaseConnection();
+             var query = connection.prepareStatement(
+                     "SELECT scan_status FROM media_upload_sessions WHERE tenant_id=? AND upload_id=?")) {
+            query.setString(1, tenant);
+            query.setString(2, uploadId);
+            try (var rows = query.executeQuery()) { assertThat(rows.next()).isTrue(); return rows.getString(1); }
+        }
+    }
+
+    private static MediaArtifactScanner cleanScanner(AtomicInteger scans) {
+        return new MediaArtifactScanner() {
+            @Override public String scannerId() { return "ip06-process-crash-clean-recovery"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+
+            @Override
+            public ArtifactScanDecision scan(QuarantinedArtifact artifact) {
+                scans.incrementAndGet();
+                Instant evaluated = Instant.now();
+                return new ArtifactScanDecision(scannerId(), "test-v1", "ip06-test-policy", "v1",
+                        artifact.tenantId(), artifact.principalId(), artifact.uploadId(), artifact.sha256(),
+                        artifact.sizeBytes(), artifact.contentType(), ArtifactScanVerdict.CLEAN,
+                        evaluated, evaluated.plusSeconds(60));
+            }
+        };
     }
 
     private static String requestFingerprint(String tenant, String uploadId) throws Exception {
