@@ -113,7 +113,12 @@ class AudioStreamSessionFrameTest {
 
     @Test
     void reconnectSequenceDoesNotWrapIntoAnAmbiguousStreamOrder() {
+        assertThat(session.expectedNextSequenceAfterReconnect(-1)).isZero();
         assertThat(session.expectedNextSequenceAfterReconnect(41)).isEqualTo(42);
+        assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(-2))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(Integer.MIN_VALUE))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(Integer.MAX_VALUE))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("new stream");

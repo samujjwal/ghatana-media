@@ -72,6 +72,9 @@ public final class AudioStreamSession {
     }
 
     public int expectedNextSequenceAfterReconnect(int lastAckedSequence) {
+        if (lastAckedSequence < -1) {
+            throw new IllegalArgumentException("audio stream last ACK must be -1 or nonnegative");
+        }
         if (lastAckedSequence == Integer.MAX_VALUE) {
             throw new IllegalStateException("audio stream sequence exhausted; reconnect requires a new stream");
         }
