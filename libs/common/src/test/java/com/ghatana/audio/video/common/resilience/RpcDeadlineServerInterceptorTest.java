@@ -18,9 +18,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -327,6 +329,86 @@ class RpcDeadlineServerInterceptorTest {
             releaseBlocker.countDown();
             pool.shutdownNow();
             pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void cancellationBeforeExecutorEnqueueDoesNotLeaveCancelledTaskInBoundedQueue() throws Exception {
+        CountDownLatch blockerStarted = new CountDownLatch(1);
+        CountDownLatch releaseBlocker = new CountDownLatch(1);
+        CountDownLatch executePaused = new CountDownLatch(1);
+        CountDownLatch allowEnqueue = new CountDownLatch(1);
+        AtomicBoolean pauseNextExecute = new AtomicBoolean();
+        AtomicInteger cancelledDispatches = new AtomicInteger();
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1)) {
+            @Override
+            public void execute(Runnable command) {
+                if (pauseNextExecute.compareAndSet(true, false)) {
+                    executePaused.countDown();
+                    try {
+                        if (!allowEnqueue.await(1, TimeUnit.SECONDS)) {
+                            throw new IllegalStateException("test did not release the enqueue gate");
+                        }
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("enqueue gate interrupted", interrupted);
+                    }
+                }
+                super.execute(command);
+            }
+        };
+        Context.CancellableContext request = Context.current().withCancellation();
+        FutureTask<ContextAwareBoundedExecutor.Submission<String>> submitCall = new FutureTask<>(() -> {
+            Context previous = request.attach();
+            try {
+                return new ContextAwareBoundedExecutor(pool).submit(() -> {
+                    cancelledDispatches.incrementAndGet();
+                    return "cancelled work must not run";
+                });
+            } finally {
+                request.detach(previous);
+            }
+        });
+        Thread submitter = new Thread(submitCall, "bounded-submit-cancel-race-test");
+        try {
+            pool.execute(() -> {
+                blockerStarted.countDown();
+                while (true) {
+                    try {
+                        if (releaseBlocker.await(10, TimeUnit.MILLISECONDS)) break;
+                    } catch (InterruptedException ignored) {
+                        // Keep the only worker occupied while the bounded queue race is exercised.
+                    }
+                }
+            });
+            assertThat(blockerStarted.await(1, TimeUnit.SECONDS)).isTrue();
+
+            pauseNextExecute.set(true);
+            submitter.start();
+            assertThat(executePaused.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(pool.getQueue()).isEmpty();
+
+            // The cancellation listener removes before super.execute has enqueued the future.
+            request.cancel(null);
+            allowEnqueue.countDown();
+            ContextAwareBoundedExecutor.Submission<String> cancelled = submitCall.get(1, TimeUnit.SECONDS);
+            assertStatus(cancelled, Status.Code.CANCELLED);
+            assertThat(pool.getQueue()).isEmpty();
+            assertThat(cancelledDispatches).hasValue(0);
+
+            // The cancelled future must not consume the sole queue slot behind the worker.
+            var later = new ContextAwareBoundedExecutor(pool).submit(() -> "later task");
+            assertThat(pool.getQueue()).hasSize(1);
+            releaseBlocker.countDown();
+            assertThat(later.result().get(1, TimeUnit.SECONDS)).isEqualTo("later task");
+            assertThat(cancelledDispatches).hasValue(0);
+        } finally {
+            allowEnqueue.countDown();
+            releaseBlocker.countDown();
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+            if (submitter.isAlive()) submitter.join(1_000);
         }
     }
 

@@ -69,6 +69,10 @@ public final class ContextAwareBoundedExecutor {
                 return submission;
             }
             executor.execute(future);
+            // Cancellation can win after the pre-dispatch check but before execute enqueues
+            // the FutureTask. In that race cancel()'s first remove may run too early, so
+            // recheck after enqueue and free a cancelled task that never began dispatch.
+            submission.removeCancelledQueuedTask(future);
         } catch (RejectedExecutionException saturated) {
             submission.reject(saturated);
         }
@@ -172,6 +176,12 @@ public final class ContextAwareBoundedExecutor {
                         && executor instanceof ThreadPoolExecutor threadPool) {
                     threadPool.remove(queuedTask);
                 }
+            }
+        }
+
+        private void removeCancelledQueuedTask(Runnable queuedTask) {
+            if (terminal.get() && !started.get() && executor instanceof ThreadPoolExecutor threadPool) {
+                threadPool.remove(queuedTask);
             }
         }
 
