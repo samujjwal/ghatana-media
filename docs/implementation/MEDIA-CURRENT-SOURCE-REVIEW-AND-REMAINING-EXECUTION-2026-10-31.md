@@ -1891,3 +1891,30 @@ cargo fmt --check
 ```
 
 This closes only decoder-level truncated-packet handling. Fuzz-target coverage, peak-RSS measurements, interruption of synchronous codec calls, concurrent file-growth protection, decoder-internal allocation bounds, and demux-level partial-tail distinction remain open; RS-02 is not complete.
+
+### 41.53 November 2 H-02 mapping guard, TY-04 source-field tests, and Rust bounds (2026-11-02)
+
+At Media `main@ea27a17d`, three bounded implementation slices were committed after the current-source review. The V001–V016 synthetic PostgreSQL snapshot and applied-history CSV from §41.40 were re-hashed unchanged at this source cut. They remain test fixtures, not deployed database history.
+
+**H-02 (`bd544460`):** the resolved-input semantic graph path now has regressions for exact versioned content, malformed/unavailable resolver results, deterministic node normalization, preserved declared kind and `operationRef`, and source-byte-bound identity. The v3 candidate binder requires graph step IDs to equal both the supplied engine keys and `compile(spec)`'s fixed plan IDs. A matching set still returns `UNKNOWN/STEP_OPERATION_MAPPING_UNDEFINED` without a candidate fingerprint; it does not infer a step-to-operation or engine-operation mapping. PDP-1 now enumerates this typed `UNKNOWN` outcome. `pnpm check:declarative-production-definition` passed with 507 capability leaves and 620 canonical operation identities. An independent read-only Luna review returned **`ACCEPT_LOCAL_CANDIDATE_ONLY`**. The focused `MediaProductionSemanticSourceTest` and `MediaProductionCompilerContractTest` suites passed **21/21**:
+
+```bash
+./gradlew :services:media:runtime-contracts:test \
+  --tests com.ghatana.media.runtime.MediaProductionSemanticSourceTest \
+  --tests com.ghatana.media.runtime.MediaProductionCompilerContractTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 21 tests passed
+
+pnpm check:declarative-production-definition
+# PASS: 507 capability leaves, 620 canonical operation identities
+```
+
+PDP-1/2/3 source currentness remains stale. Operation compatibility, trusted resolver authority/currentness, canonical step mapping, authority-backed project CAS, MediaRuntime/JobAttempt dispatch and durable restart/unknown-outcome readback remain unresolved; H-02 runtime admission remains `NOT_ADMITTED`. No status, pin or lifecycle transition changed.
+
+**TY-04 (`067f6579`):** the existing closed TypeScript `ProductionSpec` and `SceneBinding` parsers now have missing-required-field coverage for all 10 and 9 declared fields, respectively; tests also reject blank/duplicate output-profile refs and duplicate source refs, and prove reference ordering is preserved. No schema fields were added. The package check passed typecheck, build, projection parity, emitted ESM/CJS parity and **73/73** tests. The isolated package consumer was not run because the offline cache lacked the required `zod@4.6.5` tarball; no network fetch was made. PDP-1 does not define typed Capture, Run, or RenderOutcome schemas, so those parser shapes remain an owner-source handoff.
+
+**RS-02/RS-04 (`ea27a17d`):** the public bounded decoder now has deterministic hostile RIFF/WAVE cases for malformed container lengths, out-of-bounds data chunks, channel and sample-rate caps, and decoded-sample budgets, asserting no panic and exact typed errors. Additional cases cover invalid/incomplete slice and mix shapes, silence preservation, and zero waveform buckets. The Rust suite passed **44/44**, with `cargo fmt --check` and Clippy `--all-targets -- -D warnings` passing. The updated local DSP benchmark passed its single selector and recorded 1/16/64-worker latency p50/p95 of **55.211/55.340 ms**, **144.986/165.615 ms**, and **596.030/656.996 ms**, with tracked allocations of **640,376 / 2,562,176 / 8,711,936 bytes**. `resample_rtf=0.056`, `decode_rtf=0.002`. The macOS `/usr/bin/time -l` wrapper could not read `kern.clockrate` in this sandbox, so no fresh peak-RSS value is claimed.
+
+The Rust tests do not establish sustained fuzzing, compressed-container corpus coverage, concurrent file-growth safety, peak RSS, or interruption of an in-flight synchronous codec call. RS-04 remains in-memory and does not establish configurable pan law, perceptual loudness, or high-fidelity output. No Rust provider, real model, or cross-host capacity qualification is claimed.
+
+These local changes do not alter the original Wave 2 denominator (22 verified, 30 partial, 6 external-owner), Wave 3 denominator, H outcome denominator, PDP status, deployment, writer cutover, or release state.
