@@ -6,6 +6,7 @@ import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -54,6 +55,88 @@ class MediaProductionSpecCompilerTest {
                 .isInstanceOf(MediaProductionAdmissionBinding.AdmissionException.class)
                 .extracting(failure -> ((MediaProductionAdmissionBinding.AdmissionException) failure).failure())
                 .isEqualTo(MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
+    }
+
+    @Test
+    void exactSchemaAndCompilerContractReferencesAreRetainedAndFingerprintBound() {
+        MediaProductionSpecCompiler compiler = new MediaProductionSpecCompiler();
+        var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+        CompiledPlan first = compiler.compileWithInputs(spec(), inputs);
+        CompiledPlan repeat = compiler.compileWithInputs(spec(), new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3"));
+        CompiledPlan changedSchema = compiler.compileWithInputs(spec(), new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-2",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3"));
+        CompiledPlan changedCompiler = compiler.compileWithInputs(spec(), new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v4"));
+        CompiledPlan changedSpecVersion = compiler.compileWithInputs(spec(), new MediaProductionSpecCompiler.CompilationInputs(
+                "production-spec/source-rev-8", "production-spec-schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3"));
+
+        assertThat(first.inputProvenance()).isEqualTo(inputs);
+        assertThat(repeat.planFingerprint()).isEqualTo(first.planFingerprint());
+        assertThat(changedSchema.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(changedCompiler.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(changedSpecVersion.planFingerprint()).isNotEqualTo(first.planFingerprint());
+        assertThat(changedSchema.invalidatedAgainst(first)).containsExactlyElementsOf(
+                first.nodes().stream().map(node -> node.stepId()).toList());
+        assertThat(changedCompiler.invalidatedAgainst(first)).containsExactlyElementsOf(
+                first.nodes().stream().map(node -> node.stepId()).toList());
+        assertThat(changedSpecVersion.invalidatedAgainst(first)).containsExactlyElementsOf(
+                first.nodes().stream().map(node -> node.stepId()).toList());
+    }
+
+    @Test
+    void requiredCompilationInputReferencesRejectMissingOrMalformedValues() {
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler.CompilationInputs(null, "schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "compiler/v1"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler.CompilationInputs("spec/rev-1", "schema/rev-1",
+                MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "compiler v1"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithInputs(spec(),
+                (MediaProductionSpecCompiler.CompilationInputs) null))
+                .isInstanceOf(NullPointerException.class);
+        var wrongSchemaIdentity = new MediaProductionSpecCompiler.CompilationInputs(
+                "spec/rev-1", "schema/rev-2", "media.declarative.value.production-spec.v2", "compiler/v1");
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileWithInputs(spec(), wrongSchemaIdentity))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must match");
+    }
+
+    @Test
+    void schemaMigrationInputsRemainExplicitlyUnknownWithoutADeclaredTransformation() {
+        var compiler = new MediaProductionSpecCompiler();
+        var source = new MediaProductionSpecCompiler.CompilationInputs("production-spec/source-rev-7",
+                "production-spec-schema/rev-1", MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION,
+                "production-compiler-contract/v3");
+
+        var notRequested = compiler.assessSchemaMigration(source,
+                new MediaProductionSpecCompiler.SchemaMigrationRequest(Optional.empty(), Optional.empty()));
+        var missingTransformation = compiler.assessSchemaMigration(source,
+                new MediaProductionSpecCompiler.SchemaMigrationRequest(Optional.of("production-spec-schema/v2"),
+                        Optional.empty()));
+        var unsupportedTransformation = compiler.assessSchemaMigration(source,
+                new MediaProductionSpecCompiler.SchemaMigrationRequest(Optional.of("production-spec-schema/v2"),
+                        Optional.of("production-spec-migration/v1")));
+
+        assertThat(notRequested.disposition())
+                .isEqualTo(MediaProductionSpecCompiler.SchemaMigrationDisposition.NOT_REQUESTED);
+        assertThat(missingTransformation.disposition())
+                .isEqualTo(MediaProductionSpecCompiler.SchemaMigrationDisposition.UNKNOWN_INCOMPLETE_INPUTS);
+        assertThat(unsupportedTransformation.disposition())
+                .isEqualTo(MediaProductionSpecCompiler.SchemaMigrationDisposition.UNKNOWN_UNSUPPORTED_TRANSFORMATION);
+        assertThat(unsupportedTransformation.sourceSpecRef()).isEqualTo("production-spec/source-rev-7");
+        assertThat(unsupportedTransformation.sourceSchemaRef()).isEqualTo("production-spec-schema/rev-1");
+        assertThat(unsupportedTransformation.targetSchemaRef()).contains("production-spec-schema/v2");
+        assertThat(unsupportedTransformation.transformationRef()).contains("production-spec-migration/v1");
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler.SchemaMigrationRequest(
+                Optional.empty(), Optional.of("unversioned transformation")))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

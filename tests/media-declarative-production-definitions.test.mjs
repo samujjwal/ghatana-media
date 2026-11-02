@@ -124,8 +124,13 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   ]);
   assert.equal(binding.operationSchemaRelation.planBindingRules.stepOperationMapping,
     'NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE');
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
+    /EXACT_VERSIONED_REFERENCE_AND_DECLARED_SCHEMA_ID_MUST_MATCH_PRODUCTION_SPEC_SCHEMA_VERSION/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
+    /EXACT_VERSIONED_REFERENCE_REQUIRED_AND_BOUND_IN_FINGERPRINT/);
   assert.deepEqual(binding.operationSchemaRelation.operationInputCoverage.notImplementedInputs,
-    ['input2-production-specification-schema', 'input3-compiler-contract',
+    ['input1-content-digest-attestation', 'input2-schema-content-resolution-and-validation',
+      'input3-compiler-content-resolution-and-step-kind-semantics',
       'input5-target-schema', 'input6-migration-transformation']);
   assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
     'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');

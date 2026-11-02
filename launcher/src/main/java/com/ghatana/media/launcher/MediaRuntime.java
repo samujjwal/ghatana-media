@@ -823,9 +823,9 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     }
 
     /**
-     * Prepares the existing local H-02 plan candidate through MediaRuntime.
-     * This does not create a job, mutate a project, or authorize a provider
-     * dispatch; effectful work continues through the existing job/attempt path.
+     * Prepares the legacy fixed-DAG local H-02 prototype through MediaRuntime.
+     * This compatibility path lacks exact source/schema/compiler input refs and
+     * does not create a job, mutate a project, or authorize provider dispatch.
      */
     public MediaProductionSpecCompiler.CompiledPlan compileProductionSpec(
             MediaProductionSpecCompiler.ProductionSpec spec,
@@ -833,6 +833,29 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding admissionContext) {
         ensureOpen();
         return new MediaProductionSpecCompiler().compile(spec, optionalProjectRevisionRef, admissionContext);
+    }
+
+    /**
+     * Prepares a candidate bound to the required PDP-1 schema and compiler
+     * contract inputs. Like the compatibility overload, this remains local and
+     * effect-free; it does not create a job or admit provider execution.
+     */
+    public MediaProductionSpecCompiler.CompiledPlan compileProductionSpec(
+            MediaProductionSpecCompiler.ProductionSpec spec,
+            MediaProductionSpecCompiler.CompilationInputs compilationInputs,
+            String optionalProjectRevisionRef,
+            com.ghatana.media.runtime.MediaProductionAdmissionBinding.Binding admissionContext) {
+        ensureOpen();
+        return new MediaProductionSpecCompiler().compileWithInputs(
+                spec, compilationInputs, optionalProjectRevisionRef, admissionContext);
+    }
+
+    /** Returns the fail-closed disposition for optional target-schema migration inputs. */
+    public MediaProductionSpecCompiler.SchemaMigrationAssessment assessProductionSchemaMigration(
+            MediaProductionSpecCompiler.CompilationInputs sourceInputs,
+            MediaProductionSpecCompiler.SchemaMigrationRequest request) {
+        ensureOpen();
+        return new MediaProductionSpecCompiler().assessSchemaMigration(sourceInputs, request);
     }
 
     /**

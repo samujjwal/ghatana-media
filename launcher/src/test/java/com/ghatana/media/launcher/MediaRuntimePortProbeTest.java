@@ -7,9 +7,10 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
-import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionException;
 import com.ghatana.media.runtime.MediaProductionAdmissionBinding.AdmissionFailure;
+import com.ghatana.media.runtime.MediaProductionSpecCompiler;
+import com.ghatana.media.runtime.MediaProductionSpecCompiler.ProductionSpec;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +45,18 @@ class MediaRuntimePortProbeTest {
             var plan = runtime.compileProductionSpec(spec, "revision-7", null);
             assertThat(plan.projectRevision()).isEqualTo("revision-7");
             assertThat(plan.nodes()).isNotEmpty();
+
+            var inputs = new MediaProductionSpecCompiler.CompilationInputs(
+                    "production-spec/source-rev-7", "production-spec-schema/rev-1",
+                    MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+            var sourceBoundPlan = runtime.compileProductionSpec(spec, inputs, "revision-7", null);
+            assertThat(sourceBoundPlan.inputProvenance()).isEqualTo(inputs);
+            assertThat(sourceBoundPlan.planFingerprint()).isNotEqualTo(plan.planFingerprint());
+            assertThat(runtime.assessProductionSchemaMigration(inputs,
+                    new MediaProductionSpecCompiler.SchemaMigrationRequest(
+                            java.util.Optional.of("production-spec-schema/v2"), java.util.Optional.empty()))
+                    .disposition())
+                    .isEqualTo(MediaProductionSpecCompiler.SchemaMigrationDisposition.UNKNOWN_INCOMPLETE_INPUTS);
 
             assertThatThrownBy(() -> runtime.compileProductionSpec(spec, "revision-6", null))
                     .isInstanceOf(AdmissionException.class)

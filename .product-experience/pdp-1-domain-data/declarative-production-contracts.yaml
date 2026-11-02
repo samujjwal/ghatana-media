@@ -1992,10 +1992,12 @@ executionAdmissionBinding:
       changedEngineDigest: INVALIDATES_ONLY_THAT_STEP_AND_DESCENDANTS
       stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
     operationInputCoverage:
-      scope: ADMISSION_CONTEXT_RELATION_ONLY
-      typedProductionSpecInput: COMPILER_ACCEPTS_THE_EXISTING_TYPED_PRODUCTION_SPEC_MIRROR
+      scope: EFFECT_FREE_REFERENCE_BOUND_FIXED_DAG_PROTOTYPE_ONLY
+      typedProductionSpecInput: EXISTING_TYPED_PRODUCTION_SPEC_MIRROR_ACCEPTED; EXACT_INPUT1_VERSION_REF_BOUND_WHEN_SUPPLIED
       optionalProjectRevisionInput: EXACT_EQUALITY_CHECKED_WHEN_PRESENT
-      notImplementedInputs: [input2-production-specification-schema, input3-compiler-contract, input5-target-schema, input6-migration-transformation]
+      input2ProductionSpecSchema: EXACT_VERSIONED_REFERENCE_AND_DECLARED_SCHEMA_ID_MUST_MATCH_PRODUCTION_SPEC_SCHEMA_VERSION; REF_BOUND_IN_FINGERPRINT; CONTENT_RESOLUTION_AND_SCHEMA_VALIDATION_NOT_IMPLEMENTED
+      input3CompilerContract: EXACT_VERSIONED_REFERENCE_REQUIRED_AND_BOUND_IN_FINGERPRINT; CONTRACT_CONTENT_RESOLUTION_AND_DECLARED_STEP_KIND_INTERPRETATION_NOT_IMPLEMENTED
+      notImplementedInputs: [input1-content-digest-attestation, input2-schema-content-resolution-and-validation, input3-compiler-content-resolution-and-step-kind-semantics, input5-target-schema, input6-migration-transformation]
       schemaMigrationCandidate: NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION
     sourceAndLockCoverage:
       authoritySourceVersionToEachSceneOrStep: NOT_MAPPED

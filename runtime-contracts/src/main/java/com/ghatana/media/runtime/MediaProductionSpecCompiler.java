@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.Set;
 
@@ -116,13 +117,74 @@ public final class MediaProductionSpecCompiler {
         }
     }
 
-    /** The compiled plan — ordered DAG + stable fingerprint + canonical revision. */
+    /** Exact immutable identities for source-spec input 1 and contract inputs 2 and 3. */
+    public record CompilationInputs(
+            String productionSpecRef,
+            String productionSpecSchemaRef,
+            String productionSpecSchemaVersion,
+            String compilerContractRef) {
+        public CompilationInputs {
+            requireVersionRef(productionSpecRef, "productionSpecRef");
+            requireVersionRef(productionSpecSchemaRef, "productionSpecSchemaRef");
+            requireVersionRef(productionSpecSchemaVersion, "productionSpecSchemaVersion");
+            requireVersionRef(compilerContractRef, "compilerContractRef");
+        }
+    }
+
+    /** Optional migration inputs; a positive transformation is unavailable until source-defined. */
+    public record SchemaMigrationRequest(Optional<String> targetSchemaRef, Optional<String> transformationRef) {
+        public SchemaMigrationRequest {
+            targetSchemaRef = Objects.requireNonNull(targetSchemaRef, "targetSchemaRef");
+            transformationRef = Objects.requireNonNull(transformationRef, "transformationRef");
+            targetSchemaRef.ifPresent(ref -> requireVersionRef(ref, "targetSchemaRef"));
+            transformationRef.ifPresent(ref -> requireVersionRef(ref, "transformationRef"));
+        }
+    }
+
+    public enum SchemaMigrationDisposition {
+        NOT_REQUESTED,
+        UNKNOWN_INCOMPLETE_INPUTS,
+        UNKNOWN_UNSUPPORTED_TRANSFORMATION
+    }
+
+    /**
+     * Explicit fail-closed result for optional operation inputs 5 and 6. This
+     * compiler currently has no source-declared supported transformation, so
+     * the result deliberately carries no migration candidate.
+     */
+    public record SchemaMigrationAssessment(
+            SchemaMigrationDisposition disposition,
+            String sourceSpecRef,
+            String sourceSchemaRef,
+            Optional<String> targetSchemaRef,
+            Optional<String> transformationRef) {
+        public SchemaMigrationAssessment {
+            Objects.requireNonNull(disposition, "disposition");
+            requireVersionRef(sourceSpecRef, "sourceSpecRef");
+            requireVersionRef(sourceSchemaRef, "sourceSchemaRef");
+            targetSchemaRef = Objects.requireNonNull(targetSchemaRef, "targetSchemaRef");
+            transformationRef = Objects.requireNonNull(transformationRef, "transformationRef");
+        }
+    }
+
+    /** Effect-free fixed-DAG local prototype; optional provenance is not admission evidence. */
     public record CompiledPlan(
             String schemaVersion,
             String projectRevision,
             String originClass,
             List<PlanNode> nodes,
-            String planFingerprint) {
+            String planFingerprint,
+            CompilationInputs inputProvenance) {
+        /** Source-compatible constructor for previously compiled local candidates. */
+        public CompiledPlan(
+                String schemaVersion,
+                String projectRevision,
+                String originClass,
+                List<PlanNode> nodes,
+                String planFingerprint) {
+            this(schemaVersion, projectRevision, originClass, nodes, planFingerprint, null);
+        }
+
         public CompiledPlan {
             nodes = List.copyOf(nodes);
         }
@@ -146,20 +208,58 @@ public final class MediaProductionSpecCompiler {
     }
 
     /**
-     * Compiles a spec into the deterministic plan DAG. The DAG is fixed in
-     * shape: validate → rights review (manual gate) → per-scene capture →
-     * compose → per-profile render → publish review (manual gate). Each
-     * external capture still requires current source-specific authorization;
-     * this plan and its manual gate do not themselves grant access. Node
-     * fingerprints bind exact version refs for descendant invalidation.
+     * Builds the legacy fixed-DAG local prototype without canonical operation
+     * input provenance. This is retained for source compatibility; it is not
+     * the source-semantic compiler operation and cannot admit external effects.
      */
     public CompiledPlan compile(ProductionSpec spec) {
-        return compile(spec, null, null);
+        return compileInternal(spec, null, null, null);
+    }
+
+    /**
+     * Compiles a local reference-bound prototype with the exact versioned source,
+     * schema, and compiler-contract identities. This does not resolve or interpret
+     * external contract content and is not a source-semantic candidate or admission.
+     */
+    public CompiledPlan compileWithInputs(ProductionSpec spec, CompilationInputs inputs) {
+        return compileInternal(spec, null, null, Objects.requireNonNull(inputs, "inputs"));
     }
 
     /** Compile with a separately versioned execution binding in every node identity. */
     public CompiledPlan compile(ProductionSpec spec, MediaProductionAdmissionBinding.Binding binding) {
-        return compile(spec, null, binding);
+        return compileInternal(spec, null, binding, null);
+    }
+
+    /** Compile reference-bound operation inputs with an optional revision assertion. */
+    public CompiledPlan compileWithInputs(
+            ProductionSpec spec,
+            CompilationInputs inputs,
+            String optionalProjectRevisionRef,
+            MediaProductionAdmissionBinding.Binding binding) {
+        return compileInternal(spec, optionalProjectRevisionRef, binding, Objects.requireNonNull(inputs, "inputs"));
+    }
+
+    /**
+     * Classifies the source-defined optional migration inputs without applying
+     * a transformation or fabricating a migration candidate.
+     */
+    public SchemaMigrationAssessment assessSchemaMigration(
+            CompilationInputs sourceInputs,
+            SchemaMigrationRequest request) {
+        Objects.requireNonNull(sourceInputs, "sourceInputs");
+        Objects.requireNonNull(request, "request");
+        SchemaMigrationDisposition disposition;
+        if (request.targetSchemaRef().isEmpty() && request.transformationRef().isEmpty()) {
+            disposition = SchemaMigrationDisposition.NOT_REQUESTED;
+        } else if (request.targetSchemaRef().isEmpty() || request.transformationRef().isEmpty()) {
+            disposition = SchemaMigrationDisposition.UNKNOWN_INCOMPLETE_INPUTS;
+        } else {
+            // PDP-1 declares no supported transformation yet. An opaque ref is
+            // not evidence that the transformation is implemented or lossless.
+            disposition = SchemaMigrationDisposition.UNKNOWN_UNSUPPORTED_TRANSFORMATION;
+        }
+        return new SchemaMigrationAssessment(disposition, sourceInputs.productionSpecRef(),
+                sourceInputs.productionSpecSchemaRef(), request.targetSchemaRef(), request.transformationRef());
     }
 
     /**
@@ -171,7 +271,18 @@ public final class MediaProductionSpecCompiler {
             ProductionSpec spec,
             String optionalProjectRevisionRef,
             MediaProductionAdmissionBinding.Binding binding) {
+        return compileInternal(spec, optionalProjectRevisionRef, binding, null);
+    }
+
+    private CompiledPlan compileInternal(
+            ProductionSpec spec,
+            String optionalProjectRevisionRef,
+            MediaProductionAdmissionBinding.Binding binding,
+            CompilationInputs inputs) {
         Objects.requireNonNull(spec, "spec");
+        if (inputs != null && !spec.schemaVersion().equals(inputs.productionSpecSchemaVersion())) {
+            throw new IllegalArgumentException("productionSpecSchemaVersion must match the specification schemaVersion");
+        }
         if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(spec.revisionId())) {
             throw new MediaProductionAdmissionBinding.AdmissionException(
                     MediaProductionAdmissionBinding.AdmissionFailure.PROJECT_REVISION_STALE);
@@ -190,6 +301,15 @@ public final class MediaProductionSpecCompiler {
 
         List<String> planBinding = new ArrayList<>(List.of(
                 spec.tenantId(), spec.projectId(), spec.schemaVersion(), spec.originClass()));
+        if (inputs != null) {
+            planBinding.add("versioned-production-specification");
+            planBinding.add(inputs.productionSpecRef());
+            planBinding.add("versioned-production-specification-schema");
+            planBinding.add(inputs.productionSpecSchemaRef());
+            planBinding.add(inputs.productionSpecSchemaVersion());
+            planBinding.add("versioned-compiler-contract");
+            planBinding.add(inputs.compilerContractRef());
+        }
         if (admissionFingerprint != null) planBinding.add(admissionFingerprint);
         planBinding.addAll(engineContext(binding, "validate-spec"));
         addNode(nodes, fingerprints, "validate-spec", "validate", ExecutionMode.AUTOMATIC,
@@ -233,6 +353,15 @@ public final class MediaProductionSpecCompiler {
         appendField(projection, spec.originClass());
         appendField(projection, spec.purposeRef());
         appendField(projection, spec.rightsRef());
+        if (inputs != null) {
+            appendField(projection, "versioned-production-specification");
+            appendField(projection, inputs.productionSpecRef());
+            appendField(projection, "versioned-production-specification-schema");
+            appendField(projection, inputs.productionSpecSchemaRef());
+            appendField(projection, inputs.productionSpecSchemaVersion());
+            appendField(projection, "versioned-compiler-contract");
+            appendField(projection, inputs.compilerContractRef());
+        }
         if (admissionFingerprint != null) appendField(projection, admissionFingerprint);
         appendField(projection, Integer.toString(nodes.size()));
         for (PlanNode node : nodes) {
@@ -244,7 +373,8 @@ public final class MediaProductionSpecCompiler {
                 spec.revisionId(),
                 spec.originClass(),
                 nodes,
-                "sha256:" + sha256(projection.toString()));
+                "sha256:" + sha256(projection.toString()),
+                inputs);
     }
 
     private static List<String> engineContext(
