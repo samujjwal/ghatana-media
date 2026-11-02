@@ -1693,3 +1693,36 @@ The full `PostgresqlMediaProcessingAttemptReadTest` class passed **7/7** on Post
 The new deferred-trigger case holds COMMIT in an eight-second server-side trigger against a four-second deadline. It observed `57014`, verified transaction rollback, no completion outbox event, and the job still `RUNNING`; then the exact provider success was persisted as `OUTCOME_UNKNOWN` and read back. Existing class cases also passed for the pre-COMMIT idle timeout and simulated late failed acknowledgement after a successful real delegate COMMIT. An independent Luna read-only code review found no concrete defect in the cancellation race, bounded workers, Hikari eviction, and failure/readback paths.
 
 This is focused local PG16 evidence, not a hard end-to-end deadline guarantee. If the CancelRequest cannot reach PostgreSQL, the network timeout bounds the tested client's socket wait but the server may still finish COMMIT after the client loses its connection. That outcome remains ambiguous until exact durable readback. Production pgjdbc/proxy/network combinations and cancellation saturation remain unqualified; JC-03 is still in progress against its whole-row requirements.
+
+### 41.42 November 2 focused continuation: deadline propagation, installed gRPC clients, and frame sequence guard (2026-11-02)
+
+The owner-requested V001–V016 inputs and H-02 review disposition are available as recorded in §41.40. A fresh independent Luna technical review of the current H-02 local binding returned **`ACCEPT_LOCAL_CANDIDATE_ONLY`**: effect-free spec/schema/compiler-contract resolution, normalized semantic graph preparation, and structural v3 binding are acceptable as a local candidate. The review did not run tests and does not accept canonical step-to-operation mapping, source currentness, a trusted CAS adapter, PDP-1 status, runtime admission, or provider effects. Keep H-02 runtime `NOT_ADMITTED`; no PDP pin, projection, or status changed.
+
+| Work unit | Implemented evidence | Remaining limit |
+| --- | --- | --- |
+| **JC-03 / STT, TTS, Multimodal, Vision deadlines** | STT verifies an active provider deadline yields `UNKNOWN_OUTCOME` and suppresses late success, while a queued deadline removes work before dispatch. TTS preserves known-no-effect `CANCELLED` for a queued caller cancellation and maps provider `CANCELLED` after dispatch to content-free `UNKNOWN_OUTCOME`; queued deadline expiry removes the work. Multimodal verifies the client deadline reaches its canonical executor and the late service result is not sent. The new Vision gRPC/provider test confirms provider context cancellation, retains the noncooperative provider's worker slot while the next request remains queued, and records exactly one response message for the later request, proving the first provider's late result was suppressed. Focused class results: STT **9/9**, TTS **13/13**, Multimodal **10/10**, Vision **1/1**. | Context cancellation and a bounded Java worker do not kill arbitrary native/model work or establish absence of an external effect. Host process termination, installed production interceptors/clients, provider finality, same-key durable reconciliation, and real quality/effect evidence remain outside these tests. |
+| **JC-03 / PostgreSQL cancellation transport loss** | `PostgresqlMediaProcessingAttemptReadTest` injects a failed pgjdbc CancelRequest transport while a deferred server trigger holds COMMIT beyond the two-second deadline. The client connection is evicted; bounded durable readback observes the server's late successful commit, exact `COMPLETED` job and `SUCCEEDED` provider receipt, one completion event, and no unknown event. The changed PG16/Testcontainers class passed **8/8** on the final rerun. | This is an injected cancellation transport failure against local PostgreSQL 16. Production proxy/network behavior and cancellation saturation remain unqualified; exact durable job/attempt/outbox readback remains required whenever commit outcome is unknown. |
+| **JC-04 / installed public gRPC client** | The isolated `api/grpc-consumer` build now starts local in-process servers implementing the generated STT, TTS, Vision, and Multimodal service bases, invokes one installed blocking-stub RPC per service, checks response serialization, and asserts one dispatch each. `verifyPublishedGrpcApiConsumer` passed after artifact publication and source-free consumer compile/run. The consumer declares no Media source project dependency. | This proves installed generated-client ↔ generated-base interoperability for one unary method per service. It does not cover every RPC, streaming, Media service behavior, authentication/interceptor composition, cross-version compatibility, or release qualification. |
+| **AS-02 / reconnect ACK sequence** | `AudioStreamSession.expectedNextSequenceAfterReconnect` accepts `-1` only as the fresh-session sentinel, rejects ACKs below `-1`, and retains the exhausted `Integer.MAX_VALUE` failure. `AudioStreamSessionFrameTest` plus `StreamFrameReconcilerTest` passed **17/17**. | This closes the local sequence-boundary defect only; no transport/session authority, native stream cancellation, or broader AS-02 row acceptance is claimed. |
+| **VS-02 / byte-frame helper** | Independent Luna review accepted the unchanged fixed-header parser boundary and its focused frame tests. | The plan also calls for codec and width/height bounds before copy, but the current VS-02 frame format contains no codec or dimension metadata and the helper receives opaque bytes. Preserve this as a source/contract scope handoff; do not invent wire fields or claim full VS-02 completion. |
+| **IP-06 / requested test history** | The synthetic snapshot, applied-history CSV, and migration manifest remain hash-verified and are documented with provenance in §41.40. Process-crash recovery and S3 integrity/retry work are recorded in §41.35–§41.38. | No deployed `flyway_schema_history`, old-writer fence, production cutover, or rollback authority was found. Do not treat fixture history as installed-state evidence. |
+
+Focused commands in this continuation:
+
+```bash
+./gradlew :services:media:modules:vision:vision-service:test \
+  --tests com.ghatana.audio.video.vision.grpc.VisionGrpcDeadlineProviderIntegrationTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# 1/1 passed
+
+./gradlew verifyPublishedGrpcApiConsumer \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# PASS: isolated installed-artifact consumer; one unary roundtrip per service
+
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.PostgresqlMediaProcessingAttemptReadTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# 8/8 passed on PostgreSQL 16/Testcontainers
+```
+
+`git diff --check` passed. Media implementation/test commits are `327b7661` (deadline outcomes and PostgreSQL cancellation readback), `34169e37` (audio reconnect ACK guard), and `93408b7c` (installed gRPC consumer roundtrips). The local Media branch remains ahead of `origin/main`; nothing was pushed. These changes do not close JC-03/04, VS-02, IP-06, Kernel OCR #99, Wave 2/Wave 3, PDP source-currentness, formal phase acceptance, or production admission.
