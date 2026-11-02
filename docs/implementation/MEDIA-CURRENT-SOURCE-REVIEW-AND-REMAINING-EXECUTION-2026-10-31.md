@@ -2436,3 +2436,39 @@ The focused selector passed **1/1** with `--rerun-tasks`; `git diff --check` pas
   --tests 'com.ghatana.media.provider.aws.MediaPostgresqlS3ProcessCrashRecoveryTest.childDeathDuringQuarantineScanReclaimsFinalizationAndPublishesOnce' \
   --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
 ```
+
+### 41.75 November 2 gRPC deadline, quality-snapshot pin, PDP-0 source checks, and residual gates
+
+**JC-03/JC-04 in-process deadline propagation:** added transport-level regressions to `SttBoundedProviderDispatchTest` and `TtsUnaryBoundedDispatchTest`. An in-process gRPC client deadline shorter than the server maximum now verifies that the provider worker sees the cancelled gRPC context, the client gets `DEADLINE_EXCEEDED`, and a deliberately noncooperative provider cannot deliver its late result. The existing implementation reports unknown after started provider work; these tests do not claim arbitrary provider termination. The focused selections passed **STT bounded dispatch 10/10, frozen quality evidence 9/9, and TTS bounded dispatch 14/14** (33 total; no failures, errors, or skips). After preserving the earlier helper signatures as fail-closed overloads, the frozen quality evidence suite was rerun and passed **9/9**. No provider-service runtime semantics were changed. Existing `JC-03` 66/66 and source-composite `JC-04` 24/24 results remain prior evidence; issue #26 remains open for installed consumers, child-job/effect reconciliation, and qualified native/provider termination.
+
+```bash
+./gradlew :services:media:modules:speech:stt-service:test \
+  --tests com.ghatana.stt.grpc.SttBoundedProviderDispatchTest \
+  --tests com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest \
+  :services:media:modules:speech:tts-service:test \
+  --tests com.ghatana.tts.grpc.TtsUnaryBoundedDispatchTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+**QUAL-PROVIDER-SOURCE snapshot integrity:** `FrozenHoldoutQualityEvidence.parse/load` now require an explicit lowercase `sha256:` pin and compare the exact bounded input bytes before parsing. The earlier public method shapes remain present but fail closed when no pin is provided. Tests cover absent, malformed, and mismatched pins. A focused rerun passed **9/9**. The test fixture's digest is calculated from its own bytes; no externally pinned FLEURS evaluation report, licensed model, or real provider measurement was supplied. The helper still provides telemetry evidence only, not qualification or traffic admission.
+
+```bash
+./gradlew :services:media:modules:speech:stt-service:test \
+  --tests com.ghatana.stt.provider.FrozenHoldoutQualityEvidenceTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+**PDP-0 skipped source assertions exercised without changing phase scope:** the 30 assertions omitted by the `PDP_MIGRATION_CANDIDATE_PHASE=PDP-0` selector are 26 checks in `pdp-truth-domain-migration-199-owner-candidate.test.mjs` (20 PDP-1 source observations and six PDP-1 job/UI checks) plus four later-phase assertions in the capability, PXD-120, semantic-reconciliation, and constitution-claims files. Running the supported `PDP_MIGRATION_CANDIDATE_PHASE=ALL` mode passed the candidate file **37/37** and the four-file selection **30/30**, including those 30 assertions. They are cross-phase source checks, not PDP-0 acceptance. Keep the P0 selector's 30 skips and existing fail-closed status unchanged.
+
+```bash
+PDP_MIGRATION_CANDIDATE_PHASE=ALL node --test tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs
+PDP_MIGRATION_CANDIDATE_PHASE=ALL node --test \
+  tests/pdp-migration-capability-material-claims.test.mjs \
+  tests/pdp-migration-pxd120-current-target-observations.test.mjs \
+  tests/pdp-migration-semantic-reconciliation.test.mjs \
+  tests/pdp-migration-constitution-claims.test.mjs
+```
+
+**Kernel #99 source and stage boundary:** a fresh read-only review found that the requested caller scope, tenant isolation, least privilege, unknown-outcome, and reconciliation constraints follow existing Kernel Product Truth laws. The `media.ocr` documentation is explanatory and is not a registered canonical PDP-0 source; adding a new Kernel capability or mapping would expand product scope. Kernel's actual source review remains `REVIEW_REQUIRED` with a stale Product Truth material binding, and its `AGENTS.md` bars BUILD/security tests until current source passes the Discovery gate. No Kernel file or status was changed and no BUILD test was run. Continue the preauthorized #99 code/test work only when that repository's stage gate permits it; the separate Media/DI public-client and real worker evidence remain open.
+
+**Remaining currentness and recovery boundaries:** a fresh no-write run of the four matrix `--check` commands fails closed at PDP-0 **18/188**, PDP-1 **28/137**, PDP-2 **20/157**, and PDP-3 **21/367** stale pins. No projection, pin, phase status, decision, or receipt was written. Luna's read-only #27 review found no distinct local test gap after §41.74: current coverage already exercises synthetic V001–V016 history, V017–V029 forward migrations/process recovery, multipart/S3 integrity, upload and scanner crash recovery, and Media worker lease fencing. Authentic deployed V001–V029 history, the actual legacy-writer identity and stale-write fence, and operator-authorized one-writer cutover/rollback remain required. H-02 remains `NOT_ADMITTED` and issue #25 open; Wave 2 remains 22 verified / 30 partial / 6 external-owner; Wave 3 remains 84 active plus four retired OCR compatibility tasks; H still has eight outcomes. No row acceptance, canonical source currentness, writer cutover, deployment, or release is claimed.
