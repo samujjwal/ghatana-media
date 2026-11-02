@@ -29,7 +29,7 @@ public final class MediaProductionAdmissionBinding {
         EDIT_LOCK_INVALID, CLOCK_MISMATCH, BINDING_SPEC_MISMATCH,
         MULTI_SOURCE_AUTHORITY_UNMAPPED,
         IDEMPOTENCY_CONFLICT, RECONCILE_EXISTING_ATTEMPT,
-        AUTHORITY_STATE_UNAVAILABLE, SOURCE_REVIEW_NOT_ADMITTED
+        AUTHORITY_STATE_UNAVAILABLE, SOURCE_REVIEW_NOT_ADMITTED, PLAN_PROVENANCE_INVALID
     }
 
     public static final class AdmissionException extends IllegalStateException {
@@ -60,7 +60,7 @@ public final class MediaProductionAdmissionBinding {
     public record ProviderQualification(String providerId, String qualificationRef, String rightsRef,
             String qualificationSha256, boolean qualified) {
         public ProviderQualification {
-            providerId = required(providerId, "providerId");
+            providerId = opaqueId(providerId, "providerId");
             qualificationRef = required(qualificationRef, "qualificationRef");
             rightsRef = required(rightsRef, "providerRightsRef");
             qualificationSha256 = digest(qualificationSha256, "qualificationSha256");
@@ -81,7 +81,7 @@ public final class MediaProductionAdmissionBinding {
         public Reservation {
             quoteRef = required(quoteRef, "quoteRef");
             quoteVersion = required(quoteVersion, "quoteVersion");
-            reservationId = required(reservationId, "reservationId");
+            reservationId = opaqueId(reservationId, "reservationId");
             requireCovers(worstCaseCost, reservedCost, "cost");
             requireCovers(worstCaseCompute, reservedCompute, "compute");
             requireCovers(worstCaseTime, reservedTime, "time");
@@ -121,8 +121,8 @@ public final class MediaProductionAdmissionBinding {
             String sourceVersionRef, String sourceSha256, String ownerDecisionRef,
             Instant decisionExpiresAt, long revocationEpoch) {
         public Authority {
-            tenantId = required(tenantId, "tenantId");
-            principalId = required(principalId, "principalId");
+            tenantId = opaqueId(tenantId, "tenantId");
+            principalId = opaqueId(principalId, "principalId");
             purposeRef = required(purposeRef, "purposeRef");
             rightsRef = required(rightsRef, "rightsRef");
             sourceVersionRef = required(sourceVersionRef, "sourceVersionRef");
@@ -148,7 +148,7 @@ public final class MediaProductionAdmissionBinding {
 
     public record RequestIdentity(String requestId, String requestFingerprint) {
         public RequestIdentity {
-            requestId = required(requestId, "requestId");
+            requestId = opaqueId(requestId, "requestId");
             requestFingerprint = digest(requestFingerprint, "requestFingerprint");
         }
     }
@@ -159,8 +159,8 @@ public final class MediaProductionAdmissionBinding {
             if (!"SCENE".equals(scopeKind) && !"OUTPUT".equals(scopeKind))
                 throw new IllegalArgumentException("edit-lock scopeKind must be SCENE or OUTPUT");
             targetRef = required(targetRef, "editLock.targetRef");
-            ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
-            leaseId = required(leaseId, "leaseId");
+            ownerPrincipalId = opaqueId(ownerPrincipalId, "ownerPrincipalId");
+            leaseId = opaqueId(leaseId, "leaseId");
             if (epoch < 1) throw new IllegalArgumentException("lock epoch must be positive");
             Objects.requireNonNull(expiresAt, "expiresAt");
         }
@@ -178,6 +178,9 @@ public final class MediaProductionAdmissionBinding {
             ProjectEditLockCas authority) {
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(plan, "plan");
+        if (!MediaProductionSpecCompiler.isCompilerIssued(plan)) {
+            fail(AdmissionFailure.PLAN_PROVENANCE_INVALID);
+        }
         if (!binding.expectedProjectRevision().equals(plan.projectRevision())) {
             fail(AdmissionFailure.PROJECT_REVISION_STALE);
         }
@@ -214,13 +217,13 @@ public final class MediaProductionAdmissionBinding {
             Map<String, SceneSourceAuthority> sourceBindingsByScene) {
         public Binding {
             if (!SCHEMA_VERSION.equals(schemaVersion)) throw new IllegalArgumentException("unsupported admission binding version");
-            projectId = required(projectId, "projectId");
+            projectId = opaqueId(projectId, "projectId");
             expectedProjectRevision = required(expectedProjectRevision, "expectedProjectRevision");
             Objects.requireNonNull(requestIdentity, "requestIdentity");
             Objects.requireNonNull(enginesByStep, "enginesByStep");
             Map<String, Engine> sortedEngines = new TreeMap<>();
             enginesByStep.forEach((stepId, engine) -> sortedEngines.put(
-                    required(stepId, "engine stepId"), Objects.requireNonNull(engine, "engine")));
+                    opaqueId(stepId, "engine stepId"), Objects.requireNonNull(engine, "engine")));
             if (sortedEngines.isEmpty()) throw new IllegalArgumentException("enginesByStep is required");
             enginesByStep = Map.copyOf(sortedEngines);
             Objects.requireNonNull(provider, "provider");
@@ -229,7 +232,7 @@ public final class MediaProductionAdmissionBinding {
             Objects.requireNonNull(editLocksByStep, "editLocksByStep");
             Map<String, EditLock> sortedLocks = new TreeMap<>();
             editLocksByStep.forEach((stepId, lock) -> sortedLocks.put(
-                    required(stepId, "editLock stepId"), Objects.requireNonNull(lock, "editLock")));
+                    opaqueId(stepId, "editLock stepId"), Objects.requireNonNull(lock, "editLock")));
             editLocksByStep = Map.copyOf(sortedLocks);
             Objects.requireNonNull(clocks, "clocks");
             Objects.requireNonNull(sourceBindingsByScene, "sourceBindingsByScene");
@@ -428,6 +431,9 @@ public final class MediaProductionAdmissionBinding {
 
     private static void requirePlanSceneBinding(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
             String stepId, String sceneRef) {
+        if (!MediaProductionSpecCompiler.isCompilerIssued(plan)) {
+            fail(AdmissionFailure.PLAN_PROVENANCE_INVALID);
+        }
         if (binding == null || plan == null || sceneRef == null
                 || !binding.stableContextFingerprint().equals(plan.admissionBindingFingerprint()))
             fail(AdmissionFailure.BINDING_SPEC_MISMATCH);
@@ -538,6 +544,13 @@ public final class MediaProductionAdmissionBinding {
     private static void fail(AdmissionFailure failure) { throw new AdmissionException(failure); }
     private static String required(String value, String name) {
         if (value == null || value.isBlank() || value.length() > 384) throw new IllegalArgumentException(name + " is required and bounded");
+        return value;
+    }
+    /** Mirrors PDP-1 $defs/opaqueId for identifiers in the v3 admission envelope. */
+    private static String opaqueId(String value, String name) {
+        if (value == null || value.length() > 128 || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*")) {
+            throw new IllegalArgumentException(name + " must be a bounded opaque identifier");
+        }
         return value;
     }
     private static String digest(String value, String name) {

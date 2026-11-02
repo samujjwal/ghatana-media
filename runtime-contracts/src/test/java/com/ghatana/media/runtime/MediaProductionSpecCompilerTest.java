@@ -23,6 +23,24 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
+    void onlyCompilerIssuedPlanIdentityCanReachAdmissionGuards() {
+        assertThat(CompiledPlan.class.isRecord()).isTrue();
+        MediaProductionSpecCompiler compiler = new MediaProductionSpecCompiler();
+        CompiledPlan compiled = compiler.compile(spec());
+        assertThat(MediaProductionSpecCompiler.isCompilerIssued(compiled)).isTrue();
+
+        CompiledPlan reconstructed = new CompiledPlan(compiled.schemaVersion(), compiled.projectRevision(),
+                compiled.originClass(), compiled.nodes(), compiled.planFingerprint(), compiled.inputProvenance(),
+                compiled.admissionBindingFingerprint());
+        assertThat(reconstructed).isEqualTo(compiled);
+        assertThat(MediaProductionSpecCompiler.isCompilerIssued(reconstructed)).isFalse();
+
+        CompiledPlan legacyConstructed = new CompiledPlan(compiled.schemaVersion(), compiled.projectRevision(),
+                compiled.originClass(), compiled.nodes(), compiled.planFingerprint());
+        assertThat(MediaProductionSpecCompiler.isCompilerIssued(legacyConstructed)).isFalse();
+    }
+
+    @Test
     void compilesDeterministicDagBoundToOneRevision() {
         MediaProductionSpecCompiler compiler = new MediaProductionSpecCompiler();
         CompiledPlan a = compiler.compile(spec());

@@ -41,16 +41,16 @@ class MediaProductionAdmissionBindingTest {
                 "compose-timeline", noEngine(), "render-profile-0", new Engine("ENGINE", "renderer-v3", engineDigest),
                 "publish-review", noEngine()),
                 new ProviderQualification("local-renderer", "qualification/v2", "rights/render/v1", SHA, true),
-                new Reservation("quote/q1", "tariff/v5", "reservation/r1",
+                new Reservation("quote/q1", "tariff/v5", "reservation-r1",
                         new BoundedAmount(10, "usd-micros"), new BoundedAmount(12, "usd-micros"),
                         new BoundedAmount(100, "cpu-ms"), new BoundedAmount(120, "cpu-ms"),
                         new BoundedAmount(500, "wall-ms"), new BoundedAmount(600, "wall-ms")),
                 new Authority("tenant-1", "principal-1", "purpose/v1", "rights/v1", "source/v4", SHA,
                         "decision/rights-4", NOW.plusSeconds(600), 3),
                 Map.of(
-                        "capture-source-0", new EditLock("SCENE", "scene/1@v1", "principal-1", "lease/scene", 9,
+                        "capture-source-0", new EditLock("SCENE", "scene/1@v1", "principal-1", "lease-scene", 9,
                                 NOW.plusSeconds(300)),
-                        "render-profile-0", new EditLock("OUTPUT", "profile/v1", "principal-1", "lease/output", 10,
+                        "render-profile-0", new EditLock("OUTPUT", "profile/v1", "principal-1", "lease-output", 10,
                                 NOW.plusSeconds(300))),
                 new ClockBindings("story/v1", "media/v1", "simulation/v1", "wall/v1",
                         List.of(new ClockConversion("story/v1", "media/v1", new Rational(25, 1)))),
@@ -97,11 +97,52 @@ class MediaProductionAdmissionBindingTest {
             String stepId = "capture-source-" + i;
             engines.put(stepId, noEngine());
             String sceneRef = sources.keySet().stream().sorted().toList().get(i);
-            locks.put(stepId, new EditLock("SCENE", sceneRef, "principal-1", "lease/scene-" + i, 9 + i,
+            locks.put(stepId, new EditLock("SCENE", sceneRef, "principal-1", "lease-scene-" + i, 9 + i,
                     NOW.plusSeconds(300)));
         }
         return new Binding(base.schemaVersion(), base.projectId(), base.expectedProjectRevision(), base.requestIdentity(),
                 engines, base.provider(), base.reservation(), base.authority(), locks, base.clocks(), sources);
+    }
+
+    @Test
+    void envelopeOpaqueIdsMatchThePdp1IdentifierShape() {
+        assertThat(binding(SHA).projectId()).isEqualTo("project-1");
+        String maximumId = "A" + "_".repeat(127);
+        assertThat(new RequestIdentity(maximumId, SHA).requestId()).isEqualTo(maximumId);
+        assertThat(new RequestIdentity("A_:-.9", SHA).requestId()).isEqualTo("A_:-.9");
+        assertThatThrownBy(() -> new RequestIdentity("A" + "_".repeat(128), SHA))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("opaque identifier");
+        assertThatThrownBy(() -> new RequestIdentity("_starts-with-punctuation", SHA))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new RequestIdentity("request id", SHA))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("opaque identifier");
+        assertThatThrownBy(() -> new ProviderQualification("provider/id", "qualification/v1",
+                "rights/v1", SHA, true))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Reservation("quote/v1", "tariff/v1", "reservation id",
+                new BoundedAmount(1, "usd-micros"), new BoundedAmount(1, "usd-micros"),
+                new BoundedAmount(1, "cpu-ms"), new BoundedAmount(1, "cpu-ms"),
+                new BoundedAmount(1, "wall-ms"), new BoundedAmount(1, "wall-ms")))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Authority("tenant/one", "principal-1", "purpose/v1", "rights/v1",
+                "source/v1", SHA, "decision/v1", NOW.plusSeconds(60), 0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new EditLock("SCENE", "scene/v1", "principal-1", "lease id", 1,
+                NOW.plusSeconds(60)))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        Binding valid = binding(SHA);
+        assertThatThrownBy(() -> new Binding(valid.schemaVersion(), "project id", valid.expectedProjectRevision(),
+                valid.requestIdentity(), valid.enginesByStep(), valid.provider(), valid.reservation(),
+                valid.authority(), valid.editLocksByStep(), valid.clocks(), valid.sourceBindingsByScene()))
+                .isInstanceOf(IllegalArgumentException.class);
+        Map<String, Engine> invalidStep = Map.of("capture source 0", noEngine());
+        assertThatThrownBy(() -> new Binding(valid.schemaVersion(), valid.projectId(), valid.expectedProjectRevision(),
+                valid.requestIdentity(), invalidStep, valid.provider(), valid.reservation(), valid.authority(),
+                valid.editLocksByStep(), valid.clocks(), valid.sourceBindingsByScene()))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -329,7 +370,7 @@ class MediaProductionAdmissionBindingTest {
     void dispatchRetryAndRestartEachRecheckCurrentAuthorityBeforeAnyEffect() {
         Binding b = binding(SHA);
         CurrentState stale = copy(state(b, "render-profile-0"), "tenant-else", "principal-1", "rev-7", NOW.plusSeconds(600),
-                "reservation/r1", "principal-1", 9, b.clocks());
+                "reservation-r1", "principal-1", 9, b.clocks());
         AtomicInteger reads = new AtomicInteger();
         AtomicInteger effects = new AtomicInteger();
         for (String attempt : List.of("dispatch", "retry", "restart")) {
@@ -432,7 +473,7 @@ class MediaProductionAdmissionBindingTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new Engine("ENGINE", "NO_ENGINE", "NO_ENGINE"))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Reservation("quote/v1", "tariff/v1", "reservation/v1",
+        assertThatThrownBy(() -> new Reservation("quote/v1", "tariff/v1", "reservation-v1",
                 new BoundedAmount(11, "usd-micros"), new BoundedAmount(10, "usd-micros"),
                 new BoundedAmount(1, "cpu-ms"), new BoundedAmount(1, "cpu-ms"),
                 new BoundedAmount(1, "wall-ms"), new BoundedAmount(1, "wall-ms")))
@@ -508,21 +549,35 @@ class MediaProductionAdmissionBindingTest {
             return true;
         };
 
-        var stalePlan = new MediaProductionSpecCompiler.CompiledPlan(plan.schemaVersion(), "rev-8",
-                plan.originClass(), plan.nodes(), plan.planFingerprint(), plan.inputProvenance(),
-                plan.admissionBindingFingerprint());
+        var staleSpec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-8", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var stalePlan = compiler.compile(staleSpec);
         assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, stalePlan, cas))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
                 .isEqualTo(AdmissionFailure.PROJECT_REVISION_STALE);
         assertThat(casCalls).hasValue(0);
 
-        var unboundPlan = new MediaProductionSpecCompiler.CompiledPlan(plan.schemaVersion(), plan.projectRevision(),
-                plan.originClass(), plan.nodes(), plan.planFingerprint(), plan.inputProvenance());
+        var unboundPlan = compiler.compile(spec);
         assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, unboundPlan, cas))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
                 .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        assertThat(casCalls).hasValue(0);
+
+        var reconstructedPlan = new MediaProductionSpecCompiler.CompiledPlan(plan.schemaVersion(), plan.projectRevision(),
+                plan.originClass(), plan.nodes(), plan.planFingerprint(), plan.inputProvenance(),
+                plan.admissionBindingFingerprint());
+        assertThat(reconstructedPlan).isEqualTo(plan);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, reconstructedPlan, cas))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.PLAN_PROVENANCE_INVALID);
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.requireCurrent(b, reconstructedPlan,
+                "capture-source-0", "scene/1@v1", state(b, "capture-source-0", "scene/1@v1")))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.PLAN_PROVENANCE_INVALID);
         assertThat(casCalls).hasValue(0);
 
         Map<String, EditLock> foreignLocks = new java.util.TreeMap<>(b.editLocksByStep());

@@ -1,5 +1,8 @@
 package com.ghatana.media.runtime;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * H-02: compile a typed production spec into a deterministic DAG of Media
@@ -29,6 +33,46 @@ import java.util.Set;
  * @doc.pattern Compiler
  */
 public final class MediaProductionSpecCompiler {
+
+    /** Process-local misuse guard only; it does not authenticate or attest serialized plans. */
+    private static final ReferenceQueue<CompiledPlan> COMPILED_PLAN_QUEUE = new ReferenceQueue<>();
+    private static final Set<CompiledPlanIdentityReference> COMPILER_ISSUED_PLANS = ConcurrentHashMap.newKeySet();
+
+    private static final class CompiledPlanIdentityReference extends WeakReference<CompiledPlan> {
+        private final int identityHashCode;
+
+        private CompiledPlanIdentityReference(CompiledPlan plan, ReferenceQueue<CompiledPlan> queue) {
+            super(Objects.requireNonNull(plan, "plan"), queue);
+            identityHashCode = System.identityHashCode(plan);
+        }
+
+        @Override public int hashCode() { return identityHashCode; }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof CompiledPlanIdentityReference that)) return false;
+            CompiledPlan plan = get();
+            return plan != null && plan == that.get();
+        }
+    }
+
+    private static void drainCollectedPlans() {
+        Reference<? extends CompiledPlan> collected;
+        while ((collected = COMPILED_PLAN_QUEUE.poll()) != null) COMPILER_ISSUED_PLANS.remove(collected);
+    }
+
+    private static void markCompilerIssued(CompiledPlan plan) {
+        drainCollectedPlans();
+        COMPILER_ISSUED_PLANS.add(new CompiledPlanIdentityReference(plan, COMPILED_PLAN_QUEUE));
+    }
+
+    /** Package-local identity check; value-equal caller-created records are not compiler outputs. */
+    static boolean isCompilerIssued(CompiledPlan plan) {
+        if (plan == null) return false;
+        drainCollectedPlans();
+        return COMPILER_ISSUED_PLANS.contains(new CompiledPlanIdentityReference(plan, null));
+    }
 
     /** Bounded plan size — a spec cannot compile an unbounded DAG. */
     public static final int MAX_SCENES = 256;
@@ -167,7 +211,7 @@ public final class MediaProductionSpecCompiler {
         }
     }
 
-    /** Effect-free fixed-DAG local prototype; optional provenance is not admission evidence. */
+    /** Effect-free fixed-DAG local prototype; admission checks also require compiler-issued identity. */
     public record CompiledPlan(
             String schemaVersion,
             String projectRevision,
@@ -198,7 +242,7 @@ public final class MediaProductionSpecCompiler {
         }
 
         public CompiledPlan {
-            nodes = List.copyOf(nodes);
+            nodes = List.copyOf(Objects.requireNonNull(nodes, "nodes"));
         }
 
         /** Changed or removed nodes relative to a prior compile, including affected descendants. */
@@ -217,6 +261,7 @@ public final class MediaProductionSpecCompiler {
             invalidated.addAll(priorPrints.keySet());
             return invalidated;
         }
+
     }
 
     /**
@@ -388,7 +433,7 @@ public final class MediaProductionSpecCompiler {
             appendField(projection, node.stepId());
             appendField(projection, node.nodeFingerprint());
         }
-        return new CompiledPlan(
+        CompiledPlan compiledPlan = new CompiledPlan(
                 "media.production-plan.v1",
                 spec.revisionId(),
                 spec.originClass(),
@@ -396,6 +441,8 @@ public final class MediaProductionSpecCompiler {
                 "sha256:" + sha256(projection.toString()),
                 inputs,
                 admissionFingerprint);
+        markCompilerIssued(compiledPlan);
+        return compiledPlan;
     }
 
     private static List<String> engineContext(
