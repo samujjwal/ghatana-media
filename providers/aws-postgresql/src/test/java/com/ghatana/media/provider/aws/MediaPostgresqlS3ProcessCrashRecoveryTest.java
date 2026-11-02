@@ -22,8 +22,11 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.core.sync.RequestBody;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +39,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -288,6 +294,59 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         }
     }
 
+    @Test
+    void committedCompletionSurvivesOwnedChunkDeleteFailureAndReplayCleansOrphan() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-delete-failure-" + runId;
+        String prefix = "ip06/delete-failure/" + runId;
+        String tenant = "tenant-ip06-delete-failure-" + runId;
+        String principal = "principal-ip06-delete-failure-" + runId;
+        byte[] bytes = wav(("delete-failure-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        createBucket(bucket);
+        AtomicReference<String> targetChunkKey = new AtomicReference<>();
+        AtomicBoolean failFirstDelete = new AtomicBoolean(true);
+        AtomicInteger matchingDeleteCalls = new AtomicInteger();
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                     delegate -> failFirstDeleteForObject(delegate, targetChunkKey, failFirstDelete,
+                             matchingDeleteCalls, bucket));
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                    digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+            UploadSession upload = store.begin(request, "ip06-delete-failure-" + runId);
+            store.append(tenant, principal, upload.uploadId(), 0, bytes);
+            String fingerprint = requestFingerprint(tenant, upload.uploadId());
+            String chunkKey = prefix + "/uploads/" + opaque(tenant) + "/" + upload.uploadId() + "/chunks/0";
+            targetChunkKey.set(chunkKey);
+            assertThat(objectExists(bucket, chunkKey)).isTrue();
+
+            MediaArtifact committed = store.complete(tenant, principal, upload.uploadId());
+
+            String artifactId = artifactIdForUpload(tenant, upload.uploadId());
+            assertThat(committed.artifactId()).isEqualTo(artifactId);
+            assertThat(committed.sha256()).isEqualTo(digest);
+            assertThat(store.artifact(tenant, artifactId)).contains(committed);
+            assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+            assertThat(requestFingerprint(tenant, upload.uploadId())).isEqualTo(fingerprint);
+            assertThat(getObject(bucket, objectKey(committed.objectReference()))).containsExactly(bytes);
+            assertThat(matchingDeleteCalls).hasValue(1);
+            assertThat(objectExists(bucket, chunkKey))
+                    .as("the injected S3 delete failure leaves the owned staged object for replay cleanup")
+                    .isTrue();
+
+            // The one-shot fault has cleared, so exact completion replay exercises cleanup recovery.
+            assertThat(store.complete(tenant, principal, upload.uploadId())).isEqualTo(committed);
+            assertThat(matchingDeleteCalls).hasValue(2);
+            assertThat(objectExists(bucket, chunkKey)).isFalse();
+            assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+            assertThat(requestFingerprint(tenant, upload.uploadId())).isEqualTo(fingerprint);
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
     private static Process startWorker(Map<String, String> environment, String applicationName,
             Path marker, Path log, String operation, Path payload, String tenant, String principal,
             String uploadId) throws Exception {
@@ -456,6 +515,33 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
 
     private static void createBucket(String bucket) {
         try (S3Client client = s3Client()) { client.createBucket(CreateBucketRequest.builder().bucket(bucket).build()); }
+    }
+
+    private static S3Client failFirstDeleteForObject(
+            S3Client delegate,
+            AtomicReference<String> targetKey,
+            AtomicBoolean failFirstDelete,
+            AtomicInteger matchingDeleteCalls,
+            String bucket) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("deleteObject") && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof DeleteObjectRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetKey.get())) {
+                        matchingDeleteCalls.incrementAndGet();
+                        if (failFirstDelete.compareAndSet(true, false)) {
+                            throw S3Exception.builder()
+                                    .message("injected one-time IP-06 S3 DeleteObject failure")
+                                    .statusCode(503)
+                                    .build();
+                        }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
     }
 
     private static boolean objectExists(String bucket, String key) {

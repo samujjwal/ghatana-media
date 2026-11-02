@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.UnaryOperator;
 
 /** Shared lifecycle for Media PostgreSQL metadata and S3 object storage. */
 final class MediaAwsPostgresqlRuntimeState {
@@ -39,7 +40,7 @@ final class MediaAwsPostgresqlRuntimeState {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private MediaAwsPostgresqlRuntimeState(
-            Map<String, String> environment, boolean sharedLifecycle) {
+            Map<String, String> environment, boolean sharedLifecycle, UnaryOperator<S3Client> s3Decorator) {
         this.sharedLifecycle = sharedLifecycle;
         String jdbcUrl = environment.getOrDefault("MEDIA_POSTGRES_JDBC_URL", "").trim();
         String bucketValue = environment.getOrDefault("MEDIA_S3_BUCKET", "").trim();
@@ -99,7 +100,8 @@ final class MediaAwsPostgresqlRuntimeState {
             builder.endpointOverride(endpointUri);
         }
         configureStaticCredentials(builder, environment);
-        s3 = builder.build();
+        S3Client builtClient = builder.build();
+        s3 = s3Decorator == null ? builtClient : s3Decorator.apply(builtClient);
 
         try {
             Flyway.configure()
@@ -123,7 +125,7 @@ final class MediaAwsPostgresqlRuntimeState {
     static MediaAwsPostgresqlRuntimeState acquire() {
         synchronized (LOCK) {
             if (shared == null || shared.closed.get()) {
-                shared = new MediaAwsPostgresqlRuntimeState(System.getenv(), true);
+                shared = new MediaAwsPostgresqlRuntimeState(System.getenv(), true, null);
             }
             references++;
             return shared;
@@ -144,11 +146,17 @@ final class MediaAwsPostgresqlRuntimeState {
     }
 
     static AutoCloseable installForTesting(Map<String, String> environment) {
+        return installForTesting(environment, null);
+    }
+
+    /** Test-only S3 client decoration for deterministic provider fault injection. */
+    static AutoCloseable installForTesting(
+            Map<String, String> environment, UnaryOperator<S3Client> s3Decorator) {
         synchronized (LOCK) {
             if (shared != null || references != 0) {
                 throw new IllegalStateException("Media provider shared lifecycle is already active");
             }
-            shared = new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), true);
+            shared = new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), true, s3Decorator);
             return () -> {
                 synchronized (LOCK) {
                     if (references != 0) {
@@ -165,7 +173,7 @@ final class MediaAwsPostgresqlRuntimeState {
     }
 
     static MediaAwsPostgresqlRuntimeState create(Map<String, String> environment) {
-        return new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), false);
+        return new MediaAwsPostgresqlRuntimeState(Map.copyOf(environment), false, null);
     }
 
     void release() {
