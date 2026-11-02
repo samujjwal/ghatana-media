@@ -1506,3 +1506,26 @@ The read-only PDP matrix checks were also rerun after this continuation: PDP-0 `
 
 No PDP source status, owner decision, matrix projection, phase receipt, provider qualification, database writer fence, production cutover, or release state changed in this continuation.
 
+### 41.27 November 2 Whisper worker local qualification slice (2026-11-02)
+
+On Temurin JDK **27.0.1**, Darwin **25.2 arm64**, the current decoder/thread/broker candidate suites passed with **64/64 tests** and no failures or skips: `WhisperOnnxThreadPolicyTest` 3/3, `WhisperDecoderPolicyTest` 3/3, `WhisperBrokerSttProviderTest` 10/10, `WhisperComputeWorkerMainTest` 4/4, `WhisperOciWorkerSupervisorTest` 12/12, `MediaOciBrokerClientTest` 1/1, `MediaOciBrokerPolicyTest` 16/16, `MediaOciBrokerWhisperJournalTest` 9/9, and `MediaOciBrokerWhisperProtocolTest` 6/6. These exercise bounded fake-runner protocol, identity, journal, cancellation and restart behavior. The broker provider remains `productionEligible() == false`.
+
+The real-model inputs `GHATANA_MEDIA_WHISPER_PROFILE`, `GHATANA_MEDIA_WHISPER_AUDIO`, `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT`, the opt-in `WHISPER_PERF_QUALIFICATION`, and `MEDIA_WHISPER_WORKER_BASE_IMAGE` are absent. `docker info` fails with permission denied connecting to `/Users/samujjwal/.docker/run/docker.sock`. Therefore no pinned OCI image was built, no real model/gold test or CPU-thread A/B ran, and no effective container OOM/PID/CPU/wall limits were observed. The existing real model, rights, trusted-host, durable Media job and transcript restart gates remain open; no quality or Wave 2 row was promoted.
+
+```bash
+./gradlew -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=launcher,stt,vision \
+  :services:media:libs:java:common:test \
+    --tests com.ghatana.media.stt.engine.onnx.WhisperOnnxThreadPolicyTest \
+    --tests com.ghatana.media.stt.engine.onnx.WhisperDecoderPolicyTest \
+  :services:media:modules:speech:stt-service:test \
+    --tests com.ghatana.stt.provider.WhisperBrokerSttProviderTest \
+    --tests com.ghatana.stt.provider.WhisperComputeWorkerMainTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+
+./gradlew -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=launcher,vision \
+  :services:media:modules:vision:vision-service:test \
+    --tests com.ghatana.audio.video.vision.video.WhisperOciWorkerSupervisorTest \
+    --tests 'com.ghatana.audio.video.vision.video.MediaOciBroker*Test' \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+```
+
