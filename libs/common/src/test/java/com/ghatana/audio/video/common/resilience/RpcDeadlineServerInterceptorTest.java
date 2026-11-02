@@ -252,6 +252,67 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
+    void expiredQueuedTaskIsRemovedWhileNoncooperativeWorkerKeepsItsSlot() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        CountDownLatch blockerStarted = new CountDownLatch(1);
+        CountDownLatch releaseBlocker = new CountDownLatch(1);
+        CountDownLatch laterTaskRan = new CountDownLatch(1);
+        AtomicInteger expiredDispatches = new AtomicInteger();
+        try {
+            var blocker = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                blockerStarted.countDown();
+                while (true) {
+                    try {
+                        if (releaseBlocker.await(10, TimeUnit.MILLISECONDS)) break;
+                    } catch (InterruptedException ignored) {
+                        // The running callable models work that does not stop on interruption.
+                    }
+                }
+                return "blocker finished";
+            });
+            assertThat(blockerStarted.await(1, TimeUnit.SECONDS)).isTrue();
+
+            Context request = Context.current().withDeadline(Deadline.after(300, TimeUnit.MILLISECONDS), TIMER);
+            Context previous = request.attach();
+            ContextAwareBoundedExecutor.Submission<String> expired;
+            try {
+                expired = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                    expiredDispatches.incrementAndGet();
+                    return "must not dispatch";
+                });
+            } finally {
+                request.detach(previous);
+            }
+            assertThat(pool.getQueue()).hasSize(1);
+            assertStatus(expired, Status.Code.DEADLINE_EXCEEDED);
+
+            // Cancellation removes the queued task promptly, while the running callable
+            // continues to occupy the sole worker until its actual exit.
+            assertThat(pool.getQueue()).isEmpty();
+            assertThat(pool.getActiveCount()).isEqualTo(1);
+            assertThat(blocker.result().isDone()).isFalse();
+            assertThat(expiredDispatches).hasValue(0);
+
+            var later = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                laterTaskRan.countDown();
+                return "later task";
+            });
+            assertThat(pool.getQueue()).hasSize(1);
+            assertThat(laterTaskRan.getCount()).isEqualTo(1);
+
+            releaseBlocker.countDown();
+            assertThat(blocker.result().get(1, TimeUnit.SECONDS)).isEqualTo("blocker finished");
+            assertThat(later.result().get(1, TimeUnit.SECONDS)).isEqualTo("later task");
+            assertThat(laterTaskRan.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(expiredDispatches).hasValue(0);
+        } finally {
+            releaseBlocker.countDown();
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
     void nonCooperativeWorkerRetainsCapacityAndSaturationRejectsWithoutDuplicateDispatch() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         CountDownLatch started = new CountDownLatch(1);

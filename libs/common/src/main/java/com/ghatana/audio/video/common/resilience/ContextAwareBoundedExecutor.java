@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,7 +37,8 @@ public final class ContextAwareBoundedExecutor {
         AtomicBoolean terminal = new AtomicBoolean();
         AtomicReference<Future<?>> task = new AtomicReference<>();
         CompletableFuture<T> result = new CompletableFuture<>();
-        Submission<T> submission = new Submission<>(context, result, started, terminal, task, effectMayCommit);
+        Submission<T> submission = new Submission<>(context, result, started, terminal, task, executor,
+                effectMayCommit);
         Runnable work = context.wrap(() -> {
             if (!submission.beginDispatch()) return;
             try {
@@ -116,17 +118,20 @@ public final class ContextAwareBoundedExecutor {
         private final AtomicBoolean started;
         private final AtomicBoolean terminal;
         private final AtomicReference<Future<?>> task;
+        private final Executor executor;
         private final boolean effectMayCommit;
         private final Object dispatchGate = new Object();
         private volatile Context.CancellationListener listener;
 
         private Submission(Context context, CompletableFuture<T> result, AtomicBoolean started,
-                           AtomicBoolean terminal, AtomicReference<Future<?>> task, boolean effectMayCommit) {
+                           AtomicBoolean terminal, AtomicReference<Future<?>> task, Executor executor,
+                           boolean effectMayCommit) {
             this.context = context;
             this.result = result;
             this.started = started;
             this.terminal = terminal;
             this.task = task;
+            this.executor = executor;
             this.effectMayCommit = effectMayCommit;
         }
 
@@ -150,13 +155,24 @@ public final class ContextAwareBoundedExecutor {
 
         public void cancel() {
             Future<?> running;
+            boolean wasStarted;
             synchronized (dispatchGate) {
                 if (!terminal.compareAndSet(false, true)) return;
                 running = task.get();
-                result.completeExceptionally(started.get() && effectMayCommit ? unknownOutcome()
+                wasStarted = started.get();
+                result.completeExceptionally(wasStarted && effectMayCommit ? unknownOutcome()
                         : knownNoEffectCancellation(context));
             }
-            if (running != null) running.cancel(true);
+            if (running != null) {
+                running.cancel(true);
+                // A cancelled FutureTask can otherwise occupy a bounded queue behind a
+                // noncooperative worker until that worker returns. Remove only queued work;
+                // started work keeps its worker slot until its callable actually exits.
+                if (!wasStarted && running instanceof Runnable queuedTask
+                        && executor instanceof ThreadPoolExecutor threadPool) {
+                    threadPool.remove(queuedTask);
+                }
+            }
         }
 
         private void reject(RejectedExecutionException saturated) {
