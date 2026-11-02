@@ -39,7 +39,13 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
-tasks.test { useJUnitPlatform() }
+val providerTestRuntimeClasspath = sourceSets.named("test").get().runtimeClasspath
+tasks.test {
+    useJUnitPlatform()
+    // The IP-06 process-crash test launches a separate JVM and passes the exact test runtime
+    // classpath explicitly instead of depending on Gradle Test worker classloader internals.
+    doFirst { systemProperty("media.child.classpath", providerTestRuntimeClasspath.asPath) }
+}
 
 spotbugs {
     toolVersion.set("4.8.6")
