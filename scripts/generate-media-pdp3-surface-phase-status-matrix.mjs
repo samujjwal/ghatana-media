@@ -451,7 +451,12 @@ export function generatePdp3SurfaceMatrix({ root = ROOT, mode = 'write' } = {}) 
   }
   const output = `${JSON.stringify(matrix, null, 2)}\n`;
   if (mode === 'write') fs.writeFileSync(target, output);
-  else if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8') !== output) throw new Error(`${PDP3_MATRIX_PATH} is stale; regenerate after PDP-3 source status settles.`);
+  else {
+    if (matrix.phaseSourceCurrentness.status !== 'CURRENT') {
+      throw new Error(`PDP-3 phase source currentness is ${matrix.phaseSourceCurrentness.status}: ${matrix.phaseSourceCurrentness.staleSourcePinCount} of ${matrix.phaseSourceCurrentness.sourcePinCount} required phase pins do not match.`);
+    }
+    if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8') !== output) throw new Error(`${PDP3_MATRIX_PATH} is stale; regenerate after PDP-3 source status settles.`);
+  }
   return { matrix, output };
 }
 

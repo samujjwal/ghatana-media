@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 import {
   buildPdp3SurfaceMatrix,
+  generatePdp3SurfaceMatrix,
+  PDP3_MATRIX_PATH,
   PDP3_STATUS_PATH,
   PDP3_CHANNEL_BINDINGS_PATH,
   PDP0_CAMPAIGN_EXTENSIONS_PATH,
@@ -78,6 +80,16 @@ test('PDP-3 matrix binds all current physical, composite, and logical identities
   assert.equal(agentTools.applicability.disposition, 'TOOLING_OR_SUPPORT');
   assert.equal(dataCloud.topologyDisposition, 'PHYSICAL');
   assert.equal(dataCloud.applicability.disposition, 'CONSUMER_CONTRACT');
+});
+
+test('PDP-3 check mode rejects stale source pins even when the stored projection reflects them', () => {
+  const stored = readJson(PDP3_MATRIX_PATH);
+  const check = () => generatePdp3SurfaceMatrix({ mode: 'check' });
+  if (stored.phaseSourceCurrentness.status === 'STALE') {
+    assert.throws(check, /PDP-3 phase source currentness is STALE:/);
+  } else {
+    assert.doesNotThrow(check);
+  }
 });
 
 test('stale channel-edge status tasks remain visibly stale until the PDP-3 projection is regenerated', () => {

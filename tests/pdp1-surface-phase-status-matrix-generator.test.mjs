@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
-import { buildPdp1SurfaceMatrix, PDP0_STATUS_PATH, PDP1_REVIEW_PATH, PDP1_STATUS_PATH, REGISTRY_PATH, TOPOLOGY_PATH } from '../scripts/generate-media-pdp1-surface-phase-status-matrix.mjs';
+import { buildPdp1SurfaceMatrix, generatePdp1SurfaceMatrix, PDP0_STATUS_PATH, PDP1_MATRIX_PATH, PDP1_REVIEW_PATH, PDP1_STATUS_PATH, REGISTRY_PATH, TOPOLOGY_PATH } from '../scripts/generate-media-pdp1-surface-phase-status-matrix.mjs';
 
 const digest = (value) => createHash('sha256').update(value).digest('hex');
 const write = (root, relativePath, content) => {
@@ -170,4 +170,14 @@ test('unsupported selector pins fail closed and stale PDP-0 pins remain explicit
     assert.equal(stale.predecessorCurrentness.status, 'STALE');
     assert.ok(stale.predecessorCurrentness.staleSourcePins.includes('authority/pdp0-input.yaml'));
   } finally { f.cleanup(); }
+});
+
+test('PDP-1 check mode rejects stale source pins even when the stored projection reflects them', () => {
+  const stored = JSON.parse(fs.readFileSync(path.resolve(PDP1_MATRIX_PATH), 'utf8'));
+  const check = () => generatePdp1SurfaceMatrix({ mode: 'check' });
+  if (stored.phaseSourceCurrentness.status === 'STALE') {
+    assert.throws(check, /PDP-1 phase source currentness is STALE:/);
+  } else {
+    assert.doesNotThrow(check);
+  }
 });

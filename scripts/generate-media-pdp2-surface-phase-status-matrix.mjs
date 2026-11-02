@@ -356,7 +356,12 @@ export function generatePdp2SurfaceMatrix({ root = ROOT, mode = 'write' } = {}) 
   }
   const output = `${JSON.stringify(matrix, null, 2)}\n`;
   if (mode === 'write') fs.writeFileSync(path.join(root, PDP2_MATRIX_PATH), output);
-  else if (readBytes(root, PDP2_MATRIX_PATH).toString('utf8') !== output) throw new Error(`${PDP2_MATRIX_PATH} is stale; regenerate after PDP-2 source status settles.`);
+  else {
+    if (matrix.phaseSourceCurrentness.status !== 'CURRENT') {
+      throw new Error(`PDP-2 phase source currentness is ${matrix.phaseSourceCurrentness.status}: ${matrix.phaseSourceCurrentness.staleSourcePinCount} of ${matrix.phaseSourceCurrentness.sourcePinCount} required phase pins do not match.`);
+    }
+    if (readBytes(root, PDP2_MATRIX_PATH).toString('utf8') !== output) throw new Error(`${PDP2_MATRIX_PATH} is stale; regenerate after PDP-2 source status settles.`);
+  }
   return { matrix, output };
 }
 

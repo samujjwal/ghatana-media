@@ -5,6 +5,7 @@ import test from 'node:test';
 import { createHash } from 'node:crypto';
 import {
   buildPdp2SurfaceMatrix,
+  generatePdp2SurfaceMatrix,
   PDP2_MATRIX_PATH,
   PDP2_STATUS_PATH,
   PDP1_STATUS_PATH,
@@ -87,4 +88,14 @@ test('stale source pins and blocked predecessor remain explicit PDP-2 barriers',
   assert.ok(!applicableRow.blockerIds.includes('PDP2_NATIVE_STATUS_NOT_DEV_COMPLETE'));
   assert.equal(applicableRow.blockerOwner, 'PDP-2_STATUS_AUTHORITY');
   assert.ok(matrix.predecessorStatusRefs.includes(PDP1_STATUS_PATH));
+});
+
+test('PDP-2 check mode rejects stale source pins even when the stored projection reflects them', () => {
+  const stored = readJson(PDP2_MATRIX_PATH);
+  const check = () => generatePdp2SurfaceMatrix({ mode: 'check' });
+  if (stored.phaseSourceCurrentness.status === 'STALE') {
+    assert.throws(check, /PDP-2 phase source currentness is STALE:/);
+  } else {
+    assert.doesNotThrow(check);
+  }
 });
