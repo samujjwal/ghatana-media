@@ -158,6 +158,7 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.equal(binding.operationSchemaRelation.relation, 'COMPILES_PLAN_ADMISSION_CONTEXT');
   assert.equal(binding.operationSchemaRelation.fieldMapping, 'NOT_APPLICABLE_SEPARATE_VERSIONED_ENVELOPE');
   assert.equal(binding.operationSchemaRelation.status, 'OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED');
+  assert.equal(binding.operationSchemaRelation.planBindingRules.appliesTo, 'LEGACY_COMPILATION_PATH_ONLY');
   assert.equal(binding.operationSchemaRelation.planBindingRules.enginesByStepKeys,
     'EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS');
   assert.equal(binding.operationSchemaRelation.planBindingRules.compiledPlanSchemaVersion, 'media.production-plan.v1');
@@ -168,6 +169,17 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   ]);
   assert.equal(binding.operationSchemaRelation.planBindingRules.stepOperationMapping,
     'EXACT_IDENTICAL_STEP_ID_JOIN_ONLY; OPERATION_COMPATIBILITY_UNPROVEN');
+  assert.deepEqual(binding.operationSchemaRelation.semanticCandidateBindingRules, {
+    appliesTo: 'DIGEST_BOUND_PER_INSTANCE_SEMANTIC_SOURCE_CANDIDATE_ONLY',
+    input3GraphStepIds: 'EXACT_EXPLICIT_SEMANTIC_SOURCE_NODES_STEP_IDS',
+    enginesByStepKeys: 'EXACT_EQUAL_TO_INPUT3_GRAPH_STEP_IDS',
+    legacyFixedDagPlanIds: 'MAY_DIFFER; LEGACY_PLAN_BINDING_RULES_DO_NOT_APPLY',
+    operationToEngineCompatibility: 'UNPROVEN',
+    resolverAuthorityAndSourceCurrentness: 'UNPROVEN',
+    resultKind: 'EFFECT_FREE_SEMANTIC_SOURCE_V3_CANDIDATE',
+    doesNotProduce: ['COMPILED_PLAN', 'EXECUTABLE_PLAN', 'DISPATCH', 'JOB', 'ADMISSION'],
+    runtimeAdmission: 'NOT_ADMITTED',
+  });
   assert.equal(binding.operationSchemaRelation.status, 'OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED');
   assert.equal(source.semanticSource.runtimeAdmission, 'NOT_ADMITTED');
   assert.equal(source.semanticSource.resultSemantics.UNKNOWN.includes('STEP_ID_SET_MISMATCH'), false);
@@ -329,6 +341,90 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.equal(mapping.clocks.missingOrAmbiguousMapping, 'NOT_ADMITTED');
   assert.match(binding.executionRule, /reserved cost, compute, and time\s+must each cover their corresponding worst-case bound/iu);
   assert.match(binding.executionRule, /sourceBindingsByScene keys must exactly equal ProductionSpec\.sceneRefs/u);
+});
+
+test('H-02 keeps the legacy fixed-DAG prototype separate from the digest-bound per-instance candidate', () => {
+  const source = YAML.parse(read(files.p1));
+  const assertBoundaries = document => {
+    const legacy = document.executionAdmissionBinding.operationSchemaRelation.legacyCompilationPath;
+    const semantic = document.semanticSource;
+    const mapping = document.executionAdmissionBinding.operationSchemaRelation;
+    const legacyRules = mapping.planBindingRules;
+    const semanticRules = mapping.semanticCandidateBindingRules;
+    const effect = mapping.effectBoundary;
+    const lock = mapping.admissionContextBindingRules.editLock;
+
+    assert.equal(legacy.api, 'media.recipe.specification.compile');
+    assert.equal(legacy.helper, 'MediaProductionSpecCompiler.compile(spec)');
+    assert.equal(legacy.output, 'media.production-plan.v1');
+    assert.deepEqual(legacy.stepIds, [
+      'validate-spec', 'rights-review', 'capture-source-{zeroBasedSceneIndex}', 'compose-timeline',
+      'render-profile-{zeroBasedOutputProfileIndex}', 'publish-review',
+    ]);
+    assert.equal(legacy.stepIdDisposition,
+      'LEGACY_FIXED_DAG_PROTOTYPE_ONLY; NOT_SEMANTIC_SOURCE_STEP_ID_AUTHORITY');
+    assert.equal(legacy.runtimeAdmission, 'NOT_ADMITTED');
+    assert.equal(legacyRules.appliesTo, 'LEGACY_COMPILATION_PATH_ONLY');
+    assert.deepEqual(legacyRules.compiledPlanSteps.map(step => step.stepId ?? step.stepIdTemplate), legacy.stepIds);
+
+    assert.equal(semanticRules.appliesTo, 'DIGEST_BOUND_PER_INSTANCE_SEMANTIC_SOURCE_CANDIDATE_ONLY');
+    assert.equal(semanticRules.input3GraphStepIds, 'EXACT_EXPLICIT_SEMANTIC_SOURCE_NODES_STEP_IDS');
+    assert.equal(semanticRules.enginesByStepKeys, 'EXACT_EQUAL_TO_INPUT3_GRAPH_STEP_IDS');
+    assert.match(semanticRules.legacyFixedDagPlanIds, /MAY_DIFFER/);
+    assert.match(semanticRules.legacyFixedDagPlanIds, /RULES_DO_NOT_APPLY/);
+    assert.equal(semanticRules.operationToEngineCompatibility, 'UNPROVEN');
+    assert.equal(semanticRules.resolverAuthorityAndSourceCurrentness, 'UNPROVEN');
+    assert.equal(semanticRules.resultKind, 'EFFECT_FREE_SEMANTIC_SOURCE_V3_CANDIDATE');
+    assert.deepEqual(semanticRules.doesNotProduce, ['COMPILED_PLAN', 'EXECUTABLE_PLAN', 'DISPATCH', 'JOB', 'ADMISSION']);
+    assert.equal(semanticRules.runtimeAdmission, 'NOT_ADMITTED');
+
+    assert.equal(semantic.compilationPath.kind, 'DIGEST_BOUND_PER_INSTANCE_SEMANTIC_SOURCE_CANDIDATE');
+    assert.equal(semantic.compilationPath.graphStepIdAuthority, 'EXACT_EXPLICIT_INPUT3_NODES_STEP_ID_VALUES');
+    assert.equal(semantic.compilationPath.engineKeyJoin, 'EXACT_EQUAL_TO_THOSE_GRAPH_STEP_IDS');
+    assert.match(semantic.compilationPath.legacyFixedDagStepIds, /MAY_DIFFER/);
+    assert.match(semantic.compilationPath.legacyFixedDagStepIds, /NOT_A_CONSTRAINT/);
+    assert.equal(semantic.compilationPath.operationToEngineCompatibility, 'UNPROVEN');
+    assert.equal(semantic.compilationPath.resolverAuthorityAndSourceCurrentness, 'UNPROVEN');
+    assert.equal(semantic.compilationPath.runtimeAdmission, 'NOT_ADMITTED');
+    assert.match(semantic.executionAdmissionMapping.pathSeparation.legacyFixedDagPlanIds, /MAY_DIFFER/);
+    assert.equal(semantic.executionAdmissionMapping.pathSeparation.operationToEngineCompatibility, 'UNPROVEN');
+    assert.equal(semantic.executionAdmissionMapping.pathSeparation.resolverAuthorityAndCurrentness, 'UNPROVEN');
+    assert.equal(semantic.executionAdmissionMapping.pathSeparation.runtimeAdmission, 'NOT_ADMITTED');
+    assert.equal(mapping.status, 'OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED');
+    assert.equal(effect.beforeProviderDispatchRetryOrRestart.implementationStatus, 'NOT_WIRED_TO_H02_EXECUTION_PATH');
+    assert.equal(effect.runtimeAdmission, 'NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER');
+
+    assert.equal(lock.ownerPrecondition,
+      'CONSERVATIVE_JAVA_CANDIDATE_CHECK_REQUIRES_LOCK_OWNER_EQUAL_AUTHENTICATED_AUTHORITY_PRINCIPAL');
+    assert.equal(lock.beforeEffectReadback,
+      'AUTHORITATIVE_CURRENT_FENCED_LOCK_READBACK_MUST_MATCH_TARGET_SCOPE_OWNER_LEASE_ID_EPOCH_AND_EXPIRY');
+    assert.equal(lock.candidateOnly,
+      'OWNER_EQUALITY_IS_A_STRUCTURAL_PRECONDITION_NOT_TRUSTED_LOCK_AUTHORITY_OR_ADMISSION');
+  };
+
+  assertBoundaries(source);
+
+  const conflated = structuredClone(source);
+  conflated.semanticSource.compilationPath.legacyFixedDagStepIds = 'EXACT_EQUAL_TO_LEGACY_FIXED_DAG_STEP_IDS';
+  assert.throws(() => assertBoundaries(conflated), /MAY_DIFFER/);
+
+  const broadenedLegacyRules = structuredClone(source);
+  broadenedLegacyRules.executionAdmissionBinding.operationSchemaRelation.planBindingRules.appliesTo =
+    'LEGACY_AND_SEMANTIC_SOURCE_CANDIDATES';
+  assert.throws(() => assertBoundaries(broadenedLegacyRules), /LEGACY_COMPILATION_PATH_ONLY/);
+
+  const compatibilityInvented = structuredClone(source);
+  compatibilityInvented.semanticSource.compilationPath.operationToEngineCompatibility = 'PROVEN';
+  assert.throws(() => assertBoundaries(compatibilityInvented), /UNPROVEN/);
+
+  const admissionOpened = structuredClone(source);
+  admissionOpened.semanticSource.compilationPath.runtimeAdmission = 'ADMITTED';
+  assert.throws(() => assertBoundaries(admissionOpened), /NOT_ADMITTED/);
+
+  const lockTrustInvented = structuredClone(source);
+  lockTrustInvented.executionAdmissionBinding.operationSchemaRelation.admissionContextBindingRules.editLock.beforeEffectReadback =
+    'CANDIDATE_BINDING_IS_CURRENT_LOCK_AUTHORITY';
+  assert.throws(() => assertBoundaries(lockTrustInvented), /AUTHORITATIVE_CURRENT_FENCED_LOCK_READBACK/);
 });
 
 test('H-02 source checker rejects a capture index rule that permits a different scene', () => {

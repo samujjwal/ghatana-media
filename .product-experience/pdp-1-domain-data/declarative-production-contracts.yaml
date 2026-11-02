@@ -1812,6 +1812,14 @@ semanticSource:
   runtimeAdmission: NOT_ADMITTED
   canonicalOperationAuthority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
   candidateOnly: true
+  compilationPath:
+    kind: DIGEST_BOUND_PER_INSTANCE_SEMANTIC_SOURCE_CANDIDATE
+    graphStepIdAuthority: EXACT_EXPLICIT_INPUT3_NODES_STEP_ID_VALUES
+    engineKeyJoin: EXACT_EQUAL_TO_THOSE_GRAPH_STEP_IDS
+    legacyFixedDagStepIds: MAY_DIFFER; NOT_A_CONSTRAINT_ON_THIS_CANDIDATE
+    operationToEngineCompatibility: UNPROVEN
+    resolverAuthorityAndSourceCurrentness: UNPROVEN
+    runtimeAdmission: NOT_ADMITTED
   apiBinding:
     required: [semanticSourceRef, semanticSourceSha256]
     schema:
@@ -1975,6 +1983,14 @@ semanticSource:
       ambiguous operation evidence remains UNKNOWN. Candidate preparation
       produces no dispatch, job, project mutation, provider call, or admission
       decision. No v3 schema, bytes, or API semantics are changed.
+    pathSeparation:
+      semanticGraphStepIds: EXACT_EXPLICIT_DIGEST_BOUND_INPUT3_NODE_STEP_IDS
+      engineKeys: EXACT_EQUAL_TO_SEMANTIC_GRAPH_STEP_IDS
+      legacyFixedDagPlanIds: MAY_DIFFER; NEVER_INFER_OR_REQUIRE_EQUALITY
+      operationToEngineCompatibility: UNPROVEN
+      resolverAuthorityAndCurrentness: UNPROVEN
+      candidateDisposition: EFFECT_FREE_CANDIDATE_ONLY
+      runtimeAdmission: NOT_ADMITTED
   acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
 
 executionAdmissionBinding:
@@ -2170,7 +2186,16 @@ executionAdmissionBinding:
       guard checks a compiler-produced plan candidate's capture node and exact
       scene binding as structural input; candidate provenance is not attested
       by this envelope and this check does not authorize runtime effects.
+    legacyCompilationPath:
+      api: media.recipe.specification.compile
+      helper: MediaProductionSpecCompiler.compile(spec)
+      output: media.production-plan.v1
+      stepIds: [validate-spec, rights-review, 'capture-source-{zeroBasedSceneIndex}', compose-timeline, 'render-profile-{zeroBasedOutputProfileIndex}', publish-review]
+      stepIdDisposition: LEGACY_FIXED_DAG_PROTOTYPE_ONLY; NOT_SEMANTIC_SOURCE_STEP_ID_AUTHORITY
+      effects: NONE
+      runtimeAdmission: NOT_ADMITTED
     planBindingRules:
+      appliesTo: LEGACY_COMPILATION_PATH_ONLY
       projectId: EXACT_EQUAL_TO_PRODUCTION_SPEC_PROJECT_ID
       expectedProjectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID
       optionalProjectRevisionRef: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_OR_REJECT_STALE
@@ -2216,6 +2241,16 @@ executionAdmissionBinding:
         render-profile-{zeroBasedOutputProfileIndex}: EXACT_OUTPUT_PROFILE_REF_AT_SAME_INPUT_INDEX
         allOtherSteps: NO_IMPLICIT_SCENE_OR_OUTPUT_LOCK_MAPPING; EFFECT_NOT_ADMITTED
       stepOperationMapping: EXACT_IDENTICAL_STEP_ID_JOIN_ONLY; OPERATION_COMPATIBILITY_UNPROVEN
+    semanticCandidateBindingRules:
+      appliesTo: DIGEST_BOUND_PER_INSTANCE_SEMANTIC_SOURCE_CANDIDATE_ONLY
+      input3GraphStepIds: EXACT_EXPLICIT_SEMANTIC_SOURCE_NODES_STEP_IDS
+      enginesByStepKeys: EXACT_EQUAL_TO_INPUT3_GRAPH_STEP_IDS
+      legacyFixedDagPlanIds: MAY_DIFFER; LEGACY_PLAN_BINDING_RULES_DO_NOT_APPLY
+      operationToEngineCompatibility: UNPROVEN
+      resolverAuthorityAndSourceCurrentness: UNPROVEN
+      resultKind: EFFECT_FREE_SEMANTIC_SOURCE_V3_CANDIDATE
+      doesNotProduce: [COMPILED_PLAN, EXECUTABLE_PLAN, DISPATCH, JOB, ADMISSION]
+      runtimeAdmission: NOT_ADMITTED
     admissionContextBindingRules:
       authenticatedIdentity:
         source: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
@@ -2251,7 +2286,10 @@ executionAdmissionBinding:
       projectRevision: EXACT_EQUAL_TO_PRODUCTION_SPEC_REVISION_ID_AND_COMPARE_AND_SET_REQUIRED
       editLock:
         targetRef: EXACT_SCENE_OR_OUTPUT_VERSION_FOR_THE_EFFECT_STEP
+        ownerPrecondition: CONSERVATIVE_JAVA_CANDIDATE_CHECK_REQUIRES_LOCK_OWNER_EQUAL_AUTHENTICATED_AUTHORITY_PRINCIPAL
         ownerLeaseEpochAndExpiry: CURRENT_FENCED_LEASE_REQUIRED
+        beforeEffectReadback: AUTHORITATIVE_CURRENT_FENCED_LOCK_READBACK_MUST_MATCH_TARGET_SCOPE_OWNER_LEASE_ID_EPOCH_AND_EXPIRY
+        candidateOnly: OWNER_EQUALITY_IS_A_STRUCTURAL_PRECONDITION_NOT_TRUSTED_LOCK_AUTHORITY_OR_ADMISSION
         multiTargetCoverage: ONE_EXACT_TARGET_PER_LOCK; NO_IMPLICIT_SHARING
       clocks:
         identities: ALL_DECLARED_CLOCK_REFS_MUST_RESOLVE_TO_VERSIONED_CLOCKS
