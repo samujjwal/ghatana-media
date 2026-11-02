@@ -82,28 +82,67 @@ public class MediaTestHarness implements AutoCloseable {
     public static List<TestProfile> testProfiles(Path repositoryRoot) throws IOException {
         Path catalog = repositoryRoot.resolve("docs/implementation/media-integration-test-census.v1.json");
         JsonNode profiles = new ObjectMapper().readTree(catalog.toFile()).path("profiles");
+        if (!profiles.isArray() || profiles.isEmpty()) {
+            throw new IllegalArgumentException("test census profiles must be a non-empty array: " + catalog);
+        }
         List<TestProfile> result = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
         for (JsonNode profile : profiles) {
+            if (!profile.isObject()) {
+                throw new IllegalArgumentException("test census profile must be an object: " + catalog);
+            }
+            String id = requiredText(profile, "id", catalog);
+            if (!ids.add(id)) {
+                throw new IllegalArgumentException("duplicate test census profile id: " + id);
+            }
+            String tier = requiredText(profile, "tier", catalog);
+            List<String> selectors = requiredStrings(profile, "selectors", catalog);
+            List<String> sources = requiredStrings(profile, "sources", catalog);
+            List<String> resources = requiredStrings(profile, "resources", catalog);
+            List<String> prerequisites = requiredStrings(profile, "prerequisites", catalog);
             result.add(new TestProfile(
-                    profile.path("id").asString(),
-                    TestTier.valueOf(profile.path("tier").asString()),
-                    strings(profile.path("selectors")),
-                    strings(profile.path("sources")),
-                    strings(profile.path("resources")),
-                    strings(profile.path("prerequisites")),
-                    profile.path("assets").asString(),
-                    profile.path("safety").asString(),
-                    profile.path("evidenceLimit").asString()));
+                    id,
+                    parseTier(tier, id),
+                    selectors,
+                    sources,
+                    resources,
+                    prerequisites,
+                    requiredText(profile, "assets", catalog),
+                    requiredText(profile, "safety", catalog),
+                    requiredText(profile, "evidenceLimit", catalog)));
         }
         return List.copyOf(result);
     }
 
-    private static List<String> strings(JsonNode array) {
+    private static String requiredText(JsonNode object, String field, Path catalog) {
+        JsonNode value = object.get(field);
+        if (value == null || !value.isString() || value.asString().isBlank()) {
+            throw new IllegalArgumentException("test census field " + field + " must be non-blank text: " + catalog);
+        }
+        return value.asString();
+    }
+
+    private static List<String> requiredStrings(JsonNode object, String field, Path catalog) {
+        JsonNode array = object.get(field);
+        if (array == null || !array.isArray() || array.isEmpty()) {
+            throw new IllegalArgumentException("test census field " + field + " must be a non-empty string array: " + catalog);
+        }
         List<String> values = new ArrayList<>();
         for (JsonNode value : array) {
+            if (!value.isString() || value.asString().isBlank()) {
+                throw new IllegalArgumentException("test census field " + field + " entries must be non-blank text: " + catalog);
+            }
             values.add(value.asString());
         }
         return List.copyOf(values);
+    }
+
+    private static TestTier parseTier(String tier, String id) {
+        try {
+            return TestTier.valueOf(tier);
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("unknown test census tier " + tier + " for profile " + id, exception);
+        }
     }
 
     private final String tenantId;

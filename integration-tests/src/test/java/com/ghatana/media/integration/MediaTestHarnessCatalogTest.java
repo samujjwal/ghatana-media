@@ -6,16 +6,21 @@ package com.ghatana.media.integration;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Consumer contract for the executable IT-01 test and fixture inventory. */
 @Tag("integration")
 class MediaTestHarnessCatalogTest {
+
+    @TempDir
+    Path temporaryDirectory;
 
     @Test
     void catalogExposesThreeTiersAndRunnableGradleSelectors() throws Exception {
@@ -72,6 +77,40 @@ class MediaTestHarnessCatalogTest {
         assertThat(compose.prerequisites()).contains("both image variables set to owner-pinned image digests for a qualification run");
         assertThat(compose.assets()).contains("mutable :latest tags");
         assertThat(compose.evidenceLimit()).contains("not a successful STT/TTS operation");
+    }
+
+    @Test
+    void malformedCatalogEntriesFailClosed() throws Exception {
+        writeCatalog("""
+                {"profiles":[{"id":"local","tier":"LOCAL_FIXTURE","selectors":[],
+                 "sources":["test.java"],"resources":["JUnit"],"prerequisites":["JDK"],
+                 "assets":"synthetic","safety":"isolated","evidenceLimit":"fixture only"}]}
+                """);
+
+        assertThatThrownBy(() -> MediaTestHarness.testProfiles(temporaryDirectory))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("selectors")
+                .hasMessageContaining("non-empty string array");
+    }
+
+    @Test
+    void unknownCatalogTierIsRejected() throws Exception {
+        writeCatalog("""
+                {"profiles":[{"id":"local","tier":"PRODUCTION","selectors":["Test"],
+                 "sources":["test.java"],"resources":["JUnit"],"prerequisites":["JDK"],
+                 "assets":"synthetic","safety":"isolated","evidenceLimit":"fixture only"}]}
+                """);
+
+        assertThatThrownBy(() -> MediaTestHarness.testProfiles(temporaryDirectory))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("unknown test census tier PRODUCTION")
+                .hasMessageContaining("local");
+    }
+
+    private void writeCatalog(String json) throws Exception {
+        Path catalog = temporaryDirectory.resolve("docs/implementation/media-integration-test-census.v1.json");
+        Files.createDirectories(catalog.getParent());
+        Files.writeString(catalog, json);
     }
 
     private static Path repositoryRoot() {
