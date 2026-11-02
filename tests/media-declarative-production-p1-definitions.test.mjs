@@ -8,6 +8,7 @@ import { parse } from 'yaml';
 
 const requireTools = createRequire(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../ghatana-tools/package.json'));
 const Ajv2020 = requireTools('ajv/dist/2020').default;
+const addFormats = requireTools('ajv-formats').default;
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readYaml = file => parse(fs.readFileSync(path.join(root, file), 'utf8'));
@@ -89,6 +90,225 @@ test('PDP-1 declarative production bindings resolve the full 61-case source deno
   assert.match(submit.p1RequestSchemaSource, /ownerWireSchema\/requestSchema$/u);
   assert.match(submit.p1ResultSchemaSource, /ownerWireSchema\/resultSchema$/u);
   assert.match(JSON.stringify(resolvePath(submit.p1ResultObservationSemanticsSource, operations)), /UNKNOWN/u);
+});
+
+test('PDP-1 H-02 execution-admission candidate binds bounded engines, current authority, CAS, locks and rational clocks', () => {
+  const contracts = readYaml('.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml');
+  const admission = contracts.executionAdmissionBinding;
+  const schema = {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'https://media.invalid/h02-execution-admission',
+    $defs: contracts.$defs,
+    ...admission.schema,
+  };
+  const ajv = new Ajv2020({strict: false, validateFormats: true, allErrors: true});
+  addFormats(ajv);
+  ajv.addFormat('opaque-id', /^[A-Za-z0-9][A-Za-z0-9._:-]*$/u);
+  ajv.addFormat('opaque-versioned-reference', /^\S+$/u);
+  const int64Max = '9223372036854775807';
+  ajv.addFormat('positive-int64-decimal', {
+    type: 'string', validate: value => /^[1-9][0-9]*$/u.test(value) && BigInt(value) <= BigInt(int64Max),
+  });
+  ajv.addFormat('signed-int64-decimal', {
+    type: 'string', validate: value => /^(0|-[1-9][0-9]*|[1-9][0-9]*)$/u.test(value)
+      && BigInt(value) >= -(2n ** 63n) && BigInt(value) <= BigInt(int64Max),
+  });
+  const validate = ajv.compile(schema);
+  const sha = 'sha256:' + 'a'.repeat(64);
+  const quantity = (amount, unit = 'unit:cpu') => ({amount, unit});
+  const candidate = {
+    schemaVersion: admission.id,
+    requestIdentity: {requestId: 'request-1', requestFingerprint: sha},
+    enginesByStep: {
+      'render-1': {identityKind: 'ENGINE', identity: 'engine:render', immutableBuildSha256: sha},
+      'gate-1': {identityKind: 'NO_ENGINE', identity: 'NO_ENGINE', immutableBuildSha256: 'NO_ENGINE'},
+    },
+    providerQualification: {
+      providerId: 'provider-1', qualificationRef: 'qualification:v1', qualificationSha256: sha,
+      state: 'QUALIFIED', rightsRef: 'provider-rights:v1',
+    },
+    reservation: {
+      quoteRef: 'quote:rendering', quoteVersion: 'quote:rendering:v1', reservationId: 'reservation-1',
+      worstCaseCost: quantity(int64Max, 'unit:usd-micros'), reservedCost: quantity(int64Max, 'unit:usd-micros'),
+      worstCaseCompute: quantity(int64Max), reservedCompute: quantity(int64Max),
+      worstCaseTime: quantity(int64Max, 'unit:ms'), reservedTime: quantity(int64Max, 'unit:ms'),
+    },
+    authority: {
+      identityContextRef: 'identity:v1', identityContextSha256: sha, identityEpoch: int64Max,
+      tenantId: 'tenant-1', principalId: 'principal-1', delegationRef: 'delegation:v1',
+      workspaceRef: 'workspace:v1', purposeRef: 'purpose:v1', rightsRef: 'rights:v1',
+      sourceVersionRef: 'source:v1', sourceSha256: sha, ownerDecisionRef: 'decision:v1',
+      decisionExpiresAt: '2026-12-01T00:00:00Z', revocationEpoch: int64Max,
+    },
+    sourceBindingsByScene: {
+      'scene-1': {
+        sourceVersionRef: 'scene-source:v1', sourceSha256: sha, rightsRef: 'scene-rights:v1',
+        ownerDecisionRef: 'scene-decision:v1', decisionExpiresAt: '2026-12-01T00:00:00Z', revocationEpoch: '0',
+      },
+    },
+    project: {projectId: 'project-1', expectedRevision: 'revision:v7', compareAndSet: 'REQUIRED'},
+    editLocksByStep: {
+      'capture-1': {scopeKind: 'SCENE', targetRef: 'scene-1', ownerPrincipalId: 'principal-1', leaseId: 'lease-1', epoch: int64Max, expiresAt: '2026-12-01T00:00:00Z'},
+      'render-1': {scopeKind: 'OUTPUT', targetRef: 'output:v1', ownerPrincipalId: 'principal-1', leaseId: 'lease-2', epoch: '1', expiresAt: '2026-12-01T00:00:00Z'},
+    },
+    clocks: {
+      storyClockRef: 'clock:story:v1', mediaClockRef: 'clock:media:v1',
+      simulationClockRef: 'clock:simulation:v1', wallClockRef: 'clock:wall:v1',
+      conversions: [{fromClockRef: 'clock:story:v1', toClockRef: 'clock:media:v1', numerator: int64Max, denominator: '1'}],
+    },
+  };
+  assert.equal(validate(candidate), true, 'valid candidate accepts int64 maximum boundaries and explicit NO_ENGINE');
+
+  // Exercise the declared cross-field admission rules against a fixed test context.
+  // This is not a production adapter or runtime admission implementation.
+  const expectedContext = {
+    now: Date.parse('2026-11-01T00:00:00Z'),
+    projectRevision: 'revision:v7',
+    quoteRef: 'quote:rendering',
+    quoteVersion: 'quote:rendering:v1',
+    stepLocks: {
+      'capture-1': {scopeKind: 'SCENE', targetRef: 'scene-1', ownerPrincipalId: 'principal-1', leaseId: 'lease-1'},
+      'render-1': {scopeKind: 'OUTPUT', targetRef: 'output:v1', ownerPrincipalId: 'principal-1', leaseId: 'lease-2'},
+    },
+    clockConversions: [['clock:story:v1', 'clock:media:v1']],
+  };
+  const passesDeclaredCandidateRules = value => {
+    if (!validate(value)) return false;
+    const reservation = value.reservation;
+    if (reservation.quoteRef !== expectedContext.quoteRef || reservation.quoteVersion !== expectedContext.quoteVersion) return false;
+    for (const resource of ['Cost', 'Compute', 'Time']) {
+      const worst = reservation['worstCase' + resource];
+      const reserved = reservation['reserved' + resource];
+      if (worst.unit !== reserved.unit || BigInt(reserved.amount) < BigInt(worst.amount)) return false;
+    }
+    const authority = value.authority;
+    if (Date.parse(authority.decisionExpiresAt) <= expectedContext.now) return false;
+    if (Object.values(value.sourceBindingsByScene).some(binding => Date.parse(binding.decisionExpiresAt) <= expectedContext.now)) return false;
+    if (value.project.expectedRevision !== expectedContext.projectRevision || value.project.compareAndSet !== 'REQUIRED') return false;
+    for (const [step, expected] of Object.entries(expectedContext.stepLocks)) {
+      const lock = value.editLocksByStep[step];
+      if (!lock || ['scopeKind', 'targetRef', 'ownerPrincipalId', 'leaseId'].some(field => lock[field] !== expected[field]) ||
+          Date.parse(lock.expiresAt) <= expectedContext.now) return false;
+    }
+    return expectedContext.clockConversions.every(([from, to]) => value.clocks.conversions.some(conversion =>
+      conversion.fromClockRef === from && conversion.toClockRef === to));
+  };
+  assert.equal(passesDeclaredCandidateRules(candidate), true, 'candidate satisfies declared current quote, bounds, expiry, revision, lock and clock bindings');
+
+  const badNoEngine = structuredClone(candidate);
+  badNoEngine.enginesByStep['gate-1'].immutableBuildSha256 = sha;
+  assert.equal(validate(badNoEngine), false, 'NO_ENGINE must pair its identity and build marker');
+  const badEngine = structuredClone(candidate);
+  badEngine.enginesByStep['render-1'].immutableBuildSha256 = 'NO_ENGINE';
+  assert.equal(validate(badEngine), false, 'an engine requires an immutable SHA-256 build digest');
+  const zeroReservation = structuredClone(candidate);
+  zeroReservation.reservation.reservedCost.amount = '0';
+  assert.equal(validate(zeroReservation), false, 'zero reservation is not a positive bounded quantity');
+  const overflow = structuredClone(candidate);
+  overflow.reservation.worstCaseTime.amount = '9223372036854775808';
+  assert.equal(validate(overflow), false, 'quantity above signed int64 is rejected');
+  const wrongCas = structuredClone(candidate);
+  wrongCas.project.compareAndSet = 'OPTIONAL';
+  assert.equal(validate(wrongCas), false, 'project revision update requires compare-and-set');
+  const missingLockFence = structuredClone(candidate);
+  delete missingLockFence.editLocksByStep['capture-1'].epoch;
+  assert.equal(validate(missingLockFence), false, 'edit lock without fencing epoch is rejected');
+  const zeroClockScale = structuredClone(candidate);
+  zeroClockScale.clocks.conversions[0].numerator = '0';
+  assert.equal(validate(zeroClockScale), false, 'clock conversion scale must be positive');
+  const unknownProperty = structuredClone(candidate);
+  unknownProperty.unreviewed = true;
+  assert.equal(validate(unknownProperty), false, 'closed admission envelope rejects unknown properties');
+  const unknownAuthorityProperty = structuredClone(candidate);
+  unknownAuthorityProperty.authority.selfAttested = true;
+  assert.equal(validate(unknownAuthorityProperty), false, 'closed authority tuple rejects unknown caller assertions');
+  const unknownLockProperty = structuredClone(candidate);
+  unknownLockProperty.editLocksByStep['capture-1'].shared = true;
+  assert.equal(validate(unknownLockProperty), false, 'closed lock receipt rejects unreviewed fields');
+  const unknownClockProperty = structuredClone(candidate);
+  unknownClockProperty.clocks.conversions[0].scale = '1/1';
+  assert.equal(validate(unknownClockProperty), false, 'closed clock conversion rejects alternate scale encodings');
+
+  const belowWorstCost = structuredClone(candidate);
+  belowWorstCost.reservation.reservedCost.amount = '1';
+  assert.equal(passesDeclaredCandidateRules(belowWorstCost), false, 'reserved cost below worst-case is rejected by declared cross-field rule');
+  const mismatchedCostUnit = structuredClone(candidate);
+  mismatchedCostUnit.reservation.reservedCost.unit = 'unit:usd-cents';
+  assert.equal(passesDeclaredCandidateRules(mismatchedCostUnit), false, 'cost reservation must use the worst-case unit');
+  const missingQuote = structuredClone(candidate);
+  delete missingQuote.reservation.quoteRef;
+  assert.equal(validate(missingQuote), false, 'quote identity is required');
+  const missingQuoteVersion = structuredClone(candidate);
+  delete missingQuoteVersion.reservation.quoteVersion;
+  assert.equal(validate(missingQuoteVersion), false, 'immutable quote version is required');
+  const mismatchedQuote = structuredClone(candidate);
+  mismatchedQuote.reservation.quoteVersion = 'quote:rendering:v2';
+  assert.equal(passesDeclaredCandidateRules(mismatchedQuote), false, 'reservation quote version must match the current quote context, independently of its quote ref');
+
+  for (const field of ['decisionExpiresAt', 'revocationEpoch']) {
+    const missingAuthority = structuredClone(candidate);
+    delete missingAuthority.authority[field];
+    assert.equal(validate(missingAuthority), false, `authority requires ${field}`);
+  }
+  const malformedExpiry = structuredClone(candidate);
+  malformedExpiry.authority.decisionExpiresAt = '2026-02-30T00:00:00Z';
+  assert.equal(validate(malformedExpiry), false, 'calendar-invalid RFC3339 rights expiry is rejected');
+  const expiredAuthority = structuredClone(candidate);
+  expiredAuthority.authority.decisionExpiresAt = '2026-10-01T00:00:00Z';
+  assert.equal(passesDeclaredCandidateRules(expiredAuthority), false, 'expired authority decision fails current-time candidate rule');
+  const expiredSceneAuthority = structuredClone(candidate);
+  expiredSceneAuthority.sourceBindingsByScene['scene-1'].decisionExpiresAt = '2026-10-01T00:00:00Z';
+  assert.equal(passesDeclaredCandidateRules(expiredSceneAuthority), false, 'expired per-scene rights decision fails current-time candidate rule');
+  const invalidRevocationEpoch = structuredClone(candidate);
+  invalidRevocationEpoch.authority.revocationEpoch = '-1';
+  assert.equal(validate(invalidRevocationEpoch), false, 'negative revocation epoch is rejected');
+
+  for (const [field, value] of [['targetRef', 'scene-other'], ['scopeKind', 'OUTPUT'],
+    ['ownerPrincipalId', 'principal-other'], ['leaseId', 'lease-other']]) {
+    const mismatchedLock = structuredClone(candidate);
+    mismatchedLock.editLocksByStep['capture-1'][field] = value;
+    assert.equal(passesDeclaredCandidateRules(mismatchedLock), false, `edit lock ${field} must match the exact target context`);
+  }
+  const malformedLockExpiry = structuredClone(candidate);
+  malformedLockExpiry.editLocksByStep['capture-1'].expiresAt = 'tomorrow';
+  assert.equal(validate(malformedLockExpiry), false, 'malformed edit-lock expiry is rejected');
+  const expiredLock = structuredClone(candidate);
+  expiredLock.editLocksByStep['capture-1'].expiresAt = '2026-10-01T00:00:00Z';
+  assert.equal(passesDeclaredCandidateRules(expiredLock), false, 'expired edit lock fails current-time candidate rule');
+
+  const absentRevision = structuredClone(candidate);
+  delete absentRevision.project.expectedRevision;
+  assert.equal(validate(absentRevision), false, 'expected project revision is required');
+  const missingCas = structuredClone(candidate);
+  delete missingCas.project.compareAndSet;
+  assert.equal(validate(missingCas), false, 'compare-and-set declaration is required');
+  const staleRevision = structuredClone(candidate);
+  staleRevision.project.expectedRevision = 'revision:v6';
+  assert.equal(passesDeclaredCandidateRules(staleRevision), false, 'stale expected revision fails exact current-revision binding');
+
+  const zeroDenominator = structuredClone(candidate);
+  zeroDenominator.clocks.conversions[0].denominator = '0';
+  assert.equal(validate(zeroDenominator), false, 'zero rational denominator is rejected');
+  const missingClockIdentity = structuredClone(candidate);
+  delete missingClockIdentity.clocks.mediaClockRef;
+  assert.equal(validate(missingClockIdentity), false, 'required clock identity cannot be omitted');
+  const sameClockConversion = structuredClone(candidate);
+  sameClockConversion.clocks.conversions[0].toClockRef = 'clock:story:v1';
+  assert.equal(passesDeclaredCandidateRules(sameClockConversion), false, 'conversion must match the required directional cross-clock identity');
+  const reversedClockConversion = structuredClone(candidate);
+  [reversedClockConversion.clocks.conversions[0].fromClockRef, reversedClockConversion.clocks.conversions[0].toClockRef] =
+    [reversedClockConversion.clocks.conversions[0].toClockRef, reversedClockConversion.clocks.conversions[0].fromClockRef];
+  assert.equal(passesDeclaredCandidateRules(reversedClockConversion), false, 'clock conversion direction must match the required mapping');
+
+  const rule = admission.operationSchemaRelation.admissionContextBindingRules;
+  assert.match(admission.executionRule, /Reserved cost, compute, and time must each cover their corresponding worst-case bound in the same declared unit/u);
+  assert.match(admission.executionRule, /before each dispatch, retry and restart/u);
+  assert.match(rule.currentAuthority.decision, /RE_RESOLVE_CURRENT_OWNER_DECISION_AND_REVOCATION_EPOCH_BEFORE_EACH_EFFECT/u);
+  assert.match(rule.editLock.beforeEffectReadback, /AUTHORITATIVE_CURRENT_FENCED_LOCK_READBACK/u);
+  assert.match(rule.clocks.conversions, /RATIONAL_DIRECTIONAL_MAPPINGS_REQUIRED/u);
+  assert.equal(admission.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(admission.operationSchemaRelation.effectBoundary.runtimeAdmission,
+    'NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER');
 });
 
 test('PDP-1 model execution and checkpoint descriptors share versioned replay randomness semantics', () => {

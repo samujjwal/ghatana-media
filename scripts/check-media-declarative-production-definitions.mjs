@@ -184,6 +184,14 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   const authoritySchema = admissionProps.authority || {};
   const authorityRequired = authoritySchema.required || [];
   const authorityProperties = authoritySchema.properties || {};
+  const engineSchema = admissionProps.enginesByStep || {};
+  const engineEntry = engineSchema.additionalProperties || {};
+  const reservationSchema = admissionProps.reservation || {};
+  const projectSchema = admissionProps.project || {};
+  const editLockSchema = admissionProps.editLocksByStep || {};
+  const editLockEntry = editLockSchema.additionalProperties || {};
+  const clocksSchema = admissionProps.clocks || {};
+  const clockConversion = clocksSchema.properties?.conversions?.items || {};
   const authenticatedIdentityTuple = admissionAuthenticatedIdentity.tuple || {};
   const requiredSceneAuthorityFields = [
     'sourceVersionRef', 'sourceSha256', 'rightsRef', 'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
@@ -199,6 +207,48 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     fail('PDP-1 H-02: execution admission must use the separately versioned v3 envelope');
   if (admission.runtimeAdmission !== 'NOT_ADMITTED')
     fail('PDP-1 H-02: source envelope cannot admit runtime effects');
+  const engineRequired = ['identityKind', 'identity', 'immutableBuildSha256'];
+  const reservationRequired = ['quoteRef', 'quoteVersion', 'reservationId', 'worstCaseCost', 'reservedCost', 'worstCaseCompute', 'reservedCompute', 'worstCaseTime', 'reservedTime'];
+  const lockRequired = ['scopeKind', 'targetRef', 'ownerPrincipalId', 'leaseId', 'epoch', 'expiresAt'];
+  if (!engineSchema.minProperties || !sameSet(engineEntry.required || [], engineRequired) ||
+      engineEntry.additionalProperties !== false ||
+      engineEntry.properties?.immutableBuildSha256?.$ref !== '#/$defs/digestOrNoEngine' ||
+      !String(admissionRelation.planBindingRules?.planFingerprint || '').includes('PER_STEP_ENGINE_DIGESTS') ||
+      !String(admissionRelation.planBindingRules?.changedEngineDigest || '').includes('ONLY_THAT_STEP_AND_DESCENDANTS'))
+    fail('PDP-1 H-02: each step requires a closed engine/model/solver identity and immutable build digest or explicit NO_ENGINE with scoped fingerprint invalidation');
+  if (!sameSet(reservationSchema.required || [], reservationRequired) ||
+      reservationRequired.some(field => !reservationSchema.properties?.[field]) ||
+      reservationSchema.properties?.quoteRef?.$ref !== '#/$defs/versionRef' ||
+      reservationSchema.properties?.quoteVersion?.$ref !== '#/$defs/versionRef' ||
+      reservationSchema.properties?.reservationId?.$ref !== '#/$defs/opaqueId' ||
+      !['worstCaseCost', 'reservedCost', 'worstCaseCompute', 'reservedCompute', 'worstCaseTime', 'reservedTime']
+        .every(field => reservationSchema.properties?.[field]?.$ref === '#/$defs/boundedQuantity') ||
+      !String(admissionRelation.admissionContextBindingRules?.reservation?.reservedCostComputeAndTime || '').includes('SAME_UNIT') ||
+      !String(admission.executionRule || '').includes('cover their corresponding worst-case bound in the same declared unit'))
+    fail('PDP-1 H-02: quote/reservation must bound worst-case cost, compute and time in matching units');
+  if (!authorityRequired.includes('decisionExpiresAt') || !authorityRequired.includes('revocationEpoch') ||
+      authorityProperties.decisionExpiresAt?.format !== 'date-time' ||
+      authorityProperties.revocationEpoch?.$ref !== '#/$defs/nonnegativeInt64' ||
+      projectSchema.properties?.compareAndSet?.const !== 'REQUIRED' ||
+      !projectSchema.required?.includes('expectedRevision'))
+    fail('PDP-1 H-02: current rights decision expiry/revocation and expected-revision compare-and-set must be typed and required');
+  if (!sameSet(editLockEntry.required || [], lockRequired) || editLockEntry.additionalProperties !== false ||
+      !['SCENE', 'OUTPUT'].every(scope => editLockEntry.properties?.scopeKind?.enum?.includes(scope)) ||
+      editLockEntry.properties?.targetRef?.$ref !== '#/$defs/versionRef' ||
+      editLockEntry.properties?.ownerPrincipalId?.$ref !== '#/$defs/opaqueId' ||
+      editLockEntry.properties?.leaseId?.$ref !== '#/$defs/opaqueId' ||
+      editLockEntry.properties?.epoch?.$ref !== '#/$defs/positiveInt64' ||
+      editLockEntry.properties?.expiresAt?.format !== 'date-time' ||
+      !String(admissionRelation.admissionContextBindingRules?.editLock?.beforeEffectReadback || '').includes('LEASE_ID_EPOCH_AND_EXPIRY'))
+    fail('PDP-1 H-02: effect locks must bind one exact target, scope, owner, lease, epoch and expiry');
+  if (!sameSet(clocksSchema.required || [], ['storyClockRef', 'mediaClockRef', 'simulationClockRef', 'wallClockRef', 'conversions']) ||
+      !sameSet(clockConversion.required || [], ['fromClockRef', 'toClockRef', 'numerator', 'denominator']) ||
+      clockConversion.properties?.numerator?.$ref !== '#/$defs/positiveInt64' ||
+      clockConversion.properties?.denominator?.$ref !== '#/$defs/positiveInt64')
+    fail('PDP-1 H-02: all four clocks and directional positive rational conversions must be typed');
+  if (!/before each dispatch, retry and restart/u.test(admission.executionRule || '') ||
+      !String(admissionRelation.effectBoundary?.beforeProviderDispatchRetryOrRestart?.required || '').includes('RECHECK_CURRENT_AUTHORITY'))
+    fail('PDP-1 H-02: current authorization, rights, quote and lock state must be rechecked at dispatch, retry and restart');
   const expectedIdentitySource = '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope';
   const identitySourceResolves = admissionAuthenticatedIdentity.source === expectedIdentitySource &&
     Boolean(docs.authority?.ownerDefinedPdp10AuthorityScopes?.identityScope);
