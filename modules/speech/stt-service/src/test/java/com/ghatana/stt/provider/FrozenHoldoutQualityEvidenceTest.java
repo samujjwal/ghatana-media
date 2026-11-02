@@ -132,10 +132,16 @@ class FrozenHoldoutQualityEvidenceTest {
         }
     }
 
+    private static FrozenHoldoutQualityEvidence parse(
+            byte[] snapshot, Clock clock, Duration maxAge) {
+        return FrozenHoldoutQualityEvidence.parse(
+                snapshot, "sha256:" + sha256(snapshot), clock, maxAge);
+    }
+
     @Test
     void genuineFrozenReportProducesSourceLinkedWorstLocaleWer() {
         byte[] snapshot = validSnapshot();
-        var evidence = FrozenHoldoutQualityEvidence.parse(
+        var evidence = parse(
                 snapshot, Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
 
         Optional<MediaModalityContracts.ProviderQualityObservation> observation =
@@ -161,19 +167,19 @@ class FrozenHoldoutQualityEvidenceTest {
     @Test
     void identityMismatchRevocationAndStalenessEmitNoObservation() {
         byte[] snapshot = validSnapshot();
-        var evidence = FrozenHoldoutQualityEvidence.parse(
+        var evidence = parse(
                 snapshot, Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
         assertThat(evidence.latest("other-provider", "whisper-v1", "whisper-tiny")).isEmpty();
         assertThat(evidence.latest("whisper-provider", "whisper-v2", "whisper-tiny")).isEmpty();
         assertThat(evidence.latest("whisper-provider", "whisper-v1", "whisper-base")).isEmpty();
 
-        var revoked = FrozenHoldoutQualityEvidence.parse(
+        var revoked = parse(
                 envelope("REVOKED", "REFERENCE_ONLY", MEASURED_AT.toString(),
                         "whisper-provider", "whisper-tiny").getBytes(StandardCharsets.UTF_8),
                 Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
         assertThat(revoked.latest("whisper-provider", "whisper-v1", "whisper-tiny")).isEmpty();
 
-        var stale = FrozenHoldoutQualityEvidence.parse(
+        var stale = parse(
                 snapshot,
                 Clock.fixed(MEASURED_AT.plus(MAX_AGE).plusSeconds(1), ZoneOffset.UTC),
                 MAX_AGE);
@@ -183,7 +189,7 @@ class FrozenHoldoutQualityEvidenceTest {
     @Test
     void latestAllEmitsAggregateAndEveryMeasuredPerLocaleMetric() {
         byte[] snapshot = validSnapshot();
-        var evidence = FrozenHoldoutQualityEvidence.parse(
+        var evidence = parse(
                 snapshot, Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
 
         var rows = evidence.latestAll("whisper-provider", "whisper-v1", "whisper-tiny");
@@ -218,7 +224,7 @@ class FrozenHoldoutQualityEvidenceTest {
         byte[] qualified = envelope("ACTIVE", "INDEPENDENT_QUALIFIED_HOLDOUT",
                 MEASURED_AT.toString(), "whisper-provider", "whisper-base",
                 qualifiedReportJson()).getBytes(StandardCharsets.UTF_8);
-        var evidence = FrozenHoldoutQualityEvidence.parse(
+        var evidence = parse(
                 qualified, Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
 
         var rows = evidence.latestAll("whisper-provider", "whisper-v1", "whisper-base");
@@ -233,7 +239,7 @@ class FrozenHoldoutQualityEvidenceTest {
             assertThat(row.measuredValue()).isEqualTo(0.6);
         });
         // A pilot-depth or interval-free report cannot claim the qualified scope.
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         envelope("ACTIVE", "INDEPENDENT_QUALIFIED_HOLDOUT",
                                 MEASURED_AT.toString(), "whisper-provider", "whisper-tiny",
                                 reportJson()).getBytes(StandardCharsets.UTF_8),
@@ -247,13 +253,42 @@ class FrozenHoldoutQualityEvidenceTest {
         Path evidence = tempDir.resolve("whisper-quality-evidence.json");
         Files.write(evidence, snapshot);
         var loaded = FrozenHoldoutQualityEvidence.load(
-                evidence, Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
+                evidence, "sha256:" + sha256(snapshot),
+                Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE);
         assertThat(loaded.latest("whisper-provider", "whisper-v1", "whisper-tiny"))
                 .isPresent();
         assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.load(
                         tempDir.resolve("absent.json"),
+                        "sha256:" + "0".repeat(64),
                         Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE))
                 .isInstanceOf(java.io.IOException.class);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void trustedSnapshotPinIsRequiredAndMustMatchExactBytes() {
+        byte[] snapshot = validSnapshot();
+        Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
+
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+                        snapshot, null, clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trusted sha256");
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+                        snapshot, "sha256:" + "0".repeat(64), clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not match trusted pin");
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+                        snapshot, sha256(snapshot), clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trusted sha256");
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(snapshot, clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trusted sha256");
+        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.load(
+                        tempDir.resolve("unread-without-pin.json"), clock, MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trusted sha256");
     }
 
     @Test
@@ -282,47 +317,47 @@ class FrozenHoldoutQualityEvidenceTest {
         Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
         byte[] valid = validSnapshot();
 
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         "not json".getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new byte[0], clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new byte[FrozenHoldoutQualityEvidence.MAX_EVIDENCE_BYTES + 1],
                         clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
         // Schema, dataset revision, scope, export digest and future time are all verified.
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new String(valid, StandardCharsets.UTF_8)
                                 .replace("media.stt-quality-evidence.v1", "v0")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new String(valid, StandardCharsets.UTF_8)
                                 .replace("70bb2e84b976b7e960aa89f1c648e09c59f894dd",
                                         "0".repeat(40))
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new String(valid, StandardCharsets.UTF_8)
                                 .replace("REFERENCE_ONLY", "PRODUCTION_ADMITTED")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         envelope("ACTIVE", "REFERENCE_ONLY",
                                 MEASURED_AT.plusSeconds(3600).toString(),
                                 "whisper-provider", "whisper-tiny")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
         // A tampered WER that no longer matches its error counts is rejected.
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new String(valid, StandardCharsets.UTF_8)
                                 .replace("\"wer\": 1.096", "\"wer\": 0.01")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
         // A report that was not produced on a frozen holdout is rejected.
-        assertThatThrownBy(() -> FrozenHoldoutQualityEvidence.parse(
+        assertThatThrownBy(() -> parse(
                         new String(valid, StandardCharsets.UTF_8)
                                 .replace("MEASURED_ON_FROZEN_HOLDOUT", "MEASURED_ON_TRAINING")
                                 .getBytes(StandardCharsets.UTF_8), clock, MAX_AGE))

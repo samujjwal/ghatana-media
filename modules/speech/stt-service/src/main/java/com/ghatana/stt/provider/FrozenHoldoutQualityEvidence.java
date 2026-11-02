@@ -129,22 +129,32 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
 
     /**
      * Parses a trusted evidence snapshot from bytes already in memory. The
-     * snapshot sha256 is computed over the exact supplied bytes. Any schema,
+     * snapshot sha256 is computed over the exact supplied bytes and must equal
+     * a trusted composition-time pin. Any missing/mismatched pin, schema,
      * identity, dataset-revision, consistency or freshness violation fails
      * closed with {@link IllegalArgumentException}; no partial evidence is kept.
      */
     public static FrozenHoldoutQualityEvidence parse(
-            byte[] evidenceBytes, Clock clock, Duration maxEvidenceAge) {
+            byte[] evidenceBytes, String expectedSnapshotSha256,
+            Clock clock, Duration maxEvidenceAge) {
         if (evidenceBytes == null || evidenceBytes.length == 0
                 || evidenceBytes.length > MAX_EVIDENCE_BYTES) {
             throw new IllegalArgumentException("evidence snapshot exceeds bounded size");
+        }
+        if (expectedSnapshotSha256 == null || !expectedSnapshotSha256.matches(SHA256_REF)) {
+            throw new IllegalArgumentException(
+                    "a trusted sha256:<lowercase hex> snapshot pin is required");
+        }
+        byte[] snapshot = evidenceBytes.clone();
+        String reportSha256 = sha256Hex(snapshot);
+        if (!expectedSnapshotSha256.equals("sha256:" + reportSha256)) {
+            throw new IllegalArgumentException("evidence snapshot digest does not match trusted pin");
         }
         if (clock == null || maxEvidenceAge == null || maxEvidenceAge.isNegative()
                 || maxEvidenceAge.isZero()) {
             throw new IllegalArgumentException("clock and positive max evidence age are required");
         }
-        String reportSha256 = sha256Hex(evidenceBytes);
-        JsonNode root = readJson(evidenceBytes);
+        JsonNode root = readJson(snapshot);
         require(text(root, "schemaVersion").equals(SCHEMA_VERSION),
                 "unsupported evidence schemaVersion");
         String status = text(root, "status");
@@ -179,17 +189,41 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
     }
 
     /**
-     * Loads a trusted evidence snapshot from a local path. The actual opened
+     * Retains the prior method shape for callers compiled against the original
+     * helper, while failing closed because an unpinned snapshot is not trusted.
+     */
+    @Deprecated
+    public static FrozenHoldoutQualityEvidence parse(
+            byte[] evidenceBytes, Clock clock, Duration maxEvidenceAge) {
+        throw new IllegalArgumentException(
+                "a trusted sha256:<lowercase hex> snapshot pin is required");
+    }
+
+    /**
+     * Loads a trusted evidence snapshot from a local path and verifies its
+     * exact bytes against a trusted composition-time SHA-256 pin. The actual opened
      * stream is bounded while reading, so a file that grows after inspection
      * cannot make composition allocate an unbounded snapshot. A missing file
      * is an {@link IOException} at composition time, never an admitted
      * observation.
      */
     public static FrozenHoldoutQualityEvidence load(
-            Path path, Clock clock, Duration maxEvidenceAge) throws IOException {
+            Path path, String expectedSnapshotSha256,
+            Clock clock, Duration maxEvidenceAge) throws IOException {
         try (InputStream input = Files.newInputStream(path)) {
-            return parse(readBoundedSnapshot(input), clock, maxEvidenceAge);
+            return parse(readBoundedSnapshot(input), expectedSnapshotSha256, clock, maxEvidenceAge);
         }
+    }
+
+    /**
+     * Retains the prior method shape for callers compiled against the original
+     * helper, while failing closed because no trusted snapshot pin was supplied.
+     */
+    @Deprecated
+    public static FrozenHoldoutQualityEvidence load(
+            Path path, Clock clock, Duration maxEvidenceAge) throws IOException {
+        throw new IllegalArgumentException(
+                "a trusted sha256:<lowercase hex> snapshot pin is required");
     }
 
     /**
