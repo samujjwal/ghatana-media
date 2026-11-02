@@ -21,11 +21,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.postgresql.PGConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -430,6 +433,110 @@ class PostgresqlMediaProcessingAttemptReadTest {
     }
 
     @Test
+    void failedCancelTransportAndNetworkTimeoutReadBackLateDurableCommitWithoutUnknownOverride() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-commit-cancel-fail-" + suffix;
+        String tenant = "tenant-" + suffix;
+        String jobId = "job-" + suffix;
+        String triggerName = "media_commit_sleep_" + suffix;
+        String functionName = "media_commit_sleep_fn_" + suffix;
+        AtomicBoolean cancelTransportFailed = new AtomicBoolean();
+        AtomicReference<Connection> commitConnection = new AtomicReference<>();
+        AtomicReference<Integer> commitBackendPid = new AtomicReference<>();
+        AtomicReference<Integer> lastBorrowedBackendPid = new AtomicReference<>();
+        AtomicReference<Set<Integer>> backendPidsAtCommit = new AtomicReference<>();
+        Set<Integer> borrowedBackendPids = ConcurrentHashMap.newKeySet();
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        Map<String, String> environment = integrationEnvironment(bucket);
+        // Flyway uses an additional connection during startup; the execution path itself is
+        // serial, so a two-connection maximum still lets the test identify pool replacement.
+        environment.put("MEDIA_POSTGRES_POOL_SIZE", "2");
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     environment, null, connection -> failCancelTransport(connection,
+                             cancelTransportFailed, commitConnection, commitBackendPid,
+                             lastBorrowedBackendPid, backendPidsAtCommit, borrowedBackendPids));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            try {
+                AttemptFixture started = startAttempt(store, tenant, jobId);
+                var attempt = store.recordProviderReceipt(started.attempt(), started.lease(),
+                        "operation-lost-cancel", "receipt-lost-cancel");
+                Map<String, Object> providerResult = Map.of("label", "synthetic");
+                ProviderAttemptObservation observation = new ProviderAttemptObservation(attempt.query(),
+                        AttemptFinality.SUCCEEDED, "receipt-lost-cancel", providerResult, PROVENANCE, Instant.now());
+                ProcessingJob completed = terminal(started.running(), JobStatus.COMPLETED, providerResult);
+                MediaLifecycleEvent completion = event(completed, "MEDIA_JOB_COMPLETED");
+
+                try (Connection connection = DriverManager.getConnection(
+                             POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = connection.createStatement()) {
+                    statement.execute("CREATE FUNCTION public." + functionName + "() RETURNS trigger LANGUAGE plpgsql AS $$ "
+                            + "BEGIN IF NEW.tenant_id = '" + tenant + "' AND NEW.job_id = '" + jobId
+                            + "' AND NEW.status = 'COMPLETED' THEN PERFORM pg_sleep(5); END IF; "
+                            + "RETURN NEW; END $$");
+                    statement.execute("CREATE CONSTRAINT TRIGGER " + triggerName
+                            + " AFTER UPDATE ON media_processing_jobs DEFERRABLE INITIALLY DEFERRED "
+                            + "FOR EACH ROW EXECUTE FUNCTION public." + functionName + "()");
+                }
+
+                long startedAt = System.nanoTime();
+                Throwable failure = org.assertj.core.api.Assertions.catchThrowable(() -> store.commitFinalOutcome(
+                        started.running(), attempt, completed, observation, completion,
+                        MonotonicDeadline.after(Duration.ofSeconds(2))));
+                long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt);
+                assertThat(failure).isInstanceOf(IllegalStateException.class);
+                assertThat(failure.getCause()).isInstanceOf(SQLException.class);
+                assertThat(((SQLException) failure.getCause()).getSQLState()).isEqualTo("08006");
+                assertThat(cancelTransportFailed).isTrue();
+                assertThat(elapsedMillis).isBetween(1_000L, 4_000L);
+                Connection failedCommitConnection = commitConnection.get();
+                assertThat(failedCommitConnection).isNotNull();
+                assertThat(failedCommitConnection.isClosed()).isTrue();
+                Integer failedCommitBackendPid = commitBackendPid.get();
+                assertThat(failedCommitBackendPid).isNotNull();
+                assertThat(backendPidsAtCommit.get()).containsExactly(failedCommitBackendPid);
+
+                // The failed cancel does not stop PostgreSQL's deferred trigger. Allow that backend
+                // to finish, then use the pool to determine whether COMMIT won. The observed pool
+                // had only the commit backend before finalization; a new PID proves the failed
+                // connection was evicted rather than returned for durable readback.
+                long readbackDeadlineNanos = System.nanoTime() + TimeUnit.SECONDS.toNanos(8);
+                ProcessingJob durableJob = null;
+                while (System.nanoTime() < readbackDeadlineNanos) {
+                    durableJob = store.find(tenant, jobId).orElse(null);
+                    if (durableJob != null && durableJob.status() == JobStatus.COMPLETED) break;
+                    Thread.sleep(50);
+                }
+                assertThat(durableJob)
+                        .as("PostgreSQL's deferred commit should become durable within the bounded readback window")
+                        .isNotNull();
+                assertThat(durableJob.status()).isEqualTo(JobStatus.COMPLETED);
+                assertThat(lastBorrowedBackendPid.get()).isNotEqualTo(failedCommitBackendPid);
+                assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().finality())
+                        .isEqualTo(AttemptFinality.SUCCEEDED);
+                assertThat(store.findProcessingAttempt(tenant, jobId, 1).orElseThrow().providerReceiptId())
+                        .isEqualTo("receipt-lost-cancel");
+                assertThat(count("SELECT count(*) FROM media_processing_attempts WHERE tenant_id=? AND job_id=?",
+                        tenant, jobId)).isEqualTo(1);
+                assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                        + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_COMPLETED'",
+                        tenant, jobId)).isEqualTo(1);
+                assertThat(count("SELECT count(*) FROM media_processing_lifecycle_outbox "
+                        + "WHERE tenant_id=? AND aggregate_id=? AND event_type='MEDIA_JOB_OUTCOME_UNKNOWN'",
+                        tenant, jobId)).isZero();
+            } finally {
+                try (Connection connection = DriverManager.getConnection(
+                             POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = connection.createStatement()) {
+                    statement.execute("DROP TRIGGER IF EXISTS " + triggerName + " ON media_processing_jobs");
+                    statement.execute("DROP FUNCTION IF EXISTS public." + functionName + "()");
+                }
+            }
+        }
+    }
+
+    @Test
     void simulatedLateFailedCommitAcknowledgementPreservesDurableSuccessWithoutRetryOrUnknownEvent() throws Exception {
         String suffix = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-attempt-late-commit-ack-" + suffix;
@@ -598,6 +705,51 @@ class PostgresqlMediaProcessingAttemptReadTest {
                                     interrupted);
                         }
                         throw new SQLException("injected lost acknowledgement after successful commit", "08006");
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+    }
+
+    private static Connection failCancelTransport(Connection delegate, AtomicBoolean cancelTransportFailed,
+            AtomicReference<Connection> commitConnection, AtomicReference<Integer> commitBackendPid,
+            AtomicReference<Integer> lastBorrowedBackendPid, AtomicReference<Set<Integer>> backendPidsAtCommit,
+            Set<Integer> borrowedBackendPids) {
+        int backendPid;
+        try (var statement = delegate.createStatement();
+             ResultSet result = statement.executeQuery("SELECT pg_backend_pid()")) {
+            if (!result.next()) throw new IllegalStateException("PostgreSQL did not return the backend PID");
+            backendPid = result.getInt(1);
+        } catch (SQLException failure) {
+            throw new IllegalStateException("Could not capture PostgreSQL backend PID", failure);
+        }
+        lastBorrowedBackendPid.set(backendPid);
+        borrowedBackendPids.add(backendPid);
+        return (Connection) Proxy.newProxyInstance(PostgresqlMediaProcessingAttemptReadTest.class.getClassLoader(),
+                new Class<?>[] {Connection.class}, (proxy, method, arguments) -> {
+                    if ("commit".equals(method.getName())) {
+                        commitConnection.set(delegate);
+                        commitBackendPid.set(backendPid);
+                        backendPidsAtCommit.set(Set.copyOf(borrowedBackendPids));
+                    }
+                    if ("unwrap".equals(method.getName()) && arguments != null && arguments.length == 1
+                            && arguments[0] == PGConnection.class) {
+                        PGConnection pgConnection = delegate.unwrap(PGConnection.class);
+                        return Proxy.newProxyInstance(PGConnection.class.getClassLoader(),
+                                new Class<?>[] {PGConnection.class}, (pgProxy, pgMethod, pgArguments) -> {
+                                    if ("cancelQuery".equals(pgMethod.getName())) {
+                                        cancelTransportFailed.set(true);
+                                        throw new SQLException("injected unreachable PostgreSQL cancel endpoint", "08006");
+                                    }
+                                    try {
+                                        return pgMethod.invoke(pgConnection, pgArguments);
+                                    } catch (InvocationTargetException failure) {
+                                        throw failure.getCause();
+                                    }
+                                });
                     }
                     try {
                         return method.invoke(delegate, arguments);

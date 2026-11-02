@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,6 +47,12 @@ import static org.mockito.Mockito.when;
 class SttBoundedProviderDispatchTest {
     private static final String TENANT = "tenant-verified";
     private static final String PRINCIPAL = "00000000-0000-0000-0000-000000000001";
+    private static final ScheduledExecutorService DEADLINE_TIMER =
+            Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "stt-deadline-test-timer");
+                thread.setDaemon(true);
+                return thread;
+            });
 
     @Test
     void authorizedRequestCompletesOnBoundedWorker() throws Exception {
@@ -148,6 +156,99 @@ class SttBoundedProviderDispatchTest {
     }
 
     @Test
+    void deadlineAfterProviderStartSurfacesUnknownAndSuppressesLateSuccess() throws Exception {
+        ThreadPoolExecutor workers = pool(1, 1);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine engine = mock(SttEngine.class);
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch releaseProvider = new CountDownLatch(1);
+        CountDownLatch providerReturned = new CountDownLatch(1);
+        when(library.getSttEngine()).thenReturn(engine);
+        when(engine.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenAnswer(invocation -> {
+            providerStarted.countDown();
+            try {
+                while (!releaseProvider.await(50, TimeUnit.MILLISECONDS)) { /* held by test */ }
+            } catch (InterruptedException deadline) {
+                // A deadline signal cannot prove that an arbitrary/native provider has stopped.
+                while (releaseProvider.getCount() != 0) Thread.yield();
+            } finally {
+                providerReturned.countDown();
+            }
+            return result();
+        });
+        SttGrpcService service = service(library, workers,
+                request -> SttRequestAuthorization.Decision.ADMITTED);
+        TestObserver observer = new TestObserver();
+        Context.CancellableContext deadline = authenticatedContext().withDeadlineAfter(
+                150, TimeUnit.MILLISECONDS, DEADLINE_TIMER);
+
+        try {
+            invoke(deadline, service, request(), observer);
+            assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(observer.terminal.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(observer.failure).getCode()).isEqualTo(Status.Code.UNKNOWN);
+            assertThat(Status.fromThrowable(observer.failure).getDescription()).contains("UNKNOWN_OUTCOME");
+
+            releaseProvider.countDown();
+            assertThat(providerReturned.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(observer.response).isNull();
+            assertThat(observer.completed).isFalse();
+            verify(engine).transcribe(any(AudioData.class), any(TranscriptionOptions.class));
+        } finally {
+            deadline.cancel(new RuntimeException("deadline fixture cleanup"));
+            releaseProvider.countDown();
+            service.close();
+        }
+    }
+
+    @Test
+    void deadlineWhileQueuedExpiresBeforeProviderDispatch() throws Exception {
+        ThreadPoolExecutor workers = pool(1, 1);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine engine = mock(SttEngine.class);
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch releaseProvider = new CountDownLatch(1);
+        AtomicInteger providerCalls = new AtomicInteger();
+        when(library.getSttEngine()).thenReturn(engine);
+        when(engine.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenAnswer(invocation -> {
+            if (providerCalls.incrementAndGet() == 1) {
+                providerStarted.countDown();
+                releaseProvider.await(3, TimeUnit.SECONDS);
+            }
+            return result();
+        });
+        SttGrpcService service = service(library, workers,
+                request -> SttRequestAuthorization.Decision.ADMITTED);
+        TestObserver active = new TestObserver();
+        TestObserver queued = new TestObserver();
+        Context.CancellableContext deadline = null;
+
+        try {
+            invoke(service, request(), active);
+            assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            deadline = authenticatedContext().withDeadlineAfter(2, TimeUnit.SECONDS, DEADLINE_TIMER);
+            invoke(deadline, service, request(), queued);
+            assertThat(workers.getQueue()).hasSize(1);
+            assertThat(queued.terminal.await(3, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(queued.failure).getCode())
+                    .isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(workers.getQueue()).isEmpty();
+
+            releaseProvider.countDown();
+            assertThat(active.terminal.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(active.failure).isNull();
+            verify(engine).transcribe(any(AudioData.class), any(TranscriptionOptions.class));
+            assertThat(providerCalls).hasValue(1);
+            assertThat(queued.response).isNull();
+            assertThat(queued.completed).isFalse();
+        } finally {
+            if (deadline != null) deadline.cancel(new RuntimeException("deadline fixture cleanup"));
+            releaseProvider.countDown();
+            service.close();
+        }
+    }
+
+    @Test
     void saturatedWorkerQueueRejectsWithoutDispatchingExtraProviderCall() throws Exception {
         ThreadPoolExecutor workers = pool(1, 1);
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
@@ -224,7 +325,7 @@ class SttBoundedProviderDispatchTest {
             assertThat(started.terminal.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(queued.terminal.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(Status.fromThrowable(started.failure).getCode()).isEqualTo(Status.Code.UNKNOWN);
-            assertThat(Status.fromThrowable(queued.failure).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(Status.fromThrowable(queued.failure).getCode()).isEqualTo(Status.Code.CANCELLED);
             verify(engine).transcribe(any(AudioData.class), any(TranscriptionOptions.class));
             assertThat(started.response).isNull();
             assertThat(queued.response).isNull();

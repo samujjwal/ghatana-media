@@ -28,6 +28,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -150,6 +155,71 @@ class MultimodalGrpcFinalitySurfaceTest {
                             .contains("MULTIMODAL_OPERATION_OUTCOME_UNKNOWN")
                             .doesNotContain("untrusted downstream detail");
                 });
+    }
+
+    @Test
+    void callerDeadlineReachesCanonicalExecutorAndSuppressesLateServiceSuccess() throws Exception {
+        CountDownLatch executorEntered = new CountDownLatch(1);
+        CountDownLatch releaseExecutor = new CountDownLatch(1);
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicBoolean deadlinePropagated = new AtomicBoolean();
+        AtomicBoolean deadlineExpiredOrCancellationObserved = new AtomicBoolean();
+        AtomicBoolean clientReceivedResponse = new AtomicBoolean();
+        AtomicReference<Throwable> clientFailure = new AtomicReference<>();
+        start(new CanonicalOperationExecutor() {
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         Callable<T> action) throws Exception {
+                throw new UnsupportedOperationException("typed operation required");
+            }
+            @Override public <T> T execute(CanonicalOperationBinding binding, String operationRef,
+                                         CanonicalOperation<T> operation,
+                                         AuthenticatedPrincipal authenticated) throws Exception {
+                dispatches.incrementAndGet();
+                deadlinePropagated.set(Context.current().getDeadline() != null);
+                executorEntered.countDown();
+                awaitIgnoringInterrupts(releaseExecutor);
+                io.grpc.Deadline deadline = Context.current().getDeadline();
+                deadlineExpiredOrCancellationObserved.set(Context.current().isCancelled()
+                        || deadline != null && deadline.isExpired());
+                return operation.fixtureAction().call();
+            }
+        });
+
+        Thread caller = Thread.startVirtualThread(() -> {
+            try {
+                stub().withDeadlineAfter(150, TimeUnit.MILLISECONDS).processMultimodal(request());
+                clientReceivedResponse.set(true);
+            } catch (Throwable failure) {
+                clientFailure.set(failure);
+            }
+        });
+        try {
+            assertThat(executorEntered.await(2, TimeUnit.SECONDS)).isTrue();
+            caller.join(2_000);
+            assertThat(caller.isAlive()).isFalse();
+            assertThat(clientFailure.get()).isInstanceOfSatisfying(StatusRuntimeException.class, failure ->
+                    assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED));
+            assertThat(deadlinePropagated).isTrue();
+        } finally {
+            releaseExecutor.countDown();
+            caller.join(2_000);
+        }
+        assertThat(dispatches).hasValue(1);
+        assertThat(deadlineExpiredOrCancellationObserved).isTrue();
+        assertThat(clientReceivedResponse).isFalse();
+    }
+
+    private static void awaitIgnoringInterrupts(CountDownLatch latch) {
+        boolean interrupted = false;
+        while (true) {
+            try {
+                latch.await();
+                break;
+            } catch (InterruptedException ignored) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) Thread.currentThread().interrupt();
     }
 
     // ── Harness ─────────────────────────────────────────────────────────────

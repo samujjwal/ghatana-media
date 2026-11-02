@@ -94,7 +94,7 @@ class TtsUnaryBoundedDispatchTest {
         cancelled.run(() -> service.synthesize(request(), observer));
 
         assertThat(observer.terminal.await(1, TimeUnit.SECONDS)).isTrue();
-        assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+        assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.CANCELLED);
         verify(engine, never()).synthesize(anyString(), any());
     }
 
@@ -176,6 +176,25 @@ class TtsUnaryBoundedDispatchTest {
     }
 
     @Test
+    void providerCancelledStatusAfterDispatchIsReportedAsUnknown() throws Exception {
+        String privateProviderMessage = "provider-cancelled-private-detail";
+        when(engine.synthesize(anyString(), any())).thenThrow(Status.CANCELLED
+                .withDescription(privateProviderMessage).asRuntimeException());
+        CapturingObserver observer = new CapturingObserver();
+
+        service.synthesize(request(), observer);
+
+        assertThat(observer.terminal.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNKNOWN);
+        assertThat(Status.fromThrowable(observer.error).getDescription())
+                .contains("UNKNOWN_OUTCOME")
+                .doesNotContain(privateProviderMessage);
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        verify(engine).synthesize(anyString(), any());
+    }
+
+    @Test
     void boundedQueueRejectsOverflowAsResourceExhausted() throws Exception {
         CountDownLatch firstProviderStarted = new CountDownLatch(1);
         CountDownLatch releaseFirst = new CountDownLatch(1);
@@ -238,6 +257,45 @@ class TtsUnaryBoundedDispatchTest {
         assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.PERMISSION_DENIED);
         assertThat(checks).hasValue(2);
         verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void queuedDeadlinePreventsUnaryProviderDispatchAndReturnsDeadlineExceeded() throws Exception {
+        CountDownLatch blockerStarted = new CountDownLatch(1);
+        CountDownLatch blockerFinished = new CountDownLatch(1);
+        CountDownLatch releaseBlocker = new CountDownLatch(1);
+        workers.execute(() -> {
+            blockerStarted.countDown();
+            try {
+                awaitIgnoringInterrupt(releaseBlocker);
+            } finally {
+                blockerFinished.countDown();
+            }
+        });
+        assertThat(blockerStarted.await(1, TimeUnit.SECONDS)).isTrue();
+
+        var scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+        try {
+            Context requestContext = identityContext.withDeadlineAfter(2, TimeUnit.SECONDS, scheduler);
+            CapturingObserver observer = new CapturingObserver();
+
+            requestContext.run(() -> service.synthesize(request(), observer));
+            assertThat(workers.getQueue()).hasSize(1);
+
+            assertThat(observer.terminal.await(4, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            long removalDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (!workers.getQueue().isEmpty() && System.nanoTime() < removalDeadline) Thread.yield();
+            assertThat(workers.getQueue()).isEmpty();
+            verify(engine, never()).synthesize(anyString(), any());
+
+            releaseBlocker.countDown();
+            assertThat(blockerFinished.await(1, TimeUnit.SECONDS)).isTrue();
+            verify(engine, never()).synthesize(anyString(), any());
+        } finally {
+            releaseBlocker.countDown();
+            scheduler.shutdownNow();
+        }
     }
 
     @Test
@@ -352,7 +410,7 @@ class TtsUnaryBoundedDispatchTest {
         assertThat(Status.fromThrowable(first.error).getCode()).isEqualTo(Status.Code.UNKNOWN);
         assertThat(Status.fromThrowable(first.error).getDescription()).contains("UNKNOWN_OUTCOME");
         assertThat(queued.terminal.await(1, TimeUnit.SECONDS)).isTrue();
-        assertThat(Status.fromThrowable(queued.error).getCode()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+        assertThat(Status.fromThrowable(queued.error).getCode()).isEqualTo(Status.Code.CANCELLED);
         releaseFirst.countDown();
         Thread.sleep(50);
         assertThat(first.value).isNull();

@@ -382,6 +382,17 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 } else if (cause instanceof io.grpc.StatusRuntimeException statusFailure
                         && statusFailure.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
                     failWithStatus(trace.observer, statusFailure);
+                } else if (cause instanceof io.grpc.StatusRuntimeException statusFailure
+                        && statusFailure.getStatus().getCode() == Status.Code.CANCELLED) {
+                    if (submission.started()) {
+                        trace.finishUnknown();
+                        recordSynthesisResponseUnknown();
+                        notifyError(responseObserver, Status.UNKNOWN
+                                .withDescription("UNKNOWN_OUTCOME: synthesis may have completed after provider dispatch")
+                                .asRuntimeException());
+                    } else {
+                        failWithStatus(trace.observer, statusFailure);
+                    }
                 } else if (cause instanceof RuntimeException runtimeFailure) {
                     fail(trace.observer, "Synthesis", runtimeFailure);
                 } else {
