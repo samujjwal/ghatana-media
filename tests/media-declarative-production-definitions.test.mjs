@@ -75,6 +75,49 @@ test('reject invalid Newton law reference oracle rather than making the animatio
   assert.ok(result.errors.some(e => /analytical force-and-motion oracle inconsistent/.test(e)), result.errors.join('\n'));
 });
 
+test('generated H-02 production-spec schema context matches exact PDP-1 descriptor and root definitions', () => {
+  const p1 = YAML.parse(read(files.p1));
+  const descriptor = p1.typedProductionValueDescriptors.find(value =>
+    value.id === 'media.declarative.value.production-spec.v1');
+  const generated = JSON.parse(read('runtime-contracts/src/main/resources/contracts/media-production-spec-v1.schema.json'));
+  assert.deepEqual(generated.$defs, p1.$defs);
+  assert.deepEqual({
+    type: generated.type,
+    additionalProperties: generated.additionalProperties,
+    required: generated.required,
+    properties: generated.properties,
+  }, descriptor.schema);
+  assert.equal(generated.$schema, p1.typedProductionValueSchemaContext.dialect);
+});
+
+test('declarative-production checker rejects stale H-02 schema context source or artifact', () => {
+  const source = read(files.p1);
+  const changedSource = source.replace(
+    "versionRef: {type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 384, pattern: '\\S'}",
+    "versionRef: {type: string, format: opaque-versioned-reference, minLength: 1, maxLength: 383, pattern: '\\S'}",
+  );
+  assert.notEqual(source, changedSource);
+  const sourceDrift = verifyDeclarativeProductionDefinitions({ overrides: { p1: changedSource } });
+  assert.ok(sourceDrift.errors.some(error => /generated production-spec schema context differs/.test(error)),
+    sourceDrift.errors.join('\n'));
+
+  const artifact = read('runtime-contracts/src/main/resources/contracts/media-production-spec-v1.schema.json');
+  const artifactDrift = verifyDeclarativeProductionDefinitions({
+    overrides: { productionSpecSchemaContext: artifact.replace('media.declarative.value.production-spec.v1', 'tampered') },
+  });
+  assert.ok(artifactDrift.errors.some(error => /generated production-spec schema context differs/.test(error)),
+    artifactDrift.errors.join('\n'));
+
+  const changedSourcePath = source.replace(
+    '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#/$defs',
+    '.product-experience/pdp-1-domain-data/operations.yaml#/$defs',
+  );
+  assert.notEqual(source, changedSourcePath);
+  const wrongSource = verifyDeclarativeProductionDefinitions({ overrides: { p1: changedSourcePath } });
+  assert.ok(wrongSource.errors.some(error => /cannot derive or verify generated production-spec schema context/.test(error)),
+    wrongSource.errors.join('\n'));
+});
+
 test('reject conversion of educational model time into editorial story time', () => {
   const source = read(files.p2);
   const broken = source.replace(
@@ -155,6 +198,10 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.match(binding.operationSchemaRelation.operationInputCoverage.typedProductionSpecInput,
     /DECODED_INPUT1_VALUE_TO_STRUCTURALLY_EQUAL_THE_TYPED_MIRROR/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
+    /RESOLVER_OVERLOAD_REQUIRES_INPUT2_STRICTLY_PARSED_JSON_TO_BE_STRUCTURALLY_EQUAL_TO_THE_CANONICAL_PRODUCTION_SPEC_SCHEMA_WITH_THE_EXACT_SHARED_PDP1_\$DEFS_MATERIALIZED/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
+    /SHA256_BINDS_THE_ACTUAL_RESOLVED_INPUT2_BYTES/);
+  assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
     /RESOLVED_SCHEMA_DOCUMENT_\$ID_IS_NOT_MATCHED_TO_THE_SUPPLIED_VERSION/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
     /RESOLVER_OVERLOAD_CHECKS_REFERENCE_ECHO_AND_SHA256_OF_RETURNED_BYTES/);
@@ -195,8 +242,7 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
     'EXACT_OPERATION_REF_WITH_ONE_CALLER_SUPPLIED_RESOLUTION; AUTHORITY_AND_CURRENTNESS_UNPROVEN');
   assert.equal(compilerContract.effect, 'NO_DISPATCH_NO_JOB_NO_PROJECT_MUTATION_NO_PROVIDER_CALL');
   assert.deepEqual(binding.operationSchemaRelation.operationInputCoverage.notImplementedInputs,
-    ['input1-immutable-version-and-authorization-proof', 'input2-shared-definitions-context-materialization',
-      'input3-resolver-authority-and-source-currentness',
+    ['input1-immutable-version-and-authorization-proof', 'input3-resolver-authority-and-source-currentness',
       'input5-target-schema', 'input6-migration-transformation']);
   assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
     'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');

@@ -112,6 +112,8 @@ public final class MediaProductionSpecCompiler {
     public static final int MAX_OUTPUT_PROFILES = 64;
     public static final String PRODUCTION_SPEC_SCHEMA_VERSION = "media.declarative.value.production-spec.v1";
     public static final String PRODUCTION_COMPILER_CONTRACT_SCHEMA_VERSION = "media.production.compiler-contract.v1";
+    private static final String PRODUCTION_SPEC_SCHEMA_CONTEXT_RESOURCE =
+            "/contracts/media-production-spec-v1.schema.json";
 
     /** Typed spec — the Java mirror of media.declarative.value.production-spec.v1. */
     public record ProductionSpec(
@@ -379,6 +381,10 @@ public final class MediaProductionSpecCompiler {
             }
             String schemaJson = strictUtf8(schemaBytes);
             String specificationJson = strictUtf8(specificationBytes);
+            JsonNode canonicalSchemaNode = readCanonicalProductionSpecSchema();
+            if (!canonicalSchemaNode.equals(schemaNode)) {
+                throw invalidProductionSpecContent();
+            }
             Schema schema = newLocalSchemaRegistry().getSchema(schemaJson, InputFormat.JSON);
             if (!schema.validate(specificationJson, InputFormat.JSON).isEmpty()) {
                 throw invalidProductionSpecContent();
@@ -392,6 +398,15 @@ public final class MediaProductionSpecCompiler {
         if (!typedSpec.equals(decodedSpec)) {
             throw new IllegalArgumentException(
                     "resolved production-spec content does not match the supplied typed specification");
+        }
+    }
+
+    private static JsonNode readCanonicalProductionSpecSchema() throws IOException {
+        try (var stream = MediaProductionSpecCompiler.class.getResourceAsStream(PRODUCTION_SPEC_SCHEMA_CONTEXT_RESOURCE)) {
+            if (stream == null) throw invalidProductionSpecContent();
+            JsonNode schema = CONTRACT_JSON.readTree(stream);
+            if (schema == null || !schema.isObject()) throw invalidProductionSpecContent();
+            return schema;
         }
     }
 

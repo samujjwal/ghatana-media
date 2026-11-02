@@ -1,0 +1,536 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "opaqueId": {
+      "type": "string",
+      "format": "opaque-id",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "existingSimulationCapabilityLeafId": {
+      "type": "string",
+      "enum": [
+        "media.simulation.rigid-body",
+        "media.simulation.soft-body",
+        "media.simulation.cloth",
+        "media.simulation.rope",
+        "media.simulation.particle",
+        "media.simulation.fluid",
+        "media.simulation.smoke",
+        "media.simulation.fire",
+        "media.simulation.collision",
+        "media.simulation.constraint",
+        "media.simulation.vehicle",
+        "media.simulation.crowd",
+        "media.simulation.agent",
+        "media.simulation.human-motion",
+        "media.simulation.procedural-world",
+        "media.simulation.camera-experiment",
+        "media.simulation.lighting-experiment",
+        "media.simulation.educational-demo",
+        "media.simulation.scientific-demo",
+        "media.simulation.robotics",
+        "media.simulation.kinematics",
+        "media.simulation.synthetic-data"
+      ]
+    },
+    "versionRef": {
+      "type": "string",
+      "format": "opaque-versioned-reference",
+      "minLength": 1,
+      "maxLength": 384,
+      "pattern": "\\S"
+    },
+    "nullableVersionRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/versionRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "signedInt64Decimal": {
+      "type": "string",
+      "format": "signed-int64-decimal",
+      "pattern": "^(0|-[1-9][0-9]*|[1-9][0-9]*)$",
+      "description": "Canonical decimal text preserves the exact signed-64-bit value without JSON/YAML binary floating-point rounding."
+    },
+    "positiveInt64Decimal": {
+      "type": "string",
+      "format": "positive-int64-decimal",
+      "pattern": "^[1-9][0-9]*$",
+      "description": "Canonical positive decimal text preserves the exact signed-64-bit value without JSON/YAML binary floating-point rounding."
+    },
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithmRef",
+        "value",
+        "subjectVersionRef"
+      ],
+      "properties": {
+        "algorithmRef": {
+          "$ref": "#/$defs/versionRef"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 384,
+          "pattern": "\\S"
+        },
+        "subjectVersionRef": {
+          "$ref": "#/$defs/versionRef"
+        }
+      }
+    },
+    "immutableSha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "digestOrNoEngine": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/immutableSha256"
+        },
+        {
+          "const": "NO_ENGINE"
+        }
+      ]
+    },
+    "positiveInt64": {
+      "$ref": "#/$defs/positiveInt64Decimal"
+    },
+    "nonnegativeInt64": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/signedInt64Decimal"
+        },
+        {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)$"
+        }
+      ]
+    },
+    "boundedQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "unit"
+      ],
+      "properties": {
+        "amount": {
+          "$ref": "#/$defs/positiveInt64"
+        },
+        "unit": {
+          "$ref": "#/$defs/versionRef"
+        }
+      }
+    },
+    "resourceBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepLimit",
+        "wallClockBudgetMs",
+        "memoryBudgetBytes",
+        "workloadLimit",
+        "recursionLimit"
+      ],
+      "properties": {
+        "stepLimit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "wallClockBudgetMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "memoryBudgetBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "workloadLimit": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "recursionLimit": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "opaqueIdList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/opaqueId"
+      }
+    },
+    "nonEmptyOpaqueIdList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/opaqueId"
+      }
+    },
+    "versionRefList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/versionRef"
+      }
+    },
+    "nonEmptyVersionRefList": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/versionRef"
+      }
+    },
+    "possiblyEmptyVersionRefList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/versionRef"
+      }
+    },
+    "rational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "$ref": "#/$defs/signedInt64Decimal"
+        },
+        "denominator": {
+          "$ref": "#/$defs/positiveInt64Decimal"
+        }
+      }
+    },
+    "simulationClock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clockKind",
+        "clockId",
+        "streamId",
+        "originRef",
+        "ticks",
+        "timeBase"
+      ],
+      "properties": {
+        "clockKind": {
+          "const": "simulation"
+        },
+        "clockId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "streamId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "originRef": {
+          "$ref": "#/$defs/versionRef"
+        },
+        "ticks": {
+          "$ref": "#/$defs/signedInt64Decimal"
+        },
+        "timeBase": {
+          "$ref": "#/$defs/positiveRational"
+        }
+      }
+    },
+    "positiveRational": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "$ref": "#/$defs/positiveInt64Decimal"
+        },
+        "denominator": {
+          "$ref": "#/$defs/positiveInt64Decimal"
+        }
+      }
+    },
+    "storyTime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clockKind",
+        "clockId",
+        "streamId",
+        "originRef",
+        "ticks",
+        "timeBase"
+      ],
+      "properties": {
+        "clockKind": {
+          "const": "story"
+        },
+        "clockId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "streamId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "originRef": {
+          "$ref": "#/$defs/versionRef"
+        },
+        "ticks": {
+          "$ref": "#/$defs/signedInt64Decimal"
+        },
+        "timeBase": {
+          "$ref": "#/$defs/positiveRational"
+        }
+      }
+    },
+    "simulationTime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clockKind",
+        "clockId",
+        "streamId",
+        "originRef",
+        "ticks",
+        "timeBase"
+      ],
+      "properties": {
+        "clockKind": {
+          "const": "simulation"
+        },
+        "clockId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "streamId": {
+          "$ref": "#/$defs/opaqueId"
+        },
+        "originRef": {
+          "$ref": "#/$defs/versionRef"
+        },
+        "ticks": {
+          "$ref": "#/$defs/signedInt64Decimal"
+        },
+        "timeBase": {
+          "$ref": "#/$defs/positiveRational"
+        }
+      }
+    },
+    "familyApplicability": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applicability",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "applicability": {
+              "const": "ADMITTED"
+            },
+            "evidenceRefs": {
+              "$ref": "#/$defs/nonEmptyVersionRefList"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applicability",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "applicability": {
+              "const": "NOT_ADMITTED"
+            },
+            "evidenceRefs": {
+              "$ref": "#/$defs/versionRefList"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "applicability",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "applicability": {
+              "const": "UNKNOWN"
+            },
+            "evidenceRefs": {
+              "$ref": "#/$defs/versionRefList"
+            }
+          }
+        }
+      ],
+      "description": "This nested disposition applies only to its enclosing exact modelFamilyRef and modelVersionRef. ADMITTED requires non-empty versioned source evidence and passes familyApplicabilityValidationContract. NOT_ADMITTED and UNKNOWN remain non-executable; unknown or unsupported family scope rejects. This does not assert owner authorization or scientific qualification."
+    },
+    "randomnessSemantics": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disposition",
+            "prngAlgorithmVersionRef",
+            "prngImplementationVersionRef",
+            "randomStreamVersionRef",
+            "seedPolicyVersionRef",
+            "seedMaterialVersionRef",
+            "checkpointStateFormatVersionRef",
+            "checkpointStateVersionRefs"
+          ],
+          "properties": {
+            "disposition": {
+              "const": "SPECIFIED"
+            },
+            "prngAlgorithmVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "prngImplementationVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "randomStreamVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "seedPolicyVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "seedMaterialVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "checkpointStateFormatVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "checkpointStateVersionRefs": {
+              "$ref": "#/$defs/versionRefList"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disposition",
+            "nonStochasticDeclarationVersionRef",
+            "reason"
+          ],
+          "properties": {
+            "disposition": {
+              "const": "NOT_APPLICABLE"
+            },
+            "nonStochasticDeclarationVersionRef": {
+              "$ref": "#/$defs/versionRef"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "\\S"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disposition",
+            "reason"
+          ],
+          "properties": {
+            "disposition": {
+              "const": "UNKNOWN"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "\\S"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "projectId",
+    "revisionId",
+    "schemaVersion",
+    "originClass",
+    "purposeRef",
+    "sceneRefs",
+    "timelineRef",
+    "rightsRef",
+    "outputProfileRefs"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "format": "opaque-id",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "projectId": {
+      "type": "string",
+      "format": "opaque-id",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "revisionId": {
+      "type": "string",
+      "format": "opaque-id",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "schemaVersion": {
+      "const": "media.declarative.value.production-spec.v1"
+    },
+    "originClass": {
+      "enum": [
+        "REAL_CAPTURE",
+        "DECLARATIVE_ANIMATION",
+        "MODEL_SIMULATION",
+        "GENERATIVE_MEDIA",
+        "PDP_SYNTHETIC_FIXTURE"
+      ]
+    },
+    "purposeRef": {
+      "$ref": "#/$defs/versionRef"
+    },
+    "sceneRefs": {
+      "$ref": "#/$defs/nonEmptyVersionRefList"
+    },
+    "timelineRef": {
+      "$ref": "#/$defs/versionRef"
+    },
+    "rightsRef": {
+      "$ref": "#/$defs/versionRef"
+    },
+    "outputProfileRefs": {
+      "$ref": "#/$defs/nonEmptyVersionRefList"
+    }
+  }
+}

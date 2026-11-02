@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
+import {
+  OUTPUT_PATH as PRODUCTION_SPEC_SCHEMA_CONTEXT_PATH,
+  renderProductionSpecSchemaContextFromYaml,
+} from './generate-media-production-spec-schema-context.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const paths = {
@@ -48,6 +52,15 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
       continue;
     }
     try { docs[name] = doc.toJS(); } catch (error) { fail(name + ': unsupported document shape: ' + error.message); }
+  }
+  try {
+    const expected = renderProductionSpecSchemaContextFromYaml(raw.p1);
+    const actual = Object.hasOwn(overrides, 'productionSpecSchemaContext')
+      ? overrides.productionSpecSchemaContext
+      : fs.readFileSync(path.join(repoRoot, PRODUCTION_SPEC_SCHEMA_CONTEXT_PATH), 'utf8');
+    if (actual !== expected) fail('PDP-1 H-02: generated production-spec schema context differs from canonical descriptor and shared $defs');
+  } catch (error) {
+    fail('PDP-1 H-02: cannot derive or verify generated production-spec schema context: ' + error.message);
   }
   const [p0, p1, p2, p3, recorderP0, recorderP2, p1Handoff, p2Handoff] =
     ['p0', 'p1', 'p2', 'p3', 'recorderP0', 'recorderP2', 'p1Handoff', 'p2Handoff'].map(name => docs[name] || {});
@@ -164,6 +177,7 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   const admissionPlanRules = admissionRelation.planBindingRules || {};
   const admissionCurrentAuthority = admissionRelation.admissionContextBindingRules?.currentAuthority || {};
   const admissionEffectFence = admissionRelation.effectBoundary?.beforeProviderDispatchRetryOrRestart || {};
+  const inputCoverage = admissionRelation.operationInputCoverage || {};
   const requiredSceneAuthorityFields = [
     'sourceVersionRef', 'sourceSha256', 'rightsRef', 'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
   ];
@@ -178,6 +192,11 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     fail('PDP-1 H-02: execution admission must use the separately versioned v3 envelope');
   if (admission.runtimeAdmission !== 'NOT_ADMITTED')
     fail('PDP-1 H-02: source envelope cannot admit runtime effects');
+  if (!/RESOLVER_OVERLOAD_REQUIRES_INPUT2_STRICTLY_PARSED_JSON_TO_BE_STRUCTURALLY_EQUAL_TO_THE_CANONICAL_PRODUCTION_SPEC_SCHEMA_WITH_THE_EXACT_SHARED_PDP1_\$DEFS_MATERIALIZED/.test(
+      inputCoverage.input2ProductionSpecSchema || '') ||
+      inputCoverage.notImplementedInputs?.includes('input2-shared-definitions-context-materialization')) {
+    fail('PDP-1 H-02: input-2 schema context must bind the generated canonical schema with shared root $defs');
+  }
   if (!admission.requiredFields?.includes('perSceneImmutableSourceVersionDigestRightsOwnerDecisionExpiryAndRevocation'))
     fail('PDP-1 H-02: v3 requiredFields omits per-scene immutable source authority');
   if (!admissionSchema.required?.includes('sourceBindingsByScene') || sourceBindings.type !== 'object' ||

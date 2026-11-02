@@ -625,9 +625,13 @@ class MediaProductionSemanticSourceTest {
     }
 
     private static String productionSpecSchema() {
-        return """
-                {"$schema":"https://json-schema.org/draft/2020-12/schema","$defs":{"versionRef":{"type":"string","minLength":1,"maxLength":384,"pattern":"\\\\S"},"refList":{"type":"array","minItems":1,"uniqueItems":true,"items":{"$ref":"#/$defs/versionRef"}}},"type":"object","additionalProperties":false,"required":["tenantId","projectId","revisionId","schemaVersion","originClass","purposeRef","sceneRefs","timelineRef","rightsRef","outputProfileRefs"],"properties":{"tenantId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"projectId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"revisionId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},"schemaVersion":{"const":"media.declarative.value.production-spec.v1"},"originClass":{"enum":["REAL_CAPTURE","DECLARATIVE_ANIMATION","MODEL_SIMULATION","GENERATIVE_MEDIA","PDP_SYNTHETIC_FIXTURE"]},"purposeRef":{"$ref":"#/$defs/versionRef"},"sceneRefs":{"$ref":"#/$defs/refList"},"timelineRef":{"$ref":"#/$defs/versionRef"},"rightsRef":{"$ref":"#/$defs/versionRef"},"outputProfileRefs":{"$ref":"#/$defs/refList"}}}
-                """;
+        try (var stream = MediaProductionSemanticSourceTest.class.getResourceAsStream(
+                "/contracts/media-production-spec-v1.schema.json")) {
+            if (stream == null) throw new IllegalStateException("generated PDP-1 production-spec schema resource is missing");
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (java.io.IOException failure) {
+            throw new IllegalStateException("cannot read generated PDP-1 production-spec schema resource", failure);
+        }
     }
 
     @Test

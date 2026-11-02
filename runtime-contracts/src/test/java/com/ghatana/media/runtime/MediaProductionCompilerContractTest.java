@@ -20,33 +20,17 @@ class MediaProductionCompilerContractTest {
     private static final String COMPILER_REF = "production-compiler-contract/rev-2";
     private static final String OP_A = "media.operation.capability.media-project-version";
     private static final String OP_B = "media.operation.capability.media-scene-render";
-    private static final String SPEC_SCHEMA = """
-            {
-              "$schema":"https://json-schema.org/draft/2020-12/schema",
-              "$defs":{
-                "versionRef":{"type":"string","format":"opaque-versioned-reference",
-                  "minLength":1,"maxLength":384,"pattern":"\\\\S"},
-                "nonEmptyVersionRefList":{"type":"array","minItems":1,"uniqueItems":true,
-                  "items":{"$ref":"#/$defs/versionRef"}}
-              },
-              "type":"object","additionalProperties":false,
-              "required":["tenantId","projectId","revisionId","schemaVersion","originClass","purposeRef",
-                "sceneRefs","timelineRef","rightsRef","outputProfileRefs"],
-              "properties":{
-                "tenantId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
-                "projectId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
-                "revisionId":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
-                "schemaVersion":{"const":"media.declarative.value.production-spec.v1"},
-                "originClass":{"enum":["REAL_CAPTURE","DECLARATIVE_ANIMATION","MODEL_SIMULATION",
-                  "GENERATIVE_MEDIA","PDP_SYNTHETIC_FIXTURE"]},
-                "purposeRef":{"$ref":"#/$defs/versionRef"},
-                "sceneRefs":{"$ref":"#/$defs/nonEmptyVersionRefList"},
-                "timelineRef":{"$ref":"#/$defs/versionRef"},
-                "rightsRef":{"$ref":"#/$defs/versionRef"},
-                "outputProfileRefs":{"$ref":"#/$defs/nonEmptyVersionRefList"}
-              }
-            }
-            """;
+    private static final String SPEC_SCHEMA = productionSpecSchemaResource();
+
+    private static String productionSpecSchemaResource() {
+        try (var stream = MediaProductionCompilerContractTest.class.getResourceAsStream(
+                "/contracts/media-production-spec-v1.schema.json")) {
+            if (stream == null) throw new IllegalStateException("generated PDP-1 production-spec schema resource is missing");
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (java.io.IOException failure) {
+            throw new IllegalStateException("cannot read generated PDP-1 production-spec schema resource", failure);
+        }
+    }
 
     private static MediaProductionSpecCompiler.ProductionSpec spec() {
         return new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
