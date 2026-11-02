@@ -24,6 +24,8 @@ public final class MediaProductionAdmissionBinding {
 
     public enum AdmissionFailure {
         TENANT_MISMATCH, PRINCIPAL_MISMATCH, PURPOSE_MISMATCH, SOURCE_MISMATCH,
+        IDENTITY_CONTEXT_MISMATCH, DELEGATION_MISMATCH, WORKSPACE_MISMATCH, IDENTITY_EPOCH_MISMATCH,
+        IDENTITY_OBSERVATION_TIME_MISMATCH,
         RIGHTS_STALE, RIGHTS_REVOKED, PROVIDER_UNQUALIFIED, ENGINE_MISMATCH,
         QUOTE_STALE, RESERVATION_MISMATCH, BUDGET_EXCEEDED, PROJECT_REVISION_STALE,
         EDIT_LOCK_INVALID, CLOCK_MISMATCH, BINDING_SPEC_MISMATCH,
@@ -117,12 +119,20 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
-    public record Authority(String tenantId, String principalId, String purposeRef, String rightsRef,
+    /** Local candidate values only; no Media-owned host identity adapter authenticates these fields. */
+    public record Authority(String identityContextRef, String identityContextSha256, long identityEpoch,
+            String tenantId, String principalId, String delegationRef, String workspaceRef,
+            String purposeRef, String rightsRef,
             String sourceVersionRef, String sourceSha256, String ownerDecisionRef,
             Instant decisionExpiresAt, long revocationEpoch) {
         public Authority {
+            identityContextRef = required(identityContextRef, "identityContextRef");
+            identityContextSha256 = digest(identityContextSha256, "identityContextSha256");
+            if (identityEpoch < 0) throw new IllegalArgumentException("identityEpoch must be nonnegative");
             tenantId = opaqueId(tenantId, "tenantId");
             principalId = opaqueId(principalId, "principalId");
+            delegationRef = required(delegationRef, "delegationRef");
+            workspaceRef = required(workspaceRef, "workspaceRef");
             purposeRef = required(purposeRef, "purposeRef");
             rightsRef = required(rightsRef, "rightsRef");
             sourceVersionRef = required(sourceVersionRef, "sourceVersionRef");
@@ -153,6 +163,27 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
+    /**
+     * Future expected values for an owner-side recheck fence, never identity
+     * proof. This implementation cut does not construct or deliver one.
+     */
+    public record IdentityFence(String identityContextRef, String identityContextSha256, long identityEpoch,
+            String tenantId, String principalId, String delegationRef, String workspaceRef,
+            Instant observedAt, String requestId, String requestFingerprint) {
+        public IdentityFence {
+            identityContextRef = required(identityContextRef, "identityFence.identityContextRef");
+            identityContextSha256 = digest(identityContextSha256, "identityFence.identityContextSha256");
+            if (identityEpoch < 0) throw new IllegalArgumentException("identityFence.identityEpoch must be nonnegative");
+            tenantId = opaqueId(tenantId, "identityFence.tenantId");
+            principalId = opaqueId(principalId, "identityFence.principalId");
+            delegationRef = required(delegationRef, "identityFence.delegationRef");
+            workspaceRef = required(workspaceRef, "identityFence.workspaceRef");
+            Objects.requireNonNull(observedAt, "identityFence.observedAt");
+            requestId = opaqueId(requestId, "identityFence.requestId");
+            requestFingerprint = digest(requestFingerprint, "identityFence.requestFingerprint");
+        }
+    }
+
     public record EditLock(String scopeKind, String targetRef, String ownerPrincipalId, String leaseId,
             long epoch, Instant expiresAt) {
         public EditLock {
@@ -166,30 +197,74 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
-    /** Adapter to the canonical project revision CAS/operation journal. No state is stored here. */
+    /**
+     * Reserved adapter contract for the canonical project revision CAS/operation
+     * journal. The current candidate implementation never invokes this callback.
+     */
     @FunctionalInterface
     public interface ProjectEditLockCas {
-        /** Claims every declared effect lock atomically against one project revision. */
-        boolean compareAndSet(String projectId, String expectedProjectRevision, Map<String, EditLock> locksByStep);
+        /**
+         * Claims every declared effect lock atomically against one project revision.
+         * A real implementation must atomically re-resolve and recheck the identity
+         * fence, current rights/revocation, project revision, and lease ownership/
+         * fencing at commit. A caller-provided fence alone is not authority.
+         */
+        boolean compareAndSet(String projectId, String expectedProjectRevision, Map<String, EditLock> locksByStep,
+                IdentityFence identityFence);
     }
 
-    /** Atomic scoped lock claim delegated to the existing project/job authority. */
+    /**
+     * Compatibility entry point. It cannot claim locks until an authority-backed
+     * current-state adapter is implemented and admitted.
+     */
     public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
             ProjectEditLockCas authority) {
         return acquireEditLocks(binding, plan, authority, Instant.now());
     }
 
     /**
-     * Deterministic form for callers that already have the authority read time.
-     * Expired lock receipts are rejected before the project revision CAS is
-     * invoked; the authority must still revalidate lease ownership and fencing
-     * atomically with the revision claim.
+     * Candidate guard for callers that have collected per-step state values.
+     * The values and observation timestamp are caller supplied, so matching
+     * timestamps do not prove a fresh, atomic authority read. Validate their
+     * structural consistency, then fail closed until a trusted host adapter can
+     * attest current identity/rights and perform the revision-scoped CAS.
+     */
+    public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
+            Map<String, CurrentState> currentByStep, ProjectEditLockCas authority, Instant observedAt) {
+        Objects.requireNonNull(binding, "binding");
+        Objects.requireNonNull(plan, "plan");
+        Objects.requireNonNull(currentByStep, "currentByStep");
+        if (observedAt == null) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        Map<String, String> requiredScopes = new TreeMap<>();
+        for (MediaProductionSpecCompiler.PlanNode node : plan.nodes()) {
+            if ("capture".equals(node.kind())) requiredScopes.put(node.stepId(), node.versionRefs().getFirst());
+            if ("render".equals(node.kind())) requiredScopes.put(node.stepId(), null);
+        }
+        if (!requiredScopes.keySet().equals(currentByStep.keySet())) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        for (Map.Entry<String, String> entry : requiredScopes.entrySet()) {
+            CurrentState current = currentByStep.get(entry.getKey());
+            if (current == null || !observedAt.equals(current.observedAt()))
+                fail(AdmissionFailure.IDENTITY_OBSERVATION_TIME_MISMATCH);
+            if (entry.getValue() == null) requireCurrent(binding, entry.getKey(), current);
+            else requireCurrent(binding, plan, entry.getKey(), entry.getValue(), current);
+        }
+        // Equal caller-claimed timestamps are not evidence that the snapshot is
+        // fresh or atomic. No trusted observation/CAS adapter is wired in this
+        // implementation cut, so candidate state must never reach a side effect.
+        fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        return false;
+    }
+
+    /**
+     * Compatibility entry point for callers with a claimed observation time.
+     * A supplied time does not establish freshness; this method always fails
+     * closed before the reserved CAS callback can run.
      */
     public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
             ProjectEditLockCas authority, Instant observedAt) {
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(plan, "plan");
-        Objects.requireNonNull(observedAt, "observedAt");
+        if (observedAt == null) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
         if (!MediaProductionSpecCompiler.isCompilerIssued(plan)) {
             fail(AdmissionFailure.PLAN_PROVENANCE_INVALID);
         }
@@ -219,8 +294,10 @@ public final class MediaProductionAdmissionBinding {
                 fail(AdmissionFailure.EDIT_LOCK_INVALID);
             }
         }
-        return Objects.requireNonNull(authority, "authority").compareAndSet(
-                binding.projectId(), binding.expectedProjectRevision(), binding.editLocksByStep());
+        // This compatibility entry point has no current-state readback and must
+        // never reach the project revision CAS on caller-supplied binding data.
+        fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        return false;
     }
 
     public record Binding(String schemaVersion, String projectId, String expectedProjectRevision,
@@ -274,7 +351,8 @@ public final class MediaProductionAdmissionBinding {
                     amount(reservation.worstCaseCost()), amount(reservation.reservedCost()),
                     amount(reservation.worstCaseCompute()), amount(reservation.reservedCompute()),
                     amount(reservation.worstCaseTime()), amount(reservation.reservedTime()),
-                    authority.tenantId(), authority.principalId(), authority.purposeRef(),
+                    authority.identityContextRef(), authority.identityContextSha256(), Long.toString(authority.identityEpoch()),
+                    authority.tenantId(), authority.principalId(), authority.delegationRef(), authority.workspaceRef(), authority.purposeRef(),
                     authority.rightsRef(), authority.sourceVersionRef(), authority.sourceSha256(), authority.ownerDecisionRef(),
                     authority.decisionExpiresAt().toString(), Long.toString(authority.revocationEpoch()),
                     includeSceneSources ? new TreeMap<>(sourceBindingsByScene).entrySet().stream().map(entry -> join(entry.getKey(),
@@ -311,8 +389,13 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
-    /** A point-in-time read from MediaRuntime's existing project/job/authority state. */
-    public record CurrentState(String tenantId, String principalId, String purposeRef,
+    /**
+     * Candidate shape for a point-in-time read from project/job/authority state.
+     * Until a trusted host reader is wired, every field including {@code observedAt}
+     * is untrusted input and can support consistency checks only.
+     */
+    public record CurrentState(String identityContextRef, String identityContextSha256, long identityEpoch,
+            String tenantId, String principalId, String delegationRef, String workspaceRef, String purposeRef,
             String sourceVersionRef, String sourceSha256, String projectId, String projectRevision,
             String rightsRef, String ownerDecisionRef, Instant rightsExpiresAt, long revocationEpoch,
             String engineIdentityKind, String engineIdentity, String engineBuildSha256, String providerId, String qualificationRef,
@@ -340,7 +423,7 @@ public final class MediaProductionAdmissionBinding {
                 String lockScopeKind, String lockTargetRef, String lockOwnerPrincipalId, String lockLeaseId,
                 long lockEpoch, Instant lockExpiresAt, String canonicalRequestId, String canonicalRequestFingerprint,
                 ClockBindings clocks, Instant observedAt) {
-            this(tenantId, principalId, purposeRef, sourceVersionRef, sourceSha256, projectId, projectRevision,
+            this(null, null, -1, tenantId, principalId, null, null, purposeRef, sourceVersionRef, sourceSha256, projectId, projectRevision,
                     rightsRef, ownerDecisionRef, rightsExpiresAt, revocationEpoch, engineIdentityKind, engineIdentity,
                     engineBuildSha256, providerId, qualificationRef, qualificationSha256, providerRightsRef,
                     qualified, quoteRef, quoteVersion, reservationId, remainingCost, remainingCompute, remainingTime,
@@ -349,6 +432,10 @@ public final class MediaProductionAdmissionBinding {
         }
     }
 
+    /**
+     * Checks candidate field consistency relative to its claimed observation
+     * time only. It does not prove freshness/current authority or permit effects.
+     */
     public static void requireCurrent(Binding b, String stepId, CurrentState s) {
         requireCurrentInternal(b, stepId, null, s, false);
     }
@@ -374,8 +461,13 @@ public final class MediaProductionAdmissionBinding {
         if (b == null || !hasCompleteAuthorityState(s)) fail(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
         Instant now = s.observedAt();
         Authority a = b.authority();
+        if (!a.identityContextRef().equals(s.identityContextRef())
+                || !a.identityContextSha256().equals(s.identityContextSha256())) fail(AdmissionFailure.IDENTITY_CONTEXT_MISMATCH);
+        if (a.identityEpoch() != s.identityEpoch()) fail(AdmissionFailure.IDENTITY_EPOCH_MISMATCH);
         if (!a.tenantId().equals(s.tenantId())) fail(AdmissionFailure.TENANT_MISMATCH);
         if (!a.principalId().equals(s.principalId())) fail(AdmissionFailure.PRINCIPAL_MISMATCH);
+        if (!a.delegationRef().equals(s.delegationRef())) fail(AdmissionFailure.DELEGATION_MISMATCH);
+        if (!a.workspaceRef().equals(s.workspaceRef())) fail(AdmissionFailure.WORKSPACE_MISMATCH);
         if (!a.purposeRef().equals(s.purposeRef())) fail(AdmissionFailure.PURPOSE_MISMATCH);
         if (!a.ownerDecisionRef().equals(s.globalOwnerDecisionRef())
                 || !a.decisionExpiresAt().equals(s.globalDecisionExpiresAt())
@@ -470,7 +562,9 @@ public final class MediaProductionAdmissionBinding {
 
     private static boolean hasCompleteAuthorityState(CurrentState s) {
         return s != null
-                && present(s.tenantId()) && present(s.principalId()) && present(s.purposeRef())
+                && present(s.identityContextRef()) && present(s.identityContextSha256()) && s.identityEpoch() >= 0
+                && present(s.tenantId()) && present(s.principalId()) && present(s.delegationRef())
+                && present(s.workspaceRef()) && present(s.purposeRef())
                 && present(s.sourceVersionRef()) && present(s.sourceSha256())
                 && present(s.projectId()) && present(s.projectRevision())
                 && present(s.rightsRef()) && present(s.ownerDecisionRef()) && s.rightsExpiresAt() != null

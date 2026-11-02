@@ -26,10 +26,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,7 +46,8 @@ class MediaProductionAdmissionBindingTest {
                         new BoundedAmount(10, "usd-micros"), new BoundedAmount(12, "usd-micros"),
                         new BoundedAmount(100, "cpu-ms"), new BoundedAmount(120, "cpu-ms"),
                         new BoundedAmount(500, "wall-ms"), new BoundedAmount(600, "wall-ms")),
-                new Authority("tenant-1", "principal-1", "purpose/v1", "rights/v1", "source/v4", SHA,
+                new Authority("identity-context/v3", SHA, 12, "tenant-1", "principal-1", "delegation/v2", "workspace/v1",
+                        "purpose/v1", "rights/v1", "source/v4", SHA,
                         "decision/rights-4", NOW.plusSeconds(600), 3),
                 Map.of(
                         "capture-source-0", new EditLock("SCENE", "scene/1@v1", "principal-1", "lease-scene", 9,
@@ -86,7 +83,8 @@ class MediaProductionAdmissionBindingTest {
                 "production-compiler-contract/v3");
         Map<String, byte[]> contents = Map.of(
                 inputs.productionSpecRef(), JSON.writeValueAsBytes(spec),
-                inputs.productionSpecSchemaRef(), "{\"type\":\"object\"}".getBytes(StandardCharsets.UTF_8),
+                inputs.productionSpecSchemaRef(), MediaProductionAdmissionBindingTest.class
+                        .getResourceAsStream("/contracts/media-production-spec-v1.schema.json").readAllBytes(),
                 inputs.compilerContractRef(), "opaque compiler contract".getBytes(StandardCharsets.UTF_8));
 
         var plan = new MediaProductionSpecCompiler().compileWithResolvedContentFingerprints(
@@ -141,7 +139,9 @@ class MediaProductionAdmissionBindingTest {
         String decisionRef = source == null ? b.authority().ownerDecisionRef() : source.ownerDecisionRef();
         Instant decisionExpiry = source == null ? b.authority().decisionExpiresAt() : source.decisionExpiresAt();
         long revocationEpoch = source == null ? b.authority().revocationEpoch() : source.revocationEpoch();
-        return new CurrentState(b.authority().tenantId(), b.authority().principalId(), b.authority().purposeRef(),
+        return new CurrentState(b.authority().identityContextRef(), b.authority().identityContextSha256(),
+                b.authority().identityEpoch(), b.authority().tenantId(), b.authority().principalId(),
+                b.authority().delegationRef(), b.authority().workspaceRef(), b.authority().purposeRef(),
                 sourceVersion, sourceSha, b.projectId(),
                 b.expectedProjectRevision(), rightsRef, decisionRef, decisionExpiry,
                 revocationEpoch, engine.identityKind(), engine.identity(), engine.buildSha256(),
@@ -191,7 +191,8 @@ class MediaProductionAdmissionBindingTest {
                 new BoundedAmount(1, "cpu-ms"), new BoundedAmount(1, "cpu-ms"),
                 new BoundedAmount(1, "wall-ms"), new BoundedAmount(1, "wall-ms")))
                 .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Authority("tenant/one", "principal-1", "purpose/v1", "rights/v1",
+        assertThatThrownBy(() -> new Authority("identity-context/v3", SHA, 12, "tenant/one", "principal-1",
+                "delegation/v2", "workspace/v1", "purpose/v1", "rights/v1",
                 "source/v1", SHA, "decision/v1", NOW.plusSeconds(60), 0))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new EditLock("SCENE", "scene/v1", "principal-1", "lease id", 1,
@@ -227,6 +228,13 @@ class MediaProductionAdmissionBindingTest {
         var changedEngine = compiler.compile(spec, binding("sha256:" + "b".repeat(64)));
         assertThat(changedEngine.invalidatedAgainst(first))
                 .containsExactly("render-profile-0", "publish-review");
+        Authority changedIdentity = new Authority("identity-context/v4", SHA, 13, "tenant-1", "principal-1",
+                "delegation/v2", "workspace/v1", "purpose/v1", "rights/v1", "source/v4", SHA,
+                "decision/rights-4", NOW.plusSeconds(600), 3);
+        Binding identityChanged = new Binding(b1.schemaVersion(), b1.projectId(), b1.expectedProjectRevision(),
+                b1.requestIdentity(), b1.enginesByStep(), b1.provider(), b1.reservation(), changedIdentity,
+                b1.editLocksByStep(), b1.clocks(), b1.sourceBindingsByScene());
+        assertThat(identityChanged.stableContextFingerprint()).isNotEqualTo(b1.stableContextFingerprint());
         var wrongRights = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
                 "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/other@v1", List.of("profile/v1"));
         assertThatThrownBy(() -> compiler.compile(wrongRights, b1))
@@ -365,7 +373,8 @@ class MediaProductionAdmissionBindingTest {
 
     private static CurrentState copyGlobalAuthority(CurrentState s, String decisionRef,
             Instant expiresAt, long revocationEpoch) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
                 s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
                 s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
@@ -376,7 +385,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyGlobalRights(CurrentState s, String rightsRef) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
                 s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
                 s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
@@ -387,13 +397,15 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState withoutGlobalAuthority(CurrentState s) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(),
                 s.revocationEpoch(), s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(),
                 s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
                 s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(),
                 s.lockScopeKind(), s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(),
-                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt());
+                s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(),
+                null, null, -1, null);
     }
 
     @Test
@@ -482,6 +494,16 @@ class MediaProductionAdmissionBindingTest {
         assertFailure(b, copy(good, good.tenantId(), good.principalId(), good.projectRevision(), NOW.minusSeconds(1),
                 good.reservationId(), good.lockOwnerPrincipalId(), good.lockEpoch(), good.clocks()), AdmissionFailure.RIGHTS_STALE);
         assertFailure(b, copyWithRights(good, "rights/other@v1"), AdmissionFailure.RIGHTS_STALE);
+        assertFailure(b, copyWithIdentity(good, "identity-context/other", SHA, 12,
+                good.delegationRef(), good.workspaceRef()), AdmissionFailure.IDENTITY_CONTEXT_MISMATCH);
+        assertFailure(b, copyWithIdentity(good, good.identityContextRef(), "sha256:" + "b".repeat(64), 12,
+                good.delegationRef(), good.workspaceRef()), AdmissionFailure.IDENTITY_CONTEXT_MISMATCH);
+        assertFailure(b, copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 13,
+                good.delegationRef(), good.workspaceRef()), AdmissionFailure.IDENTITY_EPOCH_MISMATCH);
+        assertFailure(b, copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 12,
+                "delegation/other", good.workspaceRef()), AdmissionFailure.DELEGATION_MISMATCH);
+        assertFailure(b, copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 12,
+                good.delegationRef(), "workspace/other"), AdmissionFailure.WORKSPACE_MISMATCH);
         assertFailure(b, replace(good, "tenant-1", "principal-2", "purpose/v1", "source/v4", 3,
                 SHA, true, "tariff/v5", good.remainingCost(), "principal-1", 9, good.lockExpiresAt(), good.clocks()), AdmissionFailure.PRINCIPAL_MISMATCH);
         assertFailure(b, replace(good, "tenant-1", "principal-1", "purpose/other", "source/v4", 3,
@@ -585,26 +607,122 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
-    void concurrentSameRevisionScopedLockCasHasOneWinner() throws Exception {
+    void identityTupleMismatchIsRejectedBeforeEditLockCas() {
         Binding b = binding(SHA);
         var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
                 "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
         var plan = new MediaProductionSpecCompiler().compile(spec, b);
-        AtomicReference<Map<String, EditLock>> current = new AtomicReference<>();
-        ProjectEditLockCas cas = (project, revision, claim) -> project.equals("project-1")
-                && revision.equals("rev-7") && current.compareAndSet(null, claim);
-        CountDownLatch start = new CountDownLatch(1);
-        var pool = Executors.newFixedThreadPool(2);
-        try {
-            var a = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireEditLocks(b, plan, cas); });
-            var c = pool.submit(() -> { start.await(); return MediaProductionAdmissionBinding.acquireEditLocks(b, plan, cas); });
-            start.countDown();
-            assertThat(List.of(a.get(2, TimeUnit.SECONDS), c.get(2, TimeUnit.SECONDS)))
-                    .containsExactlyInAnyOrder(true, false);
-            assertThat(current.get()).isEqualTo(b.editLocksByStep());
-        } finally {
-            pool.shutdownNow();
+        CurrentState good = state(b, "render-profile-0");
+        List<Map.Entry<CurrentState, AdmissionFailure>> mismatches = List.of(
+                Map.entry(copy(good, "tenant-other", good.principalId(), good.projectRevision(), good.rightsExpiresAt(),
+                        good.reservationId(), good.lockOwnerPrincipalId(), good.lockEpoch(), good.clocks()), AdmissionFailure.TENANT_MISMATCH),
+                Map.entry(copy(good, good.tenantId(), "principal-other", good.projectRevision(), good.rightsExpiresAt(),
+                        good.reservationId(), good.lockOwnerPrincipalId(), good.lockEpoch(), good.clocks()), AdmissionFailure.PRINCIPAL_MISMATCH),
+                Map.entry(copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 12,
+                        "delegation/other", good.workspaceRef()), AdmissionFailure.DELEGATION_MISMATCH),
+                Map.entry(copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 12,
+                        good.delegationRef(), "workspace/other"), AdmissionFailure.WORKSPACE_MISMATCH),
+                Map.entry(copyWithIdentity(good, good.identityContextRef(), good.identityContextSha256(), 13,
+                        good.delegationRef(), good.workspaceRef()), AdmissionFailure.IDENTITY_EPOCH_MISMATCH),
+                Map.entry(copyWithIdentity(good, good.identityContextRef(), "sha256:" + "b".repeat(64), 12,
+                        good.delegationRef(), good.workspaceRef()), AdmissionFailure.IDENTITY_CONTEXT_MISMATCH));
+        AtomicInteger casCalls = new AtomicInteger();
+
+        for (Map.Entry<CurrentState, AdmissionFailure> mismatch : mismatches) {
+            Map<String, CurrentState> current = Map.of("capture-source-0", state(b, "capture-source-0"),
+                    "render-profile-0", mismatch.getKey());
+            assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, plan, current,
+                    (project, revision, locks, identityFence) -> {
+                        casCalls.incrementAndGet();
+                        return true;
+                    }, NOW))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(error -> ((AdmissionException) error).failure())
+                    .isEqualTo(mismatch.getValue());
         }
+        assertThat(casCalls).hasValue(0);
+    }
+
+    @Test
+    void staleFutureAndMixedObservationTimesAreRejectedBeforeEditLockCas() {
+        Binding b = binding(SHA);
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, b);
+        CurrentState capture = state(b, "capture-source-0");
+        CurrentState render = state(b, "render-profile-0");
+        List<Map<String, CurrentState>> snapshots = List.of(
+                Map.of("capture-source-0", copyWithObservedAt(capture, NOW.minusSeconds(1)),
+                        "render-profile-0", copyWithObservedAt(render, NOW.minusSeconds(1))),
+                Map.of("capture-source-0", copyWithObservedAt(capture, NOW.plusSeconds(1)),
+                        "render-profile-0", copyWithObservedAt(render, NOW.plusSeconds(1))),
+                Map.of("capture-source-0", capture,
+                        "render-profile-0", copyWithObservedAt(render, NOW.plusSeconds(1))));
+        AtomicInteger casCalls = new AtomicInteger();
+        ProjectEditLockCas cas = (project, revision, locks, identityFence) -> {
+            casCalls.incrementAndGet();
+            return true;
+        };
+
+        for (Map<String, CurrentState> snapshot : snapshots) {
+            assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, plan, snapshot, cas, NOW))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(error -> ((AdmissionException) error).failure())
+                    .isEqualTo(AdmissionFailure.IDENTITY_OBSERVATION_TIME_MISMATCH);
+        }
+        assertThat(casCalls).hasValue(0);
+    }
+
+    @Test
+    void callerClaimedMatchingTimesNeverReachEditLockCasWithoutTrustedAdapter() {
+        Binding b = binding(SHA);
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, b);
+        AtomicInteger casCalls = new AtomicInteger();
+        ProjectEditLockCas cas = (project, revision, locks, identityFence) -> {
+            casCalls.incrementAndGet();
+            return true;
+        };
+
+        for (int attempt = 0; attempt < 2; attempt++) {
+            Map<String, CurrentState> observations = Map.of(
+                    "capture-source-0", state(b, "capture-source-0"),
+                    "render-profile-0", state(b, "render-profile-0"));
+            assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, plan, observations, cas, NOW))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(error -> ((AdmissionException) error).failure())
+                    .isEqualTo(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        }
+        assertThat(casCalls).hasValue(0);
+    }
+
+    @Test
+    void matchingStaleAndFutureSnapshotTimesFailClosedBeforeEditLockCas() {
+        Binding b = binding(SHA);
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, b);
+        CurrentState capture = state(b, "capture-source-0");
+        CurrentState render = state(b, "render-profile-0");
+        List<Instant> claimedTimes = List.of(NOW.minusSeconds(3600), NOW.plusSeconds(1), NOW);
+        AtomicInteger casCalls = new AtomicInteger();
+        ProjectEditLockCas cas = (project, revision, locks, identityFence) -> {
+            casCalls.incrementAndGet();
+            return true;
+        };
+
+        for (Instant claimedAt : claimedTimes) {
+            Map<String, CurrentState> sameClaimedTime = Map.of(
+                    "capture-source-0", copyWithObservedAt(capture, claimedAt),
+                    "render-profile-0", copyWithObservedAt(render, claimedAt));
+            assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(
+                    b, plan, sameClaimedTime, cas, claimedAt))
+                    .isInstanceOf(AdmissionException.class)
+                    .extracting(error -> ((AdmissionException) error).failure())
+                    .isEqualTo(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        }
+        assertThat(casCalls).hasValue(0);
     }
 
     @Test
@@ -615,10 +733,15 @@ class MediaProductionAdmissionBindingTest {
                 "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
         var plan = compiler.compile(spec, b);
         AtomicInteger casCalls = new AtomicInteger();
-        ProjectEditLockCas cas = (project, revision, locks) -> {
+        ProjectEditLockCas cas = (project, revision, locks, identityFence) -> {
             casCalls.incrementAndGet();
             return true;
         };
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(b, plan, cas, NOW))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.AUTHORITY_STATE_UNAVAILABLE);
+        assertThat(casCalls).hasValue(0);
 
         var staleSpec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-8", "REAL_CAPTURE",
                 "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
@@ -681,7 +804,7 @@ class MediaProductionAdmissionBindingTest {
         AtomicInteger casCalls = new AtomicInteger();
 
         assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(expired, plan,
-                (project, revision, locks) -> {
+                (project, revision, locks, identityFence) -> {
                     casCalls.incrementAndGet();
                     return true;
                 }, NOW))
@@ -707,7 +830,8 @@ class MediaProductionAdmissionBindingTest {
 
     private static CurrentState copy(CurrentState s, String tenant, String principal, String revision,
             Instant rightsExpiry, String reservation, String lockOwner, long lockEpoch, ClockBindings clocks) {
-        return new CurrentState(tenant, principal, s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                tenant, principal, s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), revision, s.rightsRef(), s.ownerDecisionRef(), rightsExpiry, s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(),
@@ -717,7 +841,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyWithRights(CurrentState s, String rightsRef) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), rightsRef, s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
@@ -727,7 +852,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyAttempt(CurrentState s, String requestId, String fingerprint) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
@@ -737,7 +863,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyWithSourceSha(CurrentState s, String sourceSha) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), sourceSha,
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), sourceSha,
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
@@ -747,7 +874,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyWithLockExpiry(CurrentState s, Instant expiry) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
@@ -757,7 +885,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyWithLockTarget(CurrentState s, String scopeKind, String targetRef) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
@@ -767,7 +896,8 @@ class MediaProductionAdmissionBindingTest {
     }
 
     private static CurrentState copyWithEngine(CurrentState s, String kind, String identity, String digest) {
-        return new CurrentState(s.tenantId(), s.principalId(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(),
                 s.projectId(), s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
                 kind, identity, digest, s.providerId(), s.qualificationRef(), s.qualificationSha256(), s.providerRightsRef(),
                 s.qualified(), s.quoteRef(), s.quoteVersion(), s.reservationId(), s.remainingCost(), s.remainingCompute(),
@@ -775,11 +905,38 @@ class MediaProductionAdmissionBindingTest {
                 s.lockExpiresAt(), s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(), s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
     }
 
+    private static CurrentState copyWithIdentity(CurrentState s, String contextRef, String contextSha,
+            long identityEpoch, String delegationRef, String workspaceRef) {
+        return new CurrentState(contextRef, contextSha, identityEpoch, s.tenantId(), s.principalId(),
+                delegationRef, workspaceRef, s.purposeRef(), s.sourceVersionRef(), s.sourceSha256(), s.projectId(),
+                s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(),
+                s.engineIdentityKind(), s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
+                s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(),
+                s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(),
+                s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), s.observedAt(),
+                s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
+    }
+
+    private static CurrentState copyWithObservedAt(CurrentState s, Instant observedAt) {
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                s.tenantId(), s.principalId(), s.delegationRef(), s.workspaceRef(), s.purposeRef(),
+                s.sourceVersionRef(), s.sourceSha256(), s.projectId(), s.projectRevision(), s.rightsRef(),
+                s.ownerDecisionRef(), s.rightsExpiresAt(), s.revocationEpoch(), s.engineIdentityKind(),
+                s.engineIdentity(), s.engineBuildSha256(), s.providerId(), s.qualificationRef(),
+                s.qualificationSha256(), s.providerRightsRef(), s.qualified(), s.quoteRef(), s.quoteVersion(),
+                s.reservationId(), s.remainingCost(), s.remainingCompute(), s.remainingTime(), s.lockScopeKind(),
+                s.lockTargetRef(), s.lockOwnerPrincipalId(), s.lockLeaseId(), s.lockEpoch(), s.lockExpiresAt(),
+                s.canonicalRequestId(), s.canonicalRequestFingerprint(), s.clocks(), observedAt,
+                s.globalOwnerDecisionRef(), s.globalDecisionExpiresAt(), s.globalRevocationEpoch(), s.globalRightsRef());
+    }
+
     private static CurrentState replace(CurrentState s, String tenant, String principal, String purpose,
             String sourceVersion, long revocationEpoch, String engineDigest, boolean qualified,
             String quoteVersion, BoundedAmount remainingCost, String lockOwner, long lockEpoch,
             Instant lockExpiry, ClockBindings clocks) {
-        return new CurrentState(tenant, principal, purpose, sourceVersion, s.sourceSha256(), s.projectId(),
+        return new CurrentState(s.identityContextRef(), s.identityContextSha256(), s.identityEpoch(),
+                tenant, principal, s.delegationRef(), s.workspaceRef(), purpose, sourceVersion, s.sourceSha256(), s.projectId(),
                 s.projectRevision(), s.rightsRef(), s.ownerDecisionRef(), s.rightsExpiresAt(), revocationEpoch,
                 s.engineIdentityKind(), s.engineIdentity(), engineDigest, s.providerId(), s.qualificationRef(),
                 s.qualificationSha256(), s.providerRightsRef(), qualified, s.quoteRef(), quoteVersion,
