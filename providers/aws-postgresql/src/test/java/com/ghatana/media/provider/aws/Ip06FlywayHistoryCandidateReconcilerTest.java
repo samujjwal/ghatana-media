@@ -49,7 +49,7 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
         rows.set(4, v4);
         rows.add(rows.get(0));
         rows.remove(10); // leave V011 absent
-        rows.add("30,31,unowned migration,SQL,V031__unowned.sql,1,test,now,0,true");
+        rows.add("30,31,unowned migration,SQL,V031__unowned.sql,1,test,2026-11-02T00:00:00Z,0,true");
         rows.set(0, rows.get(0).replace(",true", ",false"));
 
         var report = Ip06FlywayHistoryCandidateReconciler.reconcile(
@@ -109,6 +109,35 @@ class Ip06FlywayHistoryCandidateReconcilerTest {
         rows = csvRows();
         rows.set(0, rows.get(0).replace(",true", ",yes"));
         assertInvalidCsv(HEADER, rows);
+    }
+
+    @Test
+    void rejectsMissingOrInvalidFlywayInstalledMetadata() {
+        String valid = csvRows().getFirst();
+        assertInvalidCsv(HEADER, List.of(valid.replace(",test,", ",,")));
+        assertInvalidCsv(HEADER, List.of(valid.replace(",2026-11-02T00:00:00Z,", ",,")));
+        assertInvalidCsv(HEADER, List.of(valid.replace(",2026-11-02T00:00:00Z,", ",yesterday,")));
+        assertInvalidCsv(HEADER, List.of(valid.replace(",1,true", ",not-an-integer,true")));
+        assertInvalidCsv(HEADER, List.of(valid.replace(",1,true", ",2147483648,true")));
+        assertInvalidCsv(HEADER, List.of(valid.replace(",1,true", ",-1,true")));
+
+        List<String> rows = csvRows();
+        rows.set(0, rows.getFirst().replace(",2026-11-02T00:00:00Z,", ",2026-11-02 08:23:15.372722,"));
+        assertThat(Ip06FlywayHistoryCandidateReconciler.reconcile(
+                (HEADER + String.join("\n", rows) + "\n").getBytes(StandardCharsets.UTF_8)).comparisonStatus())
+                .isEqualTo("SOURCE_MATCH");
+
+        rows = csvRows();
+        rows.set(0, rows.getFirst().replace(",2026-11-02T00:00:00Z,", ",2026-11-02T10:23:15.372722+02:00,"));
+        assertThat(Ip06FlywayHistoryCandidateReconciler.reconcile(
+                (HEADER + String.join("\n", rows) + "\n").getBytes(StandardCharsets.UTF_8)).comparisonStatus())
+                .isEqualTo("SOURCE_MATCH");
+
+        rows = csvRows();
+        rows.set(0, rows.getFirst().replace(",1,true", ",0,true"));
+        assertThat(Ip06FlywayHistoryCandidateReconciler.reconcile(
+                (HEADER + String.join("\n", rows) + "\n").getBytes(StandardCharsets.UTF_8)).comparisonStatus())
+                .isEqualTo("SOURCE_MATCH");
     }
 
     @Test

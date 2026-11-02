@@ -12,6 +12,11 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -376,6 +381,15 @@ public final class Ip06FlywayHistoryCandidateReconciler {
                 throw new IllegalArgumentException("record " + (index + 1)
                         + " installed_rank and version must be positive integers");
             }
+            if (value(fields, header, "installed_by").isBlank()) {
+                throw new IllegalArgumentException("record " + (index + 1) + " has blank installed_by");
+            }
+            validateInstalledOn(value(fields, header, "installed_on"), index + 1);
+            int executionTime = integer(fields, header, "execution_time", index);
+            if (executionTime < 0) {
+                throw new IllegalArgumentException("record " + (index + 1)
+                        + " execution_time must not be negative");
+            }
             rows.add(new Row(rank, version, value(fields, header, "description"),
                     value(fields, header, "type"), value(fields, header, "script"),
                     value(fields, header, "checksum"), successValue.equals("true")));
@@ -387,6 +401,29 @@ public final class Ip06FlywayHistoryCandidateReconciler {
         try { return Integer.parseInt(value(fields, header, column)); }
         catch (NumberFormatException e) { throw new IllegalArgumentException("record " + (record + 1)
                 + " has invalid integer in " + column); }
+    }
+
+    private static void validateInstalledOn(String value, int record) {
+        if (value.isBlank()) {
+            throw new IllegalArgumentException("record " + record + " has blank installed_on");
+        }
+        try {
+            Instant.parse(value);
+            return;
+        } catch (DateTimeParseException ignored) { }
+        try {
+            OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            return;
+        } catch (DateTimeParseException ignored) { }
+        // PostgreSQL timestamp output may use a space separator and omit a zone because
+        // Flyway's installed_on column is a timestamp without time zone on PostgreSQL.
+        String localDateTime = value.indexOf(' ') == 10 ? value.substring(0, 10) + 'T' + value.substring(11) : value;
+        try {
+            LocalDateTime.parse(localDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } catch (DateTimeParseException invalidTimestamp) {
+            throw new IllegalArgumentException("record " + record
+                    + " has invalid timestamp in installed_on; expected ISO instant/offset or PostgreSQL local timestamp");
+        }
     }
 
     private static String value(List<String> fields, Map<String, Integer> header, String name) {
