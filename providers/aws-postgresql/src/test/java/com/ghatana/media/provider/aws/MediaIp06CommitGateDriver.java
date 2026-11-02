@@ -34,24 +34,23 @@ public final class MediaIp06CommitGateDriver implements Driver {
         String markerPath = System.getenv("MEDIA_IP06_COMMIT_GATE_MARKER");
         if (markerPath == null || markerPath.isBlank()) return connection;
         String gateMode = System.getenv().getOrDefault("MEDIA_IP06_COMMIT_GATE_MODE", "AFTER_COMMIT");
-        AtomicBoolean jobInsertExecuted = new AtomicBoolean();
+        AtomicBoolean fencedWriteExecuted = new AtomicBoolean();
         return (Connection) Proxy.newProxyInstance(Connection.class.getClassLoader(),
                 new Class<?>[] {Connection.class}, (proxy, method, args) -> {
                     if (method.getName().equals("prepareStatement") && args != null && args.length > 0
-                            && args[0] instanceof String sql
-                            && sql.toLowerCase(java.util.Locale.ROOT).contains("insert into media_processing_jobs")) {
+                            && args[0] instanceof String sql && isFencedWrite(sql)) {
                         PreparedStatement statement = (PreparedStatement) invoke(method, connection, args);
                         return Proxy.newProxyInstance(PreparedStatement.class.getClassLoader(),
                                 new Class<?>[] {PreparedStatement.class}, (statementProxy, statementMethod,
                                         statementArgs) -> {
                                     Object result = invoke(statementMethod, statement, statementArgs);
                                     if (statementMethod.getName().startsWith("execute")) {
-                                        jobInsertExecuted.set(true);
+                                        fencedWriteExecuted.set(true);
                                     }
                                     return result;
                                 });
                     }
-                    if (method.getName().equals("commit") && jobInsertExecuted.get()) {
+                    if (method.getName().equals("commit") && fencedWriteExecuted.get()) {
                         if ("BEFORE_COMMIT".equals(gateMode)) {
                             writeMarker(Path.of(markerPath), "PRE_COMMIT");
                             awaitProcessKill(); // Leave the transaction open for abrupt child termination.
@@ -64,6 +63,15 @@ public final class MediaIp06CommitGateDriver implements Driver {
                     }
                     return invoke(method, connection, args);
                 });
+    }
+
+    private static boolean isFencedWrite(String sql) {
+        String normalized = sql.toLowerCase(java.util.Locale.ROOT).replaceAll("\\s+", " ").trim();
+        // Create acceptance and terminal outcome both commit their state and lifecycle outbox
+        // together. Watching the outbox insert gives the final-outcome probe a fence after all
+        // transaction statements have run, without coupling this test driver to SQL parameters.
+        return normalized.contains("insert into media_processing_jobs")
+                || normalized.contains("insert into media_processing_lifecycle_outbox");
     }
 
     private static Object invoke(java.lang.reflect.Method method, Object target, Object[] args) throws Throwable {

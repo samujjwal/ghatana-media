@@ -63,30 +63,22 @@ class MediaPostgresqlProcessCrashRecoveryTest {
         String bucket = createBucket("media-ip06-before-" + runId);
         Map<String, String> environment = environment(bucket, "parent-before-" + runId);
         JobIdentity identity = prepareDispatchedJob(environment, runId);
-        String applicationName = "media-ip06-worker-before-" + runId;
-        Map<String, String> childEnvironment = withWorkerApplicationName(environment, applicationName);
+        Map<String, String> childEnvironment = commitGatedEnvironment(
+                environment, "BEFORE_COMMIT", tempDir.resolve("before-commit.jdbc.marker"));
         Path marker = tempDir.resolve("before-commit.marker");
         Path log = tempDir.resolve("before-commit.log");
 
-        try (Connection rowLock = databaseConnection()) {
-            rowLock.setAutoCommit(false);
-            try (var lock = rowLock.prepareStatement(
-                    "SELECT job_id FROM media_processing_jobs WHERE tenant_id=? AND job_id=? FOR UPDATE")) {
-                lock.setString(1, identity.tenantId());
-                lock.setString(2, identity.jobId());
-                try (var result = lock.executeQuery()) { assertThat(result.next()).isTrue(); }
-            }
-
-            Process worker = startWorker(childEnvironment, marker, identity, log);
-            try {
-                awaitMarker(worker, marker, "READY", log);
-                awaitLockWait(applicationName);
-                worker.destroyForcibly();
-                assertThat(worker.waitFor(15, TimeUnit.SECONDS)).isTrue();
-            } finally {
-                if (worker.isAlive()) worker.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
-                rowLock.rollback();
-            }
+        Process worker = startWorker(childEnvironment, marker, identity, log);
+        try {
+            awaitMarker(worker, tempDir.resolve("before-commit.jdbc.marker"), "PRE_COMMIT", log);
+            // The finality, job update and outbox INSERT have all executed in the child
+            // transaction, but an independent PostgreSQL reader still sees the prior state.
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isZero();
+            assertThat(jobStatus(identity)).isEqualTo("RUNNING");
+            worker.destroyForcibly();
+            assertThat(worker.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (worker.isAlive()) worker.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
         }
 
         try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
@@ -112,10 +104,15 @@ class MediaPostgresqlProcessCrashRecoveryTest {
         Path marker = tempDir.resolve("after-commit.marker");
         Path log = tempDir.resolve("after-commit.log");
 
+        Path jdbcMarker = tempDir.resolve("after-commit.jdbc.marker");
         Process worker = startWorker(
-                withWorkerApplicationName(environment, "media-ip06-worker-after-" + runId), marker, identity, log);
+                commitGatedEnvironment(environment, "AFTER_COMMIT", jdbcMarker), marker, identity, log);
         try {
-            awaitMarker(worker, marker, "COMMITTED", log);
+            awaitMarker(worker, jdbcMarker, "POSTGRES_COMMITTED_RETURNED", log);
+            // The database commit returned, while the child remains inside the JDBC proxy and
+            // has not yet received that return. Check exact state and one event before killing it.
+            assertThat(jobStatus(identity)).isEqualTo("COMPLETED");
+            assertThat(outboxCount(identity, "media.job.completed", 3)).isEqualTo(1);
             worker.destroyForcibly();
             assertThat(worker.waitFor(15, TimeUnit.SECONDS)).isTrue();
         } finally {
@@ -337,6 +334,28 @@ class MediaPostgresqlProcessCrashRecoveryTest {
             query.setString(4, eventType);
             try (var rows = query.executeQuery()) { rows.next(); return rows.getLong(1); }
         }
+    }
+
+    private static String jobStatus(JobIdentity identity) throws Exception {
+        try (Connection connection = databaseConnection();
+             var query = connection.prepareStatement(
+                     "SELECT status FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+            query.setString(1, identity.tenantId());
+            query.setString(2, identity.jobId());
+            try (var rows = query.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                return rows.getString(1);
+            }
+        }
+    }
+
+    private static Map<String, String> commitGatedEnvironment(
+            Map<String, String> base, String mode, Path marker) {
+        Map<String, String> gated = new HashMap<>(base);
+        gated.put("MEDIA_POSTGRES_DRIVER", MediaIp06CommitGateDriver.class.getName());
+        gated.put("MEDIA_IP06_COMMIT_GATE_MODE", mode);
+        gated.put("MEDIA_IP06_COMMIT_GATE_MARKER", marker.toString());
+        return gated;
     }
 
     private static Connection databaseConnection() throws Exception {
