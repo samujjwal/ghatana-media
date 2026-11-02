@@ -32,6 +32,9 @@ class Ip06LegacyMigrationCompatibilityTest {
     private static final String LEGACY_LOCATION = "classpath:db/legacy-media-runtime-v001-v016";
     private static final String CURRENT_LOCATION = "classpath:db/media-runtime";
     private static final String MANIFEST = "/db/legacy-media-runtime-v001-v016/manifest.csv";
+    private static final String CHECKED_IN_SNAPSHOT =
+            "/db/legacy-media-runtime-v001-v016-snapshot/test-snapshot.sql";
+    private static final String SNAPSHOT_SCHEMA_MARKER = "ip06_legacy_v001_v016_snapshot";
     private static final String[] CURRENT_TAIL = {
             "V017__media_transcript_revisions.sql", "V018__media_lifecycle_outbox_leases.sql",
             "V019__media_stream_acknowledgements.sql", "V020__media_stream_inflight_attempts.sql",
@@ -95,6 +98,147 @@ class Ip06LegacyMigrationCompatibilityTest {
         assertThat(flyway(location, schema, "29").migrate().migrationsExecuted).isZero();
         assertAppliedHistory(schema, 29);
         assertLegacyRowsUnchanged(schema);
+    }
+
+    @Test
+    void checkedInSnapshotRestoresLegacyProjectionAndMigratesForward() throws Exception {
+        String schema = "ip06_snapshot_forward_" + java.util.UUID.randomUUID().toString().replace("-", "");
+        String snapshot;
+        try (var input = Ip06LegacyMigrationCompatibilityTest.class.getResourceAsStream(CHECKED_IN_SNAPSHOT)) {
+            assertThat(input).as("test-only checked-in V001-V016 SQL snapshot").isNotNull();
+            snapshot = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        assertThat(snapshot).contains("TEST-ONLY RECONSTRUCTION", "NOT A DEPLOYED DATABASE EXPORT",
+                "flyway_schema_history_manifest_projection");
+        snapshot = snapshot.replace(SNAPSHOT_SCHEMA_MARKER, schema);
+        try (Connection connection = connection(); var statement = connection.createStatement()) {
+            // This fixture is synthetic test data and is restored only into this container's fresh schema.
+            statement.execute(snapshot);
+        }
+
+        Map<Integer, LegacyRow> manifest = readManifest();
+        try (Connection connection = connection();
+             var statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery(
+                     "SELECT version::integer, description, script, checksum, success FROM " + schema
+                             + ".flyway_schema_history_manifest_projection ORDER BY version::integer")) {
+            int count = 0;
+            while (rows.next()) {
+                int version = rows.getInt("version");
+                LegacyRow expected = manifest.get(version);
+                assertThat(expected).as("snapshot applied-history manifest row V%03d", version).isNotNull();
+                assertThat(rows.getString("description")).isEqualTo(expected.description());
+                assertThat(rows.getString("script")).isEqualTo(String.format("V%03d__%s.sql", version,
+                        expected.description().replace(' ', '_')));
+                assertThat(rows.getInt("checksum")).isEqualTo(expected.checksum());
+                assertThat(rows.getBoolean("success")).isTrue();
+                count++;
+            }
+            assertThat(count).isEqualTo(16);
+        }
+        assertSnapshotBaselineRows(schema);
+
+        // The snapshot carries a manifest-backed history projection, not Flyway's runtime
+        // history table. Baseline at V016, then exercise the real checked-in V017-V029 chain.
+        var forward = Flyway.configure()
+                .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
+                .locations(CURRENT_LOCATION)
+                .schemas(schema)
+                .defaultSchema(schema)
+                .baselineOnMigrate(true)
+                .baselineVersion("16")
+                .validateMigrationNaming(true)
+                .load();
+        assertThat(forward.migrate().migrationsExecuted).isEqualTo(13);
+        assertSnapshotBaselineRows(schema);
+        assertForwardSnapshotSchema(schema);
+        assertThat(forward.migrate().migrationsExecuted).isZero();
+        assertSnapshotBaselineRows(schema);
+        assertForwardSnapshotSchema(schema);
+        assertSnapshotForwardHistory(schema);
+    }
+
+    private static void assertSnapshotBaselineRows(String schema) throws Exception {
+        try (Connection connection = connection()) {
+            assertThat(stringValue(connection, "SELECT sha256 FROM " + schema
+                    + ".media_artifacts WHERE artifact_id='ip06-artifact'"))
+                    .isEqualTo("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            assertThat(stringValue(connection, "SELECT result_json FROM " + schema
+                    + ".media_processing_jobs WHERE job_id='ip06-job'"))
+                    .isEqualTo("{\"legacy\":true}");
+            assertThat(stringValue(connection, "SELECT transcript_text FROM " + schema
+                    + ".media_transcript_revisions WHERE transcript_id='ip06-transcript'"))
+                    .isEqualTo("synthetic legacy transcript");
+            assertThat(stringValue(connection, "SELECT payload_json FROM " + schema
+                    + ".media_processing_lifecycle_outbox WHERE event_id='ip06-event'"))
+                    .isEqualTo("{\"legacy\":true}");
+        }
+    }
+
+    private static void assertSnapshotForwardHistory(String schema) throws Exception {
+        try (Connection connection = connection();
+             var statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery(
+                     "SELECT version::integer, success FROM " + schema
+                             + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
+            int expectedVersion = 16;
+            int count = 0;
+            while (rows.next()) {
+                assertThat(rows.getInt("version")).isEqualTo(expectedVersion++);
+                assertThat(rows.getBoolean("success")).isTrue();
+                count++;
+            }
+            // Flyway records a baseline at V016, followed by every real V017-V029 migration.
+            assertThat(count).isEqualTo(14);
+        }
+    }
+
+    private static void assertForwardSnapshotSchema(String schema) throws Exception {
+        try (Connection connection = connection()) {
+            assertThat(hasColumn(connection, schema, "media_processing_jobs", "stt_request_snapshot")).isTrue();
+            assertThat(hasColumn(connection, schema, "media_processing_jobs", "mm_operation_snapshot")).isTrue();
+            assertThat(hasColumn(connection, schema, "media_processing_lifecycle_outbox", "claim_owner")).isTrue();
+            assertThat(hasColumn(connection, schema, "media_transcript_revisions", "processing_purpose")).isTrue();
+            assertThat(hasColumn(connection, schema, "media_transcript_revisions", "segments_json")).isTrue();
+            assertThat(hasTable(connection, schema, "media_transcript_attempt_bindings")).isTrue();
+            assertThat(hasTable(connection, schema, "media_source_rights_decisions")).isTrue();
+            assertThat(hasTable(connection, schema, "media_caption_registrations")).isTrue();
+            // Pre-existing revisions remain explicitly unresolved for fields introduced later.
+            assertThat(stringValue(connection, "SELECT processing_purpose FROM " + schema
+                    + ".media_transcript_revisions WHERE transcript_id='ip06-transcript'"))
+                    .isEqualTo("__UNRESOLVED_PROCESSING_PURPOSE__");
+            assertThat(stringValue(connection, "SELECT timing_availability FROM " + schema
+                    + ".media_transcript_revisions WHERE transcript_id='ip06-transcript'"))
+                    .isEqualTo("NOT_SUPPLIED");
+        }
+    }
+
+    private static boolean hasColumn(Connection connection, String schema, String table, String column)
+            throws Exception {
+        try (var statement = connection.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.columns"
+                        + " WHERE table_schema=? AND table_name=? AND column_name=?)")) {
+            statement.setString(1, schema);
+            statement.setString(2, table);
+            statement.setString(3, column);
+            try (ResultSet rows = statement.executeQuery()) {
+                rows.next();
+                return rows.getBoolean(1);
+            }
+        }
+    }
+
+    private static boolean hasTable(Connection connection, String schema, String table) throws Exception {
+        try (var statement = connection.prepareStatement(
+                "SELECT EXISTS (SELECT 1 FROM information_schema.tables"
+                        + " WHERE table_schema=? AND table_name=?)")) {
+            statement.setString(1, schema);
+            statement.setString(2, table);
+            try (ResultSet rows = statement.executeQuery()) {
+                rows.next();
+                return rows.getBoolean(1);
+            }
+        }
     }
 
     private static void applyLegacyAndAssertHistory(String schema) throws Exception {
