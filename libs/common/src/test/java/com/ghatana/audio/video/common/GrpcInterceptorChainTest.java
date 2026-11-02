@@ -5,6 +5,7 @@ import com.ghatana.audio.video.common.observability.TracingServerInterceptor;
 import com.ghatana.audio.video.common.resilience.CircuitBreakerServerInterceptor;
 import com.ghatana.audio.video.common.resilience.RateLimitingServerInterceptor;
 import com.ghatana.audio.video.common.resilience.TenantAwareRateLimitingInterceptor;
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.ghatana.audio.video.common.security.AudioVideoRequestContextInterceptor;
 import com.ghatana.audio.video.common.security.InputValidationServerInterceptor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
@@ -61,14 +62,15 @@ class GrpcInterceptorChainTest {
     void chainPreservesDocumentedOrder() {
         List<ServerInterceptor> chain = buildChain();
 
-        assertThat(chain).hasSize(7);
+        assertThat(chain).hasSize(8);
         assertThat(chain.get(0)).isInstanceOf(InputValidationServerInterceptor.class);
         assertThat(chain.get(1)).isInstanceOf(AudioVideoRequestContextInterceptor.class);
         assertThat(chain.get(2)).isInstanceOf(TenantAwareRateLimitingInterceptor.class);
         assertThat(chain.get(3)).isInstanceOf(JwtServerInterceptor.class);
         assertThat(chain.get(4)).isInstanceOf(CircuitBreakerServerInterceptor.class);
-        assertThat(chain.get(5)).isInstanceOf(MetricsServerInterceptor.class);
-        assertThat(chain.get(6)).isInstanceOf(TracingServerInterceptor.class);
+        assertThat(chain.get(5)).isInstanceOf(RpcDeadlineServerInterceptor.class);
+        assertThat(chain.get(6)).isInstanceOf(MetricsServerInterceptor.class);
+        assertThat(chain.get(7)).isInstanceOf(TracingServerInterceptor.class);
         assertThat(chain).filteredOn(RateLimitingServerInterceptor.class::isInstance).isEmpty();
         assertThat(chain).filteredOn(TenantAwareRateLimitingInterceptor.class::isInstance).hasSize(1);
     }

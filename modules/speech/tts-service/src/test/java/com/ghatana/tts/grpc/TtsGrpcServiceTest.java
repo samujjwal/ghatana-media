@@ -637,7 +637,7 @@ class TtsGrpcServiceTest {
                 pcm, 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
         @SuppressWarnings("unchecked")
         ServerCallStreamObserver<SynthesizeResponse> observer = mock(ServerCallStreamObserver.class);
-        when(observer.isCancelled()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false, true);
 
         admitted.synthesize(SynthesizeRequest.newBuilder().setText("private test phrase").build(), observer);
 

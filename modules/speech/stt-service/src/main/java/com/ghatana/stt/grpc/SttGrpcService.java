@@ -173,6 +173,10 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
                                  boundaryInstrumentation.beginBoundaryMeasurement(
                                          MediaWorkflowMetrics.Modality.STT,
                                          MediaWorkflowMetrics.Boundary.PROVIDER)) {
+                        if (isCancelled(responseObserver)) {
+                            tracedObserver.finishUnknown();
+                            return;
+                        }
                         result = stt.transcribe(audio, transcriptionOptions(request));
                         if (result != null && !isCancelled(responseObserver)) {
                             measurement.complete(MediaWorkflowMetrics.Outcome.SUCCESS);
@@ -284,8 +288,9 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase {
     }
 
     private static boolean isCancelled(StreamObserver<?> observer) {
-        return observer instanceof io.grpc.stub.ServerCallStreamObserver<?> serverObserver
-                && serverObserver.isCancelled();
+        return io.grpc.Context.current().isCancelled()
+                || observer instanceof io.grpc.stub.ServerCallStreamObserver<?> serverObserver
+                        && serverObserver.isCancelled();
     }
 
     static String sha256(com.google.protobuf.ByteString bytes) {

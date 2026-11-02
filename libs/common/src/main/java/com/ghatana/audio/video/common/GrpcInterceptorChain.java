@@ -4,6 +4,7 @@ import com.ghatana.audio.video.common.observability.MetricsServerInterceptor;
 import com.ghatana.audio.video.common.observability.TracingServerInterceptor;
 import com.ghatana.audio.video.common.resilience.CircuitBreakerServerInterceptor;
 import com.ghatana.audio.video.common.resilience.TenantAwareRateLimitingInterceptor;
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.ghatana.audio.video.common.security.AudioVideoRequestContextInterceptor;
 import com.ghatana.audio.video.common.security.InputValidationServerInterceptor;
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
@@ -18,7 +19,7 @@ import java.util.List;
  * gRPC applies interceptors in reverse-list order (last = outermost), so the chain
  * as seen by an incoming request is:
  * <pre>
- *   Tracing → Metrics → CircuitBreaker → JWT → TenantRateLimiter → RBAC/audit
+ *   Tracing → Metrics → RPC deadline → CircuitBreaker → JWT → TenantRateLimiter → RBAC/audit
  *       → InputValidation → Service
  * </pre>
  *
@@ -48,7 +49,7 @@ public final class GrpcInterceptorChain {
      *
      * <p>Actual execution order (outermost → innermost → service):
      * <pre>
- *   Tracing → Metrics → CircuitBreaker → JWT
+ *   Tracing → Metrics → RPC deadline → CircuitBreaker → JWT
  *       → TenantRateLimiter → RbacAudit → InputValidation
      *       → Service
      * </pre>
@@ -68,8 +69,9 @@ public final class GrpcInterceptorChain {
                 new TenantAwareRateLimitingInterceptor(),             // index 2 — verified tenant, after JWT
                 new JwtServerInterceptor(),                           // index 3 — validates before tenant limiter
                 new CircuitBreakerServerInterceptor(),                // index 4
-                MetricsServerInterceptor.getInstance(),               // index 5
-                new TracingServerInterceptor()                        // index 6 — outermost
+                new RpcDeadlineServerInterceptor(),                   // index 5 — bounded RPC context for all modality services
+                MetricsServerInterceptor.getInstance(),               // index 6
+                new TracingServerInterceptor()                        // index 7 — outermost
         );
     }
 }

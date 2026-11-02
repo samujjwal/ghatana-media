@@ -1154,6 +1154,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             this.delegate = java.util.Objects.requireNonNull(delegate, "delegate");
             this.span = java.util.Objects.requireNonNull(span, "span");
             this.context = Context.current().with(span);
+            io.grpc.Context.CancellableContext grpcContext = io.grpc.Context.current().withCancellation();
+            grpcContext.addListener(ignored -> finishUnknown(), Runnable::run);
             if (delegate instanceof ServerCallStreamObserver<?> serverObserver) {
                 serverObserver.setOnCancelHandler(this::finishUnknown);
             }

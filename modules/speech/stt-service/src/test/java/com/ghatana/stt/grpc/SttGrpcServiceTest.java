@@ -221,7 +221,7 @@ class SttGrpcServiceTest {
                 "fixture transcript", 0.8, Collections.emptyList(), Collections.emptyList(),
                 Duration.ofMillis(2), "en", "fixture-engine"));
         ServerCallStreamObserver<TranscribeResponse> observer = mock(ServerCallStreamObserver.class);
-        when(observer.isCancelled()).thenReturn(true);
+        when(observer.isCancelled()).thenReturn(false, true);
 
         service.transcribe(TranscribeRequest.newBuilder()
                 .setAudioData(ByteString.copyFrom(new byte[]{1, 2, 3, 4})).setSampleRate(16_000).build(), observer);

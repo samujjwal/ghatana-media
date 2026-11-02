@@ -271,6 +271,10 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             }
             DetectionOptions options = optionsBuilder.build();
 
+            if (rpcCancelled(responseObserver)) {
+                traced.finishUnknown();
+                return;
+            }
             List<DetectedObject> detectedObjects = recordProviderExecution(() -> detector.detectObjects(
                 request.getImageData().toByteArray(), options));
             tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
@@ -399,6 +403,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
         } finally {
             modalityMetrics.stopModalityTimer(sample, outcome);
         }
+    }
+
+    private static boolean rpcCancelled(StreamObserver<?> observer) {
+        return Context.current().isCancelled()
+                || observer instanceof ServerCallStreamObserver<?> call && call.isCancelled();
     }
 
     private static final class InvalidProviderMappingException extends RuntimeException {
@@ -530,18 +539,25 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                         ? Optional.empty() : Optional.of(request.getLanguageHint()));
         var cancellation = new com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.Cancellation();
         var observerRef = responseObserver;
+        io.grpc.Context requestContext = io.grpc.Context.current();
+        io.grpc.Context.CancellationListener cancellationListener = ignored -> cancellation.cancel();
+        requestContext.addListener(cancellationListener, Runnable::run);
         if (responseObserver instanceof ServerCallStreamObserver<SceneTextRecognizeResponse> call) {
             call.setOnCancelHandler(cancellation::cancel);
         }
-        java.util.concurrent.CompletableFuture
-                .<com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Outcome>supplyAsync(
-                        () -> service.recognize(frameRequest, cancellation), sceneTextExecutor)
-                .whenComplete((outcome, failure) -> {
+        var submission = new com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor(sceneTextExecutor)
+                .<com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Outcome>submit(
+                        () -> service.recognize(frameRequest, cancellation));
+        submission.result().whenComplete((outcome, failure) -> requestContext.removeListener(cancellationListener));
+        submission.result().whenComplete((outcome, failure) -> {
                     if (failure != null) {
                         mediaMetrics.recordFailed("vision.scene-text");
-                        recordResponseFailure(observerRef, io.grpc.Status.UNAVAILABLE
-                                .withDescription("Scene text recognition worker failed")
-                                .asRuntimeException());
+                        Throwable cause = failure instanceof java.util.concurrent.CompletionException
+                                && failure.getCause() != null ? failure.getCause() : failure;
+                        recordResponseFailure(observerRef, cause instanceof io.grpc.StatusRuntimeException
+                                ? cause : io.grpc.Status.UNAVAILABLE
+                                        .withDescription("Scene text recognition worker failed")
+                                        .withCause(cause).asRuntimeException());
                         return;
                     }
                     completeSceneText(frameRequest, outcome, observerRef);

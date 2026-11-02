@@ -230,6 +230,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                              instrumentation.beginBoundaryMeasurement(
                                      MediaWorkflowMetrics.Modality.TTS,
                                      MediaWorkflowMetrics.Boundary.PROVIDER)) {
+                    if (isCancelled(responseObserver)) {
+                        trace.finishUnknown();
+                        return;
+                    }
                     audio = library.getTtsEngine().synthesize(text, options);
                     facts = validatePcm16Output(audio, options.outputFormat(), options.sampleRate());
                     if (!isCancelled(responseObserver)) {
@@ -349,23 +353,24 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
         };
         Object readinessLock = new Object();
         ServerCallStreamObserver<AudioChunk> serverObserver = serverObserver(responseObserver);
+        io.grpc.Context.CancellableContext grpcOperationContext = io.grpc.Context.current().withCancellation();
+        Runnable handleCancellation = operationContext.wrap(() -> {
+            boolean cancellationWon = !completionDeliveryStarted.get()
+                    && terminal.compareAndSet(false, true);
+            if (cancellationWon) {
+                cancelled.set(true);
+                sessionCancelled.set(true);
+                recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                recordDuration.run();
+                trace.finishUnknown();
+                synchronized (readinessLock) { readinessLock.notifyAll(); }
+            }
+            if (cancellationWon) requestSessionCancellation.run();
+        });
+        grpcOperationContext.addListener(ignored -> handleCancellation.run(), Runnable::run);
 
         if (serverObserver != null) {
-            serverObserver.setOnCancelHandler(operationContext.wrap(() -> {
-                boolean cancellationWon = !completionDeliveryStarted.get()
-                        && terminal.compareAndSet(false, true);
-                if (cancellationWon) {
-                    cancelled.set(true);
-                    sessionCancelled.set(true);
-                    recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
-                    recordDuration.run();
-                    trace.finishUnknown();
-                }
-                if (cancellationWon) {
-                    synchronized (readinessLock) { readinessLock.notifyAll(); }
-                    requestSessionCancellation.run();
-                }
-            }));
+            serverObserver.setOnCancelHandler(handleCancellation);
             // The call may already be cancelled before the handler is installed. Check
             // transport state as well so canceled work does not continue into parsing or
             // capability evaluation merely because the callback was not observed here.
@@ -901,8 +906,10 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
     }
 
     private static boolean isCancelled(StreamObserver<?> observer) {
-        return observer instanceof ServerCallStreamObserver<?> serverObserver
-                && serverObserver.isCancelled();
+        return io.grpc.Context.current().getDeadline() != null
+                        && io.grpc.Context.current().getDeadline().isExpired()
+                || observer instanceof ServerCallStreamObserver<?> serverObserver
+                        && serverObserver.isCancelled();
     }
 
     private <T> TracingObserver<T> startSynthesisTrace(StreamObserver<T> observer) {

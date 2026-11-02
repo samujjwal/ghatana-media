@@ -15,6 +15,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
+import io.grpc.Context;
+import io.grpc.Deadline;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -31,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,6 +46,11 @@ class MediaCanonicalOperationExecutorTest {
     private static final String SHA = "ab".repeat(32);
     private static final AuthenticatedPrincipal AUTH =
             new AuthenticatedPrincipal("tenant-a", "principal-a", Instant.now());
+    private static final ScheduledExecutorService DEADLINE_TIMER = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "multimodal-deadline-test");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     @Test
     void completedParentFusesAndSpecBindsArtifactDeclaredSourceClock() throws Exception {
@@ -74,6 +84,23 @@ class MediaCanonicalOperationExecutorTest {
                 .isInstanceOf(CanonicalOperationUnknownException.class)
                 .satisfies(error -> assertThat(
                         ((CanonicalOperationUnknownException) error).jobId()).isEqualTo("job-1"));
+    }
+
+    @Test
+    void callerDeadlineAfterSubmitReturnsUnknownWithJobIdInsteadOfLateSuccess() {
+        var port = new FixturePort().withSource(Map.of()).thenStatuses(JobStatus.RUNNING);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        Context request = Context.current().withDeadline(Deadline.after(150, TimeUnit.MILLISECONDS), DEADLINE_TIMER);
+        Context previous = request.attach();
+        try {
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation(), AUTH))
+                    .isInstanceOf(CanonicalOperationUnknownException.class)
+                    .satisfies(error -> assertThat(
+                            ((CanonicalOperationUnknownException) error).jobId()).isEqualTo("job-1"));
+            assertThat(port.submitted).hasSize(1);
+        } finally {
+            request.detach(previous);
+        }
     }
 
     @Test

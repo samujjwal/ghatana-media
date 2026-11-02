@@ -3,6 +3,7 @@ package com.ghatana.audio.video.multimodal.grpc;
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import io.grpc.Context;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
@@ -140,6 +141,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         // artifact; report UNKNOWN so callers do not blindly repeat the operation.
         final ProcessingJob submitted;
         try {
+            requireActiveRequest();
             submitted = port.submit(jobRequest, authenticated);
         } catch (MediaCapabilityNotAdmittedException | IllegalArgumentException provenNoEffect) {
             if (uploadAttempt.started) {
@@ -216,6 +218,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
      */
     private MediaArtifact ingest(CanonicalChildSelection selection, AuthenticatedPrincipal authenticated,
                                 InlineUploadAttempt uploadAttempt) {
+        requireActiveRequest();
         byte[] bytes = selection.inlineSource();
         String sha256 = sha256Hex(bytes);
         Map<String, Object> metadata = Map.of("purpose", "multimodal-operation-ingest");
@@ -230,12 +233,27 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         UploadSession session = port.beginUpload(uploadRequest, idempotencyKey, authenticated);
         int chunks = Math.max(1, (bytes.length + UPLOAD_CHUNK_BYTES - 1) / UPLOAD_CHUNK_BYTES);
         for (int index = 0; index < chunks; index++) {
+            requireActiveRequest();
             int offset = index * UPLOAD_CHUNK_BYTES;
             int length = Math.min(UPLOAD_CHUNK_BYTES, bytes.length - offset);
             byte[] chunk = java.util.Arrays.copyOfRange(bytes, offset, offset + length);
             session = port.appendUploadChunk(authenticated, session.uploadId(), index, chunk);
         }
+        requireActiveRequest();
         return port.completeUpload(authenticated, session.uploadId());
+    }
+
+    private static void requireActiveRequest() {
+        if (requestCancelledOrExpired()) {
+            throw new IllegalStateException(
+                    "RPC deadline/cancellation reached; stop child dispatch and reconcile any started effect");
+        }
+    }
+
+    private static boolean requestCancelledOrExpired() {
+        Context context = Context.current();
+        return context.isCancelled()
+                || context.getDeadline() != null && context.getDeadline().isExpired();
     }
 
     private static final class InlineUploadAttempt {
@@ -313,10 +331,12 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             AuthenticatedPrincipal authenticated, String jobId, Instant deadline)
             throws InterruptedException {
         while (true) {
+            if (requestCancelledOrExpired()) return CanonicalOperationOutcome.unknown(jobId);
             ProcessingJob current = port.job(
                             authenticated.tenantId(), authenticated.principalId(), jobId)
                     .orElseThrow(() -> new IllegalStateException(
                             "multimodal parent job is not readable by its principal"));
+            if (requestCancelledOrExpired()) return CanonicalOperationOutcome.unknown(jobId);
             switch (current.status()) {
                 case COMPLETED:
                     return CanonicalOperationOutcome.completed(jobId, current.result());
