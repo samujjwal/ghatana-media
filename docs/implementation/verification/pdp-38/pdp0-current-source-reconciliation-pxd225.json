@@ -5,7 +5,8 @@
   "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
   "sourceCut": {
     "workingTree": "CURRENT_SOURCE_CUT",
-    "sourceCount": 2
+    "sourceCount": 2,
+    "authorizedCurrentnessSuccessorCount": 1
   },
   "predecessorRefs": [
     "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json"
@@ -59,7 +60,7 @@
   },
   "currentSource": {
     "channelsPath": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
-    "channelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    "channelsSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
     "historicalReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
     "currentReviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",
     "semanticChange": "REMOVED_ABSENT_ARCHIVED_CHANNEL_EVIDENCE_LOCATOR_ONLY",
@@ -72,6 +73,38 @@
       "retainedPathCurrentTree": "PRESENT"
     },
     "channelRef": "media.channel.legacy-desktop",
+    "sourceProvenance": {
+      "locatorRemoval": {
+        "commit": "0f85319fcc28ed163341ba5027bfbc5b64137ddb",
+        "parentCommit": "f8816aede965d55c27005d5bab13bcb6ae376389",
+        "predecessorChannelsSha256": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+        "postimageChannelsSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+        "effect": "REMOVED_ABSENT_ARCHIVED_CHANNEL_EVIDENCE_LOCATOR_ONLY"
+      },
+      "authorizedTopologySuccessor": {
+        "recordRef": "docs/implementation/observations/media-discovery-topology-56-surface-successor-2026-10-31.json",
+        "recordSha256": "36fd5d406516013d167f939c00820ee3554242185c723c500fb0345ccb87ef0e",
+        "commit": "86dbc4b1efaabb1f8a7c63d7ee5839d0a9176f8c",
+        "parentCommit": "8e470c5dbd837c4c44429bc9d6aba6b6de51d313",
+        "parentChannelsSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
+        "postimageChannelsSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+        "decisionRef": ".product-experience/decision-log.md#PXD-207",
+        "decisionSectionSha256": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+        "denominator": {
+          "physicalSurfaces": {
+            "predecessor": 26,
+            "successor": 28
+          },
+          "totalSurfaceIdentities": {
+            "predecessor": 54,
+            "successor": 56
+          }
+        },
+        "excludedSurfaceRef": "media.physical.adapters-data-cloud-media",
+        "excludedPxd207ExtensionCount": 7,
+        "meaningChange": "NO_PDP0_MEANING_CHANGE"
+      }
+    },
     "supportStatePreserved": {
       "definitionState": "historical-archive",
       "implementationState": "archived-source-only",
@@ -82,6 +115,6 @@
       "supportRule": "Archive retention preserves source history only; do not list as a supported current product channel."
     }
   },
-  "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
+  "decisionSectionSha256": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811",
   "decisionEffect": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed."
 }
