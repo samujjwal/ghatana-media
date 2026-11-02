@@ -247,6 +247,13 @@ public final class MediaSemanticObservationProjector {
             retentionPolicyRef = retentionPolicyRef.map(value -> requireText(value, "retentionPolicyRef"));
             trustGrade = requireToken(trustGrade, "trustGrade");
             sourceTimestamp = sourceTimestamp == null ? Optional.empty() : sourceTimestamp;
+            sourceTimestamp.filter(timestamp -> timestamp.status() == SourceMediaTimestamp.Status.UNKNOWN)
+                    .map(SourceMediaTimestamp::reason)
+                    .filter(reason -> reason.length() > MAX_CONTRACT_TEXT_LENGTH)
+                    .ifPresent(reason -> {
+                        throw new IllegalArgumentException("sourceTimestamp.reason must not exceed "
+                                + MAX_CONTRACT_TEXT_LENGTH + " characters");
+                    });
         }
     }
 

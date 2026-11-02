@@ -10,9 +10,13 @@ import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationC
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.DisclosureReadbackAuthority;
 import com.ghatana.audio.video.multimodal.datacloud.MediaObservationPublicationCoordinator.SourceReadbackAuthority;
 import com.ghatana.audio.video.multimodal.datacloud.MediaSemanticObservationProjector.MediaDerivedObservation;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +109,54 @@ class MediaObservationPublicationCoordinatorTest {
                 "privacy-service", "consent-4", "owner-1", "steward-1",
                 "CONFIDENTIAL", "CONFIDENTIAL", List.of("incident-investigation"),
                 "eu", Optional.of("retention-media-30d"), 91, "verified");
+    }
+
+    /** Reproduces the retired v1 binding format for durable-record migration regressions. */
+    private static String legacyV1FingerprintOf(MediaDerivedObservation o) {
+        StringBuilder canonical = new StringBuilder();
+        appendV1(canonical, "media.data-cloud-publication-binding.v1");
+        appendV1(canonical, o.tenantId());
+        appendV1(canonical, o.sourceTenantId());
+        appendV1(canonical, o.artifactId());
+        appendV1(canonical, o.requestedArtifactVersionId());
+        appendV1(canonical, o.sourceArtifactVersionId());
+        appendV1(canonical, o.observationId());
+        appendV1(canonical, o.observationType());
+        appendV1(canonical, o.redactedValue());
+        appendV1(canonical, o.observedAt().toString());
+        appendV1(canonical, o.recordedAt().toString());
+        appendV1(canonical, o.sourceSystem());
+        appendV1(canonical, o.sourceEventId());
+        appendV1(canonical, o.providerId());
+        appendV1(canonical, o.providerVersion());
+        appendV1(canonical, o.redactionDecisionRef());
+        appendV1(canonical, o.consentOwnerService());
+        appendV1(canonical, o.consentRef());
+        appendV1(canonical, o.ownerId());
+        appendV1(canonical, o.stewardId());
+        appendV1(canonical, o.sourceClassification());
+        appendV1(canonical, o.classification());
+        appendV1(canonical, Integer.toString(o.permittedPurposes().size()));
+        o.permittedPurposes().forEach(value -> appendV1(canonical, value));
+        appendV1(canonical, o.residency());
+        appendV1(canonical, o.retentionPolicyRef().orElse(""));
+        appendV1(canonical, Integer.toString(o.qualityScore()));
+        appendV1(canonical, o.trustGrade());
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            for (int index = 0; index < canonical.length(); index++) {
+                char codeUnit = canonical.charAt(index);
+                digest.update((byte) (codeUnit >>> 8));
+                digest.update((byte) codeUnit);
+            }
+            return "sha256:" + HexFormat.of().formatHex(digest.digest());
+        } catch (NoSuchAlgorithmException unavailable) {
+            throw new IllegalStateException("SHA-256 unavailable", unavailable);
+        }
+    }
+
+    private static void appendV1(StringBuilder target, String value) {
+        target.append(value.length()).append(':').append(value);
     }
 
     private static MediaObservationPublicationCoordinator coordinator(
@@ -472,7 +524,66 @@ class MediaObservationPublicationCoordinatorTest {
                 "CONFIDENTIAL", "CONFIDENTIAL", List.of("incident-investigation"),
                 "eu", Optional.of("retention-media-30d"), 91, "verified");
         assertThat(coordinator.publish(changedArtifact).outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+
+        MediaDerivedObservation changedSourceTiming = new MediaDerivedObservation(
+                "tenant-a", "tenant-a", "artifact-9", "artifact-v3", "artifact-v3",
+                "observation-3", "scene-label", "loading-dock",
+                OBSERVED_AT, OBSERVED_AT.plusSeconds(1), "vision-runtime", "event-7",
+                "clip-model", "clip-model-v7", "policy-redaction-2",
+                "privacy-service", "consent-4", "owner-1", "steward-1",
+                "CONFIDENTIAL", "CONFIDENTIAL", List.of("incident-investigation"),
+                "eu", Optional.of("retention-media-30d"), 91, "verified",
+                Optional.of(SourceMediaTimestamp.fromPts("90000", "1/90000")));
+        PublishResult changedTimingReplay = coordinator.publish(changedSourceTiming);
+        assertThat(changedTimingReplay.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(changedTimingReplay.receipt()).isEmpty();
         assertThat(publishes.get()).isEqualTo(1);
+    }
+
+    @Test
+    void persistedV1FingerprintRecordsAndClaimsFailClosedWithoutRedispatch() {
+        MediaDerivedObservation source = observation("tenant-a", "event-v1", "artifact-v3");
+        String key = MediaObservationPublicationCoordinator.dedupKeyOf(source);
+        // V1 did not bind source timing, so this genuine legacy fingerprint
+        // cannot be accepted under the v2 binding.
+        String v1Fingerprint = legacyV1FingerprintOf(source);
+        AtomicInteger persistedRecordDispatches = new AtomicInteger();
+        InMemoryOutbox persistedRecordOutbox = new InMemoryOutbox();
+        persistedRecordOutbox.record(new Recorded(key, Outcome.PUBLISHED, "receipt-v1", v1Fingerprint));
+        PublishResult persistedRecordReplay = coordinator(SourceReadbackAuthority.Decision.ADMITTED,
+                (tenant, projection) -> {
+                    persistedRecordDispatches.incrementAndGet();
+                    return new PublicationReceipt("unexpected", "pub-v2");
+                }, persistedRecordOutbox).publish(source);
+        assertThat(persistedRecordReplay.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(persistedRecordReplay.receipt()).isEmpty();
+        assertThat(persistedRecordDispatches.get()).isZero();
+
+        AtomicInteger claimedRecordDispatches = new AtomicInteger();
+        MediaObservationPublicationCoordinator.PublicationOutbox v1ClaimOutbox =
+                new MediaObservationPublicationCoordinator.PublicationOutbox() {
+                    @Override public Optional<Recorded> find(String requestedKey) {
+                        return Optional.empty();
+                    }
+                    @Override public ClaimResult claim(String requestedKey, String legacyKey, String fingerprint) {
+                        return new ClaimResult(ClaimStatus.RECORDED,
+                                Optional.of(new Recorded(key, Outcome.PUBLISHED, "receipt-v1", v1Fingerprint)),
+                                v1Fingerprint);
+                    }
+                    @Override public void record(Recorded recorded) { }
+                };
+        var v1ClaimCoordinator = new MediaObservationPublicationCoordinator(
+                new MediaSemanticObservationProjector(),
+                (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                observation -> DisclosureReadbackAuthority.Decision.ADMITTED,
+                (tenant, projection) -> {
+                    claimedRecordDispatches.incrementAndGet();
+                    return new PublicationReceipt("unexpected", "pub-v2");
+                }, v1ClaimOutbox);
+        PublishResult claimedRecordReplay = v1ClaimCoordinator.publish(source);
+        assertThat(claimedRecordReplay.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
+        assertThat(claimedRecordReplay.receipt()).isEmpty();
+        assertThat(claimedRecordDispatches.get()).isZero();
     }
 
     @Test

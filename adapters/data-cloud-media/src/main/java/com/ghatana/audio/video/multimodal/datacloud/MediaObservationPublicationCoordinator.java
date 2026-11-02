@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.multimodal.datacloud;
 
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.ghatana.datacloud.semantic.OperationalSemanticContext.SemanticObject;
 
 import java.util.Objects;
@@ -201,7 +202,7 @@ public final class MediaObservationPublicationCoordinator {
     private static String bindingFingerprintOf(
             MediaSemanticObservationProjector.MediaDerivedObservation o) {
         StringBuilder canonical = new StringBuilder();
-        append(canonical, "media.data-cloud-publication-binding.v1");
+        append(canonical, "media.data-cloud-publication-binding.v2");
         append(canonical, o.tenantId());
         append(canonical, o.sourceTenantId());
         append(canonical, o.artifactId());
@@ -229,6 +230,8 @@ public final class MediaObservationPublicationCoordinator {
         append(canonical, o.retentionPolicyRef().orElse(""));
         append(canonical, Integer.toString(o.qualityScore()));
         append(canonical, o.trustGrade());
+        append(canonical, Boolean.toString(o.sourceTimestamp().isPresent()));
+        o.sourceTimestamp().ifPresent(timestamp -> appendSourceTimestamp(canonical, timestamp));
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             // Hash Java UTF-16 code units directly. UTF-8 encoders replace
@@ -246,6 +249,19 @@ public final class MediaObservationPublicationCoordinator {
 
     private static void append(StringBuilder target, String value) {
         target.append(value.length()).append(':').append(value);
+    }
+
+    private static void appendSourceTimestamp(StringBuilder target, SourceMediaTimestamp timestamp) {
+        append(target, timestamp.status().name());
+        appendNullable(target, timestamp.pts());
+        appendNullable(target, timestamp.timeBaseNumerator());
+        appendNullable(target, timestamp.timeBaseDenominator());
+        appendNullable(target, timestamp.timestampMs());
+        appendNullable(target, timestamp.reason());
+    }
+
+    private static void appendNullable(StringBuilder target, Object value) {
+        append(target, value == null ? "<null>" : value.toString());
     }
 
     /**

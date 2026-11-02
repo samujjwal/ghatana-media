@@ -104,6 +104,9 @@ class MediaSemanticObservationProjectorTest {
                 "stewardId must be a token");
         assertCandidateRejected(builder -> builder.residency = " ",
                 "residency is required and bounded");
+        assertCandidateRejected(builder -> builder.sourceTimestamp = Optional.of(
+                        SourceMediaTimestamp.unknown("r".repeat(513))),
+                "sourceTimestamp.reason must not exceed 512 characters");
     }
 
     @Test
@@ -176,9 +179,12 @@ class MediaSemanticObservationProjectorTest {
     @Test
     void unknownSourceTimestampDoesNotCreateSyntheticPtsFacts() {
         ObservationBuilder builder = new ObservationBuilder();
-        builder.sourceTimestamp = Optional.of(SourceMediaTimestamp.unknown("SOURCE_PTS_MISSING"));
+        String reason = " source pts missing: preserved verbatim ";
+        builder.sourceTimestamp = Optional.of(SourceMediaTimestamp.unknown(reason));
 
-        var projected = new MediaSemanticObservationProjector().project(builder.build());
+        MediaDerivedObservation observation = builder.build();
+        assertThat(observation.sourceTimestamp().orElseThrow().reason()).isEqualTo(reason);
+        var projected = new MediaSemanticObservationProjector().project(observation);
 
         assertThat(projected.facts()).extracting(OperationalSemanticContext.Fact::name)
                 .containsExactly("scene-label");
