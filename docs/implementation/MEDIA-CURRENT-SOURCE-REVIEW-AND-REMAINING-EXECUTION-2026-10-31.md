@@ -2494,3 +2494,17 @@ The updated `TranscriptionCacheIT` Redis/Testcontainers suite was not run becaus
 ```
 
 The four PDP matrix checks remain fail-closed at **18/188, 28/137, 20/157, and 21/367** stale pins; no status, pin, or projection changed. IP-06 still requires authentic deployed writer/history evidence and protected operator cutover. Cache scope authority, real Wave 2 provider/report inputs, original Wave 2/W3/H acceptance, lifecycle receipts, deployment, and release remain open.
+
+### 41.77 November 2 AS-04 concurrent frame-budget admission
+
+**AS-04 local race fix (`b8a365c4`):** a source review found that `BoundedAudioFrameDecoder.decode()` checked and updated per-session frame/byte counters without synchronization. Concurrent calls could both pass the budget check. The decoder now serializes validation, copy and counter update, and synchronizes budget readback. Two latch-based tests exercise the frame limit independently (`maxFrames=1`, `maxBytes=4`) and the byte limit independently (`maxFrames=2`, `maxBytes=2`); each admits exactly one of two concurrent 2-byte frames and keeps counters within budget. Independent Luna review found the implementation sound and required the separate byte-cap case, which is now included.
+
+The focused decoder suite passed **13/13**, with zero failures, errors or skips; `git diff --check` passed.
+
+```bash
+./gradlew :services:media:modules:audio-streaming:test \
+  --tests com.ghatana.audio.streaming.BoundedAudioFrameDecoderTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+This closes only concurrent local frame/byte budget admission in the decoder. OPUS remains `UNAVAILABLE`; no actual transport, stream rights/lease/reconnect, host-load tier, or real codec qualification is claimed. A read-only task-family audit found no further safe local delta in the reviewed Wave 2, H-02/JC-03/IP-06/currentness, Rust DSP, ledger/Data Cloud, SDK/type, and integration-task families beyond work already logged or owner/provider/host-gated. AT-02's exact authenticated-principal binding still requires the Tools runtime's trusted identity contract; agent/caller input is not authority. Original Wave 2 remains 22 verified / 30 partial / 6 external-owner, Wave 3 remains 84 active plus four retired OCR compatibility tasks, and H retains eight outcomes.
