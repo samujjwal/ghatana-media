@@ -1933,33 +1933,48 @@ semanticSource:
       those references or claim they exist. Source-binding fingerprint records
       and operation-resolution cardinalities are caller-owned evidence.
   resultSemantics:
-    CANDIDATE_PREPARED: Exact semantic-source bytes are digest-checked and the closed graph passes syntax, shape, and topology checks only; this does not resolve node refs or bind the graph to v3 execution admission.
+    CANDIDATE_PREPARED: Exact semantic-source bytes are digest-checked and the closed graph passes syntax, shape, and topology checks only; a separate source-bound candidate binder may join the graph to a v3 context by exact stepId keys, without proving operation compatibility or authorizing execution.
     operationResolutionBoundary: >-
       A caller-owned resolver supplies exact operation-reference resolution evidence.
       The compiler checks the supplied cardinality but does not prove resolver
       authority, source-currentness, or operation existence.
-    UNKNOWN: [ABSENT_GRAPH, UNKNOWN_NODE_KIND, UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING, SOURCE_BINDING_MISMATCH, INVALID_SEMANTIC_SOURCE_CONTENT, MISSING_DEPENDENCY, STEP_OPERATION_MAPPING_UNDEFINED]
+    UNKNOWN: [ABSENT_GRAPH, UNKNOWN_NODE_KIND, UNRESOLVED_OPERATION, AMBIGUOUS_OPERATION, UNRESOLVED_SOURCE_BINDING, SOURCE_BINDING_MISMATCH, INVALID_SEMANTIC_SOURCE_CONTENT, MISSING_DEPENDENCY]
     NOT_ADMITTED: [CYCLIC_GRAPH, EXECUTION_CONTEXT_MISMATCH]
     effect: No dispatch, job creation, project mutation, provider call, or admission decision is produced by semantic-source compilation.
   executionAdmissionMapping:
     target: executionAdmissionBinding
     version: media.production.execution-admission.v3
     relation: SEMANTIC_SOURCE_INPUT_TO_SEPARATE_EXECUTION_CONTEXT
-    stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
+    stepOperationMapping: OWNER_AUTHORED_EXACT_STEP_ID_JOIN_CANDIDATE_REVIEW_REQUIRED
     mappings:
       semanticSourceRefAndSha256: exact_resolved_source_ref_and_digest_checked_bytes
       graphStepIds: enginesByStep_keys_exactly
       sourceSceneRefs: each_node_subset_of_ProductionSpec_sceneRefs; sourceBindingsByScene_keys_exactly_ProductionSpec_sceneRefs
       manualLockTarget: each_declared_step_exactly_matches_editLocksByStep_scope_and_target; editLocksByStep_keys_exactly_declared_lock_steps
-      engineIdentity: each_node_exactly_uses_v3_engine_for_matching_stepId
-      semanticNodeOperationRef: exact_source_context_only; v3_has_no_operation_ref_field
+      engineIdentity: candidate_carries_v3_engine_entry_at_exact_matching_stepId_only; no_engine_operation_compatibility_claim
+      semanticNodeOperationRef: exact_operationRef_preserved_in_digest_bound_graph; caller_resolved_operation_evidence_required; v3_has_no_operation_ref_field
       artifactVersionRefs: source_bindings_and_existing_v3_authority_refs_only; no_implicit_authority
+    candidateFingerprint:
+      algorithm: SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS
+      orderedFields: [media.production.semantic-source-v3-candidate.v1, semanticSourceRef, semanticSourceSha256, normalizedGraphFingerprint, executionAdmissionBindingFingerprint]
+      outputField: SemanticCandidateBindResult.candidateFingerprint
+      status: DETERMINISTIC_EFFECT_FREE_CANDIDATE_IDENTITY_ONLY
     rule: >-
-      stepOperationMapping is NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE, as recorded
-      below in the v3 operation mapping. Therefore a structurally matching v3
-      envelope and arbitrary semantic graph remain UNKNOWN/NOT_ADMITTED; this
-      document does not claim a bound execution candidate. The source resolver
-      remains caller-owned. No v3 schema or bytes/API semantics are changed.
+      Each digest-bound semantic graph node is structurally joined to the v3
+      enginesByStep entry only when their exact stepId keys are identical.
+      The graph preserves its exact operationRef, resolved by caller-supplied
+      PDP-1 operation evidence; neither operationRef nor engine identity is
+      inferred from stepId or node kind. This creates an owner-authored,
+      effect-free candidate binding only: it does not prove resolver authority,
+      source-currentness, operation existence, or engine-operation compatibility,
+      and it does not admit runtime execution. Its deterministic
+      candidateFingerprint is SHA-256 over length-prefixed UTF-8 fields in
+      candidateFingerprint.orderedFields; the final fields are the normalized
+      graph fingerprint and the complete v3 binding fingerprint. Missing/extra
+      engine keys remain NOT_ADMITTED/EXECUTION_CONTEXT_MISMATCH; unresolved or
+      ambiguous operation evidence remains UNKNOWN. Candidate preparation
+      produces no dispatch, job, project mutation, provider call, or admission
+      decision. No v3 schema, bytes, or API semantics are changed.
   acceptance: DEFINITION_ONLY_NO_NEW_DATA_STORE
 
 executionAdmissionBinding:
@@ -2193,7 +2208,7 @@ executionAdmissionBinding:
         capture-source-{zeroBasedSceneIndex}: EXACT_SCENE_REF_AT_SAME_INPUT_INDEX
         render-profile-{zeroBasedOutputProfileIndex}: EXACT_OUTPUT_PROFILE_REF_AT_SAME_INPUT_INDEX
         allOtherSteps: NO_IMPLICIT_SCENE_OR_OUTPUT_LOCK_MAPPING; EFFECT_NOT_ADMITTED
-      stepOperationMapping: NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE
+      stepOperationMapping: EXACT_IDENTICAL_STEP_ID_JOIN_ONLY; OPERATION_COMPATIBILITY_UNPROVEN
     admissionContextBindingRules:
       engineByStep:
         keys: EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS
@@ -2226,7 +2241,7 @@ executionAdmissionBinding:
         conversions: RATIONAL_DIRECTIONAL_MAPPINGS_REQUIRED_FOR_EACH_CROSS_CLOCK_EFFECT
         missingOrAmbiguousMapping: NOT_ADMITTED
     operationInputCoverage:
-      scope: EFFECT_FREE_RESOLVED_CONTENT_FIXED_DAG_PROTOTYPE_ONLY
+      scope: EFFECT_FREE_RESOLVED_CONTENT_INSTANCE_BOUND_SEMANTIC_GRAPH_CANDIDATE; FIXED_DAG_API_REMAINS_A_LEGACY_PROTOTYPE
       typedProductionSpecInput: >-
         EXISTING_TYPED_PRODUCTION_SPEC_MIRROR_ACCEPTED; EXACT_INPUT1_VERSION_REF_BOUND_WHEN_SUPPLIED;
         RESOLVER_OVERLOAD_REQUIRES_THE_DECODED_INPUT1_VALUE_TO_STRUCTURALLY_EQUAL_THE_TYPED_MIRROR;
@@ -2242,8 +2257,46 @@ executionAdmissionBinding:
         AUTOMATIC_MATERIALIZATION_OF_THE_SHARED_PDP1_DEFS_CONTEXT_IS_NOT_IMPLEMENTED
       input3CompilerContract: >-
         EXACT_VERSIONED_REFERENCE_REQUIRED; RESOLVER_OVERLOAD_CHECKS_REFERENCE_ECHO_AND_SHA256_OF_RETURNED_BYTES;
-        CONTENT_REMAINS_OPAQUE_AND_DECLARED_STEP_KIND_INTERPRETATION_IS_NOT_IMPLEMENTED
-      notImplementedInputs: [input1-immutable-version-and-authorization-proof, input2-shared-definitions-context-materialization, input3-compiler-contract-schema-and-step-kind-semantics, input5-target-schema, input6-migration-transformation]
+        CONTENT_MUST_BE_A_CLOSED_MEDIA_PRODUCTION_COMPILER_CONTRACT_V1_INSTANCE_BOUND_TO_THE_EXACT_INPUT1_AND_INPUT2_REFS_AND_DIGESTS;
+        EXPLICIT_STEP_GRAPH_IS_NORMALIZED_WITHOUT_INFERRING_OPERATION_OR_KIND;
+        RESOLVER_AUTHORITY_AND_SOURCE_CURRENTNESS_REMAIN_UNPROVEN
+      input3CompilerContractSchema:
+        id: media.production.compiler-contract.v1
+        schema:
+          type: object
+          additionalProperties: false
+          required: [schemaVersion, targetProductionSpecRef, targetProductionSpecSha256, targetProductionSpecSchemaRef, targetProductionSpecSchemaSha256, steps]
+          properties:
+            schemaVersion: {const: media.production.compiler-contract.v1}
+            targetProductionSpecRef: {$ref: '#/semanticSource/schema/$defs/semanticVersionRef'}
+            targetProductionSpecSha256: {$ref: '#/semanticSource/schema/$defs/semanticSha256'}
+            targetProductionSpecSchemaRef: {$ref: '#/semanticSource/schema/$defs/semanticVersionRef'}
+            targetProductionSpecSchemaSha256: {$ref: '#/semanticSource/schema/$defs/semanticSha256'}
+            steps:
+              type: array
+              minItems: 1
+              maxItems: 512
+              items: {$ref: '#/semanticSource/schema/properties/nodes/items'}
+        candidateFingerprint:
+          algorithm: SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS
+          orderedFields: [media.production.semantic-graph-resolved-input-candidate.v1, productionSpecRef, productionSpecSha256, productionSpecByteLength, productionSpecSchemaRef, productionSpecSchemaSha256, productionSpecSchemaByteLength, compilerContractRef, compilerContractSha256, compilerContractByteLength, normalizedGraphFingerprint]
+          outputField: MediaProductionSemanticSource.CompilationResult.fingerprint
+          status: DETERMINISTIC_EFFECT_FREE_CANDIDATE_IDENTITY_ONLY
+        bindingRule: >-
+          targetProductionSpecRef/Sha256 and targetProductionSpecSchemaRef/Sha256 must equal the exact
+          resolver-confirmed input1/input2 references and byte digests. Steps are explicit per-instance
+          graph nodes; no template, label, stepId, implementation, kind, or engine identity is used to infer
+          an operation or step kind. The contract's own input3 reference and digest are included in the
+          normalized semantic graph fingerprint.
+        ownerAuthoredAssumption: >-
+          ProductionSpec v1 remains closed and unchanged. Because it carries no step array, input3 must
+          provide the complete explicit step graph for the exact input1/input2 identities and digests;
+          the compiler does not synthesize a graph from ProductionSpec labels or the legacy fixed plan.
+        nodeKindRule: DETERMINISTIC_OR_GENERATIVE_REQUIRED; UNKNOWN_OR_UNSUPPORTED_KIND_RETURNS_UNKNOWN
+        operationResolution: EXACT_OPERATION_REF_WITH_ONE_CALLER_SUPPLIED_RESOLUTION; AUTHORITY_AND_CURRENTNESS_UNPROVEN
+        sourceSceneRule: EVERY_STEP_SOURCE_SCENE_REF_MUST_BE_A_MEMBER_OF_EXACT_INPUT1_SCENE_REFS
+        effect: NO_DISPATCH_NO_JOB_NO_PROJECT_MUTATION_NO_PROVIDER_CALL
+      notImplementedInputs: [input1-immutable-version-and-authorization-proof, input2-shared-definitions-context-materialization, input3-resolver-authority-and-source-currentness, input5-target-schema, input6-migration-transformation]
       schemaMigrationCandidate: NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION
     sourceAndLockCoverage:
       authoritySourceVersionAndRightsDecisionToEachScene: EXACT_SCENE_KEYED_MAP_REQUIRED; COMPILE_CHECKED; EFFECT_RECHECK_REQUIRED
@@ -2262,5 +2315,5 @@ executionAdmissionBinding:
         cardinality: ONE_EXACT_SCENE_OR_OUTPUT_PER_MAPPED_EFFECT_STEP
         authorizesOtherTargetsInMultiScenePlan: false
       runtimeAdmission: NOT_ADMITTED_PENDING_INDEPENDENT_SOURCE_REVIEW_AND_AUTHORITY_BACKED_ADAPTER
-    sourceReviewRequirement: Independently review the owner-authored plan binding rules and exact source cut before any runtime admission.
+    sourceReviewRequirement: Independently review the owner-authored candidate binding rules and exact source cut before runtime admission; candidate preparation itself remains effect-free and NOT_ADMITTED.
 nonClaims: [no-new-operation-or-route, no-new-MediaProject-writer, no-scientific-solver-qualification, no-full-Discovery-exit, no-native-test-evidence]

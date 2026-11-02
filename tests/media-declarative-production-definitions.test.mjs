@@ -124,7 +124,30 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
     'render-profile-{zeroBasedOutputProfileIndex}', 'publish-review',
   ]);
   assert.equal(binding.operationSchemaRelation.planBindingRules.stepOperationMapping,
-    'NOT_DEFINED_BY_LOCAL_COMPILE_CANDIDATE');
+    'EXACT_IDENTICAL_STEP_ID_JOIN_ONLY; OPERATION_COMPATIBILITY_UNPROVEN');
+  assert.equal(binding.operationSchemaRelation.status, 'OWNER_AUTHORED_SOURCE_MAPPING_REVIEW_REQUIRED');
+  assert.equal(source.semanticSource.runtimeAdmission, 'NOT_ADMITTED');
+  assert.equal(source.semanticSource.resultSemantics.UNKNOWN.includes('STEP_ID_SET_MISMATCH'), false);
+  assert.equal(source.semanticSource.resultSemantics.NOT_ADMITTED.includes('EXECUTION_CONTEXT_MISMATCH'), true);
+  assert.equal(source.semanticSource.executionAdmissionMapping.stepOperationMapping,
+    'OWNER_AUTHORED_EXACT_STEP_ID_JOIN_CANDIDATE_REVIEW_REQUIRED');
+  assert.match(source.semanticSource.executionAdmissionMapping.rule,
+    /exact stepId keys are identical/);
+  assert.match(source.semanticSource.executionAdmissionMapping.rule,
+    /does not prove resolver authority/);
+  assert.match(source.semanticSource.executionAdmissionMapping.rule,
+    /engine-operation compatibility/);
+  assert.deepEqual(source.semanticSource.executionAdmissionMapping.candidateFingerprint, {
+    algorithm: 'SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS',
+    orderedFields: [
+      'media.production.semantic-source-v3-candidate.v1', 'semanticSourceRef', 'semanticSourceSha256',
+      'normalizedGraphFingerprint', 'executionAdmissionBindingFingerprint',
+    ],
+    outputField: 'SemanticCandidateBindResult.candidateFingerprint',
+    status: 'DETERMINISTIC_EFFECT_FREE_CANDIDATE_IDENTITY_ONLY',
+  });
+  assert.match(source.semanticSource.executionAdmissionMapping.rule,
+    /Candidate preparation produces no dispatch, job, project mutation, provider call, or admission decision/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input2ProductionSpecSchema,
     /EXACT_VERSIONED_REFERENCE_AND_SUPPLIED_PRODUCTION_SPEC_SCHEMA_VERSION_MUST_MATCH_SPEC_SCHEMA_VERSION/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input1Content,
@@ -136,10 +159,44 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
     /RESOLVER_OVERLOAD_CHECKS_REFERENCE_ECHO_AND_SHA256_OF_RETURNED_BYTES/);
   assert.match(binding.operationSchemaRelation.operationInputCoverage.input3CompilerContract,
-    /DECLARED_STEP_KIND_INTERPRETATION_IS_NOT_IMPLEMENTED/);
+    /CLOSED_MEDIA_PRODUCTION_COMPILER_CONTRACT_V1_INSTANCE_BOUND_TO_THE_EXACT_INPUT1_AND_INPUT2_REFS_AND_DIGESTS/);
+  const compilerContract = binding.operationSchemaRelation.operationInputCoverage.input3CompilerContractSchema;
+  assert.equal(compilerContract.id, 'media.production.compiler-contract.v1');
+  assert.equal(compilerContract.schema.type, 'object');
+  assert.equal(compilerContract.schema.additionalProperties, false);
+  assert.deepEqual(compilerContract.schema.required, [
+    'schemaVersion', 'targetProductionSpecRef', 'targetProductionSpecSha256',
+    'targetProductionSpecSchemaRef', 'targetProductionSpecSchemaSha256', 'steps',
+  ]);
+  assert.equal(compilerContract.schema.properties.schemaVersion.const, 'media.production.compiler-contract.v1');
+  assert.equal(compilerContract.schema.properties.steps.items.$ref,
+    '#/semanticSource/schema/properties/nodes/items');
+  assert.deepEqual(compilerContract.candidateFingerprint, {
+    algorithm: 'SHA256_OVER_LENGTH_PREFIXED_UTF8_FIELDS',
+    orderedFields: [
+      'media.production.semantic-graph-resolved-input-candidate.v1',
+      'productionSpecRef', 'productionSpecSha256', 'productionSpecByteLength',
+      'productionSpecSchemaRef', 'productionSpecSchemaSha256', 'productionSpecSchemaByteLength',
+      'compilerContractRef', 'compilerContractSha256', 'compilerContractByteLength',
+      'normalizedGraphFingerprint',
+    ],
+    outputField: 'MediaProductionSemanticSource.CompilationResult.fingerprint',
+    status: 'DETERMINISTIC_EFFECT_FREE_CANDIDATE_IDENTITY_ONLY',
+  });
+  assert.match(compilerContract.bindingRule,
+    /must equal the exact resolver-confirmed input1\/input2 references and byte digests/);
+  assert.match(compilerContract.bindingRule,
+    /no template, label, stepId, implementation, kind, or engine identity is used to infer/);
+  assert.match(compilerContract.ownerAuthoredAssumption,
+    /input3 must provide the complete explicit step graph/);
+  assert.equal(compilerContract.nodeKindRule,
+    'DETERMINISTIC_OR_GENERATIVE_REQUIRED; UNKNOWN_OR_UNSUPPORTED_KIND_RETURNS_UNKNOWN');
+  assert.equal(compilerContract.operationResolution,
+    'EXACT_OPERATION_REF_WITH_ONE_CALLER_SUPPLIED_RESOLUTION; AUTHORITY_AND_CURRENTNESS_UNPROVEN');
+  assert.equal(compilerContract.effect, 'NO_DISPATCH_NO_JOB_NO_PROJECT_MUTATION_NO_PROVIDER_CALL');
   assert.deepEqual(binding.operationSchemaRelation.operationInputCoverage.notImplementedInputs,
     ['input1-immutable-version-and-authorization-proof', 'input2-shared-definitions-context-materialization',
-      'input3-compiler-contract-schema-and-step-kind-semantics',
+      'input3-resolver-authority-and-source-currentness',
       'input5-target-schema', 'input6-migration-transformation']);
   assert.equal(binding.operationSchemaRelation.operationInputCoverage.schemaMigrationCandidate,
     'NOT_IMPLEMENTED; UNKNOWN_UNSUPPORTED_WITHOUT_A_SOURCE_DECLARED_SUPPORTED_TRANSFORMATION');

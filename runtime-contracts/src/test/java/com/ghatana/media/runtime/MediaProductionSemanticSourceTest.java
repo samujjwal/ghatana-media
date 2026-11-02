@@ -171,6 +171,8 @@ class MediaProductionSemanticSourceTest {
         assertThat(result.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::stepId)
                 .containsExactly("a-step", "z-step");
+        assertThat(result.nodes()).extracting(MediaProductionSemanticSource.NormalizedNode::operationRef)
+                .containsExactly(OP, OP);
         assertThat(result.nodes()).isEqualTo(repeat.nodes());
         assertThat(result.fingerprint()).isNotEqualTo(repeat.fingerprint()); // Different exact source bytes have different bindings.
         assertThat(result.fingerprint()).isEqualTo(identicalRepeat.fingerprint());
@@ -216,7 +218,7 @@ class MediaProductionSemanticSourceTest {
     }
 
     @Test
-    void arbitraryGraphIdsCannotBindToFixedV3PlanEvenWhenStepKeysAndLocksMatch() throws Exception {
+    void exactStepIdJoinPreparesCandidateWithoutClaimingFixedPlanCompatibility() throws Exception {
         var semantic = source(List.of(
                 boundNode("step-a", List.of(), List.of("scene/1@v3"),
                         Optional.of(new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3"))),
@@ -228,8 +230,20 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var base = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs, productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
-        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
-        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+        assertThat(base.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(base.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(base.candidateFingerprint()).startsWith("sha256:");
+
+        var identical = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs, productionSpec(), binding(null, D1),
+                allFingerprints, Map.of(OP, 1));
+        assertThat(identical.candidateFingerprint()).isEqualTo(base.candidateFingerprint());
+
+        var changedEngineDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs, productionSpec(), binding("step-b", D2),
+                allFingerprints, Map.of(OP, 1));
+        assertThat(changedEngineDigest.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(changedEngineDigest.candidateFingerprint()).isNotEqualTo(base.candidateFingerprint());
 
         var fixedPlanIds = List.of("validate-spec", "rights-review", "capture-source-0", "compose-timeline",
                 "render-profile-0", "publish-review");
@@ -242,6 +256,17 @@ class MediaProductionSemanticSourceTest {
                 allFingerprints, Map.of(OP, 1));
         assertThat(graphWithArbitraryIds.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
         assertThat(graphWithArbitraryIds.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(graphWithArbitraryIds.candidateFingerprint()).isNull();
+
+        // Exact key equality is required; an engine selection for a different step cannot bind by kind or position.
+        var mismatchedEngineKeys = binding(List.of("step-a", "step-b", "other-step"), Map.of("step-a",
+                new MediaProductionSemanticSource.LockTarget("SCENE", "scene/1@v3")), null, D1);
+        var mismatched = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs, productionSpec(), mismatchedEngineKeys,
+                allFingerprints, Map.of(OP, 1));
+        assertThat(mismatched.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.NOT_ADMITTED);
+        assertThat(mismatched.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(mismatched.candidateFingerprint()).isNull();
     }
 
     @Test
@@ -255,12 +280,14 @@ class MediaProductionSemanticSourceTest {
         var allFingerprints = resolvedWithSemanticSource(graphContent);
         var good = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, graphContent.fingerprint().sha256(),
                 inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
-        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
-        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+        assertThat(good.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
+        assertThat(good.candidateFingerprint()).startsWith("sha256:");
 
         var wrongDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, D3,
                 inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
         assertThat(wrongDigest.reason()).isEqualTo(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+        assertThat(wrongDigest.candidateFingerprint()).isNull();
 
         var noLock = new MediaProductionSemanticSource.Node("step-a", "DETERMINISTIC", OP,
                 List.of(), List.of("artifact/a@v1"), List.of(), List.of("scene/1@v3"), Optional.empty());
@@ -272,6 +299,21 @@ class MediaProductionSemanticSourceTest {
                 noLockContent.fingerprint().sha256(), inputs(), productionSpec(), binding(null, D1),
                 resolvedWithSemanticSource(noLockContent), Map.of(OP, 1));
         assertThat(mismatch.reason()).isEqualTo(MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH);
+        assertThat(mismatch.candidateFingerprint()).isNull();
+
+        var unresolved = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(null, D1),
+                allFingerprints, Map.of());
+        assertThat(unresolved.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
+        assertThat(unresolved.reason()).isEqualTo(MediaProductionSemanticSource.Reason.UNRESOLVED_OPERATION);
+        assertThat(unresolved.candidateFingerprint()).isNull();
+
+        var ambiguous = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(null, D1),
+                allFingerprints, Map.of(OP, 2));
+        assertThat(ambiguous.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.UNKNOWN);
+        assertThat(ambiguous.reason()).isEqualTo(MediaProductionSemanticSource.Reason.AMBIGUOUS_OPERATION);
+        assertThat(ambiguous.candidateFingerprint()).isNull();
     }
 
     @Test

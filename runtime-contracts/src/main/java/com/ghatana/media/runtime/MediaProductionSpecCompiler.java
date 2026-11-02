@@ -111,6 +111,7 @@ public final class MediaProductionSpecCompiler {
     public static final int MAX_SCENES = 256;
     public static final int MAX_OUTPUT_PROFILES = 64;
     public static final String PRODUCTION_SPEC_SCHEMA_VERSION = "media.declarative.value.production-spec.v1";
+    public static final String PRODUCTION_COMPILER_CONTRACT_SCHEMA_VERSION = "media.production.compiler-contract.v1";
 
     /** Typed spec — the Java mirror of media.declarative.value.production-spec.v1. */
     public record ProductionSpec(
@@ -394,6 +395,164 @@ public final class MediaProductionSpecCompiler {
         }
     }
 
+    /**
+     * Resolves the three canonical compile inputs and derives the normalized
+     * semantic graph from the exact instance-bound compiler contract. The
+     * resolver remains responsible for immutable-version lookup and authority;
+     * this method creates only an effect-free graph candidate.
+     */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
+            ProductionSpec typedSpec,
+            CompilationInputs inputs,
+            MediaVersionedContractContent.Resolver resolver,
+            Map<String, Integer> exactOperationResolutionCounts) {
+        return compileSemanticSourceFromResolvedInputs(typedSpec, inputs, null, resolver,
+                exactOperationResolutionCounts);
+    }
+
+    /** Resolves canonical inputs only after checking the optional exact revision assertion. */
+    public MediaProductionSemanticSource.CompilationResult compileSemanticSourceFromResolvedInputs(
+            ProductionSpec typedSpec,
+            CompilationInputs inputs,
+            String optionalProjectRevisionRef,
+            MediaVersionedContractContent.Resolver resolver,
+            Map<String, Integer> exactOperationResolutionCounts) {
+        Objects.requireNonNull(typedSpec, "typedSpec");
+        Objects.requireNonNull(inputs, "inputs");
+        Objects.requireNonNull(resolver, "resolver");
+        Objects.requireNonNull(exactOperationResolutionCounts, "exactOperationResolutionCounts");
+        requireInputSchemaVersion(typedSpec, inputs);
+        if (optionalProjectRevisionRef != null && !optionalProjectRevisionRef.equals(typedSpec.revisionId())) {
+            return new MediaProductionSemanticSource.CompilationResult(
+                    MediaProductionSemanticSource.Disposition.NOT_ADMITTED,
+                    MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH, List.of(), null);
+        }
+
+        final MediaVersionedContractContent.ResolvedContent specContent;
+        final MediaVersionedContractContent.ResolvedContent schemaContent;
+        final MediaVersionedContractContent.ResolvedContent compilerContent;
+        try {
+            // Each canonical operation input is resolved exactly once.
+            specContent = resolver.resolve(inputs.productionSpecRef());
+            schemaContent = resolver.resolve(inputs.productionSpecSchemaRef());
+            compilerContent = resolver.resolve(inputs.compilerContractRef());
+        } catch (RuntimeException unavailable) {
+            return semanticSourceFailure(MediaProductionSemanticSource.Reason.UNRESOLVED_SOURCE_BINDING);
+        }
+
+        var specFingerprint = checkedResolverFingerprint(inputs.productionSpecRef(), specContent);
+        var schemaFingerprint = checkedResolverFingerprint(inputs.productionSpecSchemaRef(), schemaContent);
+        var compilerFingerprint = checkedResolverFingerprint(inputs.compilerContractRef(), compilerContent);
+        if (specFingerprint == null || schemaFingerprint == null || compilerFingerprint == null) {
+            return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+        }
+        List<MediaVersionedContractContent.ResolvedContentFingerprint> resolved = List.of(
+                specFingerprint, schemaFingerprint, compilerFingerprint);
+
+        try {
+            validateProductionSpecContent(specContent.content(), schemaContent.content(), typedSpec);
+            CompilerContract contract = decodeCompilerContract(compilerContent.content());
+            if (!inputs.productionSpecRef().equals(contract.targetProductionSpecRef())
+                    || !specFingerprint.sha256().equals(contract.targetProductionSpecSha256())
+                    || !inputs.productionSpecSchemaRef().equals(contract.targetProductionSpecSchemaRef())
+                    || !schemaFingerprint.sha256().equals(contract.targetProductionSpecSchemaSha256())) {
+                return semanticSourceFailure(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);
+            }
+
+            Set<String> specSceneRefs = new HashSet<>(typedSpec.sceneRefs());
+            if (contract.steps().stream().anyMatch(step -> !specSceneRefs.containsAll(step.sourceSceneRefs()))) {
+                return new MediaProductionSemanticSource.CompilationResult(
+                        MediaProductionSemanticSource.Disposition.NOT_ADMITTED,
+                        MediaProductionSemanticSource.Reason.EXECUTION_CONTEXT_MISMATCH, List.of(), null);
+            }
+
+            var source = new MediaProductionSemanticSource(MediaProductionSemanticSource.SCHEMA_VERSION,
+                    new MediaProductionSemanticSource.SourceBindings(
+                            inputs.productionSpecRef(), specFingerprint.sha256(),
+                            inputs.productionSpecSchemaRef(), schemaFingerprint.sha256(),
+                            inputs.compilerContractRef(), compilerFingerprint.sha256()),
+                    contract.steps());
+            var graph = source.compileSyntaxCheckedGraphCandidate(inputs, resolved, exactOperationResolutionCounts);
+            if (graph.disposition() != MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) return graph;
+            StringBuilder candidateProjection = new StringBuilder();
+            appendSemanticField(candidateProjection, "media.production.semantic-graph-resolved-input-candidate.v1");
+            appendResolvedSemanticInput(candidateProjection, specFingerprint);
+            appendResolvedSemanticInput(candidateProjection, schemaFingerprint);
+            appendResolvedSemanticInput(candidateProjection, compilerFingerprint);
+            appendSemanticField(candidateProjection, graph.fingerprint());
+            return new MediaProductionSemanticSource.CompilationResult(graph.disposition(), graph.reason(), graph.nodes(),
+                    "sha256:" + sha256(candidateProjection.toString()));
+        } catch (IOException | RuntimeException invalidContractOrInputs) {
+            return semanticSourceFailure(MediaProductionSemanticSource.Reason.INVALID_SEMANTIC_SOURCE_CONTENT);
+        }
+    }
+
+    private record CompilerContract(
+            String targetProductionSpecRef,
+            String targetProductionSpecSha256,
+            String targetProductionSpecSchemaRef,
+            String targetProductionSpecSchemaSha256,
+            List<MediaProductionSemanticSource.Node> steps) {
+        private CompilerContract {
+            steps = List.copyOf(steps);
+        }
+    }
+
+    private static CompilerContract decodeCompilerContract(byte[] bytes) throws IOException {
+        JsonNode root = CONTRACT_JSON.readTree(strictUtf8(bytes));
+        requireExactFields(root, Set.of("schemaVersion", "targetProductionSpecRef", "targetProductionSpecSha256",
+                "targetProductionSpecSchemaRef", "targetProductionSpecSchemaSha256", "steps"));
+        if (!PRODUCTION_COMPILER_CONTRACT_SCHEMA_VERSION.equals(requiredText(root, "schemaVersion"))) {
+            throw new IllegalArgumentException("unsupported production compiler contract version");
+        }
+        JsonNode stepArray = root.get("steps");
+        if (stepArray == null || !stepArray.isArray() || stepArray.isEmpty()
+                || stepArray.size() > MediaProductionSemanticSource.MAX_NODES) {
+            throw new IllegalArgumentException("compiler contract steps are absent or outside the bound");
+        }
+        List<MediaProductionSemanticSource.Node> steps = new ArrayList<>(stepArray.size());
+        for (JsonNode step : stepArray) {
+            requireExactFields(step, Set.of("stepId", "kind", "operationRef", "inputArtifactVersionRefs",
+                    "outputArtifactVersionRefs", "dependsOn", "sourceSceneRefs", "manualLockTarget"));
+            JsonNode lockNode = step.get("manualLockTarget");
+            Optional<MediaProductionSemanticSource.LockTarget> lock;
+            if (lockNode == null || lockNode.isNull()) {
+                lock = Optional.empty();
+            } else {
+                requireExactFields(lockNode, Set.of("scopeKind", "targetRef"));
+                lock = Optional.of(new MediaProductionSemanticSource.LockTarget(
+                        requiredText(lockNode, "scopeKind"), requiredText(lockNode, "targetRef")));
+            }
+            steps.add(new MediaProductionSemanticSource.Node(requiredText(step, "stepId"),
+                    requiredText(step, "kind"), requiredText(step, "operationRef"),
+                    possiblyEmptyTextList(step, "inputArtifactVersionRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(step, "outputArtifactVersionRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(step, "dependsOn", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE),
+                    possiblyEmptyTextList(step, "sourceSceneRefs", MediaProductionSemanticSource.MAX_REFERENCES_PER_NODE), lock));
+        }
+        return new CompilerContract(requiredText(root, "targetProductionSpecRef"),
+                requiredText(root, "targetProductionSpecSha256"),
+                requiredText(root, "targetProductionSpecSchemaRef"),
+                requiredText(root, "targetProductionSpecSchemaSha256"), steps);
+    }
+
+    private static MediaVersionedContractContent.ResolvedContentFingerprint checkedResolverFingerprint(
+            String requestedRef, MediaVersionedContractContent.ResolvedContent resolved) {
+        if (resolved == null || !requestedRef.equals(resolved.versionRef())) return null;
+        try {
+            return MediaVersionedContractContent.verifyDigestChecked(requestedRef, resolved);
+        } catch (IllegalArgumentException invalidDigest) {
+            return null;
+        }
+    }
+
+    private static void appendResolvedSemanticInput(
+            StringBuilder target, MediaVersionedContractContent.ResolvedContentFingerprint input) {
+        appendSemanticField(target, input.versionRef());
+        appendSemanticField(target, input.sha256());
+        appendSemanticField(target, Integer.toString(input.byteLength()));
+    }
+
     private static ProductionSpec decodeProductionSpec(JsonNode node) {
         Set<String> fields = new HashSet<>();
         fields.addAll(node.propertyNames());
@@ -535,17 +694,33 @@ public final class MediaProductionSpecCompiler {
 
     public record SemanticCandidateBindResult(
             MediaProductionSemanticSource.Disposition disposition,
-            MediaProductionSemanticSource.Reason reason) {
+            MediaProductionSemanticSource.Reason reason,
+            String candidateFingerprint) {
+        public SemanticCandidateBindResult(
+                MediaProductionSemanticSource.Disposition disposition,
+                MediaProductionSemanticSource.Reason reason) {
+            this(disposition, reason, null);
+        }
+
         public SemanticCandidateBindResult {
             Objects.requireNonNull(disposition, "disposition");
             Objects.requireNonNull(reason, "reason");
+            if (disposition == MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED) {
+                if (candidateFingerprint == null || !candidateFingerprint.matches("sha256:[0-9a-f]{64}")) {
+                    throw new IllegalArgumentException("a prepared semantic candidate requires a SHA-256 fingerprint");
+                }
+            } else if (candidateFingerprint != null) {
+                throw new IllegalArgumentException("only a prepared semantic candidate may carry a fingerprint");
+            }
         }
     }
 
     /**
-     * Compares graph structure with the unchanged v3 context. PDP-1 leaves the
-     * step-to-operation mapping undefined and v3 names a fixed plan, so a
-     * structurally matching graph remains UNKNOWN and produces no bound candidate.
+     * Compares the digest-bound graph structure with the unchanged v3 context.
+     * The owner-authored mapping is an exact stepId join only. A successful
+     * result is an effect-free structural candidate fingerprint, not proof of
+     * resolver authority, operation existence/currentness, engine-operation
+     * compatibility, or runtime admission.
      */
     public SemanticCandidateBindResult bindSemanticSourceCandidate(
             Optional<MediaVersionedContractContent.ResolvedContent> sourceContent,
@@ -626,7 +801,14 @@ public final class MediaProductionSpecCompiler {
             }
         }
 
-        return failedSemanticBind(MediaProductionSemanticSource.Reason.STEP_OPERATION_MAPPING_UNDEFINED);
+        StringBuilder projection = new StringBuilder();
+        appendSemanticField(projection, "media.production.semantic-source-v3-candidate.v1");
+        appendSemanticField(projection, semanticSourceRef);
+        appendSemanticField(projection, semanticSourceSha256);
+        appendSemanticField(projection, graph.fingerprint());
+        appendSemanticField(projection, binding.fingerprint());
+        return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED,
+                MediaProductionSemanticSource.Reason.NONE, "sha256:" + sha256(projection.toString()));
     }
 
     private static SemanticCandidateBindResult failedSemanticBind(MediaProductionSemanticSource.Reason reason) {
