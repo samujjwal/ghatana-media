@@ -53,6 +53,108 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
     private static final int ADVISORY_LOCK_CLASS = 802406;
     private static final int ADVISORY_LOCK_ID = 6;
 
+    @Test
+    void childDeathAfterS3MultipartFinalizeBeforeArtifactMetadataRecoversOnSameKey(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-finalize-crash-" + runId;
+        String prefix = "ip06/finalize-crash/" + runId;
+        String tenant = "tenant-ip06-finalize-crash-" + runId;
+        String principal = "principal-ip06-finalize-crash-" + runId;
+        String application = "media-ip06-s3-finalize-crash-" + runId;
+        byte[] bytes = wav(("ip06-s3-finalize-crash-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        String sourceArtifactId = "source-" + runId;
+        String sourceVersion = "sha256:" + digest;
+        UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                digest, "RESTRICTED", Duration.ofDays(7),
+                Map.of("sourceArtifactId", sourceArtifactId, "sourceVersion", sourceVersion));
+        String fingerprint = MediaUploadRequestFingerprint.compute(request);
+        Map<String, String> environment = environment(bucket, prefix);
+        Path payloadFile = tempDir.resolve("finalize-crash-source.wav");
+        Path finalizedMarker = tempDir.resolve("s3-finalized.marker");
+        Path workerLog = tempDir.resolve("s3-finalize-worker.log");
+        Files.write(payloadFile, bytes);
+        createBucket(bucket);
+
+        String uploadId;
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+            UploadSession upload = store.begin(request, "ip06-finalize-crash-" + runId);
+            uploadId = upload.uploadId();
+            store.append(tenant, principal, uploadId, 0, bytes);
+        }
+
+        String finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/" + uploadId + "/" + digest;
+        String stagedKey = prefix + "/uploads/" + opaque(tenant) + "/" + uploadId + "/chunks/0";
+        try {
+            Process child = startWorker(environment, application, finalizedMarker, workerLog,
+                    "complete-after-s3-finalize", payloadFile, tenant, principal, uploadId);
+            try {
+                awaitMarker(child, finalizedMarker, "S3_FINALIZED", workerLog);
+                assertThat(objectExists(bucket, finalKey)).isTrue();
+                byte[] remotelyFinalized = getObject(bucket, finalKey);
+                assertThat(remotelyFinalized).containsExactly(bytes);
+                assertThat(sha256(remotelyFinalized)).isEqualTo(digest);
+
+                // The child is blocked immediately after LocalStack's successful S3 response,
+                // before complete() can scan or commit artifact metadata.
+                try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                     S3PostgresqlMediaArtifactStore observer = new S3PostgresqlMediaArtifactStore()) {
+                    assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+                    assertThat(tenantArtifactCount(tenant)).isZero();
+                    UploadSession pending = observer.upload(tenant, uploadId).orElseThrow();
+                    assertThat(pending.status().name()).isEqualTo("FINALIZING");
+                    assertThat(pending.status().name()).isNotEqualTo("COMPLETED");
+                    assertThat(objectExists(bucket, stagedKey)).isTrue();
+                }
+                child.destroyForcibly();
+                assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            } finally {
+                if (child.isAlive()) child.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+            }
+
+            // Force the durable finalization lease stale using this isolated database so recovery
+            // is deterministic and does not wait the production 15-minute lease interval.
+            try (Connection connection = databaseConnection(); var update = connection.prepareStatement(
+                    "UPDATE media_upload_sessions SET finalization_started_at=? WHERE tenant_id=? AND upload_id=?")) {
+                update.setLong(1, System.currentTimeMillis() - Duration.ofMinutes(16).toMillis());
+                update.setString(2, tenant);
+                update.setString(3, uploadId);
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+
+            // A new provider lifecycle on the same PostgreSQL and S3 state performs the same-key
+            // retry and verifies one tenant/source/digest/object-parity checked artifact.
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+                assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+                assertThat(restarted.upload(tenant, uploadId).orElseThrow().status().name())
+                        .isEqualTo("FINALIZING");
+                MediaArtifact recovered = restarted.complete(tenant, principal, uploadId);
+                String artifactId = recovered.artifactId();
+                assertThat(artifactIdForUpload(tenant, uploadId)).isEqualTo(artifactId);
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(recovered.metadata()).containsEntry("sourceArtifactId", sourceArtifactId)
+                        .containsEntry("sourceVersion", sourceVersion);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(restarted.artifact(tenant, artifactId)).contains(recovered);
+                assertThat(restarted.artifact("wrong-tenant-" + runId, artifactId)).isEmpty();
+                assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+                byte[] stored = getObject(bucket, finalKey);
+                assertThat(stored).containsExactly(bytes);
+                assertThat(sha256(stored)).isEqualTo(digest);
+                assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
+                assertThat(objectExists(bucket, stagedKey)).isFalse();
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:16-alpine"));
@@ -414,6 +516,87 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         }
     }
 
+    @Test
+    void lostS3FinalizeAcknowledgementReopensAndRetriesToOneParityCheckedArtifact() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-acklost-" + runId;
+        String prefix = "ip06/acklost/" + runId;
+        String tenant = "tenant-ip06-acklost-" + runId;
+        String principal = "principal-ip06-acklost-" + runId;
+        byte[] bytes = wav(("lost-s3-finalize-ack-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        createBucket(bucket);
+        AtomicReference<String> targetFinalKey = new AtomicReference<>();
+        AtomicBoolean loseFirstAcknowledgement = new AtomicBoolean(true);
+        AtomicInteger matchingFinalizeCalls = new AtomicInteger();
+        String uploadId;
+        String fingerprint;
+        String finalKey;
+        String stagedChunkKey;
+
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> completeThenLoseAcknowledgement(
+                                 delegate, targetFinalKey, loseFirstAcknowledgement, matchingFinalizeCalls, bucket));
+                 S3PostgresqlMediaArtifactStore firstStore = new S3PostgresqlMediaArtifactStore()) {
+                UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                        digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+                UploadSession upload = firstStore.begin(request, "ip06-acklost-" + runId);
+                uploadId = upload.uploadId();
+                firstStore.append(tenant, principal, uploadId, 0, bytes);
+                fingerprint = requestFingerprint(tenant, uploadId);
+                finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/" + uploadId + "/" + digest;
+                stagedChunkKey = prefix + "/uploads/" + opaque(tenant) + "/" + uploadId + "/chunks/0";
+                targetFinalKey.set(finalKey);
+
+                // LocalStack commits CompleteMultipartUpload, then the decorator loses
+                // its acknowledgement as a network failure would. The store cannot know
+                // whether the remote side effect happened and must leave metadata hidden.
+                assertThatThrownBy(() -> firstStore.complete(tenant, principal, uploadId))
+                        .isInstanceOf(S3Exception.class)
+                        .hasMessageContaining("lost S3 CompleteMultipartUpload acknowledgement");
+                assertThat(matchingFinalizeCalls).hasValue(1);
+                assertThat(artifactIdForUpload(tenant, uploadId)).isNull();
+                assertThat(tenantArtifactCount(tenant)).isZero();
+                assertThat(firstStore.upload(tenant, uploadId).orElseThrow().status().name())
+                        .isNotEqualTo("COMPLETED");
+                assertThat(objectExists(bucket, finalKey)).isTrue();
+                byte[] remoteCommittedBytes = getObject(bucket, finalKey);
+                assertThat(remoteCommittedBytes).containsExactly(bytes);
+                assertThat(sha256(remoteCommittedBytes)).isEqualTo(digest);
+                assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
+            }
+
+            // Close the provider lifecycle, reopen it against the same isolated DB, and
+            // retry the same upload. The one-shot lost ACK is cleared, so this cold
+            // provider readback must converge on one durable receipt.
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment,
+                         delegate -> completeThenLoseAcknowledgement(
+                                 delegate, targetFinalKey, loseFirstAcknowledgement, matchingFinalizeCalls, bucket));
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+                MediaArtifact recovered = restarted.complete(tenant, principal, uploadId);
+                String artifactId = recovered.artifactId();
+                assertThat(artifactIdForUpload(tenant, uploadId)).isEqualTo(artifactId);
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(objectKey(recovered.objectReference())).isEqualTo(finalKey);
+                assertThat(restarted.artifact(tenant, artifactId)).contains(recovered);
+                assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+                byte[] persistedBytes = getObject(bucket, objectKey(recovered.objectReference()));
+                assertThat(persistedBytes).containsExactly(bytes);
+                assertThat(sha256(persistedBytes)).isEqualTo(recovered.sha256());
+                assertThat(objectExists(bucket, stagedChunkKey)).isFalse();
+                assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
+            }
+            assertThat(matchingFinalizeCalls).hasValue(2);
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
     private static Process startWorker(Map<String, String> environment, String applicationName,
             Path marker, Path log, String operation, Path payload, String tenant, String principal,
             String uploadId) throws Exception {
@@ -423,6 +606,7 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         ProcessBuilder builder = new ProcessBuilder(java.toString(), "-cp", classpath,
                 MediaPostgresqlS3ProcessCrashWorker.class.getName(), operation, marker.toString(),
                 payload.toString(), tenant, principal, uploadId);
+        builder.environment().keySet().removeIf(key -> key.startsWith("MEDIA_"));
         builder.environment().putAll(environment);
         builder.environment().put("MEDIA_POSTGRES_JDBC_URL", withApplicationName(POSTGRES.getJdbcUrl(), applicationName));
         builder.redirectErrorStream(true);
@@ -632,6 +816,41 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
                                     .statusCode(503)
                                     .build();
                         }
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
+    }
+
+    private static S3Client completeThenLoseAcknowledgement(
+            S3Client delegate,
+            AtomicReference<String> targetKey,
+            AtomicBoolean loseAcknowledgement,
+            AtomicInteger matchingCalls,
+            String bucket) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("completeMultipartUpload") && arguments != null
+                            && arguments.length > 0
+                            && arguments[0] instanceof software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest request
+                            && bucket.equals(request.bucket()) && request.key().equals(targetKey.get())) {
+                        Object result;
+                        try {
+                            result = method.invoke(delegate, arguments);
+                        } catch (InvocationTargetException failure) {
+                            throw failure.getCause();
+                        }
+                        matchingCalls.incrementAndGet();
+                        if (loseAcknowledgement.compareAndSet(true, false)) {
+                            throw S3Exception.builder()
+                                    .message("injected IP-06 lost S3 CompleteMultipartUpload acknowledgement")
+                                    .statusCode(503)
+                                    .build();
+                        }
+                        return result;
                     }
                     try {
                         return method.invoke(delegate, arguments);
