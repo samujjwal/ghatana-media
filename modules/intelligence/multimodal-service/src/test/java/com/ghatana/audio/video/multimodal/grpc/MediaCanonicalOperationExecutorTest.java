@@ -57,6 +57,81 @@ class MediaCanonicalOperationExecutorTest {
     });
 
     @Test
+    void timeoutWinningDispatchGatePreventsLatePortAction() throws Exception {
+        var gate = new MediaCanonicalOperationExecutor.PortCallDispatchGate();
+        CountDownLatch workerAtDispatchBoundary = new CountDownLatch(1);
+        CountDownLatch releaseWorker = new CountDownLatch(1);
+        AtomicBoolean actionInvoked = new AtomicBoolean();
+        AtomicBoolean dispatchWon = new AtomicBoolean();
+
+        Thread worker = Thread.startVirtualThread(() -> {
+            workerAtDispatchBoundary.countDown();
+            awaitIgnoringInterrupts(releaseWorker);
+            if (gate.tryDispatch()) {
+                dispatchWon.set(true);
+                actionInvoked.set(true);
+            }
+        });
+        try {
+            assertThat(workerAtDispatchBoundary.await(1, TimeUnit.SECONDS)).isTrue();
+            // Models the caller observing its deadline while the worker has passed its
+            // initial budget check but has not yet crossed the actual effect boundary.
+            gate.closeBeforeDispatch();
+        } finally {
+            releaseWorker.countDown();
+            worker.join(1_000);
+        }
+
+        assertThat(worker.isAlive()).isFalse();
+        assertThat(dispatchWon).isFalse();
+        assertThat(actionInvoked).isFalse();
+        assertThat(gate.dispatched()).isFalse();
+    }
+
+    @Test
+    void deadlineBeforeInlineUploadDispatchDoesNotMarkEffectStartedOrCallPort() throws Exception {
+        byte[] payload = "deadline-before-upload-dispatch".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        var port = new FixturePort().withSource(Map.of());
+        CountDownLatch beforeUploadDispatch = new CountDownLatch(1);
+        CountDownLatch releaseUploadDispatch = new CountDownLatch(1);
+        CountDownLatch uploadDispatchResumed = new CountDownLatch(1);
+        AtomicInteger portCallCount = new AtomicInteger();
+        ThreadPoolExecutor workers = new ThreadPoolExecutor(
+                1, 1, 0, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1));
+        var executor = new MediaCanonicalOperationExecutor(
+                port, Duration.ofMillis(180), Duration.ofMillis(5), workers, () -> {
+                    if (portCallCount.incrementAndGet() == 2) {
+                        beforeUploadDispatch.countDown();
+                        awaitIgnoringInterrupts(releaseUploadDispatch);
+                        uploadDispatchResumed.countDown();
+                    }
+                });
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        Thread execution = Thread.startVirtualThread(() -> {
+            try {
+                executor.execute(binding(), "op", inlineOperation(payload), AUTH);
+            } catch (Throwable thrown) {
+                failure.set(thrown);
+            }
+        });
+
+        try {
+            assertThat(beforeUploadDispatch.await(1, TimeUnit.SECONDS)).isTrue();
+            execution.join(1_000);
+            assertThat(execution.isAlive()).isFalse();
+            assertThat(failure.get()).isInstanceOf(CanonicalOperationDeadlineExceededException.class);
+        } finally {
+            releaseUploadDispatch.countDown();
+            execution.join(1_000);
+            workers.shutdownNow();
+        }
+
+        assertThat(uploadDispatchResumed.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(port.uploads).isEmpty();
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
     void completedParentFusesAndSpecBindsArtifactDeclaredSourceClock() throws Exception {
         var port = new FixturePort().withSource(clockMetadata())
                 .thenStatuses(JobStatus.RUNNING, JobStatus.COMPLETED);
