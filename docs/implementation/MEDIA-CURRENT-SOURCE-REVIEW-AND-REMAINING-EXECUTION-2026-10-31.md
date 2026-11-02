@@ -1475,3 +1475,34 @@ An independent read-only Luna engineering review of the H-02 source at Media `ma
 
 The test-only V001–V016 source lineage was independently compared with the read-only historical `ghatana/services/media` checkout at commit `d62557fdaac7a324e036ca25f672d2a62ac532ea`: all 16 migration filenames and bytes match. The checked-in `test-snapshot.sql` and `applied-history.csv` remain reproducible synthetic PostgreSQL 16 fixture artifacts with `ip06-*` rows. No authentic installed-database history export was found in that legacy checkout. These materials support isolated compatibility tests only; they do not establish deployed schema history, an old-writer fence, or data cutover.
 
+### 41.26 November 2 focused continuation: H-02 guards, JC-03 cancellation and IP-06 migration recovery (2026-11-02)
+
+| Work unit | Implementation and fresh evidence | Remaining boundary |
+| --- | --- | --- |
+| **H-02 / local binding guards** | `MediaProductionAdmissionBinding` now rejects expired scene/output lock receipts before invoking the delegated project revision CAS, and requires worst-case and reserved amounts to use the same unit. The deterministic-time regression also verifies an expired receipt makes zero CAS calls. An independent Luna review of this exact local delta returned **ACCEPT WITH CONDITIONS** for effect-free Track A helper behavior. The combined focused `MediaProductionAdmissionBindingTest` passed **16/16**. | CAS must atomically revalidate lease ownership, epoch/fencing and project revision. Semantic step-to-operation mapping, authoritative resolver identity/currentness and durable MediaRuntime/JobAttempt dispatch/readback remain unresolved; PDP-1 remains unaccepted and runtime stays `NOT_ADMITTED`. The review is advisory engineering disposition, not an authorized PDP-1 phase decision. |
+| **JC-03 / pre-dispatch cancellation and queue recovery** | `RpcDeadlineServerInterceptor` now distinguishes an already-cancelled caller from an elapsed deadline before dispatch (`CANCELLED` versus `DEADLINE_EXCEEDED`). All four production gRPC servers compose the common interceptor chain. In the canonical multimodal executor, cancellation that wins before dispatch removes the queued call immediately and reports known no-effect `CANCELLED`; started work keeps its worker slot and effect-capable uncertainty remains `UNKNOWN`. The combined focused suites passed `RpcDeadlineServerInterceptorTest` **13/13**, `MediaCanonicalOperationExecutorTest` **26/26**, and `MultimodalGrpcFinalitySurfaceTest` **9/9**. | Hard termination for noncooperative/native work, installed-client/server qualification, and durable same-key operation readback are still required for JC-03 whole-row acceptance. These tests use local interceptors/ports and do not prove a real provider effect. |
+| **IP-06 / interrupted forward migration** | `Ip06LegacyMigrationCompatibilityTest` now injects a SQL fault into a temporary V021 copy, verifies PostgreSQL rolls the failed migration back while V017–V020 and synthetic legacy rows remain intact, restores the exact checked-in V021 bytes, applies V021–V029 through a fresh Flyway instance, then verifies a second migration run is a no-op. The focused IP-06 class passed **2/2** on PostgreSQL 16. The test-only snapshot, applied-history CSV and 16-file manifest checksums were rechecked against the recorded SHA-256 values. | This is an isolated Testcontainers replay over synthetic `ip06-*` rows. It does not provide authentic deployed `flyway_schema_history`, old-writer fencing, production cutover or operator-authorized rollback/restore evidence. Keep those gates closed. |
+| **Media DI OCR consumer / Kernel #99** | Read-only review found the Media Vision path remains DI-only and checks source/version/digest/rights around dispatch. No Media patch was made: the canonical `MediaProcessingRuntimePort` has no durable operation-identity reservation API, so production composition continues to fail closed before DI parse rather than inventing an in-memory or duplicate authority. | Kernel provider security and durable restart readback remain owned by Kernel; its Discovery barrier and DI public-client/attribution qualification remain open. Do not implement a Media OCR engine or alter frozen DI v1 wire fields. |
+
+The combined focused command selected the common interceptor (13), H-02 binding (16), multimodal executor/finality (35), Media DI consumer (51), and IP-06 migration compatibility (2): **117 passed, 0 failed, 0 skipped**. `git diff --check` passes. The V001–V016 artifacts are linked and described in §41.25; they are reproducible test inputs, not deployed-history evidence.
+
+```bash
+./gradlew -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=launcher,multimodal \
+  :services:media:libs:common:test --tests com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptorTest \
+  :services:media:runtime-contracts:test --tests com.ghatana.media.runtime.MediaProductionAdmissionBindingTest \
+  :services:media:modules:intelligence:multimodal-service:test \
+    --tests com.ghatana.audio.video.multimodal.grpc.MediaCanonicalOperationExecutorTest \
+    --tests com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcFinalitySurfaceTest \
+  :services:media:modules:vision:vision-service:test \
+    --tests com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionServiceTest \
+    --tests com.ghatana.audio.video.vision.scenetext.MediaRuntimeSceneTextSourceTest \
+    --tests com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceHttpClientTest \
+  :services:media:providers:aws-postgresql:test \
+    --tests com.ghatana.media.provider.aws.Ip06LegacyMigrationCompatibilityTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+```
+
+The read-only PDP matrix checks were also rerun after this continuation: PDP-0 `--check` exits 0 while its source status remains stale; PDP-1, PDP-2 and PDP-3 `--check` still fail with their prescribed “regenerate after status settles” diagnostics. No projection or pin was regenerated. The latest exact known stale-source counts and owner-disposition dependencies remain in §41.24.
+
+No PDP source status, owner decision, matrix projection, phase receipt, provider qualification, database writer fence, production cutover, or release state changed in this continuation.
+

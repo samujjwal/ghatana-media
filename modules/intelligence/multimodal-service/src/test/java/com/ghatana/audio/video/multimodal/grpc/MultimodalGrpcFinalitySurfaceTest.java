@@ -114,6 +114,19 @@ class MultimodalGrpcFinalitySurfaceTest {
     }
 
     @Test
+    void knownNoEffectCallerCancellationMapsToSanitizedCancelled() throws Exception {
+        start(executorThrowing(new CanonicalOperationCancelledException(
+                new IllegalStateException("private adapter detail"))));
+        assertThatThrownBy(() -> stub().processMultimodal(request()))
+                .isInstanceOfSatisfying(StatusRuntimeException.class, error -> {
+                    assertThat(error.getStatus().getCode()).isEqualTo(Status.Code.CANCELLED);
+                    assertThat(error.getStatus().getDescription())
+                            .isEqualTo("MULTIMODAL_OPERATION_CANCELLED_BEFORE_DISPATCH")
+                            .doesNotContain("private adapter detail");
+                });
+    }
+
+    @Test
     void localPortCapacityRefusalMapsToSanitizedResourceExhausted() throws Exception {
         start(executorThrowing(new CanonicalOperationResourceExhaustedException(
                 new IllegalStateException("private queue detail"))));

@@ -61,6 +61,42 @@ class Ip06LegacyMigrationCompatibilityTest {
         probeLegacyToCurrentForwardSql("ip06_forward_probe", tempDir);
     }
 
+    @Test
+    void forwardMigrationRollsBackFailedVersionAndResumesWithPinnedBytes(@TempDir Path tempDir)
+            throws Exception {
+        String schema = "ip06_interrupted_forward";
+        Path currentTail = copyCurrentTail(tempDir);
+        assertThat(flyway(LEGACY_LOCATION, schema, null).migrate().migrationsExecuted).isEqualTo(16);
+        seedLegacyRows(schema);
+
+        String location = LEGACY_LOCATION + ",filesystem:" + currentTail.toAbsolutePath();
+        Path v021 = currentTail.resolve(CURRENT_TAIL[4]);
+        byte[] pinnedV021 = Files.readAllBytes(v021);
+        byte[] injectedFailure = "\nSELECT 1 / 0; -- test-only migration fault\n"
+                .getBytes(StandardCharsets.UTF_8);
+        byte[] failingV021 = java.util.Arrays.copyOf(pinnedV021, pinnedV021.length + injectedFailure.length);
+        System.arraycopy(injectedFailure, 0, failingV021, pinnedV021.length, injectedFailure.length);
+        Files.write(v021, failingV021);
+
+        Throwable migrationFailure = catchThrowable(() -> flyway(location, schema, "29").migrate());
+
+        assertThat(migrationFailure).isNotNull();
+        assertAppliedHistory(schema, 20);
+        assertLegacyRowsUnchanged(schema);
+
+        // Remove the test-only SQL fault so retry runs the exact checked-in V021 source bytes.
+        // PostgreSQL must roll back the failed V021 transaction while keeping V017..V020.
+        Files.write(v021, pinnedV021);
+        // A fresh Flyway instance represents process recovery from the durable boundary. It
+        // applies only V021..V029, keeps the legacy rows, and is idempotent.
+        assertThat(flyway(location, schema, "29").migrate().migrationsExecuted).isEqualTo(9);
+        assertAppliedHistory(schema, 29);
+        assertLegacyRowsUnchanged(schema);
+        assertThat(flyway(location, schema, "29").migrate().migrationsExecuted).isZero();
+        assertAppliedHistory(schema, 29);
+        assertLegacyRowsUnchanged(schema);
+    }
+
     private static void applyLegacyAndAssertHistory(String schema) throws Exception {
         Flyway legacy = flyway(LEGACY_LOCATION, schema, null);
         assertThat(legacy.migrate().migrationsExecuted).isEqualTo(16);
@@ -121,15 +157,7 @@ class Ip06LegacyMigrationCompatibilityTest {
     }
 
     private static void probeLegacyToCurrentForwardSql(String schema, Path tempDir) throws Exception {
-        Path currentTail = Files.createDirectories(tempDir.resolve("current-tail"));
-        for (int version = 17; version <= 29; version++) {
-            String resource = CURRENT_TAIL[version - 17];
-            try (var input = Ip06LegacyMigrationCompatibilityTest.class.getResourceAsStream(
-                    "/db/media-runtime/" + resource)) {
-                assertThat(input).as(resource).isNotNull();
-                Files.copy(input, currentTail.resolve(resource));
-            }
-        }
+        Path currentTail = copyCurrentTail(tempDir);
         assertThat(flyway(LEGACY_LOCATION, schema, null).migrate().migrationsExecuted).isEqualTo(16);
         seedLegacyRows(schema);
         Flyway forward = flyway(LEGACY_LOCATION + ",filesystem:" + currentTail.toAbsolutePath(), schema, "29");
@@ -142,6 +170,39 @@ class Ip06LegacyMigrationCompatibilityTest {
             rows.next();
             assertThat(rows.getLong(1)).isEqualTo(29);
         }
+        assertLegacyRowsUnchanged(schema);
+    }
+
+    private static Path copyCurrentTail(Path tempDir) throws Exception {
+        Path currentTail = Files.createDirectories(tempDir.resolve("current-tail"));
+        for (int version = 17; version <= 29; version++) {
+            String resource = CURRENT_TAIL[version - 17];
+            try (var input = Ip06LegacyMigrationCompatibilityTest.class.getResourceAsStream(
+                    "/db/media-runtime/" + resource)) {
+                assertThat(input).as(resource).isNotNull();
+                Files.copy(input, currentTail.resolve(resource));
+            }
+        }
+        return currentTail;
+    }
+
+    private static void assertAppliedHistory(String schema, int expectedCount) throws Exception {
+        try (Connection connection = connection();
+             var statement = connection.createStatement();
+             ResultSet rows = statement.executeQuery(
+                     "SELECT version::integer, success FROM " + schema
+                             + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
+            int version = 0;
+            while (rows.next()) {
+                version++;
+                assertThat(rows.getInt("version")).isEqualTo(version);
+                assertThat(rows.getBoolean("success")).isTrue();
+            }
+            assertThat(version).isEqualTo(expectedCount);
+        }
+    }
+
+    private static void assertLegacyRowsUnchanged(String schema) throws Exception {
         try (Connection connection = connection()) {
             assertThat(stringValue(connection, "SELECT sha256 FROM " + schema
                     + ".media_artifacts WHERE artifact_id='ip06-artifact'")).isEqualTo(
@@ -194,6 +255,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 .locations(location.split(","))
                 .schemas(schema)
                 .defaultSchema(schema)
+                .group(false)
                 .validateMigrationNaming(true);
         if (target != null) configuration = configuration.target(target);
         return configuration.load();

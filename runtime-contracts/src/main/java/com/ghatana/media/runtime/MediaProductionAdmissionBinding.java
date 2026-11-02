@@ -176,8 +176,20 @@ public final class MediaProductionAdmissionBinding {
     /** Atomic scoped lock claim delegated to the existing project/job authority. */
     public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
             ProjectEditLockCas authority) {
+        return acquireEditLocks(binding, plan, authority, Instant.now());
+    }
+
+    /**
+     * Deterministic form for callers that already have the authority read time.
+     * Expired lock receipts are rejected before the project revision CAS is
+     * invoked; the authority must still revalidate lease ownership and fencing
+     * atomically with the revision claim.
+     */
+    public static boolean acquireEditLocks(Binding binding, MediaProductionSpecCompiler.CompiledPlan plan,
+            ProjectEditLockCas authority, Instant observedAt) {
         Objects.requireNonNull(binding, "binding");
         Objects.requireNonNull(plan, "plan");
+        Objects.requireNonNull(observedAt, "observedAt");
         if (!MediaProductionSpecCompiler.isCompilerIssued(plan)) {
             fail(AdmissionFailure.PLAN_PROVENANCE_INVALID);
         }
@@ -202,7 +214,8 @@ public final class MediaProductionAdmissionBinding {
             EditLock lock = binding.editLocksByStep().get(expected.getKey());
             if (!expected.getValue().equals(lock.scopeKind()) || node.versionRefs().size() != 1
                     || !node.versionRefs().getFirst().equals(lock.targetRef())
-                    || !binding.authority().principalId().equals(lock.ownerPrincipalId())) {
+                    || !binding.authority().principalId().equals(lock.ownerPrincipalId())
+                    || !lock.expiresAt().isAfter(observedAt)) {
                 fail(AdmissionFailure.EDIT_LOCK_INVALID);
             }
         }

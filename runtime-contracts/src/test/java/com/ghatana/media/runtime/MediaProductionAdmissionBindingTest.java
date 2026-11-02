@@ -543,6 +543,12 @@ class MediaProductionAdmissionBindingTest {
                 new BoundedAmount(1, "cpu-ms"), new BoundedAmount(1, "cpu-ms"),
                 new BoundedAmount(1, "wall-ms"), new BoundedAmount(1, "wall-ms")))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Reservation("quote/v1", "tariff/v1", "reservation-v1",
+                new BoundedAmount(10, "usd-micros"), new BoundedAmount(10, "usd-cents"),
+                new BoundedAmount(1, "cpu-ms"), new BoundedAmount(1, "cpu-ms"),
+                new BoundedAmount(1, "wall-ms"), new BoundedAmount(1, "wall-ms")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("same unit");
     }
 
     @Test
@@ -654,6 +660,31 @@ class MediaProductionAdmissionBindingTest {
                 foreignLocks, b.clocks(), b.sourceBindingsByScene());
         var foreignPlan = compiler.compile(spec, foreignOwner);
         assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(foreignOwner, foreignPlan, cas))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);
+        assertThat(casCalls).hasValue(0);
+    }
+
+    @Test
+    void editLockCasRejectsExpiredManualEditLocksBeforeCallingAuthority() {
+        Binding base = binding(SHA);
+        Map<String, EditLock> expiredLocks = new java.util.TreeMap<>(base.editLocksByStep());
+        expiredLocks.replaceAll((step, lock) -> new EditLock(lock.scopeKind(), lock.targetRef(),
+                lock.ownerPrincipalId(), lock.leaseId(), lock.epoch(), NOW));
+        Binding expired = new Binding(base.schemaVersion(), base.projectId(), base.expectedProjectRevision(),
+                base.requestIdentity(), base.enginesByStep(), base.provider(), base.reservation(), base.authority(),
+                expiredLocks, base.clocks(), base.sourceBindingsByScene());
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7", "REAL_CAPTURE",
+                "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1", List.of("profile/v1"));
+        var plan = new MediaProductionSpecCompiler().compile(spec, expired);
+        AtomicInteger casCalls = new AtomicInteger();
+
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.acquireEditLocks(expired, plan,
+                (project, revision, locks) -> {
+                    casCalls.incrementAndGet();
+                    return true;
+                }, NOW))
                 .isInstanceOf(AdmissionException.class)
                 .extracting(error -> ((AdmissionException) error).failure())
                 .isEqualTo(AdmissionFailure.EDIT_LOCK_INVALID);

@@ -434,11 +434,13 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             future = portCallWorkers.submit(budget.context.wrap(() -> {
                 if (!budget.isActive()) {
                     dispatchGate.closeBeforeDispatch();
-                    throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, null);
+                    throwCallOutcome(budget.context, kind, jobId,
+                            dispatchGate.dispatched(), priorEffectStarted, null);
                 }
                 beforePortCallDispatch.run();
                 if (!dispatchGate.tryDispatch()) {
-                    throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, null);
+                    throwCallOutcome(budget.context, kind, jobId,
+                            dispatchGate.dispatched(), priorEffectStarted, null);
                 }
                 if (onDispatch != null) onDispatch.run();
                 return action.call();
@@ -451,40 +453,40 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         }
 
         Context.CancellationListener cancelChild = ignored -> {
-            dispatchGate.closeBeforeDispatch();
-            future.cancel(true);
+            cancelPortCall(future, dispatchGate);
         };
         budget.context.addListener(cancelChild, Runnable::run);
         try {
             long remainingNanos = budget.remainingNanos();
             if (remainingNanos <= 0) {
-                dispatchGate.closeBeforeDispatch();
-                future.cancel(true);
-                throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, null);
+                cancelPortCall(future, dispatchGate);
+                throwCallOutcome(budget.context, kind, jobId,
+                        dispatchGate.dispatched(), priorEffectStarted, null);
             }
             T value = future.get(remainingNanos, TimeUnit.NANOSECONDS);
             if (!budget.isActive()) {
-                dispatchGate.closeBeforeDispatch();
-                future.cancel(true);
-                throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, null);
+                cancelPortCall(future, dispatchGate);
+                throwCallOutcome(budget.context, kind, jobId,
+                        dispatchGate.dispatched(), priorEffectStarted, null);
             }
             return value;
         } catch (TimeoutException | CancellationException expired) {
-            dispatchGate.closeBeforeDispatch();
-            future.cancel(true);
-            throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, expired);
+            cancelPortCall(future, dispatchGate);
+            throwCallOutcome(budget.context, kind, jobId,
+                    dispatchGate.dispatched(), priorEffectStarted, expired);
             throw new AssertionError("unreachable");
         } catch (InterruptedException interrupted) {
-            dispatchGate.closeBeforeDispatch();
-            future.cancel(true);
+            cancelPortCall(future, dispatchGate);
             Thread.currentThread().interrupt();
-            throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, interrupted);
+            throwCallOutcome(budget.context, kind, jobId,
+                    dispatchGate.dispatched(), priorEffectStarted, interrupted);
             throw new AssertionError("unreachable");
         } catch (ExecutionException failed) {
             Throwable cause = failed.getCause() == null ? failed : failed.getCause();
             if (!budget.isActive()) {
                 dispatchGate.closeBeforeDispatch();
-                throwCallOutcome(kind, jobId, dispatchGate.dispatched(), priorEffectStarted, cause);
+                throwCallOutcome(budget.context, kind, jobId,
+                        dispatchGate.dispatched(), priorEffectStarted, cause);
             }
             if (kind == PortCallKind.SUBMIT
                     && cause instanceof MediaCapabilityNotAdmittedException notAdmitted
@@ -508,14 +510,32 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         }
     }
 
+    /**
+     * Cancels a port-call task and immediately removes it only when cancellation won
+     * before dispatch. A started callable keeps its worker slot until it actually exits;
+     * interrupting it is not treated as proof that native or blocked work stopped.
+     */
+    private void cancelPortCall(Future<?> future, PortCallDispatchGate dispatchGate) {
+        boolean cancelledBeforeDispatch = dispatchGate.closeBeforeDispatch();
+        future.cancel(true);
+        if (cancelledBeforeDispatch && future instanceof Runnable queuedTask) {
+            portCallWorkers.remove(queuedTask);
+        }
+    }
+
     private static void throwCallOutcome(
-            PortCallKind kind, String jobId, boolean dispatched, boolean priorEffectStarted, Throwable cause)
+            Context context, PortCallKind kind, String jobId,
+            boolean dispatched, boolean priorEffectStarted, Throwable cause)
             throws CanonicalOperationUnknownException {
         if (kind == PortCallKind.READBACK || kind == PortCallKind.SUBMIT
                 && (dispatched || priorEffectStarted)
                 || kind == PortCallKind.EFFECT
                 && (dispatched || priorEffectStarted)) {
             throw new CanonicalOperationUnknownException(jobId, cause);
+        }
+        if (context.isCancelled()
+                && (context.getDeadline() == null || !context.getDeadline().isExpired())) {
+            throw new CanonicalOperationCancelledException(cause);
         }
         throw new CanonicalOperationDeadlineExceededException(cause);
     }
@@ -533,8 +553,8 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             return state.compareAndSet(WAITING, DISPATCHED);
         }
 
-        void closeBeforeDispatch() {
-            state.compareAndSet(WAITING, CLOSED);
+        boolean closeBeforeDispatch() {
+            return state.compareAndSet(WAITING, CLOSED);
         }
 
         boolean dispatched() {
@@ -567,7 +587,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
 
         private void requireActive(PortCallKind kind, String jobId, boolean priorEffectStarted)
                 throws CanonicalOperationUnknownException {
-            if (!isActive()) throwCallOutcome(kind, jobId, false, priorEffectStarted, null);
+            if (!isActive()) throwCallOutcome(context, kind, jobId, false, priorEffectStarted, null);
         }
     }
 
@@ -641,6 +661,15 @@ final class CanonicalOperationDeadlineExceededException extends StatusRuntimeExc
     CanonicalOperationDeadlineExceededException(Throwable cause) {
         super(Status.DEADLINE_EXCEEDED
                 .withDescription("MULTIMODAL_OPERATION_DEADLINE_EXCEEDED")
+                .withCause(cause));
+    }
+}
+
+/** Known no-effect caller cancellation emitted only when cancellation wins before dispatch. */
+final class CanonicalOperationCancelledException extends StatusRuntimeException {
+    CanonicalOperationCancelledException(Throwable cause) {
+        super(Status.CANCELLED
+                .withDescription("MULTIMODAL_OPERATION_CANCELLED_BEFORE_DISPATCH")
                 .withCause(cause));
     }
 }

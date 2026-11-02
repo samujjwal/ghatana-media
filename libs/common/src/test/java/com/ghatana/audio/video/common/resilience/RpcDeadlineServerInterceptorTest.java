@@ -133,6 +133,24 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
+    void explicitlyCancelledParentWithoutDeadlineRejectsAsCancelledBeforeServiceDispatch() {
+        var interceptor = new RpcDeadlineServerInterceptor(Duration.ofSeconds(2), Map.of());
+        Context.CancellableContext parent = Context.current().withCancellation();
+        parent.cancel(null);
+        Context previous = parent.attach();
+        @SuppressWarnings("unchecked") ServerCall<String, String> call = mock(ServerCall.class);
+        when(call.getMethodDescriptor()).thenReturn(descriptor("media.STT/Transcribe"));
+        @SuppressWarnings("unchecked") ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        try {
+            interceptor.interceptCall(call, new Metadata(), next);
+            verify(call).close(argThat(status -> status.getCode() == Status.Code.CANCELLED), any());
+            verifyNoInteractions(next);
+        } finally {
+            parent.detach(previous);
+        }
+    }
+
+    @Test
     void configuredMaximumCancelsContextAndClosesTransportAsUnknownOutcome() throws Exception {
         var interceptor = new RpcDeadlineServerInterceptor(Duration.ofMillis(35), Map.of());
         CountDownLatch contextCancelled = new CountDownLatch(1);

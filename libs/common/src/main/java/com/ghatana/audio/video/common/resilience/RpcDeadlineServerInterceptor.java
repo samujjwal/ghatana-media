@@ -62,9 +62,12 @@ public final class RpcDeadlineServerInterceptor implements ServerInterceptor {
                 call.getMethodDescriptor().getFullMethodName(), defaultMaximum);
         Context parent = Context.current();
         Deadline parentDeadline = parent.getDeadline();
-        if (parent.isCancelled() || (parentDeadline != null && parentDeadline.isExpired())) {
-            call.close(Status.DEADLINE_EXCEEDED.withDescription("RPC deadline elapsed before dispatch"),
-                    new Metadata());
+        boolean deadlineElapsed = parentDeadline != null && parentDeadline.isExpired();
+        if (parent.isCancelled() || deadlineElapsed) {
+            Status status = deadlineElapsed
+                    ? Status.DEADLINE_EXCEEDED.withDescription("RPC deadline elapsed before dispatch")
+                    : Status.CANCELLED.withDescription("RPC cancelled before dispatch");
+            call.close(status, new Metadata());
             return new ServerCall.Listener<>() {};
         }
         Context bounded = parent.withDeadline(

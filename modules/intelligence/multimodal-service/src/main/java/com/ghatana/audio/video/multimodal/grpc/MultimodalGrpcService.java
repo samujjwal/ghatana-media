@@ -889,6 +889,10 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             return Status.DEADLINE_EXCEEDED
                     .withDescription("MULTIMODAL_OPERATION_DEADLINE_EXCEEDED");
         }
+        if (exception instanceof CanonicalOperationCancelledException) {
+            return Status.CANCELLED
+                    .withDescription("MULTIMODAL_OPERATION_CANCELLED_BEFORE_DISPATCH");
+        }
         if (exception instanceof CanonicalOperationResourceExhaustedException) {
             return Status.RESOURCE_EXHAUSTED
                     .withDescription("MULTIMODAL_PORT_CAPACITY_UNAVAILABLE");
@@ -1005,6 +1009,7 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
             Thread.currentThread().interrupt();
             throw new OperationOutcomeUnknownException(interrupted);
         } catch (CanonicalOperationDeadlineExceededException
+                 | CanonicalOperationCancelledException
                  | CanonicalOperationResourceExhaustedException knownNoEffect) {
             throw knownNoEffect;
         } catch (OperationOutcomeUnknownException unknown) {

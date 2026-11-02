@@ -420,6 +420,76 @@ class MediaCanonicalOperationExecutorTest {
     }
 
     @Test
+    void cancelledQueuedReadIsRemovedImmediatelyAndReturnsCancelledWithoutDispatch() throws Exception {
+        CountDownLatch firstReadStarted = new CountDownLatch(1);
+        CountDownLatch releaseFirstRead = new CountDownLatch(1);
+        AtomicInteger sourceReads = new AtomicInteger();
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(String tenantId, String principalId, String artifactId) {
+                if ("src".equals(artifactId)) {
+                    sourceReads.incrementAndGet();
+                    firstReadStarted.countDown();
+                    awaitIgnoringInterrupts(releaseFirstRead);
+                }
+                return super.artifact(tenantId, principalId, artifactId);
+            }
+        };
+        port.withSource(Map.of());
+        ThreadPoolExecutor workers = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(1), runnable -> {
+                    Thread thread = new Thread(runnable, "multimodal-cancel-queue-test");
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
+        var executor = new MediaCanonicalOperationExecutor(
+                port, Duration.ofSeconds(3), Duration.ofMillis(5), workers);
+        CanonicalOperationBinding staleBinding = binding().toBuilder()
+                .setSourceVersionId("sha256:" + "cd".repeat(32)).build();
+        AtomicReference<Throwable> firstFailure = new AtomicReference<>();
+        Thread first = startExecution(executor, staleBinding, firstFailure);
+        Context.CancellableContext cancelledRequest = Context.current().withCancellation();
+        AtomicReference<Throwable> cancelledFailure = new AtomicReference<>();
+        Thread queued = Thread.startVirtualThread(() -> {
+            Context previous = cancelledRequest.attach();
+            try {
+                executor.execute(staleBinding, "op", operation(), AUTH);
+            } catch (Throwable failure) {
+                cancelledFailure.set(failure);
+            } finally {
+                cancelledRequest.detach(previous);
+            }
+        });
+
+        try {
+            assertThat(firstReadStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
+            while (workers.getQueue().size() != 1 && System.nanoTime() < queueDeadline) {
+                Thread.onSpinWait();
+            }
+            assertThat(workers.getQueue()).hasSize(1);
+
+            cancelledRequest.cancel(null);
+            queued.join(1_000);
+            assertThat(queued.isAlive()).isFalse();
+            assertThat(cancelledFailure.get()).isInstanceOf(CanonicalOperationCancelledException.class);
+            assertThat(workers.getQueue()).isEmpty();
+            assertThat(sourceReads).hasValue(1);
+        } finally {
+            releaseFirstRead.countDown();
+            first.join(1_000);
+            queued.join(1_000);
+            workers.shutdownNow();
+            cancelledRequest.cancel(null);
+        }
+
+        assertThat(first.isAlive()).isFalse();
+        assertThat(workers.getActiveCount()).isZero();
+        assertThat(firstFailure.get()).isInstanceOf(IllegalArgumentException.class);
+        assertThat(sourceReads).hasValue(1);
+        assertThat(port.submitted).isEmpty();
+    }
+
+    @Test
     void outcomeUnknownParentThrowsUnknownCarryingJobId() {
         var port = new FixturePort().withSource(Map.of())
                 .thenStatuses(JobStatus.OUTCOME_UNKNOWN);
