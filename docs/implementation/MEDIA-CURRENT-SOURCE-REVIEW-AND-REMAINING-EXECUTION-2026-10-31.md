@@ -1788,3 +1788,19 @@ GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew verifyPublishe
 An independent Luna read-only review accepted the bounded smoke as **`ACCEPT_LOCAL_CANDIDATE_ONLY`**. The review confirmed that dispatch, client-visible deadline, server cancellation, and the single post-cancellation late response attempt are each asserted without a concrete false-positive race. It does not verify production Media adapter deadlines, real network behavior, provider side-effect suppression, or durable job outcomes.
 
 The local installed-client deadline/cancellation gap is covered for one unary method per service. JC-04's full RPC/streaming/interceptor/version compatibility and canonical PDP acceptance remain open; JC-03's hard process/native termination, production provider effect finality and same-key durable reconciliation also remain open. No runtime-admission, real-provider, or whole-row acceptance claim follows from this consumer smoke.
+
+### 41.46 November 2 STT G02 cross-tenant authoritative policy denial (2026-11-02)
+
+At Media `main@92bce06d` plus the uncommitted test-only change to `modules/speech/stt-service/src/test/java/com/ghatana/stt/grpc/SharedPolicySttRequestAuthorizationTest.java`, a new negative case supplies an otherwise authoritative `ALLOW` decision with a trusted `VerifiedPolicyContext` for the same principal and correlation but `tenant-other`. The evaluated request is bound to `tenant-verified`; the adapter rejects the mismatched tenant before looking up the STT library, and the test verifies zero library/provider interactions. An independent Luna read-only review confirmed the context remains trusted and that tenant mismatch is the operative rejection.
+
+The focused test passed **1/1**:
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew \
+  :services:media:modules:speech:stt-service:test \
+  --tests com.ghatana.stt.grpc.SharedPolicySttRequestAuthorizationTest.authoritativePolicyPermitForAnotherTenantIsRejectedBeforeProviderDispatch \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# BUILD SUCCESSFUL; 55 actionable tasks, 1 selected test passed
+```
+
+This is synthetic authorization-adapter evidence only. No actual rights record, Shared policy authority, provider effect, runtime admission, G02 whole-row acceptance, or source status was changed.

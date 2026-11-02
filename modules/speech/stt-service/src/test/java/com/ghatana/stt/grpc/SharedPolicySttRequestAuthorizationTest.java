@@ -92,6 +92,22 @@ class SharedPolicySttRequestAuthorizationTest {
     }
 
     @Test
+    void authoritativePolicyPermitForAnotherTenantIsRejectedBeforeProviderDispatch() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine provider = mock(SttEngine.class);
+        when(library.getSttEngine()).thenReturn(provider);
+        when(provider.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("must not run", 0.9, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-model"));
+
+        assertRejectedBeforeProvider(library, authorization(
+                request -> CompletableFuture.completedFuture(
+                        decisionWithTenant(request, "tenant-other")),
+                rightsResolver(admitted(SOURCE_FACTS), ignored -> admitted(SOURCE_FACTS))));
+        verifyNoInteractions(provider);
+    }
+
+    @Test
     void anythingShortOfCurrentPolicyAndUnchangedRightsStopsBeforeProvider() throws Exception {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         SttEngine provider = mock(SttEngine.class);
@@ -255,11 +271,22 @@ class SharedPolicySttRequestAuthorizationTest {
         return decision;
     }
 
+    private static PolicyDecisionRecord decisionWithTenant(PolicyEvaluationRequest request, String tenantId) {
+        PolicyDecisionRecord decision = decision(PolicyDecisionOutcome.ALLOW, true, null, request);
+        when(decision.context()).thenReturn(context(request, request.principalId(), tenantId));
+        return decision;
+    }
+
     private static PolicyEvaluationContext context(PolicyEvaluationRequest request) {
+        return context(request, request.principalId(), request.tenantId());
+    }
+
+    private static PolicyEvaluationContext context(
+            PolicyEvaluationRequest request, String principalId, String tenantId) {
         PrincipalIdentity identity = new PrincipalIdentity(
-                request.tenantId(), request.principalId(), null, Set.of(), Instant.now());
+                tenantId, principalId, null, Set.of(), Instant.now());
         return new PolicyEvaluationContext(
-                request.principalId(), request.tenantId(), request.actionClass(), request.targetType(),
+                principalId, tenantId, request.actionClass(), request.targetType(),
                 request.targetId(), request.toolId(), request.criticality(), request.reversibility(),
                 Map.of(), Instant.now(), request.correlationId(),
                 com.ghatana.governance.VerifiedPolicyContext.from(identity, request.correlationId()));
