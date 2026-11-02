@@ -132,11 +132,17 @@ public class TranscriptionCacheService {
             String key,
             Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
         return loader.apply(transcriptionId).flatMap(source -> {
-            if (source.isEmpty() || source.get() == null || source.get().isDeleted()) {
-                return AsyncOperation.success(null);
+            if (source.isEmpty() || source.get() == null) {
+                // The caller's current source/authorization path is authoritative.
+                // Remove the stale optimization entry when that path says the
+                // protected source is absent (including revoked/erased access).
+                return invalidateAfterSourceDenial(key);
             }
             if (!matchesIdentity(source.get(), tenantId, transcriptionId)) {
                 return AsyncOperation.failure(identityMismatch());
+            }
+            if (source.get().isDeleted()) {
+                return invalidateAfterSourceDenial(key);
             }
             TranscriptionEntity entity = source.get();
             try {
@@ -151,6 +157,27 @@ public class TranscriptionCacheService {
                 return AsyncOperation.success(entity);
             }
         });
+    }
+
+    /**
+     * Eviction is best effort: the current source decision remains authoritative
+     * even if the distributed cache is unavailable or cannot invalidate a key.
+     */
+    private AsyncOperation<TranscriptionEntity> invalidateAfterSourceDenial(String key) {
+        try {
+            cache.invalidate(key).whenComplete((ignored, invalidationFailure) -> {
+                if (invalidationFailure != null) {
+                    LOG.debug("Stale transcription cache invalidation failed; source denial remains authoritative: causeType={}",
+                            invalidationFailure.getClass().getSimpleName());
+                }
+            });
+        } catch (RuntimeException invalidationFailure) {
+            LOG.debug("Stale transcription cache invalidation failed; source denial remains authoritative: causeType={}",
+                    invalidationFailure.getClass().getSimpleName());
+        }
+        // The cache is never read as an authorization/source of truth on this
+        // API, so a slow optimization port must not delay a current denial.
+        return AsyncOperation.success(null);
     }
 
     /**

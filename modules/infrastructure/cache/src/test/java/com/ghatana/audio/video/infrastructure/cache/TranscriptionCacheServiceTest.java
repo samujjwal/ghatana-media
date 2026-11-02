@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -223,6 +224,41 @@ class TranscriptionCacheServiceTest {
 
         assertThat(absent).isNull();
         assertThat(deleted).isNull();
+    }
+
+    @Test
+    void absentOrDeletedCurrentSourceInvalidatesOnlyItsTenantScopedEntry() {
+        UUID transcriptionId = UUID.randomUUID();
+        String tenantAKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(tenantAKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+
+        TranscriptionEntity absent = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.empty())));
+        TranscriptionEntity deleted = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(entity("tenant-a", id, true)))));
+
+        assertThat(absent).isNull();
+        assertThat(deleted).isNull();
+        verify(scopedPort, org.mockito.Mockito.times(2)).invalidateAsync(tenantAKey);
+        verify(scopedPort, never()).invalidateAsync(key("tenant-b", transcriptionId.toString()));
+    }
+
+    @Test
+    void sourceDenialReturnsWithoutWaitingForPendingCacheInvalidation() {
+        UUID transcriptionId = UUID.randomUUID();
+        String tenantAKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(tenantAKey))
+                .thenReturn(AsyncOperation.from(new CompletableFuture<>()));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+
+        TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.empty())));
+
+        assertThat(result).isNull();
+        verify(scopedPort).invalidateAsync(tenantAKey);
     }
 
     @Test
