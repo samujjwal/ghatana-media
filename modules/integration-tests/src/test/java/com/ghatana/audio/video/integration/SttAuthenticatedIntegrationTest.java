@@ -241,6 +241,27 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
     @Test
     @Order(5)
+    @DisplayName("GIVEN JWT with blank subject WHEN transcribe THEN request fails before provider or storage effects")
+    void jwtBlankSubject_failsUnauthenticatedWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, "  ");
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+            .setAudioData(com.google.protobuf.ByteString.copyFrom(buildMinimalWavBytes()))
+            .setSampleRate(16000)
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
+        assertThat(exception.getStatus().getDescription()).contains("Missing subject claim");
+        verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
+    }
+
+    @Test
+    @Order(6)
     @DisplayName("GIVEN JWT with tenant A and no STT admission WHEN transcribe THEN NOT_ADMITTED without effects")
     void crossTenantRequestWithoutAdmission_failsClosed() {
         // Given
