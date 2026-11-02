@@ -129,6 +129,38 @@ class TtsUnaryBoundedDispatchTest {
     }
 
     @Test
+    void deadlineAfterProviderDispatchReturnsUnknownAndSuppressesLateSuccess() throws Exception {
+        CountDownLatch providerStarted = new CountDownLatch(1);
+        CountDownLatch allowLateReturn = new CountDownLatch(1);
+        when(engine.synthesize(anyString(), any())).thenAnswer(invocation -> {
+            providerStarted.countDown();
+            awaitIgnoringInterrupt(allowLateReturn);
+            return audio();
+        });
+        var scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+        try {
+            Context.CancellableContext operation = Context.current()
+                    .withDeadlineAfter(100, TimeUnit.MILLISECONDS, scheduler);
+            CapturingObserver observer = new CapturingObserver();
+            operation.run(() -> service.synthesize(request(), observer));
+
+            assertThat(providerStarted.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(observer.terminal.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNKNOWN);
+            assertThat(Status.fromThrowable(observer.error).getDescription()).contains("UNKNOWN_OUTCOME");
+
+            allowLateReturn.countDown();
+            Thread.sleep(50);
+            assertThat(observer.value).isNull();
+            assertThat(observer.completed).isFalse();
+            verify(engine).synthesize(anyString(), any());
+        } finally {
+            allowLateReturn.countDown();
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void providerExceptionKeepsProviderOutcomeUnknown() throws Exception {
         when(engine.synthesize(anyString(), any())).thenThrow(new IllegalStateException("provider interruption"));
         CapturingObserver observer = new CapturingObserver();

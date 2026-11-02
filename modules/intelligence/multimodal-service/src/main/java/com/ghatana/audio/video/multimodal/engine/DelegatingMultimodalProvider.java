@@ -10,6 +10,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapsh
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
@@ -207,13 +208,20 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             result.complete(OperationOutcome.noEffect("SPEC_OR_DISPATCHER_NOT_ADMITTED"));
             return result;
         }
-        context.cancellation().throwIfCancelled();
+        // The runtime's absolute deadline is the parent budget. The provider cap can
+        // shorten it, but must never extend it; establish it before the first child
+        // submission so fanout itself is included in the operation budget.
+        MonotonicDeadline deadline = context.deadlineBudget().boundedBy(operationDeadline);
+        if (deadline.expired() || context.cancellation().cancelled()) {
+            result.complete(OperationOutcome.noEffect("PARENT_DEADLINE_OR_CANCEL_BEFORE_DISPATCH"));
+            return result;
+        }
 
         // 1. Idempotent per-child submission. The deterministic request ids make a replay
         //    resolve to the same durable job; a conflicting resubmission fails closed.
         List<ProcessingJob> children;
         try {
-            children = submitChildren(spec, context, dispatcher);
+            children = submitChildren(spec, context, dispatcher, deadline);
         } catch (RuntimeException failure) {
             // A child submit can fail after durable creation when its acknowledgement is
             // lost, or when same-ID normalized input conflicts. Do not convert that
@@ -229,20 +237,23 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
 
         // 2. Bounded nonblocking wait on the provider's own scheduler — the parent attempt
         //    worker is released while children execute on their own canonical jobs.
-        scheduleCompletion(context, attempt, spec, children, dispatcher, result,
-                Instant.now().plus(operationDeadline));
+        scheduleCompletion(context, attempt, spec, children, dispatcher, result, deadline);
         return result;
     }
 
     private List<ProcessingJob> submitChildren(
             MultimodalOperationSpec spec,
             ProcessingContext context,
-            MediaChildJobDispatcher dispatcher) {
+            MediaChildJobDispatcher dispatcher,
+            MonotonicDeadline deadline) {
         ProcessingJobRequest parent = context.request();
         List<ProcessingJob> children = new ArrayList<>(spec.children().size());
         for (MultimodalOperationSpec.ChildOperationSpec child : spec.children()) {
             try {
                 context.cancellation().throwIfCancelled();
+                if (deadline.expired()) {
+                    throw new ParentDeadlineExceededException();
+                }
                 String childRequestId = MultimodalOperationSpec.childRequestId(
                         parent.requestId(), child.childKey());
                 ProcessingJobRequest childRequest = new ProcessingJobRequest(
@@ -265,6 +276,8 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         return children;
     }
 
+    private static final class ParentDeadlineExceededException extends RuntimeException { }
+
     private void scheduleCompletion(
             ProcessingContext context,
             ProviderAttemptContext attempt,
@@ -272,7 +285,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             List<ProcessingJob> children,
             MediaChildJobDispatcher dispatcher,
             CompletableFuture<OperationOutcome> result,
-            Instant deadline) {
+            MonotonicDeadline deadline) {
         try {
             if (context.cancellation().cancelled()) {
                 // Checked before result.isDone(): the runtime cancels the attempt future
@@ -300,7 +313,8 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
                 result.complete(terminal);
                 return;
             }
-            if (!Instant.now().isBefore(deadline)) {
+            long remainingNanos = deadline.remainingNanos();
+            if (remainingNanos <= 0) {
                 // A child may still be ACCEPTED/RUNNING or its outcome lost. UNKNOWN is
                 // the honest parent finality; reconciliation reads exact child receipts.
                 // The operation bound is spent, so the remaining children are cancelled
@@ -312,7 +326,7 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             scheduler.schedule(
                     () -> scheduleCompletion(
                             context, attempt, spec, children, dispatcher, result, deadline),
-                    pollInterval.toMillis(), TimeUnit.MILLISECONDS);
+                    Math.min(pollInterval.toNanos(), remainingNanos), TimeUnit.NANOSECONDS);
         } catch (RuntimeException failure) {
             result.complete(OperationOutcome.unknown());
         }

@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.CancellationOutcome;
+import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
@@ -11,6 +12,9 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobLease;
 import com.ghatana.media.runtime.MediaRuntimeContracts.RecoveryCursor;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import org.junit.jupiter.api.Test;
 
@@ -25,12 +29,102 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Restart proof for jobs whose provider outcome remained uncertain at shutdown. */
 class MediaRuntimeRestartReconciliationTest {
+
+    @Test
+    void speechRestartQueriesExactAttemptOnceAndPersistsOnlyUnknownReceiptDigest() throws Exception {
+        var root = Files.createTempDirectory("media-stt-restart-readback-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        ProcessingJob running = runningSpeechJob();
+        jobs.create(running, running.requestFingerprint(), new com.ghatana.media.runtime.MediaRuntimeContracts
+                .SttSubmissionSnapshot(com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.VERSION,
+                        null, null, "", "", "", "", "", null));
+        ProcessingAttempt attempt = speechAttempt(running);
+        AtomicInteger queries = new AtomicInteger();
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicReference<ProviderAttemptQuery> querySeen = new AtomicReference<>();
+        var exactStore = attemptStore(jobs, attempt);
+        MediaProcessingProvider provider = speechProvider(dispatches, query -> {
+            queries.incrementAndGet();
+            querySeen.set(query);
+            return CompletableFuture.completedFuture(new ProviderAttemptObservation(
+                    query, AttemptFinality.SUCCEEDED, query.providerReceiptId(),
+                    Map.of("transcript", "sensitive transcript"), "a".repeat(64),
+                    java.time.Instant.now()));
+        });
+        var runtime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            var recovered = jobs.find(running.tenantId(), running.jobId()).orElseThrow();
+            assertThat(querySeen.get()).isEqualTo(attempt.query());
+            assertThat(queries).hasValue(1);
+            assertThat(dispatches).hasValue(0);
+            assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(recovered.result()).containsEntry("providerStatus", "SUCCEEDED")
+                    .containsEntry("providerReceiptDigest", sha256(attempt.providerReceiptId()))
+                    .containsEntry("reconciliation",
+                            "provider succeeded; current source authorization unavailable")
+                    .doesNotContainKey("transcript");
+            assertThat(runtime.job(running.tenantId(), running.principalId(), running.jobId()).orElseThrow()
+                    .status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            runtime.close();
+            runtime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                    new LocalMediaRuntimeSupport.StreamStore(), provider);
+            assertThat(queries).hasValue(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void speechRestartQueryMismatchAndTimeoutRemainUnknownWithoutDispatch() throws Exception {
+        for (boolean timeout : List.of(false, true)) {
+            var root = Files.createTempDirectory("media-stt-restart-ambiguous-");
+            var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+            ProcessingJob running = runningSpeechJob();
+            jobs.create(running, running.requestFingerprint(), new com.ghatana.media.runtime.MediaRuntimeContracts
+                    .SttSubmissionSnapshot(com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.VERSION,
+                            null, null, "", "", "", "", "", null));
+            ProcessingAttempt attempt = speechAttempt(running);
+            AtomicInteger queries = new AtomicInteger();
+            AtomicInteger dispatches = new AtomicInteger();
+            CompletableFuture<ProviderAttemptObservation> pending = new CompletableFuture<>();
+            MediaProcessingProvider provider = speechProvider(dispatches, query -> {
+                queries.incrementAndGet();
+                if (timeout) return pending;
+                ProviderAttemptQuery mismatched = new ProviderAttemptQuery(query.tenantId(), query.jobId(),
+                        query.requestId(), query.attemptNumber(), query.fencingToken(), query.requestFingerprint(),
+                        "other-provider", query.providerOperationId(), query.providerReceiptId());
+                return CompletableFuture.completedFuture(new ProviderAttemptObservation(
+                        mismatched, AttemptFinality.SUCCEEDED, query.providerReceiptId(), Map.of(),
+                        "b".repeat(64), java.time.Instant.now()));
+            });
+            if (timeout) CompletableFuture.delayedExecutor(3, TimeUnit.SECONDS).execute(() ->
+                    pending.complete(new ProviderAttemptObservation(attempt.query(), AttemptFinality.SUCCEEDED,
+                            attempt.providerReceiptId(), Map.of(), "c".repeat(64), java.time.Instant.now())));
+            var exactStore = attemptStore(jobs, attempt);
+            var runtime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                    new LocalMediaRuntimeSupport.StreamStore(), provider);
+            try {
+                var recovered = jobs.find(running.tenantId(), running.jobId()).orElseThrow();
+                assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(queries).hasValue(1);
+                assertThat(dispatches).hasValue(0);
+                assertThat(recovered.result()).doesNotContainKey("providerStatus")
+                        .doesNotContainKey("transcript");
+                if (timeout) assertThat(pending).isCancelled();
+            } finally {
+                runtime.close();
+            }
+        }
+    }
 
     @Test
     void duplicateSubmissionReturnsExistingJobWithoutDispatchingProviderTwice() throws Exception {
@@ -193,6 +287,89 @@ class MediaRuntimeRestartReconciliationTest {
                 null,
                 List.of(provider),
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+    }
+
+    private static ProcessingJob runningSpeechJob() {
+        return new ProcessingJob("stt-job", "stt-request", "tenant-stt", "principal-stt", "artifact-stt",
+                JobType.SPEECH_TO_TEXT, "speech-provider", JobStatus.RUNNING, java.time.Instant.now(),
+                java.time.Instant.now(), null, Map.of(), "", 2, "sha256:" + "d".repeat(64), "d".repeat(64));
+    }
+
+    private static ProcessingAttempt speechAttempt(ProcessingJob job) {
+        return new ProcessingAttempt(job.tenantId(), job.jobId(), job.requestId(), 1, 7,
+                job.requestFingerprint(), "speech-provider", "operation-1", "receipt-1",
+                AttemptFinality.UNKNOWN, "", "", java.time.Instant.now());
+    }
+
+    private static String sha256(String value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static MediaJobStore attemptStore(
+            LocalMediaRuntimeSupport.JobStore jobs, ProcessingAttempt attempt) {
+        return new MediaJobStore() {
+            @Override public String storeId() { return jobs.storeId(); }
+            @Override public ProcessingJob create(ProcessingJob job, String digest) { return jobs.create(job, digest); }
+            @Override public ProcessingJob update(ProcessingJob expected, ProcessingJob updated) {
+                return jobs.update(expected, updated);
+            }
+            @Override public ProcessingJob update(JobLease lease, ProcessingJob expected, ProcessingJob updated) {
+                return jobs.update(lease, expected, updated);
+            }
+            @Override public Optional<ProcessingJob> find(String tenant, String id) { return jobs.find(tenant, id); }
+            @Override public Optional<ProcessingAttempt> findProcessingAttempt(String tenant, String id, int number) {
+                return tenant.equals(attempt.tenantId()) && id.equals(attempt.jobId())
+                        && number == attempt.attemptNumber() ? Optional.of(attempt) : Optional.empty();
+            }
+            @Override public List<ProcessingJob> list(String tenant, int limit) { return jobs.list(tenant, limit); }
+            @Override public JobLease claim(ProcessingJob expected, String owner, java.time.Instant expiry) {
+                return jobs.claim(expected, owner, expiry);
+            }
+            @Override public boolean leaseValid(JobLease lease) { return jobs.leaseValid(lease); }
+            @Override public void release(JobLease lease) { jobs.release(lease); }
+            @Override public List<ProcessingJob> recoverable(int limit) { return jobs.recoverable(limit); }
+            @Override public List<ProcessingJob> recoverableAfter(int limit, RecoveryCursor cursor) {
+                return jobs.recoverableAfter(limit, cursor);
+            }
+            @Override public ProcessingJob reconcileExpired(
+                    ProcessingJob expected, ProcessingJob updated,
+                    com.ghatana.media.runtime.MediaLifecycleEvent event) {
+                return jobs.update(expected, updated);
+            }
+            @Override public boolean durable() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public boolean ready() { return true; }
+        };
+    }
+
+    private static MediaProcessingProvider speechProvider(
+            AtomicInteger dispatches,
+            java.util.function.Function<ProviderAttemptQuery, CompletableFuture<ProviderAttemptObservation>> lookup) {
+        return new MediaProcessingProvider() {
+            @Override public String providerId() { return "speech-provider"; }
+            @Override public String providerVersion() { return "speech-v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 1; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                dispatches.incrementAndGet();
+                return CompletableFuture.completedFuture(Map.of("transcript", "must not run"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission>
+                    processAttempt(ProcessingContext context,
+                            com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext attempt) {
+                dispatches.incrementAndGet();
+                return CompletableFuture.completedFuture(
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission.unknown());
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation>
+                    reconcileAttempt(ProviderAttemptQuery query) {
+                return lookup.apply(query);
+            }
+        };
     }
 
     private static MediaProcessingProvider pendingProvider(

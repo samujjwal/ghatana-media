@@ -30,6 +30,8 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
     private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
     private final AtomicBoolean closed = new AtomicBoolean();
 
+    boolean sharesState(MediaAwsPostgresqlRuntimeState candidate) { return state == candidate; }
+
     @Override
     public TranscriptRevision append(TranscriptDraft draft) {
         return append(draft, 0);
@@ -188,6 +190,83 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         } catch (SQLException failure) {
             throw dbFailure("open transcript attempt-binding transaction", failure);
         }
+    }
+
+    /**
+     * Appends through a caller-owned transaction. Used only by the PostgreSQL job store to
+     * commit the transcript with the successful job/attempt/outbox transition.
+     */
+    TranscriptRevision appendFromSuccessfulAttemptInTransaction(
+            Connection connection, TranscriptDraft draft, int expectedLatestRevision,
+            int attemptNumber, long fencingToken, String requestFingerprint, String transcriptVersionRef)
+            throws SQLException {
+        ensureOpen();
+        java.util.Objects.requireNonNull(connection, "connection");
+        java.util.Objects.requireNonNull(draft, "draft");
+        if (connection.getAutoCommit()) {
+            throw new IllegalStateException("atomic transcript finalization requires a caller-owned transaction");
+        }
+        validateTranscriptText(draft);
+        requireNonBlank(requestFingerprint, "requestFingerprint");
+        requireNonBlank(transcriptVersionRef, "transcriptVersionRef");
+        if (attemptNumber <= 0 || fencingToken <= 0 || expectedLatestRevision < 0
+                || !requestFingerprint.matches("[0-9a-f]{64}")
+                || transcriptVersionRef.codePointCount(0, transcriptVersionRef.length()) > 384) {
+            throw new IllegalArgumentException("Transcript attempt binding is malformed or does not identify this candidate");
+        }
+        if (MediaTranscriptContracts.UNBOUND_PURPOSE_REF.equals(draft.purposeRef())
+                || MediaTranscriptContracts.UNRESOLVED_PROCESSING_PURPOSE.equals(draft.processingPurpose())) {
+            throw new IllegalArgumentException("Transcript purpose reference and effective processing purpose must be bound");
+        }
+        validateSourceJobConsent(connection, draft);
+        AttemptBinding binding = validateAttempt(connection, draft, attemptNumber, fencingToken,
+                requestFingerprint, transcriptVersionRef);
+        if (state.productionEligible()) verifyProductionSourceRights(connection, draft);
+        String admissionStatus = state.productionEligible() ? "ADMITTED" : "CANDIDATE";
+        TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
+        if (latest != null && sameDraft(latest.draft(), draft)) {
+            AttemptBinding existing = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
+            if (binding.equals(existing)) return latest;
+            throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
+        }
+        if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+            throw new TranscriptPrincipalConflictException();
+        }
+        int actualLatestRevision = latest == null ? 0 : latest.revision();
+        if (expectedLatestRevision != actualLatestRevision) {
+            throw new TranscriptRevisionConflictException(expectedLatestRevision, actualLatestRevision);
+        }
+        int revision = actualLatestRevision + 1;
+        long now = System.currentTimeMillis();
+        try (PreparedStatement insert = connection.prepareStatement("""
+                INSERT INTO media_transcript_revisions
+                  (tenant_id,transcript_id,revision,principal_id,source_artifact_id,
+                   source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
+                   language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
+                   rights_decision_id,policy_version,admission_status,created_at,
+                   timing_availability,segments_json)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """)) {
+            bind(insert, draft, revision, now, admissionStatus);
+            insert.executeUpdate();
+        }
+        try (PreparedStatement insertBinding = connection.prepareStatement("""
+                INSERT INTO media_transcript_attempt_bindings
+                  (tenant_id,transcript_id,transcript_revision,job_id,attempt_number,fencing_token,
+                   provider_id,provider_operation_id,provider_receipt_id,request_fingerprint,
+                   source_artifact_version_ref,transcript_version_ref,result_digest)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """)) {
+            insertBinding.setString(1, draft.tenantId()); insertBinding.setString(2, draft.transcriptId());
+            insertBinding.setInt(3, revision); insertBinding.setString(4, draft.jobId());
+            insertBinding.setInt(5, attemptNumber); insertBinding.setLong(6, fencingToken);
+            insertBinding.setString(7, draft.providerId()); insertBinding.setString(8, binding.providerOperationId());
+            insertBinding.setString(9, binding.providerReceiptId()); insertBinding.setString(10, requestFingerprint);
+            insertBinding.setString(11, draft.sourceVersion()); insertBinding.setString(12, transcriptVersionRef);
+            insertBinding.setString(13, binding.resultDigest()); insertBinding.executeUpdate();
+        }
+        insertRevisionOutbox(connection, draft, revision, now);
+        return new TranscriptRevision(draft, revision, now, admissionStatus);
     }
 
     /** Durable association readback; it exposes identifiers and digests, never transcript content. */

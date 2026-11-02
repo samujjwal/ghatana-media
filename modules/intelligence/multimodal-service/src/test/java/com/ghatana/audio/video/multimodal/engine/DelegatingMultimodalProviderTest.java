@@ -14,6 +14,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext.MonotonicDeadline;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,6 +85,51 @@ class DelegatingMultimodalProviderTest {
                     .get(10, TimeUnit.SECONDS);
             assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
             assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void expiredParentDeadlinePreventsAnyChildDispatch() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher().with(JobStatus.RUNNING, Map.of());
+            AtomicLong monotonicClock = new AtomicLong(Long.MAX_VALUE - 5);
+            MonotonicDeadline monotonicDeadline = MonotonicDeadline.after(
+                    Duration.ofNanos(10), monotonicClock::get);
+            monotonicClock.set(Long.MIN_VALUE + 5); // elapsed 11ns across nanoTime wrap
+            var expired = new ProcessingContext(request(), artifact(), new Cancellation(), null,
+                    null, null, dispatcher, Instant.MAX,
+                    monotonicDeadline);
+
+            var submission = provider.processAttempt(expired, attempt()).get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.NO_EFFECT_PROVEN);
+            assertThat(dispatcher.submits).hasValue(0);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void earlierParentDeadlineBoundsProviderOperationDeadline() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(5));
+            var dispatcher = new FixtureDispatcher().with(JobStatus.RUNNING, Map.of());
+            var parentDeadline = Instant.now().plusMillis(100);
+            var bounded = new ProcessingContext(request(), artifact(), new Cancellation(), null,
+                    null, null, dispatcher, parentDeadline);
+
+            var submission = provider.processAttempt(bounded, attempt()).get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(dispatcher.submits).hasValue(1);
             assertThat(dispatcher.cancelledJobIds()).containsExactly("job-req-1:stt");
         } finally {
             scheduler.shutdownNow();

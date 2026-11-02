@@ -2414,6 +2414,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             Cancellation cancellation,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        final ProcessingContext.MonotonicDeadline jobBudget = ProcessingContext.MonotonicDeadline.after(config.jobTimeout());
+        final Instant jobDeadline = Instant.now().plus(config.jobTimeout());
         ArtifactVersion expectedVersion;
         try {
             expectedVersion = new ArtifactVersion(accepted.expectedArtifactVersion());
@@ -2437,7 +2439,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
         final MediaArtifact dispatchArtifact = currentArtifact;
         JobLease lease = jobStore.claim(
-                accepted, workerId, Instant.now().plus(config.jobTimeout()).plusSeconds(30));
+                accepted, workerId, jobDeadline.plusSeconds(30));
         final ProcessingJob runningCandidate = new ProcessingJob(
                     accepted.jobId(), accepted.requestId(), accepted.tenantId(), accepted.principalId(), accepted.artifactId(),
                     accepted.jobType(), accepted.providerId(), JobStatus.RUNNING, accepted.createdAt(),
@@ -2460,7 +2462,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             return CompletableFuture.failedFuture(new IllegalStateException("Media job concurrency limit reached"));
         }
         final ProcessingJob running;
-        final ProcessingAttempt attempt;
+        ProcessingAttempt attempt;
         io.micrometer.core.instrument.Timer.Sample attemptSample = workflowMetrics.startTimer();
         try {
             if (jobStore.durable()) {
@@ -2468,6 +2470,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         attemptFingerprint(request, dispatchArtifact, providers.getFirst()));
                 running = started.running();
                 attempt = started.attempt();
+                Optional<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity> identity =
+                        providers.getFirst().prepareAttemptIdentity(
+                                request, dispatchArtifact, ProviderAttemptContext.from(attempt));
+                if (identity.isPresent()) {
+                    var prepared = identity.orElseThrow();
+                    attempt = jobStore.recordProviderReceipt(attempt, lease,
+                            prepared.providerOperationId(), prepared.providerReceiptId());
+                }
             } else {
                 running = jobStore.update(accepted, runningCandidate);
                 attempt = null;
@@ -2484,11 +2494,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         } finally {
             workflowMetrics.stopTimer(attemptSample, MediaWorkflowMetrics.Stage.ATTEMPT);
         }
+        final ProcessingAttempt dispatchAttempt = attempt;
         final java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> activeProvider =
                 new java.util.concurrent.atomic.AtomicReference<>();
         CompletableFuture<ProcessingOutcome> providerFuture = dispatchProcessing(
-                request, dispatchArtifact, providers, 0, attempt, cancellation, activeProvider,
-                sourceAuthorization, authenticated);
+                request, dispatchArtifact, providers, 0, dispatchAttempt, cancellation, activeProvider,
+                jobDeadline, jobBudget, sourceAuthorization, authenticated);
         CompletableFuture<ProcessingOutcome> terminalFuture = providerFuture.whenComplete((outcome, failure) -> {
             concurrency.release();
             releaseTenantPermit(accepted.tenantId(), tenantPermits);
@@ -2568,7 +2579,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         "PROCESSING_OUTCOME_UNKNOWN");
             } else {
                 try {
-                    if (attempt != null && (outcome.provider() != providers.getFirst()
+                    if (dispatchAttempt != null && (outcome.provider() != providers.getFirst()
                             || outcome.submission() == null
                             || (outcome.submission().finality() != AttemptFinality.SUCCEEDED
                             && outcome.submission().finality() != AttemptFinality.FAILED
@@ -2577,13 +2588,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 Map.of("providerOutcome", "UNKNOWN",
                                         "reconciliation", "exact provider receipt unavailable"),
                                 "PROCESSING_OUTCOME_UNKNOWN");
-                    } else if (attempt != null && outcome.submission().finality() != AttemptFinality.SUCCEEDED) {
+                    } else if (dispatchAttempt != null && outcome.submission().finality() != AttemptFinality.SUCCEEDED) {
                         terminal = transition(value, JobStatus.FAILED,
                                 Map.of("providerFinality", outcome.submission().finality().name()),
                                 outcome.submission().finality() == AttemptFinality.NO_EFFECT_PROVEN
                                         ? "PROVIDER_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
                     } else {
-                    Map<String, Object> providerResult = attempt == null ? outcome.result() : outcome.submission().result();
+                    Map<String, Object> providerResult = dispatchAttempt == null ? outcome.result() : outcome.submission().result();
                     Map<String, Object> modalityResult = MediaModalityContracts.governedResult(
                             request, dispatchArtifact, outcome.provider().providerId(),
                             outcome.provider().providerVersion(),
@@ -2597,51 +2608,59 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             JobStatus.COMPLETED, governedResult, "");
                     }
                 } catch (RuntimeException redactionFailure) {
-                    boolean providerSucceeded = attempt != null && outcome != null
+                    boolean providerSucceeded = dispatchAttempt != null && outcome != null
                             && outcome.submission() != null
                             && outcome.submission().finality() == AttemptFinality.SUCCEEDED;
                     terminal = transition(value, JobStatus.FAILED,
                             Map.of("failureType", redactionFailure.getClass().getSimpleName(),
-                                    "providerOutcome", providerSucceeded ? "SUCCEEDED" : attempt == null ? "LOCAL" : "UNKNOWN"),
+                                    "providerOutcome", providerSucceeded ? "SUCCEEDED" : dispatchAttempt == null ? "LOCAL" : "UNKNOWN"),
                             providerSucceeded ? "RESULT_GOVERNANCE_FAILED"
-                                    : attempt == null ? "SEMANTIC_REDACTION_FAILED" : "PROCESSING_OUTCOME_UNKNOWN");
+                                    : dispatchAttempt == null ? "SEMANTIC_REDACTION_FAILED" : "PROCESSING_OUTCOME_UNKNOWN");
                     audit.warn(
                             "MEDIA_SEMANTIC_REDACTION_FAILED tenantId={} requestId={} jobId={} provider={} redactionProvider={} failureType={}",
                             request.tenantId(), request.requestId(), value.jobId(), value.providerId(),
                             semanticRedaction.providerId(), redactionFailure.getClass().getSimpleName());
                 }
             }
+            ProviderSubmission submission = outcome == null ? null : outcome.submission();
             try {
-                ProviderSubmission submission = outcome == null ? null : outcome.submission();
-                if (attempt != null && preDispatchNoEffect) {
-                    terminal = jobStore.markPreDispatchNoEffect(value, attempt, terminal,
+                if (dispatchAttempt != null && preDispatchNoEffect) {
+                    terminal = jobStore.markPreDispatchNoEffect(value, dispatchAttempt, terminal,
                             lifecycleEvent(value, terminal, request, dispatchArtifact));
-                } else if (attempt != null && submission != null
+                } else if (dispatchAttempt != null && submission != null
                         && submission.finality() != AttemptFinality.UNKNOWN) {
                     String operationId = submission.providerOperationId();
                     String receiptId = submission.providerReceiptId();
-                    ProcessingAttempt recorded = jobStore.recordProviderReceipt(attempt, lease, operationId, receiptId);
+                    ProcessingAttempt recorded = dispatchAttempt.providerOperationId().equals(operationId)
+                            && dispatchAttempt.providerReceiptId().equals(receiptId)
+                            ? dispatchAttempt
+                            : jobStore.recordProviderReceipt(dispatchAttempt, lease, operationId, receiptId);
                     ProviderAttemptObservation observation = new ProviderAttemptObservation(
                             recorded.query(), submission.finality(), receiptId,
                             "RESULT_GOVERNANCE_FAILED".equals(terminal.failureCode())
                                     ? Map.of() : submission.result(),
                             submission.provenanceDigest(), submission.observedAt());
-                    jobStore.commitFinalOutcome(value, recorded, terminal, observation,
-                            lifecycleEvent(value, terminal, request, dispatchArtifact));
                     if (terminal.status() == JobStatus.COMPLETED
                             && submission.finality() == AttemptFinality.SUCCEEDED
                             && request.jobType()
                                     == com.ghatana.media.runtime.MediaRuntimeContracts.JobType
                                             .SPEECH_TO_TEXT) {
-                        finalizeSpeechTranscript(request, dispatchArtifact, value, recorded,
-                                submission, providers.getFirst(), sourceAuthorization, authenticated);
+                        Map.Entry<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft, String>
+                                transcript = speechTranscriptFinalization(request, dispatchArtifact, value,
+                                        submission, providers.getFirst(), sourceAuthorization, authenticated);
+                        terminal = jobStore.commitFinalOutcomeWithTranscript(value, recorded, terminal,
+                                observation, lifecycleEvent(value, terminal, request, dispatchArtifact),
+                                transcriptStore, transcript.getKey(), transcript.getValue());
+                    } else {
+                        jobStore.commitFinalOutcome(value, recorded, terminal, observation,
+                                lifecycleEvent(value, terminal, request, dispatchArtifact));
                     }
-                } else if (attempt != null) {
+                } else if (dispatchAttempt != null) {
                     ProcessingJob unknown = terminal.status() == JobStatus.OUTCOME_UNKNOWN ? terminal
                             : transition(value, JobStatus.OUTCOME_UNKNOWN,
                                     Map.of("providerOutcome", "UNKNOWN"), "PROCESSING_OUTCOME_UNKNOWN");
-                    jobStore.markOutcomeUnknown(value, attempt, unknown,
-                            Map.of("providerOutcome", "UNKNOWN", "attemptNumber", attempt.attemptNumber()),
+                    jobStore.markOutcomeUnknown(value, dispatchAttempt, unknown,
+                            Map.of("providerOutcome", "UNKNOWN", "attemptNumber", dispatchAttempt.attemptNumber()),
                             lifecycleEvent(value, unknown, request, dispatchArtifact));
                     terminal = unknown;
                 } else {
@@ -2650,7 +2669,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 audit.info("MEDIA_JOB_TERMINAL tenantId={} jobId={} type={} provider={} status={} failureCode={}",
                         value.tenantId(), value.jobId(), value.jobType(), value.providerId(),
                         terminal.status(), terminal.failureCode());
-                if (attempt == null) publishLifecycle("media.job." + terminal.status().name().toLowerCase(java.util.Locale.ROOT),
+            if (dispatchAttempt == null) publishLifecycle("media.job." + terminal.status().name().toLowerCase(java.util.Locale.ROOT),
                         value.tenantId(), value.principalId(), request.correlationId(), request.requestId(),
                         "job", value.jobId(), terminal.version(), dispatchArtifact.classification(), Map.of(
                                 "artifactId", value.artifactId(),
@@ -2659,6 +2678,37 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                 "status", terminal.status().name(),
                                 "failureCode", terminal.failureCode()));
             } catch (RuntimeException updateFailure) {
+                if (dispatchAttempt != null
+                        && request.jobType()
+                                == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT
+                        && submission != null && submission.finality() == AttemptFinality.SUCCEEDED) {
+                    try {
+                        ProcessingJob latestJob = jobStore.find(value.tenantId(), value.jobId()).orElse(value);
+                        if (latestJob.status() == JobStatus.RUNNING) {
+                            ProcessingAttempt currentAttempt = jobStore.findProcessingAttempt(
+                                    value.tenantId(), value.jobId(), dispatchAttempt.attemptNumber())
+                                    .orElse(dispatchAttempt);
+                            ProcessingJob unknown = transition(latestJob, JobStatus.OUTCOME_UNKNOWN,
+                                    Map.of("providerOutcome", "UNKNOWN",
+                                            "transcriptFinalization", "ATOMIC_COMMIT_UNCONFIRMED"),
+                                    "TRANSCRIPT_FINALIZATION_OUTCOME_UNKNOWN");
+                            jobStore.markOutcomeUnknown(latestJob, currentAttempt, unknown,
+                                    Map.of("providerOutcome", "UNKNOWN",
+                                            "transcriptFinalization", "ATOMIC_COMMIT_UNCONFIRMED",
+                                            "attemptNumber", currentAttempt.attemptNumber()),
+                                    lifecycleEvent(latestJob, unknown, request, dispatchArtifact));
+                            terminal = unknown;
+                        } else if (latestJob.status() == JobStatus.OUTCOME_UNKNOWN
+                                || latestJob.status() == JobStatus.COMPLETED
+                                || latestJob.status() == JobStatus.FAILED
+                                || latestJob.status() == JobStatus.CANCELLED) {
+                            terminal = latestJob;
+                        }
+                    } catch (RuntimeException unknownFailure) {
+                        audit.error("MEDIA_STT_TRANSCRIPT_ATOMIC_FINALIZATION_UNKNOWN tenantId={} jobId={} failureType={}",
+                                value.tenantId(), value.jobId(), unknownFailure.getClass().getSimpleName());
+                    }
+                }
                 log.error("Unable to persist terminal Media job state jobId={}", value.jobId(), updateFailure);
             } finally {
                 if (terminal.status() == JobStatus.OUTCOME_UNKNOWN) {
@@ -2677,66 +2727,49 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return terminalFuture;
     }
 
-    /**
-     * Persists the admitted transcript revision for one completed STT job. The append is a
-     * separate durable effect after the fenced attempt and job are committed; the store
-     * re-verifies the attempt identity, source rights, revocation epoch and authorization
-     * snapshot inside its own transaction. A failed append leaves no transcript rather than
-     * a fabricated one, while the completed job truthfully retains its provider outcome.
-     */
-    private void finalizeSpeechTranscript(
+    /** Builds the exact STT transcript candidate after a fresh source authorization check. */
+    private Map.Entry<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft, String>
+    speechTranscriptFinalization(
             ProcessingJobRequest request,
             MediaArtifact artifact,
             ProcessingJob job,
-            ProcessingAttempt attempt,
             ProviderSubmission submission,
             MediaProcessingProvider provider,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
-        try {
-            if (transcriptStore == null || sourceAuthorization == null) return;
-            Object observations = submission.result().get("semanticObservations");
-            if (!(observations instanceof Map<?, ?> observed)) return;
-            Object response = observed.get("transcriptResponse");
-            if (!(response instanceof Map<?, ?> transcript)) return;
-            // The fenced transcript append is a separate effect boundary: the exact source and
-            // the current rights/policy decision must still hold for the authenticated principal
-            // immediately before the durable revision is written.
-            requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
-                    authenticated);
-            String transcriptText = String.valueOf(transcript.get("transcriptText"));
-            String transcriptVersionRef = String.valueOf(transcript.get("transcriptVersionRef"));
-            // Provider-declared ordered segments with their exact timing tags are
-            // preserved verbatim; a malformed union fails the append rather than
-            // silently dropping a supplied timing disposition.
-            List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment> segments =
-                    com.ghatana.media.runtime.MediaTranscriptContracts.segmentsFromParameterValue(
-                            transcript.get("segments"));
-            MediaSpeechToTextAdmission.Request speech = speechRequest(request);
-            String consentId = sourceAuthorization.consentDecisionId().isBlank()
-                    ? "NOT_APPLICABLE_HUMAN_CONSENT" : sourceAuthorization.consentDecisionId();
-            com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft draft =
-                    new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft(
-                            request.tenantId(), request.principalId(),
-                            "transcript:" + job.jobId(), artifact.artifactId(),
-                            artifact.version().value(), artifact.sha256(), job.jobId(),
-                            speech.profileId(), provider.providerId(),
-                            provider.modelVersion(request.jobType()), speech.languageTag(),
-                            "milliseconds", transcriptText, consentId,
-                            sourceAuthorization.rightsDecisionId(),
-                            sourceAuthorization.policyVersion(),
-                            "urn:media:purpose:" + request.governanceContext().purpose(),
-                            request.governanceContext().purpose(), segments);
-            transcriptStore.appendFromSuccessfulAttempt(
-                    draft, 0, attempt.attemptNumber(), attempt.fencingToken(),
-                    attempt.requestFingerprint(), transcriptVersionRef);
-        } catch (MediaCapabilityNotAdmittedException notAdmitted) {
-            audit.warn("MEDIA_TRANSCRIPT_APPEND_NOT_ADMITTED tenantId={} jobId={} reason={}",
-                    request.tenantId(), job.jobId(), notAdmitted.reason());
-        } catch (RuntimeException failure) {
-            audit.warn("MEDIA_TRANSCRIPT_APPEND_FAILED tenantId={} jobId={} failureType={}",
-                    request.tenantId(), job.jobId(), failure.getClass().getSimpleName());
+        if (transcriptStore == null || sourceAuthorization == null) {
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "TRANSCRIPT_FINALIZATION",
+                    "atomic transcript finalization is unavailable");
         }
+        Object observations = submission.result().get("semanticObservations");
+        if (!(observations instanceof Map<?, ?> observed)) {
+            throw new IllegalStateException("successful STT result has no semantic transcript observation");
+        }
+        Object response = observed.get("transcriptResponse");
+        if (!(response instanceof Map<?, ?> transcript)) {
+            throw new IllegalStateException("successful STT result has no transcript response");
+        }
+        // This check is deliberately adjacent to the atomic commit call. The transcript store
+        // then revalidates the persisted attempt and source authorization binding in its tx.
+        requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization, authenticated);
+        String transcriptText = String.valueOf(transcript.get("transcriptText"));
+        String transcriptVersionRef = String.valueOf(transcript.get("transcriptVersionRef"));
+        List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment> segments =
+                com.ghatana.media.runtime.MediaTranscriptContracts.segmentsFromParameterValue(
+                        transcript.get("segments"));
+        MediaSpeechToTextAdmission.Request speech = speechRequest(request);
+        String consentId = sourceAuthorization.consentDecisionId().isBlank()
+                ? "NOT_APPLICABLE_HUMAN_CONSENT" : sourceAuthorization.consentDecisionId();
+        var draft = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft(
+                request.tenantId(), request.principalId(), "transcript:" + job.jobId(),
+                artifact.artifactId(), artifact.version().value(), artifact.sha256(), job.jobId(),
+                speech.profileId(), provider.providerId(), provider.modelVersion(request.jobType()),
+                speech.languageTag(), "milliseconds", transcriptText, consentId,
+                sourceAuthorization.rightsDecisionId(), sourceAuthorization.policyVersion(),
+                "urn:media:purpose:" + request.governanceContext().purpose(),
+                request.governanceContext().purpose(), segments);
+        return Map.entry(draft, transcriptVersionRef);
     }
 
     private CompletableFuture<ProcessingOutcome> dispatchProcessing(
@@ -2747,6 +2780,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             ProcessingAttempt attempt,
             Cancellation cancellation,
             java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
+            Instant jobDeadline,
+            ProcessingContext.MonotonicDeadline jobBudget,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         MediaProcessingProvider provider = providers.get(index);
@@ -2805,7 +2840,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             };
             ProcessingContext context = new ProcessingContext(
                     request, artifact, cancellation, consent, sourceContentReader, sourceAuthorization,
-                    new RuntimeChildJobDispatcher(request, authenticated));
+                    new RuntimeChildJobDispatcher(request, authenticated), jobDeadline, jobBudget);
             // Rights, Shared policy, source digest, and provider binding are refreshed at the
             // effect boundary. The source reader repeats this check before each content copy.
             requireCurrentSourceAuthorization(request, artifact, provider, sourceAuthorization,
@@ -2838,12 +2873,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (failure instanceof SecurityException) return CompletableFuture.failedFuture(failure);
             return fallbackOrFail(
                     request, artifact, providers, index, attempt, cancellation, active, provider, failure,
-                    sourceAuthorization, authenticated);
+                    jobDeadline, jobBudget, sourceAuthorization, authenticated);
         }
         active.set(raw);
         io.micrometer.core.instrument.Timer.Sample providerSample = workflowMetrics.startTimer();
+        long remainingMillis = Math.max(1, TimeUnit.NANOSECONDS.toMillis(Math.max(0, jobBudget.remainingNanos())));
         CompletableFuture<Map<String, Object>> timed = raw.copy()
-                .orTimeout(config.jobTimeout().toMillis(), TimeUnit.MILLISECONDS);
+                .orTimeout(remainingMillis, TimeUnit.MILLISECONDS);
         CompletableFuture<ProcessingOutcome> result = new CompletableFuture<>();
         timed.whenComplete((value, failure) -> {
             workflowMetrics.stopTimer(providerSample, MediaWorkflowMetrics.Stage.PROVIDER);
@@ -2854,12 +2890,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 return;
             }
             Throwable cause = unwrap(failure);
-            if (cause instanceof TimeoutException) raw.cancel(true);
+            if (cause instanceof TimeoutException) {
+                cancellation.cancel();
+                raw.cancel(true);
+            }
             if (provider.processingBoundary() == ProcessingBoundary.EXTERNAL) {
                 cause = new ProviderHandoffFailure(cause);
             }
             fallbackOrFail(request, artifact, providers, index, attempt, cancellation, active, provider, cause,
-                    sourceAuthorization, authenticated)
+                    jobDeadline, jobBudget, sourceAuthorization, authenticated)
                     .whenComplete((next, nextFailure) -> {
                         if (nextFailure == null) result.complete(next);
                         else result.completeExceptionally(unwrap(nextFailure));
@@ -2961,6 +3000,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             java.util.concurrent.atomic.AtomicReference<CompletableFuture<Map<String, Object>>> active,
             MediaProcessingProvider failedProvider,
             Throwable failure,
+            Instant jobDeadline,
+            ProcessingContext.MonotonicDeadline jobBudget,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
         if (attempt == null
@@ -2977,7 +3018,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     fallback.providerId(), failure.getClass().getSimpleName());
             return dispatchProcessing(
                     request, artifact, providers, index + 1, null, cancellation, active,
-                    sourceAuthorization, authenticated);
+                    jobDeadline, jobBudget, sourceAuthorization, authenticated);
         }
         return CompletableFuture.failedFuture(failure);
     }
@@ -3007,6 +3048,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                             && reconcileMultimodalParent(job)) {
                         continue;
                     }
+                    if (job.status() == JobStatus.RUNNING && job.jobType()
+                            == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
+                        reconcileSpeechAttemptReadOnly(job);
+                        ProcessingJob readBack = jobStore.find(job.tenantId(), job.jobId()).orElse(job);
+                        if (readBack.status() != JobStatus.RUNNING) continue;
+                    }
                     JobStatus recoveredStatus = job.status() == JobStatus.ACCEPTED
                             ? JobStatus.FAILED : JobStatus.OUTCOME_UNKNOWN;
                     ProcessingJob reconciled = transition(
@@ -3033,6 +3080,51 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             }
         }
         audit.warn("MEDIA_JOB_RECONCILIATION_PASS_LIMIT reached={}", maximumJobsPerPass);
+    }
+
+    /** Performs a bounded exact provider status read for STT without replaying work. */
+    private void reconcileSpeechAttemptReadOnly(ProcessingJob job) {
+        try {
+            // The runtime currently admits one provider attempt per job. A missing durable
+            // attempt or receipt leaves the existing UNKNOWN recovery result untouched.
+            ProcessingAttempt attempt = jobStore.findProcessingAttempt(job.tenantId(), job.jobId(), 1)
+                    .orElse(null);
+            if (attempt == null || !attempt.tenantId().equals(job.tenantId())
+                    || !attempt.jobId().equals(job.jobId())
+                    || !attempt.requestId().equals(job.requestId())
+                    || attempt.providerOperationId().isBlank() || attempt.providerReceiptId().isBlank()) return;
+            MediaProcessingProvider provider = processingProviders.stream()
+                    .filter(candidate -> candidate.providerId().equals(attempt.providerId()))
+                    .filter(candidate -> candidate.capabilities().contains(
+                            com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT))
+                    .findFirst().orElse(null);
+            if (provider == null) return;
+            CompletableFuture<ProviderAttemptObservation> read = provider.reconcileAttempt(attempt.query());
+            ProviderAttemptObservation observation;
+            try {
+                observation = read.get(2, java.util.concurrent.TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException timeout) {
+                read.cancel(true);
+                return;
+            }
+            if (observation == null || !observation.query().equals(attempt.query())
+                    || !observation.providerReceiptId().equals(attempt.providerReceiptId())) return;
+            // Startup cannot reconstruct an authenticated principal or current source-rights
+            // evidence from persisted identifiers. Preserve only a safe disposition summary.
+            if (observation.finality() == AttemptFinality.SUCCEEDED) {
+                String receiptDigest = java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                        .digest(attempt.providerReceiptId().getBytes(StandardCharsets.UTF_8)));
+                ProcessingJob current = jobStore.find(job.tenantId(), job.jobId()).orElse(job);
+                ProcessingJob updated = transition(current, JobStatus.OUTCOME_UNKNOWN, Map.of(
+                        "reconciliation", "provider succeeded; current source authorization unavailable",
+                        "providerStatus", "SUCCEEDED",
+                        "providerReceiptDigest", receiptDigest), "PROCESSING_OUTCOME_UNKNOWN");
+                jobStore.reconcileExpired(current, updated, lifecycleEvent(current, updated, "INTERNAL"));
+            }
+        } catch (Exception ignored) {
+            // A malformed, absent, unknown, failed, or slow status query cannot prove a
+            // user-visible outcome. The normal recovery path persists OUTCOME_UNKNOWN.
+        }
     }
 
     /**

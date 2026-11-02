@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -60,12 +61,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * PostgreSQL-backed STT transcript-commit fencing that needs no real model. A fixture provider
  * returns a typed SUCCEEDED submission carrying the canonical transcript response, while the
- * Shared policy verdict is flipped after the provider executes: the current decision must be
- * re-read at the fenced transcript commit boundary and a denied/revoked verdict must leave the
- * durable transcript store untouched even though the job's own outcome already committed. A
- * second case abandons an in-flight attempt (close before any terminal write) and proves a
- * fresh runtime over the same durable state reconciles the job to OUTCOME_UNKNOWN with no
- * transcript side effect.
+ * Shared policy verdict is re-read before the atomic terminal/transcript transaction. The suite
+ * also forces a late outbox failure and verifies the job, attempt, transcript, and both outbox
+ * effects roll back together; replay and restart remain duplicate-safe.
  */
 @Tag("integration")
 @Testcontainers(disabledWithoutDocker = true)
@@ -158,13 +156,23 @@ class MediaSttTranscriptCommitFenceIT {
             assertThat(transcriptStore.readAttemptBinding(
                     "tenant-a", "principal-a", "transcript:" + accepted.jobId(), 1)
                     .providerOperationId()).isEqualTo("op-fence-1");
+
+            // A lost append acknowledgement can be retried from the same exact attempt. The
+            // attempt-bound transcript store returns the committed revision without duplicating
+            // either its immutable version or its outbox event.
+            var attempt = jobStore.findProcessingAttempt("tenant-a", accepted.jobId(), 1).orElseThrow();
+            transcriptStore.appendFromSuccessfulAttempt(revision.draft(), 0, attempt.attemptNumber(),
+                    attempt.fencingToken(), attempt.requestFingerprint(), "tv-fence-1");
+            assertThat(transcriptStore.revisions(
+                    "tenant-a", "principal-a", "transcript:" + accepted.jobId())).hasSize(1);
+            assertThat(transcriptOutboxCount(accepted.jobId())).isEqualTo(1);
         } finally {
             installed.close();
         }
     }
 
     @Test
-    void policyDenialAfterProviderSuccessBlocksTheFencedTranscriptCommit() throws Exception {
+    void policyDenialAfterProviderSuccessDoesNotCommitCompletedJob() throws Exception {
         AtomicBoolean providerRan = new AtomicBoolean();
         Path root = Files.createTempDirectory("media-fence-deny-");
         AutoCloseable installed = TestAwsStateInstall.install(environment());
@@ -184,16 +192,57 @@ class MediaSttTranscriptCommitFenceIT {
 
             var accepted = runtime.submit(jobRequest(artifact, "deny"),
                     authenticated("tenant-a", "principal-a"));
-            var terminal = await(runtime, accepted.jobId());
-            // The provider succeeded and the job outcome committed; the Shared policy verdict
-            // read at the fenced commit boundary had flipped to DENY, so the transcript store
-            // must show no revision and no attempt binding for this job.
-            assertThat(terminal.status()).as("final job: %s", terminal)
-                    .isEqualTo(JobStatus.COMPLETED);
+            awaitProviderRan(providerRan);
+            var terminal = awaitStatus(runtime, accepted.jobId(), JobStatus.OUTCOME_UNKNOWN);
+            // Denial at the fresh authorization boundary fails before the atomic transaction;
+            // a completed job cannot exist without its transcript.
+            assertThat(terminal.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
             assertThat(providerRan).isTrue();
             assertThat(transcriptStore.revisions(
                     "tenant-a", "principal-a", "transcript:" + accepted.jobId())).isEmpty();
         } finally {
+            installed.close();
+        }
+    }
+
+    @Test
+    void transcriptAndJobTerminalRollBackTogetherWhenLifecycleOutboxInsertFails() throws Exception {
+        AtomicBoolean providerRan = new AtomicBoolean();
+        CountDownLatch allowProviderReturn = new CountDownLatch(1);
+        Path root = Files.createTempDirectory("media-fence-atomic-rollback-");
+        AutoCloseable installed = TestAwsStateInstall.install(environment());
+        try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+             var jobStore = new PostgresqlMediaJobStore();
+             var streamStore = new PostgresqlMediaStreamSessionStore();
+             var consentAuthority = new PostgresqlMediaConsentAuthority();
+             var authority = new PostgresqlMediaSourceAuthorizationAuthority(
+                     new FlippingPolicy(new AtomicBoolean()));
+             var transcriptStore = new PostgresqlMediaTranscriptStore();
+             var administration = new PostgresqlMediaSourceRightsAdministration();
+             var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
+                     authority, transcriptStore, List.of(fenceProvider(providerRan, allowProviderReturn)))) {
+            MediaArtifact artifact = upload(runtime, "atomic-rollback");
+            seedArtifactRow(artifact);
+            administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
+            var accepted = runtime.submit(jobRequest(artifact, "atomic-rollback"),
+                    authenticated("tenant-a", "principal-a"));
+            awaitProviderRan(providerRan);
+
+            // Force the last operation in the finalization transaction (job lifecycle outbox
+            // insert) to violate the unique identity after transcript rows have been inserted.
+            insertTranscriptOutboxCollision(accepted);
+            allowProviderReturn.countDown();
+            var stored = awaitStatus(jobStore, "tenant-a", accepted.jobId(), JobStatus.OUTCOME_UNKNOWN);
+            assertThat(stored.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(jobStore.findProcessingAttempt("tenant-a", accepted.jobId(), 1).orElseThrow().finality())
+                    .isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(transcriptStore.revisions(
+                    "tenant-a", "principal-a", "transcript:" + accepted.jobId())).isEmpty();
+            assertThat(transcriptRevisionCount(accepted.jobId())).isZero();
+            assertThat(transcriptOutboxCount(accepted.jobId())).isEqualTo(1);
+            assertThat(completedJobOutboxCount(accepted.jobId())).isZero();
+        } finally {
+            allowProviderReturn.countDown();
             installed.close();
         }
     }
@@ -343,6 +392,10 @@ class MediaSttTranscriptCommitFenceIT {
     }
 
     private static MediaProcessingProvider fenceProvider(AtomicBoolean ran) {
+        return fenceProvider(ran, null);
+    }
+
+    private static MediaProcessingProvider fenceProvider(AtomicBoolean ran, CountDownLatch allowReturn) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return "stt-fence-fixture"; }
             @Override public String providerVersion() { return "v1"; }
@@ -371,8 +424,22 @@ class MediaSttTranscriptCommitFenceIT {
             @Override public CompletableFuture<ProviderSubmission> processAttempt(
                     ProcessingContext context, ProviderAttemptContext attempt) {
                 ran.set(true);
+                if (allowReturn != null) {
+                    return CompletableFuture.supplyAsync(() -> {
+                        try { allowReturn.await(); }
+                        catch (InterruptedException interrupted) {
+                            Thread.currentThread().interrupt();
+                            throw new IllegalStateException("fixture provider interrupted", interrupted);
+                        }
+                        return successfulFenceSubmission(context, attempt);
+                    });
+                }
+                return CompletableFuture.completedFuture(successfulFenceSubmission(context, attempt));
+            }
+            private ProviderSubmission successfulFenceSubmission(
+                    ProcessingContext context, ProviderAttemptContext attempt) {
                 String fingerprint = attempt.requestFingerprint();
-                return CompletableFuture.completedFuture(new ProviderSubmission(
+                return new ProviderSubmission(
                         AttemptFinality.SUCCEEDED, "op-fence-1", "receipt-fence-1",
                         Map.of("text", "fence transcript",
                                 "semanticObservations", Map.of(
@@ -386,9 +453,105 @@ class MediaSttTranscriptCommitFenceIT {
                                                 "transcriptVersionRef", "tv-fence-1",
                                                 "glossaryDisposition", "NOT_REQUESTED",
                                                 "transcriptText", "fence transcript"))),
-                        "a".repeat(64), Instant.now()));
+                        "a".repeat(64), Instant.now());
             }
         };
+    }
+
+    private static void awaitProviderRan(AtomicBoolean providerRan) throws Exception {
+        for (int i = 0; i < 200 && !providerRan.get(); i++) Thread.sleep(25);
+        assertThat(providerRan).isTrue();
+    }
+
+    private static ProcessingJob awaitStatus(
+            MediaRuntime runtime, String jobId, JobStatus expected) throws Exception {
+        for (int i = 0; i < 200; i++) {
+            ProcessingJob current = runtime.job("tenant-a", "principal-a", jobId).orElseThrow();
+            if (current.status() == expected) return current;
+            if (current.status() == JobStatus.COMPLETED || current.status() == JobStatus.FAILED
+                    || current.status() == JobStatus.CANCELLED || current.status() == JobStatus.OUTCOME_UNKNOWN) {
+                throw new AssertionError("job reached unexpected terminal state: " + current.status());
+            }
+            Thread.sleep(25);
+        }
+        throw new AssertionError("job did not reach expected status " + expected);
+    }
+
+    private static ProcessingJob awaitStatus(
+            PostgresqlMediaJobStore store, String tenantId, String jobId, JobStatus expected) throws Exception {
+        for (int i = 0; i < 200; i++) {
+            ProcessingJob current = store.find(tenantId, jobId).orElseThrow();
+            if (current.status() == expected) return current;
+            if (current.status() == JobStatus.COMPLETED || current.status() == JobStatus.FAILED
+                    || current.status() == JobStatus.CANCELLED || current.status() == JobStatus.OUTCOME_UNKNOWN) {
+                throw new AssertionError("job reached unexpected terminal state: " + current.status());
+            }
+            Thread.sleep(25);
+        }
+        throw new AssertionError("job did not reach expected status " + expected);
+    }
+
+    private static void insertTranscriptOutboxCollision(ProcessingJob accepted) throws Exception {
+        String transcriptId = "transcript:" + accepted.jobId();
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement("""
+                     INSERT INTO media_processing_lifecycle_outbox
+                       (event_id,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,
+                        payload_json,classification,created_at,published_at,attempts,last_error)
+                     VALUES (?,?,?,?,?,?,?,'CONFIDENTIAL',?,NULL,0,NULL)
+                     """)) {
+            statement.setString(1, "collision:" + accepted.jobId());
+            statement.setString(2, accepted.tenantId());
+            statement.setString(3, "transcript");
+            statement.setString(4, transcriptId);
+            statement.setLong(5, 1);
+            statement.setString(6, "media.transcript.revision.created");
+            statement.setString(7, "{}");
+            statement.setLong(8, System.currentTimeMillis());
+            statement.executeUpdate();
+        }
+    }
+
+    private static int transcriptOutboxCount(String jobId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_processing_lifecycle_outbox WHERE aggregate_type='transcript' AND aggregate_id=?")) {
+            statement.setString(1, "transcript:" + jobId);
+            try (var result = statement.executeQuery()) {
+                result.next();
+                return result.getInt(1);
+            }
+        }
+    }
+
+    private static int transcriptRevisionCount(String jobId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_transcript_revisions WHERE job_id=?")) {
+            statement.setString(1, jobId);
+            try (var result = statement.executeQuery()) {
+                result.next();
+                return result.getInt(1);
+            }
+        }
+    }
+
+    private static int completedJobOutboxCount(String jobId) throws Exception {
+        try (var connection = java.sql.DriverManager.getConnection(
+                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement("""
+                     SELECT COUNT(*) FROM media_processing_lifecycle_outbox
+                      WHERE aggregate_type='job' AND aggregate_id=? AND event_type='media.job.completed'
+                     """)) {
+            statement.setString(1, jobId);
+            try (var result = statement.executeQuery()) {
+                result.next();
+                return result.getInt(1);
+            }
+        }
     }
 
     private static MediaProcessingProvider blockingProvider(AtomicBoolean ran) {

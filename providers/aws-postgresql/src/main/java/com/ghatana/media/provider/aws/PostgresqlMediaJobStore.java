@@ -720,6 +720,43 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     public ProcessingJob commitFinalOutcome(
             ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
             ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
+        return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
+                null, null, null);
+    }
+
+    @Override
+    public ProcessingJob commitFinalOutcomeWithTranscript(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+            ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+            com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore transcriptStore,
+            com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+            String transcriptVersionRef) {
+        if (!(transcriptStore instanceof PostgresqlMediaTranscriptStore postgresTranscriptStore)
+                || !postgresTranscriptStore.sharesState(state)) {
+            throw new UnsupportedOperationException(
+                    "successful STT and transcript must share the canonical PostgreSQL runtime state");
+        }
+        if (attempt == null || transcriptDraft == null || transcriptVersionRef == null || transcriptVersionRef.isBlank()
+                || expected.jobType() != JobType.SPEECH_TO_TEXT || terminal.status() != JobStatus.COMPLETED
+                || observation == null || observation.finality() != AttemptFinality.SUCCEEDED
+                || !expected.tenantId().equals(transcriptDraft.tenantId())
+                || !expected.principalId().equals(transcriptDraft.principalId())
+                || !expected.jobId().equals(transcriptDraft.jobId())
+                || !expected.artifactId().equals(transcriptDraft.sourceArtifactId())
+                || !expected.expectedArtifactVersion().equals(transcriptDraft.sourceVersion())
+                || !attempt.providerId().equals(transcriptDraft.providerId())) {
+            throw new IllegalArgumentException("atomic STT transcript finalization identity is invalid");
+        }
+        return commitFinalOutcomeInternal(expected, attempt, terminal, observation, lifecycleEvent,
+                postgresTranscriptStore, transcriptDraft, transcriptVersionRef);
+    }
+
+    private ProcessingJob commitFinalOutcomeInternal(
+            ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+            ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+            PostgresqlMediaTranscriptStore transcriptStore,
+            com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+            String transcriptVersionRef) {
         ensureOpen();
         validateUpdate(expected, terminal);
         if (!terminal(terminal.status())) throw new IllegalArgumentException("final outcome requires a terminal job state");
@@ -793,6 +830,11 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     updateJob.setLong(13, attempt.fencingToken());
                     updateJob.setLong(14, System.currentTimeMillis());
                     if (updateJob.executeUpdate() != 1) throw new IllegalStateException("Media job finality fence changed");
+                }
+                if (transcriptStore != null) {
+                    transcriptStore.appendFromSuccessfulAttemptInTransaction(connection, transcriptDraft, 0,
+                            attempt.attemptNumber(), attempt.fencingToken(), attempt.requestFingerprint(),
+                            transcriptVersionRef);
                 }
                 insertOutbox(connection, lifecycleEvent);
                 connection.commit();
