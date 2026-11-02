@@ -289,6 +289,9 @@ class RpcDeadlineServerInterceptorTest {
                     .isInstanceOf(ExecutionException.class);
             assertThat(effectCommitted.await(1, TimeUnit.SECONDS)).isTrue();
             assertThat(effects).hasValue(1);
+            // The callable returned normally after cancellation, but its late success must not
+            // replace the caller-visible UNKNOWN_OUTCOME selected at cancellation time.
+            assertStatus(first, Status.Code.UNKNOWN);
             assertThat(first.result().isCompletedExceptionally()).isTrue();
         } finally {
             release.countDown();
