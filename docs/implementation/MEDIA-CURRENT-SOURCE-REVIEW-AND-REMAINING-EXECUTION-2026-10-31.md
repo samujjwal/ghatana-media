@@ -1918,3 +1918,42 @@ PDP-1/2/3 source currentness remains stale. OperationRef-to-engine compatibility
 The Rust tests do not establish sustained fuzzing, broader compressed-container corpus coverage, concurrent file-growth safety, or interruption of an in-flight synchronous codec call. The one peak-RSS sample is not a repeated fuzz or worst-case corpus bound. RS-04 remains in-memory and does not establish configurable pan law, perceptual loudness, or high-fidelity output. No Rust provider, real model, or cross-host capacity qualification is claimed.
 
 These local changes do not alter the original Wave 2 denominator (22 verified, 30 partial, 6 external-owner), Wave 3 denominator, H outcome denominator, PDP status, deployment, writer cutover, or release state.
+
+### 41.54 November 2 IP-06 manifest completeness, installed gRPC streams, and currentness readback (2026-11-02)
+
+At Media `main@1ec651fe5aff3cb78aa246146946bdfb08e511c0`, two focused commits extend the requested local evidence. The branch is local `main`, 139 commits ahead of `origin/main`; these commits are unpushed.
+
+**IP-06 test-history fixture:** `MediaLegacyMigrationHistoryReadbackTest` now requires the test-only Flyway source manifest to contain exactly 16 rows in contiguous version order V001–V016 before checking the isolated database history against every manifest row. This closes the case where a missing tail row could leave its source hash unchecked. The focused PostgreSQL 16/Testcontainers selector passed **1/1**:
+
+```bash
+./gradlew :services:media:providers:aws-postgresql:test \
+  --tests com.ghatana.media.provider.aws.MediaLegacyMigrationHistoryReadbackTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+# BUILD SUCCESSFUL; 1 selected test passed
+```
+
+The three requested inputs remain unchanged and hash-verified: synthetic snapshot SQL `1afad850c7e3f1098dc09216c327d715f2d4ed7bf3ce47a620ad2bbf1b14c883`, isolated applied-history CSV `8aebbf666624dc73cf2dea461b89ac755a1077b63cee45f0898045f4dc7a2667`, and V001–V016 migration manifest `d54d17682c8b322f41457457831503b55342264989876bf7bd19cf34e06678b0`. As in §41.40, these are source-derived test fixtures, not deployed `flyway_schema_history`. No production database, migration history, or writer was changed. The test does not close actual deployed-history reconciliation, old-writer fencing, cutover, or rollback.
+
+**JC-04 installed gRPC consumer:** the source-free consumer now compares exact generated RPC inventories and streaming kinds for all four installed services (STT 12, TTS 11, Vision 11, Multimodal 10; 44 total). It also round-trips the existing unary method for each service plus STT bidirectional `StreamTranscribe`, TTS server-streaming `StreamSynthesize`, and Vision bidirectional `ProcessVideo`, checking ordered synthetic messages and dispatch counts. An independent Luna read-only review returned `ACCEPT_LOCAL_STREAM_ROUNDTRIPS`; the review confirms only synthetic installed-client transport behavior. It does not establish every method's field evolution, streaming backpressure/interceptors, production services, or full JC-04 acceptance.
+
+The source API was published to an isolated local Maven repository, then the consumer compiled and ran offline:
+
+```bash
+./gradlew :services:media:api:grpc-api:publishGrpcApiPublicationToIsolatedLocalRepository \
+  --offline --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# BUILD SUCCESSFUL; 14 actionable tasks
+
+./gradlew --offline -p api/grpc-consumer run \
+  -PgrpcApiRepo=/Users/samujjwal/Development/ghatana-media/build/grpc-api-maven-repository \
+  -PgrpcApiVersion=0.1.0-SNAPSHOT \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# BUILD SUCCESSFUL; consumer compile and smoke run passed
+```
+
+The combined task's nested Gradle invocation encountered a sandbox file-lock socket denial; the two equivalent publish/consumer steps above completed successfully in separate offline invocations. No production client or provider effect is inferred.
+
+**Kernel OCR and source currentness:** Kernel remains at local `main@bb07a172d84a488090d5bb134812fad28082def5`, six commits ahead of its tracking ref. No Kernel source was changed. To remove the earlier read-only checkout write denial without touching Kernel, `verifyPdpSource()` was run without its report-writing `main()` against a disposable `git archive` copy, with the current Shared and Tools roots supplied as read-only inputs. The native Discovery selector returned **10/15 PASS, 5 FAIL**. Remaining failures are the structural visual-baseline requirement for four human-approved failure/recovery images, stale generated package digests for PDP-0/PDP-2/PDP-3, stale phase snapshot and acceptance projections, and source-contract test failures including phase-package negative/round-trip, synthetic interface propagation, event binding/count expectations, and the experience-source validator. The Discovery exit and Kernel OCR admission remain blocked; the Kernel repository's own Discovery-first rule still prohibits its BUILD implementation until definitions are current and validated. Kernel #99 remains an open security task.
+
+The Media source-currentness audit also remains read-only: PDP-1 has **27/137** stale source pins plus **37** semantic-review pin issues; PDP-2 has **20/157** stale pins; PDP-3 has **21/367** stale pins. Their matrix checks remain stale. The Build task-closure checker still stops on **23** prior PDP-2 selectors with no established source successors. PDP-0's global selector still has **30** skipped cases and fails closed at `MSR-006-RESIDUAL-01`; candidate `MPSEM-0023-C002` still awaits coordinator material review. Per the existing owner route, preserve these historical cuts; process the earliest PDP-0 source-currentness disposition first, then review and regenerate only through the owning P0→P1→P2→P3 producers. No blanket hash refresh, status/pin mutation, owner signature, independent acceptance, Kernel admission, PDP closure, deployment, writer cutover, or release was performed.
+
+The H-02 disposition and fixture provenance remain those in §§41.40 and 41.53: independent review is `ACCEPT_LOCAL_CANDIDATE_ONLY`, the test-history artifact is synthetic, and H-02 runtime stays `NOT_ADMITTED`.
