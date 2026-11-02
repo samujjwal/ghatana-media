@@ -71,16 +71,13 @@ public class DataCloudMultimodalAdapter implements MediaProcessorPort {
                     "Data Cloud multimodal integration is unavailable"));
         }
 
-        // PersistentMultimodalService.index currently fails closed until a trusted Data Cloud
-        // artifact/version reader and rights/consent admission path are wired.
-        return multimodalService.index(artifactId, tenantId, indexType, parameters)
-                .mapException(ex -> {
-                    // Provider and source exceptions can contain artifact text, tenant identifiers,
-                    // or other scoped values. Keep this boundary's failure explicit but opaque.
-                    LOG.warn("Multimodal indexing unavailable failureType={}",
-                            ex.getClass().getSimpleName());
-                    return new IllegalStateException("Data Cloud multimodal integration is unavailable");
-                });
+        // The legacy MediaProcessorPort call does not carry immutable artifact version,
+        // authenticated principal, purpose, or live disclosure readback. Keep the direct
+        // method fail-closed as well as isAvailable(): a backing service implementation
+        // must not become an accidental authority if its local index path later changes.
+        LOG.warn("Multimodal indexing is not admitted: source and disclosure bindings are unavailable");
+        return Promise.ofException(new IllegalStateException(
+                "Data Cloud multimodal integration is unavailable"));
     }
 
     @Override
