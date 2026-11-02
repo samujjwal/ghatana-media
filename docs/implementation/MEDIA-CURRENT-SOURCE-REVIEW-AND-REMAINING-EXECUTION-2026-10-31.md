@@ -1352,3 +1352,7 @@ Read-only review on code at `774ab145` found no narrow local repair justified in
 
 Commit `f3dfb783` changes the Rust audio decoder to return a typed decode error for `SymphoniaError::DecodeError` rather than silently skipping a corrupt packet and returning incomplete audio as success. A malformed MP3 packet regression asserts no panic and a decode failure. `cargo test --locked -p speech-audio-rust` passed **41/41**; `cargo fmt --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml -- --check` and `git diff --check` passed. Existing sample/frame/channel/rate/duration caps were not changed. This is one adverse decoder path; it does not supply fuzz/RSS results, native codec qualification, or full RS-02 acceptance.
 
+### 41.14 LD-01 RunLedger projection boundary (2026-11-02)
+
+Read-only source review found `AudioVideoRunLedgerAdapter` maps representable Media job states explicitly and rejects unrepresentable or absent states. `OUTCOME_UNKNOWN`, `RECONCILING`, and `CANCELLING` are never converted to `RUNNING`, `FAILED`, or success. The focused `AudioVideoRunLedgerAdapterTest` passed **23/23** with `./gradlew :services:media:adapters:ledger:test --tests com.ghatana.audiovideo.adapter.ledger.AudioVideoRunLedgerAdapterTest --no-daemon --max-workers=2 --console=plain`; no code change was justified. RunLedger has no typed `UNKNOWN` state, so a direct projection requires a source/public-contract decision. LD-01 remains open at that boundary rather than inventing a new state.
+
