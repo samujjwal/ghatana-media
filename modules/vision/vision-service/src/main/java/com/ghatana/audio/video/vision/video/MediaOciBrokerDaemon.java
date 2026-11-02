@@ -3,7 +3,6 @@ package com.ghatana.audio.video.vision.video;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.UnixDomainSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
@@ -15,11 +14,20 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.function.LongSupplier;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
+import jdk.net.ExtendedSocketOptions;
+import jdk.net.UnixDomainPrincipal;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -53,10 +61,13 @@ public final class MediaOciBrokerDaemon {
     private static final int FD_LIMIT = 64;
     private static final long OUTPUT_FILE_LIMIT = 512L * 1024 * 1024;
     private static final int MAX_ARGS = 64;
-    private static final int MAX_REQUEST_BYTES = 64 * 1024;
+    private static final int MAX_FFMPEG_REQUEST_BYTES = 64 * 1024;
+    private static final int MAX_REQUEST_BYTES = 8 * 1024 * 1024;
     private static final Duration READ_DEADLINE = Duration.ofSeconds(10);
     private static final int OUTPUT_TAIL = 8192;
     private static final int MAX_CAPTURED_OUTPUT_CHARS = 1_000_000;
+    /** Preserve the broker's previous serialized native-worker admission across modalities. */
+    private static final Semaphore WORKER_ADMISSION = new Semaphore(1);
 
     private MediaOciBrokerDaemon() { }
 
@@ -68,11 +79,12 @@ public final class MediaOciBrokerDaemon {
         String allowlist = System.getenv("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST");
         String workerUid = System.getenv("MEDIA_OCI_BROKER_WORKER_UID");
         String workerGid = System.getenv("MEDIA_OCI_BROKER_WORKER_GID");
+        String allowedPeerUser = System.getenv("MEDIA_OCI_BROKER_ALLOWED_PEER_USER");
         String docker = System.getenv().getOrDefault("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
         if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot)
-                || blank(allowlist) || blank(workerUid) || blank(workerGid)) {
+                || blank(allowlist) || blank(workerUid) || blank(workerGid) || !validPeerUsername(allowedPeerUser)) {
             System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT, _OUTPUT_ROOT,"
-                    + " _IMAGE_ALLOWLIST, _WORKER_UID and _WORKER_GID are required");
+                    + " _IMAGE_ALLOWLIST, _WORKER_UID, _WORKER_GID and _ALLOWED_PEER_USER are required");
             System.exit(2);
         }
         Path tokenPath = Path.of(tokenFile);
@@ -112,28 +124,105 @@ public final class MediaOciBrokerDaemon {
         }
         MediaOciBrokerPolicy.Policy policy = new MediaOciBrokerPolicy.Policy(
                 java.util.Set.copyOf(images), uid, gid,
-                Path.of(sourceRoot).toRealPath(), Path.of(outputRoot).toRealPath());
+                Path.of(sourceRoot).toRealPath(), Path.of(outputRoot).toRealPath(),
+                MediaOciBrokerPolicy.loadWhisperProfile(System.getenv(), java.util.Set.copyOf(images)).orElse(null),
+                WhisperWorkerServerConfig.load(System.getenv(), java.util.Set.copyOf(images)).orElse(null));
+        WhisperOciWorkerSupervisor whisperSupervisor = null;
+        MediaOciBrokerWhisperJournal whisperJournal = null;
+        if (policy.whisperWorkerConfig() != null) {
+            WhisperOciWorkerSupervisor.Startup whisperStartup = WhisperOciWorkerSupervisor.start(
+                    docker, uid, gid, policy.whisperWorkerConfig(), token,
+                    new WhisperOciWorkerSupervisor.ProcessBuilderCommandRunner());
+            if (whisperStartup.admitted()) {
+                whisperJournal = whisperStartup.journal();
+                whisperSupervisor = whisperStartup.supervisor();
+            } else {
+                System.err.println("Whisper worker not admitted: orphan cleanup or journal recovery unavailable");
+            }
+        }
         MediaOciBrokerPolicy.NonceReplayGuard nonces = new MediaOciBrokerPolicy.NonceReplayGuard();
         Path socket = Path.of(socketPath);
         Files.deleteIfExists(socket);
+        ThreadPoolExecutor requests = new ThreadPoolExecutor(8, 8, 0, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(32), task -> {
+                    Thread thread = new Thread(task, "media-oci-broker-request");
+                    thread.setDaemon(true);
+                    return thread;
+                }, new ThreadPoolExecutor.AbortPolicy());
+        WhisperOciWorkerSupervisor finalWhisperSupervisor = whisperSupervisor;
+        MediaOciBrokerWhisperJournal finalWhisperJournal = whisperJournal;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            requests.shutdown();
+            if (finalWhisperSupervisor != null) {
+                try { finalWhisperSupervisor.close(); }
+                catch (IOException shutdownFailure) {
+                    System.err.println("Whisper worker shutdown cleanup remains unknown");
+                }
+            }
+            try {
+                if (!requests.awaitTermination(20, TimeUnit.SECONDS)) requests.shutdownNow();
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                requests.shutdownNow();
+            }
+            if (finalWhisperJournal != null) {
+                try { finalWhisperJournal.close(); } catch (IOException ignored) { }
+            }
+        }, "media-oci-broker-shutdown"));
         try (ServerSocketChannel server = ServerSocketChannel.open(
                 java.net.StandardProtocolFamily.UNIX)) {
             server.bind(UnixDomainSocketAddress.of(socket));
             Files.setPosixFilePermissions(socket, PosixFilePermissions.fromString("rw-------"));
             System.err.println("Media OCI broker listening on " + socket);
             while (true) {
-                try (SocketChannel client = server.accept()) {
-                    handle(client, token, docker, policy, nonces);
-                } catch (Exception failure) {
-                    System.err.println("broker request failed: " + failure.getClass().getSimpleName());
+                SocketChannel accepted = server.accept();
+                try {
+                    requests.execute(() -> {
+                        try (SocketChannel client = accepted) {
+                            handle(client, token, docker, policy, nonces, allowedPeerUser,
+                                    MediaOciBrokerDaemon::readPeerUsername, finalWhisperSupervisor);
+                        } catch (Exception failure) {
+                            System.err.println("broker request failed: " + failure.getClass().getSimpleName());
+                        }
+                    });
+                } catch (RejectedExecutionException saturated) {
+                    accepted.close();
                 }
             }
         }
     }
 
-    private static void handle(SocketChannel client, String token, String docker,
-            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces)
+    static void handle(SocketChannel client, String token, String docker,
+            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces,
+            String allowedPeerUser)
             throws Exception {
+        handle(client, token, docker, policy, nonces, allowedPeerUser,
+                MediaOciBrokerDaemon::readPeerUsername, null);
+    }
+
+    static void handle(SocketChannel client, String token, String docker,
+            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces,
+            String allowedPeerUser, PeerCredentialsReader credentialsReader)
+            throws Exception {
+        handle(client, token, docker, policy, nonces, allowedPeerUser, credentialsReader, null);
+    }
+
+    static void handle(SocketChannel client, String token, String docker,
+            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces,
+            String allowedPeerUser, PeerCredentialsReader credentialsReader,
+            WhisperOciWorkerSupervisor whisperSupervisor) throws Exception {
+        handle(client, token, docker, policy, nonces, allowedPeerUser, credentialsReader,
+                whisperSupervisor, System::currentTimeMillis);
+    }
+
+    static void handle(SocketChannel client, String token, String docker,
+            MediaOciBrokerPolicy.Policy policy, MediaOciBrokerPolicy.NonceReplayGuard nonces,
+            String allowedPeerUser, PeerCredentialsReader credentialsReader,
+            WhisperOciWorkerSupervisor whisperSupervisor, LongSupplier wallClockMillis) throws Exception {
+        if (!peerUserAllowed(client, allowedPeerUser, credentialsReader)) {
+            writeResult(client, -1, "unauthenticated");
+            return;
+        }
         byte[] body = readFrame(client, MAX_REQUEST_BYTES,
                 System.nanoTime() + READ_DEADLINE.toNanos());
         if (body == null) { writeResult(client, -1, "unauthenticated"); return; }
@@ -153,6 +242,16 @@ public final class MediaOciBrokerDaemon {
         }
         if (!nonces.admit(nonce, issuedAt, System.currentTimeMillis())) {
             writeResult(client, -1, "unauthenticated"); return;
+        }
+        String operation = field(payload, "op");
+        if (operation != null && operation.startsWith("WHISPER_")) {
+            handleWhisper(client, token, nonce, issuedAt, operation, payload, policy,
+                    whisperSupervisor, wallClockMillis);
+            return;
+        }
+        if (body.length > MAX_FFMPEG_REQUEST_BYTES) {
+            writeResult(client, -2, "rejected");
+            return;
         }
         String image = field(payload, "image");
         String name = field(payload, "name");
@@ -178,9 +277,301 @@ public final class MediaOciBrokerDaemon {
         }
         Path sourcePath = source == null ? null : Path.of(source).toRealPath();
         Path outputPath = output == null ? null : Path.of(output).toRealPath();
-        writeResult(client, 0, runWorker(docker, image, name, executable, workerArgs,
-                sourcePath, outputPath, policy.workerUid(), policy.workerGid(),
-                Duration.ofMillis(timeout), outLimit));
+        if (!WORKER_ADMISSION.tryAcquire()) {
+            writeResult(client, -2, "worker capacity exhausted");
+            return;
+        }
+        try {
+            writeResult(client, 0, runWorker(docker, image, name, executable, workerArgs,
+                    sourcePath, outputPath, policy.workerUid(), policy.workerGid(),
+                    Duration.ofMillis(timeout), outLimit));
+        } finally {
+            WORKER_ADMISSION.release();
+        }
+    }
+
+    @FunctionalInterface
+    interface PeerCredentialsReader {
+        String username(SocketChannel channel) throws IOException;
+    }
+
+    static boolean peerUserAllowed(SocketChannel channel, String expectedUsername) {
+        return peerUserAllowed(channel, expectedUsername, MediaOciBrokerDaemon::readPeerUsername);
+    }
+
+    static boolean peerUserAllowed(SocketChannel channel, String expectedUsername,
+                                   PeerCredentialsReader credentialsReader) {
+        if (channel == null || !validPeerUsername(expectedUsername)
+                || credentialsReader == null) return false;
+        try {
+            String actual = credentialsReader.username(channel);
+            return actual != null && expectedUsername.equals(actual);
+        } catch (IOException | UnsupportedOperationException | SecurityException unavailable) {
+            return false;
+        }
+    }
+
+    private static String readPeerUsername(SocketChannel channel) throws IOException {
+        UnixDomainPrincipal peer = channel.getOption(ExtendedSocketOptions.SO_PEERCRED);
+        return peer == null || peer.user() == null ? null : peer.user().getName();
+    }
+
+    static boolean validPeerUsername(String username) {
+        return username != null && username.length() <= 128 && !username.isBlank()
+                && username.chars().noneMatch(Character::isWhitespace);
+    }
+
+    /**
+     * Authenticated protocol seam for the shared Whisper compute client. The fixed
+     * image build and server-owned model configuration are validated independently.
+     * Dispatch remains gated on the supervisor and durable journal being present;
+     * the supervisor owns the fixed container shape and cleanup state machine.
+     */
+    private static void handleWhisper(SocketChannel client, String token, String nonce, long timestamp,
+            String operation, String payload, MediaOciBrokerPolicy.Policy policy,
+            WhisperOciWorkerSupervisor whisperSupervisor, LongSupplier wallClockMillis) throws Exception {
+        String invocationText = field(payload, "invocationId");
+        String profileId = field(payload, "profileId");
+        String locale = field(payload, "locale");
+        String sourceSha256 = field(payload, "sourceSha256");
+        UUID invocationId;
+        try {
+            invocationId = UUID.fromString(invocationText);
+        } catch (RuntimeException invalidIdentity) {
+            writeResult(client, -2, "rejected");
+            return;
+        }
+        if (profileId == null || !profileId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
+                || locale == null || locale.length() > 35 || sourceSha256 == null
+                || !sourceSha256.matches("[0-9a-f]{64}")) {
+            writeResult(client, -2, "rejected");
+            return;
+        }
+        String canonicalLocale;
+        try {
+            Locale parsedLocale = new Locale.Builder().setLanguageTag(locale).build();
+            canonicalLocale = parsedLocale.toLanguageTag();
+            if (parsedLocale.getLanguage().isBlank() || "und".equals(canonicalLocale)) {
+                throw new IllegalArgumentException("locale requires a language subtag");
+            }
+        } catch (RuntimeException invalidLocale) {
+            writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                    profileId, sourceSha256, null, null);
+            return;
+        }
+        if (!canonicalLocale.equals(locale)) {
+            writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                    profileId, sourceSha256, null, null);
+            return;
+        }
+
+        com.ghatana.media.runtime.WhisperComputeContracts.Result protocolResult = null;
+        if ("WHISPER_EXECUTE".equals(operation)) {
+            if (!payloadHasOnlyFields(payload, java.util.Set.of("op", "invocationId", "profileId", "locale",
+                    "sourceSha256", "remainingBudgetMillis", "wavBase64"))) {
+                writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                        profileId, sourceSha256, null, null);
+                return;
+            }
+            String encoded = field(payload, "wavBase64");
+            long budget = strictNumber(payload, "remainingBudgetMillis", 1,
+                    com.ghatana.media.runtime.WhisperComputeContracts.MAX_REMAINING_BUDGET_MILLIS);
+            byte[] wav;
+            try {
+                if (encoded == null || encoded.length() > 6 * 1024 * 1024 || budget < 1) throw new IllegalArgumentException();
+                wav = Base64.getDecoder().decode(encoded);
+            } catch (RuntimeException invalidPayload) {
+                writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                        profileId, sourceSha256, null, null);
+                return;
+            }
+            if (!MediaOciBrokerPolicy.whisperInputAllowed(wav, sourceSha256)) {
+                writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                        profileId, sourceSha256, null, null);
+                return;
+            }
+            WhisperWorkerServerConfig config = policy.whisperWorkerConfig();
+            if (whisperSupervisor != null && config != null
+                    && MediaOciBrokerPolicy.whisperProfileAllowed(policy, profileId, locale)
+                    && MediaOciBrokerPolicy.whisperImageAllowed(policy, config.imageDigest())) {
+                long remainingBudget = remainingAuthenticatedBudget(timestamp, budget, wallClockMillis.getAsLong());
+                if (remainingBudget <= 0) {
+                    // This signed exact-identity deadline is emitted only before supervisor.execute,
+                    // hence before durable STARTED reservation or any worker/container dispatch.
+                    protocolResult = new com.ghatana.media.runtime.WhisperComputeContracts.Result(
+                            invocationId, profileId, sourceSha256, null, "",
+                            com.ghatana.media.runtime.WhisperComputeContracts.Status.DEADLINE_EXCEEDED,
+                            false, false, false);
+                } else if (!WORKER_ADMISSION.tryAcquire()) {
+                    protocolResult = new com.ghatana.media.runtime.WhisperComputeContracts.Result(
+                            invocationId, profileId, sourceSha256, null, "",
+                            com.ghatana.media.runtime.WhisperComputeContracts.Status.RESOURCE_EXHAUSTED,
+                            false, false, false);
+                } else {
+                    try {
+                        protocolResult = whisperSupervisor.execute(invocationId, profileId, locale,
+                                sourceSha256, wav, remainingBudget);
+                    } finally {
+                        WORKER_ADMISSION.release();
+                    }
+                }
+            }
+        } else if (!"WHISPER_STATUS".equals(operation) && !"WHISPER_CANCEL".equals(operation)) {
+            writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                    profileId, sourceSha256, null, null);
+            return;
+        } else if (!payloadHasOnlyFields(payload, java.util.Set.of("op", "invocationId", "profileId", "locale",
+                "sourceSha256"))) {
+            writeWhisperResponse(client, token, nonce, timestamp, "INVALID_REQUEST", invocationId,
+                    profileId, sourceSha256, null, null);
+            return;
+        }
+        if (protocolResult == null && whisperSupervisor != null
+                && policy.whisperWorkerConfig() != null
+                && MediaOciBrokerPolicy.whisperProfileAllowed(policy, profileId, locale)
+                && MediaOciBrokerPolicy.whisperImageAllowed(policy,
+                        policy.whisperWorkerConfig().imageDigest())) {
+            protocolResult = "WHISPER_STATUS".equals(operation)
+                    ? whisperSupervisor.status(invocationId, profileId, locale, sourceSha256)
+                    : whisperSupervisor.cancel(invocationId, profileId, locale, sourceSha256);
+        }
+        if (protocolResult != null) {
+            writeWhisperResponse(client, token, nonce, timestamp, protocolResult);
+        } else {
+            writeWhisperResponse(client, token, nonce, timestamp, "NOT_ADMITTED", invocationId,
+                    profileId, sourceSha256, null, null);
+        }
+    }
+
+    private static void writeWhisperResponse(SocketChannel client, String token, String nonce, long timestamp,
+            com.ghatana.media.runtime.WhisperComputeContracts.Result result) throws Exception {
+        StringBuilder body = new StringBuilder("{\"status\":").append(json(result.status().name()))
+                .append(",\"invocationId\":").append(json(result.invocationId().toString()))
+                .append(",\"profileId\":").append(json(result.profileId()))
+                .append(",\"inputSha256\":").append(json(result.inputSha256()));
+        if (result.modelSha256() != null) body.append(",\"modelSha256\":").append(json(result.modelSha256()));
+        if (result.status() == com.ghatana.media.runtime.WhisperComputeContracts.Status.SUCCESS) {
+            body.append(",\"transcriptBase64\":")
+                    .append(json(Base64.getEncoder().encodeToString(result.transcript().getBytes(StandardCharsets.UTF_8))));
+        }
+        body.append(",\"complete\":").append(result.complete())
+                .append(",\"endOfTask\":").append(result.endOfTask())
+                .append(",\"tokenLimitReached\":").append(result.tokenLimitReached()).append('}');
+        String unsignedBody = body.toString();
+        String proof = hmac(token, "response\n" + nonce + "\n" + timestamp + "\n" + unsignedBody);
+        String signedBody = unsignedBody.substring(0, unsignedBody.length() - 1)
+                + ",\"proof\":" + json(proof) + "}";
+        writeWhisperFrame(client, "{\"status\":0,\"body\":" + signedBody + "}");
+    }
+
+    private static void writeWhisperResponse(SocketChannel client, String token, String nonce, long timestamp,
+            String status, UUID invocationId, String profileId, String inputSha256,
+            String modelSha256, String transcript) throws Exception {
+        StringBuilder body = new StringBuilder("{\"status\":").append(json(status))
+                .append(",\"invocationId\":").append(json(invocationId.toString()))
+                .append(",\"profileId\":").append(json(profileId))
+                .append(",\"inputSha256\":").append(json(inputSha256));
+        if (modelSha256 != null) body.append(",\"modelSha256\":").append(json(modelSha256));
+        if (transcript != null) body.append(",\"transcriptBase64\":").append(json(transcript));
+        body.append(",\"complete\":false,\"endOfTask\":false,\"tokenLimitReached\":false}");
+        String unsignedBody = body.toString();
+        String proof = hmac(token, "response\n" + nonce + "\n" + timestamp + "\n" + unsignedBody);
+        String signedBody = unsignedBody.substring(0, unsignedBody.length() - 1)
+                + ",\"proof\":" + json(proof) + "}";
+        writeWhisperFrame(client, "{\"status\":0,\"body\":" + signedBody + "}");
+    }
+
+    private static void writeWhisperFrame(SocketChannel client, String response) throws IOException {
+        byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > MediaOciBrokerPolicy.MAX_WHISPER_RESPONSE_BYTES) {
+            writeResult(client, -2, "rejected");
+            return;
+        }
+        ByteBuffer frame = ByteBuffer.allocate(bytes.length + 4).putInt(bytes.length).put(bytes);
+        frame.flip();
+        while (frame.hasRemaining()) client.write(frame);
+    }
+
+    /** Fail closed on caller-supplied OCI authority, paths, worker commands, or resource limits. */
+    static boolean payloadHasOnlyFields(String json, java.util.Set<String> allowed) {
+        java.util.Set<String> fields = topLevelStringKeys(json);
+        return fields != null && fields.equals(allowed);
+    }
+
+    private static java.util.Set<String> topLevelStringKeys(String json) {
+        if (json == null) return null;
+        String trimmed = json.trim();
+        if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null;
+        java.util.Set<String> result = new java.util.HashSet<>();
+        int cursor = 1;
+        int end = trimmed.length() - 1;
+        while (cursor < end) {
+            cursor = skipWhitespace(trimmed, cursor);
+            if (cursor >= end) break;
+            if (trimmed.charAt(cursor) != '"') return null;
+            int keyEnd = stringEnd(trimmed, cursor);
+            if (keyEnd < 0) return null;
+            String key = unescape(trimmed.substring(cursor + 1, keyEnd));
+            if (!result.add(key)) return null;
+            cursor = skipWhitespace(trimmed, keyEnd + 1);
+            if (cursor >= end || trimmed.charAt(cursor++) != ':') return null;
+            cursor = skipWhitespace(trimmed, cursor);
+            int valueEnd = valueEnd(trimmed, cursor);
+            if (valueEnd < cursor) return null;
+            cursor = skipWhitespace(trimmed, valueEnd);
+            if (cursor < end) {
+                if (trimmed.charAt(cursor++) != ',') return null;
+            }
+        }
+        return cursor == end ? result : null;
+    }
+
+    private static int valueEnd(String text, int start) {
+        if (start >= text.length()) return -1;
+        char first = text.charAt(start);
+        if (first == '"') {
+            int end = stringEnd(text, start);
+            return end < 0 ? -1 : end + 1;
+        }
+        if (first == '{' || first == '[') {
+            char close = first == '{' ? '}' : ']';
+            int depth = 0;
+            boolean quoted = false;
+            boolean escaped = false;
+            for (int i = start; i < text.length(); i++) {
+                char c = text.charAt(i);
+                if (escaped) { escaped = false; continue; }
+                if (quoted) {
+                    if (c == '\\') escaped = true;
+                    else if (c == '"') quoted = false;
+                    continue;
+                }
+                if (c == '"') quoted = true;
+                else if (c == first) depth++;
+                else if (c == close && --depth == 0) return i + 1;
+            }
+            return -1;
+        }
+        int cursor = start;
+        while (cursor < text.length() && text.charAt(cursor) != ',' && text.charAt(cursor) != '}') cursor++;
+        while (cursor > start && Character.isWhitespace(text.charAt(cursor - 1))) cursor--;
+        return cursor;
+    }
+
+    private static int stringEnd(String text, int start) {
+        boolean escaped = false;
+        for (int i = start + 1; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (escaped) { escaped = false; continue; }
+            if (c == '\\') escaped = true;
+            else if (c == '"') return i;
+        }
+        return -1;
+    }
+
+    private static int skipWhitespace(String text, int cursor) {
+        while (cursor < text.length() && Character.isWhitespace(text.charAt(cursor))) cursor++;
+        return cursor;
     }
 
     private static String runWorker(String docker, String image, String name,
@@ -317,6 +708,16 @@ public final class MediaOciBrokerDaemon {
         return body.array();
     }
 
+    /** Returns zero when the signed request timestamp is from the future or its budget elapsed. */
+    static long remainingAuthenticatedBudget(long signedTimestampMillis, long requestedBudgetMillis,
+            long serverNowMillis) {
+        if (signedTimestampMillis < 0 || requestedBudgetMillis < 1 || serverNowMillis < signedTimestampMillis) {
+            return 0;
+        }
+        long elapsed = serverNowMillis - signedTimestampMillis;
+        return elapsed >= requestedBudgetMillis ? 0 : requestedBudgetMillis - elapsed;
+    }
+
     private static boolean fill(SocketChannel channel, ByteBuffer buffer, long deadlineNanos)
             throws IOException {
         while (buffer.hasRemaining()) {
@@ -428,6 +829,26 @@ public final class MediaOciBrokerDaemon {
             return Math.max(min, Math.min(value, max));
         } catch (NumberFormatException ignored) {
             return fallback;
+        }
+    }
+
+    private static long strictNumber(String json, String name, long min, long max) {
+        String key = "\"" + name + "\":";
+        int start = json.indexOf(key);
+        if (start < 0) return -1;
+        int cursor = start + key.length();
+        while (cursor < json.length() && Character.isWhitespace(json.charAt(cursor))) cursor++;
+        int end = cursor;
+        while (end < json.length() && Character.isDigit(json.charAt(end))) end++;
+        if (end == cursor) return -1;
+        int delimiter = end;
+        while (delimiter < json.length() && Character.isWhitespace(json.charAt(delimiter))) delimiter++;
+        if (delimiter < json.length() && json.charAt(delimiter) != ',' && json.charAt(delimiter) != '}') return -1;
+        try {
+            long parsed = Long.parseLong(json.substring(cursor, end));
+            return parsed >= min && parsed <= max ? parsed : -1;
+        } catch (NumberFormatException invalid) {
+            return -1;
         }
     }
 

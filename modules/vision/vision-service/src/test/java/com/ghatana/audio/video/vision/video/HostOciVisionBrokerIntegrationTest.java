@@ -54,6 +54,7 @@ class HostOciVisionBrokerIntegrationTest {
                 String.valueOf(Files.getAttribute(sandboxRoot, "unix:uid")));
         builder.environment().put("MEDIA_OCI_BROKER_WORKER_GID",
                 String.valueOf(Files.getAttribute(sandboxRoot, "unix:gid")));
+        builder.environment().put("MEDIA_OCI_BROKER_ALLOWED_PEER_USER", System.getProperty("user.name"));
         builder.redirectErrorStream(true);
         builder.redirectOutput(ProcessBuilder.Redirect.appendTo(Files.createTempFile("broker-", ".log").toFile()));
         brokerDaemon = builder.start();

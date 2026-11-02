@@ -55,6 +55,91 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
+    void whisperProfileLoaderRequiresServerPinnedImmutableIdentitiesAndAllowedImage() {
+        String image = "worker@sha256:" + "a".repeat(64);
+        String model = "b".repeat(64);
+        var allowedImages = Set.of(image);
+        var environment = new java.util.HashMap<String, String>();
+        environment.put("MEDIA_OCI_BROKER_WHISPER_PROFILE_ID", "whisper.en.reference.v1");
+        environment.put("MEDIA_OCI_BROKER_WHISPER_IMAGE", image);
+        environment.put("MEDIA_OCI_BROKER_WHISPER_MODEL_SHA256", model);
+        environment.put("MEDIA_OCI_BROKER_WHISPER_LOCALES", "en,en-US");
+
+        var profile = MediaOciBrokerPolicy.loadWhisperProfile(environment, allowedImages);
+        assertThat(profile).isPresent().get().satisfies(p -> {
+            assertThat(p.profileId()).isEqualTo("whisper.en.reference.v1");
+            assertThat(p.imageDigest()).isEqualTo(image);
+            assertThat(p.modelSha256()).isEqualTo(model);
+            assertThat(p.locales()).containsExactlyInAnyOrder("en", "en-US");
+        });
+        environment.put("MEDIA_OCI_BROKER_WHISPER_IMAGE", "worker:latest");
+        assertThat(MediaOciBrokerPolicy.loadWhisperProfile(environment, allowedImages)).isEmpty();
+        environment.put("MEDIA_OCI_BROKER_WHISPER_IMAGE", image);
+        environment.remove("MEDIA_OCI_BROKER_WHISPER_MODEL_SHA256");
+        assertThat(MediaOciBrokerPolicy.loadWhisperProfile(environment, allowedImages)).isEmpty();
+    }
+
+    @Test
+    void whisperProfileAndLocaleMustMatchExactServerPin() throws Exception {
+        String image = "worker@sha256:" + "a".repeat(64);
+        var profile = new MediaOciBrokerPolicy.WhisperProfile(
+                "whisper.en.v1", image, "b".repeat(64), Set.of("en", "en-US"));
+        var base = policy();
+        var withProfile = new MediaOciBrokerPolicy.Policy(base.allowedImageDigests(), base.workerUid(),
+                base.workerGid(), base.sourceRoot(), base.outputRoot(), profile);
+        assertThat(MediaOciBrokerPolicy.whisperProfileAllowed(withProfile, "whisper.en.v1", "en")).isTrue();
+        assertThat(MediaOciBrokerPolicy.whisperProfileAllowed(withProfile, "whisper.other", "en")).isFalse();
+        assertThat(MediaOciBrokerPolicy.whisperProfileAllowed(withProfile, "whisper.en.v1", "fr")).isFalse();
+        assertThat(MediaOciBrokerPolicy.whisperImageAllowed(withProfile, image)).isTrue();
+        assertThat(MediaOciBrokerPolicy.whisperImageAllowed(withProfile, "worker@sha256:" + "c".repeat(64))).isFalse();
+    }
+
+    @Test
+    void whisperInputMustBeWithinFourMiBAndMatchExactDigest() throws Exception {
+        byte[] input = new byte[] {1, 2, 3};
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(input));
+        assertThat(MediaOciBrokerPolicy.whisperInputAllowed(input, digest)).isTrue();
+        assertThat(MediaOciBrokerPolicy.whisperInputAllowed(input, "0".repeat(64))).isFalse();
+        assertThat(MediaOciBrokerPolicy.whisperInputAllowed(input, null)).isFalse();
+        assertThat(MediaOciBrokerPolicy.whisperInputAllowed(
+                new byte[MediaOciBrokerPolicy.MAX_WHISPER_INPUT_BYTES + 1], "0".repeat(64))).isFalse();
+        assertThat(MediaOciBrokerPolicy.whisperInputAllowed(new byte[0], "0".repeat(64))).isFalse();
+    }
+
+    @Test
+    void whisperPayloadRejectsCallerSuppliedWorkerAuthorityAndDuplicateKeys() {
+        Set<String> executeFields = Set.of("op", "invocationId", "profileId", "locale",
+                "sourceSha256", "remainingBudgetMillis", "wavBase64");
+        String valid = "{\"op\":\"WHISPER_EXECUTE\",\"invocationId\":\"id\","
+                + "\"profileId\":\"profile\",\"locale\":\"en\",\"sourceSha256\":\""
+                + "0".repeat(64) + "\",\"remainingBudgetMillis\":1000,\"wavBase64\":\"AQID\"}";
+        assertThat(MediaOciBrokerDaemon.payloadHasOnlyFields(valid, executeFields)).isTrue();
+        for (String forbidden : List.of("image", "executable", "uid", "gid", "args", "source", "output", "timeoutMs")) {
+            String forged = valid.substring(0, valid.length() - 1) + ",\"" + forbidden + "\":\"caller\"}";
+            assertThat(MediaOciBrokerDaemon.payloadHasOnlyFields(forged, executeFields))
+                    .as("caller cannot supply %s", forbidden).isFalse();
+        }
+        String duplicate = valid.replace("\"op\":\"WHISPER_EXECUTE\"",
+                "\"op\":\"WHISPER_EXECUTE\",\"op\":\"WHISPER_EXECUTE\"");
+        assertThat(MediaOciBrokerDaemon.payloadHasOnlyFields(duplicate, executeFields)).isFalse();
+    }
+
+    @Test
+    void brokerPeerUserGateRequiresExactConfiguredPrincipalAndFailsClosedWhenUnreadable() throws Exception {
+        assertThat(MediaOciBrokerDaemon.validPeerUsername("media-client")).isTrue();
+        assertThat(MediaOciBrokerDaemon.validPeerUsername(null)).isFalse();
+        assertThat(MediaOciBrokerDaemon.validPeerUsername(" ")).isFalse();
+        try (var channel = java.nio.channels.SocketChannel.open()) {
+            assertThat(MediaOciBrokerDaemon.peerUserAllowed(channel, "media-client", ignored -> "media-client")).isTrue();
+            assertThat(MediaOciBrokerDaemon.peerUserAllowed(channel, "media-client", ignored -> "other-user")).isFalse();
+            assertThat(MediaOciBrokerDaemon.peerUserAllowed(channel, null, ignored -> "media-client")).isFalse();
+            assertThat(MediaOciBrokerDaemon.peerUserAllowed(channel, "media-client", ignored -> {
+                throw new java.io.IOException("SO_PEERCRED unavailable");
+            })).isFalse();
+        }
+    }
+
+    @Test
     void workerArgsAllowOnlyCurrentExtractorAndBrokerFixtureLaunchPlans() {
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
                 "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",

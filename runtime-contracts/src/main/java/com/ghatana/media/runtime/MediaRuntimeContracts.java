@@ -1546,6 +1546,17 @@ public final class MediaRuntimeContracts {
 
     public enum AttemptFinality { SUCCEEDED, FAILED, NO_EFFECT_PROVEN, UNKNOWN }
 
+    /** Provider identity known before dispatch and safe to persist with the dispatch intent. */
+    public record ProviderAttemptIdentity(String providerOperationId, String providerReceiptId) {
+        public ProviderAttemptIdentity {
+            providerOperationId = required(providerOperationId, "providerOperationId");
+            providerReceiptId = required(providerReceiptId, "providerReceiptId");
+            if (providerOperationId.length() > 512 || providerReceiptId.length() > 512) {
+                throw new IllegalArgumentException("provider attempt identity exceeds its bound");
+            }
+        }
+    }
+
     /** Exact identity used for an observation-only provider lookup. */
     public record ProviderAttemptQuery(
             String tenantId, String jobId, String requestId, int attemptNumber,
@@ -1565,17 +1576,32 @@ public final class MediaRuntimeContracts {
 
     public record ProviderAttemptContext(
             String tenantId, String jobId, String requestId, int attemptNumber,
-            long fencingToken, String requestFingerprint) {
+            long fencingToken, String requestFingerprint,
+            String providerOperationId, String providerReceiptId) {
         public ProviderAttemptContext {
             tenantId = required(tenantId, "tenantId");
             jobId = required(jobId, "jobId");
             requestId = required(requestId, "requestId");
             if (attemptNumber < 1 || fencingToken < 1) throw new IllegalArgumentException("attempt and fencing token must be positive");
             requestFingerprint = requireSha256(requestFingerprint);
+            providerOperationId = optional(providerOperationId);
+            providerReceiptId = optional(providerReceiptId);
+            if (providerOperationId.isBlank() != providerReceiptId.isBlank()) {
+                throw new IllegalArgumentException("provider operation and receipt identities must be bound together");
+            }
+            if (providerOperationId.length() > 512 || providerReceiptId.length() > 512) {
+                throw new IllegalArgumentException("provider attempt identity exceeds its bound");
+            }
+        }
+        public ProviderAttemptContext(
+                String tenantId, String jobId, String requestId, int attemptNumber,
+                long fencingToken, String requestFingerprint) {
+            this(tenantId, jobId, requestId, attemptNumber, fencingToken, requestFingerprint, "", "");
         }
         public static ProviderAttemptContext from(ProcessingAttempt attempt) {
             return new ProviderAttemptContext(attempt.tenantId(), attempt.jobId(), attempt.requestId(),
-                    attempt.attemptNumber(), attempt.fencingToken(), attempt.requestFingerprint());
+                    attempt.attemptNumber(), attempt.fencingToken(), attempt.requestFingerprint(),
+                    attempt.providerOperationId(), attempt.providerReceiptId());
         }
     }
 
@@ -1985,6 +2011,20 @@ public final class MediaRuntimeContracts {
                 ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent) {
             throw new UnsupportedOperationException("atomic attempt finalization is not supported");
         }
+        /**
+         * Atomically commits a successful STT attempt, its completed job/lifecycle event, and
+         * the exact transcript revision/attempt binding/transcript outbox event. Stores that
+         * cannot place all effects in one transaction must fail closed.
+         */
+        default ProcessingJob commitFinalOutcomeWithTranscript(
+                ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob terminal,
+                ProviderAttemptObservation observation, MediaLifecycleEvent lifecycleEvent,
+                com.ghatana.media.runtime.MediaTranscriptContracts.MediaTranscriptStore transcriptStore,
+                com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft transcriptDraft,
+                String transcriptVersionRef) {
+            throw new UnsupportedOperationException(
+                    "atomic successful STT and transcript finalization is not supported");
+        }
         default ProcessingJob markOutcomeUnknown(
                 ProcessingJob expected, ProcessingAttempt attempt, ProcessingJob unknown,
                 Map<String, Object> observation, MediaLifecycleEvent lifecycleEvent) {
@@ -2190,6 +2230,17 @@ public final class MediaRuntimeContracts {
         default void bindRuntimeCapabilities(Set<JobType> usableJobTypes) { }
         int priority();
         CompletableFuture<Map<String, Object>> process(ProcessingContext context);
+        /**
+         * Optional stable operation identity available before provider I/O. The runtime persists
+         * it under the current attempt lease so a restart can query the exact effect without replay.
+         */
+        default Optional<ProviderAttemptIdentity> prepareAttemptIdentity(
+                ProcessingJobRequest request, MediaArtifact artifact, ProviderAttemptContext attempt) {
+            java.util.Objects.requireNonNull(request, "request");
+            java.util.Objects.requireNonNull(artifact, "artifact");
+            java.util.Objects.requireNonNull(attempt, "attempt");
+            return Optional.empty();
+        }
         default CompletableFuture<ProviderSubmission> processAttempt(
                 ProcessingContext context, ProviderAttemptContext attempt) {
             java.util.Objects.requireNonNull(attempt, "attempt");
@@ -2311,12 +2362,33 @@ public final class MediaRuntimeContracts {
             ConsentDecision consentDecision,
             MediaArtifactContentReader sourceContentReader,
             MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
-            MediaChildJobDispatcher childDispatcher) {
+            MediaChildJobDispatcher childDispatcher,
+            Instant deadline,
+            MonotonicDeadline monotonicDeadline) {
         public ProcessingContext {
             java.util.Objects.requireNonNull(request, "request");
             java.util.Objects.requireNonNull(artifact, "artifact");
             java.util.Objects.requireNonNull(cancellation, "cancellation");
             consentDecision = consentDecision == null ? ConsentDecision.unverified() : consentDecision;
+            deadline = deadline == null ? Instant.MAX : deadline;
+            monotonicDeadline = monotonicDeadline == null
+                    ? MonotonicDeadline.fromWallDeadline(deadline, System::nanoTime, Instant::now)
+                    : monotonicDeadline;
+        }
+        public ProcessingContext(ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
+                ConsentDecision consentDecision, MediaArtifactContentReader sourceContentReader,
+                MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+                MediaChildJobDispatcher childDispatcher, Instant deadline) {
+            this(request, artifact, cancellation, consentDecision, sourceContentReader,
+                    sourceAuthorization, childDispatcher, deadline, null);
+        }
+        public ProcessingContext(
+                ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
+                ConsentDecision consentDecision, MediaArtifactContentReader sourceContentReader,
+                MediaSourceAuthorizationContracts.Evidence sourceAuthorization,
+                MediaChildJobDispatcher childDispatcher) {
+            this(request, artifact, cancellation, consentDecision, sourceContentReader,
+                    sourceAuthorization, childDispatcher, Instant.MAX);
         }
         public ProcessingContext(
                 ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation,
@@ -2337,6 +2409,70 @@ public final class MediaRuntimeContracts {
         }
         public ProcessingContext(ProcessingJobRequest request, MediaArtifact artifact, Cancellation cancellation) {
             this(request, artifact, cancellation, ConsentDecision.unverified(), null, null, null);
+        }
+
+        /**
+         * Remaining broker compute budget, capped to the typed broker maximum. The legacy
+         * {@code now} argument is retained for source compatibility; elapsed time is measured
+         * from the monotonic deadline captured when this context was created.
+         */
+        @Deprecated
+        public long remainingBudgetMillis(Instant now) {
+            java.util.Objects.requireNonNull(now, "now");
+            return monotonicDeadline.remainingBudgetMillis();
+        }
+
+        public MonotonicDeadline deadlineBudget() { return monotonicDeadline; }
+
+        /** Absolute elapsed-time deadline immune to wall-clock adjustments. */
+        public static final class MonotonicDeadline {
+            private final long deadlineNanos;
+            private final java.util.function.LongSupplier nanoClock;
+            private final boolean unbounded;
+            private MonotonicDeadline(long deadlineNanos, java.util.function.LongSupplier nanoClock) {
+                this(deadlineNanos, nanoClock, false);
+            }
+            private MonotonicDeadline(long deadlineNanos, java.util.function.LongSupplier nanoClock,
+                    boolean unbounded) {
+                this.deadlineNanos = deadlineNanos;
+                this.nanoClock = java.util.Objects.requireNonNull(nanoClock, "nanoClock");
+                this.unbounded = unbounded;
+            }
+            public static MonotonicDeadline after(Duration budget) {
+                return after(budget, System::nanoTime);
+            }
+            public static MonotonicDeadline after(Duration budget, java.util.function.LongSupplier clock) {
+                long nanos;
+                try { nanos = budget.toNanos(); } catch (ArithmeticException overflow) { nanos = Long.MAX_VALUE; }
+                return new MonotonicDeadline(clock.getAsLong() + Math.max(0, nanos), clock);
+            }
+            private static MonotonicDeadline fromWallDeadline(Instant wallDeadline,
+                    java.util.function.LongSupplier nanoClock, java.util.function.Supplier<Instant> wallClock) {
+                if (Instant.MAX.equals(wallDeadline)) return new MonotonicDeadline(0, nanoClock, true);
+                Duration remaining;
+                try { remaining = Duration.between(wallClock.get(), wallDeadline); }
+                catch (ArithmeticException overflow) { remaining = Duration.ofNanos(Long.MAX_VALUE); }
+                return after(remaining.isNegative() ? Duration.ZERO : remaining, nanoClock);
+            }
+            public long remainingNanos() { return unbounded ? Long.MAX_VALUE : deadlineNanos - nanoClock.getAsLong(); }
+            public boolean expired() { return !unbounded && remainingNanos() <= 0; }
+            public long remainingBudgetMillis() {
+                long remaining = remainingNanos();
+                return remaining <= 0 ? 0 : Math.min(WhisperComputeContracts.MAX_REMAINING_BUDGET_MILLIS,
+                        java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(remaining));
+            }
+            /** Returns the earlier of this deadline and a cap measured on the same clock. */
+            public MonotonicDeadline boundedBy(Duration cap) {
+                java.util.Objects.requireNonNull(cap, "cap");
+                long capNanos;
+                try { capNanos = cap.toNanos(); } catch (ArithmeticException overflow) { capNanos = Long.MAX_VALUE; }
+                long now = nanoClock.getAsLong();
+                long capRemaining = Math.max(0, capNanos);
+                long parentRemaining = unbounded ? Long.MAX_VALUE : deadlineNanos - now;
+                return capRemaining < parentRemaining
+                        ? new MonotonicDeadline(now + capRemaining, nanoClock)
+                        : this;
+            }
         }
 
         /** Copy verified source bytes to bounded staging; contexts without an admitted reader fail closed. */

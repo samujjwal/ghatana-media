@@ -20,6 +20,7 @@ version = rootProject.version
 description = "Audio-Video Common Library - STT, TTS, and Vision engine APIs and ONNX implementations"
 
 dependencies {
+    implementation(project(":services:media:runtime-contracts"))
     // Error hierarchy and resilience primitives used by the engine decorators.
     api("com.ghatana.platform:core:${providers.gradleProperty("ghatana.shared.version").get()}")
     api("com.ghatana.platform:contracts:${providers.gradleProperty("ghatana.shared.version").get()}")

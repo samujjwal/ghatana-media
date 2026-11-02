@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -29,6 +30,8 @@ final class MediaOciBrokerPolicy {
     static final int MAX_ARG_LENGTH = 512;
 
     private static final Set<String> INPUT_FORMATS = Set.of("mov", "matroska", "avi", "webm");
+    static final int MAX_WHISPER_INPUT_BYTES = 4 * 1024 * 1024;
+    static final int MAX_WHISPER_RESPONSE_BYTES = 1024 * 1024;
 
     private MediaOciBrokerPolicy() { }
 
@@ -38,7 +41,52 @@ final class MediaOciBrokerPolicy {
             long workerUid,
             long workerGid,
             Path sourceRoot,
-            Path outputRoot) { }
+            Path outputRoot,
+            WhisperProfile whisperProfile,
+            WhisperWorkerServerConfig whisperWorkerConfig) {
+        Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
+                Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile) {
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, whisperProfile, null);
+        }
+        Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
+                Path sourceRoot, Path outputRoot) {
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, null);
+        }
+    }
+
+    /** Broker-owned pin for one fixed Whisper worker profile. No request field can alter it. */
+    record WhisperProfile(String profileId, String imageDigest, String modelSha256,
+                          Set<String> locales) {
+        WhisperProfile {
+            if (profileId == null || !profileId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
+                    || imageDigest == null || !imageDigest.matches("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
+                    || modelSha256 == null || !modelSha256.matches("[0-9a-f]{64}")) {
+                throw new IllegalArgumentException("Whisper worker profile pins are invalid");
+            }
+            locales = Set.copyOf(locales);
+            if (locales.isEmpty() || locales.stream().anyMatch(locale -> !validLocale(locale))) {
+                throw new IllegalArgumentException("Whisper profile requires a bounded locale allowlist");
+            }
+        }
+    }
+
+    /** Loads only immutable server-owned profile identity; missing fields leave compute not admitted. */
+    static Optional<WhisperProfile> loadWhisperProfile(Map<String, String> environment,
+                                                       Set<String> allowedImages) {
+        String profileId = environment.get("MEDIA_OCI_BROKER_WHISPER_PROFILE_ID");
+        String image = environment.get("MEDIA_OCI_BROKER_WHISPER_IMAGE");
+        String modelSha256 = environment.get("MEDIA_OCI_BROKER_WHISPER_MODEL_SHA256");
+        String locales = environment.get("MEDIA_OCI_BROKER_WHISPER_LOCALES");
+        if (profileId == null || image == null || modelSha256 == null || locales == null) return Optional.empty();
+        try {
+            Set<String> localeSet = java.util.Arrays.stream(locales.split(",", -1))
+                    .map(String::trim).collect(java.util.stream.Collectors.toUnmodifiableSet());
+            WhisperProfile profile = new WhisperProfile(profileId, image, modelSha256, localeSet);
+            return allowedImages.contains(image) ? Optional.of(profile) : Optional.empty();
+        } catch (RuntimeException invalid) {
+            return Optional.empty();
+        }
+    }
 
     /** Bounded replay window: each nonce is valid at most once inside a timestamp skew. */
     static final class NonceReplayGuard {
@@ -62,6 +110,42 @@ final class MediaOciBrokerPolicy {
 
     static boolean workerIdentityAllowed(Policy policy, long uid, long gid) {
         return uid == policy.workerUid() && gid == policy.workerGid();
+    }
+
+    static boolean whisperProfileAllowed(Policy policy, String profileId, String locale) {
+        WhisperProfile profile = policy.whisperProfile();
+        return profile != null && profile.profileId().equals(profileId)
+                && locale != null && profile.locales().contains(locale);
+    }
+
+    static boolean whisperImageAllowed(Policy policy, String image) {
+        WhisperProfile profile = policy.whisperProfile();
+        return profile != null && profile.imageDigest().equals(image)
+                && imageAllowed(policy, image);
+    }
+
+    static boolean whisperInputAllowed(byte[] wav, String sourceSha256) {
+        if (wav == null || wav.length == 0 || wav.length > MAX_WHISPER_INPUT_BYTES
+                || sourceSha256 == null || !sourceSha256.matches("[0-9a-f]{64}")) return false;
+        try {
+            String actual = java.util.HexFormat.of().formatHex(
+                    MessageDigest.getInstance("SHA-256").digest(wav));
+            return MessageDigest.isEqual(actual.getBytes(java.nio.charset.StandardCharsets.US_ASCII),
+                    sourceSha256.getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+    private static boolean validLocale(String locale) {
+        if (locale == null || locale.isBlank() || locale.length() > 35 || !locale.equals(locale.trim())) return false;
+        try {
+            java.util.Locale parsed = new java.util.Locale.Builder().setLanguageTag(locale).build();
+            return !parsed.getLanguage().isBlank() && !"und".equals(parsed.toLanguageTag())
+                    && parsed.toLanguageTag().equals(locale);
+        } catch (java.util.IllformedLocaleException invalid) {
+            return false;
+        }
     }
 
     /** Exact argument grammar for the extractor's FFmpeg and FFprobe launch plans. */

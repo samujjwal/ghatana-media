@@ -8,17 +8,23 @@ import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
+import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptIdentity;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission;
-import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
-import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
+import com.ghatana.media.runtime.WhisperComputeClient;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.engine.onnx.WhisperOnnxEngine;
@@ -96,6 +102,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     private final long maxSourceBytes;
     /** Trusted in-process measurement source; never an RPC, request field or admission flag. */
     private final QualityEvidenceReader qualityEvidenceReader;
+    private final WhisperBrokerSttProvider brokerProvider;
     private final java.util.concurrent.atomic.AtomicBoolean closed =
             new java.util.concurrent.atomic.AtomicBoolean();
 
@@ -136,13 +143,25 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     public WhisperOnnxSttProvider(
             SttConfig config, ProfileBinding binding, long maxSourceBytes,
             QualityEvidenceReader qualityEvidenceReader) {
+        this(config, binding, maxSourceBytes, qualityEvidenceReader, null, "");
+    }
+
+    /** Explicit broker composition; the server must supply the pinned profile and model digest. */
+    public WhisperOnnxSttProvider(
+            SttConfig config, ProfileBinding binding, long maxSourceBytes,
+            QualityEvidenceReader qualityEvidenceReader, WhisperComputeClient computeClient,
+            String pinnedModelSha256) {
         this.config = java.util.Objects.requireNonNull(config, "config");
         this.binding = java.util.Objects.requireNonNull(binding, "binding");
         if (maxSourceBytes < 1) throw new IllegalArgumentException("maxSourceBytes must be positive");
         this.maxSourceBytes = maxSourceBytes;
         this.qualityEvidenceReader = java.util.Objects.requireNonNull(
                 qualityEvidenceReader, "qualityEvidenceReader");
-        this.engine = new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState());
+        this.brokerProvider = computeClient == null ? null : new WhisperBrokerSttProvider(
+                binding.profileId(), config.modelId(), pinnedModelSha256,
+                binding.configurationDigest().substring("sha256:".length()), computeClient);
+        this.engine = computeClient == null
+                ? new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState()) : null;
     }
 
     @Override public String providerId() { return binding.providerId(); }
@@ -166,10 +185,12 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
      * formats the current provider cannot decode.
      */
     @Override public MediaModalityContracts.ProviderHealth health() {
+        if (brokerProvider != null) return brokerProvider.health();
         return capabilityProfiles().getFirst().health();
     }
 
     @Override public List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
+        if (brokerProvider != null) return brokerProvider.capabilityProfiles();
         EngineStatus.State state;
         try {
             state = engine.getStatus().state();
@@ -273,6 +294,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     }
 
     @Override public boolean ready() {
+        if (brokerProvider != null) return brokerProvider.ready();
         try {
             return engine.getStatus().state() == EngineStatus.State.READY;
         } catch (RuntimeException failure) {
@@ -281,12 +303,14 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     }
 
     @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+        if (brokerProvider != null) return brokerProvider.process(context);
         return CompletableFuture.failedFuture(new UnsupportedOperationException(
                 "Whisper STT requires the typed attempt context"));
     }
 
     @Override public CompletableFuture<ProviderSubmission> processAttempt(
             ProcessingContext context, ProviderAttemptContext attempt) {
+        if (brokerProvider != null) return brokerProvider.processAttempt(context, attempt);
         try {
             context.cancellation().throwIfCancelled();
             if (context.sourceAuthorization() == null) {
@@ -354,6 +378,18 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
             return CompletableFuture.failedFuture(new IllegalStateException(
                     "Whisper inference failed", failure));
         }
+    }
+
+    @Override public Optional<ProviderAttemptIdentity> prepareAttemptIdentity(
+            ProcessingJobRequest request, MediaArtifact artifact, ProviderAttemptContext attempt) {
+        return brokerProvider == null ? Optional.empty()
+                : brokerProvider.prepareAttemptIdentity(request, artifact, attempt);
+    }
+
+    @Override public CompletableFuture<ProviderAttemptObservation> reconcileAttempt(ProviderAttemptQuery query) {
+        return brokerProvider == null
+                ? MediaProcessingProvider.super.reconcileAttempt(query)
+                : brokerProvider.reconcileAttempt(query);
     }
 
     static WhisperOnnxEngine.CancellationSignal cancellationSignal(ProcessingContext context) {
@@ -549,7 +585,8 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
 
     @Override public void close() {
         if (closed.compareAndSet(false, true)) {
-            engine.close();
+            if (engine != null) engine.close();
+            if (brokerProvider != null) brokerProvider.close();
         }
     }
 }
