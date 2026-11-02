@@ -284,15 +284,32 @@ test('H-02 execution admission remains separate, NOT_ADMITTED, and node-binds ex
     assert.equal(schema.reservation.properties[field].$ref, '#/$defs/boundedQuantity', `${field} is bounded and unit typed`);
   }
   assert.deepEqual(schema.authority.required, [
-    'tenantId', 'principalId', 'purposeRef', 'rightsRef', 'sourceVersionRef', 'sourceSha256',
+    'identityContextRef', 'identityContextSha256', 'identityEpoch',
+    'tenantId', 'principalId', 'delegationRef', 'workspaceRef', 'purposeRef', 'rightsRef', 'sourceVersionRef', 'sourceSha256',
     'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
   ]);
+  assert.equal(schema.authority.properties.identityContextRef.$ref, '#/$defs/versionRef');
+  assert.equal(schema.authority.properties.identityContextSha256.$ref, '#/$defs/immutableSha256');
+  assert.equal(schema.authority.properties.identityEpoch.$ref, '#/$defs/nonnegativeInt64');
+  assert.equal(schema.authority.properties.delegationRef.$ref, '#/$defs/versionRef');
+  assert.equal(schema.authority.properties.workspaceRef.$ref, '#/$defs/versionRef');
   assert.deepEqual(schema.project.required, ['projectId', 'expectedRevision', 'compareAndSet']);
   assert.deepEqual(schema.editLocksByStep.additionalProperties.required,
     ['scopeKind', 'targetRef', 'ownerPrincipalId', 'leaseId', 'epoch', 'expiresAt']);
   assert.deepEqual(schema.clocks.required,
     ['storyClockRef', 'mediaClockRef', 'simulationClockRef', 'wallClockRef', 'conversions']);
   const mapping = binding.operationSchemaRelation.admissionContextBindingRules;
+  assert.equal(mapping.authenticatedIdentity.source,
+    '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope');
+  assert.deepEqual(Object.keys(mapping.authenticatedIdentity.tuple), [
+    'tenantId', 'principalId', 'delegationRef', 'workspaceRef', 'identityEpoch',
+  ]);
+  assert.match(mapping.authenticatedIdentity.tuple.tenantId, /HOST_ATTESTED.*CALLER_BODY_COMPARE_ONLY/);
+  assert.match(mapping.authenticatedIdentity.tuple.principalId, /HOST_ATTESTED.*CALLER_BODY_COMPARE_ONLY/);
+  assert.match(mapping.authenticatedIdentity.tuple.delegationRef, /CURRENT_HOST_ATTESTED.*CALLER_BODY_COMPARE_ONLY/);
+  assert.match(mapping.authenticatedIdentity.tuple.workspaceRef, /HOST_AUTHORIZED.*CALLER_SELECTOR_CANNOT_WIDEN/);
+  assert.equal(mapping.authenticatedIdentity.tuple.identityEpoch, 'MUST_MATCH_CURRENT_TRUSTED_IDENTITY_EPOCH');
+  assert.equal(mapping.authenticatedIdentity.missingStaleOrMismatched, 'NOT_ADMITTED_BEFORE_LOOKUP_OR_EFFECT');
   assert.equal(mapping.reservation.reservedCostComputeAndTime,
     'MUST_EACH_COVER_WORST_CASE_IN_THE_SAME_UNIT');
   assert.equal(mapping.currentAuthority.decision,
@@ -324,4 +341,75 @@ test('H-02 source checker rejects a capture index rule that permits a different 
   const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: broken } });
   assert.ok(result.errors.some(error => /capture guard must bind the exact indexed plan scene/.test(error)),
     result.errors.join('\n'));
+});
+
+test('H-02 source checker rejects an unbound or caller-supplied identity context', () => {
+  const source = read(files.p1);
+  const broken = source.replace(
+    'required: [identityContextRef, identityContextSha256, identityEpoch, tenantId, principalId, delegationRef, workspaceRef, purposeRef, rightsRef, sourceVersionRef, sourceSha256, ownerDecisionRef, decisionExpiresAt, revocationEpoch]',
+    'required: [tenantId, principalId, purposeRef, rightsRef, sourceVersionRef, sourceSha256, ownerDecisionRef, decisionExpiresAt, revocationEpoch]',
+  );
+  assert.notEqual(source, broken);
+  const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: broken } });
+  assert.ok(result.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+    result.errors.join('\n'));
+
+  const wrongSource = source.replace(
+    '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope',
+    '.product-experience/pdp-1-domain-data/authority.yaml#identityScope',
+  );
+  assert.notEqual(source, wrongSource);
+  const wrongSourceResult = verifyDeclarativeProductionDefinitions({ overrides: { p1: wrongSource } });
+  assert.ok(wrongSourceResult.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+    wrongSourceResult.errors.join('\n'));
+});
+
+test('H-02 source checker rejects omitted delegation/workspace tuple members and unresolved authority anchors', () => {
+  const source = read(files.p1);
+  const requiredTuple = 'identityContextRef, identityContextSha256, identityEpoch, tenantId, principalId, delegationRef, workspaceRef, purposeRef';
+  for (const field of ['delegationRef', 'workspaceRef']) {
+    const omitted = source.replace(requiredTuple, requiredTuple.replace(`, ${field}`, ''));
+    assert.notEqual(source, omitted, `expected ${field} removal fixture to alter PDP-1`);
+    const result = verifyDeclarativeProductionDefinitions({ overrides: { p1: omitted } });
+    assert.ok(result.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+      result.errors.join('\n'));
+  }
+
+  const wrongAnchor = source.replace(
+    '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope',
+    '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/movedIdentityScope',
+  );
+  assert.notEqual(source, wrongAnchor);
+  const wrongAnchorResult = verifyDeclarativeProductionDefinitions({ overrides: { p1: wrongAnchor } });
+  assert.ok(wrongAnchorResult.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+    wrongAnchorResult.errors.join('\n'));
+
+  const missingAuthorityPath = '.product-experience/pdp-1-domain-data/missing-authority.yaml';
+  const missingAuthority = source.replace(
+    '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope',
+    `${missingAuthorityPath}#ownerDefinedPdp10AuthorityScopes/identityScope`,
+  );
+  assert.notEqual(source, missingAuthority);
+  const missingAuthorityResult = verifyDeclarativeProductionDefinitions({ overrides: { p1: missingAuthority } });
+  assert.ok(missingAuthorityResult.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+    missingAuthorityResult.errors.join('\n'));
+
+  const authority = read('.product-experience/pdp-1-domain-data/authority.yaml');
+  const authorityMutations = [
+    ['ownerDefinedPdp10AuthorityScopes:', 'ownerDefinedPdp10AuthorityScopesMoved:'],
+    ['  identityScope:', '  identityScopeMoved:'],
+    ['    delegationRef: host-attested, current delegation; caller role labels are not grants',
+      '    delegationIdentity: host-attested, current delegation; caller role labels are not grants'],
+    ['    requiredObservation: Current trusted identity owner observation bound to the request, identity epoch and exact tenant, principal, delegation and workspace tuple.',
+      '    identityObservation: Current trusted identity owner observation bound to the request, identity epoch and exact tenant, principal, delegation and workspace tuple.'],
+    ['workspaceRef: host-authorized workspace context; caller selector cannot widen scope',
+      'workspaceSelector: caller selector may widen scope'],
+  ];
+  for (const [before, after] of authorityMutations) {
+    const mutatedAuthority = authority.replace(before, after);
+    assert.notEqual(authority, mutatedAuthority, `expected authority mutation for ${before} to alter source`);
+    const result = verifyDeclarativeProductionDefinitions({ overrides: { authority: mutatedAuthority } });
+    assert.ok(result.errors.some(error => /complete host-attested identity tuple and current identity epoch/.test(error)),
+      result.errors.join('\n'));
+  }
 });

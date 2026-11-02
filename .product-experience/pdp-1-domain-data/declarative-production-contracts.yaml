@@ -2056,10 +2056,15 @@ executionAdmissionBinding:
       authority:
         type: object
         additionalProperties: false
-        required: [tenantId, principalId, purposeRef, rightsRef, sourceVersionRef, sourceSha256, ownerDecisionRef, decisionExpiresAt, revocationEpoch]
+        required: [identityContextRef, identityContextSha256, identityEpoch, tenantId, principalId, delegationRef, workspaceRef, purposeRef, rightsRef, sourceVersionRef, sourceSha256, ownerDecisionRef, decisionExpiresAt, revocationEpoch]
         properties:
+          identityContextRef: {$ref: '#/$defs/versionRef'}
+          identityContextSha256: {$ref: '#/$defs/immutableSha256'}
+          identityEpoch: {$ref: '#/$defs/nonnegativeInt64'}
           tenantId: {$ref: '#/$defs/opaqueId'}
           principalId: {$ref: '#/$defs/opaqueId'}
+          delegationRef: {$ref: '#/$defs/versionRef'}
+          workspaceRef: {$ref: '#/$defs/versionRef'}
           purposeRef: {$ref: '#/$defs/versionRef'}
           rightsRef: {$ref: '#/$defs/versionRef'}
           sourceVersionRef: {$ref: '#/$defs/versionRef'}
@@ -2137,7 +2142,9 @@ executionAdmissionBinding:
   executionRule: >-
     Missing, unknown, expired, revoked, stale, unbounded, or insufficient data is
     NOT_ADMITTED before effect. Read and validate the current authoritative
-    project, rights, qualification, reservation, source and edit-lock state again
+    host-authenticated tenant, principal, delegation, workspace, and identity
+    epoch tuple, project, rights,
+    qualification, reservation, source and edit-lock state again
     before each dispatch, retry and restart; resolve the request identity through
     the existing MediaRuntime/JobAttempt authority and reconcile an existing exact
     attempt rather than dispatching it twice. A reused key with another
@@ -2210,6 +2217,16 @@ executionAdmissionBinding:
         allOtherSteps: NO_IMPLICIT_SCENE_OR_OUTPUT_LOCK_MAPPING; EFFECT_NOT_ADMITTED
       stepOperationMapping: EXACT_IDENTICAL_STEP_ID_JOIN_ONLY; OPERATION_COMPATIBILITY_UNPROVEN
     admissionContextBindingRules:
+      authenticatedIdentity:
+        source: .product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope
+        identityContextRefAndSha256: CURRENT_HOST_ATTESTED_IDENTITY_OBSERVATION_BOUND_TO_REQUEST
+        tuple:
+          tenantId: HOST_ATTESTED_EXACT_REQUEST_TUPLE; CALLER_BODY_COMPARE_ONLY
+          principalId: HOST_ATTESTED_EXACT_REQUEST_TUPLE; CALLER_BODY_COMPARE_ONLY
+          delegationRef: CURRENT_HOST_ATTESTED_EXACT_REQUEST_TUPLE; CALLER_BODY_COMPARE_ONLY
+          workspaceRef: HOST_AUTHORIZED_EXACT_REQUEST_TUPLE; CALLER_SELECTOR_CANNOT_WIDEN
+          identityEpoch: MUST_MATCH_CURRENT_TRUSTED_IDENTITY_EPOCH
+        missingStaleOrMismatched: NOT_ADMITTED_BEFORE_LOOKUP_OR_EFFECT
       engineByStep:
         keys: EXACT_EQUAL_TO_COMPILED_PLAN_NODE_STEP_IDS
         nonEngineBuildDigest: IMMUTABLE_SHA256_REQUIRED

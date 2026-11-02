@@ -13,6 +13,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const paths = {
   p0: '.product-experience/pdp-0-product-truth/requirements.yaml',
   p1: '.product-experience/pdp-1-domain-data/declarative-production-contracts.yaml',
+  authority: '.product-experience/pdp-1-domain-data/authority.yaml',
   p2: '.product-experience/pdp-2-design-interface-system/animation-simulation-grammar.yaml',
   p3: '.product-experience/pdp-3-product-experience/declarative-production-experience.yaml',
   journeys: '.product-experience/pdp-3-product-experience/journey-registry.yaml',
@@ -45,7 +46,7 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     key, Object.hasOwn(overrides, key) ? overrides[key] : fs.readFileSync(path.join(repoRoot, value), 'utf8'),
   ]));
   const docs = {};
-  for (const name of ['p0', 'p1', 'p2', 'p3', 'recorderP0', 'recorderP2', 'p1Handoff', 'p2Handoff']) {
+  for (const name of ['p0', 'p1', 'p2', 'p3', 'recorderP0', 'recorderP2', 'p1Handoff', 'p2Handoff', 'authority']) {
     const doc = parseDocument(raw[name], { strict: true, uniqueKeys: true });
     if (doc.errors.length) {
       for (const issue of doc.errors) fail(name + ': native YAML parse or duplicate-key error: ' + issue.message);
@@ -64,6 +65,7 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   }
   const [p0, p1, p2, p3, recorderP0, recorderP2, p1Handoff, p2Handoff] =
     ['p0', 'p1', 'p2', 'p3', 'recorderP0', 'recorderP2', 'p1Handoff', 'p2Handoff'].map(name => docs[name] || {});
+  const authorityIdentityScope = docs.authority?.ownerDefinedPdp10AuthorityScopes?.identityScope || {};
   const c0 = p0.declarativeProductionProfile || {};
   const c1 = p1.caseOperationBindings || [];
   const c2 = p2.declarativeProductionInterface?.caseInterfaceBindings || [];
@@ -176,8 +178,13 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
   const admissionRelation = admission.operationSchemaRelation || {};
   const admissionPlanRules = admissionRelation.planBindingRules || {};
   const admissionCurrentAuthority = admissionRelation.admissionContextBindingRules?.currentAuthority || {};
+  const admissionAuthenticatedIdentity = admissionRelation.admissionContextBindingRules?.authenticatedIdentity || {};
   const admissionEffectFence = admissionRelation.effectBoundary?.beforeProviderDispatchRetryOrRestart || {};
   const inputCoverage = admissionRelation.operationInputCoverage || {};
+  const authoritySchema = admissionProps.authority || {};
+  const authorityRequired = authoritySchema.required || [];
+  const authorityProperties = authoritySchema.properties || {};
+  const authenticatedIdentityTuple = admissionAuthenticatedIdentity.tuple || {};
   const requiredSceneAuthorityFields = [
     'sourceVersionRef', 'sourceSha256', 'rightsRef', 'ownerDecisionRef', 'decisionExpiresAt', 'revocationEpoch',
   ];
@@ -192,6 +199,40 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
     fail('PDP-1 H-02: execution admission must use the separately versioned v3 envelope');
   if (admission.runtimeAdmission !== 'NOT_ADMITTED')
     fail('PDP-1 H-02: source envelope cannot admit runtime effects');
+  const expectedIdentitySource = '.product-experience/pdp-1-domain-data/authority.yaml#ownerDefinedPdp10AuthorityScopes/identityScope';
+  const identitySourceResolves = admissionAuthenticatedIdentity.source === expectedIdentitySource &&
+    Boolean(docs.authority?.ownerDefinedPdp10AuthorityScopes?.identityScope);
+  const authorityIdentityTupleIsComplete =
+    String(authorityIdentityScope.tenantRef || '').includes('host-attested') &&
+    String(authorityIdentityScope.tenantRef || '').includes('never caller body') &&
+    String(authorityIdentityScope.principalRef || '').includes('host-attested') &&
+    String(authorityIdentityScope.principalRef || '').includes('never caller body') &&
+    String(authorityIdentityScope.delegationRef || '').includes('host-attested, current delegation') &&
+    String(authorityIdentityScope.workspaceRef || '').includes('host-authorized workspace context') &&
+    String(authorityIdentityScope.requiredObservation || '').includes('identity epoch') &&
+    String(authorityIdentityScope.requiredObservation || '').includes('tenant, principal, delegation and workspace tuple') &&
+    ['tenantId', 'principalId', 'delegation', 'workspaceAuthority'].every(field =>
+      (authorityIdentityScope.callerClaimsNeverAuthority || []).includes(field)) &&
+    String(authorityIdentityScope.unknownOrMismatched || '').includes('DENY before lookup or effect');
+  if (!['identityContextRef', 'identityContextSha256', 'identityEpoch', 'tenantId', 'principalId',
+    'delegationRef', 'workspaceRef', 'purposeRef']
+        .every(field => authorityRequired.includes(field)) ||
+      authorityProperties.identityContextRef?.$ref !== '#/$defs/versionRef' ||
+      authorityProperties.identityContextSha256?.$ref !== '#/$defs/immutableSha256' ||
+      authorityProperties.identityEpoch?.$ref !== '#/$defs/nonnegativeInt64' ||
+      authorityProperties.delegationRef?.$ref !== '#/$defs/versionRef' ||
+      authorityProperties.workspaceRef?.$ref !== '#/$defs/versionRef' ||
+      !identitySourceResolves || !authorityIdentityTupleIsComplete ||
+      !['tenantId', 'principalId', 'delegationRef', 'workspaceRef', 'identityEpoch'].every(field =>
+        Object.hasOwn(authenticatedIdentityTuple, field)) ||
+      !String(authenticatedIdentityTuple.tenantId || '').includes('CALLER_BODY_COMPARE_ONLY') ||
+      !String(authenticatedIdentityTuple.principalId || '').includes('CALLER_BODY_COMPARE_ONLY') ||
+      !String(authenticatedIdentityTuple.delegationRef || '').includes('CALLER_BODY_COMPARE_ONLY') ||
+      !String(authenticatedIdentityTuple.workspaceRef || '').includes('CALLER_SELECTOR_CANNOT_WIDEN') ||
+      authenticatedIdentityTuple.identityEpoch !== 'MUST_MATCH_CURRENT_TRUSTED_IDENTITY_EPOCH' ||
+      admissionAuthenticatedIdentity.missingStaleOrMismatched !== 'NOT_ADMITTED_BEFORE_LOOKUP_OR_EFFECT' ||
+      !String(admission.executionRule || '').includes('host-authenticated tenant, principal, delegation, workspace, and identity epoch tuple'))
+    fail('PDP-1 H-02: complete host-attested identity tuple and current identity epoch must be source-bound, typed and fail closed');
   if (!/RESOLVER_OVERLOAD_REQUIRES_INPUT2_STRICTLY_PARSED_JSON_TO_BE_STRUCTURALLY_EQUAL_TO_THE_CANONICAL_PRODUCTION_SPEC_SCHEMA_WITH_THE_EXACT_SHARED_PDP1_\$DEFS_MATERIALIZED/.test(
       inputCoverage.input2ProductionSpecSchema || '') ||
       inputCoverage.notImplementedInputs?.includes('input2-shared-definitions-context-materialization')) {
