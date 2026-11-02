@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import javax.crypto.spec.GCMParameterSpec;
@@ -114,7 +115,7 @@ final class MediaOciBrokerWhisperJournal implements AutoCloseable {
     private final byte[] encryptionKey;
     private final byte[] integrityKey;
     private final int maxRecords;
-    private final Map<UUID, Entry> entries = new HashMap<>();
+    private final Map<UUID, Entry> entries = new ConcurrentHashMap<>();
     private boolean closed;
     private boolean failed;
 
@@ -215,6 +216,15 @@ final class MediaOciBrokerWhisperJournal implements AutoCloseable {
 
     synchronized Entry lookup(UUID invocationId) throws IOException {
         ensureOpen();
+        return entries.get(Objects.requireNonNull(invocationId, "invocationId"));
+    }
+
+    /**
+     * Reads the current in-process journal entry without waiting for journal I/O.
+     * The journal is recovered before the supervisor is constructed, and each
+     * mutation publishes its entry only after its durable append succeeds.
+     */
+    Entry lookupSnapshot(UUID invocationId) {
         return entries.get(Objects.requireNonNull(invocationId, "invocationId"));
     }
 

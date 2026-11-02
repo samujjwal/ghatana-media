@@ -175,6 +175,141 @@ class WhisperOciWorkerSupervisorTest {
     }
 
     @Test
+    void cancellationDuringPreflightWinsBeforeJournalReservationOrWorkerLaunch() throws Exception {
+        FakeRunner runner = new FakeRunner();
+        runner.blockImageInspect = true;
+        try (Context context = context("cancel-preflight", runner)) {
+            CompletableFuture<com.ghatana.media.runtime.WhisperComputeContracts.Result> execution =
+                    CompletableFuture.supplyAsync(() -> context.supervisor().execute(id(0), PROFILE, "en-US",
+                            INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000));
+            assertThat(runner.imageInspectEntered.await(5, TimeUnit.SECONDS)).isTrue();
+            var cancellation = context.supervisor().cancel(id(0), PROFILE, "en-US", INPUT_SHA);
+            assertThat(cancellation.status()).isEqualTo(Status.NOT_ADMITTED);
+            runner.finishImageInspect.countDown();
+
+            assertThat(execution.get(5, TimeUnit.SECONDS).status()).isEqualTo(Status.NOT_ADMITTED);
+            assertThat(context.journal().recordCount()).isZero();
+            assertThat(runner.commands).noneMatch(command -> command.size() > 1
+                    && (command.get(1).equals("create") || command.get(1).equals("start")));
+            assertThat(context.supervisor().status(id(0), PROFILE, "en-US", INPUT_SHA).status())
+                    .isEqualTo(Status.NOT_ADMITTED);
+        }
+    }
+
+    @Test
+    void cancellationWhileExecuteWaitsForDispatchLockReturnsImmediatelyAndPreventsAdmission() throws Exception {
+        FakeRunner runner = new FakeRunner();
+        try (Context context = context("cancel-before-lock", runner)) {
+            assertThat(context.journal().begin(new MediaOciBrokerWhisperJournal.Identity(
+                    id(0), PROFILE, "en-US", INPUT_SHA)).kind())
+                    .isEqualTo(MediaOciBrokerWhisperJournal.BeginKind.RESERVED);
+            AtomicReference<com.ghatana.media.runtime.WhisperComputeContracts.Result> firstResult =
+                    new AtomicReference<>();
+            Thread first = new Thread(() -> firstResult.set(context.supervisor().execute(
+                    id(0), PROFILE, "en-US", INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000)),
+                    "whisper-execute-holding-dispatch-lock-test");
+            AtomicReference<com.ghatana.media.runtime.WhisperComputeContracts.Result> pendingResult =
+                    new AtomicReference<>();
+            Thread pending = new Thread(() -> pendingResult.set(context.supervisor().execute(
+                    id(1), PROFILE, "en-US", INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000)),
+                    "whisper-execute-waiting-for-dispatch-lock-test");
+            try {
+                synchronized (context.journal()) {
+                    first.start();
+                    awaitBlocked(first);
+                    pending.start();
+                    // The pending call is now blocked behind the first call's dispatch lock.
+                    // Its registry entry must already be visible to cancel().
+                    awaitBlocked(pending);
+                    var cancellation = CompletableFuture.supplyAsync(() -> context.supervisor().cancel(
+                            id(1), PROFILE, "en-US", INPUT_SHA));
+                    assertThat(cancellation.get(1, TimeUnit.SECONDS).status())
+                            .isEqualTo(Status.NOT_ADMITTED);
+                    assertThat(runner.commands).isEmpty();
+                }
+
+                first.join(5_000);
+                pending.join(5_000);
+                assertThat(first.isAlive()).isFalse();
+                assertThat(pending.isAlive()).isFalse();
+                assertThat(firstResult.get().status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+                assertThat(pendingResult.get().status()).isEqualTo(Status.NOT_ADMITTED);
+                assertThat(context.journal().recordCount()).isEqualTo(1);
+                assertThat(context.journal().lookup(id(1))).isNull();
+                assertThat(runner.commands).noneMatch(command -> command.size() > 1
+                        && (command.get(1).equals("create") || command.get(1).equals("start")));
+            } finally {
+                if (first.isAlive()) first.join(5_000);
+                if (pending.isAlive()) pending.join(5_000);
+            }
+        }
+    }
+
+    @Test
+    void cancellationWhilePendingReconcilesPersistedSuccessWithoutWaitingForDispatchLock() throws Exception {
+        FakeRunner runner = new FakeRunner();
+        try (Context context = context("cancel-pending-existing-success", runner)) {
+            var priorStarted = new MediaOciBrokerWhisperJournal.Identity(id(0), PROFILE, "en-US", INPUT_SHA);
+            assertThat(context.journal().begin(priorStarted).kind())
+                    .isEqualTo(MediaOciBrokerWhisperJournal.BeginKind.RESERVED);
+            var completed = new MediaOciBrokerWhisperJournal.Identity(id(1), PROFILE, "en-US", INPUT_SHA);
+            assertThat(context.journal().begin(completed).kind())
+                    .isEqualTo(MediaOciBrokerWhisperJournal.BeginKind.RESERVED);
+            context.journal().completeSuccess(completed,
+                    digest(ASSETS.get("encoder_model_quantized.onnx")), TRANSCRIPT);
+            var persistedSuccess = context.supervisor().status(id(1), PROFILE, "en-US", INPUT_SHA);
+            assertThat(persistedSuccess.status()).isEqualTo(Status.SUCCESS);
+
+            AtomicReference<com.ghatana.media.runtime.WhisperComputeContracts.Result> firstResult =
+                    new AtomicReference<>();
+            Thread first = new Thread(() -> firstResult.set(context.supervisor().execute(
+                    id(0), PROFILE, "en-US", INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000)),
+                    "whisper-execute-holding-dispatch-lock-existing-success-test");
+            AtomicReference<com.ghatana.media.runtime.WhisperComputeContracts.Result> pendingResult =
+                    new AtomicReference<>();
+            Thread pending = new Thread(() -> pendingResult.set(context.supervisor().execute(
+                    id(1), PROFILE, "en-US", INPUT_SHA, WAV.getBytes(StandardCharsets.UTF_8), 30_000)),
+                    "whisper-execute-pending-existing-success-test");
+            try {
+                synchronized (context.journal()) {
+                    first.start();
+                    awaitBlocked(first);
+                    pending.start();
+                    awaitBlocked(pending);
+
+                    var cancellation = CompletableFuture.supplyAsync(() -> context.supervisor().cancel(
+                            id(1), PROFILE, "en-US", INPUT_SHA));
+                    assertThat(cancellation.get(1, TimeUnit.SECONDS)).isEqualTo(persistedSuccess);
+                    assertThat(runner.commands).isEmpty();
+                }
+
+                first.join(5_000);
+                pending.join(5_000);
+                assertThat(first.isAlive()).isFalse();
+                assertThat(pending.isAlive()).isFalse();
+                assertThat(firstResult.get().status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+                assertThat(pendingResult.get()).isEqualTo(persistedSuccess);
+                assertThat(context.journal().lookup(id(1)).status())
+                        .isEqualTo(MediaOciBrokerWhisperJournal.Status.SUCCESS);
+                assertThat(context.journal().recordCount()).isEqualTo(2);
+                assertThat(runner.commands).isEmpty();
+            } finally {
+                if (first.isAlive()) first.join(5_000);
+                if (pending.isAlive()) pending.join(5_000);
+            }
+        }
+    }
+
+    private static void awaitBlocked(Thread thread) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (thread.getState() != Thread.State.BLOCKED && System.nanoTime() < deadline) {
+            if (!thread.isAlive()) throw new AssertionError("execute returned before reaching the blocked gate");
+            Thread.yield();
+        }
+        assertThat(thread.getState()).isEqualTo(Thread.State.BLOCKED);
+    }
+
+    @Test
     void workerSuccessThatExpiresDuringInspectAndRemovalCannotCommitLateSuccess() throws Exception {
         FakeRunner runner = new FakeRunner();
         AtomicLong clock = new AtomicLong();
@@ -409,9 +544,12 @@ class WhisperOciWorkerSupervisorTest {
         private final CountDownLatch finishCreate = new CountDownLatch(1);
         private final CountDownLatch startEntered = new CountDownLatch(1);
         private final CountDownLatch finishStart = new CountDownLatch(1);
+        private final CountDownLatch imageInspectEntered = new CountDownLatch(1);
+        private final CountDownLatch finishImageInspect = new CountDownLatch(1);
         private final AtomicBoolean releaseOnKill = new AtomicBoolean(true);
         private volatile boolean blockCreate;
         private volatile boolean blockStart;
+        private volatile boolean blockImageInspect;
         private volatile boolean startTimedOut;
         private volatile boolean failRemove;
         private volatile boolean wrongInput;
@@ -433,6 +571,19 @@ class WhisperOciWorkerSupervisorTest {
             if (op.equals("image") && advanceClock != null) advanceClock.addAndGet(advanceOnImageInspectNanos);
             if (op.equals("inspect") && advanceClock != null) advanceClock.addAndGet(advanceOnInspectNanos);
             if (op.equals("rm") && advanceClock != null) advanceClock.addAndGet(advanceOnRemoveNanos);
+            if (op.equals("image") && blockImageInspect) {
+                imageInspectEntered.countDown();
+                try {
+                    if (!finishImageInspect.await(10, TimeUnit.SECONDS)) {
+                        return new WhisperOciWorkerSupervisor.CommandResult(-1,
+                                new byte[0], new byte[0], true, false);
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    return new WhisperOciWorkerSupervisor.CommandResult(-1,
+                            new byte[0], new byte[0], true, false);
+                }
+            }
             return switch (op) {
                 case "image" -> imageMissing
                         ? new WhisperOciWorkerSupervisor.CommandResult(1, new byte[0], bytes("missing"), false, false)

@@ -52,8 +52,9 @@ final class WhisperOciWorkerSupervisor {
     private final String brokerInstanceLabel;
     private final java.util.concurrent.Semaphore oneWorker = new java.util.concurrent.Semaphore(1);
     private final Object dispatchLock = new Object();
+    private final Object registryLock = new Object();
     private final ConcurrentHashMap<UUID, Active> active = new ConcurrentHashMap<>();
-    private boolean closed;
+    private volatile boolean closed;
 
     static Startup start(String docker, long workerUid, long workerGid,
             WhisperWorkerServerConfig config, String brokerSecret, CommandRunner runner) {
@@ -118,55 +119,83 @@ final class WhisperOciWorkerSupervisor {
         }
         long deadline = entryNanos + TimeUnit.MILLISECONDS.toNanos(budgetMillis);
 
-        Active operation;
-        synchronized (dispatchLock) {
-            boolean acquired = false;
-            try {
-                if (closed) return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+        Active operation = new Active(request.identity());
+        Active prior;
+        synchronized (registryLock) {
+            if (closed) return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+            prior = active.putIfAbsent(invocationId, operation);
+        }
+        if (prior != null) {
+            if (!prior.identity().equals(request.identity())) {
+                return result(invocationId, profileId, sourceSha256, Status.INVALID_REQUEST);
+            }
+            return prior.successResult != null ? prior.successResult
+                    : result(invocationId, profileId, sourceSha256, Status.UNKNOWN_OUTCOME);
+        }
+
+        boolean acquired = false;
+        boolean startExecution = false;
+        try {
+            synchronized (dispatchLock) {
+                if (closed || operation.cancelled.get()) {
+                    return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+                }
                 MediaOciBrokerWhisperJournal.Entry old = journal.lookup(invocationId);
                 if (old != null) return existingResult(old, request.identity());
+                if (operation.cancelled.get()) {
+                    return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+                }
                 if (!oneWorker.tryAcquire()) {
                     return result(invocationId, profileId, sourceSha256, Status.RESOURCE_EXHAUSTED);
                 }
                 acquired = true;
-                boolean preflight = workerPreflight(deadline);
-                if (deadlineExpired(deadline)) {
-                    // No journal STARTED record or container exists yet, so this is provably pre-dispatch.
-                    oneWorker.release();
-                    acquired = false;
-                    return result(invocationId, profileId, sourceSha256, Status.DEADLINE_EXCEEDED);
+                if (operation.cancelled.get()) {
+                    return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
                 }
-                if (!preflight) {
-                    oneWorker.release();
-                    acquired = false;
+                boolean preflight = workerPreflight(deadline);
+                if (operation.cancelled.get()) {
                     return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
                 }
                 if (deadlineExpired(deadline)) {
-                    oneWorker.release();
-                    acquired = false;
+                    // No journal STARTED record or container exists yet, so this is provably pre-dispatch.
                     return result(invocationId, profileId, sourceSha256, Status.DEADLINE_EXCEEDED);
                 }
-                var reserved = journal.begin(request.identity());
+                if (!preflight) {
+                    return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+                }
+                if (deadlineExpired(deadline)) {
+                    return result(invocationId, profileId, sourceSha256, Status.DEADLINE_EXCEEDED);
+                }
+                MediaOciBrokerWhisperJournal.BeginResult reserved;
+                synchronized (operation) {
+                    // Cancellation and durable dispatch share one linearization point. If cancel
+                    // wins during preflight, no STARTED record or container may be created.
+                    if (operation.cancelled.get()) {
+                        return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+                    }
+                    reserved = journal.begin(request.identity());
+                    if (reserved.kind() == MediaOciBrokerWhisperJournal.BeginKind.RESERVED) {
+                        operation.dispatchStarted = true;
+                        startExecution = true;
+                    }
+                }
                 if (reserved.kind() == MediaOciBrokerWhisperJournal.BeginKind.CAPACITY) {
-                    oneWorker.release();
-                    acquired = false;
                     return result(invocationId, profileId, sourceSha256, Status.RESOURCE_EXHAUSTED);
                 }
                 if (reserved.kind() == MediaOciBrokerWhisperJournal.BeginKind.IDENTITY_CONFLICT) {
-                    oneWorker.release();
-                    acquired = false;
                     return result(invocationId, profileId, sourceSha256, Status.INVALID_REQUEST);
                 }
                 if (reserved.kind() == MediaOciBrokerWhisperJournal.BeginKind.EXISTING) {
-                    oneWorker.release();
-                    acquired = false;
                     return existingResult(reserved.entry(), request.identity());
                 }
-                operation = new Active(request.identity());
-                active.put(invocationId, operation);
-            } catch (IOException journalFailure) {
+            }
+        } catch (IOException journalFailure) {
+            return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+        } finally {
+            if (!startExecution) {
                 if (acquired) oneWorker.release();
-                return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
+                active.remove(invocationId, operation);
+                operation.finished.countDown();
             }
         }
 
@@ -286,9 +315,22 @@ final class WhisperOciWorkerSupervisor {
         if (!operation.identity().equals(identity.identity())) {
             return result(invocationId, profileId, sourceSha256, Status.INVALID_REQUEST);
         }
+        boolean preDispatch;
         synchronized (operation) {
             if (operation.successResult != null) return operation.successResult;
+            MediaOciBrokerWhisperJournal.Entry persisted = journal.lookupSnapshot(invocationId);
+            if (persisted != null && (!operation.dispatchStarted
+                    || persisted.status() == MediaOciBrokerWhisperJournal.Status.SUCCESS)) {
+                return existingResult(persisted, identity.identity());
+            }
             operation.cancelled.set(true);
+            preDispatch = !operation.dispatchStarted;
+        }
+        if (preDispatch) {
+            // The flag and execute's journal.begin are fenced by the same monitor, so once
+            // this branch wins the invocation cannot cross into provider dispatch. Return
+            // without acquiring dispatchLock or waiting for another invocation to release it.
+            return result(invocationId, profileId, sourceSha256, Status.NOT_ADMITTED);
         }
         String containerId = operation.containerId;
         if (containerId != null) {
@@ -307,12 +349,24 @@ final class WhisperOciWorkerSupervisor {
     void close() throws IOException {
         List<Active> snapshot;
         synchronized (dispatchLock) {
-            closed = true;
-            snapshot = List.copyOf(active.values());
+            synchronized (registryLock) {
+                closed = true;
+                snapshot = List.copyOf(active.values());
+            }
         }
         for (Active operation : snapshot) {
             var identity = operation.identity();
             cancel(identity.invocationId(), identity.profileId(), identity.locale(), identity.inputSha256());
+        }
+        for (Active operation : snapshot) {
+            try {
+                if (!operation.finished.await(CONTROL_TIMEOUT.toMillis() + 10_000, TimeUnit.MILLISECONDS)) {
+                    throw new IOException("Whisper worker invocation did not leave its pending state");
+                }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted while waiting for Whisper worker shutdown", interrupted);
+            }
         }
         if (!active.isEmpty()) throw new IOException("Whisper worker did not stop during broker shutdown");
         if (!cleanupOrphans()) throw new IOException("Whisper worker orphan cleanup was not confirmed");
@@ -602,6 +656,7 @@ final class WhisperOciWorkerSupervisor {
         private final MediaOciBrokerWhisperJournal.Identity identity;
         private final AtomicBoolean cancelled = new AtomicBoolean();
         private final CountDownLatch finished = new CountDownLatch(1);
+        private boolean dispatchStarted;
         private volatile String containerId;
         private volatile Result successResult;
         private volatile boolean cleanupConfirmed;
