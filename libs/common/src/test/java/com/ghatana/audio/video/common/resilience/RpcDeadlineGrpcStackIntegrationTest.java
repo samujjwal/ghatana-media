@@ -9,6 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
+import io.grpc.ClientCall;
 import io.grpc.ClientInterceptors;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -89,6 +90,64 @@ class RpcDeadlineGrpcStackIntegrationTest {
             assertThat(childInterrupted.await(1, TimeUnit.SECONDS)).isTrue();
             awaitOutcome(childOutcome);
             assertThat(childOutcome.get()).isEqualTo(Status.Code.DEADLINE_EXCEEDED);
+            assertThat(successfulResponses).hasValue(0);
+        } finally {
+            workers.shutdownNow();
+            workers.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void explicitClientCancellationInterruptsEffectCapableChildAndReportsUnknownOutcome() throws Exception {
+        configure("5000");
+        ThreadPoolExecutor workers = workerPool();
+        CountDownLatch childStarted = new CountDownLatch(1);
+        CountDownLatch childInterrupted = new CountDownLatch(1);
+        CountDownLatch clientClosed = new CountDownLatch(1);
+        AtomicReference<Status.Code> childOutcome = new AtomicReference<>();
+        AtomicReference<Status.Code> clientOutcome = new AtomicReference<>();
+        AtomicInteger successfulResponses = new AtomicInteger();
+        var executor = new ContextAwareBoundedExecutor(workers);
+        var service = service((request, response) -> {
+            var submission = executor.submit(() -> {
+                childStarted.countDown();
+                try {
+                    new CountDownLatch(1).await();
+                    return "late";
+                } catch (InterruptedException interrupted) {
+                    childInterrupted.countDown();
+                    return "late-after-cancel";
+                }
+            });
+            capture(submission, response, childOutcome, successfulResponses);
+        });
+
+        try (RunningServer running = start(service)) {
+            Channel authenticated = authenticated(running.channel(), token());
+            ClientCall<StringValue, StringValue> call = authenticated.newCall(method(),
+                    CallOptions.DEFAULT.withDeadlineAfter(5, TimeUnit.SECONDS));
+            call.start(new ClientCall.Listener<>() {
+                @Override public void onMessage(StringValue value) {
+                    successfulResponses.incrementAndGet();
+                }
+
+                @Override public void onClose(Status status, Metadata trailers) {
+                    clientOutcome.set(status.getCode());
+                    clientClosed.countDown();
+                }
+            }, new Metadata());
+            call.request(1);
+            call.sendMessage(StringValue.of("cancelled-effect-capable"));
+            call.halfClose();
+
+            assertThat(childStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            call.cancel("caller detached", null);
+
+            assertThat(childInterrupted.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(clientClosed.await(1, TimeUnit.SECONDS)).isTrue();
+            awaitOutcome(childOutcome);
+            assertThat(clientOutcome.get()).isEqualTo(Status.Code.UNKNOWN);
+            assertThat(childOutcome.get()).isEqualTo(Status.Code.UNKNOWN);
             assertThat(successfulResponses).hasValue(0);
         } finally {
             workers.shutdownNow();
