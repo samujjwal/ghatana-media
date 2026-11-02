@@ -7,20 +7,36 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 /** Child JVM for the isolated IP-06 S3/PostgreSQL split crash test. */
 public final class MediaPostgresqlS3ProcessCrashWorker {
     private MediaPostgresqlS3ProcessCrashWorker() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 6) throw new IllegalArgumentException("operation, marker, payload, tenant, principal, upload are required");
+        if (args.length < 6 || args.length > 7) {
+            throw new IllegalArgumentException("operation, marker, payload, tenant, principal, upload, optional target key are required");
+        }
         String operation = args[0];
         Path marker = Path.of(args[1]);
         byte[] payload = Files.readAllBytes(Path.of(args[2]));
         String tenant = args[3];
         String principal = args[4];
         String uploadId = args[5];
-        if (operation.equals("complete-after-s3-finalize")) {
+        String targetObjectKey = args.length == 7 ? args[6] : null;
+        if (operation.equals("complete-before-chunk-cleanup")) {
+            if (targetObjectKey == null || targetObjectKey.isBlank()) {
+                throw new IllegalArgumentException("exact upload-owned chunk key is required for cleanup crash test");
+            }
+            String bucket = System.getenv("MEDIA_S3_BUCKET");
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(
+                         Map.copyOf(System.getenv()), delegate -> pauseBeforeChunkDelete(
+                                 delegate, marker, bucket, targetObjectKey));
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+                write(marker, "READY");
+                store.complete(tenant, principal, uploadId);
+            }
+        } else if (operation.equals("complete-after-s3-finalize")) {
             try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(
                          Map.copyOf(System.getenv()), delegate -> pauseAfterSuccessfulFinalize(delegate, marker));
                  S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
@@ -41,6 +57,26 @@ public final class MediaPostgresqlS3ProcessCrashWorker {
                 while (true) Thread.sleep(60_000);
             }
         }
+    }
+
+    private static S3Client pauseBeforeChunkDelete(
+            S3Client delegate, Path marker, String bucket, String targetObjectKey) {
+        return (S3Client) Proxy.newProxyInstance(S3Client.class.getClassLoader(), new Class<?>[] {S3Client.class},
+                (proxy, method, arguments) -> {
+                    if (method.getName().equals("deleteObject") && arguments != null && arguments.length > 0
+                            && arguments[0] instanceof DeleteObjectRequest request
+                            && bucket.equals(request.bucket()) && targetObjectKey.equals(request.key())) {
+                        write(marker, "CHUNK_DELETE_PENDING");
+                        // The parent confirms the durable artifact state, then kills this child
+                        // before the exact staged-object delete reaches S3.
+                        while (true) Thread.sleep(60_000);
+                    }
+                    try {
+                        return method.invoke(delegate, arguments);
+                    } catch (InvocationTargetException failure) {
+                        throw failure.getCause();
+                    }
+                });
     }
 
     private static S3Client pauseAfterSuccessfulFinalize(S3Client delegate, Path marker) {

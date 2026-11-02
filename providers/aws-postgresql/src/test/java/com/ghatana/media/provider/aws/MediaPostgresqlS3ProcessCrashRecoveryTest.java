@@ -450,6 +450,94 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
     }
 
     @Test
+    void processDeathAfterArtifactCommitBeforeChunkCleanupReplaysAndRemovesOwnedOrphan(@TempDir Path tempDir)
+            throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-ip06-s3-delete-crash-" + runId;
+        String prefix = "ip06/delete-crash/" + runId;
+        String tenant = "tenant-ip06-delete-crash-" + runId;
+        String principal = "principal-ip06-delete-crash-" + runId;
+        String application = "media-ip06-s3-delete-crash-" + runId;
+        byte[] bytes = wav(("delete-crash-source:" + runId).getBytes(StandardCharsets.UTF_8));
+        String digest = sha256(bytes);
+        Map<String, String> environment = environment(bucket, prefix);
+        Path payloadFile = tempDir.resolve("delete-crash-source.wav");
+        Path deletePendingMarker = tempDir.resolve("chunk-delete-pending.marker");
+        Path workerLog = tempDir.resolve("chunk-delete-worker.log");
+        Files.write(payloadFile, bytes);
+        createBucket(bucket);
+
+        String uploadId;
+        String fingerprint;
+        String stagedChunkKey;
+        try {
+            try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore()) {
+                UploadRequest request = new UploadRequest(tenant, principal, "source.wav", "audio/wav", bytes.length,
+                        digest, "RESTRICTED", Duration.ofDays(7), Map.of());
+                UploadSession upload = store.begin(request, "ip06-delete-crash-" + runId);
+                uploadId = upload.uploadId();
+                store.append(tenant, principal, uploadId, 0, bytes);
+                fingerprint = requestFingerprint(tenant, uploadId);
+                stagedChunkKey = prefix + "/uploads/" + opaque(tenant) + "/" + uploadId + "/chunks/0";
+                assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
+            }
+
+            Process child = startWorker(environment, application, deletePendingMarker, workerLog,
+                    "complete-before-chunk-cleanup", payloadFile, tenant, principal, uploadId, stagedChunkKey);
+            String artifactId;
+            try {
+                // The test-only S3 decorator pauses before deleting this exact staged key. The
+                // call is reached only after complete() has committed artifact/upload metadata.
+                awaitMarker(child, deletePendingMarker, "CHUNK_DELETE_PENDING", workerLog);
+                artifactId = artifactIdForUpload(tenant, uploadId);
+                assertThat(artifactId).isNotBlank();
+                assertThat(tenantArtifactCount(tenant)).isEqualTo(1);
+                assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+                assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
+                assertThat(objectExists(bucket, stagedChunkKey))
+                        .as("the worker is paused before deleting the still-owned staged chunk")
+                        .isTrue();
+                String finalKey = prefix + "/quarantine/finalized/" + opaque(tenant) + "/" + uploadId + "/" + digest;
+                assertThat(objectExists(bucket, finalKey)).isTrue();
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
+            } finally {
+                child.destroyForcibly();
+                assertThat(child.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            }
+
+            // A new provider lifecycle must read the durable completion, preserve the exact
+            // artifact and fingerprint, and clean only this upload's leftover chunk on replay.
+            try (AutoCloseable restartedLifecycle = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+                 S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+                UploadSession completed = restarted.upload(tenant, uploadId).orElseThrow();
+                assertThat(completed.status().name()).isEqualTo("COMPLETED");
+                assertThat(artifactIdForUpload(tenant, uploadId)).isEqualTo(artifactId);
+                assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
+                assertThat(objectExists(bucket, stagedChunkKey)).isTrue();
+
+                MediaArtifact recovered = restarted.artifact(tenant, artifactId).orElseThrow();
+                assertThat(recovered.tenantId()).isEqualTo(tenant);
+                assertThat(recovered.principalId()).isEqualTo(principal);
+                assertThat(recovered.sha256()).isEqualTo(digest);
+                assertThat(recovered.sizeBytes()).isEqualTo(bytes.length);
+                assertThat(restarted.artifact("wrong-tenant-" + runId, artifactId)).isEmpty();
+                assertThat(restarted.complete(tenant, principal, uploadId)).isEqualTo(recovered);
+
+                assertThat(objectExists(bucket, stagedChunkKey)).isFalse();
+                assertThat(artifactCount(tenant, artifactId)).isEqualTo(1);
+                assertThat(tenantArtifactCount(tenant)).isEqualTo(1);
+                assertThat(requestFingerprint(tenant, uploadId)).isEqualTo(fingerprint);
+                String finalKey = objectKey(recovered.objectReference());
+                assertThat(getObject(bucket, finalKey)).containsExactly(bytes);
+                assertThat(sha256(getObject(bucket, finalKey))).isEqualTo(digest);
+            }
+        } finally {
+            deleteBucketObjects(bucket);
+        }
+    }
+
+    @Test
     void artifactInsertFailureAfterS3FinalizeRetriesToOneParityCheckedArtifact() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-insfail-" + runId;
@@ -600,12 +688,22 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
     private static Process startWorker(Map<String, String> environment, String applicationName,
             Path marker, Path log, String operation, Path payload, String tenant, String principal,
             String uploadId) throws Exception {
+        return startWorker(environment, applicationName, marker, log, operation, payload, tenant, principal,
+                uploadId, null);
+    }
+
+    private static Process startWorker(Map<String, String> environment, String applicationName,
+            Path marker, Path log, String operation, Path payload, String tenant, String principal,
+            String uploadId, String targetObjectKey) throws Exception {
         String classpath = System.getProperty("media.child.classpath", "");
         if (classpath.isBlank()) throw new IllegalStateException("Gradle did not provide media.child.classpath");
         Path java = Path.of(System.getProperty("java.home"), "bin", "java");
-        ProcessBuilder builder = new ProcessBuilder(java.toString(), "-cp", classpath,
-                MediaPostgresqlS3ProcessCrashWorker.class.getName(), operation, marker.toString(),
-                payload.toString(), tenant, principal, uploadId);
+        String[] command = targetObjectKey == null
+                ? new String[] {java.toString(), "-cp", classpath, MediaPostgresqlS3ProcessCrashWorker.class.getName(),
+                        operation, marker.toString(), payload.toString(), tenant, principal, uploadId}
+                : new String[] {java.toString(), "-cp", classpath, MediaPostgresqlS3ProcessCrashWorker.class.getName(),
+                        operation, marker.toString(), payload.toString(), tenant, principal, uploadId, targetObjectKey};
+        ProcessBuilder builder = new ProcessBuilder(command);
         builder.environment().keySet().removeIf(key -> key.startsWith("MEDIA_"));
         builder.environment().putAll(environment);
         builder.environment().put("MEDIA_POSTGRES_JDBC_URL", withApplicationName(POSTGRES.getJdbcUrl(), applicationName));
