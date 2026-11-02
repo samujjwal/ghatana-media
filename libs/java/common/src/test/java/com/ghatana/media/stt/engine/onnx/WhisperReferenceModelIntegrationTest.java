@@ -54,8 +54,10 @@ class WhisperReferenceModelIntegrationTest {
         assumeTrue(profileValue != null && audioValue != null,
                 "Set the private Whisper profile and rights-safe local WAV to run model integration");
 
-        Path profile = Path.of(profileValue).toAbsolutePath();
-        Path wav = Path.of(audioValue).toAbsolutePath();
+        QualificationInputs qualification = requireQualificationInputs(profileValue, audioValue,
+                System.getenv("GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT"));
+        Path profile = qualification.profile();
+        Path wav = qualification.audio();
         AudioData speech = readPcm16MonoWav(wav);
         SttConfig config = SttConfig.builder()
                 .modelPath(profile.resolve("encoder_model_quantized.onnx"))
@@ -71,19 +73,11 @@ class WhisperReferenceModelIntegrationTest {
                     .enableTimestamps(false)
                     .build();
             var result = engine.transcribe(speech, english);
-            // A keyword match accepted the earlier materially incomplete Whisper
-            // output. Opt-in real-model runs must now supply independently authored
-            // source-audio ground truth. Case/punctuation normalization only;
-            // missing words or invented content fail the test.
-            String gold = System.getenv("GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT");
-            assertThat(gold).as("Set independently reviewed audio ground truth in "
-                    + "GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT before real-model verification")
-                    .isNotBlank();
             String transcript = result.getText();
             assertThat(transcript).isNotBlank();
             assertThat(normalizeSpokenText(transcript))
                     .as("Whisper must reproduce all normalized ground-truth words, not just a keyword")
-                    .isEqualTo(normalizeSpokenText(gold));
+                    .isEqualTo(normalizeSpokenText(qualification.goldTranscript()));
             assertThat(result.words()).as("the pinned profile is explicitly configured without timestamps").isEmpty();
             System.out.println("WHISPER_REFERENCE_OUTPUT=" + result.getText());
             System.out.println("WHISPER_REFERENCE_OUTPUT_SHA256=" + sha256(result.getText().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
@@ -108,6 +102,29 @@ class WhisperReferenceModelIntegrationTest {
                     .hasMessageContaining("word timestamps");
         }
     }
+
+    @Test
+    void pinnedProfileAndAudioRequireIndependentGoldBeforeModelLoading() {
+        String invalidPath = String.valueOf((char) 0);
+        assertThatThrownBy(() -> requireQualificationInputs(invalidPath, invalidPath, null))
+                .isInstanceOf(AssertionError.class)
+                .hasMessageContaining("GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT");
+    }
+
+    private static QualificationInputs requireQualificationInputs(String profileValue, String audioValue,
+                                                                   String goldTranscript) {
+        assertThat(profileValue).as("GHATANA_MEDIA_WHISPER_PROFILE").isNotBlank();
+        assertThat(audioValue).as("GHATANA_MEDIA_WHISPER_AUDIO").isNotBlank();
+        // Require independently reviewed complete ground truth before any path is
+        // opened or model inference is started. Do not replace this with fixture text.
+        assertThat(goldTranscript).as("Set independently reviewed audio ground truth in "
+                + "GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT before real-model verification")
+                .isNotBlank();
+        return new QualificationInputs(Path.of(profileValue).toAbsolutePath(),
+                Path.of(audioValue).toAbsolutePath(), goldTranscript);
+    }
+
+    private record QualificationInputs(Path profile, Path audio, String goldTranscript) { }
 
     private static String normalizeSpokenText(String value) {
         return java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFC)
