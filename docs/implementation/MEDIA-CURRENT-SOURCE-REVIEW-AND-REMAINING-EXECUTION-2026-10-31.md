@@ -2186,3 +2186,22 @@ IP-06 still requires authentic deployed `flyway_schema_history`, old-writer iden
 **Kernel OCR boundary/current gate:** Kernel `main@4ef9180c9` remained clean and unchanged. Its current `pnpm check:product-definition-source` returned **7,915 checks, 25 failures, and 1 diagnostic**: 20 exact authored API `commitPoint` binding failures plus four stale accepted-decision material digests, with the aggregate failure. A fresh source-only `verifyPdpSource()` invocation was stopped after more than four minutes without a result or repository write. No safe correction to those Kernel definitions or decision records was established, so no Kernel BUILD code or tests ran; the Kernel #99 Discovery gate remains in force.
 
 The test-only V001–V016 SQL snapshot and applied-history CSV supplied for this work already exist with their hashes and synthetic lineage in §41.61. They are not deployed history. H-02 runtime remains `NOT_ADMITTED`; JC-03 still lacks host-level termination and genuine provider qualification; IP-06 still lacks deployed applied-history and the old-writer fence. The original Wave 2, Wave 3, H outcome, PDP source-currentness, formal acceptance, cutover, deployment, and release gates remain unchanged.
+
+### 41.64 November 2 Whisper Wave 0 JDK 27 checks and pre-inference gold gate
+
+**Whisper correctness/policy selectors (`eff17a23`):** on Darwin arm64 with Temurin JDK `27.0.1.0.2`, the forced `DEV_SOURCE_COMPOSITE` / focused-STT run passed `WhisperOnnxThreadPolicyTest` **3/3**, `WhisperDecoderPolicyTest` **3/3**, and the new `WhisperReferenceModelIntegrationTest.pinnedProfileAndAudioRequireIndependentGoldBeforeModelLoading` **1/1**. Its NUL-path sentinel proves missing independent gold is rejected before filesystem path parsing, WAV reading, model initialization, or inference, without supplying audio or transcript fixtures. Independent Luna review confirmed that boundary.
+
+```bash
+./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE \
+  -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=stt \
+  :services:media:libs:java:common:test \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperOnnxThreadPolicyTest \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperDecoderPolicyTest \
+  --tests com.ghatana.media.stt.engine.onnx.WhisperReferenceModelIntegrationTest \
+  --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain
+# 7 passed, 2 skipped
+```
+
+The two skipped cases are the opt-in real profile/audio integration checks. `GHATANA_MEDIA_WHISPER_PROFILE`, `GHATANA_MEDIA_WHISPER_AUDIO`, and `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT` are unset. No ONNX inference, independent transcript match, quality score, or `WhisperPerformanceQualificationTest` A/B result is claimed. The JDK 27 run is macOS ARM64 only; Linux ARM64 qualification remains open.
+
+**JC-03 host worker availability:** the trusted host OCI integration requires a broker socket, owner-only token file, and digest-pinned worker image. `GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET`, `GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE`, and `GHATANA_MEDIA_VISION_WORKER_IMAGE` are unset. The local Docker CLI probe failed with `permission denied` for `/Users/samujjwal/.docker/run/docker.sock`. Therefore host OCI resource-limit/cancellation qualification and the real Whisper image/model run remain unexecuted; fake-runner and unit tests do not replace them. No worker credentials or external effect were created.
