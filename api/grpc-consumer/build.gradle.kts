@@ -10,6 +10,9 @@ java {
 
 dependencies {
     implementation("com.ghatana.audio-video:grpc-api:${grpcApiVersion.get()}")
+    // Local transport used only by this isolated consumer smoke check. The Media
+    // source projects and generated sources are deliberately absent from this build.
+    implementation("io.grpc:grpc-inprocess:1.83.1")
 }
 
 application {
