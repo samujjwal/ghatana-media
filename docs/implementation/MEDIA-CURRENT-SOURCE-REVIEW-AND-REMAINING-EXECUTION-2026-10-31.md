@@ -2472,3 +2472,25 @@ PDP_MIGRATION_CANDIDATE_PHASE=ALL node --test \
 **Kernel #99 source and stage boundary:** a fresh read-only review found that the requested caller scope, tenant isolation, least privilege, unknown-outcome, and reconciliation constraints follow existing Kernel Product Truth laws. The `media.ocr` documentation is explanatory and is not a registered canonical PDP-0 source; adding a new Kernel capability or mapping would expand product scope. Kernel's actual source review remains `REVIEW_REQUIRED` with a stale Product Truth material binding, and its `AGENTS.md` bars BUILD/security tests until current source passes the Discovery gate. No Kernel file or status was changed and no BUILD test was run. Continue the preauthorized #99 code/test work only when that repository's stage gate permits it; the separate Media/DI public-client and real worker evidence remain open.
 
 **Remaining currentness and recovery boundaries:** a fresh no-write run of the four matrix `--check` commands fails closed at PDP-0 **18/188**, PDP-1 **28/137**, PDP-2 **20/157**, and PDP-3 **21/367** stale pins. No projection, pin, phase status, decision, or receipt was written. Luna's read-only #27 review found no distinct local test gap after §41.74: current coverage already exercises synthetic V001–V016 history, V017–V029 forward migrations/process recovery, multipart/S3 integrity, upload and scanner crash recovery, and Media worker lease fencing. Authentic deployed V001–V029 history, the actual legacy-writer identity and stale-write fence, and operator-authorized one-writer cutover/rollback remain required. H-02 remains `NOT_ADMITTED` and issue #25 open; Wave 2 remains 22 verified / 30 partial / 6 external-owner; Wave 3 remains 84 active plus four retired OCR compatibility tasks; H still has eight outcomes. No row acceptance, canonical source currentness, writer cutover, deployment, or release is claimed.
+
+### 41.76 November 2 Wave 3 cache and persistence compatibility slices
+
+**CA-02/CA-03 transcript-cache privacy boundary:** tenant/entity-only transcript cache APIs now preserve source-backed reads but skip protected transcript cache reads and writes. `getOrLoadTranscription` returns only its current matching, non-deleted source result; absent/deleted results trigger best-effort invalidation of only that tenant's exact transcript key without delaying source denial. Updated `TranscriptionCacheServiceTest`, Redis integration expectations, and cache README. The focused unit suite passed **26/26**. This is a safe cache-disabled/read-through path until callers can supply authenticated principal, rights/purpose/classification, immutable artifact/transcript revisions, and current source fingerprint. It does not close CA-02..05 or establish Shared Redis admission.
+
+```bash
+./gradlew :services:media:modules:infrastructure:cache:test \
+  --tests com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheServiceTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+The updated `TranscriptionCacheIT` Redis/Testcontainers suite was not run because the current Docker CLI cannot connect to `unix:///Users/samujjwal/.docker/run/docker.sock` (`permission denied`). No integration result is inferred from the unit run.
+
+**IP-02 tenant predicate regression:** extended `JpaTranscriptionRepositoryTest.testFindByAudioFileId` with two tenant rows sharing one `audioFileId`; the tenant-bound lookup must return its own transcription, and a third tenant must see no row. The focused repository suite passed **20/20**. This exercises the local JPA query in its test fixture only; it is not PostgreSQL deployed-history qualification, IP-02 completion, or evidence that this legacy DAL is a canonical writer.
+
+```bash
+./gradlew :services:media:modules:infrastructure:persistence:test \
+  --tests com.ghatana.audio.video.infrastructure.persistence.repository.JpaTranscriptionRepositoryTest \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+The four PDP matrix checks remain fail-closed at **18/188, 28/137, 20/157, and 21/367** stale pins; no status, pin, or projection changed. IP-06 still requires authentic deployed writer/history evidence and protected operator cutover. Cache scope authority, real Wave 2 provider/report inputs, original Wave 2/W3/H acceptance, lifecycle receipts, deployment, and release remain open.
