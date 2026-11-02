@@ -1772,3 +1772,19 @@ node --test tests/pdp0-surface-phase-status-matrix.test.mjs
 ```
 
 No PDP status, pin, matrix, runtime, provider, deployment, or release state was promoted. The independent PDP-0 status owner still needs to enumerate and disposition its skipped selector cases and reconcile source review before any currentness claim; exact owner route and distinct skip counts remain recorded in §41.24.
+
+### 41.45 November 2 JC-04 installed-client deadline and cancellation boundary (2026-11-02)
+
+At Media `main@a43ebd8c` plus the uncommitted `api/grpc-consumer/src/main/java/com/ghatana/media/consumer/GrpcApiConsumerSmoke.java` change, the source-free consumer tests the installed generated STT, TTS, Vision, and Multimodal blocking stubs against synthetic in-process service bases with a short caller deadline. Each call reaches its service once, returns `DEADLINE_EXCEEDED`, and causes the server RPC `Context` to observe cancellation. The smoke now waits on a distinct post-cancellation latch for each handler, signaled only after its `onNext` and `onCompleted` late-response attempts, and asserts exactly one such attempt per service. This covers the installed-client transport boundary omitted by the prior one-unary-roundtrip-per-service check in §41.42. It does not exercise Media's production gRPC interceptors, server deployment, authentication composition, actual provider cancellation, arbitrary native work termination, or external-effect finality.
+
+The strengthened focused source-free consumer verifier passed with:
+
+```bash
+GRADLE_USER_HOME=/private/tmp/ghatana-media-gradle-home ./gradlew verifyPublishedGrpcApiConsumer \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+# PASS: published API artifact, source-free consumer compile and installed-stub deadline/cancellation/late-attempt smoke
+```
+
+An independent Luna read-only review accepted the bounded smoke as **`ACCEPT_LOCAL_CANDIDATE_ONLY`**. The review confirmed that dispatch, client-visible deadline, server cancellation, and the single post-cancellation late response attempt are each asserted without a concrete false-positive race. It does not verify production Media adapter deadlines, real network behavior, provider side-effect suppression, or durable job outcomes.
+
+The local installed-client deadline/cancellation gap is covered for one unary method per service. JC-04's full RPC/streaming/interceptor/version compatibility and canonical PDP acceptance remain open; JC-03's hard process/native termination, production provider effect finality and same-key durable reconciliation also remain open. No runtime-admission, real-provider, or whole-row acceptance claim follows from this consumer smoke.

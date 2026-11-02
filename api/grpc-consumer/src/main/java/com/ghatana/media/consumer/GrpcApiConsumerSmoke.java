@@ -18,14 +18,22 @@ import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
+import io.grpc.Context;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.grpc.MethodDescriptor;
 import io.grpc.ServiceDescriptor;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -113,6 +121,145 @@ public final class GrpcApiConsumerSmoke {
             channel.shutdownNow();
             server.shutdownNow();
         }
+
+        assertInstalledStubDeadlineAndCancellation();
+    }
+
+    private static void assertInstalledStubDeadlineAndCancellation() throws Exception {
+        AtomicInteger sttCalls = new AtomicInteger();
+        AtomicInteger ttsCalls = new AtomicInteger();
+        AtomicInteger visionCalls = new AtomicInteger();
+        AtomicInteger multimodalCalls = new AtomicInteger();
+        CountDownLatch sttEntered = new CountDownLatch(1);
+        CountDownLatch sttCancelled = new CountDownLatch(1);
+        CountDownLatch ttsEntered = new CountDownLatch(1);
+        CountDownLatch ttsCancelled = new CountDownLatch(1);
+        CountDownLatch visionEntered = new CountDownLatch(1);
+        CountDownLatch visionCancelled = new CountDownLatch(1);
+        CountDownLatch multimodalEntered = new CountDownLatch(1);
+        CountDownLatch multimodalCancelled = new CountDownLatch(1);
+        CountDownLatch sttLateAttempted = new CountDownLatch(1);
+        CountDownLatch ttsLateAttempted = new CountDownLatch(1);
+        CountDownLatch visionLateAttempted = new CountDownLatch(1);
+        CountDownLatch multimodalLateAttempted = new CountDownLatch(1);
+        AtomicInteger sttLateAttempts = new AtomicInteger();
+        AtomicInteger ttsLateAttempts = new AtomicInteger();
+        AtomicInteger visionLateAttempts = new AtomicInteger();
+        AtomicInteger multimodalLateAttempts = new AtomicInteger();
+        String serverName = "media-grpc-api-deadline-" + UUID.randomUUID();
+
+        Server server = InProcessServerBuilder.forName(serverName)
+                .addService(new STTServiceGrpc.STTServiceImplBase() {
+                    @Override public void transcribe(TranscribeRequest request,
+                            StreamObserver<TranscribeResponse> observer) {
+                        sttCalls.incrementAndGet();
+                        awaitCancellationThenRespond(sttEntered, sttCancelled, sttLateAttempted, sttLateAttempts,
+                                observer,
+                                TranscribeResponse.getDefaultInstance());
+                    }
+                })
+                .addService(new TTSServiceGrpc.TTSServiceImplBase() {
+                    @Override public void synthesize(SynthesizeRequest request,
+                            StreamObserver<SynthesizeResponse> observer) {
+                        ttsCalls.incrementAndGet();
+                        awaitCancellationThenRespond(ttsEntered, ttsCancelled, ttsLateAttempted, ttsLateAttempts,
+                                observer,
+                                SynthesizeResponse.getDefaultInstance());
+                    }
+                })
+                .addService(new VisionServiceGrpc.VisionServiceImplBase() {
+                    @Override public void detectObjects(DetectRequest request,
+                            StreamObserver<DetectResponse> observer) {
+                        visionCalls.incrementAndGet();
+                        awaitCancellationThenRespond(visionEntered, visionCancelled, visionLateAttempted,
+                                visionLateAttempts, observer,
+                                DetectResponse.getDefaultInstance());
+                    }
+                })
+                .addService(new MultimodalServiceGrpc.MultimodalServiceImplBase() {
+                    @Override public void processMultimodal(MultimodalRequest request,
+                            StreamObserver<MultimodalResponse> observer) {
+                        multimodalCalls.incrementAndGet();
+                        awaitCancellationThenRespond(multimodalEntered, multimodalCancelled,
+                                multimodalLateAttempted, multimodalLateAttempts, observer,
+                                MultimodalResponse.getDefaultInstance());
+                    }
+                })
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).build();
+        ExecutorService caller = Executors.newSingleThreadExecutor();
+        try {
+            assertDeadline("STT", caller,
+                    () -> STTServiceGrpc.newBlockingStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                            .transcribe(TranscribeRequest.getDefaultInstance()), sttEntered, sttCancelled,
+                    sttLateAttempted);
+            assertDeadline("TTS", caller,
+                    () -> TTSServiceGrpc.newBlockingStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                            .synthesize(SynthesizeRequest.getDefaultInstance()), ttsEntered, ttsCancelled,
+                    ttsLateAttempted);
+            assertDeadline("Vision", caller,
+                    () -> VisionServiceGrpc.newBlockingStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                            .detectObjects(DetectRequest.getDefaultInstance()), visionEntered, visionCancelled,
+                    visionLateAttempted);
+            assertDeadline("Multimodal", caller,
+                    () -> MultimodalServiceGrpc.newBlockingStub(channel).withDeadlineAfter(150, TimeUnit.MILLISECONDS)
+                            .processMultimodal(MultimodalRequest.getDefaultInstance()),
+                    multimodalEntered, multimodalCancelled, multimodalLateAttempted);
+            require(sttCalls.get() == 1 && ttsCalls.get() == 1
+                            && visionCalls.get() == 1 && multimodalCalls.get() == 1,
+                    "Deadline calls must dispatch exactly once to each installed service");
+            require(sttLateAttempts.get() == 1 && ttsLateAttempts.get() == 1
+                            && visionLateAttempts.get() == 1 && multimodalLateAttempts.get() == 1,
+                    "Each installed service must attempt exactly one late response after cancellation");
+        } finally {
+            caller.shutdownNow();
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
+    private static void assertDeadline(String service, ExecutorService caller, RpcCall call,
+            CountDownLatch entered, CountDownLatch cancelled, CountDownLatch lateAttempted) throws Exception {
+        Future<?> result = caller.submit(call::invoke);
+        require(entered.await(2, TimeUnit.SECONDS), service + " deadline call did not reach the server");
+        try {
+            result.get(3, TimeUnit.SECONDS);
+            throw new IllegalStateException(service + " installed stub returned success after its deadline");
+        } catch (ExecutionException failure) {
+            require(Status.fromThrowable(failure.getCause()).getCode() == Status.Code.DEADLINE_EXCEEDED,
+                    service + " installed stub did not report DEADLINE_EXCEEDED: " + failure.getCause());
+        }
+        require(cancelled.await(2, TimeUnit.SECONDS),
+                service + " server Context did not observe installed-client deadline cancellation");
+        require(lateAttempted.await(2, TimeUnit.SECONDS),
+                service + " synthetic handler did not attempt its late response after cancellation");
+    }
+
+    private static <T> void awaitCancellationThenRespond(CountDownLatch entered, CountDownLatch cancelled,
+            CountDownLatch lateAttempted, AtomicInteger lateAttempts, StreamObserver<T> observer, T lateResponse) {
+        Context.current().addListener(ignored -> cancelled.countDown(), Runnable::run);
+        entered.countDown();
+        try {
+            if (!cancelled.await(3, TimeUnit.SECONDS)) {
+                observer.onError(Status.DEADLINE_EXCEEDED.withDescription("synthetic deadline wait expired")
+                        .asRuntimeException());
+                return;
+            }
+            // Simulate a late handler result after transport cancellation; gRPC must suppress delivery.
+            observer.onNext(lateResponse);
+            observer.onCompleted();
+            lateAttempts.incrementAndGet();
+            lateAttempted.countDown();
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            observer.onError(Status.CANCELLED.withCause(interrupted).asRuntimeException());
+        }
+    }
+
+    @FunctionalInterface
+    private interface RpcCall {
+        Object invoke();
     }
 
     private static void assertService(ServiceDescriptor descriptor, String fullName, String requiredMethod) {
