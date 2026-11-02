@@ -48,6 +48,17 @@ class VideoStreamSessionFrameTest {
     }
 
     @Test
+    void decodedPayloadCannotBeMutatedThroughReturnedArray() {
+        var decoded = session.decodeFrame(
+                session.encodeFrame(1, true, 0L, new byte[]{4, 5, 6}));
+
+        byte[] exposed = decoded.payload();
+        exposed[0] = 99;
+
+        assertThat(decoded.payload()).containsExactly(4, 5, 6);
+    }
+
+    @Test
     void malformedFramesFailBeforeAnyPayloadAllocation() {
         byte[] payload = new byte[]{5, 6, 7};
         byte[] valid = session.encodeFrame(2, false, 11L, payload);

@@ -48,6 +48,16 @@ class AudioStreamSessionFrameTest {
     }
 
     @Test
+    void decodedPayloadCannotBeMutatedThroughReturnedArray() {
+        var decoded = session.decodeFrame(session.encodeFrame(1, 0L, new byte[]{1, 2, 3}));
+
+        byte[] exposed = decoded.payload();
+        exposed[0] = 99;
+
+        assertThat(decoded.payload()).containsExactly(1, 2, 3);
+    }
+
+    @Test
     void malformedFramesFailBeforeAnyPayloadAllocation() {
         byte[] payload = new byte[]{1, 2, 3, 4};
         byte[] valid = session.encodeFrame(3, 42L, payload);

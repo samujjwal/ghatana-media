@@ -93,6 +93,15 @@ public final class VideoStreamSession {
     }
 
     public record DecodedFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload) {
+        public DecodedFrame {
+            payload = payload == null ? null : payload.clone();
+        }
+
+        /** Returns a copy so callers cannot mutate bytes after frame validation. */
+        @Override
+        public byte[] payload() {
+            return payload == null ? null : payload.clone();
+        }
     }
 }
 

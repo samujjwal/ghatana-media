@@ -95,19 +95,19 @@ class GuardedAudioStreamSessionTest {
 
         assertThat(session.submitFrame(source)).isEqualTo(Disposition.DELIVERED);
         source.payload()[0] = 0x2;
-        assertThatThrownBy(() -> session.dispatchToProvider(source,
-                f -> providerEffects.incrementAndGet()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("not delivered");
-        assertThat(providerEffects.get()).isZero();
+        // Accessor mutation cannot change the immutable frame that was delivered.
+        session.dispatchToProvider(source, f -> providerEffects.incrementAndGet());
+        assertThat(providerEffects.get()).isEqualTo(1);
 
         AudioStreamSession.DecodedFrame admitted = new AudioStreamSession.DecodedFrame(
                 0, 0L, new byte[]{0x1});
-        session.dispatchToProvider(admitted, f -> {
+        assertThatThrownBy(() -> session.dispatchToProvider(admitted, f -> {
             source.payload()[0] = 0x3;
             assertThat(f.payload()).containsExactly((byte) 0x1);
             providerEffects.incrementAndGet();
-        });
+        }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already dispatched");
         assertThat(providerEffects.get()).isEqualTo(1);
         assertThatThrownBy(() -> session.dispatchToProvider(admitted,
                 f -> providerEffects.incrementAndGet()))
