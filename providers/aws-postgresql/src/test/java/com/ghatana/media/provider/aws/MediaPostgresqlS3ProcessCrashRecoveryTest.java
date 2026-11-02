@@ -109,7 +109,8 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
                     assertThat(notCommitted.nextChunkIndex()).isZero();
                     // The staged object is unowned: no committed chunk or artifact can expose it.
                     assertThat(artifactIdForUpload(tenant, upload.uploadId())).isNull();
-                    deleteObject(bucket, chunkKey);
+                    // Keep the orphan in S3. The same-key append below must safely replace/reuse
+                    // it, commit exactly one chunk, and completion must remove the staged key.
                 } finally {
                     if (interruptedAppend.isAlive()) interruptedAppend.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
                     try (var unlock = advisoryLock.prepareStatement("SELECT pg_advisory_unlock(?,?)")) {
@@ -349,10 +350,6 @@ class MediaPostgresqlS3ProcessCrashRecoveryTest {
         try (S3Client client = s3Client()) {
             return client.getObject(GetObjectRequest.builder().bucket(bucket).key(key).build()).readAllBytes();
         } catch (java.io.IOException failure) { throw new AssertionError("S3 object read failed", failure); }
-    }
-
-    private static void deleteObject(String bucket, String key) {
-        try (S3Client client = s3Client()) { client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build()); }
     }
 
     private static void deleteBucketObjects(String bucket) {
