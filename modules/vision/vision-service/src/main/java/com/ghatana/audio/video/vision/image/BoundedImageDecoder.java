@@ -1,5 +1,7 @@
 package com.ghatana.audio.video.vision.image;
 
+import com.ghatana.media.common.validation.MediaFormatValidator;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +16,7 @@ import javax.imageio.stream.ImageInputStream;
  * EXIF-oriented source-raster coordinate system.
  */
 public final class BoundedImageDecoder {
-    public static final int MAX_ENCODED_BYTES = 50 * 1024 * 1024;
+    public static final int MAX_ENCODED_BYTES = MediaFormatValidator.MAX_SUPPORTED_ENCODED_IMAGE_BYTES;
     public static final int MAX_DIMENSION = 8192;
     public static final long MAX_PIXELS = 16_000_000L;
     private static final Set<String> FORMATS = Set.of("jpeg", "jpg", "png", "bmp", "wbmp", "webp");

@@ -14,6 +14,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MediaFormatValidatorQualificationTest {
     @Test
+    void refusesEncodedImagesAboveTheVisionDecoderInputLimitBeforeParsing() {
+        byte[] oversized = new byte[50 * 1024 * 1024 + 1];
+
+        var result = MediaFormatValidator.validateImage(oversized, null);
+
+        assertThat(result.valid).isFalse();
+        assertThat(result.errorMessage).isEqualTo("Encoded image exceeds the 50 MiB limit");
+    }
+
+    @Test
     void recognizesCompressedAudioHeadersWithoutTreatingThemAsQualifiedDecodeProfiles() {
         byte[] mp3Header = new byte[44];
         byte[] id3 = "ID3\u0004\u0000\u0000\u0000\u0000\u0000\u0000".getBytes(StandardCharsets.ISO_8859_1);

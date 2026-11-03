@@ -58,6 +58,7 @@ public final class MediaFormatValidator {
     private static final byte[] MOV_SIGNATURE = {0x66, 0x74, 0x79, 0x70}; // "ftyp"
 
     // Keep the header validator aligned with the owning bounded Vision decoder.
+    public static final int MAX_SUPPORTED_ENCODED_IMAGE_BYTES = 50 * 1024 * 1024;
     private static final int MAX_SUPPORTED_IMAGE_DIMENSION = 8192;
     private static final long MAX_SUPPORTED_IMAGE_PIXELS = 16_000_000L;
 
@@ -333,6 +334,11 @@ public final class MediaFormatValidator {
 
         if (data.length == 0) {
             return ImageValidationResult.error("Image data is empty");
+        }
+
+        // Match BoundedImageDecoder's encoded-input bound before parsing or invoking ImageIO.
+        if (data.length > MAX_SUPPORTED_ENCODED_IMAGE_BYTES) {
+            return ImageValidationResult.error("Encoded image exceeds the 50 MiB limit");
         }
 
         // Check minimum size for valid image (at least header)
