@@ -254,6 +254,23 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     expect(di.parse).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps a typed DI timeout outcome unknown until the public contract proves finality', async () => {
+    const di = diClient();
+    const timeout = Object.assign(new Error('worker timeout; sensitive detail'), {
+      code: 'EXTERNAL_CALL_TIMEOUT',
+      retryable: true,
+      providerRef: policy.providerRef,
+    });
+    di.parse.mockRejectedValueOnce(timeout);
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({
+        code: 'RECOGNIZER_OUTCOME_UNKNOWN',
+        message: 'Media scene-text operation rejected: RECOGNIZER_OUTCOME_UNKNOWN',
+      });
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
   it('DI outage surfaces as a failure with zero OCR text and no Media fallback', async () => {
     const di = diClient();
     di.providers.mockRejectedValueOnce(new TypeError('fetch failed: ECONNREFUSED'));
