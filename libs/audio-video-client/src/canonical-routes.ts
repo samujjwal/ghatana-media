@@ -14,6 +14,11 @@ export const canonicalMediaHttpRoutes = Object.freeze({
   listJobs: "/api/v1/jobs",
   getJob: "/api/v1/jobs/{jobId}",
   cancelJob: "/api/v1/jobs/{jobId}/cancel",
+  openStream: "/api/v1/streams",
+  getStream: "/api/v1/streams/{sessionId}",
+  connectStream: "/api/v1/streams/{sessionId}/connect",
+  submitStreamFrame: "/api/v1/streams/{sessionId}/frames/{sequence}",
+  closeStream: "/api/v1/streams/{sessionId}/close",
   listProviders: "/api/v1/providers",
   health: "/api/v1/health",
 } as const);

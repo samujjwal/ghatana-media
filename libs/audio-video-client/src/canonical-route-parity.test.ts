@@ -70,6 +70,7 @@ const clientBoundRoutes: Route[] = [
 const observedRouteMethods: Record<keyof typeof canonicalMediaHttpRoutes, string> = {
   beginUpload: "POST", getUpload: "GET", appendChunk: "PUT", completeUpload: "POST",
   getArtifact: "GET", submitJob: "POST", listJobs: "GET", getJob: "GET", cancelJob: "POST",
+  openStream: "POST", getStream: "GET", connectStream: "POST", submitStreamFrame: "POST", closeStream: "POST",
   listProviders: "GET", health: "GET",
 };
 
