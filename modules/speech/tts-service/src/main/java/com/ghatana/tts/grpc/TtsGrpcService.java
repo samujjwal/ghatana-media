@@ -39,6 +39,7 @@ import com.ghatana.tts.core.grpc.proto.UpdateProfileRequest;
 import com.ghatana.tts.engine.TtsSynthesisEngine;
 import com.ghatana.tts.engine.PcmAudioValidator;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -888,8 +889,20 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                         Throwable cause = failure instanceof CompletionException && failure.getCause() != null
                                 ? failure.getCause() : failure;
                         if (terminal.compareAndSet(false, true)) {
-                            fail(tracedObserver, "Streaming synthesis", cause instanceof RuntimeException runtime
-                                    ? runtime : new IllegalStateException("TTS streaming provider failed", cause));
+                            if (cause instanceof StatusRuntimeException statusFailure
+                                    && statusFailure.getStatus().getCode() == Status.Code.UNKNOWN) {
+                                // A provider can lose its connection after producing a prefix. Keep
+                                // that ambiguity visible at the stream boundary; mapping UNKNOWN
+                                // through fail() would turn it into INTERNAL and imply a known
+                                // failure outcome. In either case, the absent provider final chunk
+                                // must never be synthesized by this adapter.
+                                recordResponse.accept(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                                trace.finishUnknown();
+                                notifyError(responseObserver, statusFailure);
+                            } else {
+                                fail(tracedObserver, "Streaming synthesis", cause instanceof RuntimeException runtime
+                                        ? runtime : new IllegalStateException("TTS streaming provider failed", cause));
+                            }
                             recordDuration.run();
                         }
                     } else if (!finalChunkSeen.get() || pendingFinalChunk.get() == null) {
