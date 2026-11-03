@@ -569,6 +569,7 @@ public final class MediaProductionSpecCompiler {
             appendResolvedSemanticInput(candidateProjection, specFingerprint);
             appendResolvedSemanticInput(candidateProjection, schemaFingerprint);
             appendResolvedSemanticInput(candidateProjection, compilerFingerprint);
+            appendOperationEvidence(candidateProjection, operationEvidence);
             appendSemanticField(candidateProjection, graph.fingerprint());
             return new MediaProductionSemanticSource.CompilationResult(graph.disposition(), graph.reason(), graph.nodes(),
                     "sha256:" + sha256(candidateProjection.toString()));
@@ -660,6 +661,25 @@ public final class MediaProductionSpecCompiler {
         appendSemanticField(target, input.versionRef());
         appendSemanticField(target, input.sha256());
         appendSemanticField(target, Integer.toString(input.byteLength()));
+    }
+
+    /** Bind the exact caller-asserted operation-to-definition refs and digests into a candidate. */
+    private static void appendOperationEvidence(
+            StringBuilder target, MediaProductionSemanticSource.OperationResolutionEvidence evidence) {
+        if (evidence == null) return;
+        appendSemanticField(target, "operation-definition-bindings.v1");
+        var definitions = new TreeMap<String, MediaProductionSemanticSource.OperationDefinitionBinding>();
+        for (var definition : evidence.definitions()) {
+            if (definitions.put(definition.operationRef(), definition) != null) {
+                throw new IllegalArgumentException("duplicate operation definition evidence");
+            }
+        }
+        appendSemanticField(target, Integer.toString(definitions.size()));
+        definitions.forEach((operationRef, definition) -> {
+            appendSemanticField(target, operationRef);
+            appendSemanticField(target, definition.definitionRef());
+            appendSemanticField(target, definition.definitionSha256());
+        });
     }
 
     private static ProductionSpec decodeProductionSpec(JsonNode node) {
@@ -978,6 +998,7 @@ public final class MediaProductionSpecCompiler {
         appendSemanticField(projection, "media.production.semantic-source-v3-candidate.v1");
         appendSemanticField(projection, semanticSourceRef);
         appendSemanticField(projection, semanticSourceSha256);
+        appendOperationEvidence(projection, operationEvidence);
         appendSemanticField(projection, graph.fingerprint());
         appendSemanticField(projection, binding.fingerprint());
         return new SemanticCandidateBindResult(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED,

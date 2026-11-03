@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Verifies PostgreSQL recovery after the JVM owning an uncommitted transaction is killed. */
+/** Verifies PostgreSQL recovery when the JVM owning an active or committed transaction is killed. */
 @Testcontainers
 class PersistenceProcessCrashIntegrationTest {
     @Container
@@ -42,7 +42,20 @@ class PersistenceProcessCrashIntegrationTest {
         verifyKilledWriterLeavesNoCommit(true);
     }
 
+    @Test
+    void killedWriterProcessAfterCommitKeepsAudioAndTranscriptionReadable() throws Throwable {
+        verifyKilledWriterAfterCommit(true);
+    }
+
     private void verifyKilledWriterLeavesNoCommit(boolean includeTranscription) throws Throwable {
+        verifyKilledWriter(includeTranscription, false);
+    }
+
+    private void verifyKilledWriterAfterCommit(boolean includeTranscription) throws Throwable {
+        verifyKilledWriter(includeTranscription, true);
+    }
+
+    private void verifyKilledWriter(boolean includeTranscription, boolean commitBeforeWait) throws Throwable {
         String databaseName = "media_crash_" + UUID.randomUUID().toString().replace("-", "");
         String jdbcUrl = POSTGRES.getJdbcUrl().substring(0, POSTGRES.getJdbcUrl().lastIndexOf('/') + 1)
                 + databaseName;
@@ -76,7 +89,7 @@ class PersistenceProcessCrashIntegrationTest {
             child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
                     ChildTransactionWriter.class.getName(), jdbcUrl, POSTGRES.getUsername(),
                     POSTGRES.getPassword(), tenantId, audioId.toString(), readyFile.toString(),
-                    transcriptionId == null ? "-" : transcriptionId.toString())
+                    transcriptionId == null ? "-" : transcriptionId.toString(), Boolean.toString(commitBeforeWait))
                     .redirectErrorStream(true)
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .start();
@@ -86,7 +99,7 @@ class PersistenceProcessCrashIntegrationTest {
                 Thread.sleep(20L);
             }
             assertThat(Files.exists(readyFile))
-                    .as("child has flushed the row and entered its uncommitted wait")
+                    .as("child reached the kill boundary after flush and the selected commit state")
                     .isTrue();
             assertThat(child.isAlive()).isTrue();
 
@@ -101,18 +114,29 @@ class PersistenceProcessCrashIntegrationTest {
             EntityManager readManager = readFactory.createEntityManager();
             try {
                 Long rows = readManager.createQuery(
-                                "select count(a) from AudioFileEntity a where a.id = :id", Long.class)
+                                "select count(a) from AudioFileEntity a where a.id = :id and a.tenantId = :tenant",
+                                Long.class)
                         .setParameter("id", audioId)
+                        .setParameter("tenant", tenantId)
                         .getSingleResult();
-                assertThat(rows).as("flushed row rolls back when its owning JVM is killed").isZero();
+                assertThat(rows).as("audio row outcome after the owning JVM is killed")
+                        .isEqualTo(commitBeforeWait ? 1L : 0L);
                 if (transcriptionId != null) {
                     Long transcriptionRows = readManager.createQuery(
-                                    "select count(t) from TranscriptionEntity t where t.id = :id", Long.class)
+                                    "select count(t) from TranscriptionEntity t where t.id = :id and t.tenantId = :tenant",
+                                    Long.class)
                             .setParameter("id", transcriptionId)
+                            .setParameter("tenant", tenantId)
                             .getSingleResult();
                     assertThat(transcriptionRows)
-                            .as("transcription row rolls back with its audio when the owning JVM is killed")
-                            .isZero();
+                            .as("transcription row outcome after the owning JVM is killed")
+                            .isEqualTo(commitBeforeWait ? 1L : 0L);
+                    if (commitBeforeWait) {
+                        TranscriptionEntity persisted = readManager.find(TranscriptionEntity.class, transcriptionId);
+                        assertThat(persisted.getAudioFileId()).isEqualTo(audioId);
+                        assertThat(persisted.getTenantId()).isEqualTo(tenantId);
+                        assertThat(persisted.getText()).isEqualTo("crash-boundary-transcript");
+                    }
                 }
             } finally {
                 readManager.close();
@@ -185,9 +209,12 @@ class PersistenceProcessCrashIntegrationTest {
                     "crash.wav", "/storage/crash.wav", "wav"));
             if (transcriptionId != null) {
                 manager.persist(new TranscriptionEntity(
-                        transcriptionId, tenantId, audioId, UUID.randomUUID(), "uncommitted", "en"));
+                        transcriptionId, tenantId, audioId, UUID.randomUUID(), "crash-boundary-transcript", "en"));
             }
             manager.flush();
+            if (Boolean.parseBoolean(args[7])) {
+                manager.getTransaction().commit();
+            }
             Files.createFile(readyFile);
             Thread.sleep(TimeUnit.MINUTES.toMillis(5));
         }

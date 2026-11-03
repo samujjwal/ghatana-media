@@ -429,6 +429,18 @@ class MediaProductionSemanticSourceTest {
         assertThat(good.reason()).isEqualTo(MediaProductionSemanticSource.Reason.NONE);
         assertThat(good.candidateFingerprint()).matches("sha256:[0-9a-f]{64}");
 
+        var changedDefinitionEvidence = new MediaProductionSemanticSource.OperationResolutionEvidence(List.of(
+                new MediaProductionSemanticSource.OperationDefinitionBinding(
+                        OP, "operation-definition/rev-2", D2)));
+        var resolvedWithChangedDefinition = new java.util.ArrayList<>(allFingerprints);
+        resolvedWithChangedDefinition.add(new MediaVersionedContractContent.ResolvedContentFingerprint(
+                "operation-definition/rev-2", D2, 43));
+        var changedDefinition = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF,
+                graphContent.fingerprint().sha256(), inputs(), productionSpec(), binding(null, D1),
+                resolvedWithChangedDefinition, changedDefinitionEvidence);
+        assertThat(changedDefinition.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(changedDefinition.candidateFingerprint()).isNotEqualTo(good.candidateFingerprint());
+
         var wrongDigest = compiler.bindSemanticSourceCandidate(Optional.of(graphContent.content()), SEMANTIC_REF, D3,
                 inputs(), productionSpec(), binding(null, D1), allFingerprints, Map.of(OP, 1));
         assertThat(wrongDigest.reason()).isEqualTo(MediaProductionSemanticSource.Reason.SOURCE_BINDING_MISMATCH);

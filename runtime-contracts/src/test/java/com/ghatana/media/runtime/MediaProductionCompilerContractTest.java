@@ -185,7 +185,7 @@ class MediaProductionCompilerContractTest {
         var alternate = compileWithOperationFixture(fixture,
                 new OperationFixture(alternateOperationEvidence, Map.copyOf(alternateContents)), new AtomicInteger());
         assertThat(alternate.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
-        assertThat(alternate.fingerprint()).isEqualTo(result.fingerprint());
+        assertThat(alternate.fingerprint()).isNotEqualTo(result.fingerprint());
 
         var specFingerprint = MediaVersionedContractContent.verifyDigestChecked(SPEC_REF,
                 resolved(SPEC_REF, fixture.specBytes()));
@@ -207,7 +207,20 @@ class MediaProductionCompilerContractTest {
                 graphSources, operationFixture.evidence());
         assertThat(innerGraph.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
         assertThat(result.fingerprint()).isEqualTo(candidateFingerprintProjection(
-                specFingerprint, schemaFingerprint, compilerFingerprint, innerGraph.fingerprint()));
+                specFingerprint, schemaFingerprint, compilerFingerprint, operationFixture.evidence(),
+                innerGraph.fingerprint()));
+        var alternateOperationFingerprints = alternateOperationEvidence.definitions().stream()
+                .map(definition -> MediaVersionedContractContent.verifyDigestChecked(definition.definitionRef(),
+                        resolved(definition.definitionRef(), alternateContents.get(definition.definitionRef()))))
+                .toList();
+        var alternateGraphSources = new java.util.ArrayList<>(
+                List.of(specFingerprint, schemaFingerprint, compilerFingerprint));
+        alternateGraphSources.addAll(alternateOperationFingerprints);
+        var alternateGraph = graphSource.compileSyntaxCheckedGraphCandidate(fixture.inputs(),
+                alternateGraphSources, alternateOperationEvidence);
+        assertThat(alternateGraph.disposition()).isEqualTo(MediaProductionSemanticSource.Disposition.CANDIDATE_PREPARED);
+        assertThat(alternateGraph.fingerprint()).isEqualTo(innerGraph.fingerprint());
+        assertThat(alternateGraph.nodes()).isEqualTo(innerGraph.nodes());
 
         var repeated = compileWithOperationEvidence(fixture, List.of(OP_A, OP_B), new AtomicInteger());
         assertThat(repeated.fingerprint()).isEqualTo(result.fingerprint());
@@ -422,12 +435,22 @@ class MediaProductionCompilerContractTest {
             MediaVersionedContractContent.ResolvedContentFingerprint spec,
             MediaVersionedContractContent.ResolvedContentFingerprint schema,
             MediaVersionedContractContent.ResolvedContentFingerprint compiler,
+            MediaProductionSemanticSource.OperationResolutionEvidence operationEvidence,
             String graphFingerprint) {
         StringBuilder projection = new StringBuilder();
         appendSemanticField(projection, "media.production.semantic-graph-resolved-input-candidate.v1");
         appendResolvedInput(projection, spec);
         appendResolvedInput(projection, schema);
         appendResolvedInput(projection, compiler);
+        appendSemanticField(projection, "operation-definition-bindings.v1");
+        var definitions = new java.util.TreeMap<String, MediaProductionSemanticSource.OperationDefinitionBinding>();
+        operationEvidence.definitions().forEach(definition -> definitions.put(definition.operationRef(), definition));
+        appendSemanticField(projection, Integer.toString(definitions.size()));
+        definitions.forEach((operationRef, definition) -> {
+            appendSemanticField(projection, operationRef);
+            appendSemanticField(projection, definition.definitionRef());
+            appendSemanticField(projection, definition.definitionSha256());
+        });
         appendSemanticField(projection, graphFingerprint);
         return digest(projection.toString().getBytes(StandardCharsets.UTF_8));
     }
