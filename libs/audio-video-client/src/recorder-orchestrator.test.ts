@@ -52,6 +52,8 @@ describe("orchestrateScenario", () => {
       .toEqual(b.sceneRuns.map((r) => r.lineageId));
     expect(b).toEqual(a);
     expect(a.dryRunOnly).toBe(true);
+    expect(a.planIdentity).toMatch(/^media\.scenario-plan\.v1:/u);
+    expect(a.planIdentity).toBe(b.planIdentity);
     expect(a.sceneRuns[0]!.capturePlan).toEqual({
       kind: "BROWSER",
       sourceIdentity: "browser/demo/intro",
@@ -73,8 +75,7 @@ describe("orchestrateScenario", () => {
       ],
     }));
     const diff = changedSceneLineages(prior, next);
-    expect(diff.carried).toEqual(["main"]);
-    expect(diff.replanned).toEqual(["intro"]);
+    expect(diff).toEqual({ carried: ["main"], replanned: ["intro"], removed: [] });
     expect(next.sceneRuns[0]!.lineageId).not.toBe(prior.sceneRuns[0]!.lineageId);
     expect(next.sceneRuns[1]!.lineageId).toBe(prior.sceneRuns[1]!.lineageId);
   });
@@ -98,7 +99,7 @@ describe("orchestrateScenario", () => {
     } else {
       expect(next.sceneRuns[0]!.lineageId).toBe(prior.sceneRuns[0]!.lineageId);
     }
-    expect(changedSceneLineages(prior, next)).toEqual({ carried: ["main"], replanned: ["intro"] });
+    expect(changedSceneLineages(prior, next)).toEqual({ carried: ["main"], replanned: ["intro"], removed: [] });
   });
 
   it("binds lineage to source kind and identity even when the version label is unchanged", () => {
@@ -115,7 +116,7 @@ describe("orchestrateScenario", () => {
     expect(changedSource.sceneRuns[0]!.sourceRevision).toBe(prior.sceneRuns[0]!.sourceRevision);
     expect(changedSource.sceneRuns[0]!.lineageId).not.toBe(prior.sceneRuns[0]!.lineageId);
     expect(changedSceneLineages(prior, changedSource))
-      .toEqual({ carried: ["main"], replanned: ["intro"] });
+      .toEqual({ carried: ["main"], replanned: ["intro"], removed: [] });
   });
 
   it("replans when the role bound to a scene actor changes", () => {
@@ -126,7 +127,29 @@ describe("orchestrateScenario", () => {
       actors: [{ actorId: "actor-1", role: "narrator" }],
     });
     expect(next.sceneRuns[0]!.actorBindings).toEqual([{ actorId: "actor-1", role: "narrator" }]);
-    expect(changedSceneLineages(prior, next)).toEqual({ carried: [], replanned: ["intro", "main"] });
+    expect(changedSceneLineages(prior, next)).toEqual({ carried: [], replanned: ["intro", "main"], removed: [] });
+  });
+
+  it("changes whole-plan identity when narration changes while keeping per-scene lineage stable", () => {
+    const base = scenario();
+    const prior = orchestrateScenario(base);
+    const next = orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, narration: [{ atMillis: 750, trackRef: "narration/intro@v2" }] }, base.scenes[1]!],
+    });
+    expect(next.planIdentity).not.toBe(prior.planIdentity);
+    expect(next.sceneRuns[0]!.lineageId).toBe(prior.sceneRuns[0]!.lineageId);
+    expect(changedSceneLineages(prior, next)).toEqual({
+      carried: ["main"], replanned: ["intro"], removed: [],
+    });
+  });
+
+  it("reports removed scenes so stale scene outputs can be invalidated", () => {
+    const prior = orchestrateScenario(scenario());
+    const next = orchestrateScenario({ ...scenario(), scenes: [scenario().scenes[0]!] });
+    expect(changedSceneLineages(prior, next)).toEqual({
+      carried: ["intro"], replanned: [], removed: ["main"],
+    });
   });
 
   it("rejects unresolved actor refs and out-of-bounds narration", () => {
@@ -208,6 +231,26 @@ describe("orchestrateScenario", () => {
       ...base,
       scenes: [{ ...base.scenes[0]!, captionRefs: "captions/intro@v1" }],
     } as unknown as Scenario)).toThrowError(/captionRefs must be an array/u);
+  });
+
+  it("bounds scene collections and total serialized plan identity", () => {
+    const base = scenario();
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, narration: Array.from({ length: 257 }, () => ({ atMillis: 1, trackRef: "track" })) }],
+    })).toThrowError(/narration must contain at most 256/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, captionRefs: Array.from({ length: 257 }, (_, i) => `caption/${i}`) }],
+    })).toThrowError(/captionRefs must contain at most 256/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: Array.from({ length: 12 }, (_, index) => ({
+        ...base.scenes[0]!,
+        sceneId: `large-${index}`,
+        narration: Array.from({ length: 256 }, () => ({ atMillis: 1, trackRef: "z".repeat(384) })),
+      })),
+    })).toThrowError(/serialized scenario plan exceeds/u);
   });
 });
 
@@ -294,7 +337,7 @@ describe("recaptureScenario", () => {
       ],
     }));
     const changes = changedSceneLineages(prior, next);
-    expect(changes).toEqual({ carried: ["main"], replanned: ["intro"] });
+    expect(changes).toEqual({ carried: ["main"], replanned: ["intro"], removed: [] });
     expect(next.sceneRuns.find((run) => run.sceneId === "main")!.lineageId)
       .toBe(prior.sceneRuns.find((run) => run.sceneId === "main")!.lineageId);
     expect(next.sceneRuns.find((run) => run.sceneId === "intro")!.lineageId)

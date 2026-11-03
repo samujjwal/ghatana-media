@@ -60,6 +60,8 @@ export interface SceneRun {
 export interface OrchestrationResult {
   readonly scenarioId: string;
   readonly revision: string;
+  /** Deterministic bounded descriptor of the complete plan; not a content digest or proof. */
+  readonly planIdentity: string;
   readonly sceneRuns: readonly SceneRun[];
   /** Always true: orchestration plans; it never performs effects. */
   readonly dryRunOnly: true;
@@ -76,6 +78,10 @@ export class ScenarioError extends Error {
 
 const MAX_SCENES = 256;
 const MAX_ACTORS = 64;
+const MAX_SCENE_ACTOR_REFS = MAX_ACTORS;
+const MAX_SCENE_NARRATION_CUES = 256;
+const MAX_SCENE_CAPTION_REFS = 256;
+const MAX_PLAN_IDENTITY_CHARS = 1_048_576;
 const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
   "BROWSER", "DESKTOP", "MOBILE", "TERMINAL", "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE",
 ]);
@@ -168,6 +174,10 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     const sceneActorIds = new Set<string>();
     const actorRefs = scene.actorRefs === undefined ? []
       : requireTextArray(scene.actorRefs, `scenes[${index}].actorRefs`);
+    if (actorRefs.length > MAX_SCENE_ACTOR_REFS) {
+      throw new ScenarioError("INVALID_SCENARIO",
+        `scene ${sceneId} actorRefs must contain at most ${MAX_SCENE_ACTOR_REFS}`);
+    }
     const actorBindings = actorRefs.map((actorRef: string) => {
       if (sceneActorIds.has(actorRef)) {
         throw new ScenarioError("INVALID_SCENARIO",
@@ -190,6 +200,10 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     if (!Array.isArray(narrationEntries)) {
       throw new ScenarioError("INVALID_SCENARIO", `scenes[${index}].narration must be an array`);
     }
+    if (narrationEntries.length > MAX_SCENE_NARRATION_CUES) {
+      throw new ScenarioError("INVALID_SCENARIO",
+        `scene ${sceneId} narration must contain at most ${MAX_SCENE_NARRATION_CUES} cues`);
+    }
     const narration = narrationEntries.map((cue: NarrationCue, cueIndex: number) => {
       if (!cue || typeof cue !== "object") {
         throw new ScenarioError("INVALID_SCENARIO",
@@ -202,6 +216,12 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       }
       return { atMillis: cue.atMillis, trackRef: requireText(cue.trackRef, "trackRef") };
     });
+    const captionRefs = scene.captionRefs === undefined ? []
+      : requireTextArray(scene.captionRefs, `scenes[${index}].captionRefs`);
+    if (captionRefs.length > MAX_SCENE_CAPTION_REFS) {
+      throw new ScenarioError("INVALID_SCENARIO",
+        `scene ${sceneId} captionRefs must contain at most ${MAX_SCENE_CAPTION_REFS}`);
+    }
     return {
       sceneId,
       sourceRevision,
@@ -210,11 +230,28 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       durationMillis: scene.durationMillis,
       actorBindings,
       narration,
-      captionRefs: scene.captionRefs === undefined ? []
-        : requireTextArray(scene.captionRefs, `scenes[${index}].captionRefs`),
+      captionRefs,
     };
   });
-  return { scenarioId, revision, sceneRuns, dryRunOnly: true };
+  const planIdentity = `media.scenario-plan.v1:${JSON.stringify([
+    scenarioId,
+    revision,
+    sceneRuns.map((run) => [
+      run.sceneId,
+      run.sourceRevision,
+      run.lineageId,
+      run.capturePlan,
+      run.durationMillis,
+      run.actorBindings,
+      run.narration,
+      run.captionRefs,
+    ]),
+  ])}`;
+  if (planIdentity.length > MAX_PLAN_IDENTITY_CHARS) {
+    throw new ScenarioError("INVALID_SCENARIO",
+      `serialized scenario plan exceeds ${MAX_PLAN_IDENTITY_CHARS} characters`);
+  }
+  return { scenarioId, revision, planIdentity, sceneRuns, dryRunOnly: true };
 }
 
 /**
@@ -224,7 +261,7 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
 export function changedSceneLineages(
   prior: OrchestrationResult,
   next: OrchestrationResult,
-): { readonly carried: readonly string[]; readonly replanned: readonly string[] } {
+): { readonly carried: readonly string[]; readonly replanned: readonly string[]; readonly removed: readonly string[] } {
   const priorRuns = new Map(prior.sceneRuns.map((run) => [run.sceneId, run]));
   const carried: string[] = [];
   const replanned: string[] = [];
@@ -233,7 +270,11 @@ export function changedSceneLineages(
     (priorRun && sameSceneMaterialization(priorRun, run) ? carried : replanned)
       .push(run.sceneId);
   }
-  return { carried, replanned };
+  const nextSceneIds = new Set(next.sceneRuns.map((run) => run.sceneId));
+  const removed = prior.sceneRuns
+    .filter((run) => !nextSceneIds.has(run.sceneId))
+    .map((run) => run.sceneId);
+  return { carried, replanned, removed };
 }
 
 /** Compare explicit material fields; lineageId is a stable declared ID, not a content digest. */
