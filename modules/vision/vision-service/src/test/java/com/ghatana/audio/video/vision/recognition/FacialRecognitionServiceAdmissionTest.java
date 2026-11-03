@@ -34,6 +34,17 @@ class FacialRecognitionServiceAdmissionTest {
     }
 
     @Test
+    void sameTenantDecisionForAnotherPrincipalIsRejectedBeforeCallingTheFaceProvider() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        var service = service(providerCalls, (identity, request) -> admitted(
+                identity.tenantId(), "principal-other", request));
+
+        assertThatThrownBy(() -> service.detect(new byte[] {1}, REQUEST))
+                .isInstanceOf(FacialRecognitionService.NotAdmittedException.class);
+        org.assertj.core.api.Assertions.assertThat(providerCalls).hasValue(0);
+    }
+
+    @Test
     void currentMatchingAdmissionReachesTheFaceProviderOnce() {
         AtomicInteger providerCalls = new AtomicInteger();
         var service = service(providerCalls, (identity, request) -> admitted(
