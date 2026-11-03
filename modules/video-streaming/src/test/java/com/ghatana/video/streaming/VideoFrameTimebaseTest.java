@@ -162,8 +162,8 @@ class VideoFrameTimebaseTest {
     }
 
     @Test
-    void sourceTimebaseRejectsZeroNegativeAndOutOfRangeRates() {
-        for (long invalid : new long[]{0, -1, 1_000_000_001L}) {
+    void sourceTimebaseRejectsNonpositiveRatesAndPreservesSigned64BitRationalBounds() {
+        for (long invalid : new long[]{0, -1}) {
             assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(
                     1, invalid, 90_000, "source-clock-A"))
                     .as("invalid timebase numerator %s", invalid)
@@ -173,6 +173,18 @@ class VideoFrameTimebaseTest {
                     .as("invalid timebase denominator %s", invalid)
                     .isInstanceOf(IllegalArgumentException.class);
         }
+
+        var maxRational = VideoFrameTimebase.SourceTimestamp.known(
+                Long.MIN_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, "source-clock-A");
+        assertThat(maxRational.ticks()).isEqualTo(Long.MIN_VALUE);
+        assertThat(maxRational.timebaseNumerator()).isEqualTo(Long.MAX_VALUE);
+        assertThat(maxRational.timebaseDenominator()).isEqualTo(Long.MAX_VALUE);
+
+        var timeline = VideoFrameTimebase.TimelineTimestamp.known(
+                Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE,
+                VideoFrameTimebase.ClockDomain.STORY_EXPLANATION, "story-clock-A");
+        assertThat(timeline.timebaseNumerator()).isEqualTo(Long.MAX_VALUE);
+        assertThat(timeline.timebaseDenominator()).isEqualTo(Long.MAX_VALUE);
     }
 
     @Test

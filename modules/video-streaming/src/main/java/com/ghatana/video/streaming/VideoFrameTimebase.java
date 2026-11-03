@@ -67,10 +67,9 @@ public final class VideoFrameTimebase {
             if (status == Status.KNOWN) {
                 if (ticks == null || timebaseNumerator == null || timebaseDenominator == null
                         || timebaseNumerator <= 0 || timebaseDenominator <= 0
-                        || timebaseNumerator > 1_000_000_000L || timebaseDenominator > 1_000_000_000L
                         || clockId == null || clockId.isBlank() || unknownReason != null) {
                     throw new IllegalArgumentException(
-                            "known source timestamps require ticks, a bounded rational timebase, and clock identity");
+                            "known source timestamps require ticks, a positive rational timebase, and clock identity");
                 }
             } else if (ticks != null || timebaseNumerator != null || timebaseDenominator != null
                     || clockId != null || unknownReason == null || unknownReason.isBlank()) {
@@ -131,9 +130,8 @@ public final class VideoFrameTimebase {
             ClockDomain domain,
             String clockId) {
         public TimelineTimestamp {
-            if (timebaseNumerator <= 0 || timebaseDenominator <= 0
-                    || timebaseNumerator > 1_000_000_000L || timebaseDenominator > 1_000_000_000L) {
-                throw new IllegalArgumentException("timeline timebase must be a bounded positive rational");
+            if (timebaseNumerator <= 0 || timebaseDenominator <= 0) {
+                throw new IllegalArgumentException("timeline timebase must be a positive rational");
             }
             Objects.requireNonNull(domain, "domain");
             if (clockId == null || clockId.isBlank()) {
