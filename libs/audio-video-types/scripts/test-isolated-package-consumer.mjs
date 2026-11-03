@@ -222,10 +222,34 @@ try {
     void [audio, kind, sourceTime, animation, request, result];
   `);
 
+  await writeFile(path.join(consumerRoot, 'consumer.cts'), `
+    import types = require('@audio-video/types');
+    import contracts = require('@audio-video/types/contracts');
+    import production = require('@audio-video/types/production');
+
+    const format: types.AudioFormat = 'wav';
+    const audio = types.createAudioData(new ArrayBuffer(0), { format });
+    const kind: contracts.MediaArtifact['kind'] = contracts.MediaArtifactKindSchema.parse('AUDIO');
+    const request: contracts.TranscriptionRequest = {
+      artifactId: 'source-1', punctuation: true, wordTimestamps: true,
+      alternatives: 1, profanityPolicy: 'PRESERVE', idempotencyKey: 'idem-1',
+    };
+    const result: contracts.TranscriptionResult = {
+      artifactId: 'source-1', transcriptArtifactId: 'transcript-1', text: 'fixture transcript',
+      languageTag: 'en', confidence: 0.9, providerId: 'fixture-provider',
+      words: [], alternatives: [], modelId: 'fixture-model', modelVersion: 'fixture-v1', processingTimeMs: 1,
+    };
+    const story = production.StoryTimeSchema.parse({
+      clockKind: 'story', clockId: 'clock-1', streamId: 'stream-1',
+      originRef: 'origin-v1', ticks: '0', timeBase: { numerator: '1', denominator: '1000' },
+    });
+    void [audio, kind, request, result, story];
+  `);
+
   run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
   run(process.execPath, [path.join(consumerRoot, 'consumer.cjs')], { cwd: consumerRoot });
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
-    '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
+    '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts', 'consumer.cts'], { cwd: consumerRoot });
 
   console.log(`Packed source-free ESM/CJS/types consumer passed (zod ${zodManifest.version})`);
 } finally {

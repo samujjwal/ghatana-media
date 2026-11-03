@@ -3956,3 +3956,13 @@ Added a TTS interceptor negative proving that caller-supplied tenant and process
 ### 43.110 November 3 FLEURS pilot artifact retention check
 
 Rechecked `build/reports/media-fleurs-pilot-70bb2e84` by filename only; it currently contains `manifest.json` and no WAV files, so no audio deletion was performed and the metadata manifest remains. No audio content was opened or used. The Hugging Face card's CC-BY-4.0 label does not itself provide the exact en/hi/ne subset record for privacy authorization, evaluation purpose, and retention; real FLEURS inference remains `NOT_ADMITTED`. Synthetic local fixtures remain suitable for code-path tests only and cannot be reported as real model quality evidence.
+
+
+### 43.111 November 3 DC-03 Data Cloud observation mapping boundary
+
+A focused review found that the legacy STT/Vision adapter port carries only artifact ID, tenant ID, and string parameters; it has no authenticated principal, immutable source version, exact timebase, purpose, or live disclosure readback. The adapters remain unavailable and fail closed. Existing `MediaSemanticObservationProjector` preserves exact known source PTS/rational timebase and omits invented timing for `UNKNOWN`, with source-free tests for large PTS, bounded text, and restricted classification. No owner-defined transcript/region/frame-to-Data-Cloud mapping or rights/redaction rule for transcript snippets exists, so no adapter wiring or snippet disclosure was added. DC-03 remains open pending the source/version/rights bindings and owner field mapping; no Data Cloud effect or acceptance is claimed.
+
+
+### 43.112 November 3 TY-05 packed CommonJS TypeScript consumer
+
+The isolated packed-package consumer now compiles a `.cts` fixture using CommonJS TypeScript `import = require` for the public root, `./contracts`, and `./production` subpaths, including representative existing types and schemas. `pnpm --filter @audio-video/types test:package:consumer` passed with the packed `zod 4.6.5` dependency. Existing ESM/CJS runtime, request/result fixture, idempotency, cancellation, negative-schema, and mock-versus-provider-result checks remain in the same source-free consumer. This closes only the omitted CommonJS TypeScript import coverage; no contract schema or effect authority changed.
