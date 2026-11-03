@@ -90,6 +90,12 @@ class MediaPipelineIntegrationTest {
         syntheticPcmFixture[0] = 0x7f;
         assertThat(decoded.frame().payload()).containsExactly((byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04);
 
+        var overBudget = pcmDecoder.decode(new byte[] {0x05, 0x06}, 24_002, false);
+        assertThat(overBudget.verdict()).isEqualTo(BoundedAudioFrameDecoder.DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(overBudget.frame()).isNull();
+        assertThat(pcmDecoder.framesDecoded()).isEqualTo(1);
+        assertThat(pcmDecoder.bytesDecoded()).isEqualTo(4L);
+
         var malformed = pcmDecoder.decode(new byte[] {0x01}, 24_001, false);
         assertThat(malformed.verdict()).isEqualTo(BoundedAudioFrameDecoder.DecodeVerdict.MALFORMED);
         assertThat(malformed.frame()).isNull();
