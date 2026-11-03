@@ -55,7 +55,7 @@ test('engineering approval never implies external copyright, voice, biometric or
 
 test('host OCI resolution does not weaken cross-platform safety or promote VIS-03 by description', () => {
   const worker = plan.implementationGates.find((x) => x.id === 'G06');
-  assert.match(worker.action, /host-only OCI supervisor/iu);
+  assert.match(worker.action, /trusted host-only OCI broker/iu);
   assert.match(worker.action, /no-new-privileges/iu);
   assert.match(worker.action, /--pids-limit=32/u);
   assert.ok(plan.targetFirstRows.includes('VIS-03'));
@@ -100,8 +100,8 @@ test('prior BMP-only results do not certify newer pushed PNG or production broke
   assert.equal(latest.verifiedObservationFromUser.delegatedCgroup.skipped, 1);
   assert.ok(latest.verifiedObservationFromUser.noAcceptedRowsPromoted);
   assert.ok(Object.values(latest.gateStates).every((gate) => gate.wholeRowAcceptance === 'NOT_ACCEPTED'));
-  assert.match(latest.gateStates.G06.nextAction, /source\/peer\/TOCTOU\/native fault/);
-  assert.match(latest.gateStates.G06.observedGap, /Server-pinned OCI image and nonce policy/);
+  assert.match(latest.gateStates.G06.nextAction, /source\/peer\/TOCTOU, effective-cgroup,.*native fault tests/iu);
+  assert.match(latest.gateStates.G06.observedGap, /Live pinned codec execution, host peer\/source TOCTOU limits, and native Linux ARM64 enforcement\/attack tests remain unverified/);
   assert.match(latest.gateStates.G02.observedGap, /Authenticated source-rights STT and MM child admission/);
   assert.match(latest.gateStates.G03.observedGap, /3\/3 late-policy\/abandoned-UNKNOWN and 2\/2 effect-denial UNKNOWN/);
 });

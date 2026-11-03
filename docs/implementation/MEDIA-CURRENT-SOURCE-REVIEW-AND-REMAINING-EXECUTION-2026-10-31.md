@@ -3808,3 +3808,7 @@ Repository-local rights records do not authorize real FLEURS/model/voice evaluat
 ### 43.79 November 3 Q07 internal stream lease-renewal disposition
 
 No renewal integration change is safe from the current contract. `MediaStreamSessionStore.renewLease` is a fenced CAS primitive whose contract requires its caller to recheck exact source version, clock evidence, current consent, provider eligibility and replay identity. Durable stream metadata does not bind the necessary source/rights evidence or an operation replay receipt, while guarded audio/video state remains in-memory and is not wired to that durable path. `MediaStreamLeaseRenewalTest` and `StreamIntentSupportTest` passed **13/13** across competing same-version renewal, stale state/token, expiry and the honest `NOT_ADMITTED` support boundary. These tests do not establish source authority or renewal after revocation; `media.stream.lease.renew` remains `NOT_ADMITTED` and no public route, second lease store or authority bypass was added.
+
+### 43.80 November 3 R10 checker wording alignment
+
+Updated three stale literal assertions in `tests/media-wave2-r10-owner-resolution.test.mjs` to match the current R10 source wording for the trusted host OCI broker and G06's remaining live codec/TOCTOU/effective-cgroup/native-fault proof. The focused `pnpm test:wave2-r10-owner-resolution` passed **15/15**; `git diff --check` passed. This corrects checker drift only: all 36 original Wave 2 rows and their acceptance states remain unchanged.
