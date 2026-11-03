@@ -72,14 +72,17 @@ public final class AudioVideoRunLedgerAdapter {
         ExecutionOutcome mappedOutcome = mapProcessingJobOutcome(jobState);
         String ledgerFailureReason = sanitizeLedgerFailure(failureReason);
         String ledgerMediaArtifactId = safeLedgerReference(mediaArtifactId);
+        String ledgerCollectionId = safeLedgerReference(collectionId);
+        String ledgerMediaType = safeMetadataToken(mediaType, "UNKNOWN");
+        String ledgerProcessingType = safeMetadataToken(processingType, "UNKNOWN");
         long now = System.currentTimeMillis();
 
         InputSnapshot inputs = new InputSnapshot(
             sanitizeLedgerParams(inputParams),
             null,
             Map.of(
-                "mediaType", mediaType,
-                "processingType", processingType,
+                "mediaType", ledgerMediaType,
+                "processingType", ledgerProcessingType,
                     "mediaArtifactId", ledgerMediaArtifactId
             ),
             "system",
@@ -121,9 +124,9 @@ public final class AudioVideoRunLedgerAdapter {
         }
 
         Map<String, String> attributes = new HashMap<>();
-        attributes.put("mediaType", mediaType);
-        attributes.put("processingType", processingType);
-        attributes.put("collectionId", collectionId);
+        attributes.put("mediaType", ledgerMediaType);
+        attributes.put("processingType", ledgerProcessingType);
+        attributes.put("collectionId", ledgerCollectionId);
         attributes.put("mediaArtifactId", ledgerMediaArtifactId);
         // Preserve the raw observed state so a coarse projection never drops
         // uncertainty, cancellation-requested or partial-finality information.
@@ -155,7 +158,7 @@ public final class AudioVideoRunLedgerAdapter {
         return new RunLedger(
             jobId,
             "AV_PROCESSING_JOB",
-            collectionId,
+            ledgerCollectionId,
             mappedState,
             mappedOutcome,
             createdAtMs,

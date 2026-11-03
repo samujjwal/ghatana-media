@@ -765,6 +765,38 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
+    @DisplayName("Untrusted media type metadata is reduced to bounded typed tokens")
+    void testMediaTypeMetadataDisclosureAndBounds() {
+        long now = System.currentTimeMillis();
+        String privateEmail = "subject@example.invalid";
+        String privateCollection = "private-collection@example.invalid";
+        String oversizedType = "VIDEO" + "x".repeat(300);
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-safe-metadata", privateEmail, oversizedType, privateCollection, "source",
+                Map.of("classification", "BIOMETRIC", "rightsRef", "rights:consent-42"),
+                "PROCESSING", now, now, null, null, "provider", "provider-secret-id", "trace", "correlation");
+
+        assertThat(ledger.inputs().headers())
+                .containsEntry("mediaType", "UNKNOWN")
+                .containsEntry("processingType", "UNKNOWN");
+        assertThat(ledger.attributes())
+                .containsEntry("mediaType", "UNKNOWN")
+                .containsEntry("processingType", "UNKNOWN")
+                .containsKey("providerJobIdRef");
+        assertThat(ledger.attributes().get("collectionId")).startsWith("redacted:sha256:");
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("classification", "BIOMETRIC")
+                .containsEntry("rightsRef", "rights:consent-42");
+        assertThat(ledger.attributes().get("providerJobIdRef"))
+                .startsWith("sha256:")
+                .hasSize(19);
+        assertThat(ledger.toString()).doesNotContain(
+                privateEmail, privateCollection, oversizedType, "provider-secret-id");
+        assertThat(ledger.toString().length()).isLessThanOrEqualTo(4_096);
+    }
+
+    @Test
     @DisplayName("Measures bounded seeded 10k adapter projections and keeps sensitive values out of ledger output")
     void testSeededTenThousandRecordProjectionMeasurement() {
         final int recordCount = 10_000;
