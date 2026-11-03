@@ -92,7 +92,7 @@ public final class StreamFrameReconciler {
         if (!identity.purposeRef().equals(durable.purposeRef())) {
             throw new IllegalArgumentException("resume purpose does not match the durable session");
         }
-        if (lastAckedSequence < -1 || lastAckedSequence >= AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
+        if (lastAckedSequence < -1 || lastAckedSequence > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
             throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
         }
         if (identity.sessionRevision() != durable.sessionRevision()) {

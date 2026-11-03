@@ -218,10 +218,29 @@ class StreamFrameReconcilerTest {
     @DisplayName("resume rejects ACK values outside the supported sequence range")
     void resumeRejectsInvalidAck() {
         SessionIdentity same = identity("t1");
-        for (int invalidAck : new int[]{-2, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, Integer.MAX_VALUE}) {
+        for (int invalidAck : new int[]{-2, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER + 1, Integer.MAX_VALUE}) {
             assertThatThrownBy(() -> StreamFrameReconciler.resume(same, same, invalidAck))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("last ACK");
         }
+        StreamFrameReconciler exhausted = StreamFrameReconciler.resume(
+                same, same, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
+        assertThat(exhausted.nextExpected()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(exhausted.nextAck()).isEqualTo(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
+        assertThat(exhausted.offer(frame(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER)))
+                .isEqualTo(Disposition.DUPLICATE);
+    }
+
+    @Test
+    @DisplayName("the final legal frame is delivered and acknowledged before cursor exhaustion")
+    void finalLegalFrameAdvancesToExhaustedCursor() {
+        SessionIdentity same = identity("t1");
+        StreamFrameReconciler reconciler = StreamFrameReconciler.resume(
+                same, same, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER - 1);
+
+        assertThat(reconciler.offer(frame(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER)))
+                .isEqualTo(Disposition.DELIVERED);
+        assertThat(reconciler.nextExpected()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(reconciler.nextAck()).isEqualTo(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
     }
 }

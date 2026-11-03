@@ -43,7 +43,9 @@ public interface CanonicalStreamFramePort {
             tenantId = required(tenantId, "tenantId");
             principalId = required(principalId, "principalId");
             purposeRef = required(purposeRef, "purposeRef");
-            if (sessionRevision < 1 || storeVersion < 1 || lastAcknowledgedSequence < -1) {
+            if (sessionRevision < 1 || storeVersion < 1
+                    || lastAcknowledgedSequence < -1
+                    || lastAcknowledgedSequence > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
                 throw new IllegalArgumentException("canonical stream revision or ACK cursor is invalid");
             }
             leaseExpiresAt = Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
@@ -62,8 +64,10 @@ public interface CanonicalStreamFramePort {
         public Result {
             disposition = Objects.requireNonNull(disposition, "disposition");
             reason = reason == null ? "" : reason;
-            if (disposition == Disposition.ACKNOWLEDGED && acknowledgedSequence < 0) {
-                throw new IllegalArgumentException("acknowledgedSequence must not be negative");
+            if (disposition == Disposition.ACKNOWLEDGED
+                    && (acknowledgedSequence < 0
+                    || acknowledgedSequence > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER)) {
+                throw new IllegalArgumentException("acknowledgedSequence is outside the supported range");
             }
             if (disposition != Disposition.ACKNOWLEDGED && acknowledgedSequence != -1) {
                 throw new IllegalArgumentException("non-ACK result cannot carry an acknowledged sequence");
