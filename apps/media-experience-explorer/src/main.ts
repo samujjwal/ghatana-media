@@ -20,6 +20,7 @@ import { exerciseMediaToolsConsumer } from "./tools-consumer.js";
 import { applicabilityRelation, consumersFor, directChildrenFor, mediaPhysicalTopology, physicalMembersFor, topologyNode, topologyRoot, type TopologySelection } from "./physical-topology.js";
 import { lifecyclePackCandidateProtocol } from "./lifecycle-pack-adapter.js";
 import { formatTopologyHash, isTopologyRoute, parseTopologyHash } from "./topology-route.js";
+import { isInteractiveShortcutTarget } from "./keyboard-shortcuts.mjs";
 
 type ExplorerMode = "product" | "explore" | "specification" | "verify" | "overview" | "truth" | "domain" | "design-system" | "experience" | "interfaces" | "journeys" | "states-data" | "traceability" | "dependencies" | "tools-review" | "physical-topology";
 type ExplorerChannel = "web" | "cli";
@@ -1274,7 +1275,7 @@ root.addEventListener("keydown", (event) => {
     root!.querySelector<HTMLButtonElement>(`#${phaseTabId(nextPhase)}`)?.focus();
     return;
   }
-  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+  if (isInteractiveShortcutTarget(event.target)) return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   const requestedMode = supportedModes.find((item) => item.shortcut === event.key);
   if (requestedMode) { event.preventDefault(); updateMode(requestedMode.id, true); }
