@@ -174,6 +174,9 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        // Caller-supplied tenant/purpose metadata must not replace identity or consent claims.
+        headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), OTHER_TENANT_ID);
+        headers.put(Metadata.Key.of("x-processing-purpose", Metadata.ASCII_STRING_MARSHALLER), "transcription");
 
         TranscribeRequest request = TranscribeRequest.newBuilder()
             .setAudioData(com.google.protobuf.ByteString.copyFrom(audioData))
