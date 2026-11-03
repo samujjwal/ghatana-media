@@ -165,6 +165,39 @@ class AudioVideoCacheKeyRedactionTest {
     }
 
     @Test
+    void changedSourceFingerprintDoesNotReuseProtectedCacheEntry() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        ConcurrentHashMap<String, String> values = new ConcurrentHashMap<>();
+        AtomicInteger loads = new AtomicInteger();
+        when(port.get(org.mockito.ArgumentMatchers.anyString())).thenAnswer(invocation ->
+                AsyncOperation.success(Optional.ofNullable(values.get(invocation.getArgument(0)))));
+        when(port.put(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(Duration.class)))
+                .thenAnswer(invocation -> {
+                    values.put(invocation.getArgument(0), invocation.getArgument(1));
+                    return AsyncOperation.success(null);
+                });
+
+        AudioVideoCache.CacheKeyScope scope = scopedKey("tenant", "principal", "rights",
+                "transcription", "sensitive", "artifact", "artifact-rev", "transcript-rev");
+        String firstKey = cache.buildScopedKey(withFingerprint(scope, "source-sha256:revision-one"));
+        String changedSourceKey = cache.buildScopedKey(withFingerprint(scope, "source-sha256:revision-two"));
+
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(firstKey, ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("transcript-for-source-one");
+        }))).isEqualTo("transcript-for-source-one");
+        assertThat(AsyncOperationTestSupport.await(cache.getOrLoad(changedSourceKey, ignored -> {
+            loads.incrementAndGet();
+            return AsyncOperation.success("transcript-for-source-two");
+        }))).isEqualTo("transcript-for-source-two");
+
+        assertThat(changedSourceKey).isNotEqualTo(firstKey);
+        assertThat(loads).hasValue(2);
+    }
+
+    @Test
     void protectedScopeRequiresAllDimensions() {
         assertThatThrownBy(() -> new AudioVideoCache.CacheKeyScope("tenant", "principal", "rights",
                 "purpose", "classification", "artifact", "artifact-rev", "transcript-rev", " "))
