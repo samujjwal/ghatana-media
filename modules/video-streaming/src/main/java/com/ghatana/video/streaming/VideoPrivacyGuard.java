@@ -97,7 +97,7 @@ public final class VideoPrivacyGuard {
     public String describeForLog(VideoStreamSession.DecodedFrame frame) {
         return "frame{seq=" + frame.sequenceNumber()
                 + ",key=" + frame.keyFrame()
-                + ",pts=" + frame.timestampMillis()
+                + ",timestampMillis=" + frame.timestampMillis()
                 + ",bytes=" + frame.payload().length + "}";
     }
 

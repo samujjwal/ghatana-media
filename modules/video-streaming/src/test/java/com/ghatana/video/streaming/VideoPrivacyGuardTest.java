@@ -88,6 +88,7 @@ class VideoPrivacyGuardTest {
         VideoPrivacyGuard guard = new VideoPrivacyGuard(owner(), Classification.PUBLIC);
         String described = guard.describeForLog(frame(7, 3));
         assertThat(described).contains("seq=7").contains("bytes=3");
+        assertThat(described).contains("timestampMillis=").doesNotContain("pts=");
         assertThat(described).doesNotContain("principal").doesNotContain("token");
     }
 
