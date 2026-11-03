@@ -17,13 +17,25 @@ printf '#!/bin/sh\nexit 0\n' > /tmp/exec-probe
 chmod 700 /tmp/exec-probe
 /tmp/exec-probe || fail tmpfs-exec
 [ ! -e /var/run/docker.sock ] || fail docker-socket
-[ ! -w /source/input ] || fail source-readonly
-[ -w /output ] || fail output-writable
 if ( : > /vision-rootfs-write-test ) 2>/dev/null; then
   fail rootfs-readonly
 else
   :
 fi
+
+# The external broker selector exercises only this source-only, no-output
+# probe. The mount must be read-only and contain the expected sentinel.
+if [ "$#" -eq 8 ] && [ "$1" = "-nostdin" ] && [ "$2" = "-protocol_whitelist" ] \
+    && [ "$3" = "file" ] && [ "$4" = "-i" ] && [ "$5" = "/source/input" ] \
+    && [ "$6" = "-f" ] && [ "$7" = "null" ] && [ "$8" = "-" ]; then
+  [ ! -w /source/input ] || fail source-readonly
+  [ "$(cat /source/input)" = "broker-source-probe-sentinel" ] || fail source-sentinel
+  printf 'broker-source-probe-read-ok\n'
+  exit 0
+fi
+
+[ ! -w /source/input ] || fail source-readonly
+[ -w /output ] || fail output-writable
 
 input=""
 output=""

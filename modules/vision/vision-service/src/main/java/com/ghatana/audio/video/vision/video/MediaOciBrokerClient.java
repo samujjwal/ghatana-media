@@ -21,8 +21,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Media-side client for the authenticated host OCI broker. The JVM never invokes
- * Docker directly in this mode: it sends one bounded worker launch over an
- * owner-only Unix socket with an HMAC-SHA256 proof under a 0600 broker token.
+ * Docker directly in this mode: it sends one bounded worker launch over a
+ * broker-owned, peer-group-only Unix socket with an HMAC-SHA256 proof under a
+ * separate peer-owned 0600 client-token copy.
  */
 public final class MediaOciBrokerClient implements MediaOciBroker {
 

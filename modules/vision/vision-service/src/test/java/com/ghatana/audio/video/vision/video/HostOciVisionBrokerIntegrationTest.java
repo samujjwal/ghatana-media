@@ -1,283 +1,188 @@
 package com.ghatana.audio.video.vision.video;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
-import java.security.MessageDigest;
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Authenticated host/CRI broker boundary. The Media JVM holds neither a Docker
- * socket nor a usable Docker CLI: the run script deliberately points
- * GHATANA_MEDIA_VISION_DOCKER_CLI at a nonexistent executable, so any direct CLI
- * attempt would fail the test. A privileged broker subprocess owns the engine.
+ * External-broker contract check. It only runs an authenticated source-only
+ * FFmpeg sentinel probe and proves that a writable-output request is rejected
+ * before dispatch. It does not qualify codec processing or output return.
  */
-@EnabledIfEnvironmentVariable(named = HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV, matches = ".+")
-@EnabledIfEnvironmentVariable(named = HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV, matches = ".+")
-@EnabledIfEnvironmentVariable(named = HostOciVisionWorkerSupervisor.IMAGE_ENV,
-        matches = "(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
+@EnabledIf("brokerInputsConfigured")
 class HostOciVisionBrokerIntegrationTest {
 
-    private static Process brokerDaemon;
-    private static Path sandboxRoot;
+    private static final String TEST_WORKER_UID_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_WORKER_UID";
+    private static final String TEST_WORKER_GID_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_WORKER_GID";
+    private static final String TEST_BROKER_USER_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_BROKER_USER";
+    private static final String TEST_BROKER_UID_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_BROKER_UID";
+    private static final String TEST_PEER_USER_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_PEER_USER";
+    private static final String TEST_PEER_GID_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_PEER_GID";
+    private static final String TEST_STAGE_ROOT_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_STAGE_ROOT";
+    private static final String TEST_EXTERNAL_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_EXTERNAL";
+    private static final String TEST_SOURCE_ROOT_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_SOURCE_ROOT";
+    private static final String TEST_OUTPUT_ROOT_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TEST_OUTPUT_ROOT";
+
+    private static Path socket;
+    private static Path clientToken;
+    private static Path sourceRoot;
+    private static Path outputRoot;
+    private static String image;
+    private static long workerUid;
+    private static long workerGid;
 
     @BeforeAll
-    static void startBroker() throws Exception {
-        Path socket = Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV));
-        Path token = Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV));
-        assertThat(Files.size(token)).as("broker token must be at least 32 bytes").isGreaterThanOrEqualTo(32L);
-        sandboxRoot = Files.createTempDirectory(
-                Path.of(System.getProperty("java.io.tmpdir")).toRealPath(), "vision-broker-sandbox-");
-        String javaBin = Path.of(System.getProperty("java.home"), "bin", "java").toString();
-        ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", System.getProperty("java.class.path"),
-                "com.ghatana.audio.video.vision.video.MediaOciBrokerDaemon");
-        builder.environment().put("MEDIA_OCI_BROKER_SOCKET", socket.toString());
-        builder.environment().put("MEDIA_OCI_BROKER_TOKEN_FILE", token.toString());
-        builder.environment().put("MEDIA_OCI_BROKER_SOURCE_ROOT", sandboxRoot.toString());
-        builder.environment().put("MEDIA_OCI_BROKER_OUTPUT_ROOT", sandboxRoot.toString());
-        builder.environment().put("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
-        builder.environment().put("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST",
-                System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV));
-        builder.environment().put("MEDIA_OCI_BROKER_VISION_PROFILE_ID", "vision.test.reference.v1");
-        builder.environment().put("MEDIA_OCI_BROKER_VISION_IMAGE",
-                System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV));
-        builder.environment().put("MEDIA_OCI_BROKER_VISION_TOOLCHAIN_VERSION", "test-fixture-v1");
-        builder.environment().put("MEDIA_OCI_BROKER_WORKER_UID",
-                String.valueOf(Files.getAttribute(sandboxRoot, "unix:uid")));
-        builder.environment().put("MEDIA_OCI_BROKER_WORKER_GID",
-                String.valueOf(Files.getAttribute(sandboxRoot, "unix:gid")));
-        builder.environment().put("MEDIA_OCI_BROKER_ALLOWED_PEER_USER", System.getProperty("user.name"));
-        builder.redirectErrorStream(true);
-        builder.redirectOutput(ProcessBuilder.Redirect.appendTo(Files.createTempFile("broker-", ".log").toFile()));
-        brokerDaemon = builder.start();
-        long deadline = System.nanoTime() + Duration.ofSeconds(20).toNanos();
-        while (!Files.exists(socket) && System.nanoTime() < deadline) {
-            assertThat(brokerDaemon.isAlive()).as("broker daemon must remain alive").isTrue();
-            Thread.sleep(100);
-        }
-        assertThat(Files.exists(socket)).as("broker must bind its owner-only socket").isTrue();
+    static void validateExternalBrokerInputs() throws Exception {
+        assertThat(required(TEST_EXTERNAL_ENV)).isEqualTo("1");
+        String peerUser = required(TEST_PEER_USER_ENV);
+        String brokerUser = required(TEST_BROKER_USER_ENV);
+        long brokerUid = positiveLong(TEST_BROKER_UID_ENV);
+        long peerGid = positiveLong(TEST_PEER_GID_ENV);
+        workerUid = positiveLong(TEST_WORKER_UID_ENV);
+        workerGid = nonnegativeLong(TEST_WORKER_GID_ENV);
+        assertThat(workerGid).as("the socket peer group is also the worker/shared group").isEqualTo(peerGid);
+        assertThat(brokerUid).as("broker and peer must use distinct OS identities").isNotEqualTo(workerUid);
+        sourceRoot = validateSharedDataRoot(required(TEST_SOURCE_ROOT_ENV), workerUid, workerGid, "broker source root");
+        outputRoot = validateSharedDataRoot(required(TEST_OUTPUT_ROOT_ENV), workerUid, workerGid, "broker output root");
+        assertThat(sourceRoot.startsWith(outputRoot)).as("broker source and output roots must be disjoint").isFalse();
+        assertThat(outputRoot.startsWith(sourceRoot)).isFalse();
+
+        clientToken = Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV));
+        assertThat(MediaOciBrokerPolicy.ownerOnlyFile(clientToken))
+                .as("peer must receive a separate owner-only client-token copy").isTrue();
+        assertThat(Files.getOwner(clientToken).getName()).isEqualTo(peerUser);
+        assertThat(((Number) Files.getAttribute(clientToken, "unix:uid")).longValue()).isEqualTo(workerUid);
+        assertThat(Files.size(clientToken)).as("client token must contain at least 32 bytes")
+                .isGreaterThanOrEqualTo(32L);
+
+        image = System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV);
+        assertThat(image).matches("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}");
+        socket = Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV))
+                .toAbsolutePath().normalize();
+        assertThat(MediaOciBrokerDaemon.validateSocketParent(socket, brokerUser, peerGid))
+                .isEqualTo(socket.getParent().toRealPath());
+        MediaOciBrokerDaemon.validateBoundSocket(socket, brokerUser, peerGid);
+        assertThat(((Number) Files.getAttribute(socket, "unix:uid")).longValue()).isEqualTo(brokerUid);
+
+        Path stageRoot = validateStageRootMetadata(required(TEST_STAGE_ROOT_ENV), brokerUser, brokerUid);
+        Path socketParent = socket.getParent().toRealPath();
+        assertThat(stageRoot.startsWith(socketParent)).isFalse();
+        assertThat(socketParent.startsWith(stageRoot)).isFalse();
+        assertThat(stageRoot.startsWith(sourceRoot)).isFalse();
+        assertThat(sourceRoot.startsWith(stageRoot)).isFalse();
+        assertThat(stageRoot.startsWith(outputRoot)).isFalse();
+        assertThat(outputRoot.startsWith(stageRoot)).isFalse();
+        assertThat(stageRoot.startsWith(clientToken.getParent().toRealPath())).isFalse();
+        assertThat(clientToken.getParent().toRealPath().startsWith(stageRoot)).isFalse();
     }
 
-    @AfterAll
-    static void stopBroker() throws IOException {
-        if (brokerDaemon != null) {
-            brokerDaemon.destroyForcibly();
-            try { brokerDaemon.waitFor(); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
-        }
-        if (sandboxRoot != null) {
-            try (var files = Files.walk(sandboxRoot)) {
-                for (Path p : files.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(p);
-            }
-        }
+    static boolean brokerInputsConfigured() {
+        return List.of(HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV,
+                HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV,
+                HostOciVisionWorkerSupervisor.IMAGE_ENV,
+                TEST_WORKER_UID_ENV, TEST_WORKER_GID_ENV,
+                TEST_BROKER_USER_ENV, TEST_BROKER_UID_ENV,
+                TEST_PEER_USER_ENV, TEST_PEER_GID_ENV,
+                TEST_STAGE_ROOT_ENV, TEST_EXTERNAL_ENV, TEST_SOURCE_ROOT_ENV, TEST_OUTPUT_ROOT_ENV)
+                .stream().allMatch(name -> System.getenv(name) != null && !System.getenv(name).isBlank());
+    }
+
+    private static String required(String environmentName) {
+        String value = System.getenv(environmentName);
+        assertThat(value).as("%s must be configured", environmentName).isNotBlank();
+        return value;
+    }
+
+    private static long positiveLong(String environmentName) {
+        long value = nonnegativeLong(environmentName);
+        assertThat(value).as("%s must be positive", environmentName).isPositive();
+        return value;
+    }
+
+    private static long nonnegativeLong(String environmentName) {
+        String text = System.getenv(environmentName);
+        assertThat(text).as("%s must be numeric", environmentName).matches("[0-9]+");
+        return Long.parseLong(text);
+    }
+
+    private static Path validateStageRootMetadata(String value, String brokerUser, long brokerUid) throws IOException {
+        Path configured = Path.of(value).toAbsolutePath().normalize();
+        assertThat(Files.isSymbolicLink(configured)).as("broker stage root cannot be a symlink").isFalse();
+        assertThat(Files.isDirectory(configured, java.nio.file.LinkOption.NOFOLLOW_LINKS))
+                .as("broker stage root must be a real directory").isTrue();
+        Path real = configured.toRealPath();
+        assertThat(Files.getOwner(real, java.nio.file.LinkOption.NOFOLLOW_LINKS).getName()).isEqualTo(brokerUser);
+        assertThat(((Number) Files.getAttribute(real, "unix:uid")).longValue()).isEqualTo(brokerUid);
+        assertThat(Files.getPosixFilePermissions(real))
+                .containsExactlyInAnyOrder(PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+        return real;
+    }
+
+    private static Path validateSharedDataRoot(String value, long uid, long gid, String description)
+            throws IOException {
+        Path configured = Path.of(value).toAbsolutePath().normalize();
+        assertThat(Files.isSymbolicLink(configured)).as("%s cannot be a symlink", description).isFalse();
+        assertThat(Files.isDirectory(configured, java.nio.file.LinkOption.NOFOLLOW_LINKS))
+                .as("%s must be a preprovisioned directory", description).isTrue();
+        Path real = configured.toRealPath();
+        assertThat(((Number) Files.getAttribute(real, "unix:uid")).longValue()).as(description + " owner UID").isEqualTo(uid);
+        assertThat(((Number) Files.getAttribute(real, "unix:gid")).longValue()).as(description + " shared GID").isEqualTo(gid);
+        assertThat(((Number) Files.getAttribute(real, "unix:mode")).intValue() & 07777)
+                .as(description + " must be peer-owned, setgid, and mode 02750")
+                .isEqualTo(02750);
+        return real;
     }
 
     @Test
-    void brokerRunsBoundedWorkerWithoutAnyLocalDockerAccess() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("verify".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(60), 8192, fixture.output, 2_000_000L);
-            assertThat(result.exitCode()).as(result.output()).isZero();
+    void externalBrokerRunsAuthenticatedReadOnlySourceProbe() throws Exception {
+        byte[] sentinel = "broker-source-probe-sentinel".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Path source = sourceRoot.resolve("broker-probe-" + UUID.randomUUID());
+        Files.write(source, sentinel);
+        Files.setPosixFilePermissions(source, java.nio.file.attribute.PosixFilePermissions.fromString("r--r-----"));
+        assertThat(((Number) Files.getAttribute(source, "unix:uid")).longValue()).isEqualTo(workerUid);
+        assertThat(((Number) Files.getAttribute(source, "unix:gid")).longValue()).isEqualTo(workerGid);
+        assertThat(((Number) Files.getAttribute(source, "unix:mode")).intValue() & 0777).isEqualTo(0440);
+        String sha = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(sentinel));
+        try {
+            MediaOciBroker.WorkerResult result = client().execute(new MediaOciBroker.WorkerLaunch(
+                    image, "source-probe-" + UUID.randomUUID(), "ffmpeg",
+                    List.of("-nostdin", "-protocol_whitelist", "file", "-i", "/source/input", "-f", "null", "-"),
+                    source.toString(), sha, null, workerUid, workerGid, 65_536L, Duration.ofSeconds(30)));
+
+            assertThat(result.completed()).isTrue();
+            assertThat(result.exitCode()).isZero();
             assertThat(result.timedOut()).isFalse();
+            assertThat(result.oomKilled()).isFalse();
             assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.output()).contains("HOST_OCI_BOUNDARY_OK");
-            assertThat(Files.readString(output)).isEqualTo("host-oci-limits-and-mounts-verified\n");
+            assertThat(result.outputTail()).contains("broker-source-probe-read-ok");
+        } finally {
+            Files.deleteIfExists(source);
         }
     }
 
     @Test
-    void brokerReportsWorkerTimeoutTruthfullyAndKillsIt() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("sleep".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(4), 8192, fixture.output, 2_000_000L);
-            assertThat(result.timedOut()).isTrue();
-            assertThat(result.exitCode()).isEqualTo(-1);
-            assertThat(Files.exists(output)).isFalse();
-        }
+    void externalBrokerRejectsWritableOutputBeforeDispatch() {
+        assertThatThrownBy(() -> client().execute(new MediaOciBroker.WorkerLaunch(
+                image, "output-reject-" + UUID.randomUUID(), "ffmpeg", List.of("-version"),
+                null, null, "/output/not-admitted.out", workerUid, workerGid,
+                65_536L, Duration.ofSeconds(30))))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("writable output transfer is not admitted");
     }
 
-    @Test
-    void brokerEnforcesKernelPidLimitInsideWorker() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("pid-limit".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(60), 8192, fixture.output, 2_000_000L);
-            assertThat(result.timedOut()).isFalse();
-            assertThat(result.exitCode()).as(result.output()).isEqualTo(85);
-            assertThat(result.output()).contains("HOST_OCI_PID_LIMIT_HIT");
-        }
-    }
-
-    @Test
-    void brokerReportsKernelOomAndRejectsPartialOutput() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("oom".getBytes());
-            Path outputFile = fixture.output.resolve("result.out");
-            List<String> command = List.of("ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", outputFile.toString());
-            HostOciVisionWorkerSupervisor.LaunchPlan plan = HostOciVisionWorkerSupervisor.plan(
-                    command, fixture.workspace, fixture.output,
-                    System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV), "docker",
-                    null, null, UUID.randomUUID().toString(), 2_000_000L);
-            int imageIndex = plan.createCommand().indexOf(plan.imageDigest());
-            List<String> workerArgs = plan.createCommand().subList(imageIndex + 1, plan.createCommand().size());
-            MediaOciBrokerClient client = new MediaOciBrokerClient(
-                    Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_SOCKET_ENV)),
-                    Path.of(System.getenv(HostOciVisionWorkerSupervisor.BROKER_TOKEN_ENV)));
-
-            MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
-                    plan.imageDigest(), plan.containerName(), "ffmpeg", workerArgs,
-                    plan.source().toString(), sha256(plan.source()), plan.output().toString(),
-                    plan.uid(), plan.gid(), plan.outputFileLimit(), Duration.ofSeconds(60)));
-
-            assertThat(result.oomKilled())
-                    .as("the broker must report the OCI runtime's kernel OOMKilled state")
-                    .isTrue();
-            assertThat(result.timedOut()).as("OOM must not be misreported as a timeout").isFalse();
-            assertThat(result.exitCode()).as("an OOM-killed codec must not appear successful").isNotZero();
-            assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.outputTail()).doesNotContain("HOST_OCI_BOUNDARY_OK");
-            try (var files = Files.list(fixture.output)) {
-                assertThat(files).as("OOM must not publish a complete or partial output")
-                        .isEmpty();
-            }
-        }
-    }
-
-    @Test
-    void brokerCompletesOnlyAfterKernelCpuQuotaThrottlesWorker() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("cpu-quota".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
-
-            assertThat(result.exitCode()).as(result.output()).isZero();
-            assertThat(result.timedOut()).isFalse();
-            assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.output()).contains("HOST_OCI_CPU_QUOTA_THROTTLED");
-            assertThat(Files.readString(output)).isEqualTo("host-oci-limits-and-mounts-verified\n");
-        }
-    }
-
-    @Test
-    void brokerReportsTmpfsFullAndPublishesNoPartialOutput() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("tmpfs-full".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(30), 8192, fixture.output, 512L * 1024 * 1024);
-
-            assertThat(result.exitCode()).as(result.output()).isEqualTo(88);
-            assertThat(result.timedOut()).as("tmpfs exhaustion must not be mislabeled as a timeout").isFalse();
-            assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.output()).contains("No space left on device", "HOST_OCI_TMPFS_ENOSPC");
-            assertThat(result.output()).doesNotContain("HOST_OCI_BOUNDARY_OK");
-            try (var files = Files.list(fixture.output)) {
-                assertThat(files).as("failed tmpfs work must not publish a complete or partial output")
-                        .isEmpty();
-            }
-        }
-    }
-
-    @Test
-    void brokerReportsKernelNoFileLimitAndClosesDescriptors() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("nofile".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
-
-            assertThat(result.exitCode()).as(result.output()).isZero();
-            assertThat(result.timedOut()).isFalse();
-            assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.output()).contains("Too many open files", "HOST_OCI_NOFILE_EMFILE");
-            assertThat(Files.readString(output)).isEqualTo("host-oci-limits-and-mounts-verified\n");
-        }
-    }
-
-    @Test
-    void brokerRejectsOutputLargerThanKernelFileSizeLimitAndBoundsPartialArtifact() throws Exception {
-        try (Fixture fixture = new Fixture()) {
-            Path input = fixture.stageSource("filesize".getBytes());
-            Path output = fixture.output.resolve("result.out");
-            var result = VideoFrameExtractor.runProcess(List.of(
-                    "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
-                    "-i", input.toString(), "-y", output.toString()),
-                    Duration.ofSeconds(30), 8192, fixture.output, 2_000_000L);
-
-            assertThat(result.exitCode()).as(result.output()).isEqualTo(89);
-            assertThat(result.timedOut()).as("file-size rejection must not be mislabeled as a timeout").isFalse();
-            assertThat(result.outputExceeded()).isFalse();
-            assertThat(result.output()).contains("File size limit exceeded", "HOST_OCI_FILESIZE_LIMIT_HIT");
-            assertThat(result.output()).doesNotContain("HOST_OCI_BOUNDARY_OK");
-            assertThat(Files.exists(output)).isTrue();
-            assertThat(Files.size(output)).as("the failed worker's partial output must remain at or below RLIMIT_FSIZE")
-                    .isPositive().isLessThanOrEqualTo(2_000_000L);
-        }
-    }
-
-    private static String sha256(Path path) throws Exception {
-        return java.util.HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)));
-    }
-
-    private static final class Fixture implements AutoCloseable {
-        private final Path root;
-        private final Path workspace;
-        private final Path output;
-        Fixture() throws IOException {
-            root = Files.createTempDirectory(sandboxRoot, "worker-");
-            ownerOnly(root);
-            workspace = Files.createDirectory(root.resolve(".media-video-codec-original"));
-            ownerOnly(workspace);
-            output = Files.createDirectory(root.resolve("output"));
-            ownerOnly(output);
-        }
-        Path stageSource(byte[] value) throws IOException {
-            Path target = workspace.resolve("input.bin");
-            Files.write(target, value);
-            Files.setPosixFilePermissions(target, EnumSet.of(PosixFilePermission.OWNER_READ));
-            return target;
-        }
-        private static void ownerOnly(Path path) throws IOException {
-            Files.setPosixFilePermissions(path, EnumSet.of(
-                    PosixFilePermission.OWNER_READ,
-                    PosixFilePermission.OWNER_WRITE,
-                    PosixFilePermission.OWNER_EXECUTE));
-        }
-        @Override public void close() throws IOException {
-            try (var files = Files.walk(root)) {
-                for (Path p : files.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(p);
-            }
-        }
+    private static MediaOciBrokerClient client() {
+        return new MediaOciBrokerClient(socket, clientToken);
     }
 }

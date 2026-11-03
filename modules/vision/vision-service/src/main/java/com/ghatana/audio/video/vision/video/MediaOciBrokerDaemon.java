@@ -37,7 +37,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Narrow authenticated host/CRI broker for production OCI vision workers.
  *
  * <p>This is a separate privileged helper process — the Media JVM never holds the
- * Docker socket or CLI. It listens on an owner-only Unix domain socket and
+ * Docker socket or CLI. It listens on a broker-owned, peer-group-only Unix domain socket and
  * accepts a single bounded operation: launch one sandboxed worker against a
  * digest-pinned image. Every request must carry an HMAC-SHA256 proof over the
  * request body under a shared broker token supplied via a 0600 file; the token
@@ -83,13 +83,24 @@ public final class MediaOciBrokerDaemon {
         String workerUid = System.getenv("MEDIA_OCI_BROKER_WORKER_UID");
         String workerGid = System.getenv("MEDIA_OCI_BROKER_WORKER_GID");
         String allowedPeerUser = System.getenv("MEDIA_OCI_BROKER_ALLOWED_PEER_USER");
+        String allowedPeerGidText = System.getenv("MEDIA_OCI_BROKER_ALLOWED_PEER_GID");
         String docker = System.getenv().getOrDefault("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
         if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot) || blank(stageRoot)
-                || blank(allowlist) || blank(workerUid) || blank(workerGid) || !validPeerUsername(allowedPeerUser)) {
+                || blank(allowlist) || blank(workerUid) || blank(workerGid) || !validPeerUsername(allowedPeerUser)
+                || blank(allowedPeerGidText)) {
             System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT, _OUTPUT_ROOT, _STAGE_ROOT,"
-                    + " _IMAGE_ALLOWLIST, _WORKER_UID, _WORKER_GID and _ALLOWED_PEER_USER are required");
+                    + " _IMAGE_ALLOWLIST, _WORKER_UID, _WORKER_GID, _ALLOWED_PEER_USER and _ALLOWED_PEER_GID are required");
             System.exit(2);
         }
+        long allowedPeerGid;
+        try {
+            allowedPeerGid = parseAllowedPeerGid(allowedPeerGidText);
+        } catch (IllegalArgumentException invalid) {
+            System.err.println(invalid.getMessage());
+            System.exit(2);
+            return;
+        }
+        Path socket = Path.of(socketPath).toAbsolutePath().normalize();
         Path tokenPath = Path.of(tokenFile);
         // The credential file must be owner-only; group/other readers make the HMAC
         // proof forgeable, so the broker refuses to start.
@@ -113,6 +124,7 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Broker OS identity must differ from the allowed Media peer identity");
             System.exit(2);
         }
+        Path socketParent = validateSocketParent(socket, brokerOsUser, allowedPeerGid);
         java.util.Set<String> images = new java.util.HashSet<>();
         for (String entry : allowlist.split(",")) {
             String digest = entry.trim();
@@ -136,6 +148,10 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Broker worker uid must be positive and unprivileged");
             System.exit(2);
         }
+        if (!workerUsesPeerGroup(gid, allowedPeerGid)) {
+            System.err.println("MEDIA_OCI_BROKER_WORKER_GID must equal the configured allowed peer/shared GID");
+            System.exit(2);
+        }
         Path sourceReal = Path.of(sourceRoot).toRealPath();
         Path outputReal = Path.of(outputRoot).toRealPath();
         Path stageReal = validateStageRoot(Path.of(stageRoot), sourceReal, outputReal, brokerOsUser, allowedPeerUser);
@@ -146,6 +162,7 @@ public final class MediaOciBrokerDaemon {
         Path nonceStateRoot = MediaOciBrokerNonceJournal.validateStateDirectory(
                 tokenPath.toAbsolutePath().getParent(), brokerOsUser, allowedPeerUser,
                 sourceReal, outputReal, stageReal);
+        requireDisjointSocketParent(socketParent, nonceStateRoot, sourceReal, outputReal, stageReal);
         MediaOciBrokerNonceJournal nonceJournal = MediaOciBrokerNonceJournal.open(
                 nonceStateRoot, token, brokerOsUser, allowedPeerUser,
                 sourceReal, outputReal, stageReal);
@@ -170,8 +187,7 @@ public final class MediaOciBrokerDaemon {
         }
         MediaOciBrokerPolicy.NonceReplayGuard nonces =
                 new MediaOciBrokerPolicy.NonceReplayGuard(nonceJournal);
-        Path socket = Path.of(socketPath);
-        Files.deleteIfExists(socket);
+        removeStaleSocket(socket, brokerOsUser, allowedPeerGid);
         ThreadPoolExecutor requests = new ThreadPoolExecutor(8, 8, 0, TimeUnit.MILLISECONDS,
                 new ArrayBlockingQueue<>(32), task -> {
                     Thread thread = new Thread(task, "media-oci-broker-request");
@@ -204,7 +220,8 @@ public final class MediaOciBrokerDaemon {
         try (ServerSocketChannel server = ServerSocketChannel.open(
                 java.net.StandardProtocolFamily.UNIX)) {
             server.bind(UnixDomainSocketAddress.of(socket));
-            Files.setPosixFilePermissions(socket, PosixFilePermissions.fromString("rw-------"));
+            Files.setPosixFilePermissions(socket, PosixFilePermissions.fromString("rw-rw----"));
+            validateBoundSocket(socket, brokerOsUser, allowedPeerGid);
             System.err.println("Media OCI broker listening on " + socket);
             while (true) {
                 SocketChannel accepted = server.accept();
@@ -339,7 +356,12 @@ public final class MediaOciBrokerDaemon {
     }
 
     static boolean sourceProbePairValid(String source, List<String> args) {
-        return source == null ? isVersionProbe(args) : !isVersionProbe(args);
+        return source == null ? isVersionProbe(args) : isSourceReadProbe(args);
+    }
+
+    static boolean isSourceReadProbe(List<String> args) {
+        return args != null && args.equals(List.of("-nostdin", "-protocol_whitelist", "file", "-i",
+                "/source/input", "-f", "null", "-"));
     }
 
     /** The current bounded JSON reply cannot return worker output under Media ownership. */
@@ -380,6 +402,94 @@ public final class MediaOciBrokerDaemon {
 
     static String currentOsUserName() {
         return ProcessHandle.current().info().user().orElse("");
+    }
+
+    static long parseAllowedPeerGid(String value) {
+        if (value == null || !value.matches("[1-9][0-9]{0,9}")) {
+            throw new IllegalArgumentException("Allowed peer GID must be a positive numeric group ID");
+        }
+        long gid;
+        try {
+            gid = Long.parseLong(value);
+        } catch (NumberFormatException invalid) {
+            throw new IllegalArgumentException("Allowed peer GID is outside the supported range", invalid);
+        }
+        if (gid > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Allowed peer GID is outside the supported range");
+        }
+        return gid;
+    }
+
+    static boolean workerUsesPeerGroup(long workerGid, long allowedPeerGid) {
+        return workerGid > 0 && workerGid <= Integer.MAX_VALUE && workerGid == allowedPeerGid;
+    }
+
+    static Path validateSocketParent(Path socket, String brokerOsUser, long allowedPeerGid) throws IOException {
+        if (socket == null || brokerOsUser == null || brokerOsUser.isBlank()
+                || allowedPeerGid <= 0 || allowedPeerGid > Integer.MAX_VALUE) {
+            throw new IOException("Broker socket parent identity configuration is invalid");
+        }
+        Path absolute = socket.toAbsolutePath().normalize();
+        Path parent = absolute.getParent();
+        if (parent == null || Files.isSymbolicLink(parent)
+                || !Files.isDirectory(parent, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Broker socket parent must be an existing real directory");
+        }
+        // Resolve safe host aliases such as macOS /var -> /private/var after
+        // rejecting a symlink at the configured parent itself.
+        Path canonical = parent.toRealPath();
+        if (!Files.getOwner(canonical, java.nio.file.LinkOption.NOFOLLOW_LINKS).getName().equals(brokerOsUser)) {
+            throw new IOException("Broker socket parent must be owned by the broker OS identity");
+        }
+        long groupId = unixId(canonical, "gid");
+        int mode = unixMode(canonical);
+        if (groupId != allowedPeerGid || (mode & 07777) != 02710) {
+            throw new IOException("Broker socket parent must be broker-owned, peer-group-owned, and mode 02710");
+        }
+        return canonical;
+    }
+
+    static void validateBoundSocket(Path socket, String brokerOsUser, long allowedPeerGid) throws IOException {
+        if (socket == null || brokerOsUser == null || brokerOsUser.isBlank()
+                || allowedPeerGid <= 0 || allowedPeerGid > Integer.MAX_VALUE) {
+            throw new IOException("Broker socket identity configuration is invalid");
+        }
+        if (Files.isSymbolicLink(socket) || (unixMode(socket) & 0170000) != 0140000) {
+            throw new IOException("Broker endpoint must be a Unix domain socket");
+        }
+        if (!Files.getOwner(socket, java.nio.file.LinkOption.NOFOLLOW_LINKS).getName().equals(brokerOsUser)
+                || unixId(socket, "gid") != allowedPeerGid || (unixMode(socket) & 0777) != 0660) {
+            throw new IOException("Broker socket must be broker-owned, use the configured peer group, and have mode 0660");
+        }
+    }
+
+    private static void removeStaleSocket(Path socket, String brokerOsUser, long allowedPeerGid) throws IOException {
+        if (!Files.exists(socket, java.nio.file.LinkOption.NOFOLLOW_LINKS)) return;
+        // Never clear an unexpected path in the broker-owned socket directory. An
+        // operator must reconcile stale sockets whose identity/permissions drifted.
+        validateBoundSocket(socket, brokerOsUser, allowedPeerGid);
+        Files.delete(socket);
+    }
+
+    private static void requireDisjointSocketParent(Path socketParent, Path... protectedRoots) throws IOException {
+        for (Path protectedRoot : protectedRoots) {
+            Path real = protectedRoot.toRealPath(java.nio.file.LinkOption.NOFOLLOW_LINKS);
+            if (socketParent.startsWith(real) || real.startsWith(socketParent)) {
+                throw new IOException("Broker socket parent must be separate from token, source, output and stage roots");
+            }
+        }
+    }
+
+    private static long unixId(Path path, String attribute) throws IOException {
+        Object value = Files.getAttribute(path, "unix:" + attribute, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if (!(value instanceof Number number)) throw new IOException("Broker host requires POSIX unix:" + attribute);
+        return number.longValue();
+    }
+
+    private static int unixMode(Path path) throws IOException {
+        Object value = Files.getAttribute(path, "unix:mode", java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        if (!(value instanceof Number number)) throw new IOException("Broker host requires POSIX unix:mode");
+        return number.intValue();
     }
 
     static boolean distinctOsUsers(String brokerOsUser, String allowedPeerUser) {

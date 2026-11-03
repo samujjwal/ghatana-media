@@ -12,6 +12,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HexFormat;
@@ -218,7 +219,60 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
+    void brokerSocketRequiresOwnedSetgidParentAndExactPeerGroupMode() throws Exception {
+        Path parent = Files.createDirectory(root.resolve("broker-socket"));
+        long peerGid = gidOf(parent);
+        String brokerUser = Files.getOwner(parent).getName();
+        Files.setAttribute(parent, "unix:mode", 02710);
+        Path socket = parent.resolve("broker.sock");
+
+        assertThat(MediaOciBrokerDaemon.parseAllowedPeerGid(Long.toString(peerGid))).isEqualTo(peerGid);
+        assertThat(MediaOciBrokerDaemon.workerUsesPeerGroup(peerGid, peerGid)).isTrue();
+        assertThat(MediaOciBrokerDaemon.workerUsesPeerGroup(peerGid + 1, peerGid)).isFalse();
+        assertThat(MediaOciBrokerDaemon.workerUsesPeerGroup(0, peerGid)).isFalse();
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.parseAllowedPeerGid("0"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.parseAllowedPeerGid("peer"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(MediaOciBrokerDaemon.validateSocketParent(socket, brokerUser, peerGid))
+                .isEqualTo(parent.toRealPath());
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.validateSocketParent(socket, brokerUser, peerGid + 1))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("peer-group-owned");
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.validateSocketParent(socket, "unrelated-broker", peerGid))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("owned by the broker");
+
+        try (ServerSocketChannel server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
+            server.bind(UnixDomainSocketAddress.of(socket));
+            Files.setPosixFilePermissions(socket, PosixFilePermissions.fromString("rw-rw----"));
+            MediaOciBrokerDaemon.validateBoundSocket(socket, brokerUser, peerGid);
+            assertThatThrownBy(() -> MediaOciBrokerDaemon.validateBoundSocket(socket, brokerUser, peerGid + 1))
+                    .isInstanceOf(java.io.IOException.class)
+                    .hasMessageContaining("configured peer group");
+            Files.setPosixFilePermissions(socket, PosixFilePermissions.fromString("rw-------"));
+            assertThatThrownBy(() -> MediaOciBrokerDaemon.validateBoundSocket(socket, brokerUser, peerGid))
+                    .isInstanceOf(java.io.IOException.class)
+                    .hasMessageContaining("mode 0660");
+        }
+
+        Files.setPosixFilePermissions(parent, PosixFilePermissions.fromString("rwx--x---"));
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.validateSocketParent(socket, brokerUser, peerGid))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("mode 02710");
+    }
+
+    @Test
     void workerArgsAllowOnlyCurrentExtractorAndBrokerFixtureLaunchPlans() {
+        List<String> sourceProbe = List.of("-nostdin", "-protocol_whitelist", "file", "-i",
+                "/source/input", "-f", "null", "-");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", sourceProbe)).isTrue();
+        assertThat(MediaOciBrokerDaemon.sourceProbePairValid("/tmp/source", sourceProbe)).isTrue();
+        assertThat(MediaOciBrokerDaemon.sourceProbePairValid(null, sourceProbe)).isFalse();
+        assertThat(MediaOciBrokerDaemon.sourceProbePairValid("/tmp/source", List.of("-version"))).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-protocol_whitelist", "file,https", "-i", "/source/input", "-f", "null", "-")))
+                .isFalse();
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
                 "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
                 "-y", "/output/result.out"))).isTrue();
@@ -331,9 +385,13 @@ class MediaOciBrokerPolicyTest {
     @Test
     void sourceRequiresOwnershipInsideRootAndMatchingDigest() throws Exception {
         var policy = policy();
+        Files.setAttribute(root, "unix:mode", 02750);
         Path source = root.resolve("input.bin");
         byte[] bytes = "verify".getBytes();
         Files.write(source, bytes);
+        Files.setPosixFilePermissions(source, PosixFilePermissions.fromString("r--r-----"));
+        assertThat(((Number) Files.getAttribute(root, "unix:mode")).intValue() & 07777).isEqualTo(02750);
+        assertThat(((Number) Files.getAttribute(source, "unix:mode")).intValue() & 0777).isEqualTo(0440);
         String sha = HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(bytes));
 
@@ -348,8 +406,10 @@ class MediaOciBrokerPolicyTest {
         assertThat(MediaOciBrokerPolicy.sourceAllowed(policy, link.toString(), sha))
                 .as("symlink").isFalse();
         Path realDirectory = Files.createDirectory(root.resolve("real-dir"));
+        Files.setAttribute(realDirectory, "unix:mode", 02750);
         Path nestedSource = realDirectory.resolve("nested.bin");
         Files.write(nestedSource, bytes);
+        Files.setPosixFilePermissions(nestedSource, PosixFilePermissions.fromString("r--r-----"));
         Path parentAlias = root.resolve("aliased-dir");
         Files.createSymbolicLink(parentAlias, realDirectory);
         assertThat(MediaOciBrokerPolicy.sourceAllowed(policy,

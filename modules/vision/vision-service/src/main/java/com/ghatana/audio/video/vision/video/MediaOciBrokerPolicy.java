@@ -252,6 +252,10 @@ final class MediaOciBrokerPolicy {
     }
 
     private static boolean ffmpegArgsAllowed(List<String> args) {
+        // Source-only host broker probe: one read-only file input, file protocol
+        // only, null muxer to stdout. No output path or arbitrary filter is admitted.
+        if (args.equals(List.of("-nostdin", "-protocol_whitelist", "file", "-i",
+                "/source/input", "-f", "null", "-"))) return true;
         // Narrow fixture-worker plan used by the OCI boundary suite.
         if (args.size() == 8 && args.get(0).equals("-nostdin")
                 && args.get(1).equals("-hide_banner") && args.get(2).equals("-loglevel")
