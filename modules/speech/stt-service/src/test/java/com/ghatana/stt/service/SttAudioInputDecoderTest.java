@@ -201,6 +201,8 @@ class SttAudioInputDecoderTest {
         byte[] mp3 = new byte[44];
         mp3[0] = (byte) 0xff;
         mp3[1] = (byte) 0xfb;
+        mp3[2] = (byte) 0x90; // Plausible MPEG-1 Layer III bitrate and sample-rate indexes.
+        mp3[3] = 0x64;
         for (byte[] mismatched : new byte[][] {
                 pcmWav(16_000, 1, 16, new byte[] {1, 2}), mp3
         }) {
