@@ -77,6 +77,11 @@ public final class RunLedgerProjection {
 
     private final LedgerStore store;
     private final Map<String, RunLedger> latestByRunId = new ConcurrentHashMap<>();
+    // A pre-dispatch refusal proves no effect occurred, but the incoming record
+    // is still the newest truth observed by this projection. Keep it as an
+    // ordering floor so delayed weaker records cannot pass while the exact
+    // record (or a strictly newer one) remains retryable.
+    private final Map<String, RunLedger> unavailableByRunId = new ConcurrentHashMap<>();
     private final Map<String, RunLedger> uncertainByRunId = new ConcurrentHashMap<>();
     private final Object[] runLocks = new Object[LOCK_STRIPE_COUNT];
 
@@ -100,25 +105,37 @@ public final class RunLedgerProjection {
             if (uncertainByRunId.containsKey(incoming.runId())) {
                 return new ProjectionResult(Disposition.PENDING_RECONCILIATION, StoreResult.OUTCOME_UNKNOWN);
             }
-            Disposition disposition = disposition(latestByRunId.get(incoming.runId()), incoming);
+            RunLedger latest = latestByRunId.get(incoming.runId());
+            RunLedger pendingBeforeDispatch = unavailableByRunId.get(incoming.runId());
+            RunLedger orderingFloor = pendingBeforeDispatch == null ? latest : pendingBeforeDispatch;
+            Disposition disposition = disposition(orderingFloor, incoming);
+            // The exact record previously refused before dispatch is a retry,
+            // not a duplicate of a confirmed store write.
+            if (pendingBeforeDispatch != null && pendingBeforeDispatch.equals(incoming)) {
+                disposition = Disposition.PROJECTED;
+            }
             if (disposition != Disposition.PROJECTED) {
                 return new ProjectionResult(disposition, StoreResult.NOT_ATTEMPTED);
             }
             try {
                 store.store(incoming);
             } catch (StoreNotDispatchedException unavailable) {
+                unavailableByRunId.put(incoming.runId(), incoming);
                 return new ProjectionResult(disposition, StoreResult.UNAVAILABLE);
             } catch (Exception unknown) {
                 if (unknown instanceof InterruptedException) Thread.currentThread().interrupt();
+                unavailableByRunId.remove(incoming.runId());
                 uncertainByRunId.put(incoming.runId(), incoming);
                 return new ProjectionResult(disposition, StoreResult.OUTCOME_UNKNOWN);
             } catch (Error fatal) {
                 // An effect may have occurred even when the caller must see a
                 // fatal failure. Fence any later in-process retry first.
+                unavailableByRunId.remove(incoming.runId());
                 uncertainByRunId.put(incoming.runId(), incoming);
                 throw fatal;
             }
             latestByRunId.put(incoming.runId(), incoming);
+            unavailableByRunId.remove(incoming.runId());
             return new ProjectionResult(disposition, StoreResult.ACKNOWLEDGED);
         }
     }

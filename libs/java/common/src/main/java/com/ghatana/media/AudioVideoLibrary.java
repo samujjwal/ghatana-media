@@ -73,12 +73,11 @@ public final class AudioVideoLibrary implements AutoCloseable {
         if (config.sttConfig() == null) {
             throw new IllegalStateException("STT not configured. Use builder.withSttConfig()");
         }
-        if (borrowedSttEngine == null) {
-            synchronized (this) {
-                if (borrowedSttEngine == null) {
-                    ownedSttEngine = SttEngineFactory.create(config.sttConfig(), state);
-                    borrowedSttEngine = borrowedView(SttEngine.class, ownedSttEngine);
-                }
+        synchronized (this) {
+            ensureNotClosed();
+            if (borrowedSttEngine == null) {
+                ownedSttEngine = SttEngineFactory.create(config.sttConfig(), state);
+                borrowedSttEngine = borrowedView(SttEngine.class, ownedSttEngine);
             }
         }
         return borrowedSttEngine;
@@ -89,12 +88,11 @@ public final class AudioVideoLibrary implements AutoCloseable {
         if (config.ttsConfig() == null) {
             throw new IllegalStateException("TTS not configured. Use builder.withTtsConfig()");
         }
-        if (borrowedTtsEngine == null) {
-            synchronized (this) {
-                if (borrowedTtsEngine == null) {
-                    ownedTtsEngine = TtsEngineFactory.create(config.ttsConfig(), state);
-                    borrowedTtsEngine = borrowedView(TtsEngine.class, ownedTtsEngine);
-                }
+        synchronized (this) {
+            ensureNotClosed();
+            if (borrowedTtsEngine == null) {
+                ownedTtsEngine = TtsEngineFactory.create(config.ttsConfig(), state);
+                borrowedTtsEngine = borrowedView(TtsEngine.class, ownedTtsEngine);
             }
         }
         return borrowedTtsEngine;
@@ -105,12 +103,11 @@ public final class AudioVideoLibrary implements AutoCloseable {
         if (config.visionConfig() == null) {
             throw new IllegalStateException("Vision not configured. Use builder.withVisionConfig()");
         }
-        if (borrowedVisionEngine == null) {
-            synchronized (this) {
-                if (borrowedVisionEngine == null) {
-                    ownedVisionEngine = VisionEngineFactory.create(config.visionConfig(), state);
-                    borrowedVisionEngine = borrowedView(VisionEngine.class, ownedVisionEngine);
-                }
+        synchronized (this) {
+            ensureNotClosed();
+            if (borrowedVisionEngine == null) {
+                ownedVisionEngine = VisionEngineFactory.create(config.visionConfig(), state);
+                borrowedVisionEngine = borrowedView(VisionEngine.class, ownedVisionEngine);
             }
         }
         return borrowedVisionEngine;
@@ -183,14 +180,16 @@ public final class AudioVideoLibrary implements AutoCloseable {
         if (!closed.compareAndSet(false, true)) {
             return;
         }
-        LOG.info("Shutting down AudioVideoLibrary");
-        closeOwned(ownedVisionEngine, "VisionEngine");
-        closeOwned(ownedTtsEngine, "TtsEngine");
-        closeOwned(ownedSttEngine, "SttEngine");
-        borrowedVisionEngine = null;
-        borrowedTtsEngine = null;
-        borrowedSttEngine = null;
-        state.shutdown();
+        synchronized (this) {
+            LOG.info("Shutting down AudioVideoLibrary");
+            closeOwned(ownedVisionEngine, "VisionEngine");
+            closeOwned(ownedTtsEngine, "TtsEngine");
+            closeOwned(ownedSttEngine, "SttEngine");
+            borrowedVisionEngine = null;
+            borrowedTtsEngine = null;
+            borrowedSttEngine = null;
+            state.shutdown();
+        }
     }
 
     private static void closeOwned(AutoCloseable resource, String name) {

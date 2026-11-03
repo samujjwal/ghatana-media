@@ -203,6 +203,39 @@ class RunLedgerProjectionTest {
     }
 
     @Test
+    @DisplayName("Unavailable terminal truth fences delayed open updates until exact retry is acknowledged")
+    void unavailableTerminalTruthFencesWeakerUpdates() {
+        java.util.concurrent.atomic.AtomicBoolean down = new java.util.concurrent.atomic.AtomicBoolean(false);
+        List<RunLedger> written = new ArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            if (down.get()) {
+                throw new RunLedgerProjection.StoreNotDispatchedException("event plane unavailable");
+            }
+            written.add(record);
+        });
+        RunLedger running = ledger("terminal-outage", JobExecutionState.RUNNING, null, 1, 100, 0);
+        RunLedger terminal = ledger("terminal-outage", JobExecutionState.COMPLETED,
+                ExecutionOutcome.SUCCEEDED, 1, 100, 150);
+        RunLedger delayedOpen = ledger("terminal-outage", JobExecutionState.RUNNING, null, 1, 500, 0);
+
+        assertThat(projection.project(running).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        down.set(true);
+        assertThat(projection.project(terminal).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.UNAVAILABLE);
+
+        var delayed = projection.project(delayedOpen);
+        assertThat(delayed.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
+        assertThat(delayed.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(written).containsExactly(running);
+
+        down.set(false);
+        assertThat(projection.project(terminal).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        assertThat(written).containsExactly(running, terminal);
+    }
+
+    @Test
     @DisplayName("Lost store acknowledgement fences retries until exact authoritative readback")
     void ambiguousStoreOutcomeRequiresReadback() {
         var persisted = new java.util.concurrent.atomic.AtomicReference<RunLedger>();

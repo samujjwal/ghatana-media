@@ -25,6 +25,9 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -86,6 +89,71 @@ class AudioVideoLibraryTest {
         assertThat(library.isTtsEnabled()).isTrue();
         assertThat(library.isSttEnabled()).isFalse();
         assertThat(library.isVisionEnabled()).isFalse();
+    }
+
+    @Test
+    void closeCannotMissAnEngineCreatedByConcurrentGetter() throws Exception {
+        AudioVideoLibrary consumerLibrary = AudioVideoLibrary.builder()
+                .withTtsConfig(TtsConfig.builder()
+                        .voiceModelPath(tempDirectory.resolve("missing-concurrent.onnx"))
+                        .defaultVoiceId("test-voice")
+                        .allowSyntheticFallback(true)
+                        .build())
+                .build();
+        AtomicReference<TtsEngine> returnedEngine = new AtomicReference<>();
+        AtomicReference<Throwable> getterFailure = new AtomicReference<>();
+        CountDownLatch getterStarted = new CountDownLatch(1);
+        Thread getter;
+        Thread closer;
+
+        // Hold the library monitor until the getter and close call are both queued. This forces
+        // the close/get interleaving that previously let close miss a just-created engine.
+        synchronized (consumerLibrary) {
+            getter = new Thread(() -> {
+                getterStarted.countDown();
+                try {
+                    returnedEngine.set(consumerLibrary.getTtsEngine());
+                } catch (Throwable failure) {
+                    getterFailure.set(failure);
+                }
+            });
+            getter.start();
+            assertThat(getterStarted.await(5, TimeUnit.SECONDS)).isTrue();
+            awaitThreadState(getter, Thread.State.BLOCKED);
+
+            closer = new Thread(consumerLibrary::close);
+            closer.start();
+            awaitCloseStarted(closer);
+        }
+
+        getter.join(5_000);
+        closer.join(5_000);
+        assertThat(getter.isAlive()).isFalse();
+        assertThat(closer.isAlive()).isFalse();
+        if (returnedEngine.get() != null) {
+            assertThat(returnedEngine.get().getStatus().state()).isEqualTo(EngineStatus.State.CLOSED);
+        } else {
+            assertThat(getterFailure.get()).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("closed");
+        }
+    }
+
+    private static void awaitThreadState(Thread thread, Thread.State state) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (thread.getState() != state && System.nanoTime() < deadline) {
+            Thread.sleep(1);
+        }
+        assertThat(thread.getState()).isEqualTo(state);
+    }
+
+    private static void awaitCloseStarted(Thread closer) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (closer.getState() != Thread.State.BLOCKED
+                && closer.getState() != Thread.State.TERMINATED
+                && System.nanoTime() < deadline) {
+            Thread.sleep(1);
+        }
+        assertThat(closer.getState()).isIn(Thread.State.BLOCKED, Thread.State.TERMINATED);
     }
 
     @Test
