@@ -6,13 +6,15 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use hound::{SampleFormat as WavSampleFormat, WavSpec, WavWriter};
-use symphonia::core::audio::SampleBuffer;
+use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef, Signal};
 use symphonia::core::codecs::DecoderOptions;
+use symphonia::core::conv::IntoSample;
 use symphonia::core::errors::Error as SymphoniaError;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::{MediaSource, MediaSourceStream};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
+use symphonia::core::sample::Sample;
 use symphonia::default::{get_codecs, get_probe};
 use thiserror::Error;
 
@@ -973,6 +975,54 @@ struct DecodeSource<'a> {
     source_changed: Arc<AtomicBool>,
 }
 
+fn append_interleaved_typed<F>(
+    samples: &mut Vec<f32>,
+    source: &SymphoniaAudioBuffer<F>,
+) -> Result<()>
+where
+    F: Sample + IntoSample<f32>,
+{
+    let frames = source.frames();
+    let channels = source.spec().channels.count();
+    let sample_count = frames.checked_mul(channels).ok_or_else(|| {
+        SpeechAudioError::ResourceLimit("decoded packet sample count overflow".to_string())
+    })?;
+    samples.try_reserve_exact(sample_count).map_err(|error| {
+        SpeechAudioError::ResourceLimit(format!(
+            "cannot reserve bounded decoded sample output: {error}"
+        ))
+    })?;
+
+    for frame in 0..frames {
+        for channel in 0..channels {
+            let sample = source.chan(channel)[frame].into_sample();
+            if !sample.is_finite() {
+                return Err(SpeechAudioError::Decode(
+                    "decoded audio contains non-finite IEEE float samples".to_string(),
+                ));
+            }
+            samples.push(sample);
+        }
+    }
+
+    Ok(())
+}
+
+fn append_interleaved_ref(samples: &mut Vec<f32>, source: AudioBufferRef<'_>) -> Result<()> {
+    match source {
+        AudioBufferRef::U8(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::U16(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::U24(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::U32(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::S8(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::S16(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::S24(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::S32(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::F32(buffer) => append_interleaved_typed(samples, &buffer),
+        AudioBufferRef::F64(buffer) => append_interleaved_typed(samples, &buffer),
+    }
+}
+
 fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
     let DecodeSource {
         path,
@@ -1071,9 +1121,9 @@ fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
         let decoded = decoded_result.map_err(map_packet_decode_error)?;
         ensure_decode_time(started_at, max_decode_time)?;
 
-        // Bound the exact decoded packet before allocating SampleBuffer or
-        // growing the accumulated output. Decoder capacity can be much larger
-        // than the remaining budget, so it is not a safe allocation size.
+        // Bound the exact decoded packet before growing the accumulated
+        // output. Decoder capacity can be much larger than the remaining
+        // budget, so it is not a safe allocation size.
         let spec = *decoded.spec();
         let packet_channels = spec.channels.count();
         if packet_channels == 0 || packet_channels > limits.max_channels as usize {
@@ -1112,31 +1162,10 @@ fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
             .ok_or_else(|| {
                 SpeechAudioError::ResourceLimit("decoded frame count overflow".to_string())
             })?;
-        // Enforce duration before allocating the additional interleaved copy.
+        // Enforce duration before allocating additional output samples.
         validate_declared_frame_count(new_decoded_frames, sample_rate, channels, limits)?;
         decoded_frames = new_decoded_frames;
-        let mut interleaved = SampleBuffer::<f32>::new(packet_frames as u64, spec);
-        interleaved.copy_interleaved_ref(decoded);
-        let decoded_samples = interleaved.samples();
-        if decoded_samples.iter().any(|sample| !sample.is_finite()) {
-            return Err(SpeechAudioError::Decode(
-                "decoded audio contains non-finite IEEE float samples".to_string(),
-            ));
-        }
-        if decoded_samples.len() > remaining_samples {
-            return Err(SpeechAudioError::ResourceLimit(format!(
-                "decoded audio exceeds the {} sample budget",
-                limits.max_decoded_samples
-            )));
-        }
-        samples
-            .try_reserve_exact(decoded_samples.len())
-            .map_err(|error| {
-                SpeechAudioError::ResourceLimit(format!(
-                    "cannot reserve bounded decoded sample output: {error}"
-                ))
-            })?;
-        samples.extend_from_slice(decoded_samples);
+        append_interleaved_ref(&mut samples, decoded)?;
     }
 
     if let Some(expected_frames) = expected_frames {
