@@ -9,6 +9,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
@@ -44,10 +45,11 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * <p>The broker enforces the sandbox server-side: network=none, read-only root
  * fs, no capabilities, unprivileged uid, cgroup memory/CPU/PID/fd ceilings,
- * exactly one read-only source mount and one private output mount, entrypoint
- * restricted to ffmpeg/ffprobe inside the pinned image. Callers cannot widen any
- * of it — only the executable name, bounded arguments, bounded output ceiling,
- * source file and output directory are request fields.
+ * exactly one read-only source snapshot mount and a read-only probe path, entrypoint
+ * restricted to ffmpeg/ffprobe inside the pinned image. Writable output mounts are
+ * rejected until an authenticated bounded return path preserves Media ownership.
+ * Callers cannot widen any admitted operation — only the executable name, bounded
+ * arguments, bounded output ceiling and source file are request fields.
  */
 public final class MediaOciBrokerDaemon {
 
@@ -76,14 +78,15 @@ public final class MediaOciBrokerDaemon {
         String tokenFile = System.getenv("MEDIA_OCI_BROKER_TOKEN_FILE");
         String sourceRoot = System.getenv("MEDIA_OCI_BROKER_SOURCE_ROOT");
         String outputRoot = System.getenv("MEDIA_OCI_BROKER_OUTPUT_ROOT");
+        String stageRoot = System.getenv("MEDIA_OCI_BROKER_STAGE_ROOT");
         String allowlist = System.getenv("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST");
         String workerUid = System.getenv("MEDIA_OCI_BROKER_WORKER_UID");
         String workerGid = System.getenv("MEDIA_OCI_BROKER_WORKER_GID");
         String allowedPeerUser = System.getenv("MEDIA_OCI_BROKER_ALLOWED_PEER_USER");
         String docker = System.getenv().getOrDefault("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
-        if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot)
+        if (blank(socketPath) || blank(tokenFile) || blank(sourceRoot) || blank(outputRoot) || blank(stageRoot)
                 || blank(allowlist) || blank(workerUid) || blank(workerGid) || !validPeerUsername(allowedPeerUser)) {
-            System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT, _OUTPUT_ROOT,"
+            System.err.println("MEDIA_OCI_BROKER_SOCKET, _TOKEN_FILE, _SOURCE_ROOT, _OUTPUT_ROOT, _STAGE_ROOT,"
                     + " _IMAGE_ALLOWLIST, _WORKER_UID, _WORKER_GID and _ALLOWED_PEER_USER are required");
             System.exit(2);
         }
@@ -97,6 +100,11 @@ public final class MediaOciBrokerDaemon {
         String token = Files.readString(tokenPath).trim();
         if (token.length() < 32) {
             System.err.println("Broker token must be at least 32 bytes");
+            System.exit(2);
+        }
+        String brokerOsUser = currentOsUserName();
+        if (!distinctOsUsers(brokerOsUser, allowedPeerUser)) {
+            System.err.println("Broker OS identity must differ from the allowed Media peer identity");
             System.exit(2);
         }
         java.util.Set<String> images = new java.util.HashSet<>();
@@ -122,9 +130,16 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Broker worker uid must be positive and unprivileged");
             System.exit(2);
         }
+        Path sourceReal = Path.of(sourceRoot).toRealPath();
+        Path outputReal = Path.of(outputRoot).toRealPath();
+        Path stageReal = validateStageRoot(Path.of(stageRoot), sourceReal, outputReal, brokerOsUser, allowedPeerUser);
+        if (!stageOwnerDistinctFromPeer(stageReal, allowedPeerUser)) {
+            System.err.println("Broker OS identity must differ from the allowed Media peer identity");
+            System.exit(2);
+        }
         MediaOciBrokerPolicy.Policy policy = new MediaOciBrokerPolicy.Policy(
                 java.util.Set.copyOf(images), uid, gid,
-                Path.of(sourceRoot).toRealPath(), Path.of(outputRoot).toRealPath(),
+                sourceReal, outputReal, stageReal,
                 MediaOciBrokerPolicy.loadWhisperProfile(System.getenv(), java.util.Set.copyOf(images)).orElse(null),
                 WhisperWorkerServerConfig.load(System.getenv(), java.util.Set.copyOf(images)).orElse(null),
                 MediaOciBrokerPolicy.loadVisionProfile(System.getenv(), java.util.Set.copyOf(images)).orElse(null));
@@ -265,15 +280,23 @@ public final class MediaOciBrokerDaemon {
         long outLimit = number(payload, "outputLimit", OUTPUT_FILE_LIMIT, 1, OUTPUT_FILE_LIMIT);
         long uid = number(payload, "uid", 0, 1, Integer.MAX_VALUE);
         long gid = number(payload, "gid", 0, 0, Integer.MAX_VALUE);
+        if (!writableOutputTransferAdmitted(output)) {
+            writeResult(client, -2, "writable output transfer is not admitted");
+            return;
+        }
         if (image == null || !IMAGE.matcher(image).matches()
                 || !MediaOciBrokerPolicy.visionImageAllowed(policy, image)
                 || name == null || !NAME.matcher(name).matches()
                 || executable == null || !EXECUTABLE.matcher(executable).matches()
                 || uid <= 0 || workerArgs.size() > MAX_ARGS
                 || !MediaOciBrokerPolicy.workerIdentityAllowed(policy, uid, gid)
-                || !MediaOciBrokerPolicy.workerArgsAllowed(executable, workerArgs)
                 || !MediaOciBrokerPolicy.sourceAllowed(policy, source, sourceSha256)
                 || !MediaOciBrokerPolicy.outputAllowed(policy, output)) {
+            writeResult(client, -2, "rejected"); return;
+        }
+        boolean versionProbe = isVersionProbe(workerArgs);
+        if (!sourceProbePairValid(source, workerArgs)
+                || (!MediaOciBrokerPolicy.workerArgsAllowed(executable, workerArgs) && !versionProbe)) {
             writeResult(client, -2, "rejected"); return;
         }
         Path sourcePath = source == null ? null : Path.of(source).toRealPath();
@@ -283,13 +306,197 @@ public final class MediaOciBrokerDaemon {
             return;
         }
         try {
-            writeResult(client, 0, runWorker(docker, image, name, executable, workerArgs,
-                    sourcePath, outputPath, policy.workerUid(), policy.workerGid(),
-                    Duration.ofMillis(timeout), outLimit));
+            String result;
+            if (sourcePath == null) result = runWorker(docker, image, name, executable, workerArgs,
+                    null, outputPath, policy.workerUid(), policy.workerGid(), Duration.ofMillis(timeout), outLimit);
+            else result = runWorkerWithSnapshot(docker, image, name, executable, workerArgs,
+                    sourcePath, sourceSha256, policy.stageRoot(), outputPath, policy.workerUid(), policy.workerGid(),
+                    Duration.ofMillis(timeout), outLimit);
+            writeResult(client, 0, result);
         } finally {
             WORKER_ADMISSION.release();
         }
     }
+
+    static boolean isVersionProbe(List<String> args) {
+        return args != null && args.equals(List.of("-version"));
+    }
+
+    static boolean sourceProbePairValid(String source, List<String> args) {
+        return source == null ? isVersionProbe(args) : !isVersionProbe(args);
+    }
+
+    /** The current bounded JSON reply cannot return worker output under Media ownership. */
+    static boolean writableOutputTransferAdmitted(String output) {
+        return output == null;
+    }
+
+    static Path validateStageRoot(Path configured, Path sourceRoot, Path outputRoot) throws IOException {
+        return validateStageRoot(configured, sourceRoot, outputRoot, currentOsUserName(), null);
+    }
+
+    static Path validateStageRoot(Path configured, Path sourceRoot, Path outputRoot,
+            String brokerOsUser, String allowedPeerUser) throws IOException {
+        if (Files.isSymbolicLink(configured) || !Files.isDirectory(configured, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Broker snapshot stage root must be a real directory");
+        }
+        Path stage = configured.toRealPath();
+        if (!safeDockerPath(stage)) throw new IOException("Broker stage root path is not Docker-mount safe");
+        if (!Files.getOwner(stage).getName().equals(brokerOsUser)) {
+            throw new IOException("Broker snapshot stage root must be owned by the broker OS identity");
+        }
+        if (stage.startsWith(sourceRoot) || sourceRoot.startsWith(stage)
+                || stage.startsWith(outputRoot) || outputRoot.startsWith(stage)) {
+            throw new IOException("Broker snapshot stage root must not overlap source/output roots");
+        }
+        try {
+            var permissions = Files.getPosixFilePermissions(stage);
+            if (!permissions.equals(PosixFilePermissions.fromString("rwx------"))) {
+                throw new IOException("Broker snapshot stage root must be owner-only (0700)");
+            }
+        } catch (UnsupportedOperationException unsupported) {
+            throw new IOException("Broker snapshot stage root requires POSIX owner-only permissions", unsupported);
+        }
+        validateStageAncestors(stage, brokerOsUser, allowedPeerUser);
+        requireEmptyStageRoot(stage);
+        return stage;
+    }
+
+    static String currentOsUserName() {
+        return ProcessHandle.current().info().user().orElse("");
+    }
+
+    static boolean distinctOsUsers(String brokerOsUser, String allowedPeerUser) {
+        return brokerOsUser != null && !brokerOsUser.isBlank()
+                && allowedPeerUser != null && !allowedPeerUser.isBlank()
+                && !brokerOsUser.equals(allowedPeerUser);
+    }
+
+    /** Compare filesystem principals (which preserve Unix UID identity), not caller-set JVM labels. */
+    static boolean stageOwnerDistinctFromPeer(Path stageRoot, String allowedPeerUser) throws IOException {
+        var brokerPrincipal = Files.getOwner(stageRoot, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+        var lookup = stageRoot.getFileSystem().getUserPrincipalLookupService();
+        var peerPrincipal = lookup.lookupPrincipalByName(allowedPeerUser);
+        var rootPrincipal = lookup.lookupPrincipalByName("root");
+        return !brokerPrincipal.equals(peerPrincipal) && !peerPrincipal.equals(rootPrincipal);
+    }
+
+    private static void validateStageAncestors(Path stage, String brokerOsUser, String allowedPeerUser)
+            throws IOException {
+        for (Path ancestor = stage.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
+            String owner = Files.getOwner(ancestor, java.nio.file.LinkOption.NOFOLLOW_LINKS).getName();
+            if (!owner.equals(brokerOsUser) && !owner.equals("root")) {
+                throw new IOException("Broker stage-root ancestors must be owned by the broker or root");
+            }
+            java.util.Set<java.nio.file.attribute.PosixFilePermission> permissions;
+            try {
+                permissions = Files.getPosixFilePermissions(ancestor, java.nio.file.LinkOption.NOFOLLOW_LINKS);
+            } catch (UnsupportedOperationException unsupported) {
+                throw new IOException("Broker stage-root ancestors require POSIX permissions", unsupported);
+            }
+            boolean sharedWrite = permissions.contains(java.nio.file.attribute.PosixFilePermission.GROUP_WRITE)
+                    || permissions.contains(java.nio.file.attribute.PosixFilePermission.OTHERS_WRITE);
+            boolean sticky = false;
+            if (sharedWrite) {
+                try {
+                    Object mode = Files.getAttribute(ancestor, "unix:mode", java.nio.file.LinkOption.NOFOLLOW_LINKS);
+                    sticky = mode instanceof Number numeric && (numeric.intValue() & 01000) != 0;
+                } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
+                    throw new IOException("Cannot verify sticky bit on a writable stage-root ancestor", unsupported);
+                }
+            }
+            if (sharedWrite && !sticky) {
+                throw new IOException("Writable broker stage-root ancestors must be sticky directories");
+            }
+            if (allowedPeerUser != null && owner.equals(allowedPeerUser)
+                    && permissions.contains(java.nio.file.attribute.PosixFilePermission.OWNER_WRITE)) {
+                throw new IOException("Allowed peer must not be able to rename the broker stage root");
+            }
+        }
+    }
+
+    private static void requireEmptyStageRoot(Path stageRoot) throws IOException {
+        try (var entries = Files.list(stageRoot)) {
+            if (entries.findAny().isPresent()) {
+                throw new IOException("Broker stage root contains retained snapshots; reconcile them before reuse");
+            }
+        }
+    }
+
+    static Path stageSnapshot(Path source, String expectedSha256, Path stageRoot) throws IOException {
+        return stageSnapshot(source, expectedSha256, stageRoot, MediaOciBrokerPolicy::sha256File);
+    }
+
+    @FunctionalInterface
+    interface SnapshotDigestReader {
+        String digest(Path path) throws IOException;
+    }
+
+    static Path stageSnapshot(Path source, String expectedSha256, Path stageRoot,
+            SnapshotDigestReader digestReader) throws IOException {
+        requireEmptyStageRoot(stageRoot);
+        Path destination = stageRoot.resolve(UUID.randomUUID() + ".media");
+        try {
+            long copied = 0;
+            try (InputStream input = Files.newInputStream(source);
+                 var output = Files.newOutputStream(destination, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+                Files.setPosixFilePermissions(destination, PosixFilePermissions.fromString("r--r--r--"));
+                byte[] buffer = new byte[64 * 1024];
+                int count;
+                while ((count = input.read(buffer)) != -1) {
+                    copied += count;
+                    if (copied > MediaOciBrokerPolicy.MAX_VISION_SOURCE_BYTES)
+                        throw new IOException("Vision source exceeds snapshot byte limit");
+                    output.write(buffer, 0, count);
+                }
+            }
+            String actual = digestReader.digest(destination);
+            if (copied == 0 || !MessageDigest.isEqual(actual.getBytes(StandardCharsets.US_ASCII),
+                    expectedSha256.getBytes(StandardCharsets.US_ASCII))) {
+                throw new IOException("Vision source snapshot digest mismatch");
+            }
+            return destination;
+        } catch (IOException | RuntimeException | Error failure) {
+            try {
+                Files.deleteIfExists(destination);
+            } catch (IOException | RuntimeException | Error cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+            }
+            throw failure;
+        }
+    }
+
+    static String runWorkerWithSnapshot(String docker, String image, String name, String executable,
+            List<String> workerArgs, Path source, String sourceSha256, Path stageRoot, Path output,
+            long uid, long gid, Duration timeout, long outputLimit) throws IOException {
+        return runWorkerWithSnapshot(docker, image, name, executable, workerArgs, source, sourceSha256,
+                stageRoot, output, uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run);
+    }
+
+    static String runWorkerWithSnapshot(String docker, String image, String name, String executable,
+            List<String> workerArgs, Path source, String sourceSha256, Path stageRoot, Path output,
+            long uid, long gid, Duration timeout, long outputLimit, WorkerCommandRunner runner) throws IOException {
+        Path snapshot = stageSnapshot(source, sourceSha256, stageRoot);
+        boolean[] removalConfirmed = {false};
+        WorkerCommandRunner trackingRunner = (command, commandTimeout) -> {
+            CommandResult result = runner.run(command, commandTimeout);
+            if (command.size() > 2 && command.get(1).equals("rm")
+                    && !result.timedOut() && result.exitCode() == 0) removalConfirmed[0] = true;
+            return result;
+        };
+        try {
+            String result = runWorker(docker, image, name, executable, workerArgs, snapshot, output,
+                    uid, gid, timeout, outputLimit, trackingRunner);
+            Files.delete(snapshot); // runWorker returns only after a confirmed container removal.
+            return result;
+        } catch (IOException unknownCleanupOrWorkerFailure) {
+            if (removalConfirmed[0]) Files.deleteIfExists(snapshot);
+            else System.err.println("Vision snapshot retained for operator reconciliation because worker removal is unknown: "
+                    + snapshot.getFileName());
+            throw unknownCleanupOrWorkerFailure;
+        }
+    }
+
 
     @FunctionalInterface
     interface PeerCredentialsReader {
@@ -591,6 +798,10 @@ public final class MediaOciBrokerDaemon {
             String executable, List<String> workerArgs, Path source, Path output,
             long uid, long gid, Duration timeout, long outputLimit,
             WorkerCommandRunner runner) throws IOException {
+        if (source != null && !safeDockerPath(source))
+            throw new IOException("Vision source snapshot path is not safe for Docker mount syntax");
+        if (output != null && !safeDockerPath(output))
+            throw new IOException("Vision output path is not safe for Docker mount syntax");
         List<String> create = new ArrayList<>(List.of(docker, "create", "--name", name,
                 "--pull=never", "--platform=linux/arm64",
                 "--label", "com.ghatana.media.vision.worker=true",
@@ -644,6 +855,12 @@ public final class MediaOciBrokerDaemon {
             remove(docker, name, runner);
             throw failure;
         }
+    }
+
+    static boolean safeDockerPath(Path path) {
+        String value = path.toString();
+        return value.startsWith("/") && value.matches("/[A-Za-z0-9_./-]+")
+                && !value.contains("..") && !value.contains("//");
     }
 
     private static CommandResult run(List<String> command, Duration timeout) throws IOException {

@@ -32,6 +32,7 @@ final class MediaOciBrokerPolicy {
     private static final Set<String> INPUT_FORMATS = Set.of("mov", "matroska", "avi", "webm");
     static final int MAX_WHISPER_INPUT_BYTES = 4 * 1024 * 1024;
     static final int MAX_WHISPER_RESPONSE_BYTES = 1024 * 1024;
+    static final long MAX_VISION_SOURCE_BYTES = 500L * 1024 * 1024;
 
     private MediaOciBrokerPolicy() { }
 
@@ -42,22 +43,29 @@ final class MediaOciBrokerPolicy {
             long workerGid,
             Path sourceRoot,
             Path outputRoot,
+            Path stageRoot,
             WhisperProfile whisperProfile,
             WhisperWorkerServerConfig whisperWorkerConfig,
             VisionProfile visionProfile) {
         Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
                 Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile) {
-            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, whisperProfile, null, null);
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, whisperProfile, null, null);
         }
         Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
                 Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile,
                 WhisperWorkerServerConfig whisperWorkerConfig) {
-            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot,
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null,
                     whisperProfile, whisperWorkerConfig, null);
         }
         Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
+                Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile,
+                WhisperWorkerServerConfig whisperWorkerConfig, VisionProfile visionProfile) {
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null,
+                    whisperProfile, whisperWorkerConfig, visionProfile);
+        }
+        Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
                 Path sourceRoot, Path outputRoot) {
-            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, null, null);
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, null, null, null);
         }
     }
 
@@ -304,6 +312,7 @@ final class MediaOciBrokerPolicy {
         } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
             return false;
         }
+        if (Files.size(resolved) <= 0 || Files.size(resolved) > MAX_VISION_SOURCE_BYTES) return false;
         String actual = sha256File(resolved);
         return MessageDigest.isEqual(actual.getBytes(java.nio.charset.StandardCharsets.UTF_8),
                 sourceSha256.getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -347,7 +356,7 @@ final class MediaOciBrokerPolicy {
         }
     }
 
-    private static String sha256File(Path file) throws IOException {
+    static String sha256File(Path file) throws IOException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             try (var in = Files.newInputStream(file)) {

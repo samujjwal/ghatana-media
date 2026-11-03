@@ -8,8 +8,9 @@ import java.util.List;
  * never hold Docker socket or CLI privileges: every OCI worker effect goes through
  * a broker that owns the container engine relationship. Requests are bounded —
  * image must be an immutable digest, the command is a fixed single-executable
- * worker shape, mounts are exactly one read-only source and one private output
- * directory, and the sandbox profile is enforced server-side, not caller-set.
+ * worker shape, the source mount is read-only, and the sandbox profile is enforced
+ * server-side, not caller-set. The current daemon rejects a non-null output
+ * directory until it can return bounded output under Media-owned permissions.
  */
 public interface MediaOciBroker {
 
