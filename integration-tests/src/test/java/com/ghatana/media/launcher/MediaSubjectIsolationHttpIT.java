@@ -102,8 +102,13 @@ class MediaSubjectIsolationHttpIT {
                 TENANT, ownerToken, null, "");
         HttpResponse<String> otherArtifact = send("GET", "/api/v1/artifacts/" + artifactId,
                 TENANT, otherToken, null, "");
+        HttpResponse<String> absentArtifact = send("GET", "/api/v1/artifacts/absent-subject-isolation-artifact",
+                TENANT, otherToken, null, "");
         assertThat(ownerArtifact.statusCode()).as("owner artifact read: %s", ownerArtifact.body()).isEqualTo(200);
         assertThat(otherArtifact.statusCode()).as("other subject artifact read: %s", otherArtifact.body()).isEqualTo(404);
+        assertThat(MAPPER.readTree(otherArtifact.body()).path("error"))
+                .isEqualTo(MAPPER.readTree(absentArtifact.body()).path("error"));
+        assertThat(otherArtifact.body()).doesNotContain(artifactId);
 
         String jobBody = """
                 {"requestId":"subject-isolation-job","tenantId":"%s","principalId":"subject-owner",
