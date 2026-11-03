@@ -3876,3 +3876,28 @@ The AS-06 `StreamIntentSupportTest` already asserts exact set equality for all 1
 ### 43.94 November 3 W2-R01 null runtime factory result
 
 `MultimodalGrpcServer.composeRuntimePort` now treats an installed `MediaRuntimePortFactory` returning `null` as a configuration error instead of silently treating it like no installed factory. The genuinely absent-factory case remains fail-closed (`null`, not ready, all operations unavailable). `MultimodalGrpcServerProductionBootstrapTest.runtimeFactoryReturningNullFailsComposition` covers the distinction. The focused JDK 27 composite selector `./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FOCUSED -Pghatana.media.focusedModules=multimodal :services:media:modules:intelligence:multimodal-service:test --tests com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServerProductionBootstrapTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **11/11**, with zero failures, errors or skips. This closes only the local malformed-factory case; real runtime/rights/child-provider qualification and W2-R01 whole-row acceptance remain open.
+
+
+### 43.95 November 3 W2-R07 direct-host OCI fixture supervisor checks
+
+Ran `bash scripts/qualification/run-wave2-vision-oci-checks.sh stub` on the Docker Desktop macOS arm64 host using the pinned development fixture image `sha256:ba61080c98feba13aa6a9ef3faddaa4e407dfd8eb69d0318b53a19af1d1ae8fd`; fixture image construction disables network access. Result: **4/4 passed**, covering actual container limits/private mounts, cgroup PIDs, OOM-kill with no partial result, and worker-timeout termination. This exercises the direct Media host-supervisor fixture route. It does not validate the separately privileged broker/peer identity route (the broker integration still fails before worker dispatch as recorded in §43.89), a real media codec, platform-wide isolation, or original VIS-03 acceptance.
+
+
+### 43.96 November 3 LD-04 unavailable terminal ordering floor
+
+`RunLedgerProjection` now remembers a per-run in-process ordering floor after an explicitly pre-dispatch `StoreNotDispatchedException`, so a delayed weaker open-state record cannot overtake terminal truth while the exact refused record remains retryable. `RunLedgerProjectionTest.unavailableTerminalTruthFencesWeakerUpdates` verifies the stale record is not sent and the exact terminal retry is acknowledged. The focused `./gradlew :services:media:adapters:ledger:test --tests com.ghatana.audiovideo.adapter.ledger.RunLedgerProjectionTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **12/12** on Darwin arm64/JDK 27. This is an adapter-local process-lifetime ordering fence; it does not add a canonical job/outbox writer or authenticated durable Data Cloud readback and does not establish LD-04 whole-row acceptance.
+
+
+### 43.97 November 3 MC-01 concurrent getter/library-close ownership
+
+`AudioVideoLibrary` now rechecks closure under its monitor before lazily creating each owned engine, and closes owned engines while holding the same monitor. `AudioVideoLibraryTest.closeCannotMissAnEngineCreatedByConcurrentGetter` deterministically queues getter and close at the monitor boundary and verifies either a closed returned engine or a typed closed-library error. The focused `./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.AudioVideoLibraryTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **13/13** on Darwin arm64/JDK 27. Compilation reports existing deprecation warnings in unrelated adapter and FLEURS evaluation test code. The change covers facade lifecycle ownership only; it does not prove provider admission, model quality or Wave 2 acceptance.
+
+
+### 43.98 November 3 VS-04 nonblank session authorization scope
+
+`VideoFrameReconciler.SessionIdentity` now rejects blank `streamId`, `tenantId`, `principalId`, and `purposeRef` values in addition to nulls, preventing construction of an in-memory guarded session with empty scope. `VideoFrameReconcilerTest.sessionIdentityRequiresNonblankScope` checks each field. The focused `./gradlew :services:media:modules:video-streaming:test --tests com.ghatana.video.streaming.VideoFrameReconcilerTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **15/15** on Darwin arm64/JDK 27. This is local identity-shape validation only; it does not establish trusted principal resolution, transport/codec behavior, or VS-07 acceptance.
+
+
+### 43.99 November 3 CA-04 stale oversized-entry quarantine race
+
+`AudioVideoCache` now reserves quarantine against the observed read epoch before stale cleanup can race a newer write. `AudioVideoCacheTest.oversizedReadDoesNotDeleteWriteThatOvertakesItsQuarantine` uses a synchronous test appender at the oversized-entry warning to force a valid same-key write in the old detection-to-reservation window; it verifies the fresh value remains and stale invalidation is not dispatched. `oversizedEntryQuarantineFencesConcurrentWrites` also verifies a subsequent write stays fenced until quarantine settles. The focused `./gradlew :services:media:modules:infrastructure:cache:test --tests com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **34/34** on Darwin arm64/JDK 27 after marking the negative-path invalidation stub lenient (the initial run exposed only Mockito's unused-stub fixture strictness). This is in-process cache ordering evidence only; it does not establish a distributed lock or canonical source/rights authority, and CA-04 whole-row acceptance remains open.
