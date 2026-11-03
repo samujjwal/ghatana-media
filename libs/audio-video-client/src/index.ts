@@ -36,6 +36,7 @@ export {
 } from './scene-text-adapter.js';
 export type {
   DocumentIntelligenceV1Client,
+  SceneTextAdapterErrorCode,
   SceneTextAdapterPolicy,
   SceneTextObservation,
   SceneTextSourceFrame,

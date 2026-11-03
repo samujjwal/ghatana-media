@@ -119,6 +119,8 @@ try {
     import * as capture from '@audio-video/client/capture-adapters';
     import * as recorder from '@audio-video/client/recorder-orchestrator';
     import * as production from '@audio-video/client/production-plan';
+    import { DocumentIntelligenceSceneTextAdapter, SceneTextAdapterError,
+      DOCUMENT_INTELLIGENCE_PROTOCOL_V1, DOCUMENT_INTELLIGENCE_WORKER_V1 } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
     assert.equal(typeof client.createAudioVideoClient, 'function');
     assert.equal(typeof operations.createMediaOperationClient, 'function');
@@ -128,7 +130,33 @@ try {
     assert.equal(typeof capture.captureWithAdmission, 'function');
     assert.equal(typeof recorder.orchestrateScenario, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
+    assert.equal(typeof DocumentIntelligenceSceneTextAdapter, 'function');
+    assert.equal(typeof SceneTextAdapterError, 'function');
     assert.equal(MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
+
+    // Source-free DI client fixture: a non-admitted provider must remain a
+    // typed pre-dispatch error through the installed package entrypoint.
+    let parseCalled = false;
+    const diAdapter = new DocumentIntelligenceSceneTextAdapter({
+      lastProtocolVersion: DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
+      lastWorkerCapabilityVersion: DOCUMENT_INTELLIGENCE_WORKER_V1,
+      providers: async () => ({
+        protocolVersion: DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
+        workerCapabilityVersion: DOCUMENT_INTELLIGENCE_WORKER_V1,
+        providers: [],
+      }),
+      parse: async () => { parseCalled = true; throw new Error('unexpected DI dispatch'); },
+    }, {
+      providerRef: 'fixture-provider', providerVersion: '1',
+      modelRef: 'fixture-model', modelVersion: '1',
+      acceptedMediaTypes: ['image/png'], acceptedLanguages: ['en'], timeoutMs: 1000,
+      workerLimits: { maxPages: 1 },
+    });
+    await assert.rejects(diAdapter.recognizeFrame('fixture-operation', {
+      sourceArtifactId: 'fixture-source', sourceVersion: 'v1', frameId: 'frame-1',
+      timestampUs: 0, mediaType: 'image/png', languageHint: 'en', bytes: new Uint8Array([1]),
+    }), (error) => error instanceof SceneTextAdapterError && error.code === 'PROVIDER_NOT_ADMITTED');
+    assert.equal(parseCalled, false, 'non-admitted DI provider must not dispatch parse');
 
     // Synthetic read fixture: exercise the installed, source-free package runtime
     // through the existing canonical GET and its injected fetch implementation.
@@ -182,8 +210,6 @@ try {
     });
     await assert.rejects(wrongScopeClient.getJob('job-installed-42'), /outside the caller's tenant and principal scope/u);
   `);
-  run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
-
   await writeFile(path.join(consumerRoot, 'consumer.cjs'), `
     const assert = require('node:assert/strict');
     const client = require('@audio-video/client');
@@ -218,6 +244,7 @@ try {
     import type * as recorder from '@audio-video/client/recorder-orchestrator';
     import type * as productionExports from '@audio-video/client/production-plan';
     import { compileProductionPlan, type CaptureSourceResolver } from '@audio-video/client/production-plan';
+    import type { SceneTextAdapterErrorCode } from '@audio-video/client';
     import { MediaArtifactKindSchema } from '@audio-video/types/contracts';
     const create: typeof createMediaOperationClient = createMediaOperationClient;
     const compile: typeof compileProductionPlan = compileProductionPlan;
@@ -225,10 +252,21 @@ try {
       typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
     const kind = MediaArtifactKindSchema.parse('AUDIO');
     const resolver: CaptureSourceResolver | undefined = undefined;
-    void [create, compile, kind, resolver, publicExportTypes];
+    const diErrorCodes = [
+      'SOURCE_IDENTITY_INVALID', 'SOURCE_PAYLOAD_INVALID', 'SOURCE_MEDIA_TYPE_NOT_ADMITTED',
+      'SOURCE_LANGUAGE_NOT_ADMITTED', 'CLIENT_PROTOCOL_MISMATCH', 'WORKER_VERSION_NOT_ADMITTED',
+      'PROVIDER_NOT_ADMITTED', 'PROVIDER_VERSION_MISMATCH', 'RESPONSE_IDENTITY_MISMATCH',
+      'PAGE_SCOPE_UNSUPPORTED', 'MODEL_IDENTITY_MISSING', 'MODEL_VERSION_MISMATCH',
+      'RESULT_GEOMETRY_INVALID', 'RESULT_CONFIDENCE_MISSING', 'RESULT_SHAPE_UNSUPPORTED',
+      'OUTCOME_UNKNOWN', 'REQUEST_ABORTED',
+    ] as const satisfies readonly SceneTextAdapterErrorCode[];
+    type MissingDiErrorCode = Exclude<SceneTextAdapterErrorCode, typeof diErrorCodes[number]>;
+    const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
+    void [create, compile, kind, resolver, publicExportTypes, diVocabularyIsExhaustive];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
+  run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
 
   const cli = path.join(consumerRoot, 'node_modules/@audio-video/client/dist/cli.js');
   const cliMode = (await stat(cli)).mode;

@@ -112,6 +112,52 @@ class MediaPostgresqlS3TenantIsolationTest {
     }
 
     @Test
+    void identicalCrossTenantUploadsKeepIdempotencyAndArtifactObjectsTenantScoped() throws Exception {
+        String bucket = createBucketAndStoreName();
+        Map<String, String> environment = integrationEnvironment(bucket);
+        byte[] bytes = wav("same-bytes-in-two-tenant-namespaces".getBytes(StandardCharsets.UTF_8));
+        String principal = "shared-principal";
+        String idempotencyKey = "same-client-key";
+        UploadRequest tenantARequest = upload("tenant-a", principal, "shared.wav", bytes, Duration.ofDays(30));
+        UploadRequest tenantBRequest = upload("tenant-b", principal, "shared.wav", bytes, Duration.ofDays(30));
+        String tenantAUploadId;
+        String tenantBUploadId;
+        MediaArtifact tenantAArtifact;
+        MediaArtifact tenantBArtifact;
+
+        try (S3Client admin = s3Client();
+             AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore writer = new S3PostgresqlMediaArtifactStore()) {
+            var tenantAUpload = writer.begin(tenantARequest, idempotencyKey);
+            var tenantBUpload = writer.begin(tenantBRequest, idempotencyKey);
+            tenantAUploadId = tenantAUpload.uploadId();
+            tenantBUploadId = tenantBUpload.uploadId();
+            assertThat(tenantAUploadId).isNotEqualTo(tenantBUploadId);
+
+            writer.append("tenant-a", principal, tenantAUploadId, 0, bytes);
+            writer.append("tenant-b", principal, tenantBUploadId, 0, bytes);
+            tenantAArtifact = writer.complete("tenant-a", principal, tenantAUploadId);
+            tenantBArtifact = writer.complete("tenant-b", principal, tenantBUploadId);
+            assertThat(tenantAArtifact.artifactId()).isNotEqualTo(tenantBArtifact.artifactId());
+            assertThat(objectKey(tenantAArtifact)).isNotEqualTo(objectKey(tenantBArtifact));
+            assertObjectExists(admin, bucket, objectKey(tenantAArtifact));
+            assertObjectExists(admin, bucket, objectKey(tenantBArtifact));
+        }
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore restarted = new S3PostgresqlMediaArtifactStore()) {
+            assertThat(restarted.upload("tenant-a", tenantBUploadId)).isEmpty();
+            assertThat(restarted.upload("tenant-b", tenantAUploadId)).isEmpty();
+            assertThat(restarted.artifact("tenant-a", tenantBArtifact.artifactId())).isEmpty();
+            assertThat(restarted.artifact("tenant-b", tenantAArtifact.artifactId())).isEmpty();
+            assertThat(restarted.artifact("tenant-a", tenantAArtifact.artifactId())).contains(tenantAArtifact);
+            assertThat(restarted.artifact("tenant-b", tenantBArtifact.artifactId())).contains(tenantBArtifact);
+            assertThat(restarted.begin(tenantARequest, idempotencyKey).uploadId()).isEqualTo(tenantAUploadId);
+            assertThat(restarted.begin(tenantBRequest, idempotencyKey).uploadId()).isEqualTo(tenantBUploadId);
+        }
+    }
+
+    @Test
     void expiredRetentionOnlyRemovesExpiredTenantArtifactsAndUploads() throws Exception {
         String bucket = createBucketAndStoreName();
         Map<String, String> environment = integrationEnvironment(bucket);
