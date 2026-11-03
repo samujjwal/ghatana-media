@@ -3792,3 +3792,7 @@ No simulator code change was needed: `MediaDeterministicSimulator` already imple
 ### 43.75 November 3 VS-07 resume without keyframe anchor
 
 Added a `VideoFrameReconcilerTest` case where durable ACK 0 resumes with keyframe anchor -1. A dependent frame 1 is delivered and advances ACK, but remains explicitly non-decodable and does not invent an anchor. The focused `./gradlew :services:media:modules:video-streaming:test --tests com.ghatana.video.streaming.VideoFrameReconcilerTest -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE` passed **14 tests**; `git diff --check` passed. Existing VFR, gap/reorder, sequence/bounds and fixture-tier coverage is synthetic; real codec/source clock/transport and host performance remain unqualified, so VS-07 remains partial.
+
+### 43.76 November 3 MC-05 borrowed Vision engine consumer boundary
+
+Added a source-free `AudioVideoLibraryTest` case following the production borrowed-engine usage pattern: a consumer closes its Vision view after one request, then a later request reuses the same library-owned engine; the synthetic engine remains `DEGRADED` and `OBJECT_DETECTION` is not marked ready. The focused selectors for `AudioVideoLibraryTest`, STT/Vision engine contracts, Whisper cancellation, and engine pool lifecycle/leak checks passed **104 tests** with zero failures/errors/skips. Real model output, rights, provider admission and measured native performance remain unqualified. No exported API or fallback policy changed; MC-05 remains partial for real engine/provider qualification.

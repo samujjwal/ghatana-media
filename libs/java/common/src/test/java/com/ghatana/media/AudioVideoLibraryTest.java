@@ -2,7 +2,10 @@ package com.ghatana.media;
 
 import com.ghatana.media.common.AudioChunk;
 import com.ghatana.media.common.AudioData;
+import com.ghatana.media.common.ColorSpace;
 import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.common.ImageData;
+import com.ghatana.media.common.ImageFormat;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.media.capability.MediaCapabilityInventory;
 import com.ghatana.media.config.SttConfig;
@@ -12,6 +15,8 @@ import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.tts.api.CloneOptions;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
+import com.ghatana.media.vision.api.DetectionOptions;
+import com.ghatana.media.vision.api.VisionEngine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -153,6 +158,28 @@ class AudioVideoLibraryTest {
             assertThat(nextRequestView.transcribe(audio).text()).isEmpty();
             assertThat(nextRequestView.getStatus().state()).isEqualTo(EngineStatus.State.DEGRADED);
             assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.STT);
+        }
+    }
+
+    @Test
+    void sourceConsumerCanCloseBorrowedVisionViewWithoutClosingLibraryOwnedEngine() {
+        try (AudioVideoLibrary consumerLibrary = AudioVideoLibrary.builder()
+                .withVisionConfig(VisionConfig.builder()
+                        .modelPath(tempDirectory.resolve("missing-vision.onnx"))
+                        .allowSyntheticFallback(true)
+                        .build())
+                .build()) {
+            ImageData image = new ImageData(new byte[] {1, 2, 3}, 1, 1, ImageFormat.PNG, ColorSpace.RGB);
+            VisionEngine sourceConsumerView = consumerLibrary.getVisionEngine();
+            try (sourceConsumerView) {
+                assertThat(sourceConsumerView.detect(image, DetectionOptions.defaults()).objects()).isEmpty();
+            }
+
+            VisionEngine nextRequestView = consumerLibrary.getVisionEngine();
+            assertThat(nextRequestView).isSameAs(sourceConsumerView);
+            assertThat(nextRequestView.detect(image, DetectionOptions.defaults()).imageWidth()).isEqualTo(1);
+            assertThat(nextRequestView.getStatus().state()).isEqualTo(EngineStatus.State.DEGRADED);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.OBJECT_DETECTION);
         }
     }
 
