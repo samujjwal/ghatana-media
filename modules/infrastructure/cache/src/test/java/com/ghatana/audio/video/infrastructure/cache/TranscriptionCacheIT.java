@@ -256,6 +256,62 @@ class TranscriptionCacheIT {
         assertThat(afterRestart).isEqualTo(uncachedSourceResult);
     }
 
+    @Test
+    @DisplayName("Current source version and erasure denial survive Redis client restart")
+    void shouldUseCurrentSourceAndDenyErasedTranscriptAfterRedisClientRestart() {
+        String tenantId = "tenant-transcript-restart";
+        UUID currentId = UUID.randomUUID();
+        UUID erasedId = UUID.randomUUID();
+        String currentKey = cacheKey(tenantId, currentId);
+        String erasedKey = cacheKey(tenantId, erasedId);
+
+        // Leave legacy tenant/entity-keyed protected snapshots in Redis. The
+        // recreated Media client must consult the caller's current source for
+        // both a newer revision and a source-side erasure/deletion decision.
+        await(cachePort.put(currentKey, "stale protected transcript version 3", Duration.ofMinutes(5)));
+        await(cachePort.put(erasedKey, "erased protected transcript", Duration.ofMinutes(5)));
+        assertThat(await(cachePort.get(currentKey))).contains("stale protected transcript version 3");
+        assertThat(await(cachePort.get(erasedKey))).contains("erased protected transcript");
+
+        // Recreate only Media's cache client/service; Redis itself remains up
+        // with the seeded entries, modeling process-local state loss.
+        redisBackend.close();
+        redisBackend = new AsyncRedisCacheBackend(REDIS.getHost(), REDIS.getFirstMappedPort(), null, 0, 2_000);
+        cachePort = new DistributedCacheService(redisBackend, "transcription-cache-it");
+        cacheService = new TranscriptionCacheService(cachePort, objectMapper);
+
+        TranscriptionEntity currentSource = buildEntityWithIdAndText(
+                tenantId, currentId, "Current source transcript version 4");
+        currentSource.setVersion(4L);
+        TranscriptionEntity erasedSource = buildEntityWithIdAndText(
+                tenantId, erasedId, "Source marks transcript deleted");
+        erasedSource.setVersion(5L);
+        erasedSource.setDeleted(true);
+        AtomicInteger currentSourceLoads = new AtomicInteger();
+        AtomicInteger erasedSourceLoads = new AtomicInteger();
+
+        TranscriptionEntity current = await(cacheService.getOrLoadTranscription(
+                tenantId, currentId,
+                id -> {
+                    currentSourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(currentSource));
+                }));
+        TranscriptionEntity erased = await(cacheService.getOrLoadTranscription(
+                tenantId, erasedId,
+                id -> {
+                    erasedSourceLoads.incrementAndGet();
+                    return AsyncOperation.success(Optional.of(erasedSource));
+                }));
+
+        assertThat(current.getVersion()).isEqualTo(4L);
+        assertThat(current.getText()).isEqualTo("Current source transcript version 4");
+        assertThat(currentSourceLoads).hasValue(1);
+        assertThat(erased).isNull();
+        assertThat(erasedSourceLoads).hasValue(1);
+        assertThat(await(cachePort.get(currentKey))).isEmpty();
+        assertThat(await(cachePort.get(erasedKey))).isEmpty();
+    }
+
     private String cacheKey(String tenantId, UUID transcriptionId) {
         return new AudioVideoCache<String, String>(cachePort, "transcription")
                 .buildKey(tenantId, transcriptionId.toString());
