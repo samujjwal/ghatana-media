@@ -2825,3 +2825,11 @@ Independent review accepted the MC-02 accessor/test scope; AS-02 corpus review w
 - **TY-02:** no change was made because the current contract tests reject unsafe numeric/enum shapes and client-invented revision fields. Focused type-contract tests passed **58/58** across two files and package typecheck passed. PDP versioning/provenance sources still leave the observed TypeScript artifact shape short of complete immutable version lineage; no fields were invented.
 
 These checks do not promote MC-03, RS-05, TY-02, or LD-03 to whole-row completion or alter source/status/provider admission.
+
+### 42.12 November 2 JC-01/JC-02 transport-security tests and DC-05 review
+
+- **JC-01:** `AudioVideoGrpcServerBaseTest` now exercises profile-resolved plaintext listener behavior for all four service prefixes across local/test/development: loopback gRPC succeeds and a non-loopback connection fails on this host. Its missing-TLS and certificate/key mismatch cases cover all four prefixes across staging/production/sovereign and probe that no listener remains after rejection. The full base/policy class selection passed **29/29** (**15** server-base + **14** policy methods) on the coordinator rerun. Independent review confirmed the path and narrowed the evidence to this host: no mTLS/client-auth/peer identity or remote firewall claim.
+- **JC-02:** a four-provider in-process test now verifies the gateway validator receives the exact bearer token and tenant once per call, rejects it, returns `UNAUTHENTICATED`, and leaves backend effects at zero. The focused `AudioVideoSecurityInProcessTest` passed **3/3** on the coordinator rerun. Independent review confirmed this is generic gateway rejection of a token not locally verified, not evidence of a revoked identity. No interceptor policy changed; stream reauthorization/delegation semantics remain undefined.
+- **DC-05 no-change:** projector, adapter, and publication-coordinator tests passed **37/37** (13 + 24). Existing local fixtures cover projection redaction/tenant isolation, replay, unavailable authority, and revocation recheck. No safe local defect was identified; admitted Data Cloud public-client readback/version and live owner authority remain external.
+
+No public auth/profile, Data Cloud, source, provider, lifecycle, or release contract was changed.

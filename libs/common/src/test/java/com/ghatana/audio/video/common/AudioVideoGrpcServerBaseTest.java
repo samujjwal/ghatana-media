@@ -84,38 +84,47 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
-    void plaintextListenerAcceptsLoopbackButDoesNotBindNetworkInterfaces() throws Exception {
-        AtomicInteger dispatches = new AtomicInteger();
-        TestServer server = new TestServer(0, payloadService(dispatches));
-        server.start();
-        try {
-            int port = server.getPort();
-            try (Socket loopback = new Socket()) {
-                loopback.connect(new InetSocketAddress(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), port),
-                        1_000);
-            }
+    void profileResolvedPlaintextListenerAcceptsLoopbackOnlyForEveryServiceProfile() throws Exception {
+        InetAddress networkAddress = firstNonLoopbackAddress();
+        assertThat(networkAddress).as("a non-loopback interface for the bind-scope assertion").isNotNull();
 
-            ManagedChannel localhostChannel = ManagedChannelBuilder.forAddress("localhost", port)
-                    .usePlaintext()
-                    .build();
-            try {
-                assertThat(ClientCalls.blockingUnaryCall(
-                        localhostChannel, payloadMethod(), CallOptions.DEFAULT, "localhost"))
-                        .isEqualTo("accepted");
-                assertThat(dispatches).hasValue(1);
-            } finally {
-                localhostChannel.shutdownNow();
-            }
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            for (String profile : new String[] {"local", "test", "development"}) {
+                AtomicInteger dispatches = new AtomicInteger();
+                var security = GrpcTransportSecurityPolicy.resolve(
+                        java.util.Map.of(service + "_ENVIRONMENT", profile), service);
+                TestServer server = new TestServer(0, payloadService(dispatches), security);
+                server.start();
+                try {
+                    int port = server.getPort();
+                    try (Socket loopback = new Socket()) {
+                        loopback.connect(new InetSocketAddress(
+                                InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), port), 1_000);
+                    }
 
-            InetAddress networkAddress = firstNonLoopbackAddress();
-            assertThat(networkAddress).as("a non-loopback interface for the bind-scope assertion").isNotNull();
-            assertThatThrownBy(() -> {
-                try (Socket external = new Socket()) {
-                    external.connect(new InetSocketAddress(networkAddress, port), 500);
+                    ManagedChannel localhostChannel = ManagedChannelBuilder.forAddress("localhost", port)
+                            .usePlaintext()
+                            .build();
+                    try {
+                        assertThat(ClientCalls.blockingUnaryCall(
+                                localhostChannel, payloadMethod(), CallOptions.DEFAULT, "localhost"))
+                                .as("%s %s policy allows loopback", service, profile)
+                                .isEqualTo("accepted");
+                        assertThat(dispatches).hasValue(1);
+                    } finally {
+                        localhostChannel.shutdownNow();
+                    }
+
+                    assertThatThrownBy(() -> {
+                        try (Socket external = new Socket()) {
+                            external.connect(new InetSocketAddress(networkAddress, port), 500);
+                        }
+                    }).as("%s %s plaintext policy must remain loopback-only", service, profile)
+                            .isInstanceOf(IOException.class);
+                } finally {
+                    server.close();
                 }
-            }).isInstanceOf(IOException.class);
-        } finally {
-            server.close();
+            }
         }
     }
 
@@ -220,28 +229,25 @@ class AudioVideoGrpcServerBaseTest {
 
     @Test
     void productionLikeProfileWithoutTlsFailsBeforeGrpcPortCanBind() throws Exception {
-        for (String profile : new String[] {"staging", "production"}) {
-            int port = findAvailablePort();
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            for (String profile : new String[] {"staging", "production", "sovereign"}) {
+                int port = findAvailablePort();
 
-            assertThatThrownBy(() -> {
-                TestServer server = new TestServer(port, new CloseableNoOpService(),
-                        GrpcTransportSecurityPolicy.resolve(
-                                java.util.Map.of("STT_ENVIRONMENT", profile), "STT"));
-                try {
-                    server.start();
-                } finally {
-                    server.close();
-                }
-            }).as("%s profile without TLS material", profile)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining("requires TLS");
+                assertThatThrownBy(() -> {
+                    TestServer server = new TestServer(port, new CloseableNoOpService(),
+                            GrpcTransportSecurityPolicy.resolve(
+                                    java.util.Map.of(service + "_ENVIRONMENT", profile), service));
+                    try {
+                        server.start();
+                    } finally {
+                        server.close();
+                    }
+                }).as("%s %s profile without TLS material", service, profile)
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("requires TLS");
 
-            assertThatThrownBy(() -> {
-                try (Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
-                }
-            }).as("%s profile must not leave a hidden gRPC listener", profile)
-                    .isInstanceOf(IOException.class);
+                assertPortNotBound(port, "%s %s profile without TLS".formatted(service, profile));
+            }
         }
     }
 
@@ -267,25 +273,31 @@ class AudioVideoGrpcServerBaseTest {
         Path certificate = tlsFixture("rotation-a-cert.pem");
         Path mismatchedKey = tlsFixture("rotation-b-key.pem");
 
-        for (String profile : new String[] {"staging", "production", "sovereign"}) {
-            int port = findAvailablePort();
-            var environment = java.util.Map.of(
-                    "STT_ENVIRONMENT", profile,
-                    "STT_GRPC_TLS_CERT_CHAIN_PATH", certificate.toString(),
-                    "STT_GRPC_TLS_PRIVATE_KEY_PATH", mismatchedKey.toString());
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            for (String profile : new String[] {"staging", "production", "sovereign"}) {
+                int port = findAvailablePort();
+                var environment = java.util.Map.of(
+                        service + "_ENVIRONMENT", profile,
+                        service + "_GRPC_TLS_CERT_CHAIN_PATH", certificate.toString(),
+                        service + "_GRPC_TLS_PRIVATE_KEY_PATH", mismatchedKey.toString());
 
-            assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
-                            GrpcTransportSecurityPolicy.resolve(environment, "STT")))
-                    .as("%s profile with a mismatched configured identity", profile)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("invalid or mismatched");
-            assertThatThrownBy(() -> {
-                try (Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
-                }
-            }).as("%s profile must reject the TLS identity before binding", profile)
-                    .isInstanceOf(IOException.class);
+                assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
+                                GrpcTransportSecurityPolicy.resolve(environment, service)))
+                        .as("%s %s profile with a mismatched configured identity", service, profile)
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining("invalid or mismatched");
+                assertPortNotBound(port, "%s %s profile with a mismatched TLS identity".formatted(service, profile));
+            }
         }
+    }
+
+    private static void assertPortNotBound(int port, String context) {
+        assertThatThrownBy(() -> {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
+            }
+        }).as("%s must not leave a hidden gRPC listener", context)
+                .isInstanceOf(IOException.class);
     }
 
     @Test

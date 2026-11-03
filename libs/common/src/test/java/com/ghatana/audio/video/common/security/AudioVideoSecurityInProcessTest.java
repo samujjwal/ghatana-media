@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -85,6 +86,66 @@ class AudioVideoSecurityInProcessTest {
                         .isInstanceOf(StatusRuntimeException.class)
                         .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
                         .isEqualTo(Status.Code.PERMISSION_DENIED);
+                assertThat(backendEffects).as(method).hasValue(0);
+            }
+        } finally {
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
+    @Test
+    void gatewayRejectedTokenIsDeniedBeforeEachProviderBackendEffect() throws Exception {
+        AtomicInteger backendEffects = new AtomicInteger();
+        AtomicInteger gatewayValidations = new AtomicInteger();
+        List<String> validatedTokens = new ArrayList<>();
+        List<String> validatedTenants = new ArrayList<>();
+        String serverName = InProcessServerBuilder.generateName();
+        ConfigurableJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
+        JwtServerInterceptor.TokenValidator rejectingGateway = new JwtServerInterceptor.TokenValidator() {
+            @Override public boolean isEnabled() { return true; }
+            @Override public com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult validate(
+                    String token, String tenantId) {
+                gatewayValidations.incrementAndGet();
+                validatedTokens.add(token);
+                validatedTenants.add(tenantId);
+                return new com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult(
+                        false, null, null, null);
+            }
+        };
+        JwtServerInterceptor jwt = new JwtServerInterceptor(processor, rejectingGateway);
+        AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+        Server server = InProcessServerBuilder.forName(serverName)
+                .directExecutor()
+                .addServices(PROVIDER_METHODS.stream()
+                        .map(method -> interceptedProvider(method, jwt, rbac, backendEffects))
+                        .toList())
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+        try {
+            for (String method : PROVIDER_METHODS) {
+                int validationCountBefore = gatewayValidations.get();
+                Metadata headers = new Metadata();
+                String token = signedToken("gateway-rejected-user", "tenant-a");
+                headers.put(AUTHORIZATION, "Bearer " + token);
+                Channel requestChannel = ClientInterceptors.intercept(
+                        channel, MetadataUtils.newAttachHeadersInterceptor(headers));
+
+                assertThatThrownBy(() -> ClientCalls.blockingUnaryCall(requestChannel,
+                        methodDescriptor(method), CallOptions.DEFAULT, "request"))
+                        .as(method)
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.UNAUTHENTICATED);
+                assertThat(gatewayValidations).as(method + " gateway validation count")
+                        .hasValue(validationCountBefore + 1);
+                assertThat(validatedTokens).as(method + " validated tokens").hasSize(validationCountBefore + 1);
+                assertThat(validatedTenants).as(method + " validated tenants").hasSize(validationCountBefore + 1);
+                assertThat(validatedTokens.get(validationCountBefore)).as(method + " gateway token").isEqualTo(token);
+                assertThat(validatedTenants.get(validatedTenants.size() - 1))
+                        .as(method + " gateway tenant").isEqualTo("tenant-a");
                 assertThat(backendEffects).as(method).hasValue(0);
             }
         } finally {
