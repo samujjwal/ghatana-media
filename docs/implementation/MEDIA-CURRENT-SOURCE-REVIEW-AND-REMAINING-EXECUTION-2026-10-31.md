@@ -2969,3 +2969,7 @@ No dependency edge or legacy API was removed. Current Gradle edges link persiste
 ### 42.34 November 2 IP-01 migration source range vs. applied history
 
 Corrected `docs/implementation/media-persistence-schema-lineage.v1.json` so `sourceMigrationRange: V001..V029` describes the 29 checked-in Flyway source files, while `appliedRange: UNKNOWN_NOT_READ` explicitly records that no live history was inspected. Renamed the source table field to `tablesDeclaredInSource` and stated that the deployed active writer/cutover remain unknown. The persistence README now repeats this distinction. An independent review found the claims aligned with the source fixture and no JSON consumer; a focused file check verified the 29 contiguous scripts and explicit unknown applied history, and `pnpm test:backend-remaining-surfaces-plan` passed **11/11**. No migration SQL, database, JPA schema, applied history, source status, or cutover was changed or claimed.
+
+### 42.35 November 2 IP-01 crosswalk regression
+
+`tests/media-backend-remaining-surfaces-plan.test.mjs` now checks that the checked-in Flyway directory has exactly V001–V029 and that the lineage crosswalk labels that as source range while keeping applied history `UNKNOWN_NOT_READ`. The focused `pnpm test:backend-remaining-surfaces-plan` suite passed **12/12**, with zero failures or skips. This protects the metadata boundary and does not read or claim deployed history.

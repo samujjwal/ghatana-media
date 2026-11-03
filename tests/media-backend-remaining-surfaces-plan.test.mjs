@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import test from 'node:test';
@@ -9,6 +9,7 @@ const read = p => readFileSync(resolve(ROOT, p), 'utf8');
 const plan = read('docs/implementation/MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md');
 const index = JSON.parse(read('docs/implementation/MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json'));
 const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+const persistenceLineage = JSON.parse(read('docs/implementation/media-persistence-schema-lineage.v1.json'));
 
 const backendGroups = new Map([
   ['JC', ['libs/common', 4]], ['MC', ['libs/java/common', 5]],
@@ -92,6 +93,21 @@ test('all local backend and headless dependencies resolve and form one acyclic g
   };
   for(const task of allTasks)dfs(task.id);
   assert.equal(visited.size,92);
+});
+
+test('IP-01 lineage distinguishes checked-in Flyway sources from unread applied history',()=>{
+  const canonical = persistenceLineage.canonical;
+  const migrationDirectory = resolve(ROOT, 'providers/aws-postgresql/src/main/resources/db/media-runtime');
+  const versions = readdirSync(migrationDirectory)
+    .map(name => name.match(/^V(\d+)__.*\.sql$/u))
+    .filter(Boolean)
+    .map(match => Number(match[1]))
+    .sort((a,b) => a-b);
+  assert.deepEqual(versions, Array.from({length:29},(_,i)=>i+1));
+  assert.equal(canonical.sourceMigrationRange, 'V001..V029');
+  assert.equal(canonical.appliedRange, 'UNKNOWN_NOT_READ');
+  assert.ok(Array.isArray(canonical.tablesDeclaredInSource));
+  assert.equal(Object.hasOwn(canonical, 'tablesObserved'), false);
 });
 
 test('source-derived coverage rows exactly match remaining PDP-0 surface membership and selected owner tasks',()=>{
