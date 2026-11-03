@@ -142,9 +142,10 @@ describe("MediaCanonicalClient job operations", () => {
   });
 
   it("rejects a getJob response whose identity differs from the request", async () => {
-    const { fetchImpl } = recordedFetch(() => jsonResponse(job({ jobId: "job-2" })));
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({ jobId: "job-2" })));
     const client = clientWith(fetchImpl);
     await expect(client.getJob("job-1")).rejects.toThrow(/identity does not match/u);
+    expect(calls[0]?.init.redirect).toBe("error");
   });
 
   it("maps a 404 error envelope into a MediaClientError with status", async () => {
@@ -322,21 +323,28 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it("does not treat X-Principal-Id as an authentication credential", async () => {
-    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
-      error: { code: "UNAUTHENTICATED", message: "bearer credential required", retryable: false },
-      meta: { correlationId: "corr-auth" },
-    }, 401));
+  it("rejects principal-only scope before dispatch", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job()));
     const client = createMediaCanonicalClient({
       baseUrl: "https://media.example.test",
       tenantId: "tenant-1",
       defaultHeaders: { "X-Principal-Id": "principal-1" },
       fetchImpl,
     });
-    await expect(client.getJob("job-1")).rejects.toMatchObject({ statusCode: 401 });
-    const headers = new Headers(calls[0]!.init.headers);
-    expect(headers.get("X-Principal-Id")).toBe("principal-1");
-    expect(headers.has("Authorization")).toBe(false);
+    await expect(client.getJob("job-1")).rejects.toThrow(/authentication is required/u);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("accepts the OpenAPI API-key credential configured in default headers", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job()));
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1", "X-API-Key": "configured-api-key" },
+      fetchImpl,
+    });
+    await expect(client.getJob("job-1")).resolves.toMatchObject({ jobId: "job-1" });
+    expect(new Headers(calls[0]!.init.headers).get("X-API-Key")).toBe("configured-api-key");
   });
 });
 

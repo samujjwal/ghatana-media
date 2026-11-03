@@ -163,8 +163,9 @@ export function wait(milliseconds: number, signal?: AbortSignal): Promise<void> 
 /**
  * Shared HTTP transport for all Media clients — one authority for header
  * construction, request timeout/abort linkage and canonical error mapping.
- * The bearer token comes only from the configured credential provider and is
- * never accepted as a per-call argument.
+ * Bearer tokens come only from the configured credential provider; API keys
+ * come only from immutable default headers. Neither credential is accepted
+ * as a per-call argument.
  */
 export class MediaHttpTransport {
   public readonly baseUrl: string;
@@ -213,6 +214,7 @@ export class MediaHttpTransport {
   ): Promise<Headers> {
     const headers = new Headers(this.defaultHeaders);
     const callerPrincipalId = headers.get("X-Principal-Id");
+    const callerApiKey = headers.get("X-API-Key");
     // A caller default cannot choose request identity. Operation-specific
     // additions may carry the already-generated ID across an internal retry.
     headers.delete("X-Request-ID");
@@ -247,10 +249,38 @@ export class MediaHttpTransport {
     }
     if (callerPrincipalId === null) headers.delete("X-Principal-Id");
     else headers.set("X-Principal-Id", callerPrincipalId);
+    // API keys are credentials only when supplied through immutable client
+    // configuration. Per-request additions cannot create authentication.
+    if (callerApiKey === null) headers.delete("X-API-Key");
+    else headers.set("X-API-Key", callerApiKey);
     const token = await this.getAccessToken?.();
-    if (token) headers.set("Authorization", `Bearer ${token}`);
+    const hasBearerToken = typeof token === "string" && token.trim().length > 0;
+    if (hasBearerToken) headers.set("Authorization", `Bearer ${token}`);
     else headers.delete("Authorization");
+    if (!hasBearerToken && !callerApiKey?.trim()) {
+      throw new Error("Media API authentication is required: configure a bearer-token provider or X-API-Key.");
+    }
     return headers;
+  }
+
+  /** Validate public raw-transport URLs before attaching configured credentials. */
+  private validateRawTarget(input: string): string {
+    let configured: URL;
+    let target: URL;
+    try {
+      configured = new URL(this.baseUrl);
+      target = new URL(input, configured);
+    } catch {
+      throw new Error("Media raw request target must be a valid URL on the configured origin.");
+    }
+    const httpOrigin = (url: URL): boolean => url.protocol === "http:" || url.protocol === "https:";
+    if (!httpOrigin(configured) || !httpOrigin(target)
+      || configured.origin === "null" || target.origin !== configured.origin
+      || configured.username.length > 0 || configured.password.length > 0
+      || target.username.length > 0 || target.password.length > 0) {
+      throw new Error("Media raw request target must use the configured origin without URL userinfo.");
+    }
+    return target.toString();
   }
 
   /** Raw fetch through the shared timeout/abort plumbing, for binary bodies. */
@@ -260,6 +290,7 @@ export class MediaHttpTransport {
     signal?: AbortSignal,
     onDispatch?: (requestId: string) => void,
   ): Promise<Response> {
+    const target = this.validateRawTarget(input);
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
     const timeout = setTimeout(
@@ -270,9 +301,18 @@ export class MediaHttpTransport {
       if (controller.signal.aborted) {
         throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
       }
-      const requestId = new Headers(init.headers).get("X-Request-ID") ?? "";
+      const requestAdditions = Object.fromEntries(new Headers(init.headers).entries());
+      const headers = await abortable(this.headers(requestAdditions), controller.signal);
+      const requestedAccept = new Headers(init.headers).get("Accept");
+      if (requestedAccept !== null) headers.set("Accept", requestedAccept);
+      if (controller.signal.aborted) {
+        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
+      }
+      const requestId = headers.get("X-Request-ID") ?? "";
       onDispatch?.(safeIdentityHeader("requestId", requestId) ?? "");
-      return await this.fetchImpl(input, { ...init, redirect: "error", signal: controller.signal });
+      return await this.fetchImpl(target, {
+        ...init, headers, redirect: "error", signal: controller.signal,
+      });
     } finally {
       clearTimeout(timeout);
       unlink();
@@ -288,6 +328,7 @@ export class MediaHttpTransport {
     signal?: AbortSignal,
     onDispatch?: (requestId: string) => void,
   ): Promise<T> {
+    const target = this.validateRawTarget(input);
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
     const timeout = setTimeout(
@@ -300,7 +341,7 @@ export class MediaHttpTransport {
         throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
       }
       onDispatch?.(safeIdentityHeader("requestId", headers.get("X-Request-ID") ?? undefined) ?? "");
-      const response = await this.fetchImpl(input, {
+      const response = await this.fetchImpl(target, {
         ...init, headers, redirect: "error", signal: controller.signal,
       });
       // Keep the timeout and caller-abort linkage alive while the consumer
@@ -348,7 +389,7 @@ export class MediaHttpTransport {
         method,
         headers,
         ...(serializedBody === undefined ? {} : { body: serializedBody }),
-        ...(method === "GET" ? {} : { redirect: "error" as const }),
+        redirect: "error",
         signal: controller.signal,
       });
       if (!response.ok) throw await this.errorFromResponse(response);

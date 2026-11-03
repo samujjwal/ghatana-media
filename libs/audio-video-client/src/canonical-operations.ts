@@ -333,8 +333,9 @@ function safePathSegment(name: string, value: string): string {
 
 /**
  * Client bound to the canonical job and stream routes. The caller's
- * X-Principal-Id scope header is required, but it is routing scope — the
- * bearer token is the only authentication and never comes from arguments.
+ * X-Principal-Id scope header is required, but it is routing scope. OpenAPI
+ * permits bearer or API-key authentication; a principal header alone cannot
+ * dispatch a request.
  */
 export class MediaCanonicalClient {
   private readonly transport: MediaHttpTransport;

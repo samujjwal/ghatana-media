@@ -5,12 +5,21 @@ import {
   MediaOperationAmbiguousError,
   MediaUploadProgressCallbackError,
   MediaOperationNotAdmittedError,
-  createMediaOperationClient,
+  createMediaOperationClient as createConfiguredMediaOperationClient,
   type CanonicalMediaUploadSessionObservation,
 } from "./operations";
 import { boundedPositive, MediaHttpTransport, wait } from "./http-core";
 
 const timestamp = "2026-08-05T12:00:00.000Z";
+
+function createMediaOperationClient(
+  config: Parameters<typeof createConfiguredMediaOperationClient>[0],
+) {
+  return createConfiguredMediaOperationClient({
+    ...config,
+    getAccessToken: config.getAccessToken ?? (() => "test-access-token"),
+  });
+}
 
 describe("MediaHttpTransport configured identity boundary", () => {
   it("keeps positive sub-millisecond request bounds above zero", () => {
@@ -42,6 +51,7 @@ describe("MediaHttpTransport configured identity boundary", () => {
     const transport = new MediaHttpTransport({
       baseUrl: "https://media.example.test",
       tenantId: "tenant-configured",
+      getAccessToken: () => "configured-token",
       defaultHeaders: { "X-Principal-Id": "principal-configured" },
       requestContext: { correlationId: "correlation-configured" },
     });
@@ -50,12 +60,14 @@ describe("MediaHttpTransport configured identity boundary", () => {
       "X-Principal-Id": "principal-attacker",
       "X-Correlation-ID": "correlation-attacker",
       Authorization: "Bearer caller-injected",
+      "X-API-Key": "caller-injected-key",
     });
 
     expect(headers.get("X-Tenant-ID")).toBe("tenant-configured");
     expect(headers.get("X-Principal-Id")).toBe("principal-configured");
     expect(headers.get("X-Correlation-ID")).toBe("correlation-configured");
-    expect(headers.has("Authorization")).toBe(false);
+    expect(headers.get("Authorization")).toBe("Bearer configured-token");
+    expect(headers.has("X-API-Key")).toBe(false);
   });
 
   it("uses only the configured credential provider even when additions carry Authorization", async () => {
@@ -66,6 +78,108 @@ describe("MediaHttpTransport configured identity boundary", () => {
     });
     const headers = await transport.headers({ Authorization: "Bearer injected-token" });
     expect(headers.get("Authorization")).toBe("Bearer configured-token");
+  });
+
+  it("does not accept an API key added per request as configured authentication", async () => {
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+    });
+    await expect(transport.headers({ "X-API-Key": "request-injected-key" }))
+      .rejects.toThrow(/authentication is required/u);
+  });
+
+  it("authenticates raw fetch only with configured credentials and scoped identity", async () => {
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      expect(headers.get("Authorization")).toBe("Bearer raw-configured-token");
+      expect(headers.get("X-API-Key")).toBeNull();
+      expect(headers.get("X-Principal-Id")).toBe("principal-configured");
+      expect(headers.get("Content-Type")).toBe("application/octet-stream");
+      expect(headers.get("Accept")).toBe("audio/*");
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      defaultHeaders: { "X-Principal-Id": "principal-configured" },
+      getAccessToken: () => "raw-configured-token",
+      fetchImpl,
+    });
+    await transport.fetchRaw("https://media.example.test/raw", {
+      method: "PUT",
+      headers: {
+        Authorization: "Bearer request-injected",
+        "X-API-Key": "request-injected-key",
+        "X-Principal-Id": "principal-attacker",
+        Accept: "audio/*",
+        "Content-Type": "application/octet-stream",
+      },
+      body: new Blob(["payload"]),
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not dispatch raw fetch with only configured principal scope", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      defaultHeaders: { "X-Principal-Id": "principal-configured" },
+      fetchImpl,
+    });
+    await expect(transport.fetchRaw("https://media.example.test/raw", { method: "GET" }))
+      .rejects.toThrow(/authentication is required/u);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("authenticates raw fetch with a configured API key", async () => {
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(new Headers(init?.headers).get("X-API-Key")).toBe("raw-configured-api-key");
+      return new Response(null, { status: 204 });
+    }) as unknown as typeof fetch;
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      defaultHeaders: { "X-API-Key": "raw-configured-api-key" },
+      fetchImpl,
+    });
+    await transport.fetchRaw("https://media.example.test/raw", { method: "GET" });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects cross-origin raw targets before credential lookup or dispatch", async () => {
+    const getAccessToken = vi.fn(() => "configured-token");
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      defaultHeaders: { "X-API-Key": "configured-api-key" },
+      getAccessToken,
+      fetchImpl,
+    });
+
+    await expect(transport.fetchRaw("https://attacker.example.test/collect", { method: "GET" }))
+      .rejects.toThrow(/configured origin/u);
+    await expect(transport.fetchRawMutation(
+      "https://attacker.example.test/collect", { method: "PUT" }, {}, async (response) => response.status,
+    )).rejects.toThrow(/configured origin/u);
+
+    expect(getAccessToken).not.toHaveBeenCalled();
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("rejects raw targets with URL userinfo even when the origin matches", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    const transport = new MediaHttpTransport({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-configured",
+      getAccessToken: () => "configured-token",
+      fetchImpl,
+    });
+    await expect(transport.fetchRaw("https://user:password@media.example.test/raw", { method: "GET" }))
+      .rejects.toThrow(/without URL userinfo/u);
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 });
 
@@ -81,6 +195,20 @@ describe("PDP-1 exact artifact-version inspection", () => {
     });
     await expect(client.inspectArtifactVersion("artifact-1", "version-1"))
       .rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe("MediaOperationClient authentication preflight", () => {
+  it("does not dispatch artifact reads with only principal scope configured", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse({})) as unknown as typeof fetch;
+    const client = createConfiguredMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      fetchImpl,
+    });
+    await expect(client.getArtifact("artifact-1")).rejects.toThrow(/authentication is required/u);
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 });
