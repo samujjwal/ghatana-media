@@ -7,19 +7,22 @@
     "license": "CC-BY-4.0",
     "sourceUrl": "https://huggingface.co/datasets/google/fleurs/tree/70bb2e84b976b7e960aa89f1c648e09c59f894dd",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-    "evaluationScope": "ASR evaluation only; no human identity or biometric claim",
+    "evaluationScope": "ASR evaluation only; English and Nepali in this phase; no human identity or biometric claim",
+    "activeLocaleScope": ["eng", "npi"],
     "locales": {
       "eng": {
         "datasetConfig": "en_us",
         "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers."
       },
-      "hin": {
-        "datasetConfig": "hi_in",
-        "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers."
-      },
       "npi": {
         "datasetConfig": "ne_np",
         "speakerDisjointSplitEvidence": "FLEURS dataset card states train speakers differ from dev/test speakers."
+      }
+    },
+    "deferredLocales": {
+      "hin": {
+        "datasetConfig": "hi_in",
+        "status": "DEFERRED_FROM_THIS_PHASE"
       }
     }
   },
@@ -40,7 +43,6 @@
       "minHoldoutClipsPerLocale": 100,
       "werMaxByLocale": {
         "eng": 0.3,
-        "hin": 0.45,
         "npi": 0.55
       },
       "scoringDecision": "UPPER_95_PERCENT_SPEAKER_CLUSTER_BOOTSTRAP_WER_MUST_NOT_EXCEED_PROVISIONAL_THRESHOLD",
@@ -57,9 +59,58 @@
   "selection": {
     "holdoutSplit": "dev",
     "trainingSplit": "train",
-    "sourceMetadataObservation": "Pinned-revision TSV rows provide row id, filename, transcript, normalized transcript, character form, num_samples, and gender; at 16 kHz, duration can be derived as num_samples/16000. They do not provide a speaker identifier or per-audio digest. On 2026-11-01 the pinned validation Parquet footer schemas for en_us, hi_in and ne_np also had no speaker ID; the dataset provider stated it had no plans to release individual speaker IDs (https://huggingface.co/datasets/google/fleurs/discussions/7). Dataset-server first-rows returned HTTP 500 during this check. The pinned Parquet files support range requests, but this does not supply the required speaker clusters or rights review. No row is selected until exact clip digest and an authoritative speaker source reference can be recorded; use an independently rights-cleared alternative if the original qualification requirements cannot be met. No archive or audio was downloaded during this metadata check.",
+    "splitStatus": "PROPOSED_SOURCE_CONFIRMATION_REQUIRED",
+    "sourceMetadataObservation": "Pinned-revision English and Nepali TSV rows provide row id, filename, transcript, normalized transcript, character form, num_samples, and gender; at 16 kHz, duration can be derived as num_samples/16000. They do not provide a speaker identifier or per-audio digest. On 2026-11-01 the pinned validation Parquet footer schemas also had no speaker ID; the dataset provider stated it had no plans to release individual speaker IDs (https://huggingface.co/datasets/google/fleurs/discussions/7). Dataset-server first-rows returned HTTP 500 during this check. The pinned Parquet files support range requests, but this does not supply the required speaker clusters or rights review. Hindi is deferred from this phase. No row is selected until exact clip digest and an authoritative speaker source reference can be recorded; use an independently rights-cleared alternative if the original qualification requirements cannot be met. No archive or audio was downloaded during this metadata check.",
     "clips": [],
     "mode": "PILOT"
+  },
+  "sourceAuthorization": {
+    "status": "NOT_ADMITTED_AUTHORIZATION_RECORD_REQUIRED",
+    "requestScope": {
+      "sourceRevision": "70bb2e84b976b7e960aa89f1c648e09c59f894dd",
+      "locales": {
+        "eng": "en_us",
+        "npi": "ne_np"
+      },
+      "proposedHoldoutSplit": "dev",
+      "splitMustBeConfirmedBySourceOwner": true,
+      "exactClipIdsAndAudioDigestsRequired": true,
+      "audioRetrievalForDigesting": "REQUIRES_EXPLICIT_SOURCE_APPROVAL_BEFORE_FETCH"
+    },
+    "requiredEvidence": [
+      "authoritative source record scoped to this exact revision, locales, split, and selected clips",
+      "privacy and consent or other lawful human-recording basis applicable to the selected clips",
+      "permitted offline ASR evaluation purpose, explicitly excluding training, speaker identification, voice cloning, external-provider processing, and rehosting",
+      "audio and transcript retention duration, deletion trigger, and interrupted-run cleanup limit",
+      "source-backed speaker-cluster evidence for each selected clip, or an authoritative statement that such evidence is unavailable",
+      "source attribution and independently reviewed reference-transcript provenance"
+    ],
+    "speakerClusterDisposition": "REQUIRED_FOR_QUALIFICATION; no IDs or clusters may be inferred from voices or fabricated",
+    "inferenceAdmission": "NOT_ADMITTED"
+  },
+  "productionReadiness": {
+    "productionModel": {
+      "status": "NOT_SELECTED_OR_PINNED",
+      "requiredFields": [
+        "modelAndExportLicenseOrProviderTerms",
+        "exactVersionAndArtifactSha256Digests",
+        "supportedLocalesAndKnownLimitations",
+        "intendedDeploymentHostAndRuntime",
+        "independentRightsAndLineageDisposition"
+      ]
+    },
+    "appRelevantQualityEvidence": {
+      "status": "NOT_PROVIDED",
+      "requiredEvidence": [
+        "separately approved and consented app-domain evaluation set",
+        "independently reviewed reference transcripts",
+        "held-out participant partition using random study IDs, without identifying contributors",
+        "representative accents, channels, noise, code-switching, and realistic utterance lengths",
+        "pre-registered locale-level WER/CER and operational thresholds",
+        "measured target-host latency, throughput, memory, and failure behavior"
+      ],
+      "benchmarkBoundary": "FLEURS and Common Voice results are separate benchmark evidence and do not replace app-domain quality evidence."
+    }
   },
   "qualificationSelectionLimits": {
     "mode": "QUALIFICATION",

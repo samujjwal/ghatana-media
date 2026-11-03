@@ -7,14 +7,16 @@ const PROFILE_URL = new URL('../../config/qualification/common-voice-v27-asr-alt
 const EXPECTED = Object.freeze({
   schemaVersion: '1.0.0',
   profileId: 'media.stt.common-voice-scripted-speech-27-alternative',
-  status: 'METADATA_ONLY_WAITING_FOR_AUTHORIZED_ACCESS_AND_CLIP_MANIFEST',
+  status: 'OWNER_CONFIRMED_ACCESS_MODEL_ARTIFACT_PENDING',
   sourceRevision: 'cv-corpus-27.0-2026-09-11',
   license: 'CC0-1.0',
   task: 'ASR',
   locales: Object.freeze({
     en: Object.freeze({ id: 'cmu5jplf300nwmh07iqvk9leo', locale: 'en', clips: 16403, size: '88.43 GB' }),
-    hi: Object.freeze({ id: 'cmu5vlext009to107ev1s9lk8', locale: 'hi', clips: 3402, size: '546.57 MB' }),
     ne: Object.freeze({ id: 'cmu61478v00j9o107alzuue1z', locale: 'ne-NP', clips: 302, size: '40.55 MB' }),
+  }),
+  deferredLocales: Object.freeze({
+    hi: Object.freeze({ id: 'cmu5vlext009to107ev1s9lk8', locale: 'hi' }),
   }),
 });
 const FORBIDDEN_FIELD_NAMES = new Set([
@@ -86,6 +88,10 @@ export function validateCandidateProfile(profile) {
   assert(dataset?.name === 'Mozilla Common Voice Scripted Speech 27.0', 'unexpected dataset');
   assert(dataset.sourceRevision === EXPECTED.sourceRevision, 'unexpected Common Voice release');
   assert(dataset.license === EXPECTED.license && dataset.task === EXPECTED.task, 'unexpected license or task');
+  assert([...dataset.activeLocaleScope].sort().join(',') === ['en', 'ne-NP'].sort().join(','),
+    'active Common Voice phase must contain English and Nepali only');
+  assert(Object.keys(dataset.locales ?? {}).sort().join(',') === Object.keys(EXPECTED.locales).sort().join(','),
+    'active dataset locales must contain exactly English and Nepali');
   for (const [key, expected] of Object.entries(EXPECTED.locales)) {
     const locale = dataset.locales?.[key];
     assert(locale?.datasetId === expected.id && locale.locale === expected.locale,
@@ -96,36 +102,64 @@ export function validateCandidateProfile(profile) {
       && locale.fullArchiveDisplaySizeAtReview === expected.size,
     `reviewed test-split count or archive size mismatch for ${key}`);
   }
+  assert(Object.keys(dataset.deferredLocales ?? {}).sort().join(',') === 'hi'
+    && dataset.deferredLocales.hi?.datasetId === EXPECTED.deferredLocales.hi.id
+    && dataset.deferredLocales.hi?.locale === EXPECTED.deferredLocales.hi.locale
+    && dataset.deferredLocales.hi?.status === 'DEFERRED_FROM_THIS_PHASE',
+  'Hindi must remain explicitly deferred from the active locale scope');
 
-  // The public metadata candidate intentionally cannot become admitted by
-  // changing booleans or filling local reference fields. Access evidence must be
-  // reviewed and a new frozen run manifest handled outside this candidate file.
-  assert(profile.access?.consumerTermsAccepted === false
-    && profile.access.downloadOrSampleRequested === false
-    && profile.access.status === 'WAITING_FOR_AUTHORIZED_ORGANIZATIONAL_ACCEPTANCE'
-    && profile.access.acceptedAt === null
+  // User-reported terms acceptance is preserved as a report, not promoted to
+  // verified authority/access evidence. The candidate remains non-admitted.
+  assert(profile.access?.consumerTermsAcceptanceStatus
+    === 'OWNER_CONFIRMED_MDC_ACCESS_AND_TERMS_COMPLETE_FOR_EN_AND_NP'
+    && profile.access.status === 'OWNER_CONFIRMED_MDC_ACCESS_AND_TERMS_COMPLETE; LOCAL_ARCHIVES_PRESENT'
+    && profile.access.acceptedAt === 'NOT_PROVIDED'
     && profile.access.organizationRef === null
     && profile.access.authorizedRepresentativeRef === null
     && profile.access.datasetAccessRecordRef === null
-    && profile.access.evidenceRef === null,
-  'candidate must not contain locally asserted MDC access acceptance or a dataset/sample request');
-  assert(profile.englishSubset?.sampleAvailability === 'NOT_VERIFIED', 'English sample status must stay unverified');
+    && profile.access.evidenceRef === null
+    && profile.access.authorityAndAcceptanceEvidenceStatus
+      === 'OWNER_CONFIRMED; NOT_INDEPENDENTLY_VERIFIED',
+  'owner-confirmed MDC access must remain distinct from independently verified source evidence');
+  assert(profile.access.archivePresence?.en?.status === 'PRESENT_STAT_OBSERVED_TAR_MEMBER_PATHS_OBSERVED'
+    && profile.access.archivePresence.en.basename === '1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz'
+    && profile.access.archivePresence.en.sizeBytes === 94956262763
+    && profile.access.archivePresence.en.integrity
+      === 'ENGLISH_TEST_ROW_COUNT_UNVERIFIED; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED'
+    && profile.access.archivePresence.en.testTsvMember === 'OBSERVED_IN_LOCAL_ARCHIVE'
+    && profile.access.archivePresence.en.testRowsObservedLocally === null
+    && profile.access.archivePresence?.['ne-NP']?.status === 'PRESENT_STAT_OBSERVED_TEST_TSV_READ'
+    && profile.access.archivePresence['ne-NP'].basename === '1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz'
+    && profile.access.archivePresence['ne-NP'].sizeBytes === 42519359
+    && profile.access.archivePresence['ne-NP'].integrity
+      === 'TEST_TSV_METADATA_READ; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED'
+    && profile.access.archivePresence['ne-NP'].testTsvMember
+      === 'OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES'
+    && profile.access.archivePresence['ne-NP'].testRowsObservedLocally === 302,
+  'archive metadata must not imply full integrity or audio use');
+  assert(profile.englishSubset?.sampleAvailability === 'NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT',
+    'English sample status must reflect the reported archive');
   assert(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard === false,
     'English public card must not claim a publisher audio-sample link');
   assert(profile.englishSubset.publicTextSampleSentenceCount === 5,
     'English public card text-sample count must match its current pinned record');
   assert(profile.englishSubset.sampleApiDocumentationUrl === 'https://mozilladatacollective.com/api-reference/docs',
     'publisher audio-sample status must cite the MDC API documentation');
-  assert(profile.englishSubset.fullArchiveDownloadAuthorized === false, 'English full archive is not authorized');
+  assert(profile.englishSubset.fullArchiveDownloadAuthorization
+    === 'OWNER_CONFIRMED_ALREADY_ACQUIRED; NO_NEW_DOWNLOAD',
+  'English archive presence must remain scoped to the owner-confirmed existing download');
 
   const selection = profile.selection;
   assert(selection?.sourceSplit === 'test', 'selection must use the official test split');
+  assert([...selection.activeLocales].sort().join(',') === ['en', 'ne-NP'].sort().join(',')
+    && [...selection.deferredLocales].join(',') === 'hi',
+  'selection must include English and Nepali only with Hindi deferred');
   assert(Array.isArray(selection.clipManifest), 'clip manifest must be an array');
   assert(!hasForbiddenField(selection.clipManifest), 'clip manifest contains forbidden fields');
   for (const record of selection.clipManifest) validatePersistedClipRecord(record);
-  assert(selection.clipManifestStatus === 'NOT_CREATED_NO_DATA_ACQUIRED'
+  assert(selection.clipManifestStatus === 'NOT_CREATED_LOCAL_TEST_METADATA_READY_NO_CLIPS_SELECTED'
     && selection.clipManifest.length === 0,
-  'candidate cannot include selected clips before authorized access and a reviewed manifest');
+  'candidate must not claim selected clips before a restricted local manifest is created');
   assert(Array.isArray(selection.requiredManifestFields)
     && selection.requiredManifestFields.length === REQUIRED_MANIFEST_FIELDS.length
     && [...selection.requiredManifestFields].sort().join(',') === [...REQUIRED_MANIFEST_FIELDS].sort().join(','),
@@ -146,8 +180,14 @@ export function validateCandidateProfile(profile) {
   'clip IDs and hashes must remain local, restricted, and explicitly non-deidentifying');
 
   const execution = profile.execution;
-  assert(execution?.realInferenceAdmitted === false && execution.modelNetworkAccess === 'DISABLED',
-    'real inference must remain disabled in this profile');
+  assert(execution?.realInferenceAdmitted === false && execution.modelNetworkAccess === 'DISABLED'
+    && execution.notAdmittedReason
+      === 'The pinned Whisper candidate artifacts are not available locally and their weight/export rights remain unreviewed.'
+    && execution.modelCandidateId === 'stt-whisper-tiny-multilingual'
+    && execution.modelCandidateDisposition === 'REVIEW_ONLY'
+    && execution.modelArtifactAvailability === 'NOT_FOUND_IN_REPOSITORY_OR_CHECKED_LOCAL_CACHES'
+    && execution.modelRightsAndExportStatus === 'NOT_REVIEWED',
+  'real inference must remain disabled until a pinned, locally available model has reviewed rights');
   for (const field of [
     'externalProviderDispatch', 'trainingAllowed', 'speakerIdentificationAllowed',
     'voiceCloningAllowed', 'datasetRehostingOrResharingAllowed',
@@ -169,7 +209,11 @@ export function validateCandidateProfile(profile) {
     profileId: profile.profileId,
     metadataValid: true,
     realInferenceAdmitted: false,
+    datasetAccessUserConfirmed: true,
     datasetAccessProven: false,
+    activeLocales: Object.freeze(['en', 'ne-NP']),
+    deferredLocales: Object.freeze(['hi']),
+    ownerConfirmedTermsAndAccess: true,
   });
 }
 

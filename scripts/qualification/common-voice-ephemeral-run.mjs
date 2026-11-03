@@ -30,10 +30,9 @@ const MAX_METADATA_RUN_BYTES = 16 * 1024 * 1024;
 const COMMON_VOICE_V27_REVISION = 'cv-corpus-27.0-2026-09-11';
 const COMMON_VOICE_V27_DATASET_IDS = Object.freeze({
   en: 'cmu5jplf300nwmh07iqvk9leo',
-  hi: 'cmu5vlext009to107ev1s9lk8',
   'ne-NP': 'cmu61478v00j9o107alzuue1z',
 });
-const COMMON_VOICE_V27_TEST_CLIP_COUNTS = Object.freeze({ en: 16403, hi: 3402, 'ne-NP': 302 });
+const COMMON_VOICE_V27_TEST_CLIP_COUNTS = Object.freeze({ en: 16403, 'ne-NP': 302 });
 const CLIP_MANIFEST_FIELDS = Object.freeze([
   'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'clipId', 'audioSha256',
 ]);

@@ -383,6 +383,13 @@ test('rejects metadata roots that overlap audio scratch and rejects non-aggregat
       retainCommonVoiceRunMetadata(root, otherRoot, wrongDataset),
       /pinned v27 test dataset/,
     );
+    const deferredHindi = syntheticMetadataFixture({
+      runManifest: { locale: 'hi', sourceDatasetId: 'cmu5vlext009to107ev1s9lk8' },
+    });
+    await assert.rejects(
+      retainCommonVoiceRunMetadata(root, otherRoot, deferredHindi),
+      /pinned v27 test dataset/,
+    );
     const privateData = syntheticMetadataFixture({
       aggregate: { transcript: 'must not be retained' },
     });

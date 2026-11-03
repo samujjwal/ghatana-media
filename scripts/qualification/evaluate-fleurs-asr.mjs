@@ -6,7 +6,6 @@ import { createHash } from 'node:crypto';
 import { isDeepStrictEqual, TextDecoder } from 'node:util';
 import { pathToFileURL } from 'node:url';
 
-const LOCALES = new Set(['eng', 'hin', 'npi']);
 const SHA256 = /^[a-f0-9]{64}$/i;
 // Approved provisional reference thresholds are owned by the existing R10 decision map,
 // not by an independently editable user-supplied evaluation manifest.
@@ -14,6 +13,8 @@ const ownerDecision = JSON.parse(readFileSync(new URL('../../docs/implementation
 const STT_REFERENCE = ownerDecision.approvedReferenceQualificationProfiles.stt;
 const preparationProfile = JSON.parse(readFileSync(
   new URL('../../config/qualification/fleurs-asr-evaluation.v1.json', import.meta.url), 'utf8'));
+const ACTIVE_LOCALES = Object.freeze(Object.keys(preparationProfile.dataset.locales));
+const LOCALES = new Set(ACTIVE_LOCALES);
 const EXPECTED_DATASET_CONFIGS = Object.freeze(Object.fromEntries(
   Object.entries(preparationProfile.dataset.locales).map(([locale, source]) => [locale, source.datasetConfig]),
 ));
@@ -24,11 +25,16 @@ const EXPECTED_SOURCE_SPLITS = Object.freeze({
 const PILOT_MAX_CLIPS_PER_LOCALE = STT_REFERENCE.qualityPilotClipsPerLocale;
 const QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE = STT_REFERENCE.qualityHoldoutMinimumPerLocale;
 const QUALIFICATION_MAX_CLIPS_PER_LOCALE = PILOT_MAX_CLIPS_PER_LOCALE + QUALIFICATION_MIN_HOLDOUT_CLIPS_PER_LOCALE;
-const REFERENCE_WER_THRESHOLDS = Object.freeze({
-  eng: STT_REFERENCE.qualityGateProvisional.enUsWerMax,
-  hin: STT_REFERENCE.qualityGateProvisional.hiInWerMax,
-  npi: STT_REFERENCE.qualityGateProvisional.neNpWerMax,
+const OWNER_THRESHOLD_FIELDS = Object.freeze({
+  eng: 'enUsWerMax',
+  npi: 'neNpWerMax',
 });
+const REFERENCE_WER_THRESHOLDS = Object.freeze(Object.fromEntries(ACTIVE_LOCALES.map((locale) => {
+  const field = OWNER_THRESHOLD_FIELDS[locale];
+  assert(field && Number.isFinite(STT_REFERENCE.qualityGateProvisional[field]),
+    `owner-selected reference threshold is unavailable for active locale ${locale}`);
+  return [locale, STT_REFERENCE.qualityGateProvisional[field]];
+})));
 const BOOTSTRAP_REPLICATES = 1000;
 const MAX_CLIP_SECONDS = 30;
 const MAX_TOTAL_BYTES = 120 * 1024 * 1024;
@@ -112,6 +118,16 @@ export function validateManifest(manifest, { requireFrozen = false } = {}) {
   assert(manifest.dataset?.name === 'google/fleurs', 'unexpected dataset');
   assert(manifest.dataset?.sourceRevision === '70bb2e84b976b7e960aa89f1c648e09c59f894dd', 'unexpected source revision');
   assert(manifest.dataset?.license === 'CC-BY-4.0', 'unexpected dataset license');
+  assert(Array.isArray(preparationProfile.dataset.activeLocaleScope)
+    && [...preparationProfile.dataset.activeLocaleScope].sort().join(',') === [...ACTIVE_LOCALES].sort().join(','),
+  'FLEURS active locale scope does not match the pinned preparation profile');
+  assert(preparationProfile.sourceAuthorization?.status === 'NOT_ADMITTED_AUTHORIZATION_RECORD_REQUIRED'
+    && preparationProfile.sourceAuthorization?.inferenceAdmission === 'NOT_ADMITTED',
+  'FLEURS source authorization must remain explicitly not admitted');
+  assert(Object.keys(manifest.dataset?.locales ?? {}).sort().join(',') === [...ACTIVE_LOCALES].sort().join(','),
+    'manifest dataset locales must contain exactly the active English and Nepali scope');
+  assert(preparationProfile.dataset.deferredLocales?.hin?.status === 'DEFERRED_FROM_THIS_PHASE',
+    'Hindi must remain deferred from the active FLEURS phase');
   for (const locale of LOCALES) {
     assert(manifest.dataset?.locales?.[locale], `missing locale ${locale}`);
     assert(manifest.dataset.locales[locale].datasetConfig === EXPECTED_DATASET_CONFIGS[locale],

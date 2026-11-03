@@ -7,7 +7,7 @@ import { evaluate, scoreLocale, validateManifest } from '../scripts/qualificatio
 const revision = '70bb2e84b976b7e960aa89f1c648e09c59f894dd';
 
 function datasetLocales() {
-  return { eng: { datasetConfig: 'en_us' }, hin: { datasetConfig: 'hi_in' }, npi: { datasetConfig: 'ne_np' } };
+  return { eng: { datasetConfig: 'en_us' }, npi: { datasetConfig: 'ne_np' } };
 }
 
 function clip(locale, id, partition, speakerId) {
@@ -32,7 +32,7 @@ function clip(locale, id, partition, speakerId) {
 
 function frozenManifest() {
   const clips = [];
-  for (const [locale, prefix] of [['eng', 'e'], ['hin', 'h'], ['npi', 'n']]) {
+  for (const [locale, prefix] of [['eng', 'e'], ['npi', 'n']]) {
     clips.push(clip(locale, `${prefix}1`, 'training', `${prefix}-speaker-1`));
     clips.push(clip(locale, `${prefix}2`, 'holdout', `${prefix}-speaker-2`));
   }
@@ -59,7 +59,9 @@ test('checked-in preparation config pins R9 source and remains unfrozen', async 
   assert.equal(config.status, 'METADATA_ONLY_NOT_FROZEN');
   assert.equal(config.dataset.sourceRevision, revision);
   assert.equal(config.dataset.license, 'CC-BY-4.0');
-  assert.deepEqual(Object.keys(config.dataset.locales).sort(), ['eng', 'hin', 'npi']);
+  assert.deepEqual(Object.keys(config.dataset.locales).sort(), ['eng', 'npi']);
+  assert.deepEqual(config.dataset.activeLocaleScope, ['eng', 'npi']);
+  assert.equal(config.dataset.deferredLocales.hin.status, 'DEFERRED_FROM_THIS_PHASE');
   assert.equal(config.selection.clips.length, 0);
   assert.equal(config.selection.mode, 'PILOT');
   assert.equal(config.selectionLimits.maxClipsPerLocale, 24);
@@ -67,10 +69,12 @@ test('checked-in preparation config pins R9 source and remains unfrozen', async 
   assert.equal(config.qualificationSelectionLimits.maxTotalClipsPerLocale, 124);
   assert.equal(config.metricProtocol.thresholds.scope, 'REFERENCE_ONLY_NOT_PRODUCTION_SLO');
   assert.deepEqual(config.metricProtocol.thresholds.werMaxByLocale,
-    { eng: 0.3, hin: 0.45, npi: 0.55 });
+    { eng: 0.3, npi: 0.55 });
   assert.equal(config.metricProtocol.confidenceIntervals.replicates, 1000);
   assert.deepEqual(Object.fromEntries(Object.entries(config.dataset.locales).map(([locale, source]) => [locale, source.datasetConfig])),
-    { eng: 'en_us', hin: 'hi_in', npi: 'ne_np' });
+    { eng: 'en_us', npi: 'ne_np' });
+  assert.equal(config.sourceAuthorization.status, 'NOT_ADMITTED_AUTHORIZATION_RECORD_REQUIRED');
+  assert.deepEqual(config.sourceAuthorization.requestScope.locales, { eng: 'en_us', npi: 'ne_np' });
 });
 
 test('blocked metadata-only manifest validates but cannot be scored', () => {
@@ -84,17 +88,22 @@ test('blocked metadata-only manifest validates but cannot be scored', () => {
   assert.throws(() => evaluateSynthetic(manifest, []), /not frozen/);
 });
 
-test('frozen pack enforces clip evidence, caps, and speaker-disjoint partitions', () => {
+test('frozen pack enforces English/Nepali clip evidence, caps, and speaker-disjoint partitions', () => {
   const manifest = frozenManifest();
-  assert.equal(validateManifest(manifest, { requireFrozen: true }).clipCount, 6);
+  assert.equal(validateManifest(manifest, { requireFrozen: true }).clipCount, 4);
   manifest.selection.clips[1].speakerId = manifest.selection.clips[0].speakerId;
   assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /overlaps training and holdout/);
 });
 
 test('frozen manifest binds each declared locale to the pinned FLEURS dataset config', () => {
   const manifest = frozenManifest();
-  manifest.dataset.locales.hin.datasetConfig = 'en_us';
-  assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /dataset config mismatch for hin/);
+  manifest.dataset.locales.npi.datasetConfig = 'en_us';
+  assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /dataset config mismatch for npi/);
+
+  const deferredHindi = frozenManifest();
+  deferredHindi.dataset.locales.hin = { datasetConfig: 'hi_in' };
+  assert.throws(() => validateManifest(deferredHindi, { requireFrozen: true }),
+    /exactly the active English and Nepali scope/);
 });
 
 test('frozen manifest cannot swap pinned training and holdout source splits', () => {
@@ -161,12 +170,12 @@ test('WER and CER scoring plumbing uses aggregate edit counts and requires exact
     `sha256:${createHash('sha256').update(rawManifestBytes).digest('hex')}`);
   assert.deepEqual(measured.holdoutProvenance, {
     partition: 'holdout',
-    clipCount: 3,
-    clipCountByLocale: { eng: 1, hin: 1, npi: 1 },
-    speakerClusterCountByLocale: { eng: 1, hin: 1, npi: 1 },
+    clipCount: 2,
+    clipCountByLocale: { eng: 1, npi: 1 },
+    speakerClusterCountByLocale: { eng: 1, npi: 1 },
   });
   assert.throws(() => evaluate(manifest, predictions), /exact raw manifest bytes/);
-  assert.throws(() => evaluateSynthetic(manifest, predictions.slice(0, 2)), /missing prediction/);
+  assert.throws(() => evaluateSynthetic(manifest, predictions.slice(0, 1)), /missing prediction/);
 });
 
 test('source-bound evaluation rejects manifest objects that differ from the exact raw bytes', () => {
@@ -211,7 +220,7 @@ function qualificationManifest() {
       thresholds: {
         scope: 'REFERENCE_ONLY_NOT_PRODUCTION_SLO',
         minHoldoutClipsPerLocale: 100,
-        werMaxByLocale: { eng: 0.3, hin: 0.45, npi: 0.55 },
+        werMaxByLocale: { eng: 0.3, npi: 0.55 },
       },
     },
     selection: {
@@ -221,7 +230,7 @@ function qualificationManifest() {
       clips: [],
     },
   };
-  for (const [locale, prefix] of [['eng', 'e'], ['hin', 'h'], ['npi', 'n']]) {
+  for (const [locale, prefix] of [['eng', 'e'], ['npi', 'n']]) {
     config.selection.clips.push(clip(locale, prefix + '-pilot-1000', 'training', prefix + '-pilot-speaker'));
     for (let i = 1; i <= 100; i += 1) {
       config.selection.clips.push(clip(locale, prefix + '-holdout-' + i, 'holdout',
@@ -235,8 +244,8 @@ test('qualification mode handles 100 synthetic test rows per locale without clai
   const manifest = qualificationManifest();
   const validated = validateManifest(manifest, { requireFrozen: true });
   assert.equal(validated.mode, 'QUALIFICATION');
-  assert.equal(validated.clipCount, 303);
-  assert.deepEqual(validated.holdoutCounts, { eng: 100, hin: 100, npi: 100 });
+  assert.equal(validated.clipCount, 202);
+  assert.deepEqual(validated.holdoutCounts, { eng: 100, npi: 100 });
   const gold = manifest.selection.clips.filter((row) => row.partition === 'holdout')
     .map((row) => ({ locale: row.locale, clipId: row.clipId, text: row.transcript }));
   const measured = evaluateSynthetic(manifest, gold);
@@ -272,7 +281,7 @@ test('qualification refuses smaller holdout, altered thresholds, implausible spe
   assert.throws(() => validateManifest(duplicateSpeakers, { requireFrozen: true }),
     /distinct grounded holdout speakers/);
   const excessiveAudio = structuredClone(original);
-  for (const row of excessiveAudio.selection.clips) row.sizeBytes = 500000;
+  for (const row of excessiveAudio.selection.clips) row.sizeBytes = 700000;
   assert.throws(() => validateManifest(excessiveAudio, { requireFrozen: true }),
     /selected audio exceeds/);
   const badMode = structuredClone(original);

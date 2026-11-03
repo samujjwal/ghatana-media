@@ -6,7 +6,6 @@ import { scoreCommonVoiceV27Aggregates } from '../scripts/qualification/common-v
 const RELEASE = 'cv-corpus-27.0-2026-09-11';
 const LOCALES = Object.freeze({
   en: Object.freeze({ locale: 'en', datasetId: 'cmu5jplf300nwmh07iqvk9leo' }),
-  hi: Object.freeze({ locale: 'hi', datasetId: 'cmu5vlext009to107ev1s9lk8' }),
   ne: Object.freeze({ locale: 'ne-NP', datasetId: 'cmu61478v00j9o107alzuue1z' }),
 });
 
@@ -24,17 +23,16 @@ function clip(localeKey, clipId, reference, prediction, hashChar) {
   };
 }
 
-function validThreeLocaleInput() {
+function validActiveLocaleInput() {
   return [
     clip('en', 'en-1', 'a b', 'a c', 'a'),
     clip('en', 'en-2', 'Hi', 'hi', 'b'),
-    clip('hi', 'hi-1', 'नमस्ते', 'नमस्ते', 'c'),
-    clip('ne', 'ne-1', 'न', '', 'd'),
+    clip('ne', 'ne-1', 'न', '', 'c'),
   ];
 }
 
-test('returns per-locale aggregate WER/CER only for the pinned three-locale v27 test inputs', () => {
-  const result = scoreCommonVoiceV27Aggregates(validThreeLocaleInput());
+test('returns per-locale aggregate WER/CER only for the active English/Nepali v27 test inputs', () => {
+  const result = scoreCommonVoiceV27Aggregates(validActiveLocaleInput());
 
   assert.equal(result.disposition, 'NOT_QUALIFIED_THRESHOLDS_UNSET');
   assert.equal(result.evidenceClass, 'SYNTHETIC_LOCAL_CODE_PATH_ONLY');
@@ -45,17 +43,14 @@ test('returns per-locale aggregate WER/CER only for the pinned three-locale v27 
   assert.equal(result.locales.en.referenceCharacterCount, 5);
   assert.equal(result.locales.en.characterErrors, 1);
   assert.equal(result.locales.en.cer, 1 / 5);
-  assert.equal(result.locales.hi.clipsScored, 1);
-  assert.equal(result.locales.hi.wer, 0);
-  assert.equal(result.locales.hi.cer, 0);
   assert.equal(result.locales['ne-NP'].clipsScored, 1);
   assert.equal(result.locales['ne-NP'].wer, 1);
   assert.equal(result.locales['ne-NP'].cer, 1);
 
   const serialized = JSON.stringify(result);
-  for (const clipId of ['en-1', 'en-2', 'hi-1', 'ne-1']) assert.equal(serialized.includes(clipId), false);
-  for (const privateText of ['a b', 'a c', 'नमस्ते']) assert.equal(serialized.includes(privateText), false);
-  for (const hashChar of ['a', 'b', 'c', 'd']) assert.equal(serialized.includes(hashChar.repeat(64)), false);
+  for (const clipId of ['en-1', 'en-2', 'ne-1']) assert.equal(serialized.includes(clipId), false);
+  for (const privateText of ['a b', 'a c']) assert.equal(serialized.includes(privateText), false);
+  for (const hashChar of ['a', 'b', 'c']) assert.equal(serialized.includes(hashChar.repeat(64)), false);
   assert.deepEqual(Object.keys(result.locales.en).sort(), [
     'characterErrors', 'cer', 'clipsScored', 'referenceCharacterCount', 'referenceWordCount',
     'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'wer', 'wordErrors',
@@ -65,8 +60,7 @@ test('returns per-locale aggregate WER/CER only for the pinned three-locale v27 
 test('normalizes NFC, lowercase, and collapsed whitespace while CER preserves whitespace', () => {
   const normalized = [
     clip('en', 'en-1', 'Cafe\u0301  TIME', 'CAFÉ TIME', 'a'),
-    clip('hi', 'hi-1', 'क', 'क', 'b'),
-    clip('ne', 'ne-1', 'ख', 'ख', 'c'),
+    clip('ne', 'ne-1', 'ख', 'ख', 'b'),
   ];
   const result = scoreCommonVoiceV27Aggregates(normalized);
   assert.equal(result.locales.en.wer, 0);
@@ -74,8 +68,7 @@ test('normalizes NFC, lowercase, and collapsed whitespace while CER preserves wh
 
   const spacing = [
     clip('en', 'en-2', 'a b', 'ab', 'd'),
-    clip('hi', 'hi-2', 'क', 'क', 'e'),
-    clip('ne', 'ne-2', 'ख', 'ख', 'f'),
+    clip('ne', 'ne-2', 'ख', 'ख', 'e'),
   ];
   const spacingResult = scoreCommonVoiceV27Aggregates(spacing);
   assert.equal(spacingResult.locales.en.wer, 1);
@@ -85,13 +78,10 @@ test('normalizes NFC, lowercase, and collapsed whitespace while CER preserves wh
 test('allows an empty prediction as a valid full-error boundary case', () => {
   const result = scoreCommonVoiceV27Aggregates([
     clip('en', 'en-1', 'hello', '', 'a'),
-    clip('hi', 'hi-1', 'नमस्ते', '', 'b'),
-    clip('ne', 'ne-1', 'नेपाल', '', 'c'),
+    clip('ne', 'ne-1', 'नेपाल', '', 'b'),
   ]);
   assert.equal(result.locales.en.wer, 1);
   assert.equal(result.locales.en.cer, 1);
-  assert.equal(result.locales.hi.wer, 1);
-  assert.equal(result.locales.hi.cer, 1);
   assert.equal(result.locales['ne-NP'].wer, 1);
   assert.equal(result.locales['ne-NP'].cer, 1);
 });
@@ -99,27 +89,27 @@ test('allows an empty prediction as a valid full-error boundary case', () => {
 test('rejects missing locales and empty input', () => {
   assert.throws(() => scoreCommonVoiceV27Aggregates([]), /non-empty array/u);
   assert.throws(() => scoreCommonVoiceV27Aggregates(
-    validThreeLocaleInput().filter((record) => record.locale !== 'en')),
+    validActiveLocaleInput().filter((record) => record.locale !== 'en')),
   /at least one en clip/u);
 });
 
 test('rejects duplicate dataset clip IDs and duplicate audio hashes across locales', () => {
-  const duplicateId = validThreeLocaleInput();
+  const duplicateId = validActiveLocaleInput();
   duplicateId.push(clip('en', 'en-1', 'different', 'different', 'e'));
   assert.throws(() => scoreCommonVoiceV27Aggregates(duplicateId), /duplicate dataset clip ID/u);
 
-  const duplicateHash = validThreeLocaleInput();
-  duplicateHash.push(clip('hi', 'hi-2', 'different', 'different', 'a'));
+  const duplicateHash = validActiveLocaleInput();
+  duplicateHash.push(clip('ne', 'ne-2', 'different', 'different', 'a'));
   assert.throws(() => scoreCommonVoiceV27Aggregates(duplicateHash), /duplicate dataset audio hash/u);
 });
 
 test('rejects extra fields, including speaker or demographic identifiers and symbol keys', () => {
   for (const field of ['speakerId', 'client_id', 'age', 'gender', 'accent', 'transcript']) {
-    const records = validThreeLocaleInput();
+    const records = validActiveLocaleInput();
     records[0][field] = 'must-not-be-accepted';
     assert.throws(() => scoreCommonVoiceV27Aggregates(records), /exactly the approved fields/u, field);
   }
-  const records = validThreeLocaleInput();
+  const records = validActiveLocaleInput();
   records[0][Symbol('private')] = 'extra';
   assert.throws(() => scoreCommonVoiceV27Aggregates(records), /unsupported field/u);
 });
@@ -127,6 +117,7 @@ test('rejects extra fields, including speaker or demographic identifiers and sym
 test('rejects unknown locales, dataset IDs, revisions, splits, invalid hashes, and empty denominators', () => {
   const cases = [
     ['locale', 'xx', /locale/u],
+    ['locale', 'hi', /locale/u],
     ['sourceDatasetId', 'unknown-dataset', /dataset ID/u],
     ['sourceRevision', 'cv-corpus-26.0', /revision/u],
     ['sourceSplit', 'dev', /official test split/u],
@@ -134,24 +125,24 @@ test('rejects unknown locales, dataset IDs, revisions, splits, invalid hashes, a
     ['reference', ' \t\n ', /non-empty WER and CER denominators/u],
   ];
   for (const [field, value, error] of cases) {
-    const records = validThreeLocaleInput();
+    const records = validActiveLocaleInput();
     records[0][field] = value;
     assert.throws(() => scoreCommonVoiceV27Aggregates(records), error, field);
   }
 });
 
 test('rejects non-string predictions and accessor-backed fields', () => {
-  const wrongType = validThreeLocaleInput();
+  const wrongType = validActiveLocaleInput();
   wrongType[0].prediction = null;
   assert.throws(() => scoreCommonVoiceV27Aggregates(wrongType), /prediction must be a string/u);
 
-  const accessor = validThreeLocaleInput();
+  const accessor = validActiveLocaleInput();
   Object.defineProperty(accessor[0], 'reference', { enumerable: true, get: () => 'a b' });
   assert.throws(() => scoreCommonVoiceV27Aggregates(accessor), /data properties/u);
 });
 
 test('scores snapshotted data descriptor values when proxy reads would vary between passes', () => {
-  const records = validThreeLocaleInput();
+  const records = validActiveLocaleInput();
   const stable = records[0];
   records[0] = new Proxy(stable, {
     get(target, key, receiver) {
@@ -164,9 +155,9 @@ test('scores snapshotted data descriptor values when proxy reads would vary betw
   assert.equal(result.locales.en.cer, 1 / 5);
 });
 
-test('rejects input above the combined pinned v27 public test-row ceiling before record processing', () => {
-  const tooMany = new Array(20_108).fill(null);
-  assert.throws(() => scoreCommonVoiceV27Aggregates(tooMany), /test-row ceiling of 20107/u);
+test('rejects input above the combined active English/Nepali v27 test-row ceiling before record processing', () => {
+  const tooMany = new Array(16_706).fill(null);
+  assert.throws(() => scoreCommonVoiceV27Aggregates(tooMany), /test-row ceiling of 16705/u);
 });
 
 test('rejects English rows above its own test-split ceiling below the combined ceiling', () => {
@@ -175,13 +166,13 @@ test('rejects English rows above its own test-split ceiling below the combined c
     record.audioSha256 = index.toString(16).padStart(64, '0');
     return record;
   });
-  assert.ok(englishRows.length < 20_107);
+  assert.ok(englishRows.length < 16_705);
   assert.throws(() => scoreCommonVoiceV27Aggregates(englishRows),
     /pinned en public test-row ceiling of 16403/u);
 });
 
 test('rejects overlong text before normalization or distance scoring', () => {
-  const records = validThreeLocaleInput();
+  const records = validActiveLocaleInput();
   records[0].reference = 'x'.repeat(16_385);
   assert.throws(() => scoreCommonVoiceV27Aggregates(records), /16384-code-unit limit/u);
 });
@@ -199,8 +190,7 @@ test('bounds cumulative raw text before normalization for maximum-length referen
 test('preflights cumulative WER and CER edit cells before any scoring loops', () => {
   const records = [
     clip('en', 'en-large', 'a'.repeat(7_100), 'b'.repeat(7_100), 'a'),
-    clip('hi', 'hi-1', 'क', 'क', 'b'),
-    clip('ne', 'ne-1', 'ख', 'ख', 'c'),
+    clip('ne', 'ne-1', 'ख', 'ख', 'b'),
   ];
   assert.throws(() => scoreCommonVoiceV27Aggregates(records),
     /50000000-cell cumulative edit budget/u);

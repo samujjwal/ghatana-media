@@ -7,34 +7,38 @@ import { validateCandidateProfile } from '../scripts/qualification/check-common-
 const profileUrl = new URL('../config/qualification/common-voice-v27-asr-alternative.v1.json', import.meta.url);
 const profile = JSON.parse(await readFile(profileUrl, 'utf8'));
 
-test('pins the three Common Voice v27 ASR datasets and keeps the candidate separate from FLEURS', () => {
+test('pins English and Nepali Common Voice v27 and keeps Hindi deferred and the candidate separate from FLEURS', () => {
   const result = validateCandidateProfile(profile);
   assert.deepEqual(result, {
     profileId: 'media.stt.common-voice-scripted-speech-27-alternative',
     metadataValid: true,
     realInferenceAdmitted: false,
+    datasetAccessUserConfirmed: true,
     datasetAccessProven: false,
+    activeLocales: ['en', 'ne-NP'],
+    deferredLocales: ['hi'],
+    ownerConfirmedTermsAndAccess: true,
   });
+  assert.deepEqual(Object.keys(profile.dataset.locales).sort(), ['en', 'ne']);
   assert.equal(profile.dataset.locales.en.datasetId, 'cmu5jplf300nwmh07iqvk9leo');
-  assert.equal(profile.dataset.locales.hi.datasetId, 'cmu5vlext009to107ev1s9lk8');
   assert.equal(profile.dataset.locales.ne.datasetId, 'cmu61478v00j9o107alzuue1z');
+  assert.equal(profile.dataset.deferredLocales.hi.datasetId, 'cmu5vlext009to107ev1s9lk8');
   assert.equal(profile.doesNotSupersede.includes('config/qualification/fleurs-asr-evaluation.v1.json'), true);
 });
 
-test('does not turn local access booleans into an admission record', () => {
+test('does not turn owner confirmation into independently verified source authority', () => {
   const mutated = structuredClone(profile);
-  mutated.access.consumerTermsAccepted = true;
-  mutated.access.acceptedAt = '2026-11-03T00:00:00.000Z';
-  assert.throws(() => validateCandidateProfile(mutated), /locally asserted MDC access acceptance/);
+  mutated.access.authorityAndAcceptanceEvidenceStatus = 'VERIFIED';
+  assert.throws(() => validateCandidateProfile(mutated), /distinct from independently verified source evidence/);
 });
 
-test('does not claim a dataset or sample request before authorized terms acceptance', () => {
+test('does not let partial archive metadata assert full archive integrity', () => {
   const mutated = structuredClone(profile);
-  mutated.access.downloadOrSampleRequested = true;
-  assert.throws(() => validateCandidateProfile(mutated), /dataset\/sample request/);
+  mutated.access.archivePresence.en.integrity = 'VERIFIED';
+  assert.throws(() => validateCandidateProfile(mutated), /archive metadata must not imply full integrity/);
 });
 
-test('blocks selected clips until the authorized-access and clip-manifest path exists', () => {
+test('requires a restricted local clip manifest before claiming selected clips', () => {
   const mutated = structuredClone(profile);
   mutated.selection.clipManifest = [{
     locale: 'en',
@@ -44,7 +48,7 @@ test('blocks selected clips until the authorized-access and clip-manifest path e
     clipId: 'clip-1',
     audioSha256: 'a'.repeat(64),
   }];
-  assert.throws(() => validateCandidateProfile(mutated), /cannot include selected clips/);
+  assert.throws(() => validateCandidateProfile(mutated), /must not claim selected clips/);
 });
 
 test('rejects transcript, speaker, demographic, and prediction fields from persisted clip manifests', () => {
@@ -96,7 +100,7 @@ test('requires the complete exact persisted-manifest field set and validates any
     clipId: 'clip-1',
     audioSha256: 'a'.repeat(64),
   }];
-  assert.throws(() => validateCandidateProfile(populated), /cannot include selected clips/);
+  assert.throws(() => validateCandidateProfile(populated), /must not claim selected clips/);
 
   const malformedRecord = structuredClone(profile);
   malformedRecord.selection.clipManifest = [{ clipId: 'clip-1', audioSha256: 'a'.repeat(64) }];
@@ -119,14 +123,15 @@ test('keeps the offline, no-training, deletion, and 90-day aggregate policy', ()
   assert.equal(profile.execution.perClipPredictionRetention, 'MEMORY_ONLY');
 });
 
-test('keeps the English publisher-sample status unresolved and full download unauthorized', () => {
+test('records English archive presence without implying integrity or source authority', () => {
   validateCandidateProfile(profile);
-  assert.equal(profile.englishSubset.sampleAvailability, 'NOT_VERIFIED');
+  assert.equal(profile.englishSubset.sampleAvailability, 'NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT');
   assert.equal(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard, false);
   assert.equal(profile.englishSubset.publicTextSampleSentenceCount, 5);
   assert.equal(profile.englishSubset.sampleApiDocumentationUrl, 'https://mozilladatacollective.com/api-reference/docs');
-  assert.match(profile.englishSubset.sampleVerificationNote, /five text sentences, not a downloadable audio sample/);
-  assert.equal(profile.englishSubset.fullArchiveDownloadAuthorized, false);
+  assert.match(profile.englishSubset.sampleVerificationNote, /No audio was extracted or decoded/);
+  assert.equal(profile.englishSubset.fullArchiveDownloadAuthorization,
+    'OWNER_CONFIRMED_ALREADY_ACQUIRED; NO_NEW_DOWNLOAD');
 });
 
 test('keeps any future clip IDs and hashes local and treats them as linkable data', () => {

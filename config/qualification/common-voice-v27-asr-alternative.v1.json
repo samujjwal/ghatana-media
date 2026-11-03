@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "profileId": "media.stt.common-voice-scripted-speech-27-alternative",
-  "status": "METADATA_ONLY_WAITING_FOR_AUTHORIZED_ACCESS_AND_CLIP_MANIFEST",
+  "status": "OWNER_CONFIRMED_ACCESS_MODEL_ARTIFACT_PENDING",
   "decisionScope": "ALTERNATIVE_ASR_EVALUATION_REPORT_ONLY",
   "doesNotSupersede": [
     "config/qualification/fleurs-asr-evaluation.v1.json",
@@ -15,6 +15,7 @@
     "license": "CC0-1.0",
     "task": "ASR",
     "intendedUse": "ASR evaluation only",
+    "activeLocaleScope": ["en", "ne-NP"],
     "releaseNotesUrl": "https://community.mozilladatacollective.com/commonvoice-27/",
     "consumerTermsUrl": "https://mozilladatacollective.com/terms/consumers",
     "commonVoiceTermsUrl": "https://commonvoice.mozilla.org/terms/en.html",
@@ -29,15 +30,6 @@
         "officialTestClipCountAtReview": 16403,
         "fullArchiveDisplaySizeAtReview": "88.43 GB"
       },
-      "hi": {
-        "locale": "hi",
-        "datasetId": "cmu5vlext009to107ev1s9lk8",
-        "datasetUrl": "https://mozilladatacollective.com/datasets/cmu5vlext009to107ev1s9lk8",
-        "license": "CC0-1.0",
-        "officialTestSplit": "test",
-        "officialTestClipCountAtReview": 3402,
-        "fullArchiveDisplaySizeAtReview": "546.57 MB"
-      },
       "ne": {
         "locale": "ne-NP",
         "datasetId": "cmu61478v00j9o107alzuue1z",
@@ -47,32 +39,60 @@
         "officialTestClipCountAtReview": 302,
         "fullArchiveDisplaySizeAtReview": "40.55 MB"
       }
+    },
+    "deferredLocales": {
+      "hi": {
+        "locale": "hi",
+        "datasetId": "cmu5vlext009to107ev1s9lk8",
+        "status": "DEFERRED_FROM_THIS_PHASE",
+        "reason": "Hindi is excluded from current evaluation, implementation, and acceptance work."
+      }
     }
   },
   "access": {
     "requiredAuthority": "An authorized representative of the consuming organization must accept the MDC Consumer Terms and applicable dataset license.",
-    "consumerTermsAccepted": false,
-    "acceptedAt": null,
+    "consumerTermsAcceptanceStatus": "OWNER_CONFIRMED_MDC_ACCESS_AND_TERMS_COMPLETE_FOR_EN_AND_NP",
+    "acceptedAt": "NOT_PROVIDED",
     "organizationRef": null,
     "authorizedRepresentativeRef": null,
     "datasetAccessRecordRef": null,
     "evidenceRef": null,
-    "downloadOrSampleRequested": false,
-    "status": "WAITING_FOR_AUTHORIZED_ORGANIZATIONAL_ACCEPTANCE"
+    "authorityAndAcceptanceEvidenceStatus": "OWNER_CONFIRMED; NOT_INDEPENDENTLY_VERIFIED",
+    "archivePresence": {
+      "en": {
+        "status": "PRESENT_STAT_OBSERVED_TAR_MEMBER_PATHS_OBSERVED",
+        "basename": "1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz",
+        "sizeBytes": 94956262763,
+        "integrity": "ENGLISH_TEST_ROW_COUNT_UNVERIFIED; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED",
+        "testTsvMember": "OBSERVED_IN_LOCAL_ARCHIVE",
+        "testRowsObservedLocally": null
+      },
+      "ne-NP": {
+        "status": "PRESENT_STAT_OBSERVED_TEST_TSV_READ",
+        "basename": "1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz",
+        "sizeBytes": 42519359,
+        "integrity": "TEST_TSV_METADATA_READ; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED",
+        "testTsvMember": "OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES",
+        "testRowsObservedLocally": 302
+      }
+    },
+    "status": "OWNER_CONFIRMED_MDC_ACCESS_AND_TERMS_COMPLETE; LOCAL_ARCHIVES_PRESENT"
   },
   "englishSubset": {
     "publisherSampleLinkVisibleOnPublicCard": false,
     "publicTextSampleSentenceCount": 5,
-    "sampleAvailability": "NOT_VERIFIED",
+    "sampleAvailability": "NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT",
     "sampleApiDocumentationUrl": "https://mozilladatacollective.com/api-reference/docs",
-    "sampleVerificationNote": "The public English dataset card's Sample section contains five text sentences, not a downloadable audio sample; its Files section exposes the full 88.43 GB archive and no separate audio sample link. Public GET /api/datasets/{datasetId} metadata omits sample availability. MDC documents an authenticated sample-download endpoint that requires an API key and accepted terms, and returns 404 when no publisher sample exists. No authenticated request was made because no authorized organizational acceptance is recorded, so publisher audio-sample availability remains NOT_VERIFIED.",
-    "allowedNextAction": "After authorized MDC acceptance, check the publisher sample endpoint. If absent, use a publisher-provided smaller English test subset or obtain explicit storage/capacity approval before any full-archive download.",
-    "fullArchiveDownloadAuthorized": false
+    "sampleVerificationNote": "The English archive is present locally; its top-level test.tsv member path was observed. A metadata-only row-count attempt did not return within the bounded tool window, so the local row count remains unverified. No audio was extracted or decoded. The full archive has not been hashed. MDC access and terms are complete per owner confirmation; a separate non-secret access record is not attached here. The public card's five text sentences are not an audio sample. A new sample request is not needed.",
+    "allowedNextAction": "Use the existing local archive to prepare a restricted manifest from only the official test split. Do not admit real inference until the exact local model artifacts, rights/export provenance, and digest are reviewed.",
+    "fullArchiveDownloadAuthorization": "OWNER_CONFIRMED_ALREADY_ACQUIRED; NO_NEW_DOWNLOAD"
   },
   "selection": {
     "sourceSplit": "test",
+    "activeLocales": ["en", "ne-NP"],
+    "deferredLocales": ["hi"],
     "sourceSplitEvidence": "MDC v27 dataset cards list official train/dev/test split counts.",
-    "clipManifestStatus": "NOT_CREATED_NO_DATA_ACQUIRED",
+    "clipManifestStatus": "NOT_CREATED_LOCAL_TEST_METADATA_READY_NO_CLIPS_SELECTED",
     "clipManifest": [],
     "requiredManifestFields": [
       "locale",
@@ -108,6 +128,11 @@
   },
   "execution": {
     "realInferenceAdmitted": false,
+    "notAdmittedReason": "The pinned Whisper candidate artifacts are not available locally and their weight/export rights remain unreviewed.",
+    "modelCandidateId": "stt-whisper-tiny-multilingual",
+    "modelCandidateDisposition": "REVIEW_ONLY",
+    "modelArtifactAvailability": "NOT_FOUND_IN_REPOSITORY_OR_CHECKED_LOCAL_CACHES",
+    "modelRightsAndExportStatus": "NOT_REVIEWED",
     "modelNetworkAccess": "DISABLED",
     "externalProviderDispatch": false,
     "trainingAllowed": false,

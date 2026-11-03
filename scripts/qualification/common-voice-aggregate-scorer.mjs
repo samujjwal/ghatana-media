@@ -11,13 +11,12 @@
  */
 
 const SOURCE_REVISION = 'cv-corpus-27.0-2026-09-11';
-const MAX_TOTAL_TEST_ROWS = 16_403 + 3_402 + 302;
+const MAX_TOTAL_TEST_ROWS = 16_403 + 302;
 const MAX_TEXT_CODE_UNITS = 16_384;
 const MAX_CUMULATIVE_TEXT_CODE_UNITS = 1_000_000;
 const MAX_CUMULATIVE_EDIT_CELLS = 50_000_000;
 const LOCALES = Object.freeze({
   en: Object.freeze({ locale: 'en', sourceDatasetId: 'cmu5jplf300nwmh07iqvk9leo', testRowCap: 16_403 }),
-  hi: Object.freeze({ locale: 'hi', sourceDatasetId: 'cmu5vlext009to107ev1s9lk8', testRowCap: 3_402 }),
   ne: Object.freeze({ locale: 'ne-NP', sourceDatasetId: 'cmu61478v00j9o107alzuue1z', testRowCap: 302 }),
 });
 const RECORD_FIELDS = Object.freeze([
