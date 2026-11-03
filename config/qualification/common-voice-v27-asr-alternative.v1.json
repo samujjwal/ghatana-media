@@ -63,7 +63,7 @@
   "englishSubset": {
     "publisherSampleLinkVisibleOnPublicCard": false,
     "sampleAvailability": "NOT_VERIFIED",
-    "sampleVerificationNote": "The public dataset page shows the full 88.43 GB archive and no sample file. MDC documents an authenticated sample-download endpoint that returns 404 when no publisher sample exists. No authenticated request was made because no authorized organizational acceptance is recorded.",
+    "sampleVerificationNote": "The current public English dataset card's Sample section contains five text sentences only; its Files section exposes the full 88.43 GB archive and no separate audio sample link. Public GET /api/datasets/{datasetId} metadata omits sample availability. MDC documents an authenticated sample-download endpoint that requires an API key and accepted terms, and returns 404 when no publisher sample exists. No authenticated request was made because no authorized organizational acceptance is recorded, so audio-sample availability remains NOT_VERIFIED.",
     "allowedNextAction": "After authorized MDC acceptance, check the publisher sample endpoint. If absent, use a publisher-provided smaller English test subset or obtain explicit storage/capacity approval before any full-archive download.",
     "fullArchiveDownloadAuthorized": false
   },

@@ -72,10 +72,9 @@ final class AgentToolInput {
             throw new IllegalArgumentException("TOOL_VERSION_MISMATCH");
         if (envelope.actionClass() != contract.actionClass())
             throw new IllegalArgumentException("TOOL_ACTION_CLASS_MISMATCH");
-        // Apply generic allocation/shape limits before walking the input key set
-        // for the tool-specific whitelist. Inputs without a registered schema
-        // still need the same bounds, and an oversized map must not force an
-        // unbounded preliminary scan before those limits take effect.
+        // Apply generic allocation/shape policy before tool-specific validation
+        // so oversized input receives the same typed bound error even when it
+        // also contains fields outside the installed whitelist.
         validateInputBounds(envelope.input());
         if (!fields.containsAll(envelope.input().keySet()))
             throw new IllegalArgumentException("UNKNOWN_INPUT_FIELD");

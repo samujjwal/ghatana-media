@@ -106,6 +106,8 @@ export function validateCandidateProfile(profile) {
     && profile.access.evidenceRef === null,
   'candidate must not contain locally asserted MDC access acceptance');
   assert(profile.englishSubset?.sampleAvailability === 'NOT_VERIFIED', 'English sample status must stay unverified');
+  assert(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard === false,
+    'English public card must not claim a publisher audio-sample link');
   assert(profile.englishSubset.fullArchiveDownloadAuthorized === false, 'English full archive is not authorized');
 
   const selection = profile.selection;

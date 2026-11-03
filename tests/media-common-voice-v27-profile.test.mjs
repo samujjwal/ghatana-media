@@ -98,6 +98,8 @@ test('keeps the offline, no-training, deletion, and 90-day aggregate policy', ()
 test('keeps the English publisher-sample status unresolved and full download unauthorized', () => {
   validateCandidateProfile(profile);
   assert.equal(profile.englishSubset.sampleAvailability, 'NOT_VERIFIED');
+  assert.equal(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard, false);
+  assert.match(profile.englishSubset.sampleVerificationNote, /five text sentences only/);
   assert.equal(profile.englishSubset.fullArchiveDownloadAuthorized, false);
 });
 
