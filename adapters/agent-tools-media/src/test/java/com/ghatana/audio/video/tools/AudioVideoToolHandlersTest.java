@@ -214,16 +214,29 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     void rejectsRemoteInputSchemaReferences() {
         ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("languageCode", "en-US"));
         Map<String, Object> schema = Map.of("$ref", "https://invalid.example/schema.json");
+        ToolContract contract = contractFor(env, schema, Map.of());
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        com.ghatana.toolruntime.ToolHandler delegate = (delegateEnvelope, ignoredContract) -> {
+            effects.incrementAndGet();
+            return Promise.of(ToolExecutionResult.succeeded(delegateEnvelope.invocationId(), Map.of(), Map.of(),
+                    delegateEnvelope.invocationId(), Instant.now(), Duration.ZERO));
+        };
 
-        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env, schema, Map.of()),
-                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+        assertThatThrownBy(() -> {
+            AgentToolInput.checked(env, contract, SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode"));
+            await(AgentToolInput.dispatch(delegate, env, contract));
+        })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
 
-        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env, Map.of("$ref", "#"), Map.of()),
-                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+        ToolContract recursiveContract = contractFor(env, Map.of("$ref", "#"), Map.of());
+        assertThatThrownBy(() -> {
+            AgentToolInput.checked(env, recursiveContract, SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode"));
+            await(AgentToolInput.dispatch(delegate, env, recursiveContract));
+        })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+        assertThat(effects).hasValue(0);
     }
 
     @Test
