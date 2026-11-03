@@ -128,6 +128,51 @@ try {
     assert.equal(typeof recorder.orchestrateScenario, 'function');
     assert.equal(typeof production.compileProductionPlan, 'function');
     assert.equal(MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
+
+    // Synthetic read fixture: exercise the installed, source-free package runtime
+    // through the existing canonical GET and its injected fetch implementation.
+    const timestamp = '2026-10-30T12:00:00.000Z';
+    const fixtureJob = {
+      jobId: 'job-installed-42', requestId: 'request-installed-42',
+      tenantId: 'fixture-tenant', principalId: 'fixture-principal', artifactId: 'artifact-installed-42',
+      jobType: 'SPEECH_TO_TEXT', providerId: 'fixture-provider', status: 'RUNNING',
+      createdAt: timestamp, startedAt: timestamp, completedAt: null, result: {}, failureCode: null,
+      version: 3, expectedArtifactVersion: '', requestFingerprint: 'sha256:' + 'b'.repeat(64),
+    };
+    const calls = [];
+    const fetchImpl = async (input, init = {}) => {
+      calls.push({ url: String(input), init });
+      return new Response(JSON.stringify(fixtureJob), {
+        status: 200, headers: { 'Content-Type': 'application/json' },
+      });
+    };
+    const readClient = canonical.createMediaCanonicalClient({
+      baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
+      defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
+      getAccessToken: () => 'installed-read-fixture-token', fetchImpl,
+    });
+    const readJob = await readClient.getJob('job-installed-42');
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].url, 'https://media.example.test/api/v1/jobs/job-installed-42');
+    assert.equal(calls[0].init.method, 'GET');
+    const headers = new Headers(calls[0].init.headers);
+    assert.equal(headers.get('Authorization'), 'Bearer installed-read-fixture-token');
+    assert.equal(headers.get('X-Tenant-ID'), 'fixture-tenant');
+    assert.equal(headers.get('X-Principal-Id'), 'fixture-principal');
+    assert.equal(readJob.jobId, 'job-installed-42');
+    assert.equal(readJob.tenantId, 'fixture-tenant');
+    assert.equal(readJob.principalId, 'fixture-principal');
+    assert.equal(readJob.status, 'RUNNING');
+
+    const wrongScopeClient = canonical.createMediaCanonicalClient({
+      baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
+      defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
+      getAccessToken: () => 'installed-read-fixture-token',
+      fetchImpl: async () => new Response(JSON.stringify({ ...fixtureJob, tenantId: 'other-tenant' }), {
+        status: 200, headers: { 'Content-Type': 'application/json' },
+      }),
+    });
+    await assert.rejects(wrongScopeClient.getJob('job-installed-42'), /outside the caller's tenant and principal scope/u);
   `);
   run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
 
@@ -219,7 +264,7 @@ try {
   assert.equal((untrustedResult.stdout + untrustedResult.stderr).includes(token), false,
     'installed CLI must not expose the credential while rejecting an endpoint');
 
-  console.log(`Installed ESM/CJS/types consumers and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
+  console.log(`Installed ESM/CJS/types consumers, synthetic canonical job-read fixture, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }
