@@ -143,8 +143,13 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     actorsById.set(actorId, { actorId, role });
   }
   const seenSceneIds = new Set<string>();
+  const identityPrefix = `media.scenario-plan.v1:[${JSON.stringify(scenarioId)},${JSON.stringify(revision)},[`;
+  const identitySuffix = "]]";
+  const sceneRuns: SceneRun[] = [];
+  const sceneDescriptors: string[] = [];
+  let planIdentityLength = identityPrefix.length + identitySuffix.length;
 
-  const sceneRuns: SceneRun[] = scenario.scenes.map((scene, index) => {
+  for (const [index, scene] of scenario.scenes.entries()) {
     if (!scene || typeof scene !== "object") {
       throw new ScenarioError("INVALID_SCENARIO", `scenes[${index}] must be an object`);
     }
@@ -222,7 +227,7 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       throw new ScenarioError("INVALID_SCENARIO",
         `scene ${sceneId} captionRefs must contain at most ${MAX_SCENE_CAPTION_REFS}`);
     }
-    return {
+    const run: SceneRun = {
       sceneId,
       sourceRevision,
       lineageId: lineageId(scenarioId, sceneId, sourceRef),
@@ -232,25 +237,25 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       narration,
       captionRefs,
     };
-  });
-  const planIdentity = `media.scenario-plan.v1:${JSON.stringify([
-    scenarioId,
-    revision,
-    sceneRuns.map((run) => [
-      run.sceneId,
-      run.sourceRevision,
+    const descriptor = JSON.stringify([
+      sceneId,
+      sourceRevision,
       run.lineageId,
-      run.capturePlan,
+      sourceRef,
       run.durationMillis,
-      run.actorBindings,
-      run.narration,
-      run.captionRefs,
-    ]),
-  ])}`;
-  if (planIdentity.length > MAX_PLAN_IDENTITY_CHARS) {
-    throw new ScenarioError("INVALID_SCENARIO",
-      `serialized scenario plan exceeds ${MAX_PLAN_IDENTITY_CHARS} characters`);
+      actorBindings,
+      narration,
+      captionRefs,
+    ]);
+    planIdentityLength += descriptor.length + (sceneDescriptors.length > 0 ? 1 : 0);
+    if (planIdentityLength > MAX_PLAN_IDENTITY_CHARS) {
+      throw new ScenarioError("INVALID_SCENARIO",
+        `serialized scenario plan exceeds ${MAX_PLAN_IDENTITY_CHARS} characters`);
+    }
+    sceneRuns.push(run);
+    sceneDescriptors.push(descriptor);
   }
+  const planIdentity = `${identityPrefix}${sceneDescriptors.join(",")}${identitySuffix}`;
   return { scenarioId, revision, planIdentity, sceneRuns, dryRunOnly: true };
 }
 

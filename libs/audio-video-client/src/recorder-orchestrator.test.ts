@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   ScenarioError,
   changedSceneLineages,
@@ -243,14 +243,35 @@ describe("orchestrateScenario", () => {
       ...base,
       scenes: [{ ...base.scenes[0]!, captionRefs: Array.from({ length: 257 }, (_, i) => `caption/${i}`) }],
     })).toThrowError(/captionRefs must contain at most 256/u);
-    expect(() => orchestrateScenario({
+    let laterSceneRead = false;
+    const unreadScene = Object.defineProperty({ ...base.scenes[0]! }, "sceneId", {
+      get: () => {
+        laterSceneRead = true;
+        return "unread";
+      },
+    });
+    const oversized = {
       ...base,
-      scenes: Array.from({ length: 12 }, (_, index) => ({
-        ...base.scenes[0]!,
-        sceneId: `large-${index}`,
-        narration: Array.from({ length: 256 }, () => ({ atMillis: 1, trackRef: "z".repeat(384) })),
-      })),
-    })).toThrowError(/serialized scenario plan exceeds/u);
+      scenes: [
+        ...Array.from({ length: 11 }, (_, index) => ({
+          ...base.scenes[0]!,
+          sceneId: `large-${index}`,
+          narration: Array.from({ length: 256 }, () => ({ atMillis: 1, trackRef: "z".repeat(384) })),
+        })),
+        unreadScene,
+      ],
+    };
+    const stringify = vi.spyOn(JSON, "stringify");
+    try {
+      expect(() => orchestrateScenario(oversized)).toThrowError(/serialized scenario plan exceeds/u);
+      const serializedWholePlan = stringify.mock.calls.some(([value]) =>
+        Array.isArray(value) && value.length === 3
+        && Array.isArray(value[2]) && value[2].length > 0);
+      expect(serializedWholePlan).toBe(false);
+      expect(laterSceneRead).toBe(false);
+    } finally {
+      stringify.mockRestore();
+    }
   });
 });
 
