@@ -449,19 +449,20 @@ class MediaCanonicalOperationExecutorTest {
         Thread first = startExecution(executor, staleBinding, firstFailure);
         Context.CancellableContext cancelledRequest = Context.current().withCancellation();
         AtomicReference<Throwable> cancelledFailure = new AtomicReference<>();
-        Thread queued = Thread.startVirtualThread(() -> {
-            Context previous = cancelledRequest.attach();
-            try {
-                executor.execute(staleBinding, "op", operation(), AUTH);
-            } catch (Throwable failure) {
-                cancelledFailure.set(failure);
-            } finally {
-                cancelledRequest.detach(previous);
-            }
-        });
+        Thread queued = null;
 
         try {
             assertThat(firstReadStarted.await(1, TimeUnit.SECONDS)).isTrue();
+            queued = Thread.startVirtualThread(() -> {
+                Context previous = cancelledRequest.attach();
+                try {
+                    executor.execute(staleBinding, "op", operation(), AUTH);
+                } catch (Throwable failure) {
+                    cancelledFailure.set(failure);
+                } finally {
+                    cancelledRequest.detach(previous);
+                }
+            });
             long queueDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(1);
             while (workers.getQueue().size() != 1 && System.nanoTime() < queueDeadline) {
                 Thread.onSpinWait();
@@ -477,12 +478,13 @@ class MediaCanonicalOperationExecutorTest {
         } finally {
             releaseFirstRead.countDown();
             first.join(1_000);
-            queued.join(1_000);
+            if (queued != null) queued.join(1_000);
             workers.shutdownNow();
             cancelledRequest.cancel(null);
         }
 
         assertThat(first.isAlive()).isFalse();
+        assertThat(queued).isNotNull();
         assertThat(workers.getActiveCount()).isZero();
         assertThat(firstFailure.get()).isInstanceOf(IllegalArgumentException.class);
         assertThat(sourceReads).hasValue(1);
