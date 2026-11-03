@@ -4104,3 +4104,8 @@ Added a 1,000,000 cumulative raw UTF-16-code-unit cap checked before normalizati
 ### 43.138 November 3 SK-03 source-free package consumer
 
 Ran `pnpm --filter @audio-video/client test:package` after the mandatory-auth/raw-origin change. The build and isolated packed ESM/CJS/types consumer passed, including injected-fetch job-read and wrong-scope fixtures, packed-output credential/PII scan, and trusted-URL/credential CLI admission checks. This validates the installed local package surface without making a provider call; it does not establish the original whole SK-03 matrix of five artifact operations, server 403/404/409, provider outcomes, or real Action Plane admission.
+
+
+### 43.139 November 3 CT-01 observed HTTP-route denominator
+
+Added `MediaHttpRouteInventoryCountTest` to assert that both the OpenAPI path/method inventory and runtime route manifest retain the observed 30-route denominator. The existing `MediaOpenApiContractConsumptionTest` already verifies bidirectional method/path/operation/route-ID parity, and `MediaGrpcRegistryDescriptorParityTest` already checks 44 registry rows against descriptor names, request/response types, streaming and proposal status. The new test was forced to execute with `./gradlew :services:media:modules:integration-tests:test --tests 'com.ghatana.audio.video.integration.MediaHttpRouteInventoryCountTest' --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain`; it passed **1/1**. This adds only an inventory denominator guard. Field-level protobuf-to-operation mapping and external owner review remain open; no service was called and no contract or admission status changed.
