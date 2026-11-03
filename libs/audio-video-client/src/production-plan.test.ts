@@ -114,6 +114,22 @@ describe("compileProductionPlan", () => {
     expect(otherProject.planFingerprint).not.toBe(initial.planFingerprint);
   });
 
+  it("binds the no-effect plan fingerprint to a resolved immutable source revision", async () => {
+    const initial = await compileProductionPlan(spec(), resolver(admitted(allRefs)));
+    const changedSceneRevision = await compileProductionPlan(spec(), {
+      resolve: (sourceRef) => ({
+        sourceRef,
+        immutableRevision: sourceRef === "scene/1@v3"
+          ? "scene/1@v3#sealed-next" : `${sourceRef}#sealed`,
+        eligibility: "LOCAL_ADMITTED",
+      }),
+    });
+
+    expect(changedSceneRevision.dryRunOnly).toBe(true);
+    expect(changedSceneRevision.steps.every((step) => step.effect === "none")).toBe(true);
+    expect(changedSceneRevision.planFingerprint).not.toBe(initial.planFingerprint);
+  });
+
   it("rejects mismatched, malformed and unrecognized resolver results", async () => {
     for (const malformed of [
       { sourceRef: "different-source", immutableRevision: "sealed@v1", eligibility: "LOCAL_ADMITTED" },
