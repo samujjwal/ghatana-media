@@ -272,7 +272,7 @@ try {
   assert.equal((untrustedResult.stdout + untrustedResult.stderr).includes(token), false,
     'installed CLI must not expose the credential while rejecting an endpoint');
 
-  console.log(`Installed ESM/CJS/types consumers, synthetic canonical job-read fixture, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
+  console.log(`Installed ESM/CJS/types consumers, synthetic loopback HTTP job-read and wrong-scope fixtures, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }
