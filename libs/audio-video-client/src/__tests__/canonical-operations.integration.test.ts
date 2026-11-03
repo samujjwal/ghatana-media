@@ -276,7 +276,10 @@ describe('MediaCanonicalClient over real HTTP', () => {
   });
 
   it('an abort after frame dispatch is OUTCOME_UNKNOWN — never a clean failure', async () => {
+    let notifyRequestReceived!: () => void;
+    const requestReceived = new Promise<void>((resolve) => { notifyRequestReceived = resolve; });
     await withServer((_request, response) => {
+      notifyRequestReceived();
       // Hold the response open; the client aborts mid-flight.
       setTimeout(() => {
         response.writeHead(202, { 'content-type': 'application/json' })
@@ -288,6 +291,9 @@ describe('MediaCanonicalClient over real HTTP', () => {
       const pending = client.submitStreamFrame(
         'sess-1', streamToken, 0, new Blob([new Uint8Array(1)]),
         { signal: controller.signal });
+      // Wait until the server has received the full frame body so this exercises
+      // cancellation after dispatch, rather than cancellation during auth setup.
+      await requestReceived;
       controller.abort();
       const failure = await pending.then(
         () => { throw new Error('unreachable'); },
