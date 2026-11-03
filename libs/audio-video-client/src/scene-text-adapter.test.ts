@@ -267,6 +267,44 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
     },
   );
 
+  it.each([
+    ['EXTERNAL_CALL_TIMEOUT', 'PROVIDER', 'PARSING', true],
+    ['CANCELLED', 'CANCELLED', 'PARSING', false],
+  ] as const)(
+    'does not treat Shared-shaped generic error %s as DI dispatch finality',
+    async (code, category, stage, retryable) => {
+      const sensitiveDetails = 'tenant=private-tenant token=secret-789';
+      const di = client();
+      di.parse = vi.fn(async () => {
+        throw Object.assign(new Error(sensitiveDetails), {
+          code, category, stage, retryable, providerRef: 'private.provider',
+          cause: new Error(sensitiveDetails),
+        });
+      });
+
+      let rejection: unknown;
+      try {
+        await new DocumentIntelligenceSceneTextAdapter(di, policy)
+          .recognizeFrame('op-scene-text', frame);
+      } catch (error) {
+        rejection = error;
+      }
+
+      expect(di.parse).toHaveBeenCalledTimes(1);
+      expect(rejection).toBeInstanceOf(SceneTextAdapterError);
+      expect(rejection).toMatchObject({ code: 'OUTCOME_UNKNOWN' });
+      expect(rejection).toEqual(expect.objectContaining({
+        message: 'Scene-text adapter rejected the operation: OUTCOME_UNKNOWN',
+      }));
+      expect(rejection).not.toHaveProperty('retryable');
+      expect(rejection).not.toHaveProperty('category');
+      expect(rejection).not.toHaveProperty('stage');
+      expect(rejection).not.toHaveProperty('providerRef');
+      expect(rejection).not.toHaveProperty('cause');
+      expect((rejection as Error).message).not.toContain(sensitiveDetails);
+    },
+  );
+
   it('rejects catalog model identity or version before parse', async () => {
     for (const candidate of [
       { ...catalog().providers[0], modelRef: undefined },
