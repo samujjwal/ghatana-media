@@ -1,16 +1,17 @@
 {
   "schemaVersion": "media.derived-owner-remaining-work-execution.v1",
   "recordKind": "SOURCE_INSPECTED_EXECUTION_PLAN_NOT_PRODUCT_MEANING_OR_LIFECYCLE_PROOF",
-  "reviewedAt": "2026-11-01, America/Los_Angeles; current source on connected remote main now e2b449ea",
+  "reviewedAt": "2026-11-02 17:35 America/Los_Angeles, current published source e2b replaced by 36620de0",
   "sources": {
     "repositories": {
-      "ghatana-media": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ghatana": "d62557fdaac7a324e036ca25f672d2a62ac532ea",
-      "ghatana-kernel": "f3026479515e471285015e032f965f5d2ccfb58f",
+      "ghatana-media": "36620de0a7f992b62ebfa91466ebe84306c32183",
+      "ghatana": "909b42cad1f1134ad824130d282889ac917556ca",
+      "ghatana-kernel": "4ef9180c9b65d64f73d78ca4c8af3bfa2864ced6",
       "ghatana-shared": "13548bf7e73f8868eeba3626a763aa2cd82bddf4",
-      "ghatana-lifecycle": "c708f6267fdaf4a70a964df9c75eeef1f148ce2c",
+      "ghatana-lifecycle": "313222b2344d6184559ad69f1c6b05df8c65520a",
       "ghatana-toolchain": "94c5f67b3c37c58281b2d137bf9791cdc45a2bbb",
-      "ghatana-tools": "628f08e9ad4fe50930d3a7211d33a804e7811f1b"
+      "ghatana-tools": "628f08e9ad4fe50930d3a7211d33a804e7811f1b",
+      "ghatana-products": "01ff27e98b9d6b865320160d47611b6276be1996"
     },
     "physicalTopology": ".product-experience/surfaces/media-physical-topology.v1.json",
     "roster": "docs/implementation/MEDIA-SURFACE-ROSTER-RECONCILIATION.v1.json",
@@ -49,15 +50,15 @@
   },
   "progress": {
     "caption": "CAP-01/02/03 source changes and host test report accepted for engineering, not native",
-    "vision": "VIS09 internal/source-crop and standalone MediaRuntimePortFactory code implemented; real worker/video-frame/source-free host qualification pending",
-    "ocrCompatibility": "Media OCR compatibility code retired; Kernel DI HTTP bridge is on remote main at f30264795, but its ProductExecutionContext ignored, per-operation status/cancel tenant scoping, durable readback and truthful cancellation are unqualified",
+    "vision": "Media scene-text consumer 8363dfd1 preserves sanitized UNKNOWN and 26/26 TypeScript tests; DI typed public error contract and real worker still unavailable, video frame timing qualified only for admitted sources",
+    "ocrCompatibility": "Kernel provider 4ef9180 includes test-transport source guards and scoped cancellation per issue #99, but tests not run at that source, production provider NOT_ADMITTED, Kernel Discovery barrier 7915 checks/25 failures/1 diagnostic as reported",
     "baseline": "3 previous TTS/MM test cases fixed, author reports 83 classes green; model/voice rights effects remain separate",
     "parity": "Current bridge SOURCE_RELATIONS_CURRENT 3188 identities/8668 edges/0 joins; actual PDP1–3 phase matrices are STALE; regenerate guarded current owner selection, not blind pin refresh",
-    "trackB": "56/56 source identities in all 4 matrix cohorts, but PDP0 top IN_PROGRESS and P1/P2/P3 matrices show STALE with 16/19/16 member pins; source statuses last at ebcbdfca",
+    "trackB": "Reported latest no-write stale pins P0 21/188, P1 30/137, P2 20/157, P3 21/367; top P0 IN_PROGRESS; P1 semantic review 40 stale; PXD-227 prior peer digest and PXD-225 deferred quality source deltas unresolved",
     "bridge": "Author ebcb reports 3188 identities/8668 edges; older blocker-inventory record still displays 3186/8667; run real generator",
     "lifecycle": "Lifecycle current c708f626; no genuine protected Media AP02/AP03 or first native closure receipt established by source-only reports",
-    "modelAndDelivery": "Whisper env profile/audio/gold unset; real lawful provider quality, host c1/16/64, genuine data cloud/event/action and product J03 film remain open",
-    "publishedMediaHistory": "e2b449ea is reachable on connected remote main; no need to request a new push of the prior 251 commits; future local divergence must be rechecked before writes"
+    "modelAndDelivery": "Whisper legal profile/audio/gold absent, real STT/TTS/DI model/voice/stream and host c1/16/64 remain unknown; IP06 synthetic V001–V016 fixture is not deployed migration/cutover",
+    "publishedMediaHistory": "Connected remote main at 36620de0 equals user's reported local tip; earlier 213 local-ahead divergence now visible via GitHub; any subsequent push requires re-check"
   },
   "approvalPolicy": [
     {
@@ -135,16 +136,17 @@
     {
       "id": "B01",
       "priority": "P0",
-      "title": "Kernel DI OCR adapter source is present but not per-principal qualified",
+      "title": "Kernel OCR Build blocked on Kernel Discovery, provider remains test-transport-only",
       "ownerRepo": "ghatana-kernel",
       "issue": "https://github.com/samujjwal/ghatana-kernel/issues/99",
-      "observed": "Kernel main f30264795 has DiOcrProvider and focused mock transport tests; extract/status/cancel ignore ProductExecutionContext, caches key only operationId; real licensed worker and source-free package missing",
+      "observed": "Kernel main 4ef9180 code has ProductExecutionContext-scoped, content-digest and cancellation failure fixes, but source issue #99 reports 7915 product-definition checks/25 failures/1 diagnostic and PDP0 earliest barrier; no production constructor admission, no durable restart/real DI evidence",
       "ownerDecision": "DI owns inference and published provider; Kernel stays neutral",
-      "action": "Preserve thin DI HTTP adapter and Kernel facet; enforce trusted ProductExecutionContext tenant/principal/permissions/source digest and version, tenant-scoped operation key/idempotency, cancellation ack vs UNKNOWN, durable owner readback or typed unavailable. No Media OCR engine.",
-      "exit": "Kernel source-free wrong-tenant/status/cancel/duplicate/restart cases + real DI worker; only then provider admission",
-      "admission": "P0_SECURITY_HARDENING_REQUIRED",
+      "action": "First complete Kernel all-scope source-current PDP0→3 and exact 25 failed validation cases through Kernel owner AGENTS; after accepted Discovery, run approved Kernel Build conformance, installed DI provider/rights/tenant/replay and real worker. Keep test-only constructors NOT_ADMITTED.",
+      "exit": "Authentic current Kernel Discovery PASS on owning source and negative conformance plus owner-admitted real DI provider and durable effects; no gate bypass",
+      "admission": "KERNEL_DISCOVERY_FIRST",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "P0_SECURITY_HARDENING_REQUIRED"
+      "reviewedCurrentStatus": "P0_SECURITY_HARDENING_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B02",
@@ -152,13 +154,14 @@
       "title": "Vision standalone OCR_ONLY runtime port source implemented, real worker remains",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/23",
-      "observed": "VisionGrpcServer now discovers MediaRuntimePortFactory, factory/process selectors passed 8/8 on author host; internal VIS09 source-crop/HTTP bounded implementation also present",
+      "observed": "Media Vision standalone factory code and authorized-scene-text TS 8363dfd1 26/26 tests on published main; DI typed published error code contract and real worker missing",
       "ownerDecision": "Reuse MediaRuntimePortFactory SPI and unique owner; FULL_VISION untouched",
-      "action": "Reuse current factory and process lifecycle tests; next real packaged standalone source/rights + DI worker text/box with failure/cancel and video PTS qualification, no dummy provider.",
+      "action": "Publish/qualify DI v1 typed error/UNKNOWN contract and installed consumer, test real still/video frame source/rights/crop/PTS, no alternate OCR. Preserve generic sanitized UNKNOWN for unknown post-dispatch failure.",
       "exit": "Real installed source-free OCR_ONLY rights + worker result, no YOLO dependency, video frame tracking separately qualified",
-      "admission": "ENGINEERING_COMPOSED_REAL_PROVIDER_UNQUALIFIED",
+      "admission": "DI_REAL_PROVIDER_AND_PUBLIC_ERROR_CONTRACT",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "ENGINEERING_COMPOSED_REAL_PROVIDER_UNQUALIFIED"
+      "reviewedCurrentStatus": "ENGINEERING_COMPOSED_REAL_PROVIDER_UNQUALIFIED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B03",
@@ -166,13 +169,14 @@
       "title": "DI worker + immutable Shared extraction public artifact unqualified",
       "ownerRepo": "ghatana",
       "issue": "https://github.com/samujjwal/ghatana/issues/252",
-      "observed": "Ghatana DI client 0.1.0 depends on Shared 0.1.0-SNAPSHOT; no independently installed release/real model quality/rights proof",
+      "observed": "Ghatana public TS DI client has snapshot Shared peer and no immutable installed qualified pair, real model/rights worker",
       "ownerDecision": "Shared owns neutral contract, DI sole executor, no Media OCR engine",
-      "action": "Qualify matched public TS/Java packages, lockfile and installer; DI-owned real model source catalog and two source-free Media/document consumers under lawful image+PDF gold.",
+      "action": "Ghatana DI/Shared source owners qualify immutable packed compatible pair and owner-signed worker/profile; source-free Media plus document consumer with negative/unknown/recovery.",
       "exit": "Authentic published/installed compatible artifact and real provider results+negatives",
       "admission": "PACKAGE_RELEASE_AND_REAL_PROVIDER_INPUT",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "PACKAGE_RELEASE_AND_REAL_PROVIDER_INPUT"
+      "reviewedCurrentStatus": "PACKAGE_RELEASE_AND_REAL_PROVIDER_INPUT",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B04",
@@ -180,13 +184,14 @@
       "title": "Media OCR old module retired and Kernel replacement source now exists",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/19",
-      "observed": "Media compatibility module deleted, Kernel f30264795 now on remote main; source references no longer phantom, but unqualified per-tenant security and DI runtime",
+      "observed": "Media legacy OCR source retired; Kernel test-only adapter present and scoped fixes, not admitted until Kernel Discovery/DI real worker; no reimplementation of Media OCR",
       "ownerDecision": "No rollback to Media OCR; fix forward source ownership and explicitly blocked provider",
-      "action": "Do not recreate OCR-M03; recheck current media OCR source/runtime inventories against Kernel actual SHA; mark Media retirement yes and Kernel admission pending.",
+      "action": "Preserve Media retirement and ownership. Kernel current source compliance and DI published contract; only then retire compatibility identities when consumer parity actually passed.",
       "exit": "Accurate dual disposition with owner-conformance and no runtime OCR fork",
       "admission": "SOURCE_RECONCILIATION_READY",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "SOURCE_RECONCILIATION_READY"
+      "reviewedCurrentStatus": "SOURCE_RECONCILIATION_READY",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B05",
@@ -194,13 +199,14 @@
       "title": "56 current source identity matrix rows all bound but phase currentness stale",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/19",
-      "observed": "Roster census 28+21+7=56, matrixBound=56, delta=0; PDP1/PDP2/PDP3 phaseSourceCurrentness STALE with 16/19/16 stale pins; PDP0 top IN_PROGRESS",
+      "observed": "56/56 source identities bound but no-write checks stale required pins 21/188 P0, 30/137 P1, 20/157 P2, 21/367 P3; P0 29 skipped cases; no owner currentness",
       "ownerDecision": "Extend 2 source rows, no fabricated N/A; independently admit true physical closure boundary",
-      "action": "Run source-owner impact per changed selector, P0-03 29 skips and distinct semantic review; update only affected source selection/matrices using generator/actual owner, not blanket status.",
-      "exit": "Current four source-phase readback with zero unexplained semantic/pin invalidity and current owner selection",
-      "admission": "P0_SOURCE_REVIEW_REQUIRED",
+      "action": "Freeze one selected source epoch after current source edits; audit exact member impact in phase order, PXD225/226/227 peer/delta/ref issues, 29 skip applicability; only source-owner selected CAS+review successor records. No automatic mass repin.",
+      "exit": "Genuine current source direct criteria and independent review for all material impacted members and owner PDP0 status; matrix source-currentness checked at exact same HEAD",
+      "admission": "MEDIA_DISCOVERY_OWNER_REVIEW",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "P0_SOURCE_REVIEW_REQUIRED"
+      "reviewedCurrentStatus": "P0_SOURCE_REVIEW_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B06",
@@ -208,13 +214,14 @@
       "title": "Build source join census reconciled; KCRIT Plan still not admitted",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/21",
-      "observed": "Current bridge blocker inventory reports 3188 identities, 8668 joins, zero missing; matches later source generator output",
+      "observed": "Current bridge 3188 source identities/8668 edges with zero joins; no reason to repeat source join work",
       "ownerDecision": "Regenerate from canonical owners, never edit historical zero manually",
-      "action": "Preserve zero-join proof and original 50/57 plan; do not repeat historical source join repairs. Obtain real Work Planner KCRIT per eligible surface.",
+      "action": "Preserve source bridge. Obtain original task KCRIT Plan Task Closure/Plan Ready on selected owner host with precise inputs after source-currentness.",
       "exit": "Source-current Plan Task Closure & Plan Ready authentic owner result not mere zero-join projection",
       "admission": "SOURCE_JOIN_RESOLVED_KCRIT_PENDING",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "SOURCE_JOIN_RESOLVED_KCRIT_PENDING"
+      "reviewedCurrentStatus": "SOURCE_JOIN_RESOLVED_KCRIT_PENDING",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B07",
@@ -222,13 +229,14 @@
       "title": "PDP0 and PDP1–3 currentness still not accepted",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/3",
-      "observed": "PDP0 IN_PROGRESS with 29 P0-03 skips, status mainSha ebcbdfca; 56 subjects in phase matrices but PDP1=STALE16,PDP2=STALE19,PDP3=STALE16",
+      "observed": "PXD226 chain is internally consistent; PXD227 owner/apply refers prior peer digest after 3fe3174a, PXD225 quality case lacks PXD222/223 delta and PXD213 caption source link; status successor has NOT_PRESENT owner approval",
       "ownerDecision": "Current source status only after actual full guard/semantic review; don't reopen unaffected work",
-      "action": "Map stale SHA to changed member meaning and independent review, resolve P0 skips, re-run generator impact and guard; do not mark CURRENT from timestamp alone.",
-      "exit": "Owner currentness on all selected applicable leaves; genuine independent review for actual criteria",
-      "admission": "SOURCE_REVIEW_AND_SOME_INDEPENDENT_ACCEPTANCE",
+      "action": "Source owner resolve exact predecessor/peer binding with fresh actual consented technical review and own revision, qualify quality deltas, then regenerate only impacted 21/30/20/21 member pins with CAS and readback. Do not infer owner approval from prepared successor.",
+      "exit": "No unexplained stale/incorrect review digest; P0 admitted source status only if 29 skipped cases are supported and owner criteria pass",
+      "admission": "REAL_MEDIA_OWNER_SELECTION_AND_REVIEW",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "SOURCE_REVIEW_AND_SOME_INDEPENDENT_ACCEPTANCE"
+      "reviewedCurrentStatus": "SOURCE_REVIEW_AND_SOME_INDEPENDENT_ACCEPTANCE",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B08",
@@ -236,13 +244,14 @@
       "title": "Lifecycle AP02/AP03 source admission and protected host not configured",
       "ownerRepo": "ghatana-lifecycle",
       "issue": "https://github.com/samujjwal/ghatana-lifecycle/issues/24",
-      "observed": "No authenticated Media native AP02/AP03, selected trusted source snapshot or closure receipts verified; do not infer from latest Lifecycle code",
+      "observed": "No trusted Media AP02/AP03 source selection/native phase receipt on current 36620 cut; Lifecycle 313222 source changed; respect independent protected host",
       "ownerDecision": "Plan permissible; no new Lifecycle campaign or privileged run without genuine user resumption and protected operator consent",
-      "action": "Prepare owner-only source/case graph now; when true protected signer/host/operator and authorized method available, perform selected first leaf native proof, exact receipt, no fake grant.",
+      "action": "Prepare read-only exact Media selected graph and source-to-case obligations, then genuine issuer/verifier/snapshot/run-plan when operator supplies trust; no synthetic signing.",
       "exit": "Genuine registered host and first current PDP0 physical leaf receipt; fail-closed tamper/revocation",
       "admission": "PROTECTED_OPERATOR_AND_USER_RESUME_REQUIRED",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "PROTECTED_OPERATOR_AND_USER_RESUME_REQUIRED"
+      "reviewedCurrentStatus": "PROTECTED_OPERATOR_AND_USER_RESUME_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B09",
@@ -250,13 +259,14 @@
       "title": "Kernel Work Planner Build task closure not authenticated",
       "ownerRepo": "ghatana-kernel",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
-      "observed": "Original 50 canonical package/57 plan tasks no whole per-surface owner Plan Ready observed; unaccepted 36 R8 +84 W3 +8 H overlap",
+      "observed": "50 canonical Build packages/57 original tasks; no authentic per-surface KCRIT outcome despite many tested implementation slices",
       "ownerDecision": "Source-eligible Build code can proceed without repo-wide native receipts",
-      "action": "Exact Build task progress + guarded per-surface Work Planner KCRIT; no entire root Build barrier on independent ready units.",
+      "action": "Use Kernel Work Planner exact selected task/owner/current source snapshot; source-eligible Media implementation remains parallel, formal KCRIT transition only when its real gates pass.",
       "exit": "Authentic owner result/revision+typed reason for each selected task, not new Media stage writer",
       "admission": "OWNER_HOST_REQUIRED",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "OWNER_HOST_REQUIRED"
+      "reviewedCurrentStatus": "OWNER_HOST_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B10",
@@ -264,13 +274,14 @@
       "title": "Original model and rights/performance acceptance not complete",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
-      "observed": "No R8 promotions; three required Whisper inputs still unset; five stream intents and host c1/16/64 unqualified",
+      "observed": "Wave2 22 verified/30 partial/6 external; Whisper profile/audio/gold missing, DI/TTS model/voice and five stream transports not qualified",
       "ownerDecision": "Keep provider not admitted until lawful model/voice/media and real corpus; code/fixture tests reusable",
-      "action": "Use qualified legally cleared pinned STT/TTS/Vision/MM model, voice/corpus/gold with real provider tests; complete source-clock WebRTC/HLS/DASH/adaptive/lease, real quality/perf and original oracles.",
+      "action": "Obtain lawful model/license/corpus/gold and actual c1/16/64 provider tests; source right, output/quality, recovery and original R8 acceptance. Do not infer qualification from configured model.",
       "exit": "36 original R8 accepted; 92 W3/H whole rows adjudicated; no unlicensed or mocked effect",
       "admission": "EXTERNAL_ASSETS_AND_REAL_HOST",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "EXTERNAL_ASSETS_AND_REAL_HOST"
+      "reviewedCurrentStatus": "EXTERNAL_ASSETS_AND_REAL_HOST",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B11",
@@ -278,13 +289,14 @@
       "title": "Old writer vs new Media PostgreSQL source ownership",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/22",
-      "observed": "IP-06 18/18 real PostgreSQL16 graceful factory close/reopen passed; does not cover crash/S3/Flyway writer cutover",
+      "observed": "IP06 new isolated Postgres backend termination rollback test 1/1 passed; earlier graceful factory restart 18/18 and synthetic history/lease fixtures; deployed Flyway history, writer fencing/cutover/operator proof still absent",
       "ownerDecision": "One canonical Media writer, preserve existing migrations; no dual writes or unapproved destructive prod cutover",
-      "action": "Rehearse child-process abrupt crash/persisted receipts/atomic S3 staging+restart, applied real V001–V029 Flyway and old writer fencing, qualified operator later.",
+      "action": "Keep component regressions accepted at narrow scope; request read-only deployed V001–V029 Flyway and genuine old writer identity, backup/S3 effects/rollback and protected cutover change authorization; run staging rehearsal and only authorized prod when supplied.",
       "exit": "Actual deployed source owner cutover verified, zero duplicate row/receipt and recovery/retention proof",
       "admission": "PRODUCTION_OPERATOR_REQUIRED",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "PRODUCTION_OPERATOR_REQUIRED"
+      "reviewedCurrentStatus": "PRODUCTION_OPERATOR_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B12",
@@ -292,13 +304,14 @@
       "title": "Full UI/recorder/studio/player and first real PDP3 twin not complete",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/5",
-      "observed": "H03 synthetic recorder 22/22, H04 unavailable 27/27, H08 synthetic no-effect 3/3; actual film/host/rights still absent",
+      "observed": "H02 local candidate ACCEPT_LOCAL_CANDIDATE_ONLY, H03/H04/H08 remain static or unadmitted real host evidence; 47 screens/30 journeys source not real effects",
       "ownerDecision": "Explorer static and live real product distinct; real film same scenario source",
-      "action": "H02 source criteria first; real capture adapter hosted rights/clock/secrets and H07 canonical job effect; same J03 real video/audio/caption terminal vs static Explorer.",
+      "action": "H02 owner operation-to-engine compatibility and resolver proof first; then real capture/animation/simulation/Studio/Player and genuine J03 first film/terminal with rights/caption.",
       "exit": "All selected real business terminal effects, independent visual/scientific/a11y reviews, playback/source truth",
       "admission": "ENGINEERING_AND_SPECIALIST_REVIEW",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "ENGINEERING_AND_SPECIALIST_REVIEW"
+      "reviewedCurrentStatus": "ENGINEERING_AND_SPECIALIST_REVIEW",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B13",
@@ -306,13 +319,14 @@
       "title": "Platform Data Cloud/Event/Action Plane actual integration acceptance",
       "ownerRepo": "ghatana",
       "issue": "https://github.com/samujjwal/ghatana/issues/254",
-      "observed": "Data Cloud adapter 44/44 component tests, ledger 32/32 but no authoritative remote CAS, Event Plane/Action Plane public effects/receipts unqualified",
+      "observed": "Data Cloud optional source adapter and synthetic tests; Ghatana #254 public installed metadata/action/event owner effect absent",
       "ownerDecision": "No Media core dep on Data Cloud; only installed public APIs and bounded outbox",
-      "action": "Source-free Ghatana #254 installed API, Event append vs consumption, Action source-owner grant, DataCloud optional and durable ledger owner readback.",
+      "action": "Ghatana owner public APIs, terminal receipts and actual optional fail-closed nonblocking tests including 32 AEP cases where applicable.",
       "exit": "Real installed negative/partition/lostACK and independent effect receipts; Media jobs finish without Data Cloud",
       "admission": "EXTERNAL_PUBLIC_PLATFORM_OWNER",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "EXTERNAL_PUBLIC_PLATFORM_OWNER"
+      "reviewedCurrentStatus": "EXTERNAL_PUBLIC_PLATFORM_OWNER",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B14",
@@ -320,13 +334,14 @@
       "title": "Vision video-frame DI time semantics not admitted",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/23",
-      "observed": "Vision real still-frame crop only; video frameId/PTS source path still NOT_ADMITTED",
+      "observed": "Real qualified video frame source OCR with exact VFR clock/ROI/PTS not proven",
       "ownerDecision": "Admit still-image only now; add owner-qualified video frame resolver as later source-dependent capability, never fake timestamp",
-      "action": "Source-pinned qualified FrameExtractor OCI video VFR clock/ROI and DI model, no inferred timestamps.",
+      "action": "Use source-owned immutable qualified video decoder/FrameExtractor/OCI, DI real worker, timebase/mapping and rights negatives.",
       "exit": "Real legally cleared video text track with original PTS/timestamp and quality negatives",
       "admission": "NATIVE_VIDEO_CODEC_AND_REAL_WORKER",
       "lastReviewedSource": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "reviewedCurrentStatus": "NATIVE_VIDEO_CODEC_AND_REAL_WORKER"
+      "reviewedCurrentStatus": "NATIVE_VIDEO_CODEC_AND_REAL_WORKER",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B15",
@@ -334,11 +349,12 @@
       "title": "H-02 compiler lacks authoritative engine hash, cost, auth and edit-lock semantics",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/25",
-      "observed": "MediaProductionSpecCompiler fingerprinted deterministic DAG exists; PDP1 declarative-production-contracts.yaml has runtimeAdmission NOT_ADMITTED and fieldMapping NOT_ASSERTED; no certified engine digest, cost upper bound, current decision or CAS lock",
+      "observed": "H02 current candidate includes 61 source bindings and effect-free deterministic plan; operation-to-engine compatibility and current authorized resolver binding UNPROVEN, independent review ACCEPT_LOCAL_CANDIDATE_ONLY; runtime NOT_ADMITTED",
       "ownerDecision": "Source-owner approve precise new PDP1 production-spec admission fields and canonical execution port semantics before Java changes; preserve version, no parallel authority",
-      "action": "Amend PDP1 declarative production contracts and existing op mapping for: engineId/version/digest (or explicit no engine), qualified tariff upper-bound+budget reservation unit/ref, source-rights decisionRef+validity/fence, project revision expectedCAS+manual edit-lock owner/scope/epoch/expiry. Compiler binds these in node/plan fingerprint and rejects stale/unknown/overbudget without effects, then runtime coordinator rechecks at effect.",
-      "exit": "Hostile schema/wrong digest/authorization revoke/overbudget/cross-owner edit-lock/canonical CAS tests and same-input fingerprint/descendant invalidation; source owner independent review then H02 real admission",
-      "admission": "SOURCE_DEFINITION_AND_IMPLEMENTATION_PENDING"
+      "action": "PDP1 source owner publishes exact operationRef -> qualified engine family/profile/capability and explicit NO_ENGINE rules per step with origin, rights/version/expected CAS/cost reservation/lock authority. Prove resolver issuance/currentness/typed errors and owner review before admitting runtime. Preserve local candidate/tests.",
+      "exit": "Reviewed current source relation/engine mapping and source owner transition, good/negative H02 effect-free and runtime host, no unqualified execution",
+      "admission": "SOURCE_OWNER_MAPPING_MISSING",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B16",
@@ -346,11 +362,12 @@
       "title": "JC-03 bounded retry/quotas without hard RPC deadline and noncooperative interruption",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/26",
-      "observed": "66/66 common tests; tenant admission capped but RetryPolicy max elapsed only prevents another attempt; blocked Callable is not interrupted, can return success after budget expiry; no guaranteed RPC deadline",
+      "observed": "JC03 actual deadline interceptor and bounded context workers integrated, STT/TTS selected tests passed; no real noncooperative provider process/receipt c1/16/64 qualified",
       "ownerDecision": "Reuse one gRPC interceptor/context and effect-owning bounded executor; never add second quota/boolean fake hard timeout",
-      "action": "Define per-method max/caller deadline min, propagate gRPC Context cancellation and clock into child call, bound blocking workers and interrupts; if noncooperative native code use killable worker process, return TIMEOUT only on proven no-effect or UNKNOWN_OUTCOME with exact request/idempotency readback. Revalidate post-result budget before declaring side effect success.",
+      "action": "Run real typed child deadline/timeout/cancel with killable process, same-key UNKNOWN reconciliation and host resource release; source-free four-modality consumers and original JC03/JC04 acceptance.",
       "exit": "JC-03 selected 4-service deadline test: blocked interruptible/uninterruptible calls, finite executor/PIDs, no false success/duplicate retry, honest source-finality after budget; source-free clients after JC04",
-      "admission": "ENGINEERING_AND_NEGATIVE_TEST_REQUIRED"
+      "admission": "REAL_PROVIDER_HOST_QUALIFICATION",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B17",
@@ -358,11 +375,12 @@
       "title": "Kernel DI OcrProvider ignores caller context and reports unconfirmed cancellation",
       "ownerRepo": "ghatana-kernel",
       "issue": "https://github.com/samujjwal/ghatana-kernel/issues/99",
-      "observed": "DiOcrProvider.extractBounded accepts context but never reads it; cancel/status use operationId-only maps and similarly ignore context, tests only positive tenant; HTTP DELETE exceptions still yield terminal CANCELLED",
+      "observed": "Kernel 4ef source code fixes context/digest/ack but not executed this review; test-only, production constructor not admitted, Kernel Discovery earlier 25 failures",
       "ownerDecision": "Do not admit provider for multi-tenant production; use public Kernel context and source-resolving DI gateway, no Model execution in Kernel",
-      "action": "Require validated permissions, tenant/workspace/principal and source digest/purpose/consent before DI dispatch; key owner identity+operation/generation/idempotency/digest, deny cross-tenant read/cancel; acknowledge CANCELLED only on authoritative DI effect, otherwise UNKNOWN/reconcile. Enforce replay and cross-process restart readback with durable DI operations or explicit unavailability.",
+      "action": "Respect Kernel AGENTS Discovery-first; repair PDP0→3 all applicable, freeze/verify; then real multi-tenant conformance, durable DI status/cancel/restart and installed source-free clients.",
       "exit": "Cross-tenant attempted read/cancel yields denial and no details; forged payload digest blocked; failed DELETE NOT_CANCELLED_SUCCESS, restart/duplicate concurrently safe and positive legal DI worker observed",
-      "admission": "PRODUCTION_SECURITY_P0"
+      "admission": "PRODUCTION_SECURITY_P0",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "id": "B18",
@@ -370,11 +388,12 @@
       "title": "IP-06 actual DB crash, S3 and writer cutover not covered by graceful restart fixture",
       "ownerRepo": "ghatana-media",
       "issue": "https://github.com/samujjwal/ghatana-media/issues/27",
-      "observed": "IP-06 1e4c571a 18/18 PostgreSQL16 Testcontainers passed graceful persistence factory close/reopen under temp UUID DB",
+      "observed": "IP06 genuine PG backend row rollback 1/1; synthetic V001–V016 fixture/hash and applied-history CSV not actual deployed db; no operator authorization",
       "ownerDecision": "Keep accepted narrow test evidence; no release/migration/Stage acceptance from factory restart",
-      "action": "Add isolated controlled child process SIGKILL/abrupt crash with in-flight/committed transaction checks; S3 exact object/artifact version, outbox CAS reconcile and DB Flyway applied-history V001–V029 with old writer fenced. Operator-only production cutover after restoration/rollback drill.",
+      "action": "Request exact read-only deployed Flyway, old/new writer workload and ACL/source epoch, S3 manifest, backup/restore and protected cutover window; rehearse same through validated snapshot and approve actual operator effect separately.",
       "exit": "Crash at before/after COMMIT shows one terminal row/outbox and no second writer, S3 object consistent, migrations reconcile and actual deployed cutover approved",
-      "admission": "ENGINEERING_TEST_AND_PRODUCTION_OPERATOR"
+      "admission": "OPERATOR_AND_DEPLOYED_HISTORY_REQUIRED",
+      "statusReviewedAt": "36620de0a7f992b62ebfa91466ebe84306c32183"
     }
   ],
   "physicalSurfaces": [
@@ -420,7 +439,10 @@
       "currentEngineeringEvidence": "91/91 Agent Tool module tests reported",
       "outstandingWholeRowBoundary": "AT-04 tool owner rights, installed Action Plane and real modality effects unqualified",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "SOURCE_BOUND_TESTED_NOT_REMOTE_EFFECT_QUALIFIED",
+      "latestRemainingAcceptance": "Actual four agent tool source-delegated remote action receipts and public installed Tools/Action Plane; negative permission, replay, unknown and no duplicated job.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.adapters-data-cloud-media",
@@ -464,7 +486,10 @@
       "currentEngineeringEvidence": "44/44 DataCloud adapter tests reported",
       "outstandingWholeRowBoundary": "Public API/actual Data Cloud remote readback unqualified; remains optional",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "OPTIONAL_COMPONENT_TESTED",
+      "latestRemainingAcceptance": "Owner-issued Data Cloud installed port and negative fail-open isolation; event 201 append != external finality.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.adapters-ledger",
@@ -507,7 +532,10 @@
       "currentEngineeringEvidence": "32/32 ledger tests, seeded 10k p50/p95 10/25 µs reported",
       "outstandingWholeRowBoundary": "Legacy RunLedger durability/owner CAS and installed binary missing",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "LOCAL_PROJECTION_TESTED_NO_DURABLE_CAS",
+      "latestRemainingAcceptance": "Data Cloud owner durable RunLedger CAS/terminal readback and installed binary; no second Media writer.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.apps-media-experience-explorer",
@@ -544,7 +572,10 @@
       "currentEngineeringEvidence": "static source disclosure and seven-scene demo fixture",
       "outstandingWholeRowBoundary": "Real hosted J03 business film NOT_RECORDED",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "STATIC_CURATED_DEFINITION_ONLY",
+      "latestRemainingAcceptance": "Keep 47-screen simulated Explorer and one PDP3 narrated J03 film; negative/a11y/CSP; no real product claim.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.audio-video-observability",
@@ -582,7 +613,10 @@
       "currentEngineeringEvidence": "Prometheus/Alertmanager component fixture earlier green",
       "outstandingWholeRowBoundary": "R8 OBS07/08 real receiver, quality freshness and c1/16/64 still unaccepted",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "SOURCE_AND_LOCAL_ALERT_TESTED",
+      "latestRemainingAcceptance": "R8 OBS07/08 real licensed provider quality freshness and independent receiver firing/clear plus c1/16/64 resource data.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.integration-tests",
@@ -624,7 +658,10 @@
       "currentEngineeringEvidence": "IT01 test harness 2/2, IT03 synthetic workload 1/1",
       "outstandingWholeRowBoundary": "real provider/host endpoints and source-free integration unqualified",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "MULTIPLE_SOURCE_TESTS_GREEN_REAL_HARNESS_PARTIAL",
+      "latestRemainingAcceptance": "Real source-free providers+rights, host OCI+DI/S3+Postgres/stream, proper recovery/failure cases.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.launcher",
@@ -665,7 +702,10 @@
       "currentEngineeringEvidence": "CAP server/rights and 126-test selected Gradle slice reported",
       "outstandingWholeRowBoundary": "full first real J03 terminal, runtime/old writer cutover, release proof missing",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "CAP_AND_LOCAL_RUNTIME_SOURCE_PRESENT",
+      "latestRemainingAcceptance": "Actual end-to-end J01/J02/J20/J03, released source/rights/JobAttempt and single writer cutover, no false global readiness.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-audio-video-client",
@@ -713,7 +753,10 @@
       "currentEngineeringEvidence": "280 TS client tests across 15 files; 124 SK02 focused reported",
       "outstandingWholeRowBoundary": "packed independent installed client, real product host/DI effects missing",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "DI_8363_26_OF_26_SANITIZED_UNKNOWN",
+      "latestRemainingAcceptance": "Published DI typed error contract, source-free packaged client, real fetch/abort→UNKNOWN reconcile and licensed worker positive. Preserve sanitized UNKNOWN.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-audio-video-types",
@@ -758,7 +801,10 @@
       "currentEngineeringEvidence": "71 types tests, ESM/CJS package verification reported",
       "outstandingWholeRowBoundary": "published installed ABI/actual source clock and H02 authority pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "SOURCE_SCHEMA_TESTS_GREEN",
+      "latestRemainingAcceptance": "H02 selected source-admission/ref/clock/run parser contract only after owner mapping; Java/TS installed ABI and invalid UTF/numeric tests.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-audio-video-ui",
@@ -799,7 +845,10 @@
       "currentEngineeringEvidence": "source screen tests/fixtures exist",
       "outstandingWholeRowBoundary": "47 actually hosted screens and independent a11y/visual real-effect checks pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "PROTOTYPE_COMPONENTS_NOT_REAL_HOST_QUALIFIED",
+      "latestRemainingAcceptance": "47 hosted screens with actual SDK, voice/caption/Studio/Player and real permissions, independent a11y/visual/keyboard.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-common",
@@ -839,7 +888,10 @@
       "currentEngineeringEvidence": "JC03 66/66 focused; JC02 earlier 94/94; JC04 24/24 source composite",
       "outstandingWholeRowBoundary": "hard RPC deadline, noncooperative block, source-free consumer missing",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "JC03_LOCAL_GRPC_DEADLINE_SOURCE_PRESENT_HOST_PARTIAL",
+      "latestRemainingAcceptance": "Native noncooperative deadline/killable worker/real provider UNKNOWN and installed four-service public consumers JC03/JC04.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-java-common",
@@ -880,7 +932,10 @@
       "currentEngineeringEvidence": "MC01 11, MC02 28, MC03 31 local selectors previously reported",
       "outstandingWholeRowBoundary": "real qualified engines/host power+model cleanup and source-free API pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "COMMON_ENGINE_CODE_PRESENT_MODEL_RIGHTS_PENDING",
+      "latestRemainingAcceptance": "Actual Whisper/Piper/Yolo legal model profile/output and native engine resource/decoder performance, no fallback.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.libs-media-experience-simulation",
@@ -919,7 +974,10 @@
       "currentEngineeringEvidence": "PDP3 deterministic static Explorer effects and synthetic scene tests",
       "outstandingWholeRowBoundary": "actual solver/real product output not proven",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "CURATED_STATIC_TESTS_GREEN",
+      "latestRemainingAcceptance": "No physical-science claim; real H06 solver/animation and actual product session separately.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-audio-streaming",
@@ -962,7 +1020,10 @@
       "currentEngineeringEvidence": "selected 126 audio/launcher/cache/persistence/video suite + stream revocation tests reported",
       "outstandingWholeRowBoundary": "WebRTC/HLS/DASH/adaptive audio actual host intent and lease/sync unresolved",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "FRAMING_AND_SYNTHETIC_BUDGET_PRESENT",
+      "latestRemainingAcceptance": "Real WebRTC/adaptive-HTTP source clock/consent/lease/reconnect and actual 1/16/64 audio transport.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-cache",
@@ -1005,7 +1066,10 @@
       "currentEngineeringEvidence": "55/55 unit +8/8 Redis tests reported",
       "outstandingWholeRowBoundary": "revocation source loader owner and actual production retention/upstream finality separate",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "REDIS_AND_SOURCE_REFRESH_NEGATIVE_TESTS_PRESENT",
+      "latestRemainingAcceptance": "Rigorously prove tenant/consent/retention source load and no duplicate effects in real restarts; owner policy.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-messaging",
@@ -1043,7 +1107,10 @@
       "currentEngineeringEvidence": "IT02 durable cancellation/outbox 4/4 reported",
       "outstandingWholeRowBoundary": "public Event Plane consumption and action receipt unqualified",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "OUTBOX_CANCEL_RESTART_COMPONENT_TESTED",
+      "latestRemainingAcceptance": "Real Event Plane appended vs consumed effect/lost ACK and canonical job terminal readback.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-persistence",
@@ -1088,7 +1155,10 @@
       "currentEngineeringEvidence": "IP06 1e4c571a PostgreSQL16 18/18 factory close/reopen; tenant-scoped source readback",
       "outstandingWholeRowBoundary": "abrupt crash/S3/Flyway applied history/one-writer cutover remain",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "IP06_POSTGRES_ROLLBACK_1_OF_1_AND_FACTORY_18_OF_18",
+      "latestRemainingAcceptance": "Deployed Flyway history/legacy writer identity, S3/DB crash-phase correction and controlled cutover; keep narrow regression accepted.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-infrastructure-security",
@@ -1125,7 +1195,10 @@
       "currentEngineeringEvidence": "current source authorization and revocation tests previously reported",
       "outstandingWholeRowBoundary": "full cross-authority security review and downstream trusted DI/Kernel context missing",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "CURRENT_RIGHTS_BOUNDARY_CODE_PRESENT",
+      "latestRemainingAcceptance": "Cross-repo real DI/Kernel/Action Plane source/rights/biometric consent tests and no provider effect after revoke.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-integration-tests",
@@ -1166,7 +1239,10 @@
       "currentEngineeringEvidence": "CT05 46/46 selected module tests reported",
       "outstandingWholeRowBoundary": "full real source-free HTTP/gRPC/cancellation test matrix pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "SOURCE_FREE_CLIENT_FIXTURES_AND_NEGATIVES_PARTIAL",
+      "latestRemainingAcceptance": "Actual published 30 HTTP/44 RPC client with real auth/provider/rights/UNKNOWN and receipts.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
@@ -1203,7 +1279,10 @@
       "currentEngineeringEvidence": "voice UI implementation exists",
       "outstandingWholeRowBoundary": "real rights-cleared voice, host accessibility and clone consent qualification pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "GUI_SOURCE_PRESENT_NOT_REAL_LICENSED_VOICE",
+      "latestRemainingAcceptance": "Actual approved voice/capture clone consent/presentation and licensed TTS host/a11y.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-intelligence-multimodal-service",
@@ -1250,7 +1329,10 @@
       "currentEngineeringEvidence": "83 TTS/MM classes earlier green, child fail-closed tests",
       "outstandingWholeRowBoundary": "real STT/Vision clocks/consent/live multimodal output pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "CHILD_RECOVERY_WORKER_SOURCE_PRESENT",
+      "latestRemainingAcceptance": "Real STT/Vision child timing/source/rights, fused durable receipts and c1/16/64 negative trials.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
@@ -1293,7 +1375,10 @@
       "currentEngineeringEvidence": "39 Rust tests, fmt/clippy green reported",
       "outstandingWholeRowBoundary": "real c1/16/64 decoded audio fidelity and native host tests pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "DSP_BOUNDEDNESS_SOURCE_CHECKS_PRESENT",
+      "latestRemainingAcceptance": "Qualified real audio/codec source clock and portable perf/FFI profile under actual host.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-speech-stt-service",
@@ -1341,7 +1426,10 @@
       "currentEngineeringEvidence": "STT compilations/source safety tests",
       "outstandingWholeRowBoundary": "Whisper profile/audio/gold all absent; WER/CER/DER real inference not performed",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "WHISPER_SOURCE_LANE_IN_PROGRESS_GOLD_MISSING",
+      "latestRemainingAcceptance": "Rights-cleared pinned profile/audio/transcript gold, real WER/CER/DER and API/cancel/timeout/restart.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-speech-tts-service",
@@ -1389,7 +1477,10 @@
       "currentEngineeringEvidence": "83 TTS/MM classes earlier green",
       "outstandingWholeRowBoundary": "real licensed voice & objective listening/latency and c1/16/64 absent",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "TTS_TEST_REPAIRS_ENGINE_QUALIFICATION_OPEN",
+      "latestRemainingAcceptance": "Lawfully selected voice/model/phoneme worker quality/permissions/c1/16/64, not synthetic playable audio.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-video-streaming",
@@ -1432,7 +1523,10 @@
       "currentEngineeringEvidence": "55/55 video suite and 12/12 PTS preservation reported",
       "outstandingWholeRowBoundary": "source TIME_MAPPING_NOT_ADMITTED, live WebRTC/HLS/DASH unverified",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "VFR_CLOCK_FENCE_SOURCE_PRESENT_REAL_TRANSPORT_OPEN",
+      "latestRemainingAcceptance": "Real WebRTC/HLS/DASH/adaptive video and true source VFR/lease/reconnect/cancel/permission.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.modules-vision-vision-service",
@@ -1479,7 +1573,10 @@
       "currentEngineeringEvidence": "518 Vision fixture/profile tests and 8/8 factory/process reported",
       "outstandingWholeRowBoundary": "real legal DI model/image + video frame PTS and Kernel rights issues pending",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "DI_ONLY_STILL_FRAME_SOURCE_AND_HOST_PRESENT",
+      "latestRemainingAcceptance": "Real DI positive licensed worker/error contract, Kernel Discovery admission, qualified video frame/ROI/PTS and mAP.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.providers-aws-postgresql",
@@ -1518,7 +1615,10 @@
       "currentEngineeringEvidence": "111+ PG provider tests including V029 migration passed earlier",
       "outstandingWholeRowBoundary": "old writer cutover, S3 object lifecycle, production migration and native receipt unverified",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "V029_AND_SYNTHETIC_FLYWAY_CRASH_FIXTURES",
+      "latestRemainingAcceptance": "Actual deployed V001–V029 applied history and single writer cutover/rollback owner operator. Keep synthetic fixtures separate.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     },
     {
       "surfaceId": "media.physical.runtime-contracts",
@@ -1562,7 +1662,10 @@
       "currentEngineeringEvidence": "CAP typed clock/profile; H02 deterministic DAG tests",
       "outstandingWholeRowBoundary": "PDP1 H02 missing engine digest, cost upperbound, authorization and edit-lock source semantics",
       "lastReviewedMainSha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE"
+      "ownerReviewStatus": "ENGINEERING_READBACK_NOT_INDEPENDENT_WHOLE_ROW_ACCEPTANCE",
+      "latestReviewedStatus": "H02_V3_EFFECT_FREE_CANDIDATE_ONLY",
+      "latestRemainingAcceptance": "Owner-reviewed exact 61 operation-to-engine mapping and resolver identity, cost/rights/lock/clock, runtime stays NOT_ADMITTED until accepted.",
+      "latestReviewedSourceSha": "36620de0a7f992b62ebfa91466ebe84306c32183"
     }
   ],
   "logicalSurfaces": [
@@ -1575,7 +1678,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Real authenticated production host, 47 screens, source screen actions and finality",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Real authenticated production host, 47 screens, source screen actions and finality",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.embedded",
@@ -1586,7 +1691,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Sandboxed origin/auth/player and exact simulated-vs-real label and a11y",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Sandboxed origin/auth/player and exact simulated-vs-real label and a11y",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.public-http",
@@ -1598,7 +1705,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "30 HTTP operations, JWT permission mapping, error/result parity, real positive",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "30 HTTP operations, JWT permission mapping, error/result parity, real positive",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.service-grpc",
@@ -1613,7 +1722,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "44 RPCs, mTLS/JWT identity, quota/cancel/timeout, generated source-free client",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "44 RPCs, mTLS/JWT identity, quota/cancel/timeout, generated source-free client",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.grpc.stt",
@@ -1624,7 +1735,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "True STT voice/audio stream, finality, gold, negative cases",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "True STT voice/audio stream, finality, gold, negative cases",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.grpc.tts",
@@ -1635,7 +1748,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "True TTS audio stream and licensed voice rights, negative cases",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "True TTS audio stream and licensed voice rights, negative cases",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.grpc.vision",
@@ -1646,7 +1761,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Real Vision geometry and DI-only OCR VIS09, real DI binding",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Real Vision geometry and DI-only OCR VIS09, real DI binding",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.grpc.multimodal",
@@ -1657,7 +1774,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "True STT/Vision child receipts and fused source result",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "True STT/Vision child receipts and fused source result",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.sdk",
@@ -1669,7 +1788,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Installed TS public client, authenticated caption and DI transport, no empty-on-error",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Installed TS public client, authenticated caption and DI transport, no empty-on-error",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.cli",
@@ -1681,7 +1802,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Source-bound real artifact/job/recorder operations with deterministic JSON and error semantics",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Source-bound real artifact/job/recorder operations with deterministic JSON and error semantics",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.agent-tools",
@@ -1693,7 +1816,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Four exact handlers with Tools/Action Plane policy and no fake admission",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Four exact handlers with Tools/Action Plane policy and no fake admission",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.events",
@@ -1705,7 +1830,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Event Plane outbox, 201 append, durable consumer true finality",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Event Plane outbox, 201 append, durable consumer true finality",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.integrations",
@@ -1722,7 +1849,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "DI/Kernel/DataCloud/AEP/Agents/Shared source-free public boundary and outage isolation",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "DI/Kernel/DataCloud/AEP/Agents/Shared source-free public boundary and outage isolation",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.types-library",
@@ -1733,7 +1862,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Strict published validators and Java/TS/JSON contract parity",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Strict published validators and Java/TS/JSON contract parity",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.ui-library",
@@ -1745,7 +1876,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Packaged accessible Studio/caption/player/voice components in real host",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Packaged accessible Studio/caption/player/voice components in real host",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.explorer",
@@ -1757,7 +1890,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "PDP3 curated static data, narration/caption demo and negative/a11y cases",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "PDP3 curated static data, narration/caption demo and negative/a11y cases",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.desktop-archive",
@@ -1766,7 +1901,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Keep NOT_ACTIVE_ARCHIVED and historical receipt; no fabricated deployable",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Keep NOT_ACTIVE_ARCHIVED and historical receipt; no fabricated deployable",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.recorder-orchestrator",
@@ -1778,7 +1915,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Automated source-driven deterministic capture, selective recapture, narration and provenance",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Automated source-driven deterministic capture, selective recapture, narration and provenance",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.capture-adapters",
@@ -1789,7 +1928,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Qualified desktop/mobile/browser/terminal/API/gRPC/camera/media capture with rights and clocks",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Qualified desktop/mobile/browser/terminal/API/gRPC/camera/media capture with rights and clocks",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.production-studio",
@@ -1800,7 +1941,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Professional GUI timeline/caption/animation/edit/render/undo and real backend effects",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Professional GUI timeline/caption/animation/edit/render/undo and real backend effects",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     },
     {
       "surfaceId": "media.surface.interactive-demo-player",
@@ -1811,7 +1954,9 @@
       "currentStatus": "ORIGINAL_CONSUMER_ACCEPTANCE_NOT_VERIFIED",
       "work": "Sandboxed branching player, captions, a11y, evidence-mode/real truth labels",
       "targetStage": "PER_SOURCE_APPLICABLE_V3",
-      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate"
+      "proof": "Positive real effect if required; negative, restart, rights/currentness; native proof separate",
+      "latestOwnerAction": "Sandboxed branching player, captions, a11y, evidence-mode/real truth labels",
+      "currentnessState": "SOURCE_DECLARED_NOT_PRODUCTION_ACCEPTED"
     }
   ],
   "compositions": [
@@ -1837,7 +1982,8 @@
       ],
       "directAcceptance": "Owner-reviewed cross-child source/rights/version/finality and true terminal; reuse child receipts by ref without copying/re-executing proofs",
       "nativeStatus": "NOT_VERIFIED",
-      "prev": []
+      "prev": [],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
@@ -1856,7 +2002,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.ingestion-and-versioned-artifacts.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.governed-job-execution",
@@ -1873,7 +2020,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.governed-job-execution.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.speech-and-caption-workflows",
@@ -1888,7 +2036,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.speech-and-caption-workflows.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.vision-and-multimodal-analysis",
@@ -1903,7 +2052,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.vision-and-multimodal-analysis.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.creation-composition-and-delivery",
@@ -1921,7 +2071,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.creation-composition-and-delivery.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     },
     {
       "surfaceId": "media.composition.client-and-machine-interfaces",
@@ -1941,7 +2092,8 @@
       "nativeStatus": "NOT_VERIFIED",
       "prev": [
         "media.composition.client-and-machine-interfaces.direct-integration"
-      ]
+      ],
+      "latestRequiredProof": "Bind exact current child statuses and independent cross-child source/rights/version/finality oracle; use real owner receipts, never infer from local fixtures."
     }
   ],
   "journeys": [
@@ -2925,7 +3077,11 @@
         "reportedStatus": "FOCUSED_HOST_PASS_66_66",
         "remaining": "hard gRPC deadline propagation, finite blocked callable and truthful late success/UNKNOWN, model registry is not license qualified"
       },
-      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26"
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26",
+      "currentEvidenceDisposition": {
+        "status": "DEADLINE_INTERCEPTOR_TESTED_HOST_UNQUALIFIED",
+        "next": "Real non-cooperative native provider termination and durable UNKNOWN readback, installed four-service consumer"
+      }
     },
     {
       "id": "JC-04",
@@ -2938,7 +3094,11 @@
         "reportedStatus": "SOURCE_COMPOSITE_COMPAT_24_24_REUSED",
         "remaining": "packed installed common/4 provider API and real deadline/cancel, not independent release"
       },
-      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26"
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/26",
+      "currentEvidenceDisposition": {
+        "status": "SOURCE_COMPOSITE_COMPAT_REPORT_GREEN_INSTALLED_UNQUALIFIED",
+        "next": "Installed public common gRPC client and host deadline/cancel/real provider compatibility"
+      }
     },
     {
       "id": "MC-01",
@@ -3136,7 +3296,12 @@
         "codeCommit": "1e4c571a",
         "remaining": "controlled process kill, S3/Flyway, real source/rights, old writer cutover; IP06 original whole row not accepted"
       },
-      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/27"
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/27",
+      "currentEvidenceDisposition": {
+        "status": "FOCUSED_POSTGRES_BACKEND_TERMINATION_PASS_NOT_WHOLE_ROW_ACCEPTED",
+        "sourceCommit": "36620de0",
+        "next": "Deployed Flyway, old-writer fencing, authorized operator cutover/rollback, real S3+canonical job/outbox and crash-phase host"
+      }
     },
     {
       "id": "IP-07",
@@ -3623,7 +3788,12 @@
         "reportedStatus": "COMPILER_DETERMINISTIC_DAG_PRESENT_NOT_RUNTIME_ADMITTED",
         "remaining": "PDP1 engine hash/clock/plan cost auth and manual edit lock semantics/field mapping; fail closed until source review"
       },
-      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/25"
+      "trackingIssue": "https://github.com/samujjwal/ghatana-media/issues/25",
+      "currentEvidenceDisposition": {
+        "status": "ACCEPT_LOCAL_CANDIDATE_ONLY_NOT_ADMITTED",
+        "sourceCommit": "324f5c06 and successors",
+        "next": "Owner-exact engine/operation map and authority resolver, qualified currentness, reviewer; maintain runtime NOT_ADMITTED"
+      }
     },
     {
       "id": "H-03",
@@ -3635,6 +3805,10 @@
       "engineeringReadback": {
         "reportedStatus": "SYNTHETIC_SCENE_RECAPTURE_PASS_22_22",
         "remaining": "source-authored real capture/narration/eligibility and actual host effect"
+      },
+      "currentEvidenceDisposition": {
+        "status": "SIMULATED_RECAPTURE_ONLY",
+        "next": "real permitted host narration/source/clock and signed capture receipt"
       }
     },
     {
@@ -3647,6 +3821,10 @@
       "engineeringReadback": {
         "reportedStatus": "UNAVAILABLE_ADAPTER_PASS_27_27",
         "remaining": "real captured bytes, tenant/rights/frame clock/credentials and actual host"
+      },
+      "currentEvidenceDisposition": {
+        "status": "UNAVAILABLE_ADAPTER_TESTS_ONLY",
+        "next": "real browser/desktop/other capture with current rights/source/time/secret"
       }
     },
     {
@@ -3683,6 +3861,10 @@
       "engineeringReadback": {
         "reportedStatus": "SYNTHETIC_NON_EFF_EXPLORER_PASS_3_3",
         "remaining": "actual product host film with narration/caption/business terminal, still NOT_RECORDED"
+      },
+      "currentEvidenceDisposition": {
+        "status": "SYNTHETIC_NO_EFFECT_ONLY",
+        "next": "real J03 business effect/host film/PTS sync caption receipts"
       }
     }
   ],
@@ -3890,16 +4072,16 @@
     "oldSourceInventoryCaveat": "Earlier v1 census 29/57 is replaced by current 28/56, not retroactively edited proof",
     "userPriorAuthorizations": "Routine implementation approval applies, protected trust/license/independent reviewers not impersonated"
   },
-  "reviewRevision": "2026-11-01-current-remote-e2b449ea-publish-readback",
+  "reviewRevision": "2026-11-02-local-36620-remote-confirmed-remaining-only-r3",
   "schemaPreservationNote": "The existing v1 derived execution-register schema is preserved; this is a refreshed source observation and owner plan, not a replacement task or closure authority.",
   "currentRemoteReadback": {
     "repo": "samujjwal/ghatana-media",
-    "sha": "e2b449ea974ce7f97e4d26660d8a6f25288e4263",
-    "sourceState": "251 previously local commits now fetched on remote main, includes IP-06 1e4c571a",
-    "claimsBoundary": "GitHub source review and user/commit host test reports; this assistant did not execute host tests, independent rights/reviews/gtool or production effects.",
+    "sha": "36620de0a7f992b62ebfa91466ebe84306c32183",
+    "sourceState": "user-reported local 36620de0 is present on GitHub main, 213 commits beyond prior reviewed 37cc5854; no need to push those same commits",
+    "claimsBoundary": "Source readback and user/commit host test reports; this assistant has not executed local JUnit/Python/Rust/model tests, provided third-party model/voice rights, run protected Lifecycle host, or deployed prod.",
     "latestIp06Commit": "1e4c571ad6",
     "latestContinuationLedgerCommit": "e2b449ea974",
-    "changedCommitCountSincePreviousSource": "251",
+    "changedCommitCountSincePreviousSource": 213,
     "surfaceTopology": {
       "declared": 56,
       "physical": 28,
@@ -3936,6 +4118,62 @@
       "lawfulWhisperProfileAudioGold": "ALL_THREE_ENV_UNSET_ON_REPORTED_HOST",
       "nativeMediaReceipts": "NOT_VERIFIED",
       "dataCloudPublic": "OWNER_INSTALLED_CONSUMER_PENDING"
+    },
+    "sourceCurrentnessNoWrite": {
+      "pdp0": {
+        "stale": 21,
+        "total": 188,
+        "sourceStatus": "IN_PROGRESS",
+        "p003Skipped": 29
+      },
+      "pdp1": {
+        "stale": 30,
+        "total": 137,
+        "status": "STALE",
+        "independentSemanticReview": "STALE_40_REVIEW_SOURCE_PINS_REPORTED"
+      },
+      "pdp2": {
+        "stale": 20,
+        "total": 157,
+        "status": "STALE"
+      },
+      "pdp3": {
+        "stale": 21,
+        "total": 367,
+        "status": "STALE"
+      },
+      "note": "Counts are latest reported no-write direct checks at 8363dfd1/36620de0; static embedded matrix metadata may contain previous counts; require new exact HEAD check."
+    },
+    "work": {
+      "wave2": {
+        "verified": 22,
+        "partial": 30,
+        "external": 6,
+        "unaccepted": 36
+      },
+      "w3Active": 84,
+      "ocRetired": 4,
+      "h": 8,
+      "buildTasks": 57,
+      "buildPackages": 50,
+      "status": "NO_ORIGINAL_WHOLE_ROW_ACCEPTANCE_PROMOTED"
+    },
+    "hostReports": {
+      "IP06PostgresMetadataBackendTermination": "1/1 focused PostgreSQL16 test passed at 36620de0; independent review no material defect",
+      "DIConsumer": "8363dfd1 26/26 tests, TypeScript typecheck; generic unknown sanitized; no published typed DI error contract",
+      "H02": "ACCEPT_LOCAL_CANDIDATE_ONLY; runtime NOT_ADMITTED; explicit mapping/resolver unproven",
+      "JC03": "Deadline interception and admission tests exist; noncooperative real provider and durable receipt reconciliation unqualified"
+    },
+    "assets": {
+      "whisperProfile": "NOT_PROVIDED",
+      "whisperAudio": "NOT_PROVIDED",
+      "whisperGold": "NOT_PROVIDED",
+      "diLicensedWorker": "NOT_QUALIFIED",
+      "voiceLicenseConsent": "NOT_PROVIDED",
+      "dbDeployedFlywayHistory": "NOT_PROVIDED",
+      "legacyWriterIdentityFencing": "NOT_PROVIDED",
+      "operatorCutoverGrant": "NOT_PROVIDED",
+      "nativeAP02AP03": "NOT_VERIFIED"
     }
   },
   "currentSelectedReadbacks": {
@@ -4020,5 +4258,121 @@
     "SHARED-EXTRACTION": "https://github.com/samujjwal/ghatana-shared/issues/246",
     "PDP-0-3": "https://github.com/samujjwal/ghatana-media/issues/19",
     "KCRIT": "https://github.com/samujjwal/ghatana-media/issues/22"
+  },
+  "ownerReadyPackets": [
+    {
+      "id": "OWNER-MEDIA-PDP",
+      "owner": "Media PDP source authority",
+      "status": "REQUIRES_OWNER_DECISION",
+      "input": [
+        "exact 36620 source member hash/phase and applicable leaf/parent",
+        "P0-03 29 skipped method IDs, admissibility and independent reviewer",
+        "PXD-225 deferred PXD-222/PXD-223 source quality relation and PXD-213 caption pin",
+        "PXD-227 latest peer-review digest and matching ownership/CAS evidence",
+        "source-changed DI consumer/operation H02 candidate semantically reviewed"
+      ],
+      "output": "Versioned source-owner decision and peer review with selected source snapshot/expected revision/real approver; source-only CURRENT guarded by real checks; no fake native receipt",
+      "alternative": "Run validation/compile/negative tests, keep recorded status STALE/IN_PROGRESS"
+    },
+    {
+      "id": "OWNER-H02",
+      "owner": "Media PDP1 operations and engine-authority owner",
+      "status": "REQUIRES_MEANING_SELECTION",
+      "input": [
+        "all 61 exact operation-to-engine/NO_ENGINE candidate rows",
+        "admitted engine public capability profile+build/version SHA-256 or explicit rejected mode",
+        "current source resolver authority/rights epoch and idempotent request guard",
+        "quote/cost reservation and authoritative project edit-lock CAS/deadline/clock"
+      ],
+      "output": "Reviewed exact op→engine+policy mapping and authenticated binding resolver, source-current H02 acceptance; test-only candidate cannot enable runtime until this",
+      "alternative": "Effect-free compilation and finite negative tests only"
+    },
+    {
+      "id": "OWNER-KERNEL-DISCOVERY",
+      "owner": "Kernel product definition source owner",
+      "status": "DISCOVERY_FAIL",
+      "input": [
+        "current ghatana-kernel 4ef9180 and complete registered 7915 case report/25 failures/1 diagnostic",
+        "earliest PDP0 source owner/phase/subject classifications and source-current successor review",
+        "all applicable Kernel PDP0→3 exact source and negative tests"
+      ],
+      "output": "Kernel AGENTS discovery stage barrier PASS/current per physical/composite, then independently approved Kernel Build/DI adapter model qualification",
+      "alternative": "Read-only source review and owner-selected Discovery repairs, no new Kernel Build/production admission"
+    },
+    {
+      "id": "OWNER-DI-MODEL",
+      "owner": "Ghatana Document Intelligence + Shared release/source owners",
+      "status": "AWAIT_QUALIFIED_PROVIDER",
+      "input": [
+        "genuine published @ghatana/document-extraction and DI-client immutable semver+API and typed error contract",
+        "qualified model SHA/version/license/worker provider catalog",
+        "licensed PNG+PDF ground truth with source rights/consent and cancellation/UNKNOWN evidence",
+        "two source-free installed consumers Media and document/Kernel"
+      ],
+      "output": "Real DI worker/model/rights/source/typed error/timeout and independent acceptance, Kernel production conformance after Discovery",
+      "alternative": "Keep DI worker unavailable, retain sanitized UNKNOWN and no local Media OCR engine"
+    },
+    {
+      "id": "OWNER-STT-VOICE",
+      "owner": "Media STT/TTS model rights and science reviewers",
+      "status": "AWAIT_LAWFUL_INPUTS",
+      "input": [
+        "GHATANA_MEDIA_WHISPER_PROFILE rights-pinned immutable profile",
+        "GHATANA_MEDIA_WHISPER_AUDIO rights-cleared audio",
+        "GHATANA_MEDIA_WHISPER_GOLD independently authored complete transcript",
+        "licensed Piper/voice/biometric consent, permitted locales and heldout labels",
+        "source/host/perf/accuracy owner-approved thresholds"
+      ],
+      "output": "Real model quality WER/CER/DER, playable lawful voice and 1/16/64 measured latency, no implied passing from configured file",
+      "alternative": "Host code/decoder/negative tests only, models remain NOT_ADMITTED"
+    },
+    {
+      "id": "OWNER-IP06-OPERATOR",
+      "owner": "Deployed legacy Media database/operator and change authority",
+      "status": "AWAIT_AUTHENTIC_HISTORY_AND_EFFECT_GRANT",
+      "input": [
+        "read-only deployed pg_flyway_schema_history V001–V029 including checksums/description/applied order, not synthetic fixture",
+        "signed old writer deployment/service/credential identity and active leases",
+        "read-only S3/object/tenant root and KMS/bucket encryption/provenance identities (no secrets committed)",
+        "current restorable backup/restore test and source/rollback plan",
+        "operation owner change window/fence authority with maintenance/audit witness"
+      ],
+      "output": "Dry-run old/new applied migration, single-writer quiesce/lease draining/stale writer deny, real authenticated production cutover/rollback receipt",
+      "alternative": "Synthetic fixture/PG16 tests/LocalStack remain engineering only; no prod writes"
+    },
+    {
+      "id": "OWNER-LIFECYCLE",
+      "owner": "Lifecycle protected AP02/AP03 source/signer/verifier operators",
+      "status": "PROTECTED_HOST_MISSING",
+      "input": [
+        "owner-approved current Media source selection after PDP source owner currentness",
+        "registered closure/assurance contract distribution issuer and verifier with revocation",
+        "tracked-source snapshot archive and exact digest/manifest membership",
+        "original source→case→observer→oracle native graph, qualified producer and independent reviewer",
+        "selected operator authorization to run real phase proof"
+      ],
+      "output": "Genuine authenticated first PDP0 leaf native gtool receipt then dependent phase/composites/root closure, no false N/A",
+      "alternative": "Prepare exact source/case graph and gtool read-only plan; Build coding proceeds independently"
+    }
+  ],
+  "executionGuardrails": {
+    "sourceVersion": "36620de0a7f992b62ebfa91466ebe84306c32183",
+    "noBlindRepin": true,
+    "noNewSourceAuthority": true,
+    "noSourceStatusPromotionWithoutRealReadback": true,
+    "noKernelBuildBeforeDiscoveryCurrent": true,
+    "noProdWriterCutoverWithoutOperator": true,
+    "noModelInferenceWithoutRealGold": true,
+    "noNativeProofFromFixtures": true,
+    "noRepeatRule": "Before coding task compare original task positive/negative/unknown and source SHA, retain true green unchanged work; do not rerun full suites or implement again solely for task count.",
+    "idempotencyRule": "Effect-capable remote/provider with timeout/lost acknowledgement yields UNKNOWN until original stable request/generation owner readback; cancellation confirmed only by actual qualified provider/owner.",
+    "evidenceSeparation": [
+      "SOURCE_DEFINITION_DEV_COMPLETE",
+      "ENGINEERING_TEST_PASSED",
+      "MODEL_AND_RIGHTS_QUALIFIED",
+      "KCRIT_BUILD_STAGE_ACCEPTED",
+      "NATIVE_CLOSED_CURRENT",
+      "RELEASED_OPERATED"
+    ]
   }
 }
