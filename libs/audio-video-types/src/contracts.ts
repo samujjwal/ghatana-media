@@ -17,6 +17,18 @@ const NonNegativeIntegerSchema = z
   .nonnegative()
   .max(Number.MAX_SAFE_INTEGER);
 
+/**
+ * PDP-1 sourcePresentationTime is a rational point on an explicitly named
+ * source clock. Keep its declared numeric wire fields, but reject integers
+ * that JavaScript cannot represent exactly.
+ */
+export const SourcePresentationTimeSchema = z.object({
+  numerator: z.number().int().safe(),
+  denominator: z.number().int().positive().safe(),
+  clockRef: IdentifierSchema,
+}).strict();
+export type SourcePresentationTime = z.infer<typeof SourcePresentationTimeSchema>;
+
 export const MediaClassificationSchema = z.enum([
   "PUBLIC",
   "INTERNAL",

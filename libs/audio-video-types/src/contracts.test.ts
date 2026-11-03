@@ -11,6 +11,7 @@ import {
   MediaJobStateSchema,
   MediaJobStateObservationSchema,
   MediaProcessingJobSchema,
+  SourcePresentationTimeSchema,
   UploadSessionSchema,
   VoiceTrainingRequestSchema,
 } from "./contracts";
@@ -18,6 +19,14 @@ import {
 const timestamp = "2026-08-05T12:00:00.000Z";
 
 describe("media contracts", () => {
+  it("preserves source presentation time as a clock-bound rational point", () => {
+    const position = { numerator: -3, denominator: 2, clockRef: "source-clock-1" };
+    expect(SourcePresentationTimeSchema.parse(JSON.parse(JSON.stringify(position)))).toEqual(position);
+    expect(SourcePresentationTimeSchema.safeParse({ ...position, numerator: Number.MAX_SAFE_INTEGER + 1 }).success).toBe(false);
+    expect(SourcePresentationTimeSchema.safeParse({ ...position, denominator: 0 }).success).toBe(false);
+    expect(SourcePresentationTimeSchema.safeParse({ ...position, timestampMs: 1 }).success).toBe(false);
+  });
+
   it("roundtrips every canonical logical job state through the JSON observation and job projections", () => {
     const jobBase = {
       id: "job-1",
