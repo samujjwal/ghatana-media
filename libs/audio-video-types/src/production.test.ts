@@ -234,6 +234,11 @@ describe('TY-04 headless declarative parsers', () => {
   it('accepts a well-formed model execution spec', () => {
     expect(ModelExecutionSpecSchema.safeParse(execSpec).success).toBe(true);
   });
+  it('matches PDP-1 numeric precision pattern without inventing token semantics', () => {
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, numericPrecision: 'decimal 128' }).success).toBe(true);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, numericPrecision: '   ' }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, numericPrecision: 'p'.repeat(129) }).success).toBe(false);
+  });
   it('rejects a model family that is not an exact PDP-1 simulation capability leaf', () => {
     expect(ModelExecutionSpecSchema.safeParse({
       ...execSpec, modelFamilyRef: 'media.simulation',

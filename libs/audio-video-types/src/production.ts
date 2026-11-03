@@ -293,7 +293,10 @@ export const ModelExecutionSpecSchema = boundedTypedValue(z.object({
   solverId: OpaqueIdSchema,
   solverVersion: VersionRefSchema,
   solverBuildDigest: DigestSchema,
-  numericPrecision: z.string().min(1).max(128).regex(/^\S+$/),
+  // PDP-1's pattern is `\S` (at least one non-whitespace character), not a
+  // whitespace-free token. Preserve the declared format without inventing a
+  // closed enum or rejecting otherwise valid labels.
+  numericPrecision: z.string().min(1).max(128).regex(/\S/),
   initialConditionsRef: VersionRefSchema,
   boundaryConditionsRef: VersionRefSchema,
   unitsRegistryRef: VersionRefSchema,
