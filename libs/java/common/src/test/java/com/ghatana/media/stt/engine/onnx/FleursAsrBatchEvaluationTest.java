@@ -19,11 +19,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -39,6 +40,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * The predictions contract is consumed by {@code scripts/qualification/evaluate-fleurs-asr.mjs}.
  */
 class FleursAsrBatchEvaluationTest {
+
+    @TempDir Path temp;
 
     private static final long MAX_WAV_BYTES = 1_048_576;
     private static final int MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
@@ -91,45 +94,46 @@ class FleursAsrBatchEvaluationTest {
                 .timeout(Duration.ofMinutes(3))
                 .build();
 
-        List<String> lines = new ArrayList<>();
-        int failures = 0;
-        try (WhisperOnnxEngine engine = createEngineAfterFleursAuthorization(manifest, authorization,
-                () -> new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState()))) {
-            int done = 0;
-            for (JsonNode clip : clips) {
-                // The canonical scorer consumes HOLDOUT predictions only. Pilot/training
-                // examples are intentionally excluded to avoid leaking tuning data into
-                // the reported held-out WER denominator.
-                if (!isHoldout(clip)) continue;
-                String clipId = requiredToken(clip, "clipId");
-                Locale locale = LOCALES.get(clip.get("locale").asText());
-                assertThat(locale).as("unsupported locale %s", clip.get("locale").asText()).isNotNull();
-                Path wav = resolveClipPath(clipDir, clip);
-                AudioData audio = readPcm16MonoWav(wav, clip);
-                String text;
-                try {
-                    var result = engine.transcribe(audio, TranscriptionOptions.builder()
-                            .language(locale).enableTimestamps(false).build());
-                    text = result.text();
-                } catch (RuntimeException failure) {
-                    // A failed clip is a truthful evaluation outcome: record an empty
-                    // prediction (scored as full WER) rather than abort the batch.
-                    text = "";
-                    failures++;
-                    System.out.printf("FLEURS_CLIP_FAILED clip=%s error=%s%n",
-                            clipId, failure.getClass().getSimpleName());
-                }
-                lines.add(predictionJson(mapper, clip.get("locale").asText(), clipId, text));
-                done++;
-                if (done % 20 == 0) {
-                    Files.writeString(out, "[" + String.join(",", lines) + "]");
-                    System.out.printf("FLEURS_PROGRESS %d/%d%n", done, clips.size());
+        evaluateAfterFleursAuthorization(manifest, authorization, () -> {
+            List<String> lines = new ArrayList<>();
+            int[] failures = {0};
+            try (WhisperOnnxEngine engine = new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState())) {
+                int done = 0;
+                for (JsonNode clip : clips) {
+                    // The canonical scorer consumes HOLDOUT predictions only. Pilot/training
+                    // examples are intentionally excluded to avoid leaking tuning data into
+                    // the reported held-out WER denominator.
+                    if (!isHoldout(clip)) continue;
+                    String clipId = requiredToken(clip, "clipId");
+                    Locale locale = LOCALES.get(clip.get("locale").asText());
+                    assertThat(locale).as("unsupported locale %s", clip.get("locale").asText()).isNotNull();
+                    Path wav = resolveClipPath(clipDir, clip);
+                    AudioData audio = readPcm16MonoWav(wav, clip);
+                    String text;
+                    try {
+                        var result = engine.transcribe(audio, TranscriptionOptions.builder()
+                                .language(locale).enableTimestamps(false).build());
+                        text = result.text();
+                    } catch (RuntimeException failure) {
+                        // A failed clip is a truthful evaluation outcome: record an empty
+                        // prediction (scored as full WER) rather than abort the batch.
+                        text = "";
+                        failures[0]++;
+                        System.out.printf("FLEURS_CLIP_FAILED clip=%s error=%s%n",
+                                clipId, failure.getClass().getSimpleName());
+                    }
+                    lines.add(predictionJson(mapper, clip.get("locale").asText(), clipId, text));
+                    done++;
+                    if (done % 20 == 0) {
+                        Files.writeString(out, "[" + String.join(",", lines) + "]");
+                        System.out.printf("FLEURS_PROGRESS %d/%d%n", done, clips.size());
+                    }
                 }
             }
-        }
-        Files.writeString(out, "[" + String.join(",", lines) + "]");
-        System.out.printf("FLEURS_PREDICTIONS_DONE clips=%d failures=%d out=%s%n",
-                lines.size(), failures, out);
+            Files.writeString(out, "[" + String.join(",", lines) + "]");
+            System.out.printf("FLEURS_PREDICTIONS_DONE clips=%d failures=%d out=%s%n",
+                    lines.size(), failures[0], out);
+        });
     }
 
     private static boolean isHoldout(JsonNode clip) {
@@ -203,10 +207,15 @@ class FleursAsrBatchEvaluationTest {
         throw new IOException("FLEURS source authority is unverifiable in this local batch test; inference denied");
     }
 
-    private static WhisperOnnxEngine createEngineAfterFleursAuthorization(JsonNode manifest, JsonNode authorization,
-            Supplier<WhisperOnnxEngine> engineFactory) throws IOException {
+    @FunctionalInterface
+    private interface FleursEvaluation {
+        void run() throws Exception;
+    }
+
+    private static void evaluateAfterFleursAuthorization(
+            JsonNode manifest, JsonNode authorization, FleursEvaluation evaluation) throws Exception {
         requireSourceAuthorizedFleursScope(manifest, authorization);
-        return engineFactory.get();
+        evaluation.run();
     }
 
     private static Map<String, String> clipScope(JsonNode clips, boolean holdoutOnly) throws IOException {
@@ -236,6 +245,7 @@ class FleursAsrBatchEvaluationTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode manifest = fleursManifest(mapper);
         JsonNode completeRecord = fleursAuthorization(mapper);
+        Path predictionOutput = temp.resolve("predictions.json");
         List<JsonNode> invalidRecords = new ArrayList<>();
         invalidRecords.add(null);
         invalidRecords.add(mapper.readTree("{}"));
@@ -257,22 +267,57 @@ class FleursAsrBatchEvaluationTest {
         invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
                 "a".repeat(64), "b".repeat(64))));
         invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                ",\"audioSha256\":\"" + "a".repeat(64) + "\"", "")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "\"audioSha256\":\"" + "a".repeat(64) + "\"", "\"audioSha256\":\"malformed\"")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "]}", "," + fleursClip("eng", "clip-eng-1", "a".repeat(64)) + "]}")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
                 "ASR_EVALUATION_ONLY", "OTHER_PURPOSE")));
         for (JsonNode invalid : invalidRecords) {
-            int[] creations = {0};
-            assertThatThrownBy(() -> createEngineAfterFleursAuthorization(manifest, invalid, () -> {
-                creations[0]++;
-                return null;
-            })).isInstanceOf(IOException.class);
-            assertThat(creations[0]).as("engine factory must not run for invalid or unverifiable scope").isZero();
+            assertEvaluationNotStarted(manifest, invalid, predictionOutput);
         }
 
-        int[] creations = {0};
-        assertThatThrownBy(() -> createEngineAfterFleursAuthorization(manifest, completeRecord, () -> {
-            creations[0]++;
-            return null;
-        })).isInstanceOf(IOException.class).hasMessageContaining("unverifiable");
-        assertThat(creations[0]).as("structural scope matching is not source-authority verification").isZero();
+        assertEvaluationNotStarted(manifest, completeRecord, predictionOutput);
+
+        JsonNode wrongLocaleManifest = mapper.readTree(manifest.toString()
+                .replace("\"locale\":\"npi\"", "\"locale\":\"spa\""));
+        JsonNode wrongLocaleAuthorization = mapper.readTree(completeRecord.toString()
+                .replace("\"locale\":\"npi\"", "\"locale\":\"spa\""));
+        assertEvaluationNotStarted(wrongLocaleManifest, wrongLocaleAuthorization, predictionOutput);
+
+        JsonNode wrongDataset = mapper.readTree(manifest.toString()
+                .replace("\"name\":\"google/fleurs\"", "\"name\":\"google/other\""));
+        assertEvaluationNotStarted(wrongDataset, completeRecord, predictionOutput);
+
+        JsonNode missingDatasetRevision = mapper.readTree(manifest.toString()
+                .replace("\"sourceRevision\":\"70bb2e84b976b7e960aa89f1c648e09c59f894dd\"",
+                        "\"sourceRevision\":\"\""));
+        assertEvaluationNotStarted(missingDatasetRevision, completeRecord, predictionOutput);
+
+        JsonNode mismatchedDatasetRevision = mapper.readTree(manifest.toString()
+                .replace("70bb2e84b976b7e960aa89f1c648e09c59f894dd", "altered-revision"));
+        assertEvaluationNotStarted(mismatchedDatasetRevision, completeRecord, predictionOutput);
+    }
+
+    private void assertEvaluationNotStarted(JsonNode manifest, JsonNode authorization, Path predictionOutput)
+            throws Exception {
+        AtomicInteger engineCreations = new AtomicInteger();
+        AtomicInteger audioReads = new AtomicInteger();
+        AtomicInteger artifactWrites = new AtomicInteger();
+        assertThatThrownBy(() -> evaluateAfterFleursAuthorization(manifest, authorization, () -> {
+            engineCreations.incrementAndGet();
+            audioReads.incrementAndGet();
+            artifactWrites.incrementAndGet();
+            Files.writeString(predictionOutput, "synthetic prediction artifact");
+        })).isInstanceOf(IOException.class);
+        assertThat(engineCreations).as("engine must not be created for invalid or unverifiable scope")
+                .hasValue(0);
+        assertThat(audioReads).as("audio must not be read for invalid or unverifiable scope")
+                .hasValue(0);
+        assertThat(artifactWrites).as("predictions must not be written for invalid or unverifiable scope")
+                .hasValue(0);
+        assertThat(Files.exists(predictionOutput)).isFalse();
     }
 
     private static JsonNode fleursManifest(ObjectMapper mapper) throws IOException {
