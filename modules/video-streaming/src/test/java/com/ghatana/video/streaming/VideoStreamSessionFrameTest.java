@@ -42,6 +42,8 @@ class VideoStreamSessionFrameTest {
                 VideoStreamSession.MAX_FRAME_SEQUENCE, false, 0L, new byte[]{2}));
         assertThat(delta.keyFrame()).isFalse();
         assertThat(delta.sequenceNumber()).isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThat(session.decodeFrame(header(VideoStreamSession.MAX_FRAME_SEQUENCE, 0, 0L, 0))
+                .sequenceNumber()).isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
         assertThatThrownBy(() -> session.encodeFrame(Integer.MAX_VALUE, false, 1L, new byte[]{3}))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
@@ -88,6 +90,12 @@ class VideoStreamSessionFrameTest {
         // Declared length larger than the bytes actually present.
         assertThatThrownBy(() -> session.decodeFrame(header(1, 0, 0L, 3)))
                 .isInstanceOf(IllegalArgumentException.class);
+        // Even a declared maximum payload is rejected while truncated; the
+        // decoder validates remaining bytes before allocating a payload copy.
+        assertThatThrownBy(() -> session.decodeFrame(
+                        header(1, 0, 0L, VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("payload length");
         // Trailing garbage after a complete payload is rejected.
         byte[] trailing = Arrays.copyOf(valid, valid.length + 1);
         trailing[trailing.length - 1] = 0x01;
