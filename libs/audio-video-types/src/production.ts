@@ -230,7 +230,6 @@ export const ProductionSpecSchema = boundedTypedValue(z.object({
 export type ProductionSpec = z.infer<typeof ProductionSpecSchema>;
 
 export const SceneBindingSchema = boundedTypedValue(z.object({
-  schemaVersion: z.literal("media.declarative.value.scene-binding.v1"),
   sceneId: OpaqueIdSchema,
   sceneGraphRef: VersionRefSchema,
   animationGraphRef: VersionRefSchema,
@@ -296,7 +295,6 @@ export const ModelExecutionSpecSchema = boundedTypedValue(z.object({
 export type ModelExecutionSpec = z.infer<typeof ModelExecutionSpecSchema>;
 
 export const SimulationStateSchema = boundedTypedValue(z.object({
-  schemaVersion: z.literal("media.declarative.value.simulation-state.v1"),
   runId: OpaqueIdSchema,
   attemptId: OpaqueIdSchema,
   modelFamilyRef: SimulationCapabilityLeafSchema,
@@ -306,8 +304,11 @@ export const SimulationStateSchema = boundedTypedValue(z.object({
   replayability: ReplayabilitySchema,
   solverVersionRef: VersionRefSchema,
   tSimTicks: SignedInt64DecimalSchema,
-  stepIndex: SignedInt64DecimalSchema,
-  stateVersion: OpaqueIdSchema,
+  // The owning schema declares a JSON integer with minimum 0, not an int64
+  // decimal string. Cap at JS's exact integer range to avoid accepting a value
+  // that has already been rounded by JSON/number parsing.
+  stepIndex: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  stateVersion: VersionRefSchema,
   stateDigest: DigestSchema,
   parameterDigest: DigestSchema,
   rngStateOrNull: NullableVersionRefSchema,

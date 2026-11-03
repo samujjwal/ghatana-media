@@ -50,16 +50,15 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, originClass: 'BOGUS' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, tenantId: 'bad id!' }).success).toBe(false);
   });
-  it('accepts only the closed, versioned PDP-1 scene-binding shape', () => {
+  it('accepts only the closed PDP-1 scene-binding shape', () => {
     const scene = {
-      schemaVersion: 'media.declarative.value.scene-binding.v1',
       sceneId: 'scene-1', sceneGraphRef: ref, animationGraphRef: ref,
       modelStateRefOrNull: null, sourceRefs: [ref], temporalMappingRef: ref,
       semanticAnchorRefs: ['anchor-1'], accessibilityRef: ref,
     };
     expect(SceneBindingSchema.safeParse(scene).success).toBe(true);
     const requiredFields = [
-      'schemaVersion', 'sceneId', 'sceneGraphRef', 'animationGraphRef',
+      'sceneId', 'sceneGraphRef', 'animationGraphRef',
       'modelStateRefOrNull', 'sourceRefs', 'temporalMappingRef',
       'semanticAnchorRefs', 'accessibilityRef',
     ] as const;
@@ -73,6 +72,7 @@ describe('TY-04 headless declarative parsers', () => {
     expect(SceneBindingSchema.safeParse({ ...scene, sourceRefs: [ref, ref] }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, modelStateRefOrNull: ' ' }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor-1', 'anchor-1'] }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, schemaVersion: 'media.declarative.value.scene-binding.v1' }).success).toBe(false);
   });
   it('refuses cyclic and over-deep caller values before schema descent', () => {
     const cyclic = { ...spec } as Record<string, unknown>;
@@ -82,6 +82,11 @@ describe('TY-04 headless declarative parsers', () => {
     let deeplyNested: unknown = null;
     for (let index = 0; index < 66; index++) deeplyNested = [deeplyNested];
     expect(ProductionSpecSchema.safeParse(deeplyNested).success).toBe(false);
+  });
+  it('bounds nested caller values for scene bindings as well', () => {
+    let deeplyNested: unknown = null;
+    for (let index = 0; index < 66; index++) deeplyNested = [deeplyNested];
+    expect(SceneBindingSchema.safeParse(deeplyNested).success).toBe(false);
   });
   it('rejects sparse or decorated arrays before Zod can iterate or ignore array properties', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: new Array(100_001) }).success).toBe(false);
@@ -219,11 +224,10 @@ describe('TY-04 headless declarative parsers', () => {
   });
   it('simulation state rejects unbounded or wrong-version checkpoints', () => {
     const state = {
-      schemaVersion: 'media.declarative.value.simulation-state.v1',
       runId: 'run-1', attemptId: 'att-1', modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
       familyApplicability: { applicability: 'UNKNOWN', evidenceRefs: [] },
       familyQualificationRef: ref, replayability: 'UNKNOWN', solverVersionRef: ref,
-      tSimTicks: '42', stepIndex: '7', stateVersion: 'sv-1',
+      tSimTicks: '42', stepIndex: 7, stateVersion: 'state/v1',
       stateDigest: { algorithmRef: ref, value: 'sha256:s', subjectVersionRef: ref },
       parameterDigest: { algorithmRef: ref, value: 'sha256:p', subjectVersionRef: ref },
       rngStateOrNull: null,
@@ -232,6 +236,12 @@ describe('TY-04 headless declarative parsers', () => {
     };
     expect(SimulationStateSchema.safeParse(state).success).toBe(true);
     expect(SimulationStateSchema.safeParse({ ...state, tSimTicks: 'abc' }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, stepIndex: -1 }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, stepIndex: 1.5 }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, stepIndex: Number.MAX_SAFE_INTEGER + 1 }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, stateVersion: ' ' }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, stateVersion: 'state/\uD800' }).success).toBe(false);
     expect(SimulationStateSchema.safeParse({ ...state, unknown: 1 }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, schemaVersion: 'media.declarative.value.simulation-state.v1' }).success).toBe(false);
   });
 });
