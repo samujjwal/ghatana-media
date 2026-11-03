@@ -373,7 +373,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         || !validSemanticObservations(observations)
                         || !validGlossary(glossary)
                         || response == null
-                        || !validTranscriptResponse(response)
+                        || !validTranscriptResponse(response, draft.segments())
                         || !draft.sourceVersion().equals(text(response, "sourceArtifactVersionRef"))
                         || !requestFingerprint.equals(text(response, "requestFingerprint"))
                         || !transcriptVersionRef.equals(text(response, "transcriptVersionRef"))
@@ -615,20 +615,35 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         // Keep rejecting them even though request-option presence is now retained.
         return observations.get("fillerRetakeCandidateObservations") == null;
     }
-    private static boolean validTranscriptResponse(JsonNode response) {
+    private boolean validTranscriptResponse(JsonNode response,
+            List<MediaTranscriptContracts.TranscriptSegment> expectedSegments) {
         if (!response.isObject() || hasExtraProperties(response, java.util.Set.of("sourceArtifactVersionRef",
-                "requestFingerprint", "transcriptVersionRef", "glossaryDisposition", "transcriptText"))) return false;
+                "requestFingerprint", "transcriptVersionRef", "glossaryDisposition", "transcriptText", "segments"))) return false;
         String source = text(response, "sourceArtifactVersionRef");
         String fingerprint = text(response, "requestFingerprint");
         String version = text(response, "transcriptVersionRef");
         String disposition = text(response, "glossaryDisposition");
         JsonNode transcript = response.get("transcriptText");
-        return validOpaqueRef(source) && fingerprint != null && fingerprint.matches("[0-9a-f]{64}")
+        if (!(validOpaqueRef(source) && fingerprint != null && fingerprint.matches("[0-9a-f]{64}")
                 && validOpaqueRef(version)
                 && ("APPLIED".equals(disposition) || "NOT_REQUESTED".equals(disposition))
                 && transcript != null && transcript.isString()
                 && transcript.stringValue().codePointCount(0, transcript.stringValue().length())
-                        <= MAX_TRANSCRIPT_TEXT_CODE_POINTS;
+                        <= MAX_TRANSCRIPT_TEXT_CODE_POINTS)) return false;
+        JsonNode suppliedSegments = response.get("segments");
+        if (suppliedSegments == null) return expectedSegments.isEmpty();
+        // The current admitted product response schema has no segment projection. Keep
+        // this internal, source-unreconciled development extension out of production.
+        if (state.productionEligible()) return false;
+        if (suppliedSegments.isNull() || !suppliedSegments.isArray()) return false;
+        try {
+            Object projected = state.mapper().convertValue(suppliedSegments, Object.class);
+            List<MediaTranscriptContracts.TranscriptSegment> parsed =
+                    MediaTranscriptContracts.segmentsFromParameterValue(projected);
+            return parsed.equals(expectedSegments);
+        } catch (RuntimeException malformedSegments) {
+            return false;
+        }
     }
     private static void validateTranscriptText(TranscriptDraft draft) {
         if (draft.text().codePointCount(0, draft.text().length()) > MAX_TRANSCRIPT_TEXT_CODE_POINTS) {

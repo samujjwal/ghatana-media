@@ -34,6 +34,13 @@ class TranscriptSegmentTimingTest {
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(0, 48_000, " ", 48_000, 96_000))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(0, 1, "clock", 1, 0))
+                .as("zero duration cannot contain a positive-length source span")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> TranscriptSegmentTiming.sourceTicks(
+                0, 1, "clock", 9_007_199_254_740_992L, 1))
+                .as("source tick tuple fields must remain PDP-safe integers")
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -126,10 +133,59 @@ class TranscriptSegmentTimingTest {
                 "segmentId", "s", "text", "t", "origin", "PROVIDER",
                 "timing", Map.of("tag", "FICTIONAL")))))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER", "extra", true,
+                "timing", Map.of("tag", "NOT_SUPPLIED")))))
+                .as("segment objects reject unknown fields")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER",
+                "timing", Map.of("tag", "NOT_SUPPLIED", "start", 0)))))
+                .as("timing objects reject fields outside the selected tagged union")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER",
+                "timing", Map.of("tag", "PROVIDER_TIME_UNQUALIFIED", "start", 1.5,
+                        "end", 2, "declaredUnit", "provider-ms")))))
+                .as("fractional provider times are not truncated")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER",
+                "timing", Map.of("tag", "SOURCE_TICKS", "startTick", 0,
+                        "endTick", 9_007_199_254_740_992L, "sourceClockId", "clock",
+                        "sourceTicksPerSecond", 1, "sourceDurationTicks", 10)))))
+                .as("unsafe source tick values fail closed")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER",
+                "timing", Map.of("tag", "SOURCE_TICKS", "startTick", 0,
+                        "endTick", 1, "sourceClockId", "clock",
+                        "sourceTicksPerSecond", 1, "sourceDurationTicks", 0)))))
+                .as("source end must not exceed even a zero duration")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaTranscriptContracts.segmentsFromParameterValue(List.of(Map.of(
+                "segmentId", "s", "text", "t", "origin", "PROVIDER",
+                "timing", Map.of("tag", "PROVIDER_TIME_UNQUALIFIED", "start", Long.MAX_VALUE,
+                        "end", Long.MAX_VALUE, "declaredUnit", "provider-ms")))))
+                .as("overflowing provider values are not accepted")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> segment("large", TranscriptSegmentTiming.notSupplied(),
+                "x".repeat(1_000_001)))
+                .as("each segment has a bounded codepoint count")
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> draft(List.of(
+                segment("first", TranscriptSegmentTiming.notSupplied(), "x".repeat(600_000)),
+                segment("second", TranscriptSegmentTiming.notSupplied(), "y".repeat(400_001)))))
+                .as("aggregate segment text is bounded across the ordered array")
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static TranscriptSegment segment(String id, TranscriptSegmentTiming timing) {
         return new TranscriptSegment(id, "text", "PROVIDER", timing);
+    }
+
+    private static TranscriptSegment segment(String id, TranscriptSegmentTiming timing, String text) {
+        return new TranscriptSegment(id, text, "PROVIDER", timing);
     }
 
     private static TranscriptDraft draft(List<TranscriptSegment> segments) {

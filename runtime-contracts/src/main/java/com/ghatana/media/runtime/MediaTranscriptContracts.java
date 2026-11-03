@@ -8,6 +8,9 @@ import java.util.Objects;
 public final class MediaTranscriptContracts {
     private MediaTranscriptContracts() { }
 
+    private static final long MAX_PDP_SAFE_INTEGER = 9_007_199_254_740_991L;
+    private static final int MAX_SEGMENT_TEXT_CODE_POINTS = 1_000_000;
+
     /** Legacy constructor value; stores must reject it because no purpose was bound. */
     public static final String UNBOUND_PURPOSE_REF = "__UNBOUND_PURPOSE_REF__";
     /** Legacy constructor value; stores must reject it because no effective purpose was resolved. */
@@ -65,10 +68,13 @@ public final class MediaTranscriptContracts {
                     if (start < 0 || end <= start || sourceClockId.isBlank()
                             || sourceClockId.length() > 512
                             || sourceClockId.chars().anyMatch(Character::isISOControl)
-                            || sourceTicksPerSecond < 1 || sourceDurationTicks < 0) {
+                            || sourceTicksPerSecond < 1 || sourceDurationTicks < 0
+                            || start > MAX_PDP_SAFE_INTEGER || end > MAX_PDP_SAFE_INTEGER
+                            || sourceTicksPerSecond > MAX_PDP_SAFE_INTEGER
+                            || sourceDurationTicks > MAX_PDP_SAFE_INTEGER) {
                         throw new IllegalArgumentException("source-tick segment timing is malformed");
                     }
-                    if (sourceDurationTicks > 0 && end > sourceDurationTicks) {
+                    if (end > sourceDurationTicks) {
                         throw new IllegalArgumentException(
                                 "source-tick segment ends beyond the declared source duration");
                     }
@@ -130,6 +136,9 @@ public final class MediaTranscriptContracts {
                 throw new IllegalArgumentException("segmentId is malformed");
             }
             text = java.util.Objects.requireNonNull(text, "text");
+            if (text.codePointCount(0, text.length()) > MAX_SEGMENT_TEXT_CODE_POINTS) {
+                throw new IllegalArgumentException("transcript segment text exceeds the bounded length");
+            }
             origin = required(origin, "origin");
             if (origin.length() > 64 || origin.chars().anyMatch(Character::isISOControl)) {
                 throw new IllegalArgumentException("segment origin is malformed");
@@ -206,14 +215,26 @@ public final class MediaTranscriptContracts {
             throw new IllegalArgumentException("transcript segments must be a bounded ordered array");
         }
         java.util.List<TranscriptSegment> segments = new java.util.ArrayList<>(list.size());
+        long aggregateTextCodePoints = 0;
         for (Object item : list) {
             if (!(item instanceof Map<?, ?> map)
+                    || !hasExactKeys(map, "segmentId", "text", "origin", "timing")
                     || !(map.get("segmentId") instanceof String segmentId)
                     || !(map.get("text") instanceof String text)
                     || !(map.get("origin") instanceof String origin)
                     || !(map.get("timing") instanceof Map<?, ?> timingMap)
                     || !(timingMap.get("tag") instanceof String tag)) {
                 throw new IllegalArgumentException("transcript segment is malformed");
+            }
+            String[] timingFields = switch (tag) {
+                case "NOT_SUPPLIED" -> new String[] {"tag"};
+                case "PROVIDER_TIME_UNQUALIFIED" -> new String[] {"tag", "start", "end", "declaredUnit"};
+                case "SOURCE_TICKS" -> new String[] {"tag", "startTick", "endTick", "sourceClockId",
+                        "sourceTicksPerSecond", "sourceDurationTicks"};
+                default -> throw new IllegalArgumentException("unknown transcript segment timing tag");
+            };
+            if (!hasExactKeys(timingMap, timingFields)) {
+                throw new IllegalArgumentException("transcript segment timing has missing or unknown fields");
             }
             TranscriptSegmentTiming timing = switch (tag) {
                 case "NOT_SUPPLIED" -> TranscriptSegmentTiming.notSupplied();
@@ -230,17 +251,54 @@ public final class MediaTranscriptContracts {
                 default -> throw new IllegalArgumentException("unknown transcript segment timing tag");
             };
             segments.add(new TranscriptSegment(segmentId, text, origin, timing));
+            aggregateTextCodePoints += text.codePointCount(0, text.length());
+            if (aggregateTextCodePoints > MAX_SEGMENT_TEXT_CODE_POINTS) {
+                throw new IllegalArgumentException("aggregate transcript segment text exceeds the bounded length");
+            }
         }
         return java.util.List.copyOf(segments);
     }
 
+    private static boolean hasExactKeys(Map<?, ?> map, String... expected) {
+        if (map.size() != expected.length) return false;
+        for (String key : expected) if (!map.containsKey(key)) return false;
+        return true;
+    }
+
     private static long integral(Object value, String name) {
-        if (!(value instanceof Number number)
-                || (value instanceof Double d && (d.isNaN() || d.isInfinite()))
-                || (value instanceof Float f && (f.isNaN() || f.isInfinite()))) {
+        if (!(value instanceof Number number)) {
             throw new IllegalArgumentException("transcript segment " + name + " must be integral");
         }
-        return number.longValue();
+        try {
+            long result;
+            if (number instanceof java.math.BigInteger integer) {
+                result = integer.longValueExact();
+            } else if (number instanceof java.math.BigDecimal decimal) {
+                result = decimal.longValueExact();
+            } else if (number instanceof Double d) {
+                if (!Double.isFinite(d) || d != Math.rint(d) || Math.abs(d) > MAX_PDP_SAFE_INTEGER) {
+                    throw new ArithmeticException("not a safe integral value");
+                }
+                result = d.longValue();
+            } else if (number instanceof Float f) {
+                if (!Float.isFinite(f) || f != Math.rint(f) || Math.abs((double) f) > MAX_PDP_SAFE_INTEGER) {
+                    throw new ArithmeticException("not a safe integral value");
+                }
+                result = f.longValue();
+            } else if (number instanceof Byte || number instanceof Short
+                    || number instanceof Integer || number instanceof Long) {
+                result = number.longValue();
+            } else {
+                throw new ArithmeticException("unsupported numeric representation");
+            }
+            if (result < -MAX_PDP_SAFE_INTEGER || result > MAX_PDP_SAFE_INTEGER) {
+                throw new ArithmeticException("outside the PDP safe integer range");
+            }
+            return result;
+        } catch (ArithmeticException invalid) {
+            throw new IllegalArgumentException(
+                    "transcript segment " + name + " must be a safe integral value", invalid);
+        }
     }
 
     /** Draft contains provider supplied transcript data; this contract never creates STT output. */
@@ -319,10 +377,15 @@ public final class MediaTranscriptContracts {
                 throw new IllegalArgumentException("transcript segments exceed the bounded array limit");
             }
             java.util.Set<String> seen = new java.util.HashSet<>();
+            long aggregateSegmentTextCodePoints = 0;
             for (TranscriptSegment segment : segments) {
                 if (segment == null || !seen.add(segment.segmentId())) {
                     throw new IllegalArgumentException(
                             "transcript segments require stable nonempty unique segmentIds");
+                }
+                aggregateSegmentTextCodePoints += segment.text().codePointCount(0, segment.text().length());
+                if (aggregateSegmentTextCodePoints > MAX_SEGMENT_TEXT_CODE_POINTS) {
+                    throw new IllegalArgumentException("aggregate transcript segment text exceeds the bounded length");
                 }
             }
         }

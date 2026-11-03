@@ -69,6 +69,102 @@ class MediaRuntimeProviderQualityMetricsTest {
         }
     }
 
+    @Test
+    void exportsBoundedPerLocaleQualityRowsAndClearsThemWhenEvidenceDisappears() throws Exception {
+        Instant checkedAt = Instant.now();
+        var provider = new QualityProvider(checkedAt);
+        Instant measuredAt = checkedAt.minusSeconds(15);
+        var scope = MediaModalityContracts.ProviderQualityObservation.QualityScope.INDEPENDENT_QUALIFIED;
+        provider.rows = List.of(
+                qualityRow("eng", MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                        0.21, measuredAt, scope),
+                qualityRow("eng", MediaModalityContracts.ProviderQualityObservation.Metric.CER,
+                        0.08, measuredAt, scope),
+                qualityRow("eng", MediaModalityContracts.ProviderQualityObservation.Metric.WER_CI95_UPPER,
+                        0.27, measuredAt, scope),
+                qualityRow("hin", MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                        0.38, measuredAt, scope),
+                qualityRow("hin", MediaModalityContracts.ProviderQualityObservation.Metric.CER,
+                        0.16, measuredAt, scope),
+                qualityRow("npi", MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                        0.49, measuredAt, scope),
+                qualityRow("npi", MediaModalityContracts.ProviderQualityObservation.Metric.CER,
+                        0.19, measuredAt, scope));
+
+        try (var runtime = runtime(provider)) {
+            String scrape = runtime.prometheusMetrics();
+            assertQualityMetric(scrape, "eng", "wer", "independent_qualified", "0.21");
+            assertQualityMetric(scrape, "eng", "cer", "independent_qualified", "0.08");
+            assertQualityMetric(scrape, "eng", "wer_ci95_upper", "independent_qualified", "0.27");
+            assertQualityMetric(scrape, "hin", "wer", "independent_qualified", "0.38");
+            assertQualityMetric(scrape, "hin", "cer", "independent_qualified", "0.16");
+            assertQualityMetric(scrape, "npi", "wer", "independent_qualified", "0.49");
+            assertQualityMetric(scrape, "npi", "cer", "independent_qualified", "0.19");
+            assertThat(scrape).doesNotContain("report_sha256", "transcript", "tenant_id");
+
+            provider.checkedAt = provider.checkedAt.plusSeconds(1);
+            provider.rows = List.of();
+            String emptyRefresh = runtime.prometheusMetrics();
+            assertPreviousQualityRowsAreNaN(scrape, emptyRefresh);
+
+            provider.checkedAt = provider.checkedAt.plusSeconds(1);
+            provider.rows = List.of(qualityRow("npi",
+                    MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                    0.1, measuredAt, scope, "another-provider"));
+            String mismatchedRefresh = runtime.prometheusMetrics();
+            assertPreviousQualityRowsAreNaN(scrape, mismatchedRefresh);
+        }
+    }
+
+    private static MediaModalityContracts.ProviderQualityObservation qualityRow(
+            String locale, MediaModalityContracts.ProviderQualityObservation.Metric metric,
+            double value, Instant measuredAt,
+            MediaModalityContracts.ProviderQualityObservation.QualityScope scope) {
+        return qualityRow(locale, metric, value, measuredAt, scope, "quality-test");
+    }
+
+    private static MediaModalityContracts.ProviderQualityObservation qualityRow(
+            String locale, MediaModalityContracts.ProviderQualityObservation.Metric metric,
+            double value, Instant measuredAt,
+            MediaModalityContracts.ProviderQualityObservation.QualityScope scope,
+            String providerId) {
+        return new MediaModalityContracts.ProviderQualityObservation(
+                providerId, "quality-test-v1", JobType.SPEECH_TO_TEXT, "model-r1",
+                metric, value, measuredAt, "a".repeat(64), locale, scope);
+    }
+
+    private static void assertQualityMetric(
+            String scrape, String locale, String metric, String scope, String value) {
+        String line = qualityMetricLine(scrape, locale, metric, scope);
+        assertThat(line).endsWith(" " + value);
+        assertThat(line).contains("provider_id=\"quality-test\"", "model_revision=\"model-r1\"");
+    }
+
+    private static void assertPreviousQualityRowsAreNaN(String originalScrape, String refreshedScrape) {
+        List<String> refreshedLines = originalScrape.lines()
+                .filter(line -> line.startsWith("media_provider_quality_measured_value{"))
+                .map(MediaRuntimeProviderQualityMetricsTest::withoutSampleValue)
+                .map(series -> refreshedScrape.lines()
+                        .filter(line -> line.startsWith(series + " "))
+                        .findFirst().orElseThrow())
+                .toList();
+        assertThat(refreshedLines).hasSize(7);
+        assertThat(refreshedLines).allSatisfy(line -> assertThat(line).endsWith(" NaN"));
+    }
+
+    private static String withoutSampleValue(String line) {
+        return line.substring(0, line.lastIndexOf(' '));
+    }
+
+    private static String qualityMetricLine(String scrape, String locale, String metric, String scope) {
+        return scrape.lines()
+                .filter(line -> line.startsWith("media_provider_quality_measured_value{"))
+                .filter(line -> line.contains("locale=\"" + locale + "\""))
+                .filter(line -> line.contains("metric=\"" + metric + "\""))
+                .filter(line -> line.contains("scope=\"" + scope + "\""))
+                .findFirst().orElseThrow();
+    }
+
     private static String qualityLine(String scrape) {
         return scrape.lines()
                 .filter(line -> line.startsWith(
@@ -95,6 +191,7 @@ class MediaRuntimeProviderQualityMetricsTest {
     private static final class QualityProvider implements MediaProcessingProvider {
         private volatile Instant checkedAt;
         private volatile MediaModalityContracts.ProviderQualityObservation source;
+        private volatile List<MediaModalityContracts.ProviderQualityObservation> rows = List.of();
 
         private QualityProvider(Instant checkedAt) { this.checkedAt = checkedAt; }
 
@@ -125,6 +222,11 @@ class MediaRuntimeProviderQualityMetricsTest {
         @Override public Optional<MediaModalityContracts.ProviderQualityObservation> qualityObservation(
                 JobType modality, String modelRevision) {
             return Optional.ofNullable(source);
+        }
+        @Override public List<MediaModalityContracts.ProviderQualityObservation> qualityObservations(
+                JobType modality, String modelRevision) {
+            return rows.isEmpty() ? MediaProcessingProvider.super.qualityObservations(modality, modelRevision)
+                    : rows;
         }
     }
 }

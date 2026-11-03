@@ -2,6 +2,8 @@
 
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { isDeepStrictEqual, TextDecoder } from 'node:util';
 import { pathToFileURL } from 'node:url';
 
 const LOCALES = new Set(['eng', 'hin', 'npi']);
@@ -255,10 +257,38 @@ function speakerBootstrapWer(clips, predictions, locale) {
   };
 }
 
-export function evaluate(manifest, predictions) {
+function sha256(bytes) {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+function parseBoundManifest(rawManifestBytes, manifest) {
+  let manifestText;
+  try {
+    manifestText = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true })
+      .decode(rawManifestBytes);
+  } catch {
+    throw new Error('raw manifest bytes must be valid UTF-8');
+  }
+
+  let parsedManifest;
+  try {
+    parsedManifest = JSON.parse(manifestText);
+  } catch {
+    throw new Error('raw manifest bytes must contain valid JSON');
+  }
+  assert(isDeepStrictEqual(parsedManifest, manifest),
+    'raw manifest bytes do not match the supplied manifest');
+}
+
+export function evaluate(manifest, predictions, rawManifestBytes) {
+  assert(rawManifestBytes instanceof Uint8Array && rawManifestBytes.length > 0,
+    'exact raw manifest bytes are required for source-bound evaluation');
+  parseBoundManifest(rawManifestBytes, manifest);
   validateManifest(manifest, { requireFrozen: true });
   assert(Array.isArray(predictions), 'predictions must be an array');
   const holdout = manifest.selection.clips.filter((clip) => clip.partition === 'holdout');
+  const speakerClusterCounts = Object.fromEntries([...LOCALES].map((locale) => [locale,
+    new Set(holdout.filter((clip) => clip.locale === locale).map((clip) => clip.speakerId)).size]));
   const predictionGroups = new Map();
   for (const prediction of predictions) {
     assert(prediction !== null && typeof prediction === 'object' && !Array.isArray(prediction),
@@ -290,6 +320,14 @@ export function evaluate(manifest, predictions) {
   return {
     status: 'MEASURED_ON_FROZEN_HOLDOUT',
     sourceRevision: manifest.dataset.sourceRevision,
+    manifestSha256: `sha256:${sha256(rawManifestBytes)}`,
+    holdoutProvenance: {
+      partition: 'holdout',
+      clipCount: holdout.length,
+      clipCountByLocale: Object.fromEntries([...LOCALES].map((locale) => [locale,
+        holdout.filter((clip) => clip.locale === locale).length])),
+      speakerClusterCountByLocale: speakerClusterCounts,
+    },
     results,
     thresholds: mode === 'QUALIFICATION' ? REFERENCE_WER_THRESHOLDS : null,
     ...(qualityDecision ? {
@@ -310,9 +348,10 @@ async function main(args) {
   if (!manifestPath || !predictionsPath) {
     throw new Error('usage: evaluate-fleurs-asr.mjs <frozen-manifest.json> <predictions.json>');
   }
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const manifestBytes = await readFile(manifestPath);
+  const manifest = JSON.parse(manifestBytes.toString('utf8'));
   const predictions = JSON.parse(await readFile(predictionsPath, 'utf8'));
-  process.stdout.write(`${JSON.stringify(evaluate(manifest, predictions), null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify(evaluate(manifest, predictions, manifestBytes), null, 2)}\n`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

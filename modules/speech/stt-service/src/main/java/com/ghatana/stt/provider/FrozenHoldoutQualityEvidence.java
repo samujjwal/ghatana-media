@@ -173,16 +173,14 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
         String datasetRevision = text(dataset, "sourceRevision");
         require(datasetRevision.equals(FLEURS_SOURCE_REVISION),
                 "evidence dataset source revision is not the pinned FLEURS revision");
-        if (dataset.hasNonNull("manifestSha256")) {
-            boundedRef(dataset, "manifestSha256");
-        }
+        String manifestSha256 = boundedRef(dataset, "manifestSha256");
         Scope scope = parseScope(text(root, "scope"));
         Instant measuredAt = parseInstant(text(root, "measuredAt"));
         require(!measuredAt.isAfter(clock.instant().plusSeconds(60)),
                 "evidence measurement time cannot be in the future");
 
         Map<String, LocaleMeasurement> locales =
-                parseReport(required(root, "report"), datasetRevision, scope);
+                parseReport(required(root, "report"), datasetRevision, manifestSha256, scope);
         return new FrozenHoldoutQualityEvidence(providerId, providerVersion, modelRevision,
                 modelExportSha256, scope, measuredAt, reportSha256, locales,
                 status.equals("REVOKED"), clock, maxEvidenceAge);
@@ -323,11 +321,37 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
     public String modelExportSha256() { return modelExportSha256; }
 
     private static Map<String, LocaleMeasurement> parseReport(
-            JsonNode report, String datasetRevision, Scope scope) {
+            JsonNode report, String datasetRevision, String manifestSha256, Scope scope) {
         require(text(report, "status").equals("MEASURED_ON_FROZEN_HOLDOUT"),
                 "report is not a frozen-holdout measurement");
         require(text(report, "sourceRevision").equals(datasetRevision),
                 "report source revision does not match the bound dataset revision");
+        require(boundedRef(report, "manifestSha256").equals(manifestSha256),
+                "report manifest digest does not match the bound dataset manifest");
+        JsonNode provenance = required(report, "holdoutProvenance");
+        require(text(provenance, "partition").equals("holdout"),
+                "report provenance partition must be holdout");
+        int totalHoldoutClips = requiredInt(provenance, "clipCount");
+        require(totalHoldoutClips > 0, "report holdout clip count must be positive");
+        JsonNode clipCounts = required(provenance, "clipCountByLocale");
+        JsonNode speakerCounts = required(provenance, "speakerClusterCountByLocale");
+        require(clipCounts.isObject() && speakerCounts.isObject(),
+                "report holdout provenance counts must be objects");
+        require(hasExactLocaleKeys(clipCounts) && hasExactLocaleKeys(speakerCounts),
+                "report holdout provenance must contain exactly the registered locales");
+        int sumHoldoutClips = 0;
+        for (String locale : REPORT_LOCALES) {
+            int count = requiredInt(clipCounts, locale);
+            int speakers = requiredInt(speakerCounts, locale);
+            require(count > 0 && speakers > 0 && speakers <= count,
+                    "report holdout clip/speaker counts are invalid for " + locale);
+            if (count > Integer.MAX_VALUE - sumHoldoutClips) {
+                throw new IllegalArgumentException("report total holdout clips overflow");
+            }
+            sumHoldoutClips += count;
+        }
+        require(sumHoldoutClips == totalHoldoutClips,
+                "report total holdout clips do not match locale counts");
         JsonNode results = required(report, "results");
         require(results.isObject(), "report results must be an object");
         Map<String, Double[]> intervals = new LinkedHashMap<>();
@@ -341,6 +365,13 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
             for (String locale : REPORT_LOCALES) {
                 JsonNode entry = required(byLocale, locale);
                 JsonNode interval = required(entry, "interval");
+                if (scope == Scope.INDEPENDENT_QUALIFIED_HOLDOUT) {
+                    int intervalSpeakerClusters = requiredInt(interval, "holdoutSpeakerClusters");
+                    require(intervalSpeakerClusters >= 2
+                                    && intervalSpeakerClusters == requiredInt(speakerCounts, locale),
+                            "qualified interval speaker clusters do not match holdout provenance for "
+                                    + locale);
+                }
                 intervals.put(locale, new Double[]{
                         requiredDouble(interval, "lower"),
                         requiredDouble(interval, "upper")});
@@ -361,6 +392,8 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
                     requiredDouble(row, "cer"),
                     interval == null ? null : interval[0],
                     interval == null ? null : interval[1]);
+            require(measurement.clipCount() == requiredInt(clipCounts, locale),
+                    "report measured clip count does not match holdout provenance for " + locale);
             Double observed = decisionWer.get(locale);
             if (observed != null) {
                 require(Math.abs(observed - measurement.wer()) <= RATE_TOLERANCE,
@@ -423,6 +456,12 @@ public final class FrozenHoldoutQualityEvidence implements WhisperOnnxSttProvide
                     "evidence field must be sha256:<lowercase hex>: " + field);
         }
         return value;
+    }
+
+    private static boolean hasExactLocaleKeys(JsonNode node) {
+        java.util.Set<String> keys = new java.util.HashSet<>();
+        node.propertyNames().forEach(keys::add);
+        return keys.equals(REPORT_LOCALES);
     }
 
     private static int requiredInt(JsonNode node, String field) {

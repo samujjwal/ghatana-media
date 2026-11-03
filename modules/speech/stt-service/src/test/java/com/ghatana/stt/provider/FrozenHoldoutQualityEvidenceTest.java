@@ -76,13 +76,13 @@ class FrozenHoldoutQualityEvidenceTest {
                     "status": "PROVISIONAL_REFERENCE_EVALUATED_NOT_MODEL_OR_PRODUCTION_ADMISSION",
                     "byLocale": {
                       "eng": {"observedWer": 0.25, "werMax": 0.3,
-                              "interval": {"lower": 0.2, "upper": 0.3},
+                              "interval": {"lower": 0.2, "upper": 0.3, "holdoutSpeakerClusters": 2},
                               "provisionalReferenceThresholdMet": true},
                       "hin": {"observedWer": 0.4, "werMax": 0.45,
-                              "interval": {"lower": 0.35, "upper": 0.45},
+                              "interval": {"lower": 0.35, "upper": 0.45, "holdoutSpeakerClusters": 2},
                               "provisionalReferenceThresholdMet": true},
                       "npi": {"observedWer": 0.55, "werMax": 0.55,
-                              "interval": {"lower": 0.5, "upper": 0.6},
+                              "interval": {"lower": 0.5, "upper": 0.6, "holdoutSpeakerClusters": 2},
                               "provisionalReferenceThresholdMet": false}
                     },
                     "allReferenceThresholdsMet": false,
@@ -99,6 +99,13 @@ class FrozenHoldoutQualityEvidenceTest {
 
     private static String envelope(String status, String scope, String measuredAt,
             String providerId, String modelRevision, String report) {
+        int clipsPerLocale = report.contains("\"clipCount\": 120") ? 120 : 24;
+        String boundReport = report.replaceFirst("\\s*\\{", "{\"manifestSha256\":\"sha256:"
+                + "c".repeat(64) + "\",\"holdoutProvenance\":{\"partition\":\"holdout\","
+                + "\"clipCount\":" + (clipsPerLocale * 3) + ",\"clipCountByLocale\":{"
+                + "\"eng\":" + clipsPerLocale + ",\"hin\":" + clipsPerLocale
+                + ",\"npi\":" + clipsPerLocale + "},\"speakerClusterCountByLocale\":{"
+                + "\"eng\":2,\"hin\":2,\"npi\":2}},");
         return """
                 {
                   "schemaVersion": "media.stt-quality-evidence.v1",
@@ -114,7 +121,7 @@ class FrozenHoldoutQualityEvidenceTest {
                   "report": %s
                 }
                 """.formatted(status, providerId, modelRevision, "b".repeat(64),
-                "c".repeat(64), scope, measuredAt, report);
+                "c".repeat(64), scope, measuredAt, boundReport);
     }
 
     private static byte[] validSnapshot() {
@@ -260,6 +267,16 @@ class FrozenHoldoutQualityEvidenceTest {
                                 reportJson()).getBytes(StandardCharsets.UTF_8),
                         Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class);
+
+        String mismatchedClusters = qualifiedReportJson().replace(
+                "\"holdoutSpeakerClusters\": 2", "\"holdoutSpeakerClusters\": 3");
+        assertThatThrownBy(() -> parse(
+                        envelope("ACTIVE", "INDEPENDENT_QUALIFIED_HOLDOUT",
+                                MEASURED_AT.toString(), "whisper-provider", "whisper-base",
+                                mismatchedClusters).getBytes(StandardCharsets.UTF_8),
+                        Clock.fixed(MEASURED_AT, ZoneOffset.UTC), MAX_AGE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("speaker clusters do not match holdout provenance");
     }
 
     @Test
@@ -304,6 +321,48 @@ class FrozenHoldoutQualityEvidenceTest {
                         tempDir.resolve("unread-without-pin.json"), clock, MAX_AGE))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("trusted sha256");
+    }
+
+    @Test
+    void manifestDigestAndAggregateHoldoutProvenanceAreRequiredAndBound() {
+        Clock clock = Clock.fixed(MEASURED_AT, ZoneOffset.UTC);
+        String valid = new String(validSnapshot(), StandardCharsets.UTF_8);
+        assertThat(parse(valid.getBytes(StandardCharsets.UTF_8), clock, MAX_AGE)
+                .latestAll("whisper-provider", "whisper-v1", "whisper-tiny")).hasSize(7);
+
+        String missingManifestDigest = valid.replace(
+                "\"manifestSha256\":\"sha256:" + "c".repeat(64) + "\",", "");
+        assertThatThrownBy(() -> parse(missingManifestDigest.getBytes(StandardCharsets.UTF_8),
+                clock, MAX_AGE)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("manifestSha256");
+
+        String mismatchedReportDigest = valid.replaceFirst(
+                "\"manifestSha256\":\"sha256:" + "c".repeat(64),
+                "\"manifestSha256\":\"sha256:" + "d".repeat(64));
+        assertThatThrownBy(() -> parse(mismatchedReportDigest.getBytes(StandardCharsets.UTF_8),
+                clock, MAX_AGE)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not match the bound dataset manifest");
+
+        String wrongPartition = valid.replace("\"partition\":\"holdout\"",
+                "\"partition\":\"training\"");
+        assertThatThrownBy(() -> parse(wrongPartition.getBytes(StandardCharsets.UTF_8),
+                clock, MAX_AGE)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("partition must be holdout");
+
+        String unexpectedLocale = valid.replace(
+                "\"clipCountByLocale\":{\"eng\":24,\"hin\":24,\"npi\":24}",
+                "\"clipCountByLocale\":{\"eng\":24,\"hin\":24,\"npi\":24,\"xyz\":1}");
+        assertThatThrownBy(() -> parse(unexpectedLocale.getBytes(StandardCharsets.UTF_8),
+                clock, MAX_AGE)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly the registered locales");
+
+        String overflowingCounts = valid.replace(
+                "\"clipCount\":72,\"clipCountByLocale\":{\"eng\":24,\"hin\":24,\"npi\":24}",
+                "\"clipCount\":2147483647,\"clipCountByLocale\":{"
+                        + "\"eng\":1000000000,\"hin\":1000000000,\"npi\":1000000000}");
+        assertThatThrownBy(() -> parse(overflowingCounts.getBytes(StandardCharsets.UTF_8),
+                clock, MAX_AGE)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("overflow");
     }
 
     @Test

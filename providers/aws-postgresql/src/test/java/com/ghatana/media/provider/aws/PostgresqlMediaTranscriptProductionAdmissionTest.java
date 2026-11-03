@@ -143,6 +143,33 @@ class PostgresqlMediaTranscriptProductionAdmissionTest {
     }
 
     @Test
+    void productionAdmissionRejectsDevelopmentOnlySegmentProjectionWithoutWriting() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var state = fixture.state();
+            var store = fixture.store();
+            assertThat(state.productionEligible()).isTrue();
+            seedAuthorizedSource(state, "tenant-segments", "principal-a", "artifact-a", "job-a");
+            replaceAttemptResult(state, "tenant-segments", "job-a", semanticResult(state, true));
+            TranscriptDraft base = draft("tenant-segments", "principal-a", "transcript-segments",
+                    "artifact-a", "job-a", "real verified transcript");
+            var segment = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "synthetic-provider-span", "real verified transcript", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming.notSupplied());
+            TranscriptDraft draft = new TranscriptDraft(base.tenantId(), base.principalId(), base.transcriptId(),
+                    base.sourceArtifactId(), base.sourceVersion(), base.sourceSha256(), base.jobId(),
+                    base.profileId(), base.providerId(), base.modelId(), base.language(), base.timebase(),
+                    base.text(), base.consentDecisionId(), base.rightsDecisionId(), base.policyVersion(),
+                    base.purposeRef(), base.processingPurpose(), java.util.List.of(segment));
+
+            assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(
+                    draft, 0, 1, 77L, FINGERPRINT, "transcript-v1"))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("exact projection");
+            assertThat(store.revisions("tenant-segments", "principal-a", "transcript-segments")).isEmpty();
+        }
+    }
+
+    @Test
     void revokedStaleOrUnauthorizedRightsDecisionsRejectProductionAppend() throws Exception {
         try (Fixture fixture = openFixture()) {
             var state = fixture.state();
@@ -274,12 +301,22 @@ class PostgresqlMediaTranscriptProductionAdmissionTest {
     }
 
     private static String semanticResult(MediaAwsPostgresqlRuntimeState state) throws Exception {
+        return semanticResult(state, false);
+    }
+
+    private static String semanticResult(MediaAwsPostgresqlRuntimeState state, boolean includeSegments)
+            throws Exception {
         Map<String, Object> response = new HashMap<>();
         response.put("sourceArtifactVersionRef", "sha256:" + DIGEST);
         response.put("requestFingerprint", FINGERPRINT);
         response.put("transcriptVersionRef", "transcript-v1");
         response.put("glossaryDisposition", "NOT_REQUESTED");
         response.put("transcriptText", "real verified transcript");
+        if (includeSegments) {
+            response.put("segments", java.util.List.of(Map.of(
+                    "segmentId", "synthetic-provider-span", "text", "real verified transcript",
+                    "origin", "PROVIDER", "timing", Map.of("tag", "NOT_SUPPLIED"))));
+        }
         Map<String, Object> glossary = new HashMap<>();
         glossary.put("disposition", "NOT_REQUESTED");
         Map<String, Object> observations = new HashMap<>();
@@ -287,6 +324,19 @@ class PostgresqlMediaTranscriptProductionAdmissionTest {
         observations.put("glossaryApplication", glossary);
         observations.put("transcriptResponse", response);
         return state.mapper().writeValueAsString(Map.of("semanticObservations", observations));
+    }
+
+    private static void replaceAttemptResult(MediaAwsPostgresqlRuntimeState state, String tenant, String job,
+            String result) throws Exception {
+        String resultDigest = java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256")
+                        .digest(result.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        try (Connection connection = state.connection(); PreparedStatement update = connection.prepareStatement(
+                "UPDATE media_processing_attempts SET result_json=?,result_digest=? WHERE tenant_id=? AND job_id=? AND attempt_number=1")) {
+            update.setString(1, result); update.setString(2, resultDigest);
+            update.setString(3, tenant); update.setString(4, job);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
     }
 
     private static void revokeSource(MediaAwsPostgresqlRuntimeState state, String tenant, String artifact)

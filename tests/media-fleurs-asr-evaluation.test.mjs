@@ -49,6 +49,11 @@ function frozenManifest() {
   };
 }
 
+function evaluateSynthetic(manifest, predictions) {
+  const bytes = Buffer.from(JSON.stringify(manifest));
+  return evaluate(manifest, predictions, bytes);
+}
+
 test('checked-in preparation config pins R9 source and remains unfrozen', async () => {
   const config = JSON.parse(await readFile(new URL('../config/qualification/fleurs-asr-evaluation.v1.json', import.meta.url), 'utf8'));
   assert.equal(config.status, 'METADATA_ONLY_NOT_FROZEN');
@@ -76,7 +81,7 @@ test('blocked metadata-only manifest validates but cannot be scored', () => {
     selection: { trainingSplit: 'train', holdoutSplit: 'dev', clips: [] },
   };
   assert.equal(validateManifest(manifest).clipCount, 0);
-  assert.throws(() => evaluate(manifest, []), /not frozen/);
+  assert.throws(() => evaluateSynthetic(manifest, []), /not frozen/);
 });
 
 test('frozen pack enforces clip evidence, caps, and speaker-disjoint partitions', () => {
@@ -135,7 +140,7 @@ test('rejects identical audio across distinct source rows and partitions, includ
   const manifest = frozenManifest();
   manifest.selection.clips[1].audioSha256 = manifest.selection.clips[0].audioSha256.toUpperCase();
   assert.throws(() => validateManifest(manifest, { requireFrozen: true }), /duplicate audioSha256/);
-  assert.throws(() => evaluate(manifest, []), /duplicate audioSha256/);
+  assert.throws(() => evaluateSynthetic(manifest, []), /duplicate audioSha256/);
 });
 
 test('WER and CER scoring plumbing uses aggregate edit counts and requires exact holdout predictions', () => {
@@ -149,8 +154,36 @@ test('WER and CER scoring plumbing uses aggregate edit counts and requires exact
     clipId: item.clipId,
     text: item.transcript,
   }));
-  assert.equal(evaluate(manifest, predictions).status, 'MEASURED_ON_FROZEN_HOLDOUT');
-  assert.throws(() => evaluate(manifest, predictions.slice(0, 2)), /missing prediction/);
+  const rawManifestBytes = Buffer.from(` ${JSON.stringify(manifest)}\n`);
+  const measured = evaluate(manifest, predictions, rawManifestBytes);
+  assert.equal(measured.status, 'MEASURED_ON_FROZEN_HOLDOUT');
+  assert.equal(measured.manifestSha256,
+    `sha256:${createHash('sha256').update(rawManifestBytes).digest('hex')}`);
+  assert.deepEqual(measured.holdoutProvenance, {
+    partition: 'holdout',
+    clipCount: 3,
+    clipCountByLocale: { eng: 1, hin: 1, npi: 1 },
+    speakerClusterCountByLocale: { eng: 1, hin: 1, npi: 1 },
+  });
+  assert.throws(() => evaluate(manifest, predictions), /exact raw manifest bytes/);
+  assert.throws(() => evaluateSynthetic(manifest, predictions.slice(0, 2)), /missing prediction/);
+});
+
+test('source-bound evaluation rejects manifest objects that differ from the exact raw bytes', () => {
+  const manifest = frozenManifest();
+  const predictions = manifest.selection.clips.filter((item) => item.partition === 'holdout').map((item) => ({
+    locale: item.locale,
+    clipId: item.clipId,
+    text: item.transcript,
+  }));
+  const rawManifestBytes = Buffer.from(JSON.stringify(manifest));
+  const changedManifest = structuredClone(manifest);
+  changedManifest.selection.clips.find((item) => item.partition === 'holdout').transcript = 'different reference';
+
+  assert.throws(() => evaluate(changedManifest, predictions, rawManifestBytes),
+    /raw manifest bytes do not match the supplied manifest/);
+  assert.throws(() => evaluate(manifest, predictions, Buffer.from([0x7b, 0x22, 0xff, 0x22, 0x3a, 0x31, 0x7d])),
+    /raw manifest bytes must be valid UTF-8/);
 });
 
 test('empty model failure text remains scoreable while malformed prediction text is rejected', () => {
@@ -206,7 +239,7 @@ test('qualification mode handles 100 synthetic test rows per locale without clai
   assert.deepEqual(validated.holdoutCounts, { eng: 100, hin: 100, npi: 100 });
   const gold = manifest.selection.clips.filter((row) => row.partition === 'holdout')
     .map((row) => ({ locale: row.locale, clipId: row.clipId, text: row.transcript }));
-  const measured = evaluate(manifest, gold);
+  const measured = evaluateSynthetic(manifest, gold);
   assert.equal(measured.status, 'MEASURED_ON_FROZEN_HOLDOUT');
   assert.equal(measured.qualityDecision.status,
     'PROVISIONAL_REFERENCE_EVALUATED_NOT_MODEL_OR_PRODUCTION_ADMISSION');
@@ -219,7 +252,7 @@ test('qualification mode handles 100 synthetic test rows per locale without clai
     20261028 + [...'eng'].reduce((n, ch) => n + ch.codePointAt(0), 0));
   assert.equal(measured.thresholds.npi, 0.55);
   const degraded = gold.map((row) => ({ ...row, text: 'unrelated prediction' }));
-  assert.equal(evaluate(manifest, degraded).qualityDecision.allReferenceThresholdsMet, false);
+  assert.equal(evaluateSynthetic(manifest, degraded).qualityDecision.allReferenceThresholdsMet, false);
 });
 
 test('qualification refuses smaller holdout, altered thresholds, implausible speakers and excessive data', () => {
@@ -258,6 +291,6 @@ test('pilot mode retains its 24 clips per locale cap without accidental quality 
   valid.selection.mode = 'PILOT';
   const predictions = valid.selection.clips.filter((c) => c.partition === 'holdout')
     .map((c) => ({ locale: c.locale, clipId: c.clipId, text: c.transcript }));
-  assert.equal(evaluate(valid, predictions).thresholds, null);
-  assert.equal(evaluate(valid, predictions).qualityDecision, undefined);
+  assert.equal(evaluateSynthetic(valid, predictions).thresholds, null);
+  assert.equal(evaluateSynthetic(valid, predictions).qualityDecision, undefined);
 });

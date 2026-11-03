@@ -674,6 +674,53 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void successfulAttemptSegmentsMustExactlyProjectIntoCandidate() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "a".repeat(64);
+            String fingerprint = "2".repeat(64);
+            var segment = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "provider-span", "spoken words", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .providerTimeUnqualified(25, 75, "provider-ms"));
+            var responseSegments = com.ghatana.media.runtime.MediaTranscriptContracts
+                    .segmentsToParametersValue(List.of(segment));
+
+            seed(state, "tenant-segment-response", "principal-a", "source-segment-response",
+                    "job-segment-response", "consent-segment-response", digest, false);
+            seedSuccessfulAttempt(state, "tenant-segment-response", "principal-a", "source-segment-response",
+                    "job-segment-response", digest, fingerprint, 1, 48, "transcript-segment-response",
+                    "spoken words", "op-segment-response", "receipt-segment-response");
+            replaceAttemptResult(state, "tenant-segment-response", "job-segment-response",
+                    semanticResult(state, digest, fingerprint, "transcript-segment-response", "spoken words",
+                            "NOT_REQUESTED", null, null, false, false, false, responseSegments));
+            TranscriptDraft candidate = draftWithSegments("tenant-segment-response", "principal-a",
+                    "transcript-segment-response", "source-segment-response", "job-segment-response",
+                    "consent-segment-response", digest, "spoken words", List.of(segment));
+            var revision = store.appendFromSuccessfulAttempt(candidate, 0, 1, 48, fingerprint,
+                    "transcript-segment-response");
+            assertThat(revision.draft().segments()).containsExactly(segment);
+
+            seed(state, "tenant-segment-mismatch", "principal-a", "source-segment-mismatch",
+                    "job-segment-mismatch", "consent-segment-mismatch", digest, false);
+            seedSuccessfulAttempt(state, "tenant-segment-mismatch", "principal-a", "source-segment-mismatch",
+                    "job-segment-mismatch", digest, fingerprint, 1, 49, "transcript-segment-mismatch",
+                    "spoken words", "op-segment-mismatch", "receipt-segment-mismatch");
+            replaceAttemptResult(state, "tenant-segment-mismatch", "job-segment-mismatch",
+                    semanticResult(state, digest, fingerprint, "transcript-segment-mismatch", "spoken words",
+                            "NOT_REQUESTED", null, null, false, false, false, responseSegments));
+            TranscriptDraft emptyCandidate = draft("tenant-segment-mismatch", "principal-a",
+                    "transcript-segment-mismatch", "source-segment-mismatch", "job-segment-mismatch",
+                    "consent-segment-mismatch", digest, "spoken words");
+            assertNoBoundRevision(store, emptyCandidate, 0, 1, 49, fingerprint,
+                    "transcript-segment-mismatch");
+            assertThat(store.revisions("tenant-segment-mismatch", "principal-a", "transcript-segment-mismatch"))
+                    .isEmpty();
+        }
+    }
+
+    @Test
     void concurrentExactBoundAppendsResolveAsOneIdempotentRevision() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
@@ -815,6 +862,11 @@ class PostgresqlMediaTranscriptStoreTest {
                     draft.profileId(), draft.providerId(), draft.modelId(), draft.language(), draft.timebase(),
                     draft.text(), draft.consentDecisionId(), draft.rightsDecisionId(), draft.policyVersion(),
                     draft.purposeRef(), draft.processingPurpose(), List.of(sourceTicks, unqualified));
+            replaceAttemptResult(state, "tenant-binding-reopen", "job-binding-reopen",
+                    semanticResult(state, digest, fingerprint, versionRef, "durable words", "NOT_REQUESTED",
+                            null, null, false, false, false,
+                            com.ghatana.media.runtime.MediaTranscriptContracts.segmentsToParametersValue(
+                                    List.of(sourceTicks, unqualified))));
             var revision = fixture.store().appendFromSuccessfulAttempt(draft, 0, 1, 37, fingerprint, versionRef);
             assertThat(revision.draft().timingAvailability())
                     .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
@@ -1119,6 +1171,15 @@ class PostgresqlMediaTranscriptStoreTest {
     private static String semanticResult(MediaAwsPostgresqlRuntimeState state, String digest, String fingerprint, String versionRef, String transcriptText,
             String glossaryDisposition, String glossaryRef, String responseDispositionOverride,
             boolean omitGlossaryDisposition, boolean extraResponseProperty, boolean overlongText) throws Exception {
+        return semanticResult(state, digest, fingerprint, versionRef, transcriptText, glossaryDisposition,
+                glossaryRef, responseDispositionOverride, omitGlossaryDisposition, extraResponseProperty,
+                overlongText, null);
+    }
+
+    private static String semanticResult(MediaAwsPostgresqlRuntimeState state, String digest, String fingerprint,
+            String versionRef, String transcriptText, String glossaryDisposition, String glossaryRef,
+            String responseDispositionOverride, boolean omitGlossaryDisposition, boolean extraResponseProperty,
+            boolean overlongText, List<Map<String, Object>> responseSegments) throws Exception {
         Map<String, Object> response = new HashMap<>();
         response.put("sourceArtifactVersionRef", "sha256:" + digest);
         response.put("requestFingerprint", fingerprint);
@@ -1127,6 +1188,7 @@ class PostgresqlMediaTranscriptStoreTest {
                 responseDispositionOverride == null ? glossaryDisposition : responseDispositionOverride);
         response.put("transcriptText", overlongText ? "x".repeat(1_000_001) : transcriptText);
         if (extraResponseProperty) response.put("unregistered", "extra");
+        if (responseSegments != null) response.put("segments", responseSegments);
         Map<String, Object> glossary = new HashMap<>();
         glossary.put("disposition", glossaryDisposition);
         if (glossaryRef != null) glossary.put("exactGlossaryRef", glossaryRef);
@@ -1140,6 +1202,15 @@ class PostgresqlMediaTranscriptStoreTest {
     private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
                                          String job, String consent, String digest, String text) {
         return draft(tenant, principal, transcript, artifact, job, consent, digest, text, "transcription");
+    }
+
+    private static TranscriptDraft draftWithSegments(String tenant, String principal, String transcript,
+            String artifact, String job, String consent, String digest, String text,
+            List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment> segments) {
+        return new TranscriptDraft(tenant, principal, transcript, artifact, "sha256:" + digest, digest, job,
+                "profile-candidate", "provider-a", "model-a", "en-US", "milliseconds", text,
+                consent, "rights-candidate", "policy-candidate", "urn:media:purpose:transcription",
+                "transcription", segments);
     }
 
     private static TranscriptDraft draft(String tenant, String principal, String transcript, String artifact,
