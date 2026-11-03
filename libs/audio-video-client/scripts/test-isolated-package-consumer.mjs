@@ -12,6 +12,7 @@ const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'audio-video-client-consum
 const typePackRoot = path.join(tempRoot, 'type-pack');
 const clientPackRoot = path.join(tempRoot, 'client-pack');
 const consumerRoot = path.join(tempRoot, 'consumer');
+const npmCache = path.join(tempRoot, 'npm-cache');
 const typeNodeModules = path.join(typesRoot, 'node_modules');
 const tsc = path.join(packageRoot, 'node_modules', 'typescript', 'bin', 'tsc');
 
@@ -33,10 +34,15 @@ function copyTree(source, destination) {
   return cp(source, destination, { recursive: true, force: true });
 }
 
+const npmOptions = (cwd) => ({
+  cwd,
+  env: { ...process.env, npm_config_cache: npmCache },
+});
+
 async function pack(root, manifest, destination) {
   await mkdir(root, { recursive: true });
   await writeFile(path.join(root, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-  const output = run('npm', ['pack', '--json', '--pack-destination', destination], { cwd: root });
+  const output = run('npm', ['pack', '--json', '--pack-destination', destination], npmOptions(root));
   const result = JSON.parse(output);
   assert.equal(result.length, 1, 'expected one package tarball');
   return path.join(destination, result[0].filename);
@@ -68,7 +74,7 @@ try {
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
-  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], { cwd: typePackRoot }))[0], sourceTypes.name);
+  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(typePackRoot)))[0], sourceTypes.name);
 
   await copyTree(path.join(packageRoot, 'dist'), path.join(clientPackRoot, 'dist'));
   await copyTree(path.join(packageRoot, 'dist-cjs'), path.join(clientPackRoot, 'dist-cjs'));
@@ -78,7 +84,7 @@ try {
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
-  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], { cwd: clientPackRoot }))[0], sourceClient.name);
+  assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(clientPackRoot)))[0], sourceClient.name);
 
   const consumerManifest = {
     name: 'audio-video-client-isolated-consumer',
