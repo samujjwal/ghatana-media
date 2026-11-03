@@ -11,7 +11,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,9 +56,14 @@ class MediaTestHarnessCatalogTest {
             assertThat(profile.prerequisites()).as(profile.id()).isNotEmpty();
             assertThat(profile.safety()).as(profile.id()).isNotBlank();
             assertThat(profile.evidenceLimit()).as(profile.id()).isNotBlank();
+            List<String> expectedGradleArguments = new ArrayList<>(
+                    List.of(":services:media:integration-tests:test"));
+            for (String selector : profile.selectors()) {
+                expectedGradleArguments.add("--tests");
+                expectedGradleArguments.add(selector);
+            }
             assertThat(profile.gradleArguments()).as(profile.id())
-                    .startsWith(":services:media:integration-tests:test")
-                    .contains("--tests");
+                    .containsExactlyElementsOf(expectedGradleArguments);
             for (String source : profile.sources()) {
                 assertThat(Files.isRegularFile(root.resolve(source)))
                         .as("catalog source %s for %s", source, profile.id()).isTrue();

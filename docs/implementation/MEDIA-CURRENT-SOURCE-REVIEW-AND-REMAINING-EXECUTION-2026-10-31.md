@@ -4044,3 +4044,13 @@ Added an `observedAtMs` overload to `AudioVideoRunLedgerAdapter.fromProcessingJo
 ### 43.126 November 3 SK-02 upload acknowledgement deadline
 
 `uploadPart` now uses `fetchRawMutation` so the configured timeout and caller abort remain active through acknowledgement body parsing and canonical receipt validation, not just until response headers. `fetchRawMutation` also races response consumption against the shared abort signal; an injected `fetchImpl` whose body parser ignores abort can no longer keep the SDK promise pending, though such custom reader work cannot itself be forcibly terminated. A post-dispatch timeout, abort, transport error, or unbound success receipt remains `OUTCOME_UNKNOWN` with the request ID; no retry, new digest formula, or route was added. The regression uses a never-settling body reader and verifies prompt ambiguity. `pnpm --filter @audio-video/client exec vitest run src/operations.test.ts src/canonical-operations.test.ts` passed **153/153**, package typecheck and `git diff --check` passed. Server-side fingerprint/finality enforcement and installed consumer/provider admission remain outside this local client proof; SK-02 is not accepted as a whole row.
+
+
+### 43.127 November 3 IT-01 exact harness selector projection
+
+Strengthened `MediaTestHarnessCatalogTest` to derive the expected Gradle test arguments from each registered profile's ordered selector list and compare the full generated argument vector. The prior assertions accepted a task prefix and any `--tests` flag, so a profile could silently omit some registered test selectors. The focused command `./gradlew :services:media:integration-tests:test --tests 'com.ghatana.media.integration.MediaTestHarnessCatalogTest' --no-daemon --no-parallel --max-workers=2 --console=plain` passed **5/5**; independent Luna review confirmed the check closes the selector-omission gap for the current profile contract. `git diff --check` passed. This verifies registry-to-Gradle selection only; it does not establish Postgres/S3, container-image, provider, rights, or whole IT-01/IT-02 qualification.
+
+
+### 43.128 November 3 FLEURS scratch-audio disposition
+
+Rechecked `build/reports/media-fleurs-pilot-70bb2e84` without opening file contents. It currently contains only `manifest.json`; no WAV files or symlinks are present, so there were no audio files to delete. Retained the metadata manifest and did not read it for transcript/audio content, run inference, or acquire any FLEURS data. Any future local FLEURS audio in this scratch path remains unauthorized for evaluation and should be removed without opening unless an authoritative source record and approved retention path are provided.
