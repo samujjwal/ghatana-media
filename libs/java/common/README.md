@@ -68,7 +68,8 @@ are used by the HTTP adapters (`SttHttpAdapter`, `TtsHttpAdapter`, and
 | API or class | Observed owner/use | Boundary |
 |---|---|---|
 | `SttEngineFactory`, `TtsEngineFactory`, `VisionEngineFactory` | Created only by `AudioVideoLibrary` in production source. | Do not add another factory or unconditional synthetic production fallback. |
-| `WhisperOnnxSttProvider` | Directly constructs `WhisperOnnxEngine` for the separate STT provider path. | Keep its source, rights, and model-quality admission with the Wave 2 provider owner. |
+| `WhisperOnnxSttProvider` | Implements the Wave 2 `MediaProcessingProvider` SPI and owns the separate STT provider path; it may compose an in-process engine or the broker client. | Keep source, rights, quality evidence, and provider admission with the Wave 2 STT owner. Engine readiness alone is not admission. |
+| `WhisperComputeWorkerMain` | Constructs a pinned `WhisperOnnxEngine` only inside the single-invocation worker, after checking the invocation profile and model digest; synthetic fallback is disabled. | This is the broker's isolated execution adapter, not a service-facing provider factory or a second runtime owner. Worker startup/model presence does not establish provider admission. |
 | `AudioVideoServiceRegistry` | Wraps pools supplied by callers; no production callsite was found in this repository search. | It is not a second engine factory or runtime owner. |
 | `MediaCapabilityInventory` | Returned by `AudioVideoLibrary`; no other production consumer was found in this repository search. | `RUNTIME_SUPPORTED` requires an owned engine with healthy runtime status. Missing, uninitialized, degraded, closed, or failing engines remain `PROVIDER_OPTIONAL`. |
 
