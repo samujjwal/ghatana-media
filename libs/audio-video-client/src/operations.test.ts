@@ -891,6 +891,53 @@ describe("MediaOperationClient", () => {
     })).rejects.toMatchObject({ name: "MediaClientError", statusCode: status });
   });
 
+  it("surfaces same-key changed-payload conflict without retrying", async () => {
+    const submitted: Array<{ headers: Headers; body: unknown }> = [];
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      submitted.push({ headers: new Headers(init?.headers), body: JSON.parse(String(init?.body)) as unknown });
+      if (submitted.length === 1) {
+        return jsonResponse({
+          operationId: "operation-1",
+          job: queuedJob(),
+          statusUrl: "/api/v1/media/operations/operation-1",
+          cancelUrl: "/api/v1/media/operations/operation-1:cancel",
+          correlationId: "correlation-1",
+        }, 202);
+      }
+      return jsonResponse({
+        error: { code: "IDEMPOTENCY_CONFLICT", message: "Request key was used with a different payload", retryable: false },
+        meta: { correlationId: "correlation-conflict" },
+      }, 409);
+    }) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl });
+    const request = {
+      artifactId: "art-1",
+      punctuation: true,
+      wordTimestamps: false,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE" as const,
+      idempotencyKey: "same-submit-key",
+    };
+
+    await expect(client.transcribe(request)).resolves.toMatchObject({ operationId: "operation-1" });
+    await expect(client.transcribe({ ...request, punctuation: false })).rejects.toMatchObject({
+      name: "MediaOperationAmbiguousError",
+      path: "/api/v1/media/transcriptions",
+      cause: expect.objectContaining({
+        name: "MediaClientError",
+        statusCode: 409,
+        detail: expect.objectContaining({ code: "IDEMPOTENCY_CONFLICT", correlationId: "correlation-conflict" }),
+      }),
+    });
+
+    expect(submitted).toHaveLength(2);
+    expect(submitted.map(({ headers }) => headers.get("Idempotency-Key"))).toEqual([
+      "same-submit-key", "same-submit-key",
+    ]);
+    expect(submitted[0]?.body).not.toEqual(submitted[1]?.body);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it("submits with tenant and idempotency identity, reports progress, and returns a validated result", async () => {
     const calls: Array<{ url: string; init?: RequestInit }> = [];
     const fetchImpl = vi.fn(

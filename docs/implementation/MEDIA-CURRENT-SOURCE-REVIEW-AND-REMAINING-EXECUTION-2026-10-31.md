@@ -2707,3 +2707,11 @@ AS-06 remains explicitly source-classified as abstract implemented semantics, de
 - **MM-08 no-change review:** existing finality tests reject successful-parent fusion when children are unknown, failed, cancelled, duplicated, or incomplete. These are fixture guards, not durable child-attempt recovery or real provider evidence.
 
 `git diff --check` passed. Synthetic test callbacks validate the local gate only; they do not establish voice privacy authority, model quality, provider readiness, lifecycle status, deployment, or release.
+
+### 41.97 November 2 SK-02, AT-05 and Rust decoder/resampler follow-through
+
+- **SK-02:** added a client regression for an explicit second submit using the same idempotency key with a changed body. A fixture 409 is surfaced as `MediaOperationAmbiguousError` with the underlying `MediaClientError`, and exactly two fetches across two explicit calls prove there was no automatic retry. `pnpm exec vitest run src/operations.test.ts` passed **109/109** and `pnpm typecheck` passed. Independent review narrowed the test title to describe response handling; it proves no server-side fingerprint enforcement or persistent replay semantics.
+- **AT-05 no-change review:** the binder tests cover same-key terminal replay, ambiguous transport preserving the UNKNOWN fence, concurrent/repeated claims, and no redispatch from nonfinal or unreceipted outcomes. The focused selector passed **24/24** with `--rerun-tasks`. This uses local ledger/delegate doubles, not installed Tools/Action Plane transport or durable Shared ledger receipts.
+- **RS-02/RS-03 no-change review:** existing bounded decode checks and malformed-input tests passed **13 + 3** selected Rust tests; the windowed-sinc resampler and rational source-position tests passed **10**. No Rust code change was needed. These unit fixtures do not measure peak RSS, interrupt a synchronous codec call, qualify the general audio fidelity profile, or establish cross-platform determinism/performance.
+
+No public route, request contract, idempotency header, migration, source status, provider admission, or external effect changed.
