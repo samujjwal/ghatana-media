@@ -76,11 +76,11 @@ class WhisperOciWorkerSupervisorDockerTimeoutTest {
                 .isEqualTo(imageId + "|arm64|[\"/bin/sh\",\"-c\",\"exec sleep 600\"]");
 
         RecordingRunner runner = new RecordingRunner(processRunner);
+        UUID invocationId = UUID.randomUUID();
         try (MediaOciBrokerWhisperJournal journal = MediaOciBrokerWhisperJournal.open(journalRoot, TOKEN, 20)) {
             WhisperOciWorkerSupervisor supervisor = new WhisperOciWorkerSupervisor(
                     docker, UID, GID, config, journal, runner);
             try {
-                UUID invocationId = UUID.randomUUID();
                 var result = supervisor.execute(invocationId, PROFILE, "en-US", INPUT_SHA,
                         WAV.getBytes(StandardCharsets.UTF_8), 20_000);
 
@@ -134,6 +134,20 @@ class WhisperOciWorkerSupervisorDockerTimeoutTest {
                 assertThat(new String(leftovers.stdout(), StandardCharsets.UTF_8).trim()).isEmpty();
             } finally {
                 supervisor.close();
+            }
+
+            // Reopen after the worker supervisor has shut down to prove the ambiguous
+            // result is durable across broker restart, rather than only visible in its
+            // in-memory journal snapshot.
+            journal.close();
+            try (MediaOciBrokerWhisperJournal recovered =
+                    MediaOciBrokerWhisperJournal.open(journalRoot, TOKEN, 20)) {
+                var recoveredEntry = recovered.lookup(invocationId);
+                assertThat(recoveredEntry).isNotNull();
+                assertThat(recoveredEntry.status())
+                        .isEqualTo(MediaOciBrokerWhisperJournal.Status.UNKNOWN_OUTCOME);
+                assertThat(recovered.begin(recoveredEntry.identity()).kind())
+                        .isEqualTo(MediaOciBrokerWhisperJournal.BeginKind.EXISTING);
             }
         }
     }
