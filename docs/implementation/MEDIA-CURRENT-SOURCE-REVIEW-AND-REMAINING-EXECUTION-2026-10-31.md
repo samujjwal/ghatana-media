@@ -3728,3 +3728,15 @@ Extended the STT and TTS integration auth tests to invoke each service directly 
 ### 43.59 November 3 TTS-08 unknown finality after partial streaming output
 
 When the TTS streaming provider ends with gRPC `UNKNOWN` after emitting a nonfinal prefix, `TtsGrpcService` now preserves `UNKNOWN`, records an unknown response outcome, and reports a terminal error without synthesizing a final chunk or successful completion. Added a fake-engine regression for prefix delivery, terminal status, and metric classification. `./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest` passed **66/66** with no skips/failures/errors. No real voice, model, or quality result is inferred; TTS-08 remains partial pending lawful provider/voice and full streaming host acceptance.
+
+### 43.60 November 3 AS-05 discard of undispatched frames after consent denial
+
+`GuardedAudioStreamSession` now clears locally retained provider candidates and pending frames when current consent denies frame submission, held-frame delivery, provider dispatch, or reconnect. Denial preserves the attachment and session generation unless the caller separately cancels; a later grant cannot revive pre-denial frames. Synthetic regressions cover submit, delivery, dispatch and reconnect denial, including zero provider calls and unchanged attachment/generation. `./gradlew --no-daemon :services:media:modules:audio-streaming:test --tests com.ghatana.audio.streaming.GuardedAudioStreamSessionTest --no-build-cache --console=plain` passed **14/14**. This is in-memory session behavior only; no MediaRuntime adapter or real WebRTC/HTTP transport is qualified.
+
+### 43.61 November 3 STT-08 typed no-effect derived capability outcome
+
+`PersistentSttService.derivedCapability` now exposes the existing `MediaTranscriptContracts` typed `UNMET_CAPABILITY` outcome for forced alignment, translation and caption-version registration, including canonical blockers and `effectOccurred=false`; it creates no transcript/caption version and calls no persistence/provider boundary. The direct synthetic selector `./gradlew :services:media:modules:speech:stt-service:test --tests 'com.ghatana.stt.service.PersistentSttServiceValidationTest' --no-daemon --console=plain` passed **28/28**. STT-08 remains partial: immutable transcript CAS/word lineage, caption drafts and provider-result projection are not implemented by this compatibility service.
+
+### 43.62 November 3 TY-02 metadata property bound parity
+
+`MediaArtifactSchema.metadata` now enforces the existing OpenAPI `maxProperties: 64` bound while preserving opaque metadata values and the current schema shape. Regression tests accept 64 properties and reject 65. `pnpm --filter @audio-video/types exec vitest run src/contracts.test.ts` passed **20/20**; `pnpm --filter @audio-video/types typecheck` and `git diff --check` passed. This closes the local metadata-count mismatch only; it does not complete all TY-02 overflow, precision, revision, tenant, and hostile-payload cases.
