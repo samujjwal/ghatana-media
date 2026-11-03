@@ -1,9 +1,7 @@
 package com.ghatana.audio.video.integration;
 
-import com.ghatana.audio.video.multimodal.engine.AudioResult;
 import com.ghatana.audio.video.multimodal.engine.MultimodalRequest;
 import com.ghatana.audio.video.multimodal.engine.MultimodalResult;
-import com.ghatana.audio.video.multimodal.engine.VisualResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -12,13 +10,12 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Contract tests for the Multimodal API surface (AV-P1-07). 
+ * Contract tests for the internal Java multimodal DTO shape (AV-P1-07).
  *
  * <p>These tests verify the stable data contract of {@link MultimodalRequest},
- * {@link MultimodalResult}, and the hasAudio/hasImage/hasVideo predicates as
- * agreed between the Java backend and the TypeScript {@code @audio-video/client}.
- * No native AI dependencies are required — all results are constructed directly
- * to verify shape and field propagation.
+ * {@link MultimodalResult}, and the hasAudio/hasImage/hasVideo predicates.
+ * They construct Java DTOs directly and do not exercise or establish parity with
+ * the TypeScript SDK, REST, gRPC, Agent Tools, or any provider.
  *
  * <h3>Contract guarantees verified</h3>
  * <ul>
@@ -35,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @doc.pattern ContractTest
  */
 @Tag("contract")
-@DisplayName("Multimodal Service API Contract Tests (AV-P1-07)")
+@DisplayName("Multimodal Java DTO Contract Tests (AV-P1-07)")
 class MultimodalContractTest {
 
     @Nested
