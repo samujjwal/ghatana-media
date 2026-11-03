@@ -110,6 +110,89 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("denied provider work is discarded and cannot replay after consent returns")
+    void deniedWorkCannotReplayAfterConsentReturns() {
+        AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);
+        GuardedAudioStreamSession dispatchSession = GuardedAudioStreamSession.connect(
+                identity(), context -> live.get());
+        dispatchSession.submitFrame(frame(0));
+        live.set(Decision.DENIED);
+        AtomicInteger providerEffects = new AtomicInteger();
+
+        assertThatThrownBy(() -> dispatchSession.dispatchToProvider(
+                frame(0), f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(ConsentDeniedException.class);
+        live.set(Decision.ADMITTED);
+        assertThatThrownBy(() -> dispatchSession.dispatchToProvider(
+                frame(0), f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(providerEffects.get()).isZero();
+
+        GuardedAudioStreamSession reconnectSession = GuardedAudioStreamSession.connect(
+                identity(), context -> live.get());
+        reconnectSession.submitFrame(frame(0));
+        reconnectSession.detach();
+        live.set(Decision.EXPIRED);
+        assertThatThrownBy(() -> reconnectSession.reconnect(1))
+                .isInstanceOf(ConsentDeniedException.class);
+        assertThat(reconnectSession.attachment()).isEqualTo(Attachment.DETACHED);
+        assertThat(reconnectSession.generation()).isZero();
+
+        // A later grant can reconnect the session, but cannot revive the
+        // frame retained before the denied reconnect.
+        live.set(Decision.ADMITTED);
+        reconnectSession.reconnect(1);
+        assertThatThrownBy(() -> reconnectSession.dispatchToProvider(
+                frame(0), f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(providerEffects.get()).isZero();
+    }
+
+    @Test
+    @DisplayName("denied frame submit and delivery discard prior undispatched work")
+    void deniedFrameTransitionsDiscardPriorWork() {
+        AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);
+        AtomicInteger providerEffects = new AtomicInteger();
+
+        GuardedAudioStreamSession submitSession = GuardedAudioStreamSession.connect(
+                identity(), context -> live.get());
+        submitSession.submitFrame(frame(0));
+        live.set(Decision.DENIED);
+        assertThatThrownBy(() -> submitSession.submitFrame(frame(1)))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("frame submit");
+        assertThat(submitSession.attachment()).isEqualTo(Attachment.ATTACHED);
+        assertThat(submitSession.generation()).isZero();
+        live.set(Decision.ADMITTED);
+        assertThatThrownBy(() -> submitSession.dispatchToProvider(
+                frame(0), f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+
+        GuardedAudioStreamSession deliverySession = GuardedAudioStreamSession.connect(
+                identity(), context -> live.get());
+        deliverySession.submitFrame(frame(0));
+        deliverySession.submitFrame(frame(2));
+        live.set(Decision.EXPIRED);
+        assertThatThrownBy(deliverySession::takeDelivered)
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("frame delivery");
+        assertThat(deliverySession.attachment()).isEqualTo(Attachment.ATTACHED);
+        assertThat(deliverySession.generation()).isZero();
+        assertThat(deliverySession.pendingCount()).isZero();
+
+        live.set(Decision.ADMITTED);
+        assertThatThrownBy(() -> deliverySession.dispatchToProvider(
+                frame(0), f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(deliverySession.takeDelivered()).isNull();
+        assertThat(providerEffects.get()).isZero();
+    }
+
+    @Test
     @DisplayName("provider dispatch requires the exact delivered frame and rejects replay")
     void dispatchRequiresDeliveredSnapshotAndRejectsReplay() {
         GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(

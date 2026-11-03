@@ -116,7 +116,12 @@ public final class GuardedAudioStreamSession {
     public StreamFrameReconciler.Disposition submitFrame(
             AudioStreamSession.DecodedFrame frame) {
         requireAttached("frame submit");
-        requireConsent("frame submit");
+        try {
+            requireConsent("frame submit");
+        } catch (ConsentDeniedException denied) {
+            discardUndispatchedFrames();
+            throw denied;
+        }
         AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         if (snapshot.sequenceNumber() >= 0
                 && snapshot.sequenceNumber() < Integer.MAX_VALUE
@@ -138,7 +143,12 @@ public final class GuardedAudioStreamSession {
      */
     public AudioStreamSession.DecodedFrame takeDelivered() {
         requireAttached("frame delivery");
-        requireConsent("frame delivery");
+        try {
+            requireConsent("frame delivery");
+        } catch (ConsentDeniedException denied) {
+            discardUndispatchedFrames();
+            throw denied;
+        }
         AudioStreamSession.DecodedFrame pending = reconciler.peekDelivered();
         if (pending != null && providerCandidates.size() >= MAX_PROVIDER_CANDIDATES) {
             throw new ProviderDispatchCapacityException();
@@ -162,7 +172,12 @@ public final class GuardedAudioStreamSession {
             AudioStreamSession.DecodedFrame frame, ProviderSink sink) {
         Objects.requireNonNull(sink, "sink");
         requireAttached("provider dispatch");
-        requireConsent("provider dispatch");
+        try {
+            requireConsent("provider dispatch");
+        } catch (ConsentDeniedException denied) {
+            discardUndispatchedFrames();
+            throw denied;
+        }
         AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         byte[] admittedDigest = providerCandidates.get(snapshot.sequenceNumber());
         if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
@@ -197,7 +212,14 @@ public final class GuardedAudioStreamSession {
             throw new IllegalArgumentException(
                     "stale session generation on reconnect: " + reconnectGeneration);
         }
-        requireConsent(consent, identity, reconnectGeneration, "reconnect");
+        try {
+            requireConsent(consent, identity, reconnectGeneration, "reconnect");
+        } catch (ConsentDeniedException denied) {
+            // Frames accepted before detach must not survive an unauthorized
+            // reconnect and become provider work after consent is restored.
+            discardUndispatchedFrames();
+            throw denied;
+        }
         generation = reconnectGeneration;
         attachment = Attachment.ATTACHED;
     }
@@ -207,9 +229,14 @@ public final class GuardedAudioStreamSession {
      * dispatch is possible — distinct from a reversible client detach.
      */
     public void cancel() {
+        discardUndispatchedFrames();
+        attachment = Attachment.CANCELLED;
+    }
+
+    /** Drop locally retained frames when current consent no longer admits work. */
+    private void discardUndispatchedFrames() {
         reconciler.discardPending();
         providerCandidates.clear();
-        attachment = Attachment.CANCELLED;
     }
 
     public Attachment attachment() {
