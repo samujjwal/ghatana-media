@@ -53,6 +53,33 @@ class CircuitBreakerEngineCloseTest {
         verify(stt, org.mockito.Mockito.times(2)).close();
     }
 
+    @Test
+    void failedTtsAndVisionCloseCanBeRetriedAndThenBecomeIdempotent() {
+        TtsEngine tts = mock(TtsEngine.class);
+        doThrow(new IllegalStateException("native close failed")).doNothing().when(tts).close();
+        CircuitBreakerTtsEngine ttsWrapper = new CircuitBreakerTtsEngine(tts, null, breaker("retry-close-tts"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(ttsWrapper::close)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("native close failed");
+        ttsWrapper.close();
+        ttsWrapper.close();
+
+        VisionEngine vision = mock(VisionEngine.class);
+        doThrow(new IllegalStateException("native close failed")).doNothing().when(vision).close();
+        CircuitBreakerVisionEngine visionWrapper =
+                new CircuitBreakerVisionEngine(vision, null, breaker("retry-close-vision"));
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(visionWrapper::close)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("native close failed");
+        visionWrapper.close();
+        visionWrapper.close();
+
+        verify(tts, org.mockito.Mockito.times(2)).close();
+        verify(vision, org.mockito.Mockito.times(2)).close();
+    }
+
     private static CircuitBreaker breaker(String name) {
         return CircuitBreaker.builder(name)
                 .failureThreshold(2)

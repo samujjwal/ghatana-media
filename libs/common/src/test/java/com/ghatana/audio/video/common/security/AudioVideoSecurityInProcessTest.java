@@ -38,7 +38,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -155,6 +158,111 @@ class AudioVideoSecurityInProcessTest {
     }
 
     @Test
+    void missingPrincipalIsDeniedBeforeEachProviderBackendEffect() throws Exception {
+        AtomicInteger backendEffects = new AtomicInteger();
+        String serverName = InProcessServerBuilder.generateName();
+        JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+        AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+        Server server = InProcessServerBuilder.forName(serverName)
+                .directExecutor()
+                .addServices(PROVIDER_METHODS.stream()
+                        .map(method -> interceptedProvider(method, jwt, rbac, backendEffects))
+                        .toList())
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+        try {
+            for (String method : PROVIDER_METHODS) {
+                Metadata headers = new Metadata();
+                headers.put(Metadata.Key.of("x-user-id", Metadata.ASCII_STRING_MARSHALLER), "forged-user");
+                headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), "tenant-a");
+                headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:user");
+                Channel requestChannel = ClientInterceptors.intercept(
+                        channel, MetadataUtils.newAttachHeadersInterceptor(headers));
+
+                assertThatThrownBy(() -> ClientCalls.blockingUnaryCall(requestChannel,
+                        methodDescriptor(method), CallOptions.DEFAULT, "request"))
+                        .as(method)
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.UNAUTHENTICATED);
+                assertThat(backendEffects).as(method).hasValue(0);
+            }
+        } finally {
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
+    @Test
+    void gatewayRejectedIdentityIsDeniedBeforeStreamingProviderDispatch() throws Exception {
+        AtomicInteger backendEffects = new AtomicInteger();
+        AtomicInteger gatewayValidations = new AtomicInteger();
+        String method = "com.ghatana.audio.video.stt.grpc.STTService/StreamTranscribe";
+        String serverName = InProcessServerBuilder.generateName();
+        ConfigurableJWTProcessor<SecurityContext> processor = new DefaultJWTProcessor<>();
+        JwtServerInterceptor.TokenValidator revokedGateway = new JwtServerInterceptor.TokenValidator() {
+            @Override public boolean isEnabled() { return true; }
+            @Override public com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult validate(
+                    String token, String tenantId) {
+                gatewayValidations.incrementAndGet();
+                return new com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult(
+                        false, null, null, null);
+            }
+        };
+        JwtServerInterceptor jwt = new JwtServerInterceptor(processor, revokedGateway);
+        AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+        MethodDescriptor<String, String> streamMethod = streamMethodDescriptor(method);
+        ServerServiceDefinition service = ServerServiceDefinition.builder(
+                        method.substring(0, method.indexOf('/')))
+                .addMethod(streamMethod, ServerCalls.asyncBidiStreamingCall(requests ->
+                        new StreamObserver<>() {
+                            @Override public void onNext(String request) { backendEffects.incrementAndGet(); }
+                            @Override public void onError(Throwable failure) { }
+                            @Override public void onCompleted() { }
+                        }))
+                .build();
+        Server server = InProcessServerBuilder.forName(serverName)
+                .directExecutor()
+                .addService(ServerInterceptors.interceptForward(service, jwt, rbac))
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+        try {
+            Metadata headers = new Metadata();
+            String token = signedToken("revoked-user", "tenant-a");
+            headers.put(AUTHORIZATION, "Bearer " + token);
+            Channel requestChannel = ClientInterceptors.intercept(
+                    channel, MetadataUtils.newAttachHeadersInterceptor(headers));
+            CountDownLatch denied = new CountDownLatch(1);
+            AtomicReference<Status.Code> status = new AtomicReference<>();
+            @SuppressWarnings("unchecked")
+            StreamObserver<String> requests = ClientCalls.asyncBidiStreamingCall(
+                    requestChannel.newCall(streamMethod, CallOptions.DEFAULT), new StreamObserver<>() {
+                        @Override public void onNext(String response) { }
+                        @Override public void onError(Throwable failure) {
+                            if (failure instanceof StatusRuntimeException statusFailure) {
+                                status.set(statusFailure.getStatus().getCode());
+                            }
+                            denied.countDown();
+                        }
+                        @Override public void onCompleted() { }
+                    });
+
+            requests.onNext("first-frame");
+            assertThat(gatewayValidations).hasValue(1);
+            assertThat(denied.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(status).hasValue(Status.Code.UNAUTHENTICATED);
+            assertThat(backendEffects).hasValue(0);
+        } finally {
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
+    @Test
     void forgedAdminRoleCannotReachAdminOnlyProviderOperation() throws Exception {
         AtomicInteger backendEffects = new AtomicInteger();
         String method = "com.ghatana.audio.video.stt.grpc.STTService/LoadModel";
@@ -208,6 +316,15 @@ class AudioVideoSecurityInProcessTest {
     private static MethodDescriptor<String, String> methodDescriptor(String fullMethod) {
         return MethodDescriptor.<String, String>newBuilder()
                 .setType(MethodDescriptor.MethodType.UNARY)
+                .setFullMethodName(fullMethod)
+                .setRequestMarshaller(STRING_MARSHALLER)
+                .setResponseMarshaller(STRING_MARSHALLER)
+                .build();
+    }
+
+    private static MethodDescriptor<String, String> streamMethodDescriptor(String fullMethod) {
+        return MethodDescriptor.<String, String>newBuilder()
+                .setType(MethodDescriptor.MethodType.BIDI_STREAMING)
                 .setFullMethodName(fullMethod)
                 .setRequestMarshaller(STRING_MARSHALLER)
                 .setResponseMarshaller(STRING_MARSHALLER)
