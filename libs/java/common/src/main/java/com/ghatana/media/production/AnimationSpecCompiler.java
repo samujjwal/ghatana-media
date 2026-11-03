@@ -112,10 +112,29 @@ public final class AnimationSpecCompiler {
 
     private static void requireVersionRef(String value, String field) {
         Objects.requireNonNull(value, field);
-        if (value.isEmpty() || value.length() > 384
+        // JSON Schema string length is measured in Unicode code points, while
+        // String.length() counts UTF-16 code units. Keep the source's maxLength
+        // behavior for supplementary characters as well as BMP text.
+        int codePointLength = value.codePointCount(0, value.length());
+        if (!hasWellFormedUnicode(value) || codePointLength == 0 || codePointLength > 384
                 || value.chars().anyMatch(c -> Character.isWhitespace(c) || Character.isSpaceChar(c))) {
             throw new IllegalArgumentException(field + " must match the bounded whitespace-free versionRef shape");
         }
+    }
+
+    private static boolean hasWellFormedUnicode(String value) {
+        for (int index = 0; index < value.length(); index++) {
+            char current = value.charAt(index);
+            if (Character.isHighSurrogate(current)) {
+                if (index + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(index + 1))) {
+                    return false;
+                }
+                index++;
+            } else if (Character.isLowSurrogate(current)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void requireOpaqueId(String value, String field) {

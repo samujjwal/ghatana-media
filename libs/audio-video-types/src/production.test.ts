@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
   ModelExecutionSpecSchema, SimulationStateSchema, SignedInt64DecimalSchema,
-  PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema,
+  PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema,
 } from './production';
 
 const ref = 'media://revision/abc123';
@@ -113,6 +113,10 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, purposeRef: 'purpose/\uD800' }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: ['scene/\uDC00'] }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, purposeRef: 'purpose/🚀' }).success).toBe(true);
+  });
+  it('counts version reference maximum length by Unicode code point', () => {
+    expect(VersionRefSchema.safeParse('🚀'.repeat(384)).success).toBe(true);
+    expect(VersionRefSchema.safeParse('🚀'.repeat(385)).success).toBe(false);
   });
   it('rejects the wrong clock kind — a story clock is not a simulation clock', () => {
     const anim = {

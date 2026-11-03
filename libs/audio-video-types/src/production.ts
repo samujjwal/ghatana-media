@@ -114,7 +114,20 @@ function hasWellFormedUtf16(value: string): boolean {
   }
   return true;
 }
-export const VersionRefSchema = z.string().min(1).max(384).regex(/^\S+$/)
+function hasAtMost384UnicodeCodePoints(value: string): boolean {
+  let count = 0;
+  for (let index = 0; index < value.length; index++) {
+    const current = value.charCodeAt(index);
+    if (current >= 0xd800 && current <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (next >= 0xdc00 && next <= 0xdfff) index++;
+    }
+    if (++count > 384) return false;
+  }
+  return true;
+}
+export const VersionRefSchema = z.string().min(1).refine(hasAtMost384UnicodeCodePoints,
+  "must contain at most 384 Unicode code points").regex(/^\S+$/)
   .refine(hasWellFormedUtf16, "must contain well-formed Unicode");
 export const NullableVersionRefSchema = VersionRefSchema.nullable();
 export const VersionRefListSchema = z.array(VersionRefSchema).refine(

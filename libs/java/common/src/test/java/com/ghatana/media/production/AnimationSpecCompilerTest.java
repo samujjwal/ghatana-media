@@ -136,4 +136,40 @@ class AnimationSpecCompilerTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("opaqueId");
     }
+
+    @Test
+    void appliesVersionRefMaximumByUnicodeCodePointCount() {
+        var valid = validSpec();
+        String maxLengthReference = "\uD83D\uDE00".repeat(384);
+        var maxLength = new AnimationSpec(
+                valid.schemaVersion(), maxLengthReference, valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
+                valid.tStoryRef(), valid.renderingRef());
+
+        assertThat(new AnimationSpecCompiler().compile(maxLength).reason())
+                .isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), maxLengthReference + "\uD83D\uDE00", valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
+                valid.tStoryRef(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneGraphRef");
+    }
+
+    @Test
+    void rejectsVersionRefsWithMalformedUtf16Surrogates() {
+        var valid = validSpec();
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), "scene/\uD800", valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
+                valid.tStoryRef(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneGraphRef");
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), "scene/\uDC00", valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
+                valid.tStoryRef(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneGraphRef");
+    }
 }
