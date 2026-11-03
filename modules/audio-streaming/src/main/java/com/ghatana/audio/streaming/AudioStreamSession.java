@@ -17,14 +17,16 @@ public final class AudioStreamSession {
     static final int FRAME_HEADER_BYTES = Integer.BYTES + Long.BYTES + Integer.BYTES;
     /** Maximum accepted frame payload; larger inputs are rejected before allocation. */
     static final int MAX_FRAME_PAYLOAD_BYTES = 8 * 1024 * 1024;
+    /** Reserve {@link Integer#MAX_VALUE} so cursor advancement never wraps into a negative value. */
+    static final int MAX_FRAME_SEQUENCE_NUMBER = Integer.MAX_VALUE - 1;
 
     /**
      * Encodes one frame using a stable wire format:
      * [sequenceNumber:int][timestampMillis:long][payloadLength:int][payload:bytes].
      */
     public byte[] encodeFrame(int sequenceNumber, long timestampMillis, byte[] payload) {
-        if (sequenceNumber < 0) {
-            throw new IllegalArgumentException("audio frame sequence must be nonnegative");
+        if (sequenceNumber < 0 || sequenceNumber > MAX_FRAME_SEQUENCE_NUMBER) {
+            throw new IllegalArgumentException("audio frame sequence is outside the supported range");
         }
         if (payload == null || payload.length > MAX_FRAME_PAYLOAD_BYTES) {
             throw new IllegalArgumentException("audio frame payload is outside the bounded size");
@@ -51,8 +53,8 @@ public final class AudioStreamSession {
         }
         ByteBuffer buffer = ByteBuffer.wrap(encodedFrame);
         int sequence = buffer.getInt();
-        if (sequence < 0) {
-            throw new IllegalArgumentException("audio frame sequence must be nonnegative");
+        if (sequence < 0 || sequence > MAX_FRAME_SEQUENCE_NUMBER) {
+            throw new IllegalArgumentException("audio frame sequence is outside the supported range");
         }
         long timestamp = buffer.getLong();
         int length = buffer.getInt();
@@ -75,13 +77,21 @@ public final class AudioStreamSession {
         if (lastAckedSequence < -1) {
             throw new IllegalArgumentException("audio stream last ACK must be -1 or nonnegative");
         }
-        if (lastAckedSequence == Integer.MAX_VALUE) {
+        if (lastAckedSequence >= MAX_FRAME_SEQUENCE_NUMBER) {
             throw new IllegalStateException("audio stream sequence exhausted; reconnect requires a new stream");
         }
         return lastAckedSequence + 1;
     }
 
     public List<Integer> restoreOrderedSequence(List<Integer> receivedSequences) {
+        if (receivedSequences == null) {
+            throw new IllegalArgumentException("audio stream sequences must be present");
+        }
+        for (Integer sequence : receivedSequences) {
+            if (sequence == null || sequence < 0 || sequence > MAX_FRAME_SEQUENCE_NUMBER) {
+                throw new IllegalArgumentException("audio stream sequence is outside the supported range");
+            }
+        }
         TreeSet<Integer> ordered = new TreeSet<>(receivedSequences);
         return new ArrayList<>(ordered);
     }

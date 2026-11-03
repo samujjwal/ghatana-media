@@ -41,10 +41,11 @@ class AudioStreamSessionFrameTest {
             assertThat(decoded.timestampMillis()).isEqualTo(1_700_000_000_000L);
             assertThat(decoded.payload()).isEqualTo(payload);
         }
-        // The largest nonnegative sequence is valid on the legacy wire format.
+        // The final deliverable sequence is valid; Integer.MAX_VALUE is reserved
+        // to prevent a next-expected cursor from wrapping on reconnect.
         var lastSequence = session.decodeFrame(session.encodeFrame(
-                Integer.MAX_VALUE, 0L, new byte[]{1}));
-        assertThat(lastSequence.sequenceNumber()).isEqualTo(Integer.MAX_VALUE);
+                AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, 0L, new byte[]{1}));
+        assertThat(lastSequence.sequenceNumber()).isEqualTo(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
     }
 
     @Test
@@ -89,6 +90,9 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.decodeFrame(header(-1, 0L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.decodeFrame(header(Integer.MAX_VALUE, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
         // Declared length larger than the bytes actually present.
         assertThatThrownBy(() -> session.decodeFrame(header(1, 0L, 4)))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -107,6 +111,9 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.encodeFrame(-1, 0L, new byte[0]))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.encodeFrame(Integer.MAX_VALUE, 0L, new byte[0]))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
         assertThatThrownBy(() -> session.encodeFrame(1, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
@@ -122,5 +129,17 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(Integer.MAX_VALUE))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("new stream");
+        assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(
+                        AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("new stream");
+        assertThatThrownBy(() -> session.restoreOrderedSequence(
+                        Arrays.asList(1, null, 2)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("supported range");
+        assertThatThrownBy(() -> session.restoreOrderedSequence(
+                        Arrays.asList(1, Integer.MAX_VALUE)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("supported range");
     }
 }

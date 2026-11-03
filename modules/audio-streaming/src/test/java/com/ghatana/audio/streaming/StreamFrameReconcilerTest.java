@@ -218,7 +218,7 @@ class StreamFrameReconcilerTest {
     @DisplayName("resume rejects ACK values outside the supported sequence range")
     void resumeRejectsInvalidAck() {
         SessionIdentity same = identity("t1");
-        for (int invalidAck : new int[]{-2, Integer.MAX_VALUE}) {
+        for (int invalidAck : new int[]{-2, AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, Integer.MAX_VALUE}) {
             assertThatThrownBy(() -> StreamFrameReconciler.resume(same, same, invalidAck))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("last ACK");
