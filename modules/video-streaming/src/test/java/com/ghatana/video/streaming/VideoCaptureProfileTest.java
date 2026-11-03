@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +63,23 @@ class VideoCaptureProfileTest {
     }
 
     @Test
+    @DisplayName("sealing an unqualified transport fails before opening the frame iterable")
+    void sealRejectsUnqualifiedTransportWithoutConsumingFrames() {
+        int[] iteratorRequests = {0};
+        Iterable<VideoStreamSession.DecodedFrame> frames = () -> {
+            iteratorRequests[0]++;
+            return List.<VideoStreamSession.DecodedFrame>of().iterator();
+        };
+
+        assertThatThrownBy(() -> VideoCaptureProfile.seal(
+                "artifact-unavailable", "v1", TransportKind.WEBRTC,
+                frames, "run-7/job-3"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("UNAVAILABLE");
+        assertThat(iteratorRequests[0]).isZero();
+    }
+
+    @Test
     @DisplayName("unpinned codec and out-of-bound plans are unavailable or rejected")
     void codecEligibilityBounded() {
         BoundedCodecPlan pinned = new BoundedCodecPlan("media-wire-v1", 100, 1_000_000, 60_000);
@@ -102,6 +120,59 @@ class VideoCaptureProfileTest {
         assertThat(artifact.capturedBytes()).isEqualTo(4);
         assertThat(artifact.sourceTransport()).isEqualTo(TransportKind.IN_PROCESS);
         assertThat(artifact.provenanceRef()).isEqualTo("run-7/job-3");
+    }
+
+    @Test
+    @DisplayName("sealing rejects an iterable that exceeds the captured-frame bound")
+    void sealRejectsTooManyFramesFromUnboundedIterable() {
+        int[] produced = {0};
+        Iterable<VideoStreamSession.DecodedFrame> unbounded = () -> new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public VideoStreamSession.DecodedFrame next() {
+                produced[0]++;
+                return frame(produced[0], false, (byte) 0);
+            }
+        };
+
+        assertThatThrownBy(() -> VideoCaptureProfile.seal(
+                "artifact-over-frame-limit", "v1", TransportKind.IN_PROCESS,
+                unbounded, "run-7/job-3"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("frame bound");
+        assertThat(produced[0]).isEqualTo(VideoCaptureProfile.MAX_CODEC_FRAMES + 1);
+    }
+
+    @Test
+    @DisplayName("sealing rejects captured payload bytes above the declared byte bound")
+    void sealRejectsTooManyPayloadBytes() {
+        byte[] maxFrame = new byte[VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES];
+        var frame = new VideoStreamSession.DecodedFrame(0, true, 0, maxFrame);
+        Iterable<VideoStreamSession.DecodedFrame> overByteLimit = () -> new Iterator<>() {
+            private int remaining = (int) (VideoCaptureProfile.MAX_CODEC_INPUT_BYTES
+                    / VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES) + 1;
+
+            @Override
+            public boolean hasNext() {
+                return remaining > 0;
+            }
+
+            @Override
+            public VideoStreamSession.DecodedFrame next() {
+                remaining--;
+                return frame;
+            }
+        };
+
+        assertThatThrownBy(() -> VideoCaptureProfile.seal(
+                "artifact-over-byte-limit", "v1", TransportKind.IN_PROCESS,
+                overByteLimit, "run-7/job-3"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("byte bound");
     }
 
     @Test

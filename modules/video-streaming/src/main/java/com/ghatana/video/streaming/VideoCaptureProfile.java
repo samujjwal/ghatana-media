@@ -66,7 +66,7 @@ public final class VideoCaptureProfile {
     /** The only codec pinned to a real implementation: the module wire codec. */
     private static final Set<String> PINNED_CODECS = Set.of("media-wire-v1");
 
-    /** Absolute bounds for any codec plan — enforced before a plan exists. */
+    /** Absolute frame and byte bounds for codec work and captured artifacts. */
     public static final int MAX_CODEC_FRAMES = 10_000;
     public static final long MAX_CODEC_INPUT_BYTES = 1L << 30; // 1 GiB
     public static final long MAX_CODEC_DURATION_MS = 10 * 60_000L;
@@ -160,6 +160,11 @@ public final class VideoCaptureProfile {
             TransportKind sourceTransport,
             Iterable<VideoStreamSession.DecodedFrame> frames,
             String provenanceRef) {
+        Objects.requireNonNull(sourceTransport, "sourceTransport");
+        if (!isTransportUsable(sourceTransport)) {
+            throw new IllegalStateException(
+                    "captured artifact source transport is UNAVAILABLE: " + sourceTransport);
+        }
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -169,9 +174,18 @@ public final class VideoCaptureProfile {
         int count = 0;
         long bytes = 0;
         for (VideoStreamSession.DecodedFrame frame : frames) {
-            digest.update(frame.payload());
+            if (count == MAX_CODEC_FRAMES) {
+                throw new IllegalArgumentException(
+                        "captured artifact exceeds frame bound " + MAX_CODEC_FRAMES);
+            }
+            byte[] payload = frame.payload();
+            if (payload.length > MAX_CODEC_INPUT_BYTES - bytes) {
+                throw new IllegalArgumentException(
+                        "captured artifact exceeds byte bound " + MAX_CODEC_INPUT_BYTES);
+            }
+            digest.update(payload);
             count++;
-            bytes += frame.payload().length;
+            bytes += payload.length;
         }
         return new CapturedMediaArtifact(
                 artifactId, artifactVersion, sourceTransport,
