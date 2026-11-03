@@ -61,9 +61,14 @@ class MediaPipelineIntegrationTest {
 
         TtsEngine engine = TtsEngineFactory.create(config, state);
         try {
-            assertThat(engine.getStatus().state()).isEqualTo(EngineStatus.State.DEGRADED);
+            EngineStatus status = engine.getStatus();
+            assertThat(status.state()).isEqualTo(EngineStatus.State.DEGRADED);
+            assertThat(status.modelId()).isEqualTo("synthetic:integration-test");
+            assertThat(status.version()).isEqualTo("synthetic-local-v1");
+            assertThat(status.errorMessage()).isEqualTo("Synthetic fallback active");
             assertThat(state.isHealthy()).isFalse();
-            assertThat(engine.synthesize("pipeline check").data()).isNotEmpty();
+            var fixture = engine.synthesize("pipeline check");
+            assertThat(fixture.data()).isNotEmpty().containsOnly((byte) 0);
         } finally {
             engine.close();
         }
