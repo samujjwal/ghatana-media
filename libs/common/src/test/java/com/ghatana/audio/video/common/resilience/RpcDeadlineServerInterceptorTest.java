@@ -168,6 +168,26 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
+    void lateServiceSuccessCannotOverwriteDeadlineUnknownTransportClose() throws Exception {
+        var interceptor = new RpcDeadlineServerInterceptor(Duration.ofMillis(40), Map.of());
+        ServerCall<String, String> underlyingCall = call("media.STT/Transcribe");
+        AtomicReference<ServerCall<String, String>> interceptedCall = new AtomicReference<>();
+
+        interceptor.interceptCall(underlyingCall, new Metadata(), (wrappedCall, headers) -> {
+            interceptedCall.set(wrappedCall);
+            return new ServerCall.Listener<>() {};
+        });
+
+        verify(underlyingCall, timeout(500)).close(
+                argThat(status -> status.getCode() == Status.Code.UNKNOWN), any());
+        interceptedCall.get().close(Status.OK, new Metadata());
+
+        verify(underlyingCall, times(1)).close(
+                argThat(status -> status.getCode() == Status.Code.UNKNOWN), any());
+        verify(underlyingCall, never()).close(argThat(Status::isOk), any());
+    }
+
+    @Test
     void deadlineCancelsCooperativeWorkerAndClassifiesEffectCapableLateWorkAsUnknown() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         try {
