@@ -439,6 +439,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             recordResponseBoundary(() -> null, traced.observer, traced, cancellationObserver, operationContext);
             return;
         }
+        validateProviderDetections(detectedObjects);
         tracingService.recordVisionDetectionResult(trace, detectedObjects.size(),
                 detectedObjects.stream().mapToDouble(DetectedObject::getConfidence).max().orElse(Double.NaN));
         long processingTime = System.currentTimeMillis() - startTime;
@@ -471,6 +472,27 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 Map.of("objectCount", String.valueOf(detectedObjects.size()),
                         "processingTimeMs", String.valueOf(processingTime),
                         "imageSizeBytes", String.valueOf(imageSizeBytes)));
+    }
+
+    /** Rejects malformed provider geometry before it crosses the public pixel-XYWH response boundary. */
+    private static void validateProviderDetections(List<DetectedObject> detectedObjects) {
+        if (detectedObjects == null || detectedObjects.size() > DEFAULT_MAX_DETECTIONS) {
+            throw new IllegalStateException("Vision provider returned an invalid detection collection");
+        }
+        for (DetectedObject detection : detectedObjects) {
+            if (detection == null || detection.getClassName() == null || detection.getClassName().isBlank()
+                    || !Double.isFinite(detection.getConfidence())
+                    || detection.getConfidence() < 0.0 || detection.getConfidence() > 1.0
+                    || detection.getBoundingBox() == null) {
+                throw new IllegalStateException("Vision provider returned an invalid detection");
+            }
+            var box = detection.getBoundingBox();
+            if (box.getX() < 0 || box.getY() < 0 || box.getWidth() <= 0 || box.getHeight() <= 0
+                    || !Double.isFinite(box.getX() + box.getWidth())
+                    || !Double.isFinite(box.getY() + box.getHeight())) {
+                throw new IllegalStateException("Vision provider returned invalid source-raster geometry");
+            }
+        }
     }
 
     private void reportDetectionFailure(TracedResponse<DetectResponse> traced,

@@ -214,6 +214,27 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: malformed provider confidence is rejected before response delivery")
+    void detectObjects_nonFiniteProviderConfidenceIsRejected() {
+        fakeDetector.setResults(List.of(DetectedObject.builder()
+                .className("object")
+                .confidence(Double.NaN)
+                .boundingBox(BoundingBox.builder().x(0).y(0).width(10).height(10).build())
+                .build()));
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .build();
+
+        withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INTERNAL.getCode());
+        assertThat(observer.getValue()).isNull();
+    }
+
+    @Test
     void detectObjectsPassesAnExplicitConfidenceThresholdToTheDetector() {
         DetectRequest request = DetectRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(new byte[]{1, 2, 3}))
