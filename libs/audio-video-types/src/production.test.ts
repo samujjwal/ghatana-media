@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
-  ModelExecutionSpecSchema, SimulationStateSchema, SignedInt64DecimalSchema,
+  ModelExecutionSpecSchema, SimulationStateSchema, CaptureSourceKindSchema, SignedInt64DecimalSchema,
   PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema, DigestSchema,
 } from './production';
 
@@ -18,6 +18,16 @@ const spec = {
 };
 
 describe('TY-04 headless declarative parsers', () => {
+  it('exposes only the explicitly declared recorder capture source kinds', () => {
+    const sourceKinds = ['browser', 'desktop', 'mobile', 'terminal', 'http-api', 'grpc-api', 'camera', 'media-file'];
+    expect(CaptureSourceKindSchema.options).toEqual(sourceKinds);
+    for (const sourceKind of sourceKinds) {
+      expect(CaptureSourceKindSchema.safeParse(sourceKind).success).toBe(true);
+    }
+    expect(CaptureSourceKindSchema.safeParse('unknown-source').success).toBe(false);
+    expect(CaptureSourceKindSchema.safeParse('Browser').success).toBe(false);
+  });
+
   it('accepts a well-formed production spec', () => {
     expect(ProductionSpecSchema.safeParse(spec).success).toBe(true);
   });

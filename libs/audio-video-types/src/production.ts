@@ -221,6 +221,12 @@ export const OriginClassSchema = z.enum([
   "REAL_CAPTURE", "DECLARATIVE_ANIMATION", "MODEL_SIMULATION",
   "GENERATIVE_MEDIA", "PDP_SYNTHETIC_FIXTURE",
 ]);
+/** Source kinds declared by the PDP-1 recorder capture-source contract. */
+export const CaptureSourceKindSchema = z.enum([
+  "browser", "desktop", "mobile", "terminal", "http-api", "grpc-api", "camera", "media-file",
+]);
+export type CaptureSourceKind = z.infer<typeof CaptureSourceKindSchema>;
+
 export const SimulationCapabilityLeafSchema = z.enum([
   "media.simulation.rigid-body", "media.simulation.soft-body", "media.simulation.cloth",
   "media.simulation.rope", "media.simulation.particle", "media.simulation.fluid",
