@@ -576,18 +576,85 @@ pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer
     mixed.try_reserve_exact(max_samples).map_err(|error| {
         SpeechAudioError::ResourceLimit(format!("cannot reserve mixed audio: {error}"))
     })?;
-    mixed.resize(max_samples, 0.0f32);
+    const MIX_ACCUMULATION_BLOCK_SAMPLES: usize = 4_096;
+    let block_count = max_samples / MIX_ACCUMULATION_BLOCK_SAMPLES
+        + usize::from(!max_samples.is_multiple_of(MIX_ACCUMULATION_BLOCK_SAMPLES));
+    let mut expiry_counts = Vec::new();
+    expiry_counts
+        .try_reserve_exact(block_count)
+        .map_err(|error| {
+            SpeechAudioError::ResourceLimit(format!("cannot reserve mix expiry metadata: {error}"))
+        })?;
+    expiry_counts.resize(block_count, 0usize);
 
-    for (buffer, volume) in buffers.iter().zip(volumes.iter().copied()) {
-        for (index, sample) in buffer.samples.iter().copied().enumerate() {
-            let sum = mixed[index] as f64 + sample as f64 * volume as f64;
+    let mut active_buffer_indices = Vec::new();
+    active_buffer_indices
+        .try_reserve_exact(buffers.len())
+        .map_err(|error| {
+            SpeechAudioError::ResourceLimit(format!("cannot reserve active mix inputs: {error}"))
+        })?;
+    for (index, buffer) in buffers.iter().enumerate() {
+        if buffer.samples.is_empty() {
+            continue;
+        }
+        let expiry_block = (buffer.samples.len() - 1) / MIX_ACCUMULATION_BLOCK_SAMPLES;
+        expiry_counts[expiry_block] = expiry_counts[expiry_block]
+            .checked_add(1)
+            .ok_or_else(|| SpeechAudioError::ResourceLimit("mix expiry count overflow".into()))?;
+        active_buffer_indices.push(index);
+    }
+
+    let mut sums = Vec::new();
+    sums.try_reserve_exact(max_samples.min(MIX_ACCUMULATION_BLOCK_SAMPLES))
+        .map_err(|error| {
+            SpeechAudioError::ResourceLimit(format!("cannot reserve mixed audio scratch: {error}"))
+        })?;
+    sums.resize(max_samples.min(MIX_ACCUMULATION_BLOCK_SAMPLES), 0.0f64);
+
+    for (block_index, block_start) in (0..max_samples)
+        .step_by(MIX_ACCUMULATION_BLOCK_SAMPLES)
+        .enumerate()
+    {
+        let block_len = (max_samples - block_start).min(MIX_ACCUMULATION_BLOCK_SAMPLES);
+        let block_sums = &mut sums[..block_len];
+        block_sums.fill(0.0);
+
+        // Keep each block's full scalar sums in f64 until every input has
+        // contributed. This preserves cancellation without allocating a
+        // second full-size audio buffer. Converting after each input can reject
+        // a representable final result when an oversized partial sum cancels.
+        for &buffer_index in &active_buffer_indices {
+            let buffer = &buffers[buffer_index];
+            let Some(source) = buffer
+                .samples
+                .get(block_start..)
+                .map(|remaining| &remaining[..remaining.len().min(block_len)])
+            else {
+                continue;
+            };
+            let volume = volumes[buffer_index];
+            for (sum, sample) in block_sums.iter_mut().zip(source) {
+                *sum += *sample as f64 * volume as f64;
+            }
+        }
+
+        for sum in block_sums.iter().copied() {
             let converted = sum as f32;
             if !converted.is_finite() {
                 return Err(SpeechAudioError::ResourceLimit(
                     "mixed sample exceeds finite f32 range".to_string(),
                 ));
             }
-            mixed[index] = converted;
+            mixed.push(converted);
+        }
+
+        // Expiry metadata makes long runs with only a few active inputs cheap:
+        // compact the source-ordered active list only when at least one input
+        // ends in this block, rather than rescanning every original buffer.
+        if expiry_counts[block_index] > 0 {
+            let block_end = block_start + block_len;
+            active_buffer_indices
+                .retain(|&buffer_index| buffers[buffer_index].samples.len() > block_end);
         }
     }
 
@@ -2339,6 +2406,54 @@ mod tests {
             mix_audio(&[huge.clone(), huge], &[2.0, 2.0]),
             Err(SpeechAudioError::ResourceLimit(_))
         ));
+    }
+
+    #[test]
+    fn mix_audio_checks_final_sum_after_f64_accumulation() {
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 1,
+            sample_format: SampleFormat::F32,
+        };
+        let mixed = mix_audio(
+            &[
+                AudioBuffer::new(vec![f32::MAX], config),
+                AudioBuffer::new(vec![f32::MAX], config),
+                AudioBuffer::new(vec![-f32::MAX], config),
+            ],
+            &[1.0, 1.0, 1.0],
+        )
+        .unwrap();
+
+        assert_eq!(mixed.samples, vec![f32::MAX]);
+    }
+
+    #[test]
+    fn mix_audio_accumulates_many_variable_length_inputs_in_bounded_blocks() {
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 1,
+            sample_format: SampleFormat::F32,
+        };
+        let buffers = (0..37)
+            .map(|index| {
+                let length = index % 11;
+                AudioBuffer::new(vec![index as f32; length], config)
+            })
+            .collect::<Vec<_>>();
+        let volumes = vec![1.0; buffers.len()];
+
+        let mixed = mix_audio(&buffers, &volumes).unwrap();
+
+        let expected = (0..10)
+            .map(|sample_index| {
+                (0..37)
+                    .filter(|index| index % 11 > sample_index)
+                    .map(|index| index as f32)
+                    .sum::<f32>()
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(mixed.samples, expected);
     }
 
     #[test]

@@ -1,0 +1,56 @@
+# Audio streaming helpers
+
+## Purpose and boundary
+
+This module provides bounded, deterministic audio-frame helpers for Media. Its production integration is in the Media launcher; `modules/integration-tests` also depends on it for tests. The helpers decode a local frame format, order and bound pending frames, check current consent at local session boundaries, and expose a narrow port to the canonical Media stream-session owner.
+
+The canonical stream session and its tenant, principal, lease, cursor, ACK, and finality state belong to `MediaRuntime` and its `MediaStreamSessionStore`. This module does not create a second session store, transport server, durable ACK journal, provider authority, or job writer. The launcher implementation of `CanonicalStreamFramePort` is `MediaRuntimeCanonicalStreamFramePort`; without that adapter the port returns `NOT_ADMITTED`.
+
+Product meaning remains in the phase-owned sources under `.product-experience/`. The HTTP route and its operation mapping are in [`contracts/openapi/media.yaml`](../../contracts/openapi/media.yaml) and `.product-experience/interface-parity/operation-parity.yaml`. The module's 17-intent code disposition is `StreamIntentSupport`; it is a local support declaration, not PDP currentness, admission, or acceptance.
+
+## Implemented surfaces
+
+| Type | Responsibility | Boundaries |
+| --- | --- | --- |
+| `AudioStreamSession` | Encode/decode the helper's fixed frame header and check local sequence/order values. | Header fields are signed 32-bit sequence, 64-bit timestamp in milliseconds, signed 32-bit payload length, then payload. Payload is capped at 8 MiB; sequence values are `0..2,147,483,646`, with `Integer.MAX_VALUE` reserved. |
+| `StreamFrameReconciler` | Bound local pending frames, ordering, and ACK cursor behavior. | In-memory helper only; it is not the durable Media stream-session store or a replay receipt. |
+| `CanonicalStreamFramePort` | Pass an audio helper frame to the runtime under a trusted tenant/principal/purpose, generation, version, cursor, and lease binding. | The port owns no session state. A frame ACK means the runtime accepted that helper frame; it does not prove provider finality or artifact creation. |
+| `GuardedAudioStreamSession` / `StreamConsentGate` | Recheck consent for local connect, frame, delivery, provider-dispatch, and reconnect boundaries; separate detach from terminal cancel. | Uses the injected authority. A local fixture does not establish an external consent or provider grant. |
+| `BoundedAudioFrameDecoder` | Validate declared PCM S16LE frames, exact rational source positions, and per-session frame/byte budgets. | OPUS is recognized but returns `UNAVAILABLE`; no codec is guessed and no wall clock is substituted for a missing source timebase. |
+| `StreamIntentSupport` | Classify all 17 `media.stream.*` intents as local, delegated, or `NOT_ADMITTED`. | WebRTC, adaptive HTTP, HLS, and DASH are not qualified transports in this module. |
+
+## Sequence formats and runtime mapping
+
+The audio helper's binary header uses an `int32` sequence. The public HTTP frame route `/api/v1/streams/{sessionId}/frames/{sequence}` uses an `int64` path parameter, and the canonical `StreamFrame`, `StreamAck`, session cursor, and store operations preserve that `long` value. The HTTP handler passes the sequence directly to the canonical runtime path; it does not decode or narrow it through the helper header.
+
+`MediaRuntimeCanonicalStreamFramePort` is a separate bounded adapter from the audio helper's `int32` frame into the canonical `long` cursor. It accepts only the exact next sequence representable by the helper and returns `NOT_ADMITTED` when the canonical cursor is outside that helper range. It does not truncate or wrap. Do not treat the helper header as the serialization of the HTTP route.
+
+## Usage
+
+```java
+AudioStreamSession helper = new AudioStreamSession();
+byte[] wire = helper.encodeFrame(0, 0L, new byte[] {1, 2});
+AudioStreamSession.DecodedFrame frame = helper.decodeFrame(wire);
+```
+
+This example exercises the local framing helper only. A runtime-backed frame offer additionally requires a current `CanonicalStreamFramePort.Binding` and a connected, leased canonical stream session.
+
+## Failure and privacy behavior
+
+- Reject short, truncated, trailing, negative-length, oversized, and out-of-range frames before payload acceptance.
+- Keep absent source timebase and unsupported codecs explicitly unavailable; preserve exact rational source time when declared.
+- Bound pending frame and decoder work; serialize shared per-session decoder budget updates.
+- Recheck the injected consent authority before protected frame delivery or provider dispatch. A runtime-backed stream offer may report `OUTCOME_UNKNOWN`; `GuardedAudioStreamSession` consumes its local provider candidate before calling the injected sink, so a thrown sink leaves the outcome unknown and must not be retried as a new positive ACK.
+- Do not log or infer source audio, identity, rights, or consent from frame bytes or caller-supplied metadata.
+
+The helper has no real transport qualification. The local frame, consent, and ordering tests do not establish WebRTC/HLS/DASH support, a real provider effect, process-restart recovery, or AS-07 host performance at 1/16/64 sessions.
+
+## Verification
+
+Run the module tests from the repository root:
+
+```bash
+./gradlew :services:media:modules:audio-streaming:test --no-daemon --max-workers=2 --console=plain
+```
+
+Focused selectors include `AudioStreamSessionFrameTest`, `StreamFrameReconcilerTest`, `CanonicalStreamFramePortTest`, `GuardedAudioStreamSessionTest`, `BoundedAudioFrameDecoderTest`, and `StreamIntentSupportTest`. These prove local implementation behavior only. The remaining-only execution plan and original AS-01..AS-07 acceptance criteria are in [`MEDIA-REMAINING-ONLY-OWNER-EXECUTION-2026-11-02.md`](../../docs/implementation/MEDIA-REMAINING-ONLY-OWNER-EXECUTION-2026-11-02.md).

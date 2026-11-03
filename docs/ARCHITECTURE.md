@@ -85,7 +85,7 @@ runtime-contracts/src/main/java/com/ghatana/media/runtime.
 | :services:media:launcher | MediaLauncher, MediaRuntime, HTTP routes/security, lifecycle, local composition, privacy maintenance, consent administration | Executable runtime |
 | :services:media:runtime-contracts | Artifact, job, stream, provider, consent, privacy, and modality contracts | Shared domain boundary |
 | :services:media:providers:aws-postgresql | S3 artifact storage, PostgreSQL metadata/job/stream/consent state, HTTP processing/stream providers, privacy maintenance | Durable/external ServiceLoader implementations |
-| :services:media:modules:audio-streaming and :services:media:modules:video-streaming | Stream capability implementations and transport/domain support | Provider/feature implementations |
+| [:services:media:modules:audio-streaming](../modules/audio-streaming/README.md) and :services:media:modules:video-streaming | Stream capability implementations and transport/domain support | Provider/feature implementations |
 | :services:media:modules:speech:stt-service and :services:media:modules:speech:tts-service | Speech recognition and synthesis capability modules | Provider/feature implementations |
 | :services:media:modules:vision:vision-service and :services:media:modules:intelligence:multimodal-service | Vision and multimodal capability modules | Provider/feature implementations |
 | :services:media:modules:infrastructure:* | Cache, messaging, persistence, and security support | Runtime infrastructure adapters |

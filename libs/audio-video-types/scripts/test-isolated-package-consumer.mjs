@@ -11,7 +11,9 @@ const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'audio-video-types-consume
 const buildRoot = path.join(tempRoot, 'build');
 const packRoot = path.join(tempRoot, 'pack');
 const consumerRoot = path.join(tempRoot, 'consumer');
+const npmCache = path.join(tempRoot, 'npm-cache');
 const sourceNodeModules = path.join(packageRoot, 'node_modules');
+const npmEnv = { ...process.env, npm_config_cache: npmCache };
 
 function run(command, args, options = {}) {
   try {
@@ -64,19 +66,34 @@ try {
   await cp(path.join(buildRoot, 'dist'), path.join(packRoot, 'dist'), { recursive: true });
   await cp(path.join(buildRoot, 'dist-cjs'), path.join(packRoot, 'dist-cjs'), { recursive: true });
 
-  const packOutput = run('npm', ['pack', '--json', '--pack-destination', tempRoot], { cwd: packRoot });
+  const packOutput = run('npm', ['pack', '--json', '--pack-destination', tempRoot], { cwd: packRoot, env: npmEnv });
   const packResult = JSON.parse(packOutput);
   assert.equal(packResult.length, 1, 'expected exactly one package tarball');
   const tarballPath = path.join(tempRoot, packResult[0].filename);
+  // Keep this consumer smoke fully offline without depending on a populated
+  // package-manager store: pack the exact locally installed runtime dependency beside
+  // the package under test and install both explicit tarballs.
+  const zodPackOutput = run('npm', ['pack', '--json', '--pack-destination', tempRoot], {
+    cwd: path.join(sourceNodeModules, 'zod'),
+    env: npmEnv,
+  });
+  const zodPackResult = JSON.parse(zodPackOutput);
+  assert.equal(zodPackResult.length, 1, 'expected exactly one zod dependency tarball');
+  const zodTarballPath = path.join(tempRoot, zodPackResult[0].filename);
 
   await mkdir(consumerRoot, { recursive: true });
   await writeFile(path.join(consumerRoot, 'package.json'), `${JSON.stringify({
     name: 'audio-video-types-isolated-consumer',
     private: true,
     type: 'module',
-    dependencies: { '@audio-video/types': `file:${tarballPath}` },
+    dependencies: {
+      '@audio-video/types': `file:${tarballPath}`,
+      zod: `file:${zodTarballPath}`,
+    },
   }, null, 2)}\n`);
-  run('pnpm', ['install', '--offline', '--ignore-scripts', '--no-frozen-lockfile'], { cwd: consumerRoot });
+  const npmOptions = { cwd: consumerRoot, env: npmEnv };
+  run('npm', ['cache', 'add', zodTarballPath], npmOptions);
+  run('npm', ['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund'], npmOptions);
 
   await writeFile(path.join(consumerRoot, 'consumer.mjs'), `
     import assert from 'node:assert/strict';
@@ -210,7 +227,7 @@ try {
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
 
-  console.log(`Packed source-free ESM/CJS/types consumer passed (zod ${zodManifest.version}); temp output: ${tempRoot}`);
+  console.log(`Packed source-free ESM/CJS/types consumer passed (zod ${zodManifest.version})`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }
