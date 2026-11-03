@@ -88,6 +88,29 @@ class MediaGrpcRegistryDescriptorParityTest {
         assertThat(registryIds).containsExactlyInAnyOrderElementsOf(descriptorMethods.keySet());
     }
 
+    @Test
+    void registryProposalBindingsRemainUnboundUntilOwnerReview() throws IOException {
+        assertThat(Files.exists(REGISTRY_PATH)).as("gRPC service registry exists").isTrue();
+        JsonNode registry = YAML.readTree(Files.readString(REGISTRY_PATH));
+
+        // The proto inventory is useful to consumers, but these proposal rows do
+        // not establish selected protocol authority or admitted PDP bindings.
+        assertThat(requiredText(registry, "authorityDisposition"))
+                .isEqualTo("protobuf-declarations-are-implementation-or-projection-observations; no-canonical-wire-authority-selected");
+        assertThat(requiredText(registry, "semanticAuthority"))
+                .isEqualTo("PDP-1 operation proposal is intended semantic authority only after phase acceptance");
+        assertThat(requiredText(registry, "status"))
+                .contains("protocol-authority-unselected", "operation-bindings-proposal-only", "owner-review-pending");
+
+        JsonNode rows = registry.path("rpcs");
+        assertThat(rows.isArray()).isTrue();
+        for (JsonNode row : rows) {
+            assertThat(requiredText(row, "experienceBinding"))
+                    .as("binding for %s stays explicitly pending owner review", requiredText(row, "id"))
+                    .isEqualTo("pending-owner-review");
+        }
+    }
+
     private static Map<String, Descriptors.MethodDescriptor> descriptorMethods() {
         Map<String, Descriptors.MethodDescriptor> methods = new HashMap<>();
         for (Map.Entry<String, Descriptors.FileDescriptor> entry : GOVERNED_PROTO_FILES.entrySet()) {
