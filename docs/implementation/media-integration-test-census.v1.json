@@ -186,8 +186,16 @@
       "reason": "This mock-based suite has no @Tag(integration), so :services:media:integration-tests:test excludes it even when passed with --tests."
     },
     {
-      "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration",
-      "reason": "EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, and LoadTest.java remain disabled scaffolds without @Tag(integration). PerformanceIntegrationTest.java is a separately classified synthetic local fixture, not a real integration result."
+      "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration/EndToEndWorkflowTest.java",
+      "reason": "Disabled scaffold without @Tag(integration); classified as STUB_SCAFFOLD_DISABLED and not runnable integration evidence."
+    },
+    {
+      "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration/ErrorScenarioIntegrationTest.java",
+      "reason": "Disabled scaffold without @Tag(integration); classified as STUB_SCAFFOLD_DISABLED and not runnable integration evidence."
+    },
+    {
+      "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration/LoadTest.java",
+      "reason": "Disabled scaffold without @Tag(integration); classified as STUB_SCAFFOLD_DISABLED and not runnable integration evidence."
     },
     {
       "path": "modules/integration-tests/src/test/java",
