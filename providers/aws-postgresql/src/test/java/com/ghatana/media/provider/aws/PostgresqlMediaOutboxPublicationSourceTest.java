@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Local provider proof for durable Media outbox claim, delivery and restart semantics. */
 @Testcontainers(disabledWithoutDocker = true)
@@ -160,6 +161,42 @@ class PostgresqlMediaOutboxPublicationSourceTest {
             assertThat(fixture.attempts(eventId)).extracting(attempt -> attempt.status)
                     .containsExactly("OUTCOME_UNKNOWN", "PUBLISHED");
             assertThat(fixture.hasConsumerReceiptApi()).isFalse();
+        }
+    }
+
+    @Test
+    void expiredPublisherCannotAcknowledgeAfterAnotherPublisherReclaimsEvent() throws Exception {
+        Fixture fixture = new Fixture("media_outbox_stale_ack");
+        try (fixture; PostgresqlMediaOutboxPublicationSource originalPublisher = new PostgresqlMediaOutboxPublicationSource();
+             PostgresqlMediaOutboxPublicationSource restartedPublisher = new PostgresqlMediaOutboxPublicationSource()) {
+            UUID eventId = fixture.append("tenant-fenced", "job-fenced", "MEDIA_JOB_ACCEPTED",
+                    "{\"state\":\"ACCEPTED\"}", 1_000L);
+            Instant firstClaimAt = fixture.now;
+            var originalClaim = AsyncOperations.toFuture(originalPublisher.claimBatch(
+                    "publisher-before-expiry", 1, firstClaimAt, Duration.ofSeconds(5))).join();
+            assertThat(originalClaim.events()).extracting("eventId").containsExactly(eventId);
+
+            Instant reclaimAt = firstClaimAt.plusSeconds(6);
+            var reclaimed = AsyncOperations.toFuture(restartedPublisher.claimBatch(
+                    "publisher-after-expiry", 1, reclaimAt, Duration.ofSeconds(30))).join();
+            assertThat(reclaimed.events()).extracting("eventId").containsExactly(eventId);
+            assertThat(fixture.attempts(eventId)).extracting(attempt -> attempt.status)
+                    .containsExactly("OUTCOME_UNKNOWN", "CLAIMED");
+
+            assertThatThrownBy(() -> AsyncOperations.toFuture(originalPublisher.markPublished(
+                    originalClaim.claimToken(), eventId, reclaimAt.plusSeconds(1))).join())
+                    .hasRootCauseInstanceOf(IllegalStateException.class)
+                    .hasRootCauseMessage("Media outbox claim is stale, expired, or event is already final");
+            assertThat(fixture.publishedAt(eventId)).isNull();
+            assertThat(fixture.attempts(eventId)).extracting(attempt -> attempt.status)
+                    .containsExactly("OUTCOME_UNKNOWN", "CLAIMED");
+
+            Instant acknowledgedAt = reclaimAt.plusSeconds(2);
+            AsyncOperations.toFuture(restartedPublisher.markPublished(
+                    reclaimed.claimToken(), eventId, acknowledgedAt)).join();
+            assertThat(fixture.publishedAt(eventId)).isEqualTo(acknowledgedAt.toEpochMilli());
+            assertThat(fixture.attempts(eventId)).extracting(attempt -> attempt.status)
+                    .containsExactly("OUTCOME_UNKNOWN", "PUBLISHED");
         }
     }
 
