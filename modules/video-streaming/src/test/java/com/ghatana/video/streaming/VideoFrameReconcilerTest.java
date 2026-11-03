@@ -31,6 +31,21 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("a stream beginning after keyframe loss is not falsely renderable")
+    void dependentFrameWithoutKeyframeAnchorIsNotDecodable() {
+        SessionIdentity session = identity("t1");
+        // The durable ACK says sequence 0 was consumed, but there is no
+        // authoritative keyframe anchor to make later dependent frames renderable.
+        VideoFrameReconciler rec = VideoFrameReconciler.resume(session, session, 0, -1, 1033L);
+        VideoStreamSession.DecodedFrame dependentFrame = frame(1, false, 1033);
+
+        assertThat(rec.offer(dependentFrame)).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.deliveryOf(dependentFrame).decodable()).isFalse();
+        assertThat(rec.nextAck()).isEqualTo(1);
+        assertThat(rec.lastKeyFrameSequence()).isEqualTo(-1);
+    }
+
+    @Test
     @DisplayName("wire VFR, discontinuity, and wall-time-like values remain unknown")
     void unboundSourceTimesRemainUnknown() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));

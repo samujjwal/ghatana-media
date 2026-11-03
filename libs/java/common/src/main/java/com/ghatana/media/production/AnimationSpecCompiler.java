@@ -8,11 +8,13 @@ import java.util.Objects;
 /**
  * Effect-free validation boundary for the PDP-1 versioned AnimationSpec.
  *
- * <p>The source contract contains references to versioned scene, animation,
- * operator, asset, curve, time, and rendering values. It does not define the
- * contents of those referenced values or an admitted renderer. Consequently,
- * this compiler validates only the source-defined envelope and returns a typed
- * NOT_ADMITTED result; it never expands references or claims to render.</p>
+ * <p>The PDP-1 contract contains versioned references to scene, animation,
+ * operator, asset, curve, and rendering values, plus an exact story-time value.
+ * It does not define the referenced easing, transform/dimension, or asset
+ * payloads, nor is an animation renderer admitted in this runtime. This class
+ * therefore compiles only a deterministic, immutable reference plan and
+ * reports rendering as unavailable with no effect. It never expands references
+ * or claims to produce media.</p>
  *
  * @doc.type class
  * @doc.purpose Validate source-defined animation spec shape without execution
@@ -94,20 +96,57 @@ public final class AnimationSpecCompiler {
         }
     }
 
-    /** Why source-valid references cannot yet become an executable plan. */
-    public enum UnavailableReason { ANIMATION_RUNTIME_NOT_ADMITTED }
-
-    /** A truthful non-executable result without echoing caller-controlled identifiers. */
-    public record Unavailable(UnavailableReason reason) {
-        public Unavailable {
-            Objects.requireNonNull(reason, "reason");
+    /** Deterministic role binding of the source-defined refs; not an executable DAG. */
+    public record ReferencePlan(
+            String schemaVersion,
+            String sceneGraphRef,
+            String animationGraphRef,
+            String operatorTreeRef,
+            String assetsRef,
+            List<String> propertyCurveRefs,
+            StoryTime tStoryRef,
+            String renderingRef) {
+        public ReferencePlan {
+            Objects.requireNonNull(schemaVersion, "schemaVersion");
+            Objects.requireNonNull(sceneGraphRef, "sceneGraphRef");
+            Objects.requireNonNull(animationGraphRef, "animationGraphRef");
+            Objects.requireNonNull(operatorTreeRef, "operatorTreeRef");
+            Objects.requireNonNull(assetsRef, "assetsRef");
+            propertyCurveRefs = List.copyOf(propertyCurveRefs);
+            Objects.requireNonNull(tStoryRef, "tStoryRef");
+            Objects.requireNonNull(renderingRef, "renderingRef");
         }
     }
 
-    /** Validates the source-defined value and reports its current admission boundary. */
-    public Unavailable compile(AnimationSpec spec) {
+    /** Explicit no-effect boundary for rendering. */
+    public enum UnavailableReason { ANIMATION_RENDERER_NOT_ADMITTED }
+
+    /** Typed rendering result; no output bytes, frames, or provider effect exist. */
+    public record RenderUnavailable(UnavailableReason reason, boolean effectOccurred) {
+        public RenderUnavailable {
+            Objects.requireNonNull(reason, "reason");
+            if (effectOccurred) {
+                throw new IllegalArgumentException("unavailable rendering cannot claim an effect");
+            }
+        }
+    }
+
+    /** Validated deterministic reference compilation and its non-executed render status. */
+    public record CompilationResult(ReferencePlan plan, RenderUnavailable rendering) {
+        public CompilationResult {
+            Objects.requireNonNull(plan, "plan");
+            Objects.requireNonNull(rendering, "rendering");
+        }
+    }
+
+    /** Validates and deterministically compiles only the fields defined by PDP-1. */
+    public CompilationResult compile(AnimationSpec spec) {
         Objects.requireNonNull(spec, "spec");
-        return new Unavailable(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
+        ReferencePlan plan = new ReferencePlan(spec.schemaVersion(), spec.sceneGraphRef(),
+                spec.animationGraphRef(), spec.operatorTreeRef(), spec.assetsRef(),
+                spec.propertyCurveRefs(), spec.tStoryRef(), spec.renderingRef());
+        return new CompilationResult(plan,
+                new RenderUnavailable(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED, false));
     }
 
     private static void requireVersionRef(String value, String field) {

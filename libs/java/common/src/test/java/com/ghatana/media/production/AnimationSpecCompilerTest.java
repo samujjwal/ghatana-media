@@ -3,7 +3,8 @@ package com.ghatana.media.production;
 import com.ghatana.media.production.AnimationSpecCompiler.AnimationSpec;
 import com.ghatana.media.production.AnimationSpecCompiler.PositiveRational;
 import com.ghatana.media.production.AnimationSpecCompiler.StoryTime;
-import com.ghatana.media.production.AnimationSpecCompiler.Unavailable;
+import com.ghatana.media.production.AnimationSpecCompiler.CompilationResult;
+import com.ghatana.media.production.AnimationSpecCompiler.ReferencePlan;
 import com.ghatana.media.production.AnimationSpecCompiler.UnavailableReason;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +32,16 @@ class AnimationSpecCompilerTest {
     }
 
     @Test
-    void acceptsSourceDefinedEnvelopeButReturnsTypedNotAdmittedWithoutPlanOrFrames() {
+    void compilesDeterministicReferencePlanAndReportsRenderingUnavailableWithoutEffect() {
         var compiler = new AnimationSpecCompiler();
-        Unavailable result = compiler.compile(validSpec());
+        AnimationSpec spec = validSpec();
+        CompilationResult result = compiler.compile(spec);
 
-        assertThat(result.reason()).isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
-        assertThat(result.getClass().getRecordComponents()).extracting(component -> component.getName())
-                .containsExactly("reason");
+        assertThat(result.rendering().reason()).isEqualTo(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED);
+        assertThat(result.rendering().effectOccurred()).isFalse();
+        assertThat(result.plan()).isEqualTo(new ReferencePlan(spec.schemaVersion(), spec.sceneGraphRef(),
+                spec.animationGraphRef(), spec.operatorTreeRef(), spec.assetsRef(),
+                spec.propertyCurveRefs(), spec.tStoryRef(), spec.renderingRef()));
         assertThat(compiler.compile(validSpec())).isEqualTo(result);
         assertThat(Arrays.stream(AnimationSpec.class.getRecordComponents())
                 .map(component -> component.getName()))
@@ -55,8 +59,9 @@ class AnimationSpecCompilerTest {
                         new PositiveRational("9223372036854775807", "1")),
                 "render-profile/vector@v2");
 
-        assertThat(new AnimationSpecCompiler().compile(spec).reason())
-                .isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
+        var result = new AnimationSpecCompiler().compile(spec);
+        assertThat(result.plan().tStoryRef()).isEqualTo(spec.tStoryRef());
+        assertThat(result.rendering().reason()).isEqualTo(UnavailableReason.ANIMATION_RENDERER_NOT_ADMITTED);
     }
 
     @Test
@@ -156,8 +161,7 @@ class AnimationSpecCompilerTest {
                 valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
                 valid.tStoryRef(), valid.renderingRef());
 
-        assertThat(new AnimationSpecCompiler().compile(maxLength).reason())
-                .isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
+        assertThat(new AnimationSpecCompiler().compile(maxLength).plan().sceneGraphRef()).isEqualTo(maxLengthReference);
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), maxLengthReference + "\uD83D\uDE00", valid.animationGraphRef(),
                 valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(),
