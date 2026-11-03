@@ -168,6 +168,7 @@ public class AudioVideoCache<K, V> {
                 Optional<Optional<V>> accepted;
                 Throwable failure = null;
                 boolean deliveryReserved = false;
+                boolean quarantineEntry = false;
                 synchronized (mutationLock) {
                     if (!epochCurrent(key, capturedEpoch) || portInvalidationPending
                             || pendingCacheWrites.containsKey(key)) {
@@ -186,17 +187,21 @@ public class AudioVideoCache<K, V> {
                         if (!withinValueLimit) {
                             LOG.warn("Cache entry exceeded Shared value limit; treating as miss: namespaceRef={}, keyRef={}",
                                     namespaceReference(), keyReference(key));
+                            quarantineEntry = true;
                         } else if (opt.isPresent()) {
                             LOG.trace("Cache hit: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         } else {
                             LOG.trace("Cache miss: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         }
                         accepted = Optional.of(withinValueLimit ? opt : Optional.empty());
-                        capturedEpoch.state.deliveries++;
-                        activeCacheHitDeliveries++;
-                        deliveryReserved = true;
+                        if (withinValueLimit) {
+                            capturedEpoch.state.deliveries++;
+                            activeCacheHitDeliveries++;
+                            deliveryReserved = true;
+                        }
                     }
                 }
+                if (quarantineEntry) quarantineInvalidEntry(key);
                 releaseReadSnapshot(key, capturedEpoch);
                 try {
                     if (failure != null) result.completeExceptionally(failure);
@@ -317,6 +322,7 @@ public class AudioVideoCache<K, V> {
                         && !isCacheValueWithinSharedLimit(cached.get())) {
                     LOG.warn("Cache entry exceeded Shared value limit; loading from source: namespaceRef={}, keyRef={}",
                             namespaceReference(), keyReference(key));
+                    quarantineInvalidEntry(key);
                     completeFrom(loadWithoutCache(key, loader), operationFuture);
                 } else if (cached != null && cached.isPresent()) {
                     if (!completeFromCacheIfCurrent(key, capturedEpoch, cached.get(), operationFuture)) {
@@ -783,6 +789,21 @@ public class AudioVideoCache<K, V> {
 
     private static void validateCacheValue(Object value) {
         if (value instanceof String text) CachePolicy.validateValue(text);
+    }
+
+    /** Best-effort eviction for an entry rejected by the Shared payload bound. */
+    private void quarantineInvalidEntry(K key) {
+        try {
+            invalidate(key).whenComplete((ignored, error) -> {
+                if (error != null) {
+                    LOG.debug("Rejected cache entry quarantine failed: namespaceRef={}, keyRef={}, causeType={}",
+                            namespaceReference(), keyReference(key), failureType(error));
+                }
+            });
+        } catch (RuntimeException error) {
+            LOG.debug("Rejected cache entry quarantine failed: namespaceRef={}, keyRef={}, causeType={}",
+                    namespaceReference(), keyReference(key), failureType(error));
+        }
     }
 
     /** Prevent oversized string keys from reaching a Shared cache adapter. */

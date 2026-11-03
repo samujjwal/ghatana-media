@@ -123,6 +123,28 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("oversized cached entries are evicted when the adapter supports key invalidation")
+    void oversizedCachedEntriesAreQuarantinedWhenSupported() {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        String oversized = "x".repeat(CachePolicy.MAX_VALUE_LENGTH + 1);
+        when(service.get("bad-direct")).thenReturn(AsyncOperation.success(Optional.of(oversized)));
+        when(service.get("bad-read-through")).thenReturn(AsyncOperation.success(Optional.of(oversized)));
+        when(service.invalidateAsync("bad-direct")).thenReturn(AsyncOperation.success(null));
+        when(service.invalidateAsync("bad-read-through")).thenReturn(AsyncOperation.success(null));
+
+        assertThat(await(cache.get("bad-direct"))).isEmpty();
+        assertThat(await(cache.getOrLoad("bad-read-through",
+                ignored -> AsyncOperation.success("current-source-value"))))
+                .isEqualTo("current-source-value");
+
+        verify(service).invalidateAsync("bad-direct");
+        verify(service).invalidateAsync("bad-read-through");
+        verify(service, org.mockito.Mockito.never())
+                .put(eq("bad-read-through"), anyString(), any(Duration.class));
+    }
+
+    @Test
     @DisplayName("getOrLoad delegates loader function")
     void getOrLoadDelegates() {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
