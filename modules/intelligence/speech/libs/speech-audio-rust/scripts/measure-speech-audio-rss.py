@@ -2,17 +2,24 @@
 """Measure per-process ru_maxrss for the deterministic Rust decode probe."""
 
 import argparse
+import errno
 import os
 import platform
 import re
+import selectors
+import signal
 import subprocess
 import sys
+import time
 
 EXPECTED_CHILD_OUTPUT = (
     "decoded input_bytes=320044 sample_rate_hz=16000 channels=1 "
     "duration_seconds=10 samples=160000"
 )
 PEAK_RSS_OUTPUT = re.compile(r"peak_rss_bytes=([1-9][0-9]*) measurement=process_getrusage")
+MAX_CHILD_OUTPUT_BYTES = 64 * 1024
+CHILD_TIMEOUT_SECONDS = 120
+CHILD_CLEANUP_SECONDS = 2
 
 
 def parse_args():
@@ -53,6 +60,120 @@ def parse_child_output(stdout, run_index):
     return int(match.group(1))
 
 
+def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
+    """Drain bounded child output while wait4 collects that child's peak RSS."""
+    child = subprocess.Popen(
+        [binary],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        bufsize=0,
+        start_new_session=True,
+    )
+    selector = selectors.DefaultSelector()
+    output = {"stdout": bytearray(), "stderr": bytearray()}
+    usage = None
+    status = None
+    failure = None
+    cleanup_note = None
+    cleanup_deadline = None
+    deadline = time.monotonic() + timeout_seconds
+
+    for name, stream in (("stdout", child.stdout), ("stderr", child.stderr)):
+        selector.register(stream, selectors.EVENT_READ, name)
+
+    def kill_child():
+        nonlocal cleanup_note
+        try:
+            os.killpg(child.pid, signal.SIGKILL)
+        except OSError as error:
+            if error.errno == errno.ESRCH:
+                return
+            if error.errno != errno.EPERM:
+                cleanup_note = f"process-group SIGKILL failed: {error}"
+            try:
+                # Keep the measured child killable even when group signaling is denied.
+                os.kill(child.pid, signal.SIGKILL)
+            except OSError as child_error:
+                if child_error.errno != errno.ESRCH:
+                    cleanup_note = f"child SIGKILL failed: {child_error}"
+            if error.errno == errno.EPERM:
+                cleanup_note = "process-group SIGKILL denied (EPERM); attempted direct-child SIGKILL"
+
+    try:
+        while selector.get_map() or status is None:
+            if failure is None and time.monotonic() >= deadline:
+                failure = f"run={run_index} child timed out after {timeout_seconds:g}s"
+                cleanup_deadline = time.monotonic() + CHILD_CLEANUP_SECONDS
+                kill_child()
+            if cleanup_deadline is not None and time.monotonic() >= cleanup_deadline:
+                # A descendant may have escaped the process group while keeping
+                # inherited pipes open. Stop draining after the bounded cleanup window.
+                for key in list(selector.get_map().values()):
+                    selector.unregister(key.fileobj)
+
+            wait_seconds = 0.05
+            if failure is None:
+                wait_seconds = min(wait_seconds, max(0, deadline - time.monotonic()))
+            for key, _ in selector.select(wait_seconds):
+                chunk = os.read(key.fileobj.fileno(), 8192)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                captured = output[key.data]
+                captured_total = len(output["stdout"]) + len(output["stderr"])
+                remaining = MAX_CHILD_OUTPUT_BYTES - captured_total
+                captured.extend(chunk[:remaining])
+                if len(chunk) > remaining and failure is None:
+                    failure = (
+                        f"run={run_index} child output exceeded "
+                        f"{MAX_CHILD_OUTPUT_BYTES} bytes"
+                    )
+                    cleanup_deadline = time.monotonic() + CHILD_CLEANUP_SECONDS
+                    kill_child()
+
+            if status is None:
+                try:
+                    waited_pid, child_status, child_usage = os.wait4(child.pid, os.WNOHANG)
+                except InterruptedError:
+                    continue
+                if waited_pid == child.pid:
+                    status = child_status
+                    usage = child_usage
+                    child.returncode = os.waitstatus_to_exitcode(status)
+
+        if failure is not None:
+            if cleanup_note is not None:
+                failure = f"{failure}; cleanup: {cleanup_note}"
+            raise RuntimeError(failure)
+        return (
+            output["stdout"].decode("utf-8", errors="replace"),
+            output["stderr"].decode("utf-8", errors="replace"),
+            child.returncode,
+            usage,
+        )
+    except BaseException:
+        # If interrupted or selector handling fails, always reap the exact child.
+        kill_child()
+        if status is None:
+            while True:
+                try:
+                    waited_pid, child_status, child_usage = os.wait4(child.pid, 0)
+                    if waited_pid == child.pid:
+                        child.returncode = os.waitstatus_to_exitcode(child_status)
+                        status = child_status
+                        usage = child_usage
+                        break
+                except InterruptedError:
+                    continue
+                except ChildProcessError:
+                    break
+        raise
+    finally:
+        selector.close()
+        child.stdout.close()
+        child.stderr.close()
+
+
 def main():
     args = parse_args()
     try:
@@ -67,18 +188,14 @@ def main():
     print(f"runs={args.runs}")
 
     for index in range(1, args.runs + 1):
-        child = subprocess.Popen([args.binary], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
-            _, status, usage = os.wait4(child.pid, 0)
-        except BaseException:
-            child.kill()
-            child.wait()
-            raise
-        child.returncode = os.waitstatus_to_exitcode(status)
-        stdout, stderr = child.communicate()
-        if child.returncode != 0:
-            print(f"run={index} child_exit={child.returncode} stderr={stderr.strip()}", file=sys.stderr)
-            return child.returncode or 1
+            stdout, stderr, returncode, usage = collect_child(args.binary, index)
+        except RuntimeError as error:
+            print(str(error), file=sys.stderr)
+            return 1
+        if returncode != 0:
+            print(f"run={index} child_exit={returncode} stderr={stderr.strip()}", file=sys.stderr)
+            return returncode or 1
         try:
             reported_peak_rss_bytes = parse_child_output(stdout, index)
         except ValueError as mismatch:
