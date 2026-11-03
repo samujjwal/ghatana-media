@@ -816,8 +816,20 @@ fn decode_audio_bounded_with_time_budget(
         ));
     }
     ensure_decode_time(started_at, max_decode_time)?;
-    if !path.exists() {
-        return Err(SpeechAudioError::FileNotFound(path.display().to_string()));
+    let path_metadata = std::fs::metadata(path).map_err(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            SpeechAudioError::FileNotFound(path.display().to_string())
+        } else {
+            SpeechAudioError::Io(error)
+        }
+    })?;
+    // Reject FIFOs, devices, and directories before File::open. Opening a
+    // FIFO can block indefinitely, before the cooperative decode deadline or
+    // the later opened-handle regular-file check can run.
+    if !path_metadata.is_file() {
+        return Err(SpeechAudioError::InvalidInput(
+            "bounded audio decoding requires a regular file".to_string(),
+        ));
     }
 
     let extension = path
@@ -3062,6 +3074,16 @@ mod tests {
         assert!(matches!(
             decode_audio_bounded_with_time_budget(&path, DecodeLimits::DEFAULT, Duration::ZERO,),
             Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn bounded_decoder_rejects_non_regular_paths_before_opening() {
+        let temp = tempdir().unwrap();
+        assert!(matches!(
+            load_audio_buffer(temp.path()),
+            Err(SpeechAudioError::InvalidInput(message))
+                if message == "bounded audio decoding requires a regular file"
         ));
     }
 
