@@ -151,6 +151,27 @@ class MultimodalRpcMatrixIntegrationTest {
                 "MULTIMODAL_NOT_SERVING: qualified child provider readiness unavailable");
     }
 
+    @Test
+    void callerSuppliedLegacyRightsAndIdentityFieldsDoNotAdmitCanonicalOperation() {
+        // The binding selects the source-defined operation, but its identifiers
+        // and legacy metadata are not authority. In particular, a payload claim
+        // of granted consent must not replace the trusted rights resolver.
+        MultimodalRequest request = MultimodalRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                .setTenantId(TENANT)
+                .setArtifactId("rpc-matrix-artifact")
+                .setJobId("caller-job")
+                .setCorrelationId("caller-correlation")
+                .setConsentStatus("granted")
+                .setRetentionPolicy("retain-forever")
+                .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                        "media.operation.capability.media-multimodal-observe-source-grounded"))
+                .build();
+
+        assertRpcError(() -> authenticated.processMultimodal(request), Status.Code.UNAVAILABLE,
+                "Trusted artifact rights, purpose, and consent authority is not configured");
+    }
+
     private static CanonicalOperationBinding binding(String capabilityRef, String operationRef) {
         return CanonicalOperationBinding.newBuilder()
                 .setCapabilityRef(capabilityRef)
