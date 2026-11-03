@@ -167,7 +167,7 @@ class MediaSttTranscriptCommitFenceIT {
                     attempt.fencingToken(), attempt.requestFingerprint(), "tv-fence-1");
             assertThat(transcriptStore.revisions(
                     "tenant-a", "principal-a", "transcript:" + accepted.jobId())).hasSize(1);
-            assertThat(transcriptOutboxCount(accepted.jobId())).isEqualTo(1);
+            assertThat(transcriptOutboxCount("tenant-a", accepted.jobId())).isEqualTo(1);
         } finally {
             installed.close();
         }
@@ -262,8 +262,8 @@ class MediaSttTranscriptCommitFenceIT {
                         "tenant-a", "principal-a", "transcript:" + jobId, 1);
                 assertThat(binding.providerOperationId()).isEqualTo("op-fence-1");
                 assertThat(binding.providerReceiptId()).isEqualTo("receipt-fence-1");
-                assertThat(transcriptOutboxCount(jobId)).isEqualTo(1);
-                assertThat(completedJobOutboxCount(jobId)).isEqualTo(1);
+                assertThat(transcriptOutboxCount("tenant-a", jobId)).isEqualTo(1);
+                assertThat(completedJobOutboxCount("tenant-a", jobId)).isEqualTo(1);
             }
         } finally {
             installed.close();
@@ -325,6 +325,8 @@ class MediaSttTranscriptCommitFenceIT {
         assertThat(readback.getProperty("providerReceiptId")).isEqualTo("receipt-fence-1");
         assertThat(readback.getProperty("providerCalls")).isEqualTo("0");
         assertThat(readback.getProperty("attemptTwoExists")).isEqualTo("false");
+        assertThat(readback.getProperty("transcriptOutboxEvents")).isEqualTo("1");
+        assertThat(readback.getProperty("completedJobOutboxEvents")).isEqualTo("1");
     }
 
     private static Process startTranscriptWorker(Map<String, String> environment, String mode, Path root,
@@ -466,9 +468,16 @@ class MediaSttTranscriptCommitFenceIT {
                     throw new AssertionError("attempt lineage changed on restart");
                 }
                 boolean attemptTwoExists = jobStore.findProcessingAttempt(tenant, jobId, 2).isPresent();
+                int transcriptOutboxEvents = transcriptOutboxCount(
+                        tenant, jobId, env.get("MEDIA_POSTGRES_JDBC_URL"), env.get("MEDIA_POSTGRES_USER"),
+                        env.get("MEDIA_FENCE_DB_PASSWORD"));
+                int completedJobOutboxEvents = completedJobOutboxCount(
+                        tenant, jobId, env.get("MEDIA_POSTGRES_JDBC_URL"), env.get("MEDIA_POSTGRES_USER"),
+                        env.get("MEDIA_FENCE_DB_PASSWORD"));
                 if (attempt.finality() != AttemptFinality.SUCCEEDED
                         || attemptTwoExists
-                        || providerRan.get() || providerCalls.get() != 0) {
+                        || providerRan.get() || providerCalls.get() != 0
+                        || transcriptOutboxEvents != 1 || completedJobOutboxEvents != 1) {
                     throw new AssertionError("provider attempt was replayed or lost after restart");
                 }
                 byte[] expected = "fence-audio-bytes-hard-restart".getBytes(java.nio.charset.StandardCharsets.UTF_8);
@@ -492,6 +501,8 @@ class MediaSttTranscriptCommitFenceIT {
                 result.setProperty("providerReceiptId", binding.providerReceiptId());
                 result.setProperty("providerCalls", Integer.toString(providerCalls.get()));
                 result.setProperty("attemptTwoExists", Boolean.toString(attemptTwoExists));
+                result.setProperty("transcriptOutboxEvents", Integer.toString(transcriptOutboxEvents));
+                result.setProperty("completedJobOutboxEvents", Integer.toString(completedJobOutboxEvents));
                 writePropertiesAtomically(marker, result, "fixture recovered");
             } finally {
                 installed.close();
@@ -583,8 +594,8 @@ class MediaSttTranscriptCommitFenceIT {
             assertThat(transcriptStore.revisions(
                     "tenant-a", "principal-a", "transcript:" + accepted.jobId())).isEmpty();
             assertThat(transcriptRevisionCount(accepted.jobId())).isZero();
-            assertThat(transcriptOutboxCount(accepted.jobId())).isZero();
-            assertThat(completedJobOutboxCount(accepted.jobId())).isEqualTo(1);
+            assertThat(transcriptOutboxCount("tenant-a", accepted.jobId())).isZero();
+            assertThat(completedJobOutboxCount("tenant-a", accepted.jobId())).isEqualTo(1);
             assertThat(outboxEventCount("media:media.job.completed:" + accepted.jobId() + ":"
                     + (accepted.version() + 2))).isZero();
         } finally {
@@ -869,12 +880,20 @@ class MediaSttTranscriptCommitFenceIT {
         }
     }
 
-    private static int transcriptOutboxCount(String jobId) throws Exception {
+    private static int transcriptOutboxCount(String tenantId, String jobId) throws Exception {
+        return transcriptOutboxCount(
+                tenantId, jobId, POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+    }
+
+    private static int transcriptOutboxCount(
+            String tenantId, String jobId, String jdbcUrl, String username, String password) throws Exception {
         try (var connection = java.sql.DriverManager.getConnection(
-                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                jdbcUrl, username, password);
              var statement = connection.prepareStatement(
-                     "SELECT COUNT(*) FROM media_processing_lifecycle_outbox WHERE aggregate_type='transcript' AND aggregate_id=?")) {
-            statement.setString(1, "transcript:" + jobId);
+                     "SELECT COUNT(*) FROM media_processing_lifecycle_outbox WHERE tenant_id=? "
+                             + "AND aggregate_type='transcript' AND aggregate_id=?")) {
+            statement.setString(1, tenantId);
+            statement.setString(2, "transcript:" + jobId);
             try (var result = statement.executeQuery()) {
                 result.next();
                 return result.getInt(1);
@@ -895,14 +914,22 @@ class MediaSttTranscriptCommitFenceIT {
         }
     }
 
-    private static int completedJobOutboxCount(String jobId) throws Exception {
+    private static int completedJobOutboxCount(String tenantId, String jobId) throws Exception {
+        return completedJobOutboxCount(
+                tenantId, jobId, POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+    }
+
+    private static int completedJobOutboxCount(
+            String tenantId, String jobId, String jdbcUrl, String username, String password) throws Exception {
         try (var connection = java.sql.DriverManager.getConnection(
-                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                jdbcUrl, username, password);
              var statement = connection.prepareStatement("""
                      SELECT COUNT(*) FROM media_processing_lifecycle_outbox
-                      WHERE aggregate_type='job' AND aggregate_id=? AND event_type='media.job.completed'
+                      WHERE tenant_id=? AND aggregate_type='job' AND aggregate_id=?
+                        AND event_type='media.job.completed'
                      """)) {
-            statement.setString(1, jobId);
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
             try (var result = statement.executeQuery()) {
                 result.next();
                 return result.getInt(1);
