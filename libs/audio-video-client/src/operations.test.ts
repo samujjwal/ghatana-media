@@ -911,7 +911,7 @@ describe("MediaOperationClient", () => {
     })).rejects.toMatchObject({ name: "MediaClientError", statusCode: status });
   });
 
-  it("surfaces same-key changed-payload conflict without retrying", async () => {
+  it("surfaces a same-key changed-payload conflict as a definitive no-effect rejection", async () => {
     const submitted: Array<{ headers: Headers; body: unknown }> = [];
     const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       submitted.push({ headers: new Headers(init?.headers), body: JSON.parse(String(init?.body)) as unknown });
@@ -941,13 +941,9 @@ describe("MediaOperationClient", () => {
 
     await expect(client.transcribe(request)).resolves.toMatchObject({ operationId: "operation-1" });
     await expect(client.transcribe({ ...request, punctuation: false })).rejects.toMatchObject({
-      name: "MediaOperationAmbiguousError",
-      path: "/api/v1/media/transcriptions",
-      cause: expect.objectContaining({
-        name: "MediaClientError",
-        statusCode: 409,
-        detail: expect.objectContaining({ code: "IDEMPOTENCY_CONFLICT", correlationId: "correlation-conflict" }),
-      }),
+      name: "MediaClientError",
+      statusCode: 409,
+      detail: expect.objectContaining({ code: "IDEMPOTENCY_CONFLICT", correlationId: "correlation-conflict" }),
     });
 
     expect(submitted).toHaveLength(2);

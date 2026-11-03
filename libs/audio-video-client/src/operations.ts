@@ -680,7 +680,11 @@ export class MediaOperationClient {
       return validate ? validate(result) : result;
     } catch (failure) {
       const definitiveClientRejection = failure instanceof MediaClientError
-        && [400, 401, 403].includes(failure.statusCode ?? 0);
+        && ([400, 401, 403].includes(failure.statusCode ?? 0)
+          // The owner contract defines a same-key/different-digest request as
+          // rejected before effect. Keep other 409 conflicts ambiguous because
+          // they do not establish mutation finality for every operation.
+          || failure.detail.code === "IDEMPOTENCY_CONFLICT");
       if (dispatched && !definitiveClientRejection) {
         throw new MediaOperationAmbiguousError(path, failure);
       }

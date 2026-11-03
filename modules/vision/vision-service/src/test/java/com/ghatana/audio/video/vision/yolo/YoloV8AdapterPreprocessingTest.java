@@ -31,6 +31,16 @@ class YoloV8AdapterPreprocessingTest {
             assertThat(blob.size(1)).isEqualTo(3);
             assertThat(blob.size(2)).isEqualTo(640);
             assertThat(blob.size(3)).isEqualTo(640);
+            // Input Mat pixels are BGR, while the YOLOv8 model tensor is RGB normalized to [0, 1].
+            // This 2x3 source letterboxes to 427x640 with 106 pixels of left padding.
+            assertThat(blob.get(new int[] {0, 0, 100, 106})[0]).isCloseTo(30.0 / 255.0,
+                    org.assertj.core.data.Offset.offset(0.00001));
+            assertThat(blob.get(new int[] {0, 1, 100, 106})[0]).isCloseTo(20.0 / 255.0,
+                    org.assertj.core.data.Offset.offset(0.00001));
+            assertThat(blob.get(new int[] {0, 2, 100, 106})[0]).isCloseTo(10.0 / 255.0,
+                    org.assertj.core.data.Offset.offset(0.00001));
+            assertThat(blob.get(new int[] {0, 0, 100, 105})[0]).isCloseTo(114.0 / 255.0,
+                    org.assertj.core.data.Offset.offset(0.00001));
             assertThat(source.empty()).isFalse();
             assertThat(source.get(0, 0)).containsExactly(10.0, 20.0, 30.0);
         } finally {

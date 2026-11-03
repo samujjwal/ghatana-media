@@ -105,6 +105,16 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         String tenantId = identity.tenantId();
         String userIdStr = identity.subject();
 
+        // The wire tenant is only a caller claim. Preserve compatibility for clients that omit it,
+        // but reject an explicit cross-tenant claim before hashing input or consulting policy.
+        String requestedTenantId = request.getTenantId();
+        if (!requestedTenantId.isEmpty() && !tenantId.equals(requestedTenantId)) {
+            responseObserver.onError(io.grpc.Status.PERMISSION_DENIED
+                    .withDescription("STT_TENANT_MISMATCH: request tenant does not match authenticated tenant")
+                    .asRuntimeException());
+            return;
+        }
+
         final UUID userId;
         try {
             userId = UUID.fromString(userIdStr);

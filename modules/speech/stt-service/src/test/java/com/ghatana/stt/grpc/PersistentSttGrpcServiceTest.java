@@ -371,8 +371,13 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
-    @DisplayName("transcribe does not treat caller tenant metadata as authenticated tenant-principal binding")
-    void transcribeRejectsUntrustedTenantClaimWithoutServiceWork() {
+    @DisplayName("transcribe rejects a cross-tenant caller claim before policy or service work")
+    void transcribeRejectsCrossTenantClaimBeforeWork() {
+        java.util.concurrent.atomic.AtomicBoolean authorizationCalled = new java.util.concurrent.atomic.AtomicBoolean();
+        PersistentSttGrpcService tenantBound = new PersistentSttGrpcService(persistentSttService, request -> {
+            authorizationCalled.set(true);
+            return SttRequestAuthorization.Decision.ADMITTED;
+        });
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
         TranscribeRequest request = TranscribeRequest.newBuilder()
                 .setAudioData(AUDIO)
@@ -381,11 +386,45 @@ class PersistentSttGrpcServiceTest {
                 .build();
 
         runWithTenantContext("tenant-from-authenticated-context", USER_ID,
-                () -> service.transcribe(request, observer));
+                () -> tenantBound.transcribe(request, observer));
 
-        assertTranscriptVersionNotAdmitted(observer);
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_TENANT_MISMATCH:");
         assertThat(observer.value).isNull();
         assertThat(observer.completed).isFalse();
+        assertThat(authorizationCalled).isFalse();
+        verifyNoInteractions(persistentSttService);
+        assertThat(MDC.get("tenantId")).isNull();
+        assertThat(MDC.get("userId")).isNull();
+    }
+
+    @Test
+    @DisplayName("transcribe rejects a whitespace tenant hint instead of treating it as omitted")
+    void transcribeRejectsWhitespaceTenantHintBeforeWork() {
+        java.util.concurrent.atomic.AtomicBoolean authorizationCalled = new java.util.concurrent.atomic.AtomicBoolean();
+        PersistentSttGrpcService tenantBound = new PersistentSttGrpcService(persistentSttService, request -> {
+            authorizationCalled.set(true);
+            return SttRequestAuthorization.Decision.ADMITTED;
+        });
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(AUDIO)
+                .setSampleRate(16_000)
+                .setTenantId(" ")
+                .build();
+
+        runWithTenantContext("tenant-from-authenticated-context", USER_ID,
+                () -> tenantBound.transcribe(request, observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_TENANT_MISMATCH:");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(authorizationCalled).isFalse();
         verifyNoInteractions(persistentSttService);
         assertThat(MDC.get("tenantId")).isNull();
         assertThat(MDC.get("userId")).isNull();
