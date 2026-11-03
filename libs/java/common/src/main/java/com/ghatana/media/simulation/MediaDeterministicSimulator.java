@@ -491,6 +491,9 @@ public final class MediaDeterministicSimulator {
     }
 
     private static boolean withinTolerance(double actual, double expected, double tolerance) {
+        if (!Double.isFinite(actual) || !Double.isFinite(expected) || !Double.isFinite(tolerance)) {
+            return false;
+        }
         double scale = Math.max(1.0, Math.abs(expected));
         return Math.abs(actual - expected) <= tolerance * scale;
     }

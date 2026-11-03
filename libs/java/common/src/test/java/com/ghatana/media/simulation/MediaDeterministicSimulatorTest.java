@@ -163,6 +163,20 @@ class MediaDeterministicSimulatorTest {
     }
 
     @Test
+    void adaptiveStepperAbstainsWhenAnalyticalReferenceOverflows() {
+        var simulator = new MediaDeterministicSimulator();
+        var ir = new SimulationModelIR(
+                newtonModel(0.5), new InitialState(-1.0e308, 1.0e308),
+                BoundaryCondition.UNCONSTRAINED_1D);
+
+        var result = simulator.runAdaptive(ir, 1L, 2.0, 0.01);
+
+        assertThat(result.verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(result.abstainReason()).contains("closed form");
+        assertThat(result.checkpoint().simulationTimeSeconds()).isLessThan(2.0);
+    }
+
+    @Test
     void identicalInputsYieldBitIdenticalTrajectory() {
         var simulator = new MediaDeterministicSimulator();
         SimulationResult a = simulator.run(newtonModel(0.25), new InitialState(0, 0), 7L);
