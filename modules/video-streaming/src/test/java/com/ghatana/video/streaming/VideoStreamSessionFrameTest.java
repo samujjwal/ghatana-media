@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -214,5 +215,23 @@ class VideoStreamSessionFrameTest {
         assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("new stream");
+    }
+
+    @Test
+    void restoredFrameOrderValidatesSequencesAndPreservesSortedDistinctResults() {
+        assertThatThrownBy(() -> session.restoreFrameOrder(null))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.restoreFrameOrder(Arrays.asList(1, null, 2)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.restoreFrameOrder(List.of(-1)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.restoreFrameOrder(List.of(Integer.MAX_VALUE)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
+
+        assertThat(session.restoreFrameOrder(List.of(
+                VideoStreamSession.MAX_FRAME_SEQUENCE, 3, 3, 0, 1)))
+                .containsExactly(0, 1, 3, VideoStreamSession.MAX_FRAME_SEQUENCE);
     }
 }

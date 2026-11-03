@@ -90,6 +90,15 @@ public final class VideoStreamSession {
     }
 
     public List<Integer> restoreFrameOrder(List<Integer> receivedFrames) {
+        if (receivedFrames == null) {
+            throw new IllegalArgumentException("received frame sequences must not be null");
+        }
+        for (Integer sequenceNumber : receivedFrames) {
+            if (sequenceNumber == null) {
+                throw new IllegalArgumentException("video frame sequence must not be null");
+            }
+            requireSequenceNumber(sequenceNumber);
+        }
         TreeSet<Integer> ordered = new TreeSet<>(receivedFrames);
         return new ArrayList<>(ordered);
     }
