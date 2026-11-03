@@ -204,7 +204,9 @@ describe('MediaCanonicalClient over real HTTP', () => {
 
   it('preserves UNKNOWN for dispatched job submissions with server or response ambiguity', async () => {
     for (const responseMode of ['server-error', 'corrupt-json'] as const) {
+      let requests = 0;
       await withServer((_request, response) => {
+        requests++;
         if (responseMode === 'server-error') {
           response.writeHead(503, { 'content-type': 'application/json' })
             .end(JSON.stringify({ error: { code: 'UNAVAILABLE', message: 'retry later', retryable: true },
@@ -214,10 +216,25 @@ describe('MediaCanonicalClient over real HTTP', () => {
         }
       }, async (endpoint) => {
         const client = makeClient(endpoint);
-        await expect(client.submitJob({
+        const failure = await client.submitJob({
           requestId: 'req-1', correlationId: 'corr-1', artifactId: 'art-1',
           jobType: 'TRANSCODE', idempotencyKey: `idem-${responseMode}`,
-        })).rejects.toBeInstanceOf(MediaOperationAmbiguousError);
+        }).then(
+          () => { throw new Error('unreachable'); },
+          (error: unknown) => error,
+        );
+        expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+        const ambiguous = failure as MediaOperationAmbiguousError;
+        expect(ambiguous.path).toBe('/api/v1/jobs');
+        expect(requests).toBe(1);
+        if (responseMode === 'server-error') {
+          expect(ambiguous.cause).toBeInstanceOf(MediaClientError);
+          const cause = ambiguous.cause as MediaClientError;
+          expect(cause.statusCode).toBe(503);
+          expect(cause.detail).toMatchObject({
+            code: 'UNAVAILABLE', message: 'retry later', retryable: true, category: 'INTERNAL',
+          });
+        }
       });
     }
   });
