@@ -79,6 +79,37 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("revoked dispatch and expired reconnect remain denied without effects or state advance")
+    void revokedDispatchAndExpiredReconnectFailClosed() {
+        for (Decision denied : new Decision[]{Decision.DENIED, Decision.EXPIRED}) {
+            AtomicReference<Decision> dispatchConsent = new AtomicReference<>(Decision.ADMITTED);
+            GuardedAudioStreamSession dispatchSession = GuardedAudioStreamSession.connect(
+                    identity(), context -> dispatchConsent.get());
+            dispatchSession.submitFrame(frame(0));
+            dispatchConsent.set(denied);
+            AtomicInteger providerEffects = new AtomicInteger();
+
+            assertThatThrownBy(() -> dispatchSession.dispatchToProvider(
+                    frame(0), f -> providerEffects.incrementAndGet()))
+                    .isInstanceOf(ConsentDeniedException.class)
+                    .hasMessageContaining("provider dispatch");
+            assertThat(providerEffects.get()).isZero();
+
+            AtomicReference<Decision> reconnectConsent = new AtomicReference<>(Decision.ADMITTED);
+            GuardedAudioStreamSession reconnectSession = GuardedAudioStreamSession.connect(
+                    identity(), context -> reconnectConsent.get());
+            reconnectSession.detach();
+            reconnectConsent.set(denied);
+
+            assertThatThrownBy(() -> reconnectSession.reconnect(1))
+                    .isInstanceOf(ConsentDeniedException.class)
+                    .hasMessageContaining("reconnect");
+            assertThat(reconnectSession.attachment()).isEqualTo(Attachment.DETACHED);
+            assertThat(reconnectSession.generation()).isZero();
+        }
+    }
+
+    @Test
     @DisplayName("provider dispatch requires the exact delivered frame and rejects replay")
     void dispatchRequiresDeliveredSnapshotAndRejectsReplay() {
         GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
