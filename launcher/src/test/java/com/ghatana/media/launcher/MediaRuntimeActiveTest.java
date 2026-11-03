@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
@@ -782,6 +783,88 @@ class MediaRuntimeActiveTest {
             assertThat(response.statusCode()).isEqualTo(201);
             assertThat(response.body()).contains("connectionToken", "acknowledgementRevision", "finality");
             assertThat(response.body()).doesNotContain("sequenceTokenHash", "inFlightAttemptId");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void loopbackHttpStreamsAudioFrameWithConnectionTokenAndRejectsSequenceGap() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-stream-frame-http-");
+        MediaRuntime runtime = MediaRuntime.compose(localEnvironment(root));
+        HttpServer server = HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", new MediaHttpHandler(runtime));
+        server.start();
+        try {
+            var client = java.net.http.HttpClient.newHttpClient();
+            String endpoint = "http://127.0.0.1:" + server.getAddress().getPort();
+            String tenant = "tenant-http-stream-frame";
+            String principal = "principal-a";
+            var mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
+            String openBody = "{\"tenantId\":\"" + tenant + "\",\"principalId\":\"" + principal
+                    + "\",\"correlationId\":\"stream-frame-http\",\"streamKind\":\"AUDIO\","
+                    + "\"providerHint\":\"local-stream-diagnostic\",\"maximumBufferedBytes\":64,"
+                    + "\"leaseDuration\":\"PT30S\",\"metadata\":{\"codec\":\"pcm_s16le\"}}";
+            var open = client.send(java.net.http.HttpRequest.newBuilder(
+                            java.net.URI.create(endpoint + "/api/v1/streams"))
+                    .header("Content-Type", "application/json")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(openBody))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(open.statusCode()).as("open response: %s", open.body()).isEqualTo(201);
+            JsonNode registration = mapper.readTree(open.body());
+            String sessionId = registration.path("session").path("sessionId").asText();
+            String token = registration.path("connectionToken").asText();
+            assertThat(sessionId).isNotBlank();
+            assertThat(token).isNotBlank();
+
+            var connected = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/connect"))
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", token)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.noBody())
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(connected.statusCode()).as("connect response: %s", connected.body()).isEqualTo(200);
+            assertThat(mapper.readTree(connected.body()).path("state").asText()).isEqualTo("CONNECTED");
+
+            byte[] pcm = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
+            var accepted = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/frames/0"))
+                    .header("Content-Type", "application/octet-stream")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", token)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(pcm))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(accepted.statusCode()).as("frame response: %s", accepted.body()).isEqualTo(202);
+            JsonNode ack = mapper.readTree(accepted.body());
+            assertThat(ack.path("acceptedSequence").asLong()).isZero();
+            assertThat(ack.path("bufferedBytes").asLong()).isEqualTo(pcm.length);
+            assertThat(ack.path("backpressured").asBoolean()).isFalse();
+
+            var sequenceGap = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/frames/2"))
+                    .header("Content-Type", "application/octet-stream")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", token)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(new byte[] { 9 }))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(sequenceGap.statusCode()).as("gap response: %s", sequenceGap.body()).isEqualTo(400);
+            assertThat(mapper.readTree(sequenceGap.body()).path("error").path("code").asText())
+                    .isEqualTo("INVALID_REQUEST");
+
+            var readback = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId))
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .GET()
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(readback.statusCode()).isEqualTo(200);
+            assertThat(mapper.readTree(readback.body()).path("lastSequence").asLong()).isZero();
         } finally {
             server.stop(0);
             runtime.close();
