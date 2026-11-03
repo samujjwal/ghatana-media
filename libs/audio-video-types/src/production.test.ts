@@ -232,6 +232,10 @@ describe('TY-04 headless declarative parsers', () => {
     const { unitsRegistryRef: _unitsRegistryRef, ...withoutUnitsRegistry } = execSpec;
     expect(ModelExecutionSpecSchema.safeParse(withoutUnitsRegistry).success).toBe(false);
     expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, unitsRegistryRef: '' }).success).toBe(false);
+    // PDP-1 requires a typed unit registry; malformed references must not
+    // satisfy this required reference field.
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, unitsRegistryRef: '   ' }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, unitsRegistryRef: 'unit registry/v1' }).success).toBe(false);
 
     const { solverBuildDigest: _solverBuildDigest, ...withoutSolverDigest } = execSpec;
     expect(ModelExecutionSpecSchema.safeParse(withoutSolverDigest).success).toBe(false);

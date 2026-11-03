@@ -197,18 +197,17 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
     expect(di.parse).toHaveBeenCalledTimes(1);
   });
 
-  it.each([
-    ['EXTERNAL_CALL_TIMEOUT', { category: 'PROVIDER', retryable: true }],
-    ['CANCELLED', { category: 'CANCELLED', retryable: false }],
-    ['PARSER_UNAVAILABLE', { category: 'PARSER', retryable: true }],
-    ['INTERNAL_INVARIANT', { category: 'INTERNAL', retryable: false }],
-  ] as const)(
-    'keeps the published DI typed error %s effect-ambiguous after parse dispatch',
-    async (code, metadata) => {
+  it.each([true, false] as const)(
+    'keeps an unmapped DI error envelope (retryable=%s) effect-ambiguous after parse dispatch',
+    async (retryable) => {
       const sensitiveDetails = 'providerRef=private.model token=secret-456';
       const di = client();
       di.parse = vi.fn(async () => {
-        throw Object.assign(new Error(sensitiveDetails), { code, ...metadata });
+        // The public client taxonomy is not present here. `code` is opaque;
+        // retryability alone does not establish whether parse had an effect.
+        throw Object.assign(new Error(sensitiveDetails), {
+          code: 'UNMAPPED_REMOTE_CODE', retryable, providerRef: 'private.model',
+        });
       });
 
       let rejection: unknown;

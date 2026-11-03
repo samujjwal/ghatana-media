@@ -2800,3 +2800,10 @@ No integration service profile was run, and no source/status, provider admission
 The census Node contract and `MediaTestHarnessCatalogTest` now jointly verify all 23 Java sources in `integration-tests/src/test/java`, the exact unrepresented/disabled scaffold dispositions, the three test tiers, existing Gradle selectors, source paths, prerequisites, safety and evidence limits, and the external asset/image gates. The focused Node selector passed **7/7**; `./gradlew :services:media:integration-tests:test --tests com.ghatana.media.integration.MediaTestHarnessCatalogTest --no-daemon --max-workers=2 --console=plain` passed **5/5**. Independent review accepted the crosswalk; no integration service profile, Docker workload, or licensed model was executed. This is IT-01 inventory/catalog evidence, not IT-02..IT-06 or integration-effect acceptance.
 
 No private/customer media was copied, and no source/status, provider admission, deployment, migration, cutover, or release state changed.
+
+### 42.09 November 2 H01 reference validation and O-03 DI error conformance
+
+- **H01 / typed unit reference:** `production.test.ts` now rejects whitespace-only and embedded-space `unitsRegistryRef` values. This matches PDP-1's `versionRef` non-whitespace pattern and the existing runtime parser; runtime and wire behavior did not change. The focused test passed **23/23**, and the `@audio-video/types` typecheck passed.
+- **O-03 / DI client boundary:** `scene-text-adapter.test.ts` now exercises opaque unmapped remote error codes with both `retryable=true` and `false`, asserting that post-dispatch failure remains sanitized `OUTCOME_UNKNOWN`, with one parse dispatch and no leaked provider details or retryability field. The focused test passed **14/14**, and the `@audio-video/client` typecheck passed. This aligns the local adapter with the published typed-error contract still missing from the external DI client; it does not establish real DI attempt/finality or worker readiness.
+
+No schema, public wire contract, source status, external provider admission, model rights, or release state changed.
