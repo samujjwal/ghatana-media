@@ -169,6 +169,7 @@ public class AudioVideoCache<K, V> {
                 Throwable failure = null;
                 boolean deliveryReserved = false;
                 boolean quarantineEntry = false;
+                Object quarantineMarker = null;
                 synchronized (mutationLock) {
                     if (!epochCurrent(key, capturedEpoch) || portInvalidationPending
                             || pendingCacheWrites.containsKey(key)) {
@@ -188,6 +189,7 @@ public class AudioVideoCache<K, V> {
                             LOG.warn("Cache entry exceeded Shared value limit; treating as miss: namespaceRef={}, keyRef={}",
                                     namespaceReference(), keyReference(key));
                             quarantineEntry = true;
+                            quarantineMarker = reserveQuarantine(key, capturedEpoch);
                         } else if (opt.isPresent()) {
                             LOG.trace("Cache hit: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         } else {
@@ -201,7 +203,9 @@ public class AudioVideoCache<K, V> {
                         }
                     }
                 }
-                if (quarantineEntry) quarantineInvalidEntry(key);
+                if (quarantineEntry && quarantineMarker != null) {
+                    quarantineInvalidEntry(key, quarantineMarker);
+                }
                 releaseReadSnapshot(key, capturedEpoch);
                 try {
                     if (failure != null) result.completeExceptionally(failure);
@@ -322,7 +326,8 @@ public class AudioVideoCache<K, V> {
                         && !isCacheValueWithinSharedLimit(cached.get())) {
                     LOG.warn("Cache entry exceeded Shared value limit; loading from source: namespaceRef={}, keyRef={}",
                             namespaceReference(), keyReference(key));
-                    quarantineInvalidEntry(key);
+                    Object quarantineMarker = reserveQuarantine(key, capturedEpoch);
+                    if (quarantineMarker != null) quarantineInvalidEntry(key, quarantineMarker);
                     completeFrom(loadWithoutCache(key, loader), operationFuture);
                 } else if (cached != null && cached.isPresent()) {
                     if (!completeFromCacheIfCurrent(key, capturedEpoch, cached.get(), operationFuture)) {
@@ -791,16 +796,41 @@ public class AudioVideoCache<K, V> {
         if (value instanceof String text) CachePolicy.validateValue(text);
     }
 
+    /**
+     * Reserves cleanup against the exact read epoch before releasing its lock.
+     * Otherwise a valid write can land after an oversized read is observed but
+     * before quarantine reserves the key, and stale cleanup can delete it.
+     */
+    private Object reserveQuarantine(K key, EpochSnapshot observedEpoch) {
+        if (!(cachePort instanceof com.ghatana.cache.DistributedCacheService)
+                || !(key instanceof String)) {
+            return null;
+        }
+        synchronized (mutationLock) {
+            return reservePendingCacheWrite(key, observedEpoch);
+        }
+    }
+
     /** Best-effort eviction for an entry rejected by the Shared payload bound. */
-    private void quarantineInvalidEntry(K key) {
+    private void quarantineInvalidEntry(K key, Object marker) {
+        com.ghatana.cache.DistributedCacheService service =
+                (com.ghatana.cache.DistributedCacheService) cachePort;
+        String stringKey = (String) key;
         try {
-            invalidate(key).whenComplete((ignored, error) -> {
+            AsyncOperation<Void> invalidation = service.invalidateAsync(stringKey);
+            if (invalidation == null) {
+                settlePendingCacheWrite(key, marker, false);
+                return;
+            }
+            invalidation.whenComplete((ignored, error) -> {
+                settlePendingCacheWrite(key, marker, error == null);
                 if (error != null) {
                     LOG.debug("Rejected cache entry quarantine failed: namespaceRef={}, keyRef={}, causeType={}",
                             namespaceReference(), keyReference(key), failureType(error));
                 }
             });
         } catch (RuntimeException error) {
+            settlePendingCacheWrite(key, marker, false);
             LOG.debug("Rejected cache entry quarantine failed: namespaceRef={}, keyRef={}, causeType={}",
                     namespaceReference(), keyReference(key), failureType(error));
         }

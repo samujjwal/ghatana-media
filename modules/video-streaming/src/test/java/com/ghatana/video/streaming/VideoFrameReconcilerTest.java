@@ -21,6 +21,22 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("session identity rejects blank stream and authorization scope values")
+    void sessionIdentityRequiresNonblankScope() {
+        for (int blankField = 0; blankField < 4; blankField++) {
+            String streamId = blankField == 0 ? " " : "vstream-1";
+            String tenantId = blankField == 1 ? " " : "t1";
+            String principalId = blankField == 2 ? " " : "principal-1";
+            String purposeRef = blankField == 3 ? " " : "purpose-1";
+
+            assertThatThrownBy(() -> new SessionIdentity(
+                    streamId, tenantId, principalId, purposeRef, 1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("must not be blank");
+        }
+    }
+
+    @Test
     @DisplayName("a keyframe anchors its GOP and dependent frames are decodable")
     void keyframeAnchorsDecodability() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));

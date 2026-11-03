@@ -6,6 +6,11 @@ import com.ghatana.cache.CacheBulkInvalidationOutcome;
 import com.ghatana.cache.DistributedCacheService;
 import com.ghatana.cache.backend.CacheOperationResult;
 import com.ghatana.core.async.AsyncOperation;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -142,6 +147,88 @@ class AudioVideoCacheTest {
         verify(service).invalidateAsync("bad-read-through");
         verify(service, org.mockito.Mockito.never())
                 .put(eq("bad-read-through"), anyString(), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("quarantine fences writes until the rejected entry invalidation settles")
+    void oversizedEntryQuarantineFencesConcurrentWrites() {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        String oversized = "x".repeat(CachePolicy.MAX_VALUE_LENGTH + 1);
+        CompletableFuture<Void> pendingInvalidation = new CompletableFuture<>();
+        when(service.get("quarantine-race"))
+                .thenReturn(AsyncOperation.success(Optional.of(oversized)));
+        when(service.invalidateAsync("quarantine-race"))
+                .thenReturn(AsyncOperation.from(pendingInvalidation));
+        when(service.put(eq("quarantine-race"), eq("valid-new-value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        assertThat(await(cache.get("quarantine-race"))).isEmpty();
+        assertThatThrownBy(() -> await(cache.put("quarantine-race", "valid-new-value")))
+                .hasRootCauseMessage("Cache write is already pending or coordination capacity is full");
+
+        pendingInvalidation.complete(null);
+        await(cache.put("quarantine-race", "valid-new-value"));
+        verify(service).invalidateAsync("quarantine-race");
+        verify(service).put(eq("quarantine-race"), eq("valid-new-value"), any(Duration.class));
+    }
+
+    @Test
+    @DisplayName("stale oversized read cannot quarantine a valid write that overtook it")
+    void oversizedReadDoesNotDeleteWriteThatOvertakesItsQuarantine() {
+        DistributedCacheService service = mock(DistributedCacheService.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(service, "transcription");
+        String key = "oversized-overtaken";
+        String oversized = "x".repeat(CachePolicy.MAX_VALUE_LENGTH + 1);
+        java.util.concurrent.atomic.AtomicReference<String> stored =
+                new java.util.concurrent.atomic.AtomicReference<>(oversized);
+        java.util.concurrent.atomic.AtomicBoolean racedWrite = new java.util.concurrent.atomic.AtomicBoolean();
+        java.util.concurrent.atomic.AtomicReference<Throwable> appenderFailure =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        when(service.get(key)).thenAnswer(ignored ->
+                AsyncOperation.success(Optional.ofNullable(stored.get())));
+        when(service.put(eq(key), eq("valid-new-value"), any(Duration.class))).thenAnswer(invocation -> {
+            stored.set(invocation.getArgument(1));
+            return AsyncOperation.success(null);
+        });
+        org.mockito.Mockito.lenient().when(service.invalidateAsync(key)).thenAnswer(ignored -> {
+            stored.set(null);
+            return AsyncOperation.success(null);
+        });
+
+        LoggerContext context = (LoggerContext) org.apache.logging.log4j.LogManager.getContext(false);
+        org.apache.logging.log4j.core.Logger logger = context.getLogger(AudioVideoCache.class.getName());
+        Level previousLevel = logger.getLevel();
+        AbstractAppender raceAppender = new AbstractAppender(
+                "oversized-quarantine-race", null, null, true, Property.EMPTY_ARRAY) {
+            @Override
+            public void append(LogEvent event) {
+                if (event.getMessage().getFormattedMessage().startsWith(
+                        "Cache entry exceeded Shared value limit; treating as miss")
+                        && racedWrite.compareAndSet(false, true)) {
+                    try {
+                        await(cache.put(key, "valid-new-value"));
+                    } catch (Throwable failure) {
+                        appenderFailure.set(failure);
+                    }
+                }
+            }
+        };
+        raceAppender.start();
+        logger.addAppender(raceAppender);
+        logger.setLevel(Level.WARN);
+        try {
+            assertThat(await(cache.get(key))).isEmpty();
+        } finally {
+            logger.removeAppender(raceAppender);
+            logger.setLevel(previousLevel);
+            raceAppender.stop();
+        }
+
+        assertThat(racedWrite).isTrue();
+        assertThat(appenderFailure.get()).isNull();
+        assertThat(stored).hasValue("valid-new-value");
+        verify(service, org.mockito.Mockito.never()).invalidateAsync(key);
     }
 
     @Test
