@@ -4321,3 +4321,13 @@ Inspected the current cache implementation and tests against CA-04. The cache al
 ### 43.181 November 3 SK-07 installed client safety selectors
 
 No source change was justified in the canonical SDK path: existing tests cover tenant/principal binding, route compatibility, abort/timeout/lost acknowledgement and post-dispatch `OUTCOME_UNKNOWN`. `operations.test.ts` passed **119/119** and `canonical-operations.test.ts` passed **42/42**. The legacy `AudioVideoClient.integration.test.ts` did not pass in this sandbox: its local HTTP fixture's `server.listen(0)` received `EPERM` for both `0.0.0.0` and `127.0.0.1`, then timed out before the test-installed teardown; this is a local-bind permission limitation, not a package integration pass. No test-server behavior or public route was changed. SK-07 still needs an environment where the local integration listener is permitted and genuine downstream provider/owner contracts for positive effects.
+
+
+### 43.182 November 3 G02 standalone STT current-consent fail-closed guard
+
+`MediaRuntimeSttRightsSourceResolver` now returns `UNAVAILABLE` with no policy facts for records whose `humanConsentDisposition` is `REQUIRED`. The standalone STT gRPC composition has source-rights administration and Shared policy, but no `MediaConsentAuthority`; a nonblank consent ID and future rights-record expiry are not proof of current, purpose-bound, unrevoked consent. The regression replaces the former ID-only admission assertion with the unavailable/no-facts result. Focused resolver and Shared-policy selectors passed **19/19**; independent Luna review confirmed nonhuman `NOT_APPLICABLE` behavior and the separate canonical `MediaRuntime` consent rechecks remain intact. No real rights/consent record was created or inspected. `RIGHTS_RECORD_ABSENT` remains, and the gRPC path stays closed for human data until the owning authority is composed.
+
+
+### 43.183 November 3 remaining-plan and Common Voice profile guards
+
+At the current local source, the terminal-qualification, remaining-surfaces, modality-Wave2, and R10 owner-resolution selectors passed **7/7**, **12/12**, **7/7**, and **15/15** respectively (**41 total**). These guard checks preserve the original 36+84+8 task identities, dependency graph, 22 accepted Wave-2 rows, external owner gates, and no-status-promotion policy; they validate planning/accounting rather than runtime task completion. The Common Voice profile checker reported metadata valid / real inference `NOT_ADMITTED`, and its profile selector passed **10/10**, preserving the no-request-before-authorized-acceptance, private manifest, offline, no-training, 24-hour audio and 90-day aggregate policy. No MDC request, audio access or inference occurred.
