@@ -32,6 +32,10 @@ function exportedNames(src) {
 test('TY-06: index.d.ts mirrors every index.ts export and adds nothing', () => {
   const ts = exportedNames(indexSrc);
   const dts = exportedNames(indexDts);
+  assert.match(indexSrc, /export\s+\*\s+from\s+['"]\.\/production\.js['"]/,
+    'root entry must keep its declared production export source');
+  assert.match(indexDts, /export\s+\*\s+from\s+['"]\.\/production\.js['"]/,
+    'index.d.ts must re-export production declarations exposed by index.ts');
   for (const n of ts) assert.ok(dts.has(n), `index.d.ts missing export ${n}`);
   for (const n of dts) assert.ok(ts.has(n), `index.d.ts declares ${n} absent from index.ts`);
 });

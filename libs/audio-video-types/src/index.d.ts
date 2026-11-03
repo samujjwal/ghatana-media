@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// Keep the hand-maintained compatibility declaration aligned with index.ts.
+// In particular, the public root also exposes the declarative production types.
+export * from './production.js';
+
 /**
  * @doc.type types
  * @doc.purpose Shared TypeScript interfaces for audio-video application
