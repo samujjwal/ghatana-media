@@ -279,7 +279,7 @@ export const ModelExecutionSpecSchema = boundedTypedValue(z.object({
   modelDigest: DigestSchema,
   declaredAssumptionsRef: VersionRefSchema,
   solverId: OpaqueIdSchema,
-  solverVersion: z.string().min(1).max(128).regex(/^\S+$/),
+  solverVersion: VersionRefSchema,
   solverBuildDigest: DigestSchema,
   numericPrecision: z.string().min(1).max(128).regex(/^\S+$/),
   initialConditionsRef: VersionRefSchema,

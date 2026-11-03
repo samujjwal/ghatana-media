@@ -266,6 +266,12 @@ describe('TY-04 headless declarative parsers', () => {
       solverBuildDigest: { ...execSpec.solverBuildDigest, value: '' },
     }).success).toBe(false);
   });
+  it('validates solverVersion with the source-declared versionRef format', () => {
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, solverVersion: 'solver/\uD800' }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, solverVersion: 'solver/version 2' }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, solverVersion: '🚀'.repeat(385) }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, solverVersion: 'solver/🚀-v2' }).success).toBe(true);
+  });
   it('requires finite positive recursion bounds', () => {
     expect(ModelExecutionSpecSchema.safeParse({
       ...execSpec,
