@@ -319,6 +319,112 @@ class PersistenceIntegrationTest extends EventloopTestBase {
         assertThat(audioFileRepository.findById(tenantId, interruptedAudio.getId())).isEmpty();
     }
 
+    @Test
+    @DisplayName("PostgreSQL backend termination rolls back flushed audio and transcription together")
+    void postgresBackendTerminationRollsBackCombinedAudioAndTranscription() throws Throwable {
+        String tenantId = "combined-crash-tenant-" + UUID.randomUUID();
+        AudioFileEntity interruptedAudio = createAudioFile(tenantId, "combined-interrupted.wav");
+        TranscriptionEntity interruptedTranscription = new TranscriptionEntity(
+                UUID.randomUUID(), tenantId, interruptedAudio.getId(), UUID.randomUUID(),
+                "must not commit", "en");
+        EntityManager interruptedManager = emf.createEntityManager();
+        Throwable primaryFailure = null;
+        try {
+            interruptedManager.getTransaction().begin();
+            interruptedManager.persist(interruptedAudio);
+            interruptedManager.persist(interruptedTranscription);
+            interruptedManager.flush();
+
+            int backendPid = interruptedManager.unwrap(Session.class).doReturningWork(connection -> {
+                try (var statement = connection.createStatement();
+                     var result = statement.executeQuery("SELECT pg_backend_pid()")) {
+                    result.next();
+                    return result.getInt(1);
+                }
+            });
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.prepareStatement("SELECT pg_terminate_backend(?)")) {
+                statement.setInt(1, backendPid);
+                try (var result = statement.executeQuery()) {
+                    assertThat(result.next()).isTrue();
+                    assertThat(result.getBoolean(1)).isTrue();
+                }
+            }
+
+            long exitDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+            boolean backendExited = false;
+            while (!backendExited && System.nanoTime() < exitDeadline) {
+                try (var connection = DriverManager.getConnection(
+                        postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                     var statement = connection.prepareStatement(
+                             "SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE pid = ?)")) {
+                    statement.setInt(1, backendPid);
+                    try (var result = statement.executeQuery()) {
+                        result.next();
+                        backendExited = !result.getBoolean(1);
+                    }
+                }
+                if (!backendExited) {
+                    Thread.sleep(25L);
+                }
+            }
+            assertThat(backendExited)
+                    .as("PostgreSQL backend %s exits after pg_terminate_backend", backendPid)
+                    .isTrue();
+
+            assertThatThrownBy(() -> interruptedManager.getTransaction().commit())
+                    .isInstanceOf(RollbackException.class);
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            Throwable cleanupFailure = null;
+            if (interruptedManager.isOpen()) {
+                if (interruptedManager.getTransaction().isActive()) {
+                    try {
+                        interruptedManager.getTransaction().rollback();
+                    } catch (Throwable rollbackFailure) {
+                        cleanupFailure = appendCleanupFailure(cleanupFailure, rollbackFailure);
+                    }
+                }
+                cleanupFailure = closeTestEntityManager(interruptedManager, cleanupFailure);
+            }
+            if (cleanupFailure != null) {
+                if (primaryFailure != null) {
+                    primaryFailure.addSuppressed(cleanupFailure);
+                } else {
+                    throw cleanupFailure;
+                }
+            }
+        }
+
+        entityManager.clear();
+        try (var connection = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
+            try (var statement = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM audio_video.audio_files WHERE id = ?")) {
+                statement.setObject(1, interruptedAudio.getId());
+                try (var result = statement.executeQuery()) {
+                    result.next();
+                    assertThat(result.getLong(1)).as("audio row is absent after transaction rollback").isZero();
+                }
+            }
+            try (var statement = connection.prepareStatement(
+                    "SELECT COUNT(*) FROM audio_video.transcriptions WHERE id = ?")) {
+                statement.setObject(1, interruptedTranscription.getId());
+                try (var result = statement.executeQuery()) {
+                    result.next();
+                    assertThat(result.getLong(1))
+                            .as("transcription row is absent after transaction rollback")
+                            .isZero();
+                }
+            }
+        }
+        assertThat(audioFileRepository.findById(tenantId, interruptedAudio.getId())).isEmpty();
+        assertThat(transcriptionRepository.findById(tenantId, interruptedTranscription.getId())).isEmpty();
+    }
+
     private static Throwable closeTestEntityManager(EntityManager manager, Throwable previousFailure) {
         try {
             if (manager != null && manager.isOpen()) manager.close();
