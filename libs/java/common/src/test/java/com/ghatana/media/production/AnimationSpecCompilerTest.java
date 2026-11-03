@@ -1,13 +1,10 @@
 package com.ghatana.media.production;
 
 import com.ghatana.media.production.AnimationSpecCompiler.AnimationSpec;
-import com.ghatana.media.production.AnimationSpecCompiler.CompiledPlan;
-import com.ghatana.media.production.AnimationSpecCompiler.Easing;
-import com.ghatana.media.production.AnimationSpecCompiler.Keyframe;
-import com.ghatana.media.production.AnimationSpecCompiler.Property;
-import com.ghatana.media.production.AnimationSpecCompiler.Scene;
+import com.ghatana.media.production.AnimationSpecCompiler.PositiveRational;
+import com.ghatana.media.production.AnimationSpecCompiler.StoryTime;
 import com.ghatana.media.production.AnimationSpecCompiler.Unavailable;
-import com.ghatana.media.production.AnimationSpecCompiler.UnavailableException;
+import com.ghatana.media.production.AnimationSpecCompiler.UnavailableReason;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,89 +12,123 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/** H-05: deterministic scene/keyframe compile; unsupported bindings typed unavailable. */
+/** H-05: PDP-1 envelope validation and truthful non-admission without rendering. */
 class AnimationSpecCompilerTest {
 
-    private static AnimationSpec simpleSpec() {
-        return new AnimationSpec("anim-rev-2", List.of(
-                new Scene("intro", 2_000, List.of(
-                        new Keyframe(1_000, Property.OPACITY, 1.0, Easing.LINEAR),
-                        new Keyframe(0, Property.OPACITY, 0.0, Easing.EASE_IN)),
-                        List.of("asset/logo@v1")),
-                new Scene("main", 5_000, List.of(
-                        new Keyframe(500, Property.POSITION_X, 42.5, Easing.EASE_OUT)),
-                        List.of())),
-                List.of(), List.of(), List.of());
+    private static AnimationSpec validSpec() {
+        return new AnimationSpec(
+                "media.declarative.value.animation-spec.v1",
+                "scene/main@v3",
+                "animation/main@v4",
+                "operators/vector@v1",
+                "assets/project@v2",
+                List.of("curve/opacity@v1", "curve/position@v2"),
+                new StoryTime("story", "clock-main", "stream-main", "origin/edit@v1",
+                        "-9223372036854775808", new PositiveRational("1", "24000")),
+                "render-profile/vector@v2");
     }
 
     @Test
-    void compilesDeterministicOrderedInstructions() {
-        AnimationSpecCompiler compiler = new AnimationSpecCompiler();
-        CompiledPlan plan = compiler.compileOrThrow(simpleSpec());
-        assertThat(plan.specRevision()).isEqualTo("anim-rev-2");
-        // Keyframes within a scene order by (time, property); scene order preserved.
-        assertThat(plan.instructions()).extracting(i -> i.sceneId() + "@" + i.atMillis())
-                .containsExactly("intro@0", "intro@1000", "main@500");
-        assertThat(compiler.compileOrThrow(simpleSpec()).instructions())
-                .isEqualTo(plan.instructions());
+    void acceptsSourceDefinedEnvelopeButReturnsTypedNotAdmittedWithoutPlanOrFrames() {
+        var compiler = new AnimationSpecCompiler();
+        Unavailable result = compiler.compile(validSpec());
+
+        assertThat(result.reason()).isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
+        assertThat(result.getClass().getRecordComponents()).extracting(component -> component.getName())
+                .containsExactly("reason");
+        assertThat(compiler.compile(validSpec())).isEqualTo(result);
     }
 
     @Test
-    void rigPhysicsOrModel3dBindingsAreTypedUnavailable() {
-        AnimationSpecCompiler compiler = new AnimationSpecCompiler();
-        var unsupported = new AnimationSpec("rev", List.of(
-                new Scene("s", 100, List.of(), List.of())),
-                List.of("rig/skeleton@v1"), List.of("physics/cloth@v2"), List.of());
-        assertThat(compiler.compile(unsupported))
-                .isInstanceOf(Unavailable.class)
-                .satisfies(result -> assertThat(((Unavailable) result).offendingRefs())
-                        .containsExactly("rig/skeleton@v1", "physics/cloth@v2"));
-        assertThatThrownBy(() -> compiler.compileOrThrow(unsupported))
-                .isInstanceOf(UnavailableException.class);
+    void acceptsEmptyCurveListAndExactPositiveTimeBaseBoundary() {
+        var spec = new AnimationSpec(
+                "media.declarative.value.animation-spec.v1",
+                "scene/main@v3", "animation/main@v4", "operators/vector@v1",
+                "assets/project@v2", List.of(),
+                new StoryTime("story", "clock", "stream", "origin@v1", "0",
+                        new PositiveRational("9223372036854775807", "1")),
+                "render-profile/vector@v2");
+
+        assertThat(new AnimationSpecCompiler().compile(spec).reason())
+                .isEqualTo(UnavailableReason.ANIMATION_RUNTIME_NOT_ADMITTED);
     }
 
     @Test
-    void boundedCanonicalSpecsOnly() {
-        assertThatThrownBy(() -> new Scene("s", 100,
-                List.of(new Keyframe(200, Property.SCALE, 1.0, Easing.STEP)), List.of()))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Keyframe(0, Property.ROTATION, Double.NaN, Easing.LINEAR))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new AnimationSpec("rev", List.of(
-                new Scene("dup", 100, List.of(), List.of()),
-                new Scene("dup", 100, List.of(), List.of())),
-                List.of(), List.of(), List.of()))
-                .isInstanceOf(IllegalArgumentException.class);
+    void rejectsWrongSchemaVersionAndDuplicateCurveReferences() {
+        var valid = validSpec();
+        assertThatThrownBy(() -> new AnimationSpec(
+                "media.declarative.value.animation-spec.v2", valid.sceneGraphRef(),
+                valid.animationGraphRef(), valid.operatorTreeRef(), valid.assetsRef(),
+                valid.propertyCurveRefs(), valid.tStory(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("schemaVersion");
+
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), List.of("curve/a@v1", "curve/a@v1"),
+                valid.tStory(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("unique");
     }
 
     @Test
-    void boundsAggregateInstructionsAndAssetReferenceExpansion() {
-        var denseFrames = java.util.stream.IntStream.range(0,
-                        AnimationSpecCompiler.MAX_KEYFRAMES_PER_SCENE)
-                .mapToObj(at -> new Keyframe(at, Property.OPACITY, 1.0, Easing.LINEAR))
-                .toList();
-        var scenes = java.util.stream.IntStream.range(0, 17)
-                .mapToObj(index -> new Scene("scene-" + index, 4_096,
-                        denseFrames, List.of()))
-                .toList();
-        assertThatThrownBy(() -> new AnimationSpec("too-many-instructions", scenes,
-                List.of(), List.of(), List.of()))
+    void capsCurveReferenceCollectionBeforeCopyOrUniquenessIndexing() {
+        var valid = validSpec();
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(),
+                java.util.Collections.nCopies(AnimationSpecCompiler.MAX_PROPERTY_CURVE_REFS + 1, "curve/repeated@v1"),
+                valid.tStory(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("total keyframes");
+                .hasMessageContaining("local parser safety ceiling");
+    }
 
-        assertThatThrownBy(() -> new Scene("too-many-assets", 100, List.of(),
-                java.util.Collections.nCopies(AnimationSpecCompiler.MAX_ASSET_REFS_PER_SCENE + 1, "asset/v1")))
+    @Test
+    void rejectsUnsupportedClockAndNoncanonicalOrOutOfRangeTimeValues() {
+        assertThatThrownBy(() -> new StoryTime("media", "clock", "stream", "origin@v1",
+                "0", new PositiveRational("1", "1")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("asset refs");
-        assertThatThrownBy(() -> new Scene("oversized-asset-ref", 100, List.of(),
-                List.of("a".repeat(AnimationSpecCompiler.MAX_REFERENCE_LENGTH + 1))))
+                .hasMessageContaining("clockKind");
+        assertThatThrownBy(() -> new StoryTime("story", "clock", "stream", "origin@v1",
+                "01", new PositiveRational("1", "1")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("canonical and bounded");
-        assertThatThrownBy(() -> new AnimationSpec("oversized-binding-ref",
-                List.of(new Scene("s", 100, List.of(), List.of())),
-                List.of("rig/" + "x".repeat(AnimationSpecCompiler.MAX_REFERENCE_LENGTH)),
-                List.of(), List.of()))
+                .hasMessageContaining("canonical signed-int64");
+        assertThatThrownBy(() -> new StoryTime("story", "clock", "stream", "origin@v1",
+                "9223372036854775808", new PositiveRational("1", "1")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("binding refs");
+                .hasMessageContaining("outside signed-int64");
+        assertThatThrownBy(() -> new PositiveRational("1", "0"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive-int64");
+    }
+
+    @Test
+    void rejectsInvalidReferencesAndNullCurveEntries() {
+        var valid = validSpec();
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), "   ", valid.animationGraphRef(), valid.operatorTreeRef(),
+                valid.assetsRef(), valid.propertyCurveRefs(), valid.tStory(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneGraphRef");
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(), valid.tStory(),
+                "render profile/v1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("renderingRef");
+        assertThatThrownBy(() -> new StoryTime("story", "clock", "stream", " origin@v1",
+                "0", new PositiveRational("1", "1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("originRef");
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
+                valid.operatorTreeRef(), valid.assetsRef(), java.util.Arrays.asList("curve/a@v1", null),
+                valid.tStory(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("must not contain null");
+        assertThatThrownBy(() -> new StoryTime("story", "bad id", "stream", "origin@v1",
+                "0", new PositiveRational("1", "1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("opaqueId");
     }
 }
