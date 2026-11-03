@@ -67,7 +67,7 @@ public final class AnimationSpecCompiler {
             String operatorTreeRef,
             String assetsRef,
             List<String> propertyCurveRefs,
-            StoryTime tStory,
+            StoryTime tStoryRef,
             String renderingRef) {
         public AnimationSpec {
             if (!SCHEMA_VERSION.equals(schemaVersion)) {
@@ -89,7 +89,7 @@ public final class AnimationSpecCompiler {
                 throw new IllegalArgumentException("propertyCurveRefs must be unique");
             }
             propertyCurveRefs = List.copyOf(propertyCurveRefs);
-            Objects.requireNonNull(tStory, "tStory");
+            Objects.requireNonNull(tStoryRef, "tStoryRef");
             requireVersionRef(renderingRef, "renderingRef");
         }
     }

@@ -7,6 +7,7 @@ import com.ghatana.media.production.AnimationSpecCompiler.Unavailable;
 import com.ghatana.media.production.AnimationSpecCompiler.UnavailableReason;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +38,10 @@ class AnimationSpecCompilerTest {
         assertThat(result.getClass().getRecordComponents()).extracting(component -> component.getName())
                 .containsExactly("reason");
         assertThat(compiler.compile(validSpec())).isEqualTo(result);
+        assertThat(Arrays.stream(AnimationSpec.class.getRecordComponents())
+                .map(component -> component.getName()))
+                .containsExactly("schemaVersion", "sceneGraphRef", "animationGraphRef", "operatorTreeRef",
+                        "assetsRef", "propertyCurveRefs", "tStoryRef", "renderingRef");
     }
 
     @Test
@@ -59,14 +64,14 @@ class AnimationSpecCompilerTest {
         assertThatThrownBy(() -> new AnimationSpec(
                 "media.declarative.value.animation-spec.v2", valid.sceneGraphRef(),
                 valid.animationGraphRef(), valid.operatorTreeRef(), valid.assetsRef(),
-                valid.propertyCurveRefs(), valid.tStory(), valid.renderingRef()))
+                valid.propertyCurveRefs(), valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("schemaVersion");
 
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
                 valid.operatorTreeRef(), valid.assetsRef(), List.of("curve/a@v1", "curve/a@v1"),
-                valid.tStory(), valid.renderingRef()))
+                valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("unique");
     }
@@ -78,7 +83,7 @@ class AnimationSpecCompilerTest {
                 valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
                 valid.operatorTreeRef(), valid.assetsRef(),
                 java.util.Collections.nCopies(AnimationSpecCompiler.MAX_PROPERTY_CURVE_REFS + 1, "curve/repeated@v1"),
-                valid.tStory(), valid.renderingRef()))
+                valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("local parser safety ceiling");
     }
@@ -107,12 +112,12 @@ class AnimationSpecCompilerTest {
         var valid = validSpec();
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), "   ", valid.animationGraphRef(), valid.operatorTreeRef(),
-                valid.assetsRef(), valid.propertyCurveRefs(), valid.tStory(), valid.renderingRef()))
+                valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sceneGraphRef");
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
-                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(), valid.tStory(),
+                valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(),
                 "render profile/v1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("renderingRef");
@@ -123,7 +128,7 @@ class AnimationSpecCompilerTest {
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
                 valid.operatorTreeRef(), valid.assetsRef(), java.util.Arrays.asList("curve/a@v1", null),
-                valid.tStory(), valid.renderingRef()))
+                valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must not contain null");
         assertThatThrownBy(() -> new StoryTime("story", "bad id", "stream", "origin@v1",
