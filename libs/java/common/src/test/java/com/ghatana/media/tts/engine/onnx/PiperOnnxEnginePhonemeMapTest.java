@@ -92,6 +92,15 @@ class PiperOnnxEnginePhonemeMapTest {
     }
 
     @Test
+    void voiceCloningNeverReturnsSyntheticVoiceMetadataOrSimilarity() {
+        assertThat(PiperOnnxEngine.voiceCloningUnavailable(false))
+                .hasMessageContaining("not enabled");
+        assertThat(PiperOnnxEngine.voiceCloningUnavailable(true))
+                .hasMessageContaining("not implemented")
+                .hasMessageContaining("no cloned voice or similarity score was produced");
+    }
+
+    @Test
     void malformedOrIncompleteSidecarFailsModelLoad() throws Exception {
         Path model = tempDir.resolve("bad.onnx");
         Files.writeString(PiperOnnxEngine.sidecarPath(model), "{\"phoneme_id_map\": [1,2]}");

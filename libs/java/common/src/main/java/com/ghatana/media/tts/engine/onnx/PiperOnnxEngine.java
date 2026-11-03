@@ -206,24 +206,15 @@ public final class PiperOnnxEngine implements TtsEngine {
 
     @Override
     public VoiceInfo cloneVoice(String voiceName, java.util.List<com.ghatana.media.common.AudioData> audioSamples, CloneOptions options) {
-        if (!config.enableVoiceCloning()) {
-            throw new UnsupportedOperationException("Voice cloning not enabled in config");
+        throw voiceCloningUnavailable(config.enableVoiceCloning());
+    }
+
+    static UnsupportedOperationException voiceCloningUnavailable(boolean enabled) {
+        if (!enabled) {
+            return new UnsupportedOperationException("Voice cloning not enabled in config");
         }
-
-        // Fallback - real implementation would train/fine-tune on samples
-        LOG.info("Voice cloning requested for: " + voiceName + " with " + audioSamples.size() + " samples");
-
-        return new VoiceInfo(
-            "cloned-" + voiceName,
-            voiceName,
-            "Cloned voice from " + audioSamples.size() + " samples",
-            Locale.ENGLISH,
-            VoiceInfo.Gender.NEUTRAL,
-            config.sampleRate(),
-            true,
-            0L,
-            computeCloningSimilarityScore(audioSamples.size(), options.epochs())
-        );
+        return new UnsupportedOperationException(
+                "Voice cloning is not implemented by Piper ONNX; no cloned voice or similarity score was produced");
     }
 
     @Override
@@ -917,17 +908,4 @@ public final class PiperOnnxEngine implements TtsEngine {
         return AudioConverter.floatSamplesToPcm16(samples);
     }
 
-    /**
-     * Heuristic speaker-similarity score for a cloned voice.
-     * Baseline 0.55; +0.05 per additional sample (beyond the first, capped +0.25);
-     * +0.05 bonus for high-epoch training (≥ 200). Maximum 0.95.
-     * A real ML-computed speaker-verification score replaces this once the ONNX engine
-     * session exposes cosine-similarity from its speaker-embedding layer.
-     */
-    private static float computeCloningSimilarityScore(int sampleCount, int epochs) {
-        float base = 0.55f;
-        float sampleBonus = Math.min(0.25f, Math.max(0, sampleCount - 1) * 0.05f);
-        float epochBonus = epochs >= 200 ? 0.05f : 0.0f;
-        return Math.min(0.95f, base + sampleBonus + epochBonus);
-    }
 }
