@@ -1821,12 +1821,98 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                     throw new MediaJobStoreConflictException("Media request disappeared while checking its STT snapshot");
                 }
                 String retained = result.getString(1);
-                String replayed = encodeSttSnapshot(requestedSnapshot);
-                if (!java.util.Objects.equals(retained, replayed)) {
+                SttSubmissionSnapshot retainedSnapshot = decodeSttSnapshot(retained);
+                // Authorization evidence is re-evaluated by MediaRuntime before create().
+                // Its proof identifiers and revocation epoch may legitimately change on a
+                // same-intent replay; keep the original evidence as the durable audit record
+                // and use the canonical submission digest to bind replay identity. The
+                // snapshot's user-selected STT options still need a defensive store check.
+                if (!sameSttOptions(retainedSnapshot, requestedSnapshot)) {
                     throw new IllegalStateException("Media request ID was reused with a different STT request snapshot");
                 }
             }
         }
+    }
+
+    private SttSubmissionSnapshot decodeSttSnapshot(String encoded) {
+        if (encoded == null) return null;
+        if (encoded.isBlank()) throw new IllegalStateException("Stored STT snapshot is blank");
+        Map<String, Object> decoded = objectMap(encoded);
+        Object versionValue = decoded.get("version");
+        if (!(versionValue instanceof String version)) {
+            throw new IllegalStateException("Stored STT snapshot version is malformed");
+        }
+        String glossary = nullableSnapshotString(decoded, "customGlossaryRef");
+        Boolean filler = nullableSnapshotBoolean(decoded, "fillerRetakeCandidates");
+        if (SttSubmissionSnapshot.VERSION.equals(version)) {
+            if (decoded.containsKey("rightsDecisionId") || decoded.containsKey("policyDecisionId")
+                    || decoded.containsKey("policyVersion") || decoded.containsKey("consentDecisionId")
+                    || decoded.containsKey("sourceClockEvidenceRef") || decoded.containsKey("revocationEpoch")) {
+                throw new IllegalStateException("Stored legacy STT snapshot contains authorization evidence");
+            }
+            return new SttSubmissionSnapshot(version, glossary, filler);
+        }
+        if (!SttSubmissionSnapshot.AUTHORIZED_VERSION.equals(version)) {
+            throw new IllegalStateException("Stored STT snapshot version is unsupported");
+        }
+        Long epoch = exactNonnegativeEpoch(decoded.get("revocationEpoch"));
+        return new SttSubmissionSnapshot(version, glossary, filler,
+                requiredSnapshotString(decoded, "rightsDecisionId"),
+                requiredSnapshotString(decoded, "policyDecisionId"),
+                requiredSnapshotString(decoded, "policyVersion"),
+                requiredSnapshotString(decoded, "consentDecisionId"),
+                requiredSnapshotString(decoded, "sourceClockEvidenceRef"), epoch);
+    }
+
+    private static String nullableSnapshotString(Map<String, Object> snapshot, String field) {
+        if (!snapshot.containsKey(field)) {
+            throw new IllegalStateException("Stored STT snapshot is missing " + field);
+        }
+        Object value = snapshot.get(field);
+        if (value != null && !(value instanceof String)) {
+            throw new IllegalStateException("Stored STT snapshot field is malformed: " + field);
+        }
+        return (String) value;
+    }
+
+    private static Boolean nullableSnapshotBoolean(Map<String, Object> snapshot, String field) {
+        if (!snapshot.containsKey(field)) {
+            throw new IllegalStateException("Stored STT snapshot is missing " + field);
+        }
+        Object value = snapshot.get(field);
+        if (value != null && !(value instanceof Boolean)) {
+            throw new IllegalStateException("Stored STT snapshot field is malformed: " + field);
+        }
+        return (Boolean) value;
+    }
+
+    private static String requiredSnapshotString(Map<String, Object> snapshot, String field) {
+        Object value = snapshot.get(field);
+        if (!(value instanceof String text) || text.isBlank()) {
+            throw new IllegalStateException("Stored STT snapshot field is malformed: " + field);
+        }
+        return text;
+    }
+
+    private static Long exactNonnegativeEpoch(Object value) {
+        if (!(value instanceof Number number)) {
+            throw new IllegalStateException("Stored STT snapshot revocationEpoch is malformed");
+        }
+        try {
+            long epoch = new java.math.BigDecimal(number.toString()).longValueExact();
+            if (epoch < 0) throw new IllegalStateException("Stored STT snapshot revocationEpoch is malformed");
+            return epoch;
+        } catch (NumberFormatException | ArithmeticException malformed) {
+            throw new IllegalStateException("Stored STT snapshot revocationEpoch is malformed", malformed);
+        }
+    }
+
+    private static boolean sameSttOptions(SttSubmissionSnapshot retained, SttSubmissionSnapshot replayed) {
+        if (retained == null || replayed == null) return retained == replayed;
+        // Schema version is an internal persisted representation, not request intent. A valid
+        // legacy v1 request can replay after current authorization upgrades its snapshot to v2.
+        return java.util.Objects.equals(retained.customGlossaryRef(), replayed.customGlossaryRef())
+                && java.util.Objects.equals(retained.fillerRetakeCandidates(), replayed.fillerRetakeCandidates());
     }
 
     private static boolean terminal(JobStatus status) {

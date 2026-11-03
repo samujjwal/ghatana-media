@@ -228,6 +228,12 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             stt.artifactId(), stt.jobType(), stt.providerId(), JobStatus.ACCEPTED,
                             stt.createdAt(), null, null, Map.of(), "", 1, "", stt.requestFingerprint());
                     assertThat(jobs.create(sttReplay, stt.requestFingerprint(), acceptedSttSnapshot)).isEqualTo(stt);
+                    SttSubmissionSnapshot currentAuthorityForLegacyReplay = new SttSubmissionSnapshot(
+                            SttSubmissionSnapshot.AUTHORIZED_VERSION, "glossary:en:v3", false,
+                            "rights-decision-legacy-replay", "policy-decision-legacy-replay", "policy-v2",
+                            "consent-legacy-replay", "source-clock-legacy-replay", 2L);
+                    assertThat(jobs.create(sttReplay, stt.requestFingerprint(), currentAuthorityForLegacyReplay))
+                            .isEqualTo(stt);
                     assertThatThrownBy(() -> jobs.create(sttReplay, stt.requestFingerprint(),
                             new SttSubmissionSnapshot(SttSubmissionSnapshot.VERSION, "glossary:en:other", false)))
                             .isInstanceOf(IllegalStateException.class)
@@ -236,6 +242,52 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             new SttSubmissionSnapshot(SttSubmissionSnapshot.VERSION, "glossary:en:v3", null)))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("different STT request snapshot");
+                    ProcessingJob authorizedStt = new ProcessingJob(
+                            "job-stt-authorized", "request-stt-authorized", "tenant-a", "principal-a",
+                            artifact.artifactId(), JobType.SPEECH_TO_TEXT, "candidate-provider",
+                            JobStatus.ACCEPTED, Instant.now().truncatedTo(ChronoUnit.MILLIS), null, null,
+                            Map.of(), "", 1, "", sha256("stt-authorized".getBytes(StandardCharsets.UTF_8)));
+                    SttSubmissionSnapshot initialAuthority = new SttSubmissionSnapshot(
+                            SttSubmissionSnapshot.AUTHORIZED_VERSION, "glossary:en:v3", false,
+                            "rights-decision-1", "policy-decision-1", "policy-v1", "consent-1",
+                            "source-clock-1", 1L);
+                    jobs.create(authorizedStt, authorizedStt.requestFingerprint(), initialAuthority);
+                    ProcessingJob authorizedReplay = new ProcessingJob(
+                            "job-stt-authorized-replay", authorizedStt.requestId(), authorizedStt.tenantId(),
+                            authorizedStt.principalId(), authorizedStt.artifactId(), authorizedStt.jobType(),
+                            authorizedStt.providerId(), JobStatus.ACCEPTED, authorizedStt.createdAt(), null, null,
+                            Map.of(), "", 1, "", authorizedStt.requestFingerprint());
+                    assertThat(jobs.create(authorizedReplay, authorizedStt.requestFingerprint(),
+                            new SttSubmissionSnapshot(SttSubmissionSnapshot.VERSION, "glossary:en:v3", false)))
+                            .isEqualTo(authorizedStt);
+                    SttSubmissionSnapshot refreshedAuthority = new SttSubmissionSnapshot(
+                            SttSubmissionSnapshot.AUTHORIZED_VERSION, "glossary:en:v3", false,
+                            "rights-decision-2", "policy-decision-2", "policy-v2", "consent-2",
+                            "source-clock-2", 2L);
+                    assertThat(jobs.create(authorizedReplay, authorizedStt.requestFingerprint(), refreshedAuthority))
+                            .isEqualTo(authorizedStt);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var query = connection.prepareStatement(
+                                 "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+                        query.setString(1, "tenant-a"); query.setString(2, "job-stt-authorized");
+                        try (var row = query.executeQuery()) {
+                            assertThat(row.next()).isTrue();
+                            assertThat(row.getString(1))
+                                    .contains("rights-decision-1", "policy-decision-1", "policy-v1",
+                                            "consent-1", "source-clock-1", "\"revocationEpoch\":1")
+                                    .doesNotContain("rights-decision-2", "policy-decision-2", "policy-v2",
+                                            "consent-2", "source-clock-2");
+                        }
+                    }
+                    assertThatThrownBy(() -> jobs.create(authorizedReplay, authorizedStt.requestFingerprint(),
+                            new SttSubmissionSnapshot(SttSubmissionSnapshot.AUTHORIZED_VERSION,
+                                    "glossary:en:other", false,
+                                    "rights-decision-2", "policy-decision-2", "policy-v2", "consent-2",
+                                    "source-clock-2", 2L)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("different STT request snapshot");
+                    assertMalformedSttSnapshotsRejected(
+                            jobs, environment, authorizedStt, authorizedReplay, refreshedAuthority);
                     try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
                          var query = connection.prepareStatement(
                                  "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
@@ -1070,6 +1122,59 @@ class MediaAwsPostgresqlRuntimeStateTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("governed metadata")
                 .hasMessageContaining(expectedField);
+    }
+
+    private static void assertMalformedSttSnapshotsRejected(
+            PostgresqlMediaJobStore jobs,
+            Map<String, String> environment,
+            ProcessingJob original,
+            ProcessingJob replay,
+            SttSubmissionSnapshot requestedSnapshot) throws Exception {
+        String retainedSnapshot;
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var query = connection.prepareStatement(
+                     "SELECT stt_request_snapshot FROM media_processing_jobs WHERE tenant_id=? AND job_id=?")) {
+            query.setString(1, original.tenantId());
+            query.setString(2, original.jobId());
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                retainedSnapshot = row.getString(1);
+            }
+        }
+        String validV2 = "\"version\":\"media.stt-request-snapshot.v2\","
+                + "\"customGlossaryRef\":\"glossary:en:v3\",\"fillerRetakeCandidates\":false,"
+                + "\"rightsDecisionId\":\"rights\",\"policyDecisionId\":\"policy\","
+                + "\"policyVersion\":\"policy-v2\",\"consentDecisionId\":\"consent\","
+                + "\"sourceClockEvidenceRef\":\"source-clock\",\"revocationEpoch\":%s";
+        try {
+            for (String malformed : java.util.List.of(
+                    "",
+                    "{\"version\":false,\"customGlossaryRef\":null,\"fillerRetakeCandidates\":false}",
+                    "{\"version\":\"media.stt-request-snapshot.v1\",\"customGlossaryRef\":null,"
+                            + "\"fillerRetakeCandidates\":false,\"rightsDecisionId\":\"unexpected\"}",
+                    "{" + validV2.formatted("1.5") + "}",
+                    "{" + validV2.formatted("-1") + "}",
+                    "{" + validV2.formatted("9223372036854775808") + "}")) {
+                updateSttSnapshot(environment, original, malformed);
+                assertThatThrownBy(() -> jobs.create(
+                        replay, original.requestFingerprint(), requestedSnapshot))
+                        .isInstanceOf(IllegalStateException.class);
+            }
+        } finally {
+            updateSttSnapshot(environment, original, retainedSnapshot);
+        }
+    }
+
+    private static void updateSttSnapshot(
+            Map<String, String> environment, ProcessingJob job, String snapshot) throws Exception {
+        try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+             var update = connection.prepareStatement(
+                     "UPDATE media_processing_jobs SET stt_request_snapshot=? WHERE tenant_id=? AND job_id=?")) {
+            update.setString(1, snapshot);
+            update.setString(2, job.tenantId());
+            update.setString(3, job.jobId());
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        }
     }
 
 
