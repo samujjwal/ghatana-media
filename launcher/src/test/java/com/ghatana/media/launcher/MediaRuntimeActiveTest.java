@@ -845,6 +845,19 @@ class MediaRuntimeActiveTest {
             assertThat(ack.path("bufferedBytes").asLong()).isEqualTo(pcm.length);
             assertThat(ack.path("backpressured").asBoolean()).isFalse();
 
+            var wrongToken = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/frames/1"))
+                    .header("Content-Type", "application/octet-stream")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", "wrong-stream-token")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(new byte[] { 8 }))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(wrongToken.statusCode()).as("wrong-token frame response: %s", wrongToken.body())
+                    .isEqualTo(403);
+            assertThat(mapper.readTree(wrongToken.body()).path("error").path("code").asText()).isNotBlank();
+            assertThat(wrongToken.body()).doesNotContain("wrong-stream-token");
+
             byte[] oversizedPcm = new byte[17];
             var oversized = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
                             endpoint + "/api/v1/streams/" + sessionId + "/frames/1"))
