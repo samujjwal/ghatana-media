@@ -3901,3 +3901,43 @@ Ran `bash scripts/qualification/run-wave2-vision-oci-checks.sh stub` on the Dock
 ### 43.99 November 3 CA-04 stale oversized-entry quarantine race
 
 `AudioVideoCache` now reserves quarantine against the observed read epoch before stale cleanup can race a newer write. `AudioVideoCacheTest.oversizedReadDoesNotDeleteWriteThatOvertakesItsQuarantine` uses a synchronous test appender at the oversized-entry warning to force a valid same-key write in the old detection-to-reservation window; it verifies the fresh value remains and stale invalidation is not dispatched. `oversizedEntryQuarantineFencesConcurrentWrites` also verifies a subsequent write stays fenced until quarantine settles. The focused `./gradlew :services:media:modules:infrastructure:cache:test --tests com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **34/34** on Darwin arm64/JDK 27 after marking the negative-path invalidation stub lenient (the initial run exposed only Mockito's unused-stub fixture strictness). This is in-process cache ordering evidence only; it does not establish a distributed lock or canonical source/rights authority, and CA-04 whole-row acceptance remains open.
+
+
+### 43.100 November 3 remaining-surface plan integrity
+
+Ran the plan-native `pnpm run test:backend-remaining-surfaces-plan` on the current committed source cut **308e9e66**. Result: **12/12 passed**, validating the 28/18 physical accounting, all 84 W3 task IDs and eight headless outcomes, acyclic local dependencies, IP-01 applied-history boundary, exact 36/22 Wave 2 partition, source-derived coverage rows, and explicit external/Track B gates. This verifies the selector/register projections only; it neither implements task rows nor changes acceptance/status dispositions.
+
+
+### 43.101 November 3 SK-02 abort during stream-frame acknowledgement read
+
+`MediaHttpTransport.fetchRawMutation` now keeps its caller-abort and timeout controller active through response-body consumption and acknowledgement parsing. `submitStreamFrame` consumes the canonical error/ack inside that bounded operation, so a body stall after mutation dispatch becomes `OUTCOME_UNKNOWN` with the stable request identity instead of escaping the deadline. The new stalled-body abort regression and all existing canonical stream-operation cases passed: `pnpm --filter @audio-video/client exec vitest run src/canonical-operations.test.ts` (**41/41**); client package typecheck also passed. This does not add retry/readback authority or install/qualify a server consumer; SK-02 whole-row acceptance remains open.
+
+
+### 43.102 November 3 Explorer keyboard shortcut accessibility
+
+The Explorer's global single-key mode shortcuts now yield from links, buttons, editable content, textboxes, and comboboxes through a small DOM-target guard. The regression `node --test apps/media-experience-explorer/test/keyboard-shortcuts.test.mjs` passed **2/2**. The UI package typecheck and focused operation-rendering/style tests passed **17/17**; a forced UI declaration build regenerated the stale ignored root declaration artifact, after which `pnpm --filter @ghatana/media-experience-explorer typecheck` passed. These are source/package checks only; browser screen-reader, keyboard, and host visual qualification remains open.
+
+
+### 43.103 November 3 CT-01 operation-contract file parity
+
+`MediaGrpcRegistryDescriptorParityTest.operationContractFilesMatchTheirRegistryRowsAndProtoDescriptors` now consumes every gRPC registry `contractFile`, rejects path escape/missing files, and compares operation/source/protocol/request/response/schema/streaming identities while preserving proposal-only/pending owner review. The focused full-source-composite selector `./gradlew -Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE -Pghatana.media.compositeScope=FULL :services:media:modules:integration-tests:test --tests com.ghatana.audio.video.integration.MediaGrpcRegistryDescriptorParityTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **3/3**. A read-only cross-check found 44/44 current contract documents consistent. This verifies source inventory and descriptors only; the registry remains unadmitted protocol authority and CT-01 whole-row acceptance is not claimed.
+
+
+### 43.104 November 3 MM-08 malformed Vision child label
+
+`PlatformVisionClientAdapter` now rejects null/blank `DetectedObject.className` from the Vision SPI before returning a multimodal detection result. `PlatformVisionClientAdapterTest` passed **12/12** in the focused `multimodal` source-composite run. This protects the child result boundary only; no real child provider, rights resolution, fused durable result, or MM-08 acceptance is established.
+
+
+### 43.105 November 3 TTS-05 voice-authority resolver setup failure
+
+`TtsRequestAuthorization.requireAdmission` now maps runtime failures from `configuredDefaultVoiceId()` and `isConfigured()` to the same generic `UNAVAILABLE` / `TTS_VOICE_AUTH_NOT_ADMITTED` result used for unavailable authorization, without surfacing resolver details or proceeding to `authorize`. `TtsRequestAuthorizationTest` passed **9/9** in the focused `tts` source-composite run. This is fail-closed authority plumbing only; real voice/model consent, provider effects, and TTS-05 whole-row acceptance remain external.
+
+
+### 43.106 November 3 VIS-06 provider detection response validation
+
+`VisionGrpcService` now rejects malformed provider detections before response delivery: missing labels/boxes, collection overflow, nonfinite or out-of-range confidence, negative origins, nonpositive extents, and nonfinite right/bottom bounds. The new NaN-confidence case and existing malformed-box cases are included in `VisionGrpcServiceTest`; the focused `vision` source-composite selector passed **71/71**. This is response-contract validation, not OCR/model/held-out mAP qualification or VIS-06 whole-row acceptance.
+
+
+### 43.107 November 3 STT-04/05/09 local boundary recheck
+
+A focused review of `SttAudioInputDecoder`, the upload/source guard, stream sequence/session state, and `AvJobLifecycleAdapter` found no additional local defect supported by the present contract. Existing bounds and refusal paths remain intact: uploads lack governed source/version storage, streaming lacks an admitted durable session, and `UNKNOWN`/`RECONCILING` do not project as `RUNNING`. No source, FLEURS artifact, audio, or model was touched and no test was rerun. STT-04/05/09 remain open for their exact source/codec/provider/finality evidence; this no-change review does not accept them.
