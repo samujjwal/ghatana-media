@@ -284,10 +284,13 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     }
 
     @Override public Optional<MediaSpeechToTextAdmission.Profile> speechToTextProfile() {
+        MediaSpeechToTextAdmission.ProfileQualification qualification =
+                binding.qualificationEvidenceRef().isBlank()
+                        ? MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED
+                        : MediaSpeechToTextAdmission.ProfileQualification.QUALIFIED;
         return Optional.of(new MediaSpeechToTextAdmission.Profile(
                 binding.providerId(), binding.providerVersion(), binding.profileId(),
-                binding.profileVersion(), binding.configurationDigest(),
-                MediaSpeechToTextAdmission.ProfileQualification.QUALIFIED,
+                binding.profileVersion(), binding.configurationDigest(), qualification,
                 binding.supportedLanguageTags(), false,
                 MediaSpeechToTextAdmission.TimingDisposition.SOURCE_CLOCK_BOUND,
                 binding.qualificationEvidenceRef()));

@@ -10,6 +10,7 @@ import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.runtime.MediaModalityContracts;
+import com.ghatana.media.runtime.MediaSpeechToTextAdmission;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
@@ -83,6 +84,37 @@ class WhisperOnnxSttProviderTest {
         assertThatThrownBy(() -> WhisperOnnxSttProvider.observedCapabilityProfile(
                 binding(false), "invalid/engine-path", EngineStatus.State.READY, checkedAt))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void speechProfileWithoutQualificationEvidenceRemainsExplicitlyUnqualified() {
+        WhisperComputeClient unusedClient = new WhisperComputeClient() {
+            @Override public Result execute(com.ghatana.media.runtime.WhisperComputeContracts.Request request) {
+                throw new AssertionError("profile inspection must not execute inference");
+            }
+            @Override public Result status(java.util.UUID id, String profile, String locale, String digest) {
+                throw new AssertionError("profile inspection must not query worker status");
+            }
+            @Override public Result cancel(java.util.UUID id, String profile, String locale, String digest) {
+                throw new AssertionError("profile inspection must not cancel a worker");
+            }
+        };
+        WhisperOnnxSttProvider provider = new WhisperOnnxSttProvider(
+                SttConfig.builder().modelId("whisper-model").build(), binding(false), 1024,
+                (providerId, providerVersion, modelRevision) -> Optional.empty(), unusedClient,
+                "b".repeat(64));
+
+        try {
+            MediaSpeechToTextAdmission.Profile profile = provider.speechToTextProfile().orElseThrow();
+
+            assertThat(profile.qualification())
+                    .isEqualTo(MediaSpeechToTextAdmission.ProfileQualification.NOT_QUALIFIED);
+            assertThat(profile.qualificationEvidenceRef()).isEmpty();
+            assertThat(profile.timingDisposition())
+                    .isEqualTo(MediaSpeechToTextAdmission.TimingDisposition.SOURCE_CLOCK_BOUND);
+        } finally {
+            provider.close();
+        }
     }
 
     @Test
