@@ -159,6 +159,29 @@ test('preserves a marked run when marker is malformed or contains reference data
   }
 });
 
+test('retains expired runs with duplicate keys or noncanonical timestamps', { skip: hostSkip }, async () => {
+  const root = await privateRoot();
+  const now = new Date('2026-11-03T12:00:00.000Z');
+  try {
+    const duplicateKeyRun = await createMarkedRun(root,
+      '2026-11-01T12:00:00.000Z');
+    const duplicateMarkerPath = join(duplicateKeyRun, MARKER_NAME);
+    const markerText = await readFile(duplicateMarkerPath, 'utf8');
+    await writeFile(duplicateMarkerPath,
+      markerText.replace(`"kind":"${MARKER_KIND}"`, `"kind":"invalid","kind":"${MARKER_KIND}"`));
+
+    const noncanonicalTimestampRun = await createMarkedRun(root,
+      '2026-11-01T12:00:00.000+00:00');
+
+    const result = await cleanupExpiredCommonVoiceRuns(root, { now });
+    assert.deepEqual(result, { removed: 0, retained: 2, maxInterruptedAgeHours: 24 });
+    assert.equal((await lstat(duplicateKeyRun)).isDirectory(), true);
+    assert.equal((await lstat(noncanonicalTimestampRun)).isDirectory(), true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('bounds marker reads to one byte over the limit', async () => {
   let consumed = 0;
   const requestedLengths = [];

@@ -80,11 +80,15 @@ async function readMarker(runDirectory, expectedUid) {
     const expectedKeys = ['createdAt', 'kind', 'runId', 'schemaVersion'];
     assert(Object.keys(marker).sort().join(',') === expectedKeys.join(','),
       'run marker contains unexpected persisted data');
+    assert(bytes.equals(Buffer.from(`${JSON.stringify(marker)}\n`, 'utf8')),
+      'run marker encoding is not canonical');
     assert(marker.kind === MARKER_KIND && marker.schemaVersion === '1.0.0', 'run marker identity is invalid');
     assert(typeof marker.runId === 'string'
       && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u.test(marker.runId),
     'run marker ID is invalid');
-    assert(typeof marker.createdAt === 'string' && Number.isFinite(Date.parse(marker.createdAt)),
+    assert(typeof marker.createdAt === 'string'
+      && Number.isFinite(Date.parse(marker.createdAt))
+      && new Date(marker.createdAt).toISOString() === marker.createdAt,
       'run marker timestamp is invalid');
     return marker;
   } finally {

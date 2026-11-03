@@ -4029,3 +4029,8 @@ Reopened the public [Hugging Face `google/fleurs` card](https://huggingface.co/d
 ### 43.123 November 3 CA-03 synchronous source-loader failure contract
 
 `TranscriptionCacheService.loadCurrentTranscription()` now catches synchronous `RuntimeException`s from the trusted current-source loader and treats a null returned `AsyncOperation` as a failed operation. Both failures return `AsyncOperation.failure(...)` without reading, writing, or invalidating the cache, so they cannot be mistaken for an absent or deleted source. Added throwing-loader and null-operation tests; `./gradlew :services:media:modules:infrastructure:cache:test --tests com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheServiceTest --no-daemon --no-parallel --max-workers=2 --console=plain` passed **33/33**. Independent Luna review confirmed the failed-operation contract and zero cache interaction. This does not validate the loader's live consent/retention/source-revision authority or enable protected cache hits; CA-03 remains open for its original whole-row evidence.
+
+
+### 43.124 November 3 Common Voice marker canonical JSON validation
+
+Cleanup now requires marker bytes to exactly match the helper's JSON serialization plus newline and requires `createdAt` to round-trip through canonical UTC `toISOString()`. This rejects duplicate JSON keys that `JSON.parse` would otherwise collapse and valid-but-noncanonical date strings; malformed expired entries remain for review. Added a filesystem regression covering both variants. `pnpm run test:common-voice-ephemeral-run` passed **12/12**; `node --check` for both changed JS files and `git diff --check` passed. No audio, MDC access, or inference is involved; the retention helper remains separate from dataset admission.
