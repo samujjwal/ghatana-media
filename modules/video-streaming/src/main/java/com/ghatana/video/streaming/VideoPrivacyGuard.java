@@ -192,10 +192,19 @@ public final class VideoPrivacyGuard {
             var it = entries.entrySet().iterator();
             while (it.hasNext()) {
                 var entry = it.next();
-                if (nowMillis - entry.getValue().storedAtMillis() > retentionMillis) {
+                if (isExpired(entry.getValue().storedAtMillis(), nowMillis)) {
                     totalBytes -= entry.getValue().frame().payload().length;
                     it.remove();
                 }
+            }
+        }
+
+        private boolean isExpired(long storedAtMillis, long nowMillis) {
+            try {
+                return nowMillis >= Math.addExact(storedAtMillis, retentionMillis);
+            } catch (ArithmeticException expiryOutsideRepresentableTime) {
+                // A positive retention interval beyond Long.MAX_VALUE cannot have elapsed yet.
+                return false;
             }
         }
 

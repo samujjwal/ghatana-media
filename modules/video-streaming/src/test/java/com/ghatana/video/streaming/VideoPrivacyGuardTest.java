@@ -127,6 +127,31 @@ class VideoPrivacyGuardTest {
     }
 
     @Test
+    @DisplayName("retention expires at the configured boundary")
+    void retentionExpiresAtBoundary() {
+        BoundedFrameCache cache = cache(10, 1024, 1_000);
+        cache.put(owner(), frame(0, 4), 0);
+
+        assertThat(cache.get(viewer(Classification.INTERNAL), 0, 1_000)).isNull();
+        assertThat(cache.size()).isZero();
+        assertThat(cache.totalBytes()).isZero();
+    }
+
+    @Test
+    @DisplayName("retention arithmetic expires old entries without overflowing timestamps")
+    void retentionArithmeticDoesNotOverflow() {
+        BoundedFrameCache oldEntry = cache(10, 1024, 1_000);
+        oldEntry.put(owner(), frame(0, 4), Long.MIN_VALUE);
+        assertThat(oldEntry.get(viewer(Classification.INTERNAL), 0, Long.MAX_VALUE)).isNull();
+        assertThat(oldEntry.totalBytes()).isZero();
+
+        BoundedFrameCache nearMaximum = cache(10, 1024, 1_000);
+        nearMaximum.put(owner(), frame(1, 4), Long.MAX_VALUE - 5);
+        assertThat(nearMaximum.get(viewer(Classification.INTERNAL), 1, Long.MAX_VALUE)).isNotNull();
+        assertThat(nearMaximum.totalBytes()).isEqualTo(4);
+    }
+
+    @Test
     @DisplayName("cancel purges every cached frame — no residue")
     void cancelPurges() {
         BoundedFrameCache cache = cache(10, 1024, 60_000);
