@@ -198,6 +198,8 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(ledger.state()).isEqualTo(JobExecutionState.RUNNING);
         assertThat(ledger.outputs()).isNull();  // Still processing
         assertThat(ledger.attributes().get("provider")).isEqualTo("deepgram");
+        assertThat(ledger.traceId()).isEqualTo("trace-id");
+        assertThat(ledger.correlationId()).isEqualTo("corr-id");
     }
 
     @Test
