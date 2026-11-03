@@ -482,8 +482,7 @@ class AudioVideoRunLedgerAdapterTest {
                     "job-unresolved", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
                     unrepresentable, now, now, null, null, null, null, "t", "c"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be represented without loss")
-                .hasMessageContaining(unrepresentable);
+                .hasMessage("Media processing job state cannot be represented without loss");
         }
 
         // Mapped nonterminal states keep an honest null outcome.
@@ -491,6 +490,33 @@ class AudioVideoRunLedgerAdapterTest {
             "j4", "a4", "provider", "p4", "EXECUTING", Map.of(), now, 0, "t", "c");
         assertThat(running.state()).isEqualTo(JobExecutionState.RUNNING);
         assertThat(running.outcome()).isNull();
+    }
+
+    @Test
+    @DisplayName("Invalid provider and Media state diagnostics are bounded and do not echo untrusted values")
+    void testInvalidStateDiagnosticsDoNotDiscloseInput() {
+        long now = System.currentTimeMillis();
+        String privateUnknownState = "user@example.invalid bearer sk-live-secret " + "x".repeat(10_000);
+
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-state-provider", "source", "provider", "provider-job", privateUnknownState,
+                Map.of(), now, 0, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unmapped provider job state")
+                .satisfies(failure -> assertThat(failure.getMessage().length()).isLessThanOrEqualTo(64));
+
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-state-media", "AUDIO", "STT", "collection", "source", Map.of(),
+                privateUnknownState, now, 0, null, null, null, null, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("unmapped Media processing job state")
+                .satisfies(failure -> assertThat(failure.getMessage().length()).isLessThanOrEqualTo(64));
+
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-state-terminal", "source", "provider", "provider-job", "FAILED",
+                Map.of(), now, 0, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("provider terminal state cannot establish Media job finality");
     }
 
     @Test
@@ -537,8 +563,7 @@ class AudioVideoRunLedgerAdapterTest {
                     "j-unresolved", "AUDIO", "STT", "col", "src", Map.of(), unresolved,
                     now - 100, now - 90, null, null, "whisper", "pj-unresolved", "t", "c"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("cannot be represented without loss")
-                .hasMessageContaining(unresolved);
+                .hasMessage("Media processing job state cannot be represented without loss");
         }
     }
 

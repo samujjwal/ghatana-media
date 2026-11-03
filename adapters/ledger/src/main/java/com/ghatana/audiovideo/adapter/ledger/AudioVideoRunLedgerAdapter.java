@@ -187,6 +187,10 @@ public final class AudioVideoRunLedgerAdapter {
      */
     private static final int MAX_LEDGER_KEY_CHARS = 64;
     private static final int MAX_LEDGER_VALUE_CHARS = 256;
+    // State fields are finite vocabulary tokens. Reject oversized input before
+    // case normalization so malformed/provider-controlled values are neither
+    // copied into diagnostics nor expanded into a second large string.
+    private static final int MAX_STATE_TOKEN_CHARS = 64;
     // Values are metadata, not free-form text. Reject URL/credential shaped values
     // even when supplied under an otherwise harmless whitelisted key.
     private static final java.util.regex.Pattern SENSITIVE_LEDGER_VALUE =
@@ -406,6 +410,9 @@ public final class AudioVideoRunLedgerAdapter {
     }
 
     private static JobExecutionState mapProcessingJobState(String jobState) {
+        if (jobState.length() > MAX_STATE_TOKEN_CHARS) {
+            throw new IllegalArgumentException("unmapped Media processing job state");
+        }
         String normalizedState = jobState.toUpperCase(Locale.ENGLISH);
         return switch (normalizedState) {
             // Queued-but-not-started and retry-pending are waiting states, not execution.
@@ -415,11 +422,11 @@ public final class AudioVideoRunLedgerAdapter {
             case "COMPLETED", "FAILED", "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
             case "CANCELLED" -> JobExecutionState.CANCELLED;
             case "OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING" -> throw new IllegalArgumentException(
-                    "Media processing job state cannot be represented without loss: " + jobState);
+                    "Media processing job state cannot be represented without loss");
             // An unrecognized state must never be projected as RUNNING or a
             // final outcome; fail closed so the caller must not fabricate.
             default -> throw new IllegalArgumentException(
-                    "unmapped Media processing job state: " + jobState);
+                    "unmapped Media processing job state");
         };
     }
 
@@ -759,6 +766,9 @@ public final class AudioVideoRunLedgerAdapter {
             throw new IllegalArgumentException(
                     "provider job state is absent; an unreported state is not RUNNING");
         }
+        if (providerState.length() > MAX_STATE_TOKEN_CHARS) {
+            throw new IllegalArgumentException("unmapped provider job state");
+        }
 
         String upperState = providerState.toUpperCase(Locale.ENGLISH);
         return switch (upperState) {
@@ -775,11 +785,11 @@ public final class AudioVideoRunLedgerAdapter {
                  "FAILED", "ERROR", "EXCEPTION", "FAULT",
                  "CANCELLED", "ABORTED", "STOPPED", "TERMINATED", "INTERRUPTED" ->
                 throw new IllegalArgumentException(
-                        "provider terminal state cannot establish Media job finality: " + providerState);
+                        "provider terminal state cannot establish Media job finality");
             // An unrecognized provider vocabulary must never be projected as
             // RUNNING; fail closed and let the caller normalize new spellings.
             default -> throw new IllegalArgumentException(
-                    "unmapped provider job state: " + providerState);
+                    "unmapped provider job state");
         };
     }
 

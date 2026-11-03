@@ -2816,3 +2816,12 @@ No schema, public wire contract, source status, external provider admission, mod
 - **CA-02 no-change:** current cache key primitives require tenant, principal, rights, purpose, classification, immutable revisions, and source fingerprint; the transcription caller lacks an authoritative source for those values and keeps cache reads/writes disabled. The missing owner input is a trusted scope join plus revocation/retention freshness contract, so no cache behavior was enabled.
 
 Independent review accepted the MC-02 accessor/test scope; AS-02 corpus review was strengthened to require explicit outcomes. These local checks do not establish the full MC-02/AS-02/AT-02 task exits or CA-02 source authority.
+
+### 42.11 November 2 LD-03 diagnostics and RS-05/MC-03/TY-02 no-change reviews
+
+- **LD-03:** `AudioVideoRunLedgerAdapter` now rejects state tokens over 64 characters before case normalization and uses fixed, non-echoing diagnostics for unknown or unrepresentable Media/provider states. The adversarial regression includes long email/bearer-shaped input; the focused adapter suite passed **27/27**. Independent review accepted the narrow boundary. Canonical field whitelist and separate audit/ledger/telemetry retention semantics remain owner inputs; no durable ledger acceptance is claimed.
+- **MC-03:** no code change was needed. Fresh selected lifecycle and provider-close tests passed **20/20** (`EnginePoolLifecycleTest` 18, `CircuitBreakerEngineCloseTest` 2), covering interruption/recovery, close/waiter races, failed destruction retry, lease stress, and provider close idempotence. These tests do not qualify real provider effects or production resource policy.
+- **RS-05:** no safe source-defined defect was found in the current float-WAV API. Writer tests passed **3/3**, RIFF validation **1/1**, and byte round-trip **1/1**. Provenance/licensing/provider quality remain outside this decoder contract.
+- **TY-02:** no change was made because the current contract tests reject unsafe numeric/enum shapes and client-invented revision fields. Focused type-contract tests passed **58/58** across two files and package typecheck passed. PDP versioning/provenance sources still leave the observed TypeScript artifact shape short of complete immutable version lineage; no fields were invented.
+
+These checks do not promote MC-03, RS-05, TY-02, or LD-03 to whole-row completion or alter source/status/provider admission.
