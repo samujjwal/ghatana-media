@@ -171,6 +171,7 @@ class RpcDeadlineGrpcStackIntegrationTest {
         CountDownLatch queuedTerminal = new CountDownLatch(1);
         AtomicInteger firstDispatches = new AtomicInteger();
         AtomicInteger queuedDispatches = new AtomicInteger();
+        AtomicInteger recoveryDispatches = new AtomicInteger();
         AtomicReference<Status.Code> firstOutcome = new AtomicReference<>();
         AtomicReference<Status.Code> queuedOutcome = new AtomicReference<>();
         AtomicReference<Status.Code> overflowOutcome = new AtomicReference<>();
@@ -195,6 +196,10 @@ class RpcDeadlineGrpcStackIntegrationTest {
                 if (request.getValue().equals("queued")) {
                     queuedDispatches.incrementAndGet();
                     return "must-not-dispatch-after-expiry";
+                }
+                if (request.getValue().equals("recovery")) {
+                    recoveryDispatches.incrementAndGet();
+                    return "worker-recovered";
                 }
                 return "overflow-must-not-dispatch";
             }, !request.getValue().equals("queued"));
@@ -256,6 +261,10 @@ class RpcDeadlineGrpcStackIntegrationTest {
             assertThat(firstEffectCommitted.await(1, TimeUnit.SECONDS)).isTrue();
             assertThat(queuedDispatches).hasValue(0);
             assertThat(successfulResponses).hasValue(0);
+
+            assertThat(unary(authenticated, "recovery", 1_000).getValue()).isEqualTo("worker-recovered");
+            assertThat(recoveryDispatches).hasValue(1);
+            assertThat(successfulResponses).hasValue(1);
         } finally {
             releaseFirst.countDown();
             workers.shutdownNow();
