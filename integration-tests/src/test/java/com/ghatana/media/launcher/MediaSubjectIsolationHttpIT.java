@@ -15,6 +15,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -142,6 +143,7 @@ class MediaSubjectIsolationHttpIT {
                 TENANT, otherToken, null, "");
         assertThat(restartedOwnerArtifact.statusCode())
                 .as("owner artifact read after runtime restart: %s", restartedOwnerArtifact.body()).isEqualTo(200);
+        assertArtifactContentReadback(restartedOwnerArtifact, artifactId, payload, sha);
         assertEquivalentNotFound(restartedOtherArtifact, restartedAbsentArtifact, artifactId);
 
         HttpResponse<String> restartedOwnerJob = send("GET", "/api/v1/jobs/" + jobId,
@@ -248,6 +250,45 @@ class MediaSubjectIsolationHttpIT {
                         LOCALSTACK.getAccessKey(), LOCALSTACK.getSecretKey())))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
+    }
+
+    private void assertArtifactContentReadback(HttpResponse<String> response, String artifactId,
+                                               byte[] expectedBytes, String expectedSha) throws Exception {
+        JsonNode artifact = MAPPER.readTree(response.body());
+        assertThat(artifact.path("artifactId").asText()).isEqualTo(artifactId);
+        assertThat(artifact.path("sizeBytes").asLong()).isEqualTo(expectedBytes.length);
+        assertThat(artifact.path("sha256").asText()).isEqualTo(expectedSha);
+        // The contract's immutable content version is derived from its persisted SHA-256.
+        assertThat(com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion
+                .fromSha256(artifact.path("sha256").asText()).value()).isEqualTo("sha256:" + expectedSha);
+
+        String reference = artifact.path("objectReference").asText();
+        URI objectUri = URI.create(reference);
+        assertThat(objectUri.getScheme()).isEqualTo("s3");
+        assertThat(objectUri.getHost()).isEqualTo(bucket);
+        String objectKey = objectUri.getPath().substring(1);
+        // Match the API locator to the durable metadata row before using that row's object binding.
+        try (var connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             var statement = connection.prepareStatement(
+                     "SELECT size_bytes,sha256,object_reference FROM media_artifacts "
+                             + "WHERE tenant_id=? AND artifact_id=? AND principal_id=?")) {
+            statement.setString(1, TENANT);
+            statement.setString(2, artifactId);
+            statement.setString(3, "subject-owner");
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                assertThat(rows.getLong("size_bytes")).isEqualTo(expectedBytes.length);
+                assertThat(rows.getString("sha256")).isEqualTo(expectedSha);
+                assertThat(rows.getString("object_reference")).isEqualTo(reference);
+                assertThat(rows.next()).isFalse();
+            }
+        }
+        try (S3Client client = s3()) {
+            byte[] persisted = client.getObjectAsBytes(GetObjectRequest.builder()
+                    .bucket(bucket).key(objectKey).build()).asByteArray();
+            assertThat(persisted).containsExactly(expectedBytes);
+            assertThat(sha256(persisted)).isEqualTo(expectedSha);
+        }
     }
 
     private HttpResponse<String> send(String method, String path, String tenant, String token,
