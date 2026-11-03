@@ -397,9 +397,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             List<DetectedObject> result = invocation.get();
             Objects.requireNonNull(result, "provider result");
             for (DetectedObject detection : result) {
+                com.ghatana.audio.video.vision.model.BoundingBox box =
+                        detection == null ? null : detection.getBoundingBox();
                 if (detection == null || detection.getClassName() == null || detection.getClassName().isBlank()
                         || !Double.isFinite(detection.getConfidence()) || detection.getConfidence() < 0
-                        || detection.getConfidence() > 1 || detection.getBoundingBox() == null) {
+                        || detection.getConfidence() > 1 || box == null
+                        || box.getX() < 0 || box.getY() < 0
+                        || box.getWidth() <= 0 || box.getHeight() <= 0) {
                     throw new IllegalStateException("Provider returned an invalid detection result");
                 }
             }

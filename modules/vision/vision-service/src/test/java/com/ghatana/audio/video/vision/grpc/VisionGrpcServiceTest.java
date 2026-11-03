@@ -157,6 +157,35 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: malformed source-pixel boxes fail before response delivery")
+    void detectObjects_malformedProviderBoxesAreRejected() {
+        List<BoundingBox> malformedBoxes = List.of(
+                BoundingBox.builder().x(-1).y(0).width(10).height(10).build(),
+                BoundingBox.builder().x(0).y(-1).width(10).height(10).build(),
+                BoundingBox.builder().x(0).y(0).width(0).height(10).build(),
+                BoundingBox.builder().x(0).y(0).width(10).height(0).build());
+
+        for (BoundingBox box : malformedBoxes) {
+            fakeDetector.setResults(List.of(DetectedObject.builder()
+                    .className("object")
+                    .confidence(0.8)
+                    .boundingBox(box)
+                    .build()));
+            CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+            DetectRequest request = DetectRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[] {1}))
+                    .build();
+
+            withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+            assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.INTERNAL.getCode());
+            assertThat(observer.getValue()).isNull();
+        }
+    }
+
+    @Test
     void detectObjectsPassesAnExplicitConfidenceThresholdToTheDetector() {
         DetectRequest request = DetectRequest.newBuilder()
                 .setImageData(ByteString.copyFrom(new byte[]{1, 2, 3}))

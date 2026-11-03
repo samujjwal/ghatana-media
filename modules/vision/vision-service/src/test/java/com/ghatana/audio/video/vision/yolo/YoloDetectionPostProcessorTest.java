@@ -89,6 +89,17 @@ class YoloDetectionPostProcessorTest {
         assertThat(morePermissive).hasSize(2);
     }
 
+    @Test void nmsPreservesInputOrderForEqualConfidenceOverlappingCandidates() {
+        var first = new YoloOutputParser.Detection(0, 0.8, 10, 10, 20, 20);
+        var second = new YoloOutputParser.Detection(0, 0.8, 11, 10, 20, 20);
+
+        var result = YoloDetectionPostProcessor.process(List.of(second, first), CLASSES,
+                LetterboxTransform.fit(100, 100, 100), 0.5, 1, MODEL);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getBoundingBox().getX()).isEqualTo(11);
+    }
+
     @Test void rejectsUnknownClassIdsInvalidNmsAndUnpinnedProvenance() {
         var unknownClass = List.of(new YoloOutputParser.Detection(2, 0.9, 1, 1, 2, 2));
         assertThatThrownBy(() -> YoloDetectionPostProcessor.process(unknownClass, CLASSES,
