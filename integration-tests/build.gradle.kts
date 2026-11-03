@@ -27,6 +27,13 @@ dependencies {
     testImplementation(project(":services:media:modules:intelligence:multimodal-service"))
     testImplementation(project(":services:media:runtime-contracts"))
     testImplementation(project(":services:media:providers:aws-postgresql"))
+    // IT-04 source-free fail-closed checks for optional platform adapters.
+    testImplementation(project(":services:media:adapters:data-cloud-media"))
+    testImplementation(project(":services:media:adapters:agent-tools-media"))
+    testImplementation(project(":ghatana-tools:runtime:java:tool-contracts"))
+    testImplementation(project(":ghatana-tools:runtime:java:tool-runtime"))
+    testImplementation(project(":ghatana-tools:runtime:java:tool-test-support"))
+    testImplementation(project(":services:data-cloud:planes:shared-spi"))
 
     // Platform testing utilities (EventloopTestBase, etc.)
     testImplementation("com.ghatana.platform:governance:${providers.gradleProperty("ghatana.shared.version").get()}")
