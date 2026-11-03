@@ -3812,3 +3812,7 @@ No renewal integration change is safe from the current contract. `MediaStreamSes
 ### 43.80 November 3 R10 checker wording alignment
 
 Updated three stale literal assertions in `tests/media-wave2-r10-owner-resolution.test.mjs` to match the current R10 source wording for the trusted host OCI broker and G06's remaining live codec/TOCTOU/effective-cgroup/native-fault proof. The focused `pnpm test:wave2-r10-owner-resolution` passed **15/15**; `git diff --check` passed. This corrects checker drift only: all 36 original Wave 2 rows and their acceptance states remain unchanged.
+
+### 43.81 November 3 AT-01 descriptor identity parity
+
+Added `AudioVideoDescriptorIdentityAt01Test` to compare the four locally supported Agent Tool IDs across the factory, capability inventory, and each individual YAML descriptor. It also confirms `datacloud.media.artifacts` remains `NOT_ADMITTED` with no handler or descriptor path and is absent from the factory. The focused `./gradlew :services:media:adapters:agent-tools-media:test --tests com.ghatana.audio.video.tools.AudioVideoDescriptorIdentityAt01Test` passed **2/2**. This is source-free descriptor consistency only; YAML identity and local support do not establish Tools/Action Plane registry permission, principal authority, provider eligibility, or whole AT-01 acceptance.
