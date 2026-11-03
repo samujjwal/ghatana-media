@@ -263,6 +263,32 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void productionLikeProfilesRejectMismatchedConfiguredIdentityBeforeBinding() throws Exception {
+        Path certificate = tlsFixture("rotation-a-cert.pem");
+        Path mismatchedKey = tlsFixture("rotation-b-key.pem");
+
+        for (String profile : new String[] {"staging", "production", "sovereign"}) {
+            int port = findAvailablePort();
+            var environment = java.util.Map.of(
+                    "STT_ENVIRONMENT", profile,
+                    "STT_GRPC_TLS_CERT_CHAIN_PATH", certificate.toString(),
+                    "STT_GRPC_TLS_PRIVATE_KEY_PATH", mismatchedKey.toString());
+
+            assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
+                            GrpcTransportSecurityPolicy.resolve(environment, "STT")))
+                    .as("%s profile with a mismatched configured identity", profile)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("invalid or mismatched");
+            assertThatThrownBy(() -> {
+                try (Socket socket = new Socket()) {
+                    socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
+                }
+            }).as("%s profile must reject the TLS identity before binding", profile)
+                    .isInstanceOf(IOException.class);
+        }
+    }
+
+    @Test
     void tlsRotationRebindsWithNewCertificateWithoutClosingService() throws Exception {
         Path certA = tlsFixture("rotation-a-cert.pem");
         Path keyA = tlsFixture("rotation-a-key.pem");
