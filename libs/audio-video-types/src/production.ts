@@ -362,5 +362,13 @@ export const SimulationStateSchema = boundedTypedValue(z.object({
       path: ["rngStateOrNull"],
     });
   }
+  if (state.randomnessSemantics.disposition === "UNKNOWN"
+      && state.replayability === "REPLAYABLE") {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "UNKNOWN randomness semantics cannot claim replayability",
+      path: ["replayability"],
+    });
+  }
 }));
 export type SimulationState = z.infer<typeof SimulationStateSchema>;

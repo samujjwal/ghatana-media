@@ -366,5 +366,19 @@ describe('TY-04 headless declarative parsers', () => {
     };
     expect(SimulationStateSchema.safeParse({ ...specified, rngStateOrNull: null }).success).toBe(false);
     expect(SimulationStateSchema.safeParse(specified).success).toBe(true);
+
+    const unknownRandomness = {
+      ...state,
+      rngStateOrNull: null,
+      randomnessSemantics: { disposition: 'UNKNOWN', reason: 'checkpoint-rng-unknown' },
+    };
+    expect(SimulationStateSchema.safeParse({
+      ...unknownRandomness, replayability: 'REPLAYABLE',
+    }).success).toBe(false);
+    // The parser preserves an unknown observation without treating it as a
+    // replayability claim or making runtime admission decisions.
+    expect(SimulationStateSchema.safeParse({
+      ...unknownRandomness, replayability: 'UNKNOWN',
+    }).success).toBe(true);
   });
 });
