@@ -202,6 +202,46 @@ describe('MediaCanonicalClient over real HTTP', () => {
     });
   });
 
+  it('preserves UNKNOWN for dispatched job submissions with server or response ambiguity', async () => {
+    for (const responseMode of ['server-error', 'corrupt-json'] as const) {
+      await withServer((_request, response) => {
+        if (responseMode === 'server-error') {
+          response.writeHead(503, { 'content-type': 'application/json' })
+            .end(JSON.stringify({ error: { code: 'UNAVAILABLE', message: 'retry later', retryable: true },
+              meta: { correlationId: 'c' } }));
+        } else {
+          response.writeHead(202, { 'content-type': 'application/json' }).end('{');
+        }
+      }, async (endpoint) => {
+        const client = makeClient(endpoint);
+        await expect(client.submitJob({
+          requestId: 'req-1', correlationId: 'corr-1', artifactId: 'art-1',
+          jobType: 'TRANSCODE', idempotencyKey: `idem-${responseMode}`,
+        })).rejects.toBeInstanceOf(MediaOperationAmbiguousError);
+      });
+    }
+  });
+
+  it('treats authenticated job submission rejection as definitive and does not retry', async () => {
+    for (const status of [401, 403]) {
+      let requests = 0;
+      await withServer((_request, response) => {
+        requests++;
+        response.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify({
+          error: { code: status === 401 ? 'UNAUTHENTICATED' : 'FORBIDDEN', message: 'denied', retryable: false },
+          meta: { correlationId: 'c' },
+        }));
+      }, async (endpoint) => {
+        const client = makeClient(endpoint);
+        await expect(client.submitJob({
+          requestId: 'req-1', correlationId: 'corr-1', artifactId: 'art-1',
+          jobType: 'TRANSCODE', idempotencyKey: `idem-${status}`,
+        })).rejects.toBeInstanceOf(MediaClientError);
+        expect(requests).toBe(1);
+      });
+    }
+  });
+
   it('fails closed on a malformed stream session — no implicit partial accept', async () => {
     await withServer((_request, response) => {
       const malformed = session() as Record<string, unknown>;
