@@ -3660,3 +3660,23 @@ Added the LD-02 golden fixture and projection test for terminal, partial, retry,
 ### 43.42 November 3 RS-04 audio window and mix boundaries
 
 Commit `454a09c2` adds exact stereo half-open adjacent-slice partition checks at a 3 Hz clock and a stereo mix case crossing the 4096-sample accumulation boundary, including short-track padding. The Rust library suite passed **54/54**; `cargo fmt`, Clippy with warnings denied, and `git diff --check` passed. These deterministic synthetic fixtures do not establish real provider output, codec qualification, or RS-04's remaining waveform/clipping/pan/loudness cases.
+
+### 43.43 November 3 RS-05 WAVE extensible metadata validation
+
+The Rust WAVE preflight now rejects `WAVE_FORMAT_EXTENSIBLE` files where valid bits differ from the PCM container width or a nonzero speaker mask has a population different from the interleaved channel count. The package suite passed **55/55**; `cargo fmt --check`, Clippy with warnings denied, and `git diff --check` passed. The existing tests also cover deterministic write/read bytes, PCM ranges, channel layout, nonfinite input, and malformed/truncated RIFF. These synthetic decoder checks do not establish source licensing, provider output, or real codec/model qualification; the remaining RS-05 task evidence is not promoted.
+
+### 43.44 November 3 CA-04 oversized cache-entry quarantine
+
+`AudioVideoCache` now treats an oversized Shared-compatible string entry as a miss and attempts exact-key invalidation when the configured adapter exposes it. Direct reads and read-through both fall back without caching source data under the rejected entry. The focused `AudioVideoCacheTest` selector passed **32/32**; `git diff --check` passed. TTL, key/value and concurrency bounds, same-key stampede handling, timeout, and source fallback behavior were already covered. Quarantine is best effort and does not change source-of-truth or rights decisions; there is no active arbitrary-JSON deserializer to quarantine.
+
+### 43.45 November 3 IP-03 persistence executor lifecycle review
+
+No edit was warranted. Current persistence operations keep synchronous DAO work off the eventloop, cap active database operations at 8 and outstanding work at 136 per service, own executor shutdown, and drain accepted work. Existing lifecycle tests cover cap enforcement, repeated create/close after rejection, and abandoned-promise behavior. `Promise.ofBlocking` supplies no cancellation handle; interrupting an accepted synchronous JPA mutation cannot guarantee rollback, so no cancellation claim was added. Runtime construction by a deployed service was not found in this source repository, and no deployed-resource bound is inferred.
+
+### 43.46 November 3 LD-03 ledger privacy review
+
+No edit was warranted. The existing adapter applies typed input whitelists and bounded values, redacts PII/token/biometric-shaped strings, fingerprints unsafe source and provider-job references, preserves typed classification/rights references, and admits only bounded named numeric metrics. The LD-02 selector passed **28/28**, including these existing privacy projections. Durable retention separation remains a Data Cloud RunLedger owner responsibility and is not established by Media's adapter.
+
+### 43.47 November 3 FLEURS artifact inventory and inference boundary
+
+Rechecked `build/reports/media-fleurs-pilot-70bb2e84` recursively by filename and size only: it contains `manifest.json` and no WAV audio, so no deletion was needed. No audio was opened or used. The public FLEURS license label still does not provide the exact authorized en/hi/ne split/IDs, privacy, evaluation-purpose, and retention record this lane requires; the existing batch evaluator remains fail-closed. Synthetic fixtures remain the available code-path solution and cannot qualify real WER/CER or locale quality.
