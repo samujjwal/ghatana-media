@@ -170,6 +170,39 @@ class RunLedgerProjectionTest {
     }
 
     @Test
+    @DisplayName("an unavailable newer write preserves the last acknowledged attempt fence")
+    void unavailableNewerWriteDoesNotReplaceAcknowledgedTruth() {
+        java.util.concurrent.atomic.AtomicBoolean down = new java.util.concurrent.atomic.AtomicBoolean(false);
+        List<RunLedger> written = new ArrayList<>();
+        RunLedgerProjection projection = new RunLedgerProjection(record -> {
+            if (down.get()) {
+                throw new RunLedgerProjection.StoreNotDispatchedException("event plane unavailable");
+            }
+            written.add(record);
+        });
+        RunLedger acknowledged = ledger("outage-ordering", JobExecutionState.RUNNING, null, 2, 200, 0);
+        RunLedger unavailableNewer = ledger("outage-ordering", JobExecutionState.RUNNING, null, 3, 300, 0);
+        RunLedger stalePriorAttempt = ledger("outage-ordering", JobExecutionState.RUNNING, null, 1, 400, 0);
+
+        assertThat(projection.project(acknowledged).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        down.set(true);
+        var outage = projection.project(unavailableNewer);
+        assertThat(outage.disposition()).isEqualTo(RunLedgerProjection.Disposition.PROJECTED);
+        assertThat(outage.store()).isEqualTo(RunLedgerProjection.StoreResult.UNAVAILABLE);
+
+        var stale = projection.project(stalePriorAttempt);
+        assertThat(stale.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
+        assertThat(stale.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(written).containsExactly(acknowledged);
+
+        down.set(false);
+        assertThat(projection.project(unavailableNewer).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        assertThat(written).containsExactly(acknowledged, unavailableNewer);
+    }
+
+    @Test
     @DisplayName("Lost store acknowledgement fences retries until exact authoritative readback")
     void ambiguousStoreOutcomeRequiresReadback() {
         var persisted = new java.util.concurrent.atomic.AtomicReference<RunLedger>();
