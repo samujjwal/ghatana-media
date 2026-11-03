@@ -162,6 +162,21 @@ class FrozenHoldoutQualityEvidenceTest {
                 .containsExactlyInAnyOrder("eng", "hin", "npi");
         assertThat(evidence.scope())
                 .isEqualTo(FrozenHoldoutQualityEvidence.Scope.REFERENCE_ONLY);
+        // This deterministic parser fixture models the reported failed tiny
+        // candidate. Its per-locale scores must remain measurements in the
+        // reference-only lane; they are not a model or traffic qualification.
+        assertThat(evidence.localeMeasurements()).containsEntry("eng",
+                new FrozenHoldoutQualityEvidence.LocaleMeasurement("eng", 24, 100, 250,
+                        0.4, 200, 1250, 0.16, null, null));
+        assertThat(evidence.localeMeasurements()).containsEntry("hin",
+                new FrozenHoldoutQualityEvidence.LocaleMeasurement("hin", 24, 274, 250,
+                        1.096, 400, 1250, 0.32, null, null));
+        assertThat(evidence.localeMeasurements()).containsEntry("npi",
+                new FrozenHoldoutQualityEvidence.LocaleMeasurement("npi", 24, 261, 250,
+                        1.044, 300, 1250, 0.24, null, null));
+        assertThat(evidence.latestAll("whisper-provider", "whisper-v1", "whisper-tiny"))
+                .allSatisfy(row -> assertThat(row.scope()).isEqualTo(
+                        MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY));
     }
 
     @Test
