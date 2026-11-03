@@ -178,7 +178,9 @@ class TtsVoiceConsentNegativeTest {
 
         var first = blocking.synthesize(request);
         assertThat(first.getAudioData()).hasSize(128);
-        assertThat(observed).hasSize(1);
+        // A successful request is authorized at ingress and rechecked immediately
+        // before provider dispatch, so queued work cannot outlive its rights snapshot.
+        assertThat(observed).hasSize(2);
 
         // The resolver models a live authority read: revocation becomes effective
         // between independent requests and cannot rely on a cached previous grant.
@@ -186,7 +188,8 @@ class TtsVoiceConsentNegativeTest {
         assertError(() -> blocking.synthesize(request),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
 
-        assertThat(observed).hasSize(2);
+        // The revoked retry is denied at ingress and never reaches the dispatch recheck.
+        assertThat(observed).hasSize(3);
         verify(engine).synthesize(eq("hello"), any());
     }
 
