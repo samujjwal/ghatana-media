@@ -35,6 +35,8 @@ final class WhisperOciWorkerSupervisor {
     private static final int PID_LIMIT = 32;
     private static final int FD_LIMIT = 64;
     private static final int MAX_STDERR_BYTES = 8192;
+    private static final int MAX_COMMAND_CHILDREN = 128;
+    private static final Duration COMMAND_CLEANUP_BUDGET = Duration.ofSeconds(2);
     private static final int MAX_WORKER_OUTPUT_BYTES = 1_048_576;
     private static final Duration CREATE_TIMEOUT = Duration.ofSeconds(15);
     private static final Duration CONTROL_TIMEOUT = Duration.ofSeconds(5);
@@ -209,7 +211,8 @@ final class WhisperOciWorkerSupervisor {
             createAttempted = true;
             CommandResult created = runner.run(create, null,
                     bounded(CREATE_TIMEOUT, deadline, monotonicClock), 8192, MAX_STDERR_BYTES);
-            if (created.timedOut() || created.exitCode() != 0 || created.outputExceeded()) {
+            if (created.timedOut() || created.exitCode() != 0 || created.outputExceeded()
+                    || !created.cleanupConfirmed()) {
                 cleanupConfirmed = removeByName(operation.identity().invocationId().toString());
                 markUnknownQuietly(operation.identity());
                 return response;
@@ -232,6 +235,7 @@ final class WhisperOciWorkerSupervisor {
             CommandResult started = runner.run(List.of(docker, "start", "--attach", "--interactive", containerId),
                     workerInput, remaining, MAX_WORKER_OUTPUT_BYTES, MAX_STDERR_BYTES);
             if (started.timedOut() || operation.cancelled.get() || started.outputExceeded()
+                    || !started.cleanupConfirmed()
                     || started.exitCode() != 0) {
                 kill(containerId);
                 cleanupConfirmed = remove(containerId);
@@ -460,7 +464,8 @@ final class WhisperOciWorkerSupervisor {
     private boolean inspectOomKilled(String containerId) throws IOException {
         CommandResult inspected = runner.run(List.of(docker, "inspect", "--format", "{{.State.OOMKilled}}", containerId),
                 null, CONTROL_TIMEOUT, 16, 256);
-        if (inspected.timedOut() || inspected.exitCode() != 0 || inspected.outputExceeded()) {
+        if (inspected.timedOut() || inspected.exitCode() != 0 || inspected.outputExceeded()
+                || !inspected.cleanupConfirmed()) {
             throw new IOException("Could not confirm Whisper worker OOM state");
         }
         return switch (stdoutText(inspected).trim()) {
@@ -482,7 +487,8 @@ final class WhisperOciWorkerSupervisor {
             CommandResult image = runner.run(List.of(docker, "image", "inspect", "--format",
                     inspectFormat, config.imageDigest()),
                     null, imageBudget, 4096, 1024);
-            if (image.timedOut() || image.exitCode() != 0 || image.outputExceeded()) return false;
+            if (image.timedOut() || image.exitCode() != 0 || image.outputExceeded()
+                    || !image.cleanupConfirmed()) return false;
             String inspected = stdoutText(image).trim();
             if (localImageId) {
                 return config.imageDigest().equals(inspected);
@@ -518,7 +524,8 @@ final class WhisperOciWorkerSupervisor {
                     "--filter", "label=com.ghatana.media.whisper.worker=true",
                     "--filter", "label=com.ghatana.media.oci.broker-instance=" + brokerInstance),
                     null, CONTROL_TIMEOUT, 64 * 1024, 2048);
-            if (listed.timedOut() || listed.exitCode() != 0 || listed.outputExceeded()) return false;
+            if (listed.timedOut() || listed.exitCode() != 0 || listed.outputExceeded()
+                    || !listed.cleanupConfirmed()) return false;
             String output = stdoutText(listed).trim();
             if (output.isEmpty()) return true;
             for (String containerId : output.split("\\R")) {
@@ -535,8 +542,10 @@ final class WhisperOciWorkerSupervisor {
     }
 
     private void kill(String id) {
-        try { runner.run(List.of(docker, "kill", "--signal=KILL", id), null, CONTROL_TIMEOUT, 256, 256); }
-        catch (IOException ignored) { }
+        try {
+            runner.run(List.of(docker, "kill", "--signal=KILL", id), null,
+                    CONTROL_TIMEOUT, 256, 256);
+        } catch (IOException ignored) { }
     }
 
     private boolean remove(String id) {
@@ -547,7 +556,7 @@ final class WhisperOciWorkerSupervisor {
         try {
             CommandResult result = runner.run(List.of(docker, "rm", "--force", id), null,
                     CONTROL_TIMEOUT, 256, 256);
-            return !result.timedOut() && result.exitCode() == 0 && !result.outputExceeded();
+            return removeConfirmed(result);
         } catch (IOException failure) { return false; }
     }
 
@@ -555,7 +564,7 @@ final class WhisperOciWorkerSupervisor {
         try {
             CommandResult result = runner.run(List.of(docker, "rm", "--force", name(invocationId)), null,
                     CONTROL_TIMEOUT, 256, 256);
-            return removeConfirmed(result) && !result.outputExceeded();
+            return removeConfirmed(result);
         } catch (IOException ignored) { return false; }
     }
 
@@ -610,7 +619,8 @@ final class WhisperOciWorkerSupervisor {
     }
 
     private static boolean removeConfirmed(CommandResult result) {
-        return result != null && !result.timedOut() && result.exitCode() == 0;
+        return result != null && !result.timedOut() && result.exitCode() == 0
+                && !result.outputExceeded() && result.cleanupConfirmed();
     }
 
     private static Duration bounded(Duration maximum, long deadline, LongSupplier monotonicClock) throws IOException {
@@ -670,7 +680,11 @@ final class WhisperOciWorkerSupervisor {
     }
 
     record CommandResult(int exitCode, byte[] stdout, byte[] stderr,
-            boolean timedOut, boolean outputExceeded) {
+            boolean timedOut, boolean outputExceeded, boolean cleanupConfirmed) {
+        CommandResult(int exitCode, byte[] stdout, byte[] stderr,
+                boolean timedOut, boolean outputExceeded) {
+            this(exitCode, stdout, stderr, timedOut, outputExceeded, true);
+        }
         CommandResult {
             stdout = stdout == null ? new byte[0] : stdout.clone();
             stderr = stderr == null ? new byte[0] : stderr.clone();
@@ -680,6 +694,19 @@ final class WhisperOciWorkerSupervisor {
     }
 
     static final class ProcessBuilderCommandRunner implements CommandRunner {
+        private final int maxObservedChildren;
+
+        ProcessBuilderCommandRunner() {
+            this(MAX_COMMAND_CHILDREN);
+        }
+
+        ProcessBuilderCommandRunner(int maxObservedChildren) {
+            if (maxObservedChildren < 1 || maxObservedChildren > MAX_COMMAND_CHILDREN) {
+                throw new IllegalArgumentException("Command child observation bound is invalid");
+            }
+            this.maxObservedChildren = maxObservedChildren;
+        }
+
         @Override
         public CommandResult run(List<String> command, byte[] stdin, Duration timeout,
                 int stdoutLimit, int stderrLimit) throws IOException {
@@ -699,24 +726,100 @@ final class WhisperOciWorkerSupervisor {
             writer.setDaemon(true);
             writer.start();
             boolean completed;
+            boolean timedOut = false;
+            boolean cleanupAttempted = false;
+            boolean cleanupConfirmed = true;
+            boolean interrupted = false;
+            long cleanupDeadline = 0;
             try {
                 completed = process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
-                if (!completed) {
-                    process.destroyForcibly();
-                    process.waitFor(2, TimeUnit.SECONDS);
-                }
-                writer.join(1000);
-                stdoutThread.join(1000);
-                stderrThread.join(1000);
-            } catch (InterruptedException interrupted) {
-                Thread.currentThread().interrupt();
-                process.destroyForcibly();
-                return new CommandResult(-1, stdout.bytes(), stderr.bytes(), true, true);
+            } catch (InterruptedException caught) {
+                completed = false;
+                interrupted = true;
             }
+            cleanupDeadline = System.nanoTime() + COMMAND_CLEANUP_BUDGET.toNanos();
+            if (!completed) {
+                timedOut = true;
+                cleanupAttempted = true;
+                CleanupResult cleanup = terminateProcessTree(process, cleanupDeadline, maxObservedChildren);
+                cleanupConfirmed = cleanup.confirmed();
+                interrupted |= cleanup.interrupted();
+            }
+
+            long joinDeadline = cleanupDeadline;
+            ThreadWait writerWait = awaitThread(writer, joinDeadline);
+            ThreadWait stdoutWait = awaitThread(stdoutThread, joinDeadline);
+            ThreadWait stderrWait = awaitThread(stderrThread, joinDeadline);
+            interrupted |= writerWait.interrupted() || stdoutWait.interrupted() || stderrWait.interrupted();
+            if (writerWait.interrupted() || stdoutWait.interrupted() || stderrWait.interrupted()) {
+                timedOut = true;
+                if (!cleanupAttempted) {
+                    cleanupAttempted = true;
+                    if (System.nanoTime() < cleanupDeadline) {
+                        CleanupResult cleanup = terminateProcessTree(process, cleanupDeadline, maxObservedChildren);
+                        cleanupConfirmed = cleanup.confirmed();
+                        interrupted |= cleanup.interrupted();
+                    } else {
+                        cleanupConfirmed = false;
+                    }
+                }
+                closeQuietly(process.getInputStream());
+                closeQuietly(process.getErrorStream());
+                closeQuietly(process.getOutputStream());
+                writerWait = awaitThread(writer, cleanupDeadline);
+                stdoutWait = awaitThread(stdoutThread, cleanupDeadline);
+                stderrWait = awaitThread(stderrThread, cleanupDeadline);
+                interrupted |= writerWait.interrupted() || stdoutWait.interrupted() || stderrWait.interrupted();
+            }
+
             boolean ioIncomplete = writer.isAlive() || stdoutThread.isAlive() || stderrThread.isAlive();
-            return new CommandResult(completed && !stdinFailure.get() && !ioIncomplete ? process.exitValue() : -1,
-                    stdout.bytes(), stderr.bytes(), !completed || stdinFailure.get() || ioIncomplete,
-                    stdout.exceeded() || stderr.exceeded() || ioIncomplete);
+            if (ioIncomplete) {
+                timedOut = true;
+                cleanupConfirmed = false;
+                if (!cleanupAttempted) {
+                    cleanupAttempted = true;
+                    if (System.nanoTime() < cleanupDeadline) {
+                        CleanupResult cleanup = terminateProcessTree(process, cleanupDeadline, maxObservedChildren);
+                        cleanupConfirmed = cleanup.confirmed();
+                        interrupted |= cleanup.interrupted();
+                    }
+                }
+                closeQuietly(process.getInputStream());
+                closeQuietly(process.getErrorStream());
+                closeQuietly(process.getOutputStream());
+                writerWait = awaitThread(writer, cleanupDeadline);
+                stdoutWait = awaitThread(stdoutThread, cleanupDeadline);
+                stderrWait = awaitThread(stderrThread, cleanupDeadline);
+                interrupted |= writerWait.interrupted() || stdoutWait.interrupted() || stderrWait.interrupted();
+                ioIncomplete = writer.isAlive() || stdoutThread.isAlive() || stderrThread.isAlive();
+                if (ioIncomplete) cleanupConfirmed = false;
+            }
+            if (interrupted) Thread.currentThread().interrupt();
+            boolean succeeded = completed && !timedOut && !stdinFailure.get() && !ioIncomplete
+                    && cleanupConfirmed && !stdout.exceeded() && !stderr.exceeded();
+            return new CommandResult(succeeded ? process.exitValue() : -1,
+                    stdout.bytes(), stderr.bytes(), timedOut || stdinFailure.get(),
+                    stdout.exceeded() || stderr.exceeded(), cleanupConfirmed);
+        }
+
+        private static ThreadWait awaitThread(Thread thread, long deadline) {
+            boolean interrupted = false;
+            while (thread.isAlive()) {
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) break;
+                try {
+                    long millis = Math.max(1L, TimeUnit.NANOSECONDS.toMillis(remaining));
+                    thread.join(millis);
+                } catch (InterruptedException ignored) {
+                    interrupted = true;
+                    Thread.interrupted();
+                }
+            }
+            return new ThreadWait(!thread.isAlive(), interrupted);
+        }
+
+        private static void closeQuietly(java.io.Closeable stream) {
+            try { stream.close(); } catch (IOException ignored) { }
         }
 
         private static Thread drainThread(InputStream input, BoundedCapture capture, String name) {
@@ -729,6 +832,83 @@ final class WhisperOciWorkerSupervisor {
             }, name);
             thread.setDaemon(true);
             return thread;
+        }
+
+        /** A trusted CLI wrapper may have child processes; timeouts must stop those too. */
+        private static CleanupResult terminateProcessTree(Process process, long deadline, int maxObservedChildren) {
+            java.util.Set<ProcessHandle> observed = java.util.concurrent.ConcurrentHashMap.newKeySet();
+            java.util.concurrent.atomic.AtomicBoolean discoveryComplete = new java.util.concurrent.atomic.AtomicBoolean(true);
+            long forceDeadline = Math.min(deadline, System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(250));
+            boolean interrupted = false;
+            observeProcessTree(process, observed, discoveryComplete, maxObservedChildren);
+            observed.forEach(WhisperOciWorkerSupervisor.ProcessBuilderCommandRunner::destroy);
+            destroy(process.toHandle());
+            while (System.nanoTime() < deadline) {
+                observeProcessTree(process, observed, discoveryComplete, maxObservedChildren);
+                boolean alive = process.isAlive();
+                for (ProcessHandle handle : observed) alive |= handle.isAlive();
+                if (!alive) return new CleanupResult(discoveryComplete.get(), interrupted);
+
+                if (System.nanoTime() >= forceDeadline) {
+                    observed.forEach(WhisperOciWorkerSupervisor.ProcessBuilderCommandRunner::destroyForcibly);
+                    destroyForcibly(process.toHandle());
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
+                    // Keep cleanup within its fixed deadline; the runner restores interruption on return.
+                    interrupted = true;
+                    Thread.interrupted();
+                }
+            }
+            boolean alive = process.isAlive();
+            for (ProcessHandle handle : observed) alive |= handle.isAlive();
+            return new CleanupResult(!alive && discoveryComplete.get(), interrupted);
+        }
+
+        private static void observeProcessTree(Process process, java.util.Set<ProcessHandle> observed,
+                java.util.concurrent.atomic.AtomicBoolean discoveryComplete, int maxObservedChildren) {
+            if (observed.size() >= maxObservedChildren) {
+                discoveryComplete.set(false);
+                return;
+            }
+            if (process.isAlive()) {
+                observeDescendants(process.toHandle(), observed, discoveryComplete, maxObservedChildren);
+                return;
+            }
+            // The command may exit while an observed child is still forking. Re-scan live
+            // top-level observed handles until cleanup's fixed deadline.
+            for (ProcessHandle handle : List.copyOf(observed)) {
+                if (!handle.isAlive()) continue;
+                boolean hasLiveObservedParent = handle.parent().filter(observed::contains)
+                        .filter(ProcessHandle::isAlive).isPresent();
+                if (!hasLiveObservedParent) observeDescendants(handle, observed, discoveryComplete,
+                        maxObservedChildren);
+            }
+        }
+
+        private static void observeDescendants(ProcessHandle parent, java.util.Set<ProcessHandle> observed,
+                java.util.concurrent.atomic.AtomicBoolean discoveryComplete, int maxObservedChildren) {
+            int remaining = maxObservedChildren - observed.size();
+            if (remaining <= 0) return;
+            try (var descendants = parent.descendants()) {
+                List<ProcessHandle> found = descendants.limit(remaining + 1L).toList();
+                if (found.size() > remaining) discoveryComplete.set(false);
+                found.stream().limit(remaining).forEach(observed::add);
+            } catch (RuntimeException ignored) {
+                discoveryComplete.set(false);
+            }
+        }
+
+        private record CleanupResult(boolean confirmed, boolean interrupted) { }
+        private record ThreadWait(boolean complete, boolean interrupted) { }
+
+        private static void destroy(ProcessHandle process) {
+            try { if (process.isAlive()) process.destroy(); } catch (RuntimeException ignored) { }
+        }
+
+        private static void destroyForcibly(ProcessHandle process) {
+            try { if (process.isAlive()) process.destroyForcibly(); } catch (RuntimeException ignored) { }
         }
     }
 

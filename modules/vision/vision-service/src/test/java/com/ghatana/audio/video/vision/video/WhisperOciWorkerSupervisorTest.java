@@ -403,6 +403,27 @@ class WhisperOciWorkerSupervisorTest {
     }
 
     @Test
+    void forcedRemovalConfirmsCleanupWhenKillFailsAndReleasesWorkerSlot() throws Exception {
+        FakeRunner runner = new FakeRunner();
+        runner.startTimedOut = true;
+        runner.failKill = true;
+        try (Context context = context("kill-failure-remove-success", runner)) {
+            assertThat(context.supervisor().execute(id(0), PROFILE, "en-US", INPUT_SHA,
+                    WAV.getBytes(StandardCharsets.UTF_8), 1000).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(runner.commands).anySatisfy(command -> assertThat(command)
+                    .contains("kill", "--signal=KILL", FakeRunner.CONTAINER));
+            assertThat(runner.commands).anySatisfy(command -> assertThat(command)
+                    .contains("rm", "--force", FakeRunner.CONTAINER));
+
+            // A failed kill is recoverable when forced removal confirms the worker is gone.
+            assertThat(context.supervisor().execute(id(1), PROFILE, "en-US", INPUT_SHA,
+                    WAV.getBytes(StandardCharsets.UTF_8), 1000).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(runner.commands.stream().filter(command -> command.get(1).equals("create")))
+                    .hasSize(2);
+        }
+    }
+
+    @Test
     void timeoutUnknownJournalSurvivesSupervisorReconstructionAndPreventsRedispatch() throws Exception {
         // Both Startup instances execute in this JVM. This proves file-backed journal recovery and
         // conservative redispatch behavior, not broker-process termination or host kill proof.
@@ -582,6 +603,7 @@ class WhisperOciWorkerSupervisorTest {
         private volatile boolean blockStart;
         private volatile boolean blockImageInspect;
         private volatile boolean startTimedOut;
+        private volatile boolean failKill;
         private volatile boolean failRemove;
         private volatile boolean wrongInput;
         private volatile boolean imageMissing;
@@ -626,7 +648,8 @@ class WhisperOciWorkerSupervisorTest {
                 case "inspect" -> ok("false\n");
                 case "kill" -> {
                     if (releaseOnKill.get()) finishStart.countDown();
-                    yield ok("");
+                    yield failKill ? new WhisperOciWorkerSupervisor.CommandResult(
+                            1, bytes("worker already stopped"), new byte[0], false, false) : ok("");
                 }
                 case "rm" -> failRemove ? new WhisperOciWorkerSupervisor.CommandResult(1,
                         bytes("not removed"), bytes("failure"), false, false) : ok("");
