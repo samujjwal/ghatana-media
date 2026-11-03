@@ -16,6 +16,7 @@ import com.ghatana.media.common.AudioData;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Server;
+import io.grpc.stub.StreamObserver;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -65,6 +66,7 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
     private Server server;
     private ManagedChannel channel;
     private TTSServiceGrpc.TTSServiceBlockingStub blockingStub;
+    private PersistentTtsGrpcService grpcService;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -83,13 +85,13 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
         // Create and start gRPC server with JWT interceptor
         String serverName = InProcessServerBuilder.generateName();
-        PersistentTtsGrpcService service = new PersistentTtsGrpcService(
+        grpcService = new PersistentTtsGrpcService(
             library, audioFileService, meterRegistry);
 
         server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
-            .addService(service)
+            .addService(grpcService)
             .intercept(new JwtServerInterceptor())
             .build()
             .start();
@@ -217,8 +219,15 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
         assertThat(exception.getStatus().getDescription()).contains("Missing Bearer token");
 
-        // Verify persistence was never called
-        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        // Direct invocation without an authenticated gRPC context must fail with the same
+        // status and before provider or persistence work, matching interceptor denial.
+        CapturingObserver<SynthesizeResponse> direct = new CapturingObserver<>();
+        grpcService.synthesize(request, direct);
+        assertThat(direct.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+        assertThat(((io.grpc.StatusRuntimeException) direct.error).getStatus().getCode())
+            .isEqualTo(exception.getStatus().getCode());
+
+        verifyNoInteractions(audioFileService, ttsEngine);
     }
 
     @Test
@@ -432,6 +441,14 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
         entity.setSampleRate(16000);
         entity.setStatus(AudioFileEntity.ProcessingStatus.COMPLETED);
         return entity;
+    }
+
+    private static final class CapturingObserver<T> implements StreamObserver<T> {
+        private Throwable error;
+
+        @Override public void onNext(T value) { }
+        @Override public void onError(Throwable failure) { error = failure; }
+        @Override public void onCompleted() { }
     }
 
     /**

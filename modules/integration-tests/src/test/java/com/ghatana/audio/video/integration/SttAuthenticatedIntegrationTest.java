@@ -18,6 +18,7 @@ import io.grpc.Context;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Server;
+import io.grpc.stub.StreamObserver;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -70,6 +71,7 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
     private Server server;
     private ManagedChannel channel;
     private STTServiceGrpc.STTServiceBlockingStub blockingStub;
+    private PersistentSttGrpcService grpcService;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -88,13 +90,13 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
 
         // Create and start gRPC server with JWT interceptor
         String serverName = InProcessServerBuilder.generateName();
-        PersistentSttGrpcService service = new PersistentSttGrpcService(
+        grpcService = new PersistentSttGrpcService(
             library, audioFileService, transcriptionService, meterRegistry);
 
         server = InProcessServerBuilder
             .forName(serverName)
             .directExecutor()
-            .addService(service)
+            .addService(grpcService)
             .intercept(new JwtServerInterceptor())
             .build()
             .start();
@@ -217,8 +219,15 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
         assertThat(exception.getStatus().getDescription()).contains("Missing Bearer token");
 
-        // Verify persistence was never called
-        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        // Direct invocation without an authenticated gRPC context must fail with the same
+        // status and before any provider or persistence boundary, matching interceptor denial.
+        CapturingObserver<TranscribeResponse> direct = new CapturingObserver<>();
+        grpcService.transcribe(request, direct);
+        assertThat(direct.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+        assertThat(((io.grpc.StatusRuntimeException) direct.error).getStatus().getCode())
+            .isEqualTo(exception.getStatus().getCode());
+
+        verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
     }
 
     @Test
@@ -346,6 +355,14 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
         data[28] = 0; data[29] = 0x7D; data[32] = 2; data[34] = 16;
         data[36] = 'd'; data[37] = 'a'; data[38] = 't'; data[39] = 'a'; data[40] = 64;
         return data;
+    }
+
+    private static final class CapturingObserver<T> implements StreamObserver<T> {
+        private Throwable error;
+
+        @Override public void onNext(T value) { }
+        @Override public void onError(Throwable failure) { error = failure; }
+        @Override public void onCompleted() { }
     }
 
     private String generateTestJwt(String tenantId, String userId) {
