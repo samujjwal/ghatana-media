@@ -4,7 +4,9 @@ import {
   CaptureOutcomeUnknownError,
   CaptureUnavailableError,
   captureWithAdmission,
+  noCaptureAdapterProbe,
   noAdmittedCaptureAdapter,
+  probeCaptureAdapter,
   unavailableCaptureAdapter,
   type CaptureRequest,
   type CapturedFrame,
@@ -295,5 +297,53 @@ describe("captureWithAdmission", () => {
     expect(eligibilityRequest?.frameClockRef).toBe(request.frameClockRef);
     expect(frame.sourceIdentity).toBe(request.sourceIdentity);
     expect(frame.frameClockRef).toBe(request.frameClockRef);
+  });
+});
+
+describe("probeCaptureAdapter", () => {
+  const probeRequest = {
+    tenantId: "tenant/demo",
+    sourceId: "source/demo",
+    providerProfileId: "profile/demo",
+    requestedSignals: ["screen", "clock"],
+    policyRef: "policy/capture/v1",
+  } as const;
+
+  it("preserves the PDP-1 observation result variants without dispatching capture", async () => {
+    expect(await probeCaptureAdapter(noCaptureAdapterProbe, probeRequest)).toBe("NOT_QUALIFIED");
+    for (const disposition of ["QUALIFIED", "NOT_QUALIFIED", "UNAVAILABLE", "DENIED"] as const) {
+      let seen: unknown;
+      expect(await probeCaptureAdapter({
+        probe: async (request) => { seen = request; return disposition; },
+      }, probeRequest)).toBe(disposition);
+      expect(seen).toMatchObject(probeRequest);
+      expect(Object.isFrozen(seen)).toBe(true);
+      expect(Object.isFrozen((seen as { requestedSignals: readonly string[] }).requestedSignals)).toBe(true);
+    }
+    expect(noAdmittedCaptureAdapter.check(request)).toBe("NOT_ADMITTED");
+  });
+
+  it("maps failed observation to UNAVAILABLE without exposing provider errors", async () => {
+    await expect(probeCaptureAdapter({
+      probe: async () => { throw new Error("secret-bearing provider failure"); },
+    }, probeRequest)).resolves.toBe("UNAVAILABLE");
+  });
+
+  it("preserves requested signal order and duplicates", async () => {
+    let seenSignals: readonly string[] = [];
+    await probeCaptureAdapter({
+      probe: async (request) => { seenSignals = request.requestedSignals; return "NOT_QUALIFIED"; },
+    }, { ...probeRequest, requestedSignals: ["screen", "clock", "screen"] });
+    expect(seenSignals).toEqual(["screen", "clock", "screen"]);
+  });
+
+  it("rejects malformed source-defined probe requests before invoking the probe", async () => {
+    let calls = 0;
+    const probe = { probe: async () => { calls++; return "QUALIFIED" as const; } };
+    await expect(probeCaptureAdapter(probe, { ...probeRequest, requestedSignals: [] }))
+      .rejects.toThrow(/1\.\.32/u);
+    await expect(probeCaptureAdapter(probe, { ...probeRequest, policyRef: " " }))
+      .rejects.toThrow(/policyRef/u);
+    expect(calls).toBe(0);
   });
 });

@@ -41,6 +41,61 @@ public final class MediaCaptureSourceContracts {
         UNAVAILABLE
     }
 
+    /** Source-defined, observation-only result of capture.probe.v1. */
+    public enum ProbeDisposition { QUALIFIED, NOT_QUALIFIED, UNAVAILABLE, DENIED }
+
+    /** Exact capture.probe.v1 request fields; this operation cannot start capture. */
+    public record ProbeRequest(
+            String tenantId,
+            String sourceId,
+            String providerProfileId,
+            java.util.List<String> requestedSignals,
+            String policyRef) {
+        public ProbeRequest {
+            requireCaptureField(tenantId);
+            requireCaptureField(sourceId);
+            requireCaptureField(providerProfileId);
+            requireCaptureField(policyRef);
+            if (requestedSignals == null || requestedSignals.isEmpty() || requestedSignals.size() > 32) {
+                throw new IllegalArgumentException("requestedSignals must contain 1..32 entries");
+            }
+            requestedSignals = java.util.List.copyOf(requestedSignals);
+            requestedSignals.forEach(MediaCaptureSourceContracts::requireCaptureField);
+        }
+    }
+
+    /** Typed probe result. Qualification is an observation and never starts capture. */
+    public record ProbeResult(ProbeDisposition disposition) {
+        public ProbeResult {
+            Objects.requireNonNull(disposition, "disposition");
+        }
+    }
+
+    /** Trusted observation seam; no implementation is admitted by default. */
+    @FunctionalInterface
+    public interface AdapterProbe {
+        ProbeResult probe(ProbeRequest request);
+
+        static AdapterProbe none() {
+            return request -> new ProbeResult(ProbeDisposition.NOT_QUALIFIED);
+        }
+    }
+
+    /** Calls the observation seam with an immutable bounded request snapshot. */
+    public static ProbeResult probe(AdapterProbe adapterProbe, ProbeRequest request) {
+        Objects.requireNonNull(adapterProbe, "adapterProbe");
+        Objects.requireNonNull(request, "request");
+        try {
+            ProbeResult result = adapterProbe.probe(request);
+            return result == null
+                    ? new ProbeResult(ProbeDisposition.UNAVAILABLE)
+                    : result;
+        } catch (RuntimeException ignored) {
+            // Probe error text can contain credentials or source details.
+            return new ProbeResult(ProbeDisposition.UNAVAILABLE);
+        }
+    }
+
     /**
      * One capture request: the immutable identity of what may be captured,
      * for what purpose, at which source revision. Secrets are referenced,

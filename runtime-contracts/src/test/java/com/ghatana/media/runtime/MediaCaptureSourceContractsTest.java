@@ -1,10 +1,14 @@
 package com.ghatana.media.runtime;
 
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.AdapterEligibility;
+import com.ghatana.media.runtime.MediaCaptureSourceContracts.AdapterProbe;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.CaptureRequest;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.CapturedBytes;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.CaptureSourceKind;
 import com.ghatana.media.runtime.MediaCaptureSourceContracts.Eligibility;
+import com.ghatana.media.runtime.MediaCaptureSourceContracts.ProbeDisposition;
+import com.ghatana.media.runtime.MediaCaptureSourceContracts.ProbeRequest;
+import com.ghatana.media.runtime.MediaCaptureSourceContracts.ProbeResult;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,6 +43,42 @@ class MediaCaptureSourceContractsTest {
             assertThat(MediaCaptureSourceContracts.mayCapture(
                     r -> Eligibility.UNAVAILABLE, request(kind))).isFalse();
         }
+    }
+
+    @Test
+    void captureProbeUsesSourceDefinedVariantsAndDefaultsToNotQualified() {
+        ProbeRequest request = new ProbeRequest("tenant-1", "source-1", "profile-1",
+                java.util.List.of("screen", "clock"), "policy/v1");
+        assertThat(MediaCaptureSourceContracts.probe(AdapterProbe.none(), request).disposition())
+                .isEqualTo(ProbeDisposition.NOT_QUALIFIED);
+        for (ProbeDisposition disposition : ProbeDisposition.values()) {
+            assertThat(MediaCaptureSourceContracts.probe(
+                    candidate -> new ProbeResult(disposition), request).disposition())
+                    .isEqualTo(disposition);
+        }
+    }
+
+    @Test
+    void captureProbeRequiresBoundedSourceDefinedFields() {
+        assertThatThrownBy(() -> new ProbeRequest("tenant-1", "source-1", "profile-1",
+                java.util.List.of(), "policy/v1")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new ProbeRequest("tenant-1", "source-1", "profile-1",
+                java.util.List.of(" "), "policy/v1")).isInstanceOf(IllegalArgumentException.class);
+        ProbeRequest duplicated = new ProbeRequest("tenant-1", "source-1", "profile-1",
+                java.util.List.of("screen", "clock", "screen"), "policy/v1");
+        assertThat(duplicated.requestedSignals()).containsExactly("screen", "clock", "screen");
+        assertThatThrownBy(() -> duplicated.requestedSignals().add("mutate"))
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void captureProbeFailureBecomesSanitizedUnavailableResult() {
+        ProbeRequest request = new ProbeRequest("tenant-1", "source-1", "profile-1",
+                java.util.List.of("screen"), "policy/v1");
+        ProbeResult result = MediaCaptureSourceContracts.probe(candidate -> {
+            throw new IllegalStateException("credential=do-not-leak");
+        }, request);
+        assertThat(result.disposition()).isEqualTo(ProbeDisposition.UNAVAILABLE);
     }
 
     @Test

@@ -11,6 +11,63 @@ export type CaptureSourceKind =
   | "HTTP_API" | "GRPC_API" | "CAMERA" | "MEDIA_FILE";
 
 export type CaptureEligibility = "ADMITTED" | "NOT_ADMITTED" | "UNAVAILABLE";
+/** Exact result variants of PDP-1 media.recorder.operation.capture.probe.v1. */
+export type CaptureProbeDisposition = "QUALIFIED" | "NOT_QUALIFIED" | "UNAVAILABLE" | "DENIED";
+
+/** Observation-only request fields defined by PDP-1 capture.probe.v1. */
+export interface CaptureProbeRequest {
+  readonly tenantId: string;
+  readonly sourceId: string;
+  readonly providerProfileId: string;
+  readonly requestedSignals: readonly string[];
+  readonly policyRef: string;
+}
+
+export interface CaptureAdapterProbe {
+  probe(request: CaptureProbeRequest): Promise<CaptureProbeDisposition>;
+}
+
+const CAPTURE_PROBE_DISPOSITIONS: ReadonlySet<string> = new Set([
+  "QUALIFIED", "NOT_QUALIFIED", "UNAVAILABLE", "DENIED",
+]);
+const MAX_CAPTURE_PROBE_SIGNALS = 32;
+
+/** Default probe is explicitly not qualified and can never enable capture. */
+export const noCaptureAdapterProbe: CaptureAdapterProbe = {
+  probe: async () => "NOT_QUALIFIED",
+};
+
+/** Execute only the source-defined observation probe; never starts capture. */
+export async function probeCaptureAdapter(
+  probe: CaptureAdapterProbe,
+  request: CaptureProbeRequest,
+): Promise<CaptureProbeDisposition> {
+  if (!probe || typeof probe.probe !== "function") {
+    throw new TypeError("capture probe is required");
+  }
+  if (!request || typeof request !== "object" || !Array.isArray(request.requestedSignals)
+    || request.requestedSignals.length < 1 || request.requestedSignals.length > MAX_CAPTURE_PROBE_SIGNALS) {
+    throw new TypeError("capture probe request must contain 1..32 requested signals");
+  }
+  const snapshot: CaptureProbeRequest = Object.freeze({
+    tenantId: requireRequestField(request.tenantId, "tenantId"),
+    sourceId: requireRequestField(request.sourceId, "sourceId"),
+    providerProfileId: requireRequestField(request.providerProfileId, "providerProfileId"),
+    requestedSignals: Object.freeze(request.requestedSignals.map((signal, index) =>
+      requireRequestField(signal, `requestedSignals[${index}]`))),
+    policyRef: requireRequestField(request.policyRef, "policyRef"),
+  });
+  let disposition: CaptureProbeDisposition;
+  try {
+    disposition = await probe.probe(snapshot);
+  } catch {
+    return "UNAVAILABLE";
+  }
+  if (!CAPTURE_PROBE_DISPOSITIONS.has(disposition)) {
+    throw new TypeError("capture probe returned an unsupported disposition");
+  }
+  return disposition;
+}
 
 const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
   "BROWSER", "DESKTOP", "MOBILE", "TERMINAL", "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE",
