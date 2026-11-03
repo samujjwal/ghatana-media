@@ -845,6 +845,19 @@ class MediaRuntimeActiveTest {
             assertThat(ack.path("bufferedBytes").asLong()).isEqualTo(pcm.length);
             assertThat(ack.path("backpressured").asBoolean()).isFalse();
 
+            byte[] oversizedPcm = new byte[17];
+            var oversized = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
+                            endpoint + "/api/v1/streams/" + sessionId + "/frames/1"))
+                    .header("Content-Type", "application/octet-stream")
+                    .header("X-Tenant-Id", tenant)
+                    .header("X-Principal-Id", principal)
+                    .header("X-Stream-Token", token)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(oversizedPcm))
+                    .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            assertThat(oversized.statusCode()).as("oversized frame response: %s", oversized.body()).isEqualTo(400);
+            assertThat(mapper.readTree(oversized.body()).path("error").path("code").asText())
+                    .isEqualTo("INVALID_REQUEST");
+
             var sequenceGap = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
                             endpoint + "/api/v1/streams/" + sessionId + "/frames/2"))
                     .header("Content-Type", "application/octet-stream")
