@@ -3,11 +3,18 @@ package com.ghatana.media.provider.aws;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ghatana.media.runtime.MediaLifecycleEvent;
+import com.ghatana.media.runtime.MediaJobRequestFingerprint;
+import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -157,6 +164,155 @@ class PostgresqlMediaMultimodalSnapshotTest {
     }
 
     @Test
+    void successfulFusedResultIsCommittedOnceAndReadsBackExactlyAfterStoreRestart() throws Exception {
+        String bucket = bucket();
+        String requestId = "request-mm-result-" + runId();
+        MultimodalOperationSpec spec = spec(1);
+        ProcessingJob parent = mmJob(requestId);
+        Map<String, Object> fusedResult;
+        ProcessingAttempt receiptAttempt;
+        List<String> childJobIds = new java.util.ArrayList<>();
+        List<String> childRequestIds = new java.util.ArrayList<>();
+        List<Map<String, Object>> childResults = new java.util.ArrayList<>();
+        var observedAt = Instant.ofEpochMilli(Instant.now().toEpochMilli());
+
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                integrationEnvironment(bucket))) {
+            try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+                store.create(parent, parent.requestFingerprint(), null, snapshot(spec));
+                var parentLease = store.claim(parent, "mm-worker", Instant.now().plusSeconds(60));
+                var parentStart = store.startAttempt(
+                        parent, running(parent), parentLease, 1, parent.requestFingerprint());
+
+                List<ProcessingJob> children = new java.util.ArrayList<>();
+                for (MultimodalOperationSpec.ChildOperationSpec childSpec : spec.children()) {
+                    String childRequestId = MultimodalOperationSpec.childRequestId(requestId, childSpec.childKey());
+                    String childJobId = "job-mm-" + childSpec.childKey() + "-" + runId();
+                    String providerId = childSpec.providerHint().isBlank()
+                            ? "provider-" + childSpec.jobType().name().toLowerCase(java.util.Locale.ROOT)
+                            : childSpec.providerHint();
+                    ProcessingJob acceptedChild = new ProcessingJob(
+                            childJobId, childRequestId, parent.tenantId(), parent.principalId(),
+                            childSpec.artifactId(), childSpec.jobType(), providerId, JobStatus.ACCEPTED,
+                            Instant.now(), null, null, Map.of(), "", 1, childSpec.artifactVersion(),
+                            "d".repeat(64));
+                    ProcessingJobRequest childRequest = new ProcessingJobRequest(
+                            childRequestId, parent.tenantId(), parent.principalId(), requestId,
+                            childSpec.artifactId(), childSpec.artifactVersion(), childSpec.jobType(),
+                            providerId, childSpec.parameters());
+                    SttSubmissionSnapshot sttSnapshot = SttSubmissionSnapshot.from(childRequest);
+                    store.create(acceptedChild, acceptedChild.requestFingerprint(), sttSnapshot, null);
+                    var childLease = store.claim(acceptedChild, "child-worker-" + childSpec.childKey(),
+                            Instant.now().plusSeconds(60));
+                    var childStart = store.startAttempt(acceptedChild, running(acceptedChild), childLease,
+                            1, acceptedChild.requestFingerprint());
+                    Map<String, Object> childResult = Map.of("text", "fixture:" + childSpec.childKey());
+                    var childWithReceipt = store.recordProviderReceipt(childStart.attempt(), childLease,
+                            "child-operation-" + acceptedChild.jobId(), "child-receipt-" + acceptedChild.jobId());
+                    ProviderAttemptObservation childObservation = new ProviderAttemptObservation(
+                            childWithReceipt.query(), AttemptFinality.SUCCEEDED,
+                            childWithReceipt.providerReceiptId(), childResult, "e".repeat(64), observedAt);
+                    ProcessingJob completedChild = new ProcessingJob(
+                            acceptedChild.jobId(), acceptedChild.requestId(), acceptedChild.tenantId(),
+                            acceptedChild.principalId(), acceptedChild.artifactId(), acceptedChild.jobType(),
+                            acceptedChild.providerId(), JobStatus.COMPLETED, acceptedChild.createdAt(),
+                            childStart.running().startedAt(), observedAt, childResult, "",
+                            childStart.running().version() + 1, acceptedChild.expectedArtifactVersion(),
+                            acceptedChild.requestFingerprint());
+                    MediaLifecycleEvent childEvent = new MediaLifecycleEvent(
+                            "media:mm-child-result:" + acceptedChild.jobId(), "media.job.completed",
+                            acceptedChild.tenantId(), acceptedChild.principalId(), acceptedChild.requestId(),
+                            acceptedChild.requestId(), "job", acceptedChild.jobId(), completedChild.version(),
+                            "INTERNAL", observedAt, Map.of("jobId", acceptedChild.jobId(), "status", "COMPLETED"));
+                    store.commitFinalOutcome(childStart.running(), childWithReceipt, completedChild,
+                            childObservation, childEvent);
+                    children.add(completedChild);
+                    childJobIds.add(completedChild.jobId());
+                    childRequestIds.add(completedChild.requestId());
+                    childResults.add(childResult);
+                }
+                fusedResult = MultimodalOperationSpec.fusedResult(spec, children);
+                receiptAttempt = store.recordProviderReceipt(
+                        parentStart.attempt(), parentLease, "mm-operation-" + parent.jobId(),
+                        "mm-receipt-" + parent.jobId());
+                ProviderAttemptObservation observation = new ProviderAttemptObservation(
+                        receiptAttempt.query(), AttemptFinality.SUCCEEDED, receiptAttempt.providerReceiptId(),
+                        fusedResult, "f".repeat(64), observedAt);
+                ProcessingJob completedParent = new ProcessingJob(
+                        parent.jobId(), parent.requestId(), parent.tenantId(), parent.principalId(),
+                        parent.artifactId(), parent.jobType(), parent.providerId(), JobStatus.COMPLETED,
+                        parent.createdAt(), parentStart.running().startedAt(), observedAt, fusedResult, "",
+                        parentStart.running().version() + 1, parent.expectedArtifactVersion(),
+                        parent.requestFingerprint());
+                MediaLifecycleEvent completedEvent = new MediaLifecycleEvent(
+                        "media:mm-result:" + parent.jobId(), "media.job.completed", parent.tenantId(),
+                        parent.principalId(), parent.requestId(), parent.requestId(), "job", parent.jobId(),
+                        completedParent.version(), "INTERNAL", observedAt,
+                        Map.of("jobId", parent.jobId(), "status", "COMPLETED"));
+                store.commitFinalOutcome(parentStart.running(), receiptAttempt, completedParent,
+                        observation, completedEvent);
+
+                // Reusing the canonical request and spec resolves to the same parent identity.
+                assertThat(store.create(parent, parent.requestFingerprint(), null, snapshot(spec)).jobId())
+                        .isEqualTo(parent.jobId());
+                // The original RUNNING version cannot be finalized a second time, even with
+                // the identical fused result and receipt: finalization is compare-and-set.
+                assertThatThrownBy(() -> store.commitFinalOutcome(parentStart.running(), receiptAttempt,
+                        completedParent, observation, completedEvent))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessage("Media attempt finality fence changed");
+
+                // Keep the shared Testcontainers runtime state alive while replacing the
+                // store handle; closing its final reference tears down the test database.
+                PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore();
+                store.close();
+                try (restarted) {
+                    ProcessingJob readback = restarted.findByRequest(parent.tenantId(), requestId).orElseThrow();
+                    assertThat(readback.status()).isEqualTo(JobStatus.COMPLETED);
+                    assertThat(MediaJobRequestFingerprint.canonicalJson(readback.result()))
+                            .isEqualTo(MediaJobRequestFingerprint.canonicalJson(fusedResult));
+                    assertThat(restarted.findMultimodalOperationSnapshot(parent.tenantId(), parent.jobId())
+                            .orElseThrow().operationSpec()).isEqualTo(spec);
+                    var attempt = restarted.findProcessingAttempt(parent.tenantId(), parent.jobId(), 1).orElseThrow();
+                    assertThat(attempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+                    assertThat(attempt.providerOperationId()).isEqualTo("mm-operation-" + parent.jobId());
+                    assertThat(attempt.providerReceiptId()).isEqualTo("mm-receipt-" + parent.jobId());
+                    assertThat(attempt.resultDigest()).isEqualTo(sha256(fusedResult));
+                    assertThat(attempt.observedAt()).isEqualTo(observedAt);
+                    assertThat(restarted.findProcessingAttempt(parent.tenantId(), parent.jobId(), 2)).isEmpty();
+
+                    for (int index = 0; index < childJobIds.size(); index++) {
+                        ProcessingJob childReadback = restarted.findByRequest(
+                                parent.tenantId(), childRequestIds.get(index)).orElseThrow();
+                        assertThat(childReadback.jobId()).isEqualTo(childJobIds.get(index));
+                        assertThat(childReadback.status()).isEqualTo(JobStatus.COMPLETED);
+                        assertThat(MediaJobRequestFingerprint.canonicalJson(childReadback.result()))
+                                .isEqualTo(MediaJobRequestFingerprint.canonicalJson(childResults.get(index)));
+                        assertThat(childReadback.artifactId())
+                                .isEqualTo(spec.children().get(index).artifactId());
+                        assertThat(childReadback.expectedArtifactVersion())
+                                .isEqualTo(spec.children().get(index).artifactVersion());
+                        assertThat(childReadback.jobType()).isEqualTo(spec.children().get(index).jobType());
+                        String retainedFusedJson = MediaJobRequestFingerprint.canonicalJson(readback.result());
+                        assertThat(retainedFusedJson).contains(childReadback.jobId(), childReadback.requestId());
+                        var childAttempt = restarted.findProcessingAttempt(
+                                parent.tenantId(), childReadback.jobId(), 1).orElseThrow();
+                        assertThat(childAttempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+                        assertThat(childAttempt.requestId()).isEqualTo(childReadback.requestId());
+                        assertThat(childAttempt.requestFingerprint()).isEqualTo(childReadback.requestFingerprint());
+                        assertThat(childAttempt.providerOperationId())
+                                .isEqualTo("child-operation-" + childReadback.jobId());
+                        assertThat(childAttempt.providerReceiptId())
+                                .isEqualTo("child-receipt-" + childReadback.jobId());
+                        assertThat(restarted.findProcessingAttempt(
+                                parent.tenantId(), childReadback.jobId(), 2)).isEmpty();
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void snapshotIsRequiredForMultimodalAndAbsentForOtherJobTypes() throws Exception {
         try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
                      integrationEnvironment(bucket()));
@@ -268,5 +424,13 @@ class PostgresqlMediaMultimodalSnapshotTest {
 
     private static String runId() {
         return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private static String sha256(Object value) throws Exception {
+        byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                .digest(tools.jackson.databind.json.JsonMapper.builder()
+                        .addModules(tools.jackson.databind.cfg.MapperBuilder.findModules())
+                        .build().writeValueAsBytes(value));
+        return java.util.HexFormat.of().formatHex(digest);
     }
 }
