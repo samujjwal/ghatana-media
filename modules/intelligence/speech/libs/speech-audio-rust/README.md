@@ -25,6 +25,18 @@ The only in-repository Rust source consumer found for this crate is its
 resource probe, not a Media runtime consumer. No Java/JNI, C ABI, provider
 adapter, STT/TTS engine, or streaming session/frame API is exported here.
 
+## Build and platform evidence
+
+On 2026-11-03, the locked crate passed `cargo fmt --check`,
+`cargo test --locked --offline` (55 unit tests; 0 doc tests), and
+`cargo clippy --locked --offline --all-targets -- -D warnings` with Rust 1.94.0
+on `aarch64-apple-darwin`. Offline mode confirms this run used the dependencies
+already available locally; it does not establish builds for other target
+triples. There is no Java consumer in `modules/`, so no Java consumer vector or
+supported Java/FFI platform is claimed. The repository has no Cargo config
+setting a shared target directory or artifact cleanup policy; this check left
+the normal `target/` artifacts in place.
+
 ## Capability disposition
 
 All 63 IDs below are service-level intents assigned to RS work for review. The

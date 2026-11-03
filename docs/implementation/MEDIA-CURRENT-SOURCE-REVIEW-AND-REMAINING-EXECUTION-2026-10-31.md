@@ -3764,3 +3764,7 @@ Added `CaptureSourceKindSchema` and its inferred type using the exact eight PDP-
 ### 43.68 November 3 TY-05 source-free package surface review
 
 No package source change was warranted: the `@audio-video/types` suite already exercises public exports/subpaths, source-free ESM/CJS/type consumption, structural result fixtures, request validation, cancellation, legacy-state preservation and backward-compatible shapes. `pnpm --filter @audio-video/types test` passed **84 tests**; `pnpm --filter @audio-video/types test:package` passed its packed-consumer check; `git diff --check` passed. This review found no additional TY-05 code gap, but it does not establish every installed Media host consumer or the full TY-05 physical-surface acceptance denominator.
+
+### 43.69 November 3 RS-06 offline Rust crate and Java-consumer review
+
+The Rust speech-audio crate has no active Media Java consumer or owned JNI/C-ABI bridge; the only in-repository source consumer found is its local RSS probe. The crate README now records the exact tested host and command results: Rust 1.94.0 on `aarch64-apple-darwin`, `cargo fmt --check`, `cargo test --locked --offline` (**55 unit tests**, 0 doc tests), and `cargo clippy --locked --offline --all-targets -- -D warnings` all passed. No bridge or model-download path was invented. This evidence covers one local target only; Java consumer vectors and other target triples remain unverified, so RS-06 remains partial.
