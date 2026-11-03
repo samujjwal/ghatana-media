@@ -113,6 +113,17 @@ class PlatformVisionClientAdapterTest {
     }
 
     @Test
+    void rejectsProviderDetectionWithoutClassNameBeforeReturningVisualResult() throws Exception {
+        VisionEngine engine = mock(VisionEngine.class);
+        when(engine.detect(any(), any())).thenReturn(new DetectionResult(
+                List.of(new DetectedObject(" ", 0.5, new BoundingBox(0, 0, 1, 1, 0.5))),
+                8, 8, 1, "test"));
+
+        assertThatThrownBy(() -> adapter(engine).detectObjects(png()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("class name");
+    }
+
+    @Test
     void routesImageThroughPublishedVisionSpi() throws Exception {
         VisionEngine engine = mock(VisionEngine.class);
         when(engine.detect(any(), any())).thenReturn(new DetectionResult(
