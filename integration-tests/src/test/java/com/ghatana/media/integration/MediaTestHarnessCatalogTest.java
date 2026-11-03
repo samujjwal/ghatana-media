@@ -39,6 +39,8 @@ class MediaTestHarnessCatalogTest {
                 .containsExactlyInAnyOrder(
                         "local-lifecycle-fixtures",
                         "synthetic-stream-workload",
+                        "synthetic-frame-timebase",
+                        "optional-platform-no-effect",
                         "disabled-legacy-scaffolds",
                         "launcher-h2-localstack",
                         "postgres-localstack-restart-and-policy",
