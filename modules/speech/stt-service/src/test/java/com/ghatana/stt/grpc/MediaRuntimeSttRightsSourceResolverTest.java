@@ -80,7 +80,7 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
-    void humanSourceCarriesRegisteredConsentReferenceIntoPolicyFacts() throws Exception {
+    void humanSourceIsUnavailableWithoutCurrentMediaConsentAuthority() throws Exception {
         administration.add(recordWithConsent(
                 MediaSourceAuthorizationContracts.SourceKind.HUMAN_RECORDING,
                 MediaSourceAuthorizationContracts.HumanConsentDisposition.REQUIRED,
@@ -88,8 +88,8 @@ class MediaRuntimeSttRightsSourceResolverTest {
 
         Resolution resolution = await(resolver.resolve(request(IDENTITY)));
 
-        assertThat(resolution.status()).isEqualTo(Status.ADMITTED);
-        assertThat(resolution.facts().consentReference()).isEqualTo("consent-decision-fixture");
+        assertThat(resolution.status()).isEqualTo(Status.UNAVAILABLE);
+        assertThat(resolution.facts()).isNull();
     }
 
     @Test

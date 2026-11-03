@@ -107,6 +107,14 @@ final class MediaRuntimeSttRightsSourceResolver
         if (!hasValidConsentShape(record)) {
             return new Resolution(Status.UNAVAILABLE, null);
         }
+        // This STT gRPC composition has no MediaConsentAuthority binding. A nonblank
+        // consentDecisionId in the source-rights row is only a reference; it does not prove
+        // that the decision is still active, purpose-bound, or unrevoked. Keep human and
+        // third-party sources unavailable here until current consent can be verified by its
+        // owning authority. The MediaRuntime path performs that independent verification.
+        if (record.humanConsentDisposition() == HumanConsentDisposition.REQUIRED) {
+            return new Resolution(Status.UNAVAILABLE, null);
+        }
         if (!record.principalId().equals(subject)
                 || !record.allowedOperations().contains(operationToken(request.operation()))) {
             return new Resolution(Status.DENIED, null);
