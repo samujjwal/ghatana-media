@@ -7,13 +7,23 @@
     ".product-experience/pdp-1-domain-data/operations.yaml"
   ],
   "denominators": {
-    "exportedTypes": 20,
-    "publicSchemas": 21
+    "exportedTypes": 21,
+    "publicSchemas": 22
   },
   "runtimeSupportImplied": false,
   "semanticOperationParity": "UNRESOLVED",
   "wireParity": "UNRESOLVED",
   "bindings": [
+    {
+      "schema": "SourcePresentationTimeSchema",
+      "type": "SourcePresentationTime",
+      "role": "DOMAIN_OPERATION_INPUT_COMPONENT",
+      "pdp1Refs": [
+        "media.operation.vision-analysis"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
+    },
     {
       "schema": "MediaClassificationSchema",
       "type": "MediaClassification",
@@ -295,6 +305,15 @@
       "SUPPORTING_SCHEMA"
     ],
     "bindings": [
+      {
+        "type": "SourcePresentationTime",
+        "schema": "SourcePresentationTimeSchema",
+        "role": "VALUE_OBJECT",
+        "semanticRef": "media.operation.vision-analysis",
+        "reason": "rational source-clock coordinate component; does not establish a qualified clock mapping or runtime source authority",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
       {
         "type": "MediaClassification",
         "schema": "MediaClassificationSchema",

@@ -85,6 +85,16 @@ try {
     import * as production from '@audio-video/types/production';
     assert.equal(root.createAudioData(new ArrayBuffer(0)).sampleRate, 16000);
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
+    const sourceTime = contracts.SourcePresentationTimeSchema.parse({
+      numerator: 45000, denominator: 90000, clockRef: 'source-pts-1',
+    });
+    assert.equal(sourceTime.denominator, 90000);
+    assert.throws(() => contracts.SourcePresentationTimeSchema.parse({
+      numerator: 1, denominator: 0, clockRef: 'source-pts-1',
+    }));
+    assert.throws(() => contracts.SourcePresentationTimeSchema.parse({
+      numerator: Number.MAX_SAFE_INTEGER + 1, denominator: 1, clockRef: 'source-pts-1',
+    }));
     assert.equal(production.OpaqueIdSchema.parse('scene-1'), 'scene-1');
     const requestFixture = { artifactId: 'source-1', idempotencyKey: 'idem-1' };
     assert.equal(contracts.TranscriptionRequestSchema.parse(requestFixture).idempotencyKey, 'idem-1');
@@ -116,6 +126,16 @@ try {
     const production = require('@audio-video/types/production');
     assert.equal(root.createAudioData(new ArrayBuffer(0)).sampleRate, 16000);
     assert.equal(contracts.MediaArtifactKindSchema.parse('AUDIO'), 'AUDIO');
+    const sourceTime = contracts.SourcePresentationTimeSchema.parse({
+      numerator: 45000, denominator: 90000, clockRef: 'source-pts-1',
+    });
+    assert.equal(sourceTime.denominator, 90000);
+    assert.throws(() => contracts.SourcePresentationTimeSchema.parse({
+      numerator: 1, denominator: 0, clockRef: 'source-pts-1',
+    }));
+    assert.throws(() => contracts.SourcePresentationTimeSchema.parse({
+      numerator: Number.MAX_SAFE_INTEGER + 1, denominator: 1, clockRef: 'source-pts-1',
+    }));
     assert.equal(production.OpaqueIdSchema.parse('scene-1'), 'scene-1');
     const requestFixture = { artifactId: 'source-1', idempotencyKey: 'idem-1' };
     assert.equal(contracts.TranscriptionRequestSchema.parse(requestFixture).idempotencyKey, 'idem-1');
@@ -143,7 +163,8 @@ try {
   await writeFile(path.join(consumerRoot, 'consumer.ts'), `
     import { createAudioData, type AudioFormat } from '@audio-video/types';
     import {
-      MediaArtifactKindSchema, type MediaArtifact,
+      MediaArtifactKindSchema, SourcePresentationTimeSchema, type MediaArtifact,
+      type SourcePresentationTime,
       type TranscriptionRequest, type TranscriptionResult,
     } from '@audio-video/types/contracts';
     import { StoryTimeSchema, type AnimationSpec } from '@audio-video/types/production';
@@ -151,6 +172,9 @@ try {
     const format: AudioFormat = 'wav';
     const audio = createAudioData(new ArrayBuffer(0), { format });
     const kind: MediaArtifact['kind'] = MediaArtifactKindSchema.parse('AUDIO');
+    const sourceTime: SourcePresentationTime = SourcePresentationTimeSchema.parse({
+      numerator: 45000, denominator: 90000, clockRef: 'source-pts-1',
+    });
     const story = StoryTimeSchema.parse({
       clockKind: 'story',
       clockId: 'clock-1',
@@ -178,7 +202,7 @@ try {
       languageTag: 'en', confidence: 0.9, providerId: 'fixture-provider',
       words: [], alternatives: [], modelId: 'fixture-model', modelVersion: 'fixture-v1', processingTimeMs: 1,
     };
-    void [audio, kind, animation, request, result];
+    void [audio, kind, sourceTime, animation, request, result];
   `);
 
   run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
