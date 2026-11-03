@@ -4,6 +4,7 @@ import com.ghatana.stt.diarization.SpeakerDiarizationService;
 import com.ghatana.tts.ssml.SsmlProcessor;
 import com.ghatana.audio.video.vision.recognition.FacialRecognitionService;
 import com.ghatana.audio.video.vision.scene.SceneUnderstandingService;
+import com.ghatana.audio.video.vision.video.SourceMediaTimestamp;
 import com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp;
 import com.ghatana.audio.video.multimodal.datacloud.MediaProcessingProvider;
 import com.ghatana.audio.video.infrastructure.persistence.ledger.AudioVideoRunLedgerEntry;
@@ -174,6 +175,33 @@ class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
             assertThat(absent.domain()).isNull();
             assertThat(absent.clockId()).isNull();
             assertThat(absent.unknownReason()).isEqualTo("NO_SOURCE_PTS");
+        }
+
+        @Test
+        @DisplayName("source PTS adapter preserves exact rational timebase and source UNKNOWN reason")
+        void sourceTimebase_adapterPreservesPtsAndUnknownProvenance() {
+            MediaClockTimestamp sourcePts = MediaClockTimestamp.fromSource(
+                    SourceMediaTimestamp.fromPts("3003", "1/90000"), "synthetic-fixture:video-clock");
+
+            assertThat(sourcePts.status()).isEqualTo(MediaClockTimestamp.Status.KNOWN);
+            assertThat(sourcePts.ticks()).isEqualTo(3_003L);
+            assertThat(sourcePts.timeBaseNumerator()).isEqualTo(1L);
+            assertThat(sourcePts.timeBaseDenominator()).isEqualTo(90_000L);
+            assertThat(sourcePts.toMilliseconds()).isEqualTo(33L);
+            assertThat(sourcePts.domain()).isEqualTo(MediaClockTimestamp.ClockDomain.SOURCE);
+            assertThat(sourcePts.clockId()).isEqualTo("synthetic-fixture:video-clock");
+
+            MediaClockTimestamp missingPts = MediaClockTimestamp.fromSource(
+                    SourceMediaTimestamp.unknown("NO_SOURCE_PTS"), "synthetic-fixture:video-clock");
+
+            assertThat(missingPts.status()).isEqualTo(MediaClockTimestamp.Status.UNKNOWN);
+            assertThat(missingPts.ticks()).isNull();
+            assertThat(missingPts.timeBaseNumerator()).isNull();
+            assertThat(missingPts.timeBaseDenominator()).isNull();
+            assertThat(missingPts.domain()).isNull();
+            assertThat(missingPts.clockId()).isNull();
+            assertThat(missingPts.toMilliseconds()).isNull();
+            assertThat(missingPts.unknownReason()).isEqualTo("NO_SOURCE_PTS");
         }
     }
 

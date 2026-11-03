@@ -3941,3 +3941,18 @@ The Explorer's global single-key mode shortcuts now yield from links, buttons, e
 ### 43.107 November 3 STT-04/05/09 local boundary recheck
 
 A focused review of `SttAudioInputDecoder`, the upload/source guard, stream sequence/session state, and `AvJobLifecycleAdapter` found no additional local defect supported by the present contract. Existing bounds and refusal paths remain intact: uploads lack governed source/version storage, streaming lacks an admitted durable session, and `UNKNOWN`/`RECONCILING` do not project as `RUNNING`. No source, FLEURS artifact, audio, or model was touched and no test was rerun. STT-04/05/09 remain open for their exact source/codec/provider/finality evidence; this no-change review does not accept them.
+
+
+### 43.108 November 3 Explorer and UI package regression/build pass
+
+The complete Explorer test package passed **8/8** with `pnpm --filter @ghatana/media-experience-explorer test`; the complete Media UI package passed **64/64** with `pnpm --filter @audio-video/ui test`. `pnpm --filter @ghatana/media-experience-explorer build` also succeeded. Vite reported existing bundling warnings for Node built-ins externalized from Shared AccessibilityAuditorEngine, misplaced Zod `@__PURE__` comments, ignored `use client` directives and a chunk over 500 kB. The UI package typecheck and Explorer typecheck passed after a forced UI declaration rebuild. These source/package checks do not establish browser-host, screen-reader, or visual qualification.
+
+
+### 43.109 November 3 CT-02/CT-03 source-free integration regressions
+
+Added a TTS interceptor negative proving that caller-supplied tenant and processing-purpose metadata cannot fill a missing JWT tenant; the request remains `UNAUTHENTICATED` with zero storage/provider interactions. Added a source-timebase adapter case proving exact 3003/90000 PTS preservation and that missing source PTS remains `UNKNOWN` without fabricated temporal fields. The focused composite Gradle run `./gradlew :services:media:modules:integration-tests:test --tests com.ghatana.audio.video.integration.TtsAuthenticatedIntegrationTest --tests 'com.ghatana.audio.video.integration.AudioVideoAdvancedServicesIntegrationTest$SourceTimebaseIntegration'` passed **11/11** on Darwin arm64/JDK 27. This is source-free interceptor/adapter evidence only; it does not authorize caller purposes, establish provider quality, or close CT-02/CT-03.
+
+
+### 43.110 November 3 FLEURS pilot artifact retention check
+
+Rechecked `build/reports/media-fleurs-pilot-70bb2e84` by filename only; it currently contains `manifest.json` and no WAV files, so no audio deletion was performed and the metadata manifest remains. No audio content was opened or used. The Hugging Face card's CC-BY-4.0 label does not itself provide the exact en/hi/ne subset record for privacy authorization, evaluation purpose, and retention; real FLEURS inference remains `NOT_ADMITTED`. Synthetic local fixtures remain suitable for code-path tests only and cannot be reported as real model quality evidence.

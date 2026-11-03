@@ -169,6 +169,10 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
 
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        // Untrusted caller context cannot fill in the missing authenticated tenant
+        // or supply an authorization purpose.
+        headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), OTHER_TENANT_ID);
+        headers.put(Metadata.Key.of("x-processing-purpose", Metadata.ASCII_STRING_MARSHALLER), "marketing");
 
         SynthesizeRequest request = SynthesizeRequest.newBuilder()
             .setText(text)
@@ -189,7 +193,8 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
         assertThat(exception.getStatus().getDescription()).contains("Missing tenant claim");
 
-        // Missing tenant identity must stop before persistence or provider work.
+        // Missing JWT tenant identity must stop before persistence or provider work,
+        // even when caller metadata supplies a different tenant and a purpose.
         verifyNoInteractions(audioFileService, ttsEngine);
     }
 
