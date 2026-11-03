@@ -306,7 +306,9 @@ export class MediaHttpTransport {
       // Keep the timeout and caller-abort linkage alive while the consumer
       // reads the response body. A raw mutation is not complete at headers:
       // until its acknowledgement is parsed, a dispatched effect is unknown.
-      return await consume(response);
+      // Enforce the client deadline even when an injected fetch implementation
+      // returns a body reader that does not itself observe AbortSignal.
+      return await abortable(Promise.resolve().then(() => consume(response)), controller.signal);
     } finally {
       clearTimeout(timeout);
       unlink();

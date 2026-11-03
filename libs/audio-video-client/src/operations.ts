@@ -23,7 +23,6 @@ import {
 } from "@audio-video/types/contracts";
 
 import {
-  abortable,
   MediaHttpTransport,
   boundedPositive,
   linkAbortSignal,
@@ -521,66 +520,42 @@ export class MediaOperationClient {
     if (current.bytesReceived + data.size > current.expectedSizeBytes) {
       throw new Error("Upload chunk would exceed the session's expected size.");
     }
-    const controller = new AbortController();
-    const unlink = linkAbortSignal(options.signal, controller);
-    const timeout = setTimeout(
-      () => controller.abort(new DOMException("Upload timed out", "TimeoutError")),
-      this.transport.requestTimeoutMs,
-    );
     const path = `/api/v1/artifacts/uploads/${encodeURIComponent(current.uploadId)}/chunks/${chunkIndex}`;
+    let requestId: string | undefined;
+    // This initial notification occurs before dispatch, so a callback failure
+    // has no effect to reconcile.
+    options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
     try {
-      // Keep observer failures inside the cleanup scope, but this initial
-      // notification occurs before dispatch and therefore has no effect to reconcile.
-      options.onProgress?.({ uploadedBytes: 0, totalBytes: data.size, percentage: 0 });
-      const headers = await abortable(
-        this.transport.headers({ "Content-Type": "application/octet-stream" }),
-        controller.signal,
+      const updated = await this.transport.fetchRawMutation(
+        `${this.transport.baseUrl}${path}`,
+        { method: "PUT", body: data },
+        { "Content-Type": "application/octet-stream" },
+        async (response) => {
+          if (!response.ok) {
+            const error = await this.transport.errorFromResponse(response);
+            if (response.status === 408 || response.status === 429 || response.status >= 500) {
+              throw new MediaOperationAmbiguousError(path, error, { requestId });
+            }
+            throw error;
+          }
+          try {
+            const acknowledged = parseCanonicalMediaUploadSession(await response.json());
+            this.assertUploadScope(acknowledged, principalId);
+            if (!uploadImmutableFieldsMatch(acknowledged, current) || acknowledged.status !== "OPEN"
+              || acknowledged.nextChunkIndex !== chunkIndex + 1
+              || acknowledged.bytesReceived !== current.bytesReceived + data.size) {
+              throw new TypeError("Canonical Media upload response does not confirm the submitted chunk against the unchanged session.");
+            }
+            return acknowledged;
+          } catch (failure) {
+            // A successful HTTP status without a receipt bound to this exact
+            // append cannot establish whether the server committed the chunk.
+            throw new MediaOperationAmbiguousError(path, failure, { requestId });
+          }
+        },
+        options.signal,
+        (id) => { requestId = id; },
       );
-      // Token acquisition can await; honor an abort/timeout that fired during
-      // that setup before treating the chunk as potentially dispatched.
-      if (controller.signal.aborted) {
-        throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
-      }
-      // Once fetch is entered, a timeout or caller abort cannot prove whether
-      // the server committed this chunk. The caller must reconcile the durable
-      // upload session before attempting another mutation.
-      let response: Response;
-      try {
-        response = await this.transport.fetchRaw(
-          `${this.transport.baseUrl}${path}`,
-          { method: "PUT", headers, body: data },
-          controller.signal,
-        );
-      } catch (failure) {
-        throw new MediaOperationAmbiguousError(path, failure, {
-          requestId: headers.get("X-Request-ID") ?? undefined,
-        });
-      }
-      if (!response.ok) {
-        const error = await this.transport.errorFromResponse(response);
-        if (response.status === 408 || response.status === 429 || response.status >= 500) {
-          throw new MediaOperationAmbiguousError(path, error, {
-            requestId: headers.get("X-Request-ID") ?? undefined,
-          });
-        }
-        throw error;
-      }
-      let updated: CanonicalMediaUploadSessionObservation;
-      try {
-        updated = parseCanonicalMediaUploadSession(await response.json());
-        this.assertUploadScope(updated, principalId);
-        if (!uploadImmutableFieldsMatch(updated, current) || updated.status !== "OPEN"
-          || updated.nextChunkIndex !== chunkIndex + 1
-          || updated.bytesReceived !== current.bytesReceived + data.size) {
-          throw new TypeError("Canonical Media upload response does not confirm the submitted chunk against the unchanged session.");
-        }
-      } catch (failure) {
-        // A successful HTTP status without a receipt bound to this exact append
-        // cannot establish whether the server committed the chunk.
-        throw new MediaOperationAmbiguousError(path, failure, {
-          requestId: headers.get("X-Request-ID") ?? undefined,
-        });
-      }
       try {
         options.onProgress?.({ uploadedBytes: data.size, totalBytes: data.size, percentage: 100 });
       } catch {
@@ -589,9 +564,13 @@ export class MediaOperationClient {
         throw new MediaUploadProgressCallbackError(updated);
       }
       return updated;
-    } finally {
-      clearTimeout(timeout);
-      unlink();
+    } catch (failure) {
+      if (failure instanceof MediaOperationAmbiguousError || failure instanceof MediaClientError
+        || failure instanceof MediaUploadProgressCallbackError) throw failure;
+      if (requestId !== undefined) {
+        throw new MediaOperationAmbiguousError(path, failure, { requestId });
+      }
+      throw failure;
     }
   }
 

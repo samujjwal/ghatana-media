@@ -640,8 +640,8 @@ describe("MediaOperationClient", () => {
       })).rejects.toThrow("initial progress listener failed");
       expect(fetchImpl).not.toHaveBeenCalled();
       expect(vi.getTimerCount()).toBe(0);
-      expect(addListener).toHaveBeenCalledWith("abort", expect.any(Function), { once: true });
-      expect(removeListener).toHaveBeenCalledWith("abort", addListener.mock.calls[0]?.[1]);
+      expect(addListener).not.toHaveBeenCalled();
+      expect(removeListener).not.toHaveBeenCalled();
     } finally {
       vi.useRealTimers();
     }
@@ -675,6 +675,37 @@ describe("MediaOperationClient", () => {
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/artifacts/uploads/upload-1/chunks/0");
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the chunk timeout active while reading the post-dispatch acknowledgement", async () => {
+    vi.useFakeTimers();
+    try {
+      let bodyReadStarted!: () => void;
+      const bodyStarted = new Promise<void>((resolve) => { bodyReadStarted = resolve; });
+      const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> => ({
+        ok: true,
+        status: 200,
+        json: () => new Promise<unknown>(() => {
+          bodyReadStarted();
+        }),
+      } as Response)) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        requestTimeoutMs: 10, defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+
+      const pending = client.uploadPart(uploadSession(), 0, new Blob(["abc"]));
+      const failurePromise = pending.catch((error: unknown) => error);
+      await bodyStarted;
+      await vi.advanceTimersByTimeAsync(10);
+      const failure = await failurePromise;
+
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("does not dispatch a chunk aborted while asynchronous credentials are being acquired", async () => {
