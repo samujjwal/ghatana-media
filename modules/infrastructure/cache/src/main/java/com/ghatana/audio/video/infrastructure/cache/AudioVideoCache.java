@@ -150,6 +150,7 @@ public class AudioVideoCache<K, V> {
      */
     public AsyncOperation<Optional<V>> get(K key) {
         Objects.requireNonNull(key, "key cannot be null");
+        validateCacheKey(key);
         EpochSnapshot capturedEpoch;
         synchronized (mutationLock) {
             if (portInvalidationPending || pendingCacheWrites.containsKey(key)) {
@@ -230,6 +231,7 @@ public class AudioVideoCache<K, V> {
      */
     public AsyncOperation<Void> put(K key, V value) {
         Objects.requireNonNull(key, "key cannot be null");
+        validateCacheKey(key);
         Objects.requireNonNull(value, "value cannot be null");
         validateCacheValue(value);
         return putTracked(key, value, DEFAULT_TTL);
@@ -240,6 +242,7 @@ public class AudioVideoCache<K, V> {
      */
     public AsyncOperation<Void> put(K key, V value, Duration ttl) {
         Objects.requireNonNull(key, "key cannot be null");
+        validateCacheKey(key);
         Objects.requireNonNull(value, "value cannot be null");
         Objects.requireNonNull(ttl, "ttl cannot be null");
         validateCacheValue(value);
@@ -252,6 +255,7 @@ public class AudioVideoCache<K, V> {
      */
     public AsyncOperation<V> getOrLoad(K key, Function<K, AsyncOperation<V>> loader) {
         Objects.requireNonNull(key, "key cannot be null");
+        validateCacheKey(key);
         Objects.requireNonNull(loader, "loader cannot be null");
 
         CompletableFuture<V> existing = inFlightLoads.get(key);
@@ -604,6 +608,7 @@ public class AudioVideoCache<K, V> {
      */
     public AsyncOperation<Void> invalidate(K key) {
         Objects.requireNonNull(key, "key cannot be null");
+        validateCacheKey(key);
         if (cachePort instanceof com.ghatana.cache.DistributedCacheService service
                 && key instanceof String stringKey) {
             Object marker = reservePendingCacheWrite(key);
@@ -778,6 +783,14 @@ public class AudioVideoCache<K, V> {
 
     private static void validateCacheValue(Object value) {
         if (value instanceof String text) CachePolicy.validateValue(text);
+    }
+
+    /** Prevent oversized string keys from reaching a Shared cache adapter. */
+    private static void validateCacheKey(Object key) {
+        if (key instanceof String text && text.length() > CachePolicy.MAX_KEY_LENGTH) {
+            throw new IllegalArgumentException("Cache key exceeds supported length of "
+                    + CachePolicy.MAX_KEY_LENGTH);
+        }
     }
 
     /** Never render backend exception messages or stack traces in cache diagnostics. */

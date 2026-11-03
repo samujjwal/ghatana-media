@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -179,6 +180,31 @@ class AudioVideoCacheKeyRedactionTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sourceFingerprint")
                 .hasMessageContaining(Integer.toString(CachePolicy.MAX_KEY_LENGTH));
+    }
+
+    @Test
+    void oversizedStringKeysAreRejectedBeforeCacheIoOrLoaderInvocation() {
+        DistributedCachePort<String, String> port = mock(DistributedCachePort.class);
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(port, "transcription");
+        String oversizedKey = "k".repeat(CachePolicy.MAX_KEY_LENGTH + 1);
+        AtomicInteger loaderCalls = new AtomicInteger();
+
+        assertThatThrownBy(() -> cache.get(oversizedKey))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cache key exceeds supported length");
+        assertThatThrownBy(() -> cache.put(oversizedKey, "value"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> cache.put(oversizedKey, "value", Duration.ofMinutes(1)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> cache.getOrLoad(oversizedKey, ignored -> {
+            loaderCalls.incrementAndGet();
+            return AsyncOperation.success("value");
+        })).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> cache.invalidate(oversizedKey))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(loaderCalls).hasValue(0);
+        verifyNoInteractions(port);
     }
 
     private static AudioVideoCache.CacheKeyScope scopedKey(

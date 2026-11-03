@@ -3188,3 +3188,7 @@ These local A1 regressions do not qualify a DI provider, accept R8 rows, advance
 - **SK-08 installed package:** no packaging change was warranted. The focused `pnpm --filter @audio-video/client test:package` build and isolated installed-consumer fixture passed, verifying ESM/CJS/types, source-free package imports, injected-fetch behavior, scope rejection, and trusted URL/credential CLI checks. This validates the local package boundary, not a published upstream DI client or provider admission.
 
 These three checks complete their local code/test slices only; they do not accept the 36 unaccepted Wave 2 rows, prove real FLEURS/voice rights, qualify production providers, or satisfy formal Kernel/PDP/release gates.
+
+### 42.67 November 3 CA-02 bounded raw cache keys
+
+`AudioVideoCache` now applies Shared `CachePolicy.MAX_KEY_LENGTH` to every string-keyed `get`, both `put` overloads, `getOrLoad`, and `invalidate` before any cache-port call or loader dispatch. The regression verifies all five entry points reject an oversized key and that the port and loader remain untouched. The focused key-redaction/privacy class passed **9/9**: `./gradlew :services:media:modules:infrastructure:cache:test --tests com.ghatana.audio.video.infrastructure.cache.AudioVideoCacheKeyRedactionTest --no-daemon --no-parallel --max-workers=2 --console=plain`. Existing protected-scope hashing and fail-closed transcription reads/writes are unchanged; the new cap is input validation, not a consent/rights decision or cache source-of-truth claim.
