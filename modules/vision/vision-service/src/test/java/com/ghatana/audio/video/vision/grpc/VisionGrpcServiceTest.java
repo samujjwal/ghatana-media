@@ -143,6 +143,40 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: ROI bounds use the EXIF-oriented raster dimensions")
+    void detectObjects_roiBoundsUseExifOrientedRasterDimensions() {
+        byte[] rotatedImage = jpegWithExifOrientation(8, 6, 6);
+        DetectRequest rotatedEdge = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(rotatedImage))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(5).setY(7).setWidth(1).setHeight(1)
+                        .setSourceFrameVersion("frame-v42"))
+                .build();
+        CapturingObserver<DetectResponse> edgeObserver = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(rotatedEdge, edgeObserver));
+
+        assertThat(edgeObserver.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) edgeObserver.getError()).getStatus().getCode())
+                .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+
+        DetectRequest outsideOrientedEdge = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(rotatedImage))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(6).setY(0).setWidth(1).setHeight(1)
+                        .setSourceFrameVersion("frame-v42"))
+                .build();
+        CapturingObserver<DetectResponse> outsideObserver = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(outsideOrientedEdge, outsideObserver));
+
+        assertThat(outsideObserver.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) outsideObserver.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("detectObjects: malformed ROI metadata is invalid before provider admission")
     void detectObjects_malformedRoiMetadataIsRejectedAsInvalidArgument() {
         List<SourceRasterRoi> malformedRois = List.of(
@@ -932,6 +966,37 @@ class VisionGrpcServiceTest {
             return output.toByteArray();
         } catch (IOException failure) {
             throw new IllegalStateException("Unable to encode PNG fixture", failure);
+        }
+    }
+
+    private static byte[] jpegWithExifOrientation(int width, int height, int orientation) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            if (!ImageIO.write(image, "jpg", output)) {
+                throw new IllegalStateException("JPEG writer is unavailable");
+            }
+            byte[] jpeg = output.toByteArray();
+            byte[] tiff = new byte[] {
+                    'I', 'I', 42, 0, 8, 0, 0, 0, 1, 0,
+                    0x12, 0x01, 3, 0, 1, 0, 0, 0, (byte) orientation, 0, 0, 0,
+                    0, 0, 0, 0
+            };
+            byte[] exif = new byte[6 + tiff.length];
+            System.arraycopy(new byte[] {'E', 'x', 'i', 'f', 0, 0}, 0, exif, 0, 6);
+            System.arraycopy(tiff, 0, exif, 6, tiff.length);
+            int segmentLength = exif.length + 2;
+            byte[] result = new byte[jpeg.length + exif.length + 4];
+            result[0] = (byte) 0xFF;
+            result[1] = (byte) 0xD8;
+            result[2] = (byte) 0xFF;
+            result[3] = (byte) 0xE1;
+            result[4] = (byte) (segmentLength >>> 8);
+            result[5] = (byte) segmentLength;
+            System.arraycopy(exif, 0, result, 6, exif.length);
+            System.arraycopy(jpeg, 2, result, 6 + exif.length, jpeg.length - 2);
+            return result;
+        } catch (IOException failure) {
+            throw new IllegalStateException("Unable to encode JPEG fixture", failure);
         }
     }
 
