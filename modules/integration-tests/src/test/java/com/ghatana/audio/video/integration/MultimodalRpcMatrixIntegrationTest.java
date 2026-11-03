@@ -12,6 +12,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.stub.StreamObserver;
 import io.grpc.stub.MetadataUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +45,7 @@ class MultimodalRpcMatrixIntegrationTest {
     private String previousAuthGatewayUrl;
     private Server server;
     private ManagedChannel channel;
+    private final AtomicInteger processMultimodalHandlerCalls = new AtomicInteger();
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub authenticated;
     private MultimodalServiceGrpc.MultimodalServiceBlockingStub unauthenticated;
 
@@ -53,7 +56,13 @@ class MultimodalRpcMatrixIntegrationTest {
         System.setProperty("AV_JWT_SECRET", TEST_SECRET);
         System.setProperty("AUTH_GATEWAY_URL", "");
 
-        MultimodalGrpcService service = new MultimodalGrpcService();
+        MultimodalGrpcService service = new MultimodalGrpcService() {
+            @Override
+            public void processMultimodal(MultimodalRequest request, StreamObserver<MultimodalResponse> observer) {
+                processMultimodalHandlerCalls.incrementAndGet();
+                super.processMultimodal(request, observer);
+            }
+        };
         String name = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(name)
                 .directExecutor()
@@ -208,6 +217,35 @@ class MultimodalRpcMatrixIntegrationTest {
     }
 
     @Test
+    void missingTenantClaimCannotBeReplacedByCallerMetadata() throws Exception {
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer " + signedJwtWithoutTenant());
+        headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), TENANT);
+        headers.put(Metadata.Key.of("x-processing-purpose", Metadata.ASCII_STRING_MARSHALLER),
+                "authenticated-rpc-matrix-test");
+        MultimodalServiceGrpc.MultimodalServiceBlockingStub missingTenant =
+                MultimodalServiceGrpc.newBlockingStub(channel)
+                        .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+
+        // A canonical operation would otherwise reach the configured fail-closed rights boundary.
+        // The verified JWT identity is required before that boundary can be entered; caller metadata
+        // supplies neither identity nor processing authority.
+        assertThatThrownBy(() -> missingTenant.processMultimodal(MultimodalRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1}))
+                        .setOperationBinding(binding("media.multimodal.observe.source-grounded",
+                                "media.operation.capability.media-multimodal-observe-source-grounded"))
+                        .build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(failure -> {
+                    StatusRuntimeException rpcFailure = (StatusRuntimeException) failure;
+                    assertThat(rpcFailure.getStatus().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+                    assertThat(rpcFailure.getStatus().getDescription()).contains("Missing tenant claim");
+                });
+        assertThat(processMultimodalHandlerCalls).hasValue(0);
+    }
+
+    @Test
     void malformedRequestsFailBeforeProviderDispositionAndVersionIsNotARequestField() {
         assertRpcCode(() -> authenticated.processMultimodal(MultimodalRequest.getDefaultInstance()),
                 Status.Code.INVALID_ARGUMENT);
@@ -273,12 +311,21 @@ class MultimodalRpcMatrixIntegrationTest {
     }
 
     private static String signedJwt() throws Exception {
+        return signedJwt(TENANT);
+    }
+
+    private static String signedJwtWithoutTenant() throws Exception {
+        return signedJwt(null);
+    }
+
+    private static String signedJwt(String tenantId) throws Exception {
         String header = Base64.getUrlEncoder().withoutPadding().encodeToString(
                 "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(StandardCharsets.UTF_8));
-        String payload = Base64.getUrlEncoder().withoutPadding().encodeToString(
-                ("{\"sub\":\"" + SUBJECT + "\",\"tenantId\":\"" + TENANT + "\",\"exp\":"
+        String tenantClaim = tenantId == null ? "" : ",\"tenantId\":\"" + tenantId + "\"";
+        String payload = Base64.getUrlEncoder().withoutPadding().encodeToString((
+                "{\"sub\":\"" + SUBJECT + "\"" + tenantClaim + ",\"exp\":"
                         + (System.currentTimeMillis() / 1000 + 3600) + "}")
-                        .getBytes(StandardCharsets.UTF_8));
+                .getBytes(StandardCharsets.UTF_8));
         String unsigned = header + "." + payload;
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(TEST_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
