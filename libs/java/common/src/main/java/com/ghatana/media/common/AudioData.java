@@ -36,7 +36,8 @@ public record AudioData(
 
     /** Get the number of samples per channel. */
     public int getSampleCount() {
-        return data.length / (channels * (bitsPerSample / 8));
+        long bytesPerFrame = (long) channels * Math.max(bitsPerSample / 8, 1);
+        return (int) (data.length / bytesPerFrame);
     }
 
     /** Returns a defensive copy of the underlying audio bytes. */
@@ -74,8 +75,8 @@ public record AudioData(
     }
 
     private static Duration estimateDuration(byte[] data, int sampleRate, int channels, int bitsPerSample) {
-        int bytesPerFrame = channels * Math.max(bitsPerSample / 8, 1);
-        if (data.length == 0 || bytesPerFrame <= 0 || sampleRate <= 0) {
+        long bytesPerFrame = (long) channels * Math.max(bitsPerSample / 8, 1);
+        if (data.length == 0 || sampleRate <= 0) {
             return Duration.ZERO;
         }
         long frames = data.length / bytesPerFrame;

@@ -609,6 +609,30 @@ class AudioVideoRunLedgerAdapterTest {
                 .containsExactlyInAnyOrderElementsOf(Arrays.stream(LogicalJobStatus.values())
                         .map(Enum::name).toList());
 
+        // Exhaust the other side of the projection too. The platform ledger has
+        // additional lifecycle buckets, but Media's nine logical job states do
+        // not define paused, rolled-back, or a standalone failed state. Do not
+        // invent those projections: Media FAILED is COMPLETED + FAILED outcome,
+        // and RETRY_PENDING is PENDING with no terminal outcome.
+        Set<JobExecutionState> projectedLedgerStates = representable.stream()
+                .map(MappingCase::ledgerState)
+                .collect(java.util.stream.Collectors.toSet());
+        assertThat(projectedLedgerStates).containsExactlyInAnyOrder(
+                JobExecutionState.PENDING,
+                JobExecutionState.RUNNING,
+                JobExecutionState.COMPLETED,
+                JobExecutionState.CANCELLED);
+        assertThat(Arrays.stream(JobExecutionState.values()).map(Enum::name).toList())
+                .containsExactlyInAnyOrder(
+                        "PENDING", "RUNNING", "COMPLETED", "FAILED", "RETRY",
+                        "PAUSED", "CANCELLED", "ROLLED_BACK");
+        assertThat(Arrays.stream(ExecutionOutcome.values()).map(Enum::name).toList())
+                .containsExactlyInAnyOrder("SUCCEEDED", "FAILED", "DEGRADED", "CANCELLED");
+        assertThat(representable.stream().map(MappingCase::ledgerOutcome)
+                .filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet()))
+                .containsExactlyInAnyOrder(ExecutionOutcome.SUCCEEDED, ExecutionOutcome.FAILED,
+                        ExecutionOutcome.DEGRADED, ExecutionOutcome.CANCELLED);
+
         Set<String> jobVocabulary = Arrays.stream(LogicalJobStatus.values())
                 .map(Enum::name).collect(java.util.stream.Collectors.toSet());
         for (LogicalAttemptStatus attemptStatus : LogicalAttemptStatus.values()) {

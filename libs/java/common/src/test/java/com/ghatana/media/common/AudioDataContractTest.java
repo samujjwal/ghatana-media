@@ -41,6 +41,16 @@ class AudioDataContractTest {
     }
 
     @Test
+    @DisplayName("sample count uses wide frame-size arithmetic for hostile metadata")
+    void sampleCountDoesNotOverflowFrameSizeMultiplication() {
+        AudioData audio = new AudioData(
+                new byte[16], 16_000, 1 << 30, 32, null, AudioFormat.PCM);
+
+        assertEquals(0, audio.getSampleCount());
+        assertEquals(Duration.ZERO, audio.duration());
+    }
+
+    @Test
     @DisplayName("exposes canonical format descriptor")
     void exposesCanonicalFormatDescriptor() { 
         AudioData audio = new AudioData(new byte[8_000], 8_000, 1, 16, Duration.ofSeconds(1), AudioFormat.WAV); 

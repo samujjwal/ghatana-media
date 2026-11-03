@@ -15,6 +15,35 @@
       "VisionService.RecognizeSceneText"
     ]
   },
+  "httpSourceExtras": [
+    {
+      "id": "getMediaCaptionVersion",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/caption-versions/{captionVersionId}",
+        "routeId": "GET /api/v1/caption-versions/{captionVersionId}"
+      },
+      "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "listMediaCaptionVersions",
+      "identity": {
+        "method": "GET",
+        "path": "/api/v1/caption-versions",
+        "routeId": "GET /api/v1/caption-versions"
+      },
+      "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    },
+    {
+      "id": "registerMediaCaptionVersion",
+      "identity": {
+        "method": "POST",
+        "path": "/api/v1/caption-versions",
+        "routeId": "POST /api/v1/caption-versions"
+      },
+      "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
+    }
+  ],
   "grpcSourceExtras": [
     {
       "id": "VisionService.RecognizeSceneText",

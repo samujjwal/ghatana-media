@@ -108,6 +108,29 @@ const extrasHttp = sortedIdentityRows(openApiRows.filter((row) => !apiIds.includ
 assert.deepEqual(extrasHttp.map((row) => row.split("\t")[0]).sort(), [
   "getMediaCaptionVersion", "listMediaCaptionVersions", "registerMediaCaptionVersion",
 ].sort(), "HTTP operations outside the named denominator changed");
+const httpSourceExtras = extrasHttp.map((identityRow) => {
+  const [id, method, path] = identityRow.split("\t");
+  const sourceRow = byHttpId.get(id);
+  const route = routeManifest.routes.find((item) => item.operationId === id);
+  const bindingStatus = sourceRow?.pdp1SemanticBinding?.bindingStatus;
+  assert.ok(sourceRow, `extra HTTP identity ${id} must exist in PDP-3`);
+  assert.equal(sourceRow.protocolIdentity?.protocol, "HTTP", `extra PDP-3 protocol must be HTTP for ${id}`);
+  assert.equal(sourceRow.protocolIdentity?.operationId, id, `extra PDP-3 operationId must match OpenAPI for ${id}`);
+  assert.equal(sourceRow.protocolIdentity?.method, method, `extra PDP-3 method must match OpenAPI for ${id}`);
+  assert.equal(sourceRow.protocolIdentity?.path, path, `extra PDP-3 path must match OpenAPI for ${id}`);
+  assert.ok(route, `extra HTTP identity ${id} must exist in the route manifest`);
+  assert.equal(route.method, method, `extra HTTP route method must match OpenAPI for ${id}`);
+  assert.equal(route.path, path, `extra HTTP route path must match OpenAPI for ${id}`);
+  assert.equal(sourceRow.routeManifestObservation?.routeId, route.id, `extra PDP-3 route ID must match manifest for ${id}`);
+  assert.equal(sourceRow.routeManifestObservation?.identityMatch, "exact-method-path-operationId",
+    `extra PDP-3 route observation must be exact for ${id}`);
+  assert.ok(bindingStatus?.startsWith("unresolved-"), `extra HTTP identity ${id} must remain explicitly unbound`);
+  return {
+    id,
+    identity: { method, path, routeId: route.id },
+    disposition: `UNBOUND/NOT_ADMITTED: ${bindingStatus}`,
+  };
+});
 const http = apiIds.map((id) => {
   const row = byHttpId.get(id);
   const source = openApiOperation(id);
@@ -281,6 +304,7 @@ const snapshot = {
     httpRouteOperationsOutsideNamedDenominator: extraHttpIds,
     grpcRpcsOutsideNamedDenominator: extraRpcIds,
   },
+  httpSourceExtras,
   grpcSourceExtras,
   http,
   grpc,
