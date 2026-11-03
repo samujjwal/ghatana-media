@@ -29,8 +29,8 @@ export interface NarrationCue {
 
 export interface ScenarioScene {
   readonly sceneId: string;
-  readonly sourceRef: string;
-  readonly sourceRevision: string;
+  /** Exact source, purpose, immutable version, controlled-secret and clock refs. */
+  readonly sourceRef: CaptureRequest;
   readonly actorRefs: readonly string[];
   readonly narration: readonly NarrationCue[];
   readonly captionRefs: readonly string[];
@@ -76,6 +76,9 @@ export class ScenarioError extends Error {
 
 const MAX_SCENES = 256;
 const MAX_ACTORS = 64;
+const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
+  "BROWSER", "DESKTOP", "MOBILE", "TERMINAL", "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE",
+]);
 
 function requireText(value: string | undefined, field: string): string {
   if (value === undefined || typeof value !== "string"
@@ -94,8 +97,11 @@ function requireTextArray(value: unknown, field: string): string[] {
 }
 
 /** Deterministic lineage: scenario identity + scene identity + revision. */
-function lineageId(scenarioId: string, sceneId: string, sourceRevision: string): string {
-  return `${scenarioId}/${sceneId}@${sourceRevision}`;
+function lineageId(scenarioId: string, sceneId: string, source: CaptureRequest): string {
+  // JSON tuple encoding is unambiguous even when caller ids contain separators.
+  return `media.scene-lineage.v1:${JSON.stringify([
+    scenarioId, sceneId, source.kind, source.sourceIdentity, source.sourceVersionRef,
+  ])}`;
 }
 
 /**
@@ -141,8 +147,24 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
       throw new ScenarioError("INVALID_SCENARIO", `duplicate sceneId: ${sceneId}`);
     }
     seenSceneIds.add(sceneId);
-    const sourceRef = requireText(scene.sourceRef, `scenes[${index}].sourceRef`);
-    const sourceRevision = requireText(scene.sourceRevision, `scenes[${index}].sourceRevision`);
+    if (!scene.sourceRef || typeof scene.sourceRef !== "object") {
+      throw new ScenarioError("INVALID_SCENARIO", `scenes[${index}].sourceRef must be an object`);
+    }
+    const sourceRef: CaptureRequest = {
+      kind: scene.sourceRef.kind,
+      sourceIdentity: requireText(scene.sourceRef.sourceIdentity, `scenes[${index}].sourceRef.sourceIdentity`),
+      purposeRef: requireText(scene.sourceRef.purposeRef, `scenes[${index}].sourceRef.purposeRef`),
+      exactRightsScope: requireText(scene.sourceRef.exactRightsScope,
+        `scenes[${index}].sourceRef.exactRightsScope`),
+      sourceVersionRef: requireText(scene.sourceRef.sourceVersionRef, `scenes[${index}].sourceRef.sourceVersionRef`),
+      secretsRef: requireText(scene.sourceRef.secretsRef, `scenes[${index}].sourceRef.secretsRef`),
+      frameClockRef: requireText(scene.sourceRef.frameClockRef, `scenes[${index}].sourceRef.frameClockRef`),
+    };
+    if (!CAPTURE_SOURCE_KINDS.has(sourceRef.kind)) {
+      throw new ScenarioError("INVALID_SCENARIO",
+        `scenes[${index}].sourceRef.kind is outside the supported capture source enum`);
+    }
+    const sourceRevision = sourceRef.sourceVersionRef;
     const sceneActorIds = new Set<string>();
     const actorRefs = scene.actorRefs === undefined ? []
       : requireTextArray(scene.actorRefs, `scenes[${index}].actorRefs`);
@@ -183,15 +205,8 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     return {
       sceneId,
       sourceRevision,
-      lineageId: lineageId(scenarioId, sceneId, sourceRevision),
-      capturePlan: {
-        kind: "MEDIA_FILE",
-        sourceIdentity: sourceRef,
-        purposeRef: `scenario/${scenarioId}`,
-        sourceVersionRef: sourceRevision,
-        secretsRef: `secrets/scenario/${scenarioId}`,
-        frameClockRef: `clock/scenario/${scenarioId}`,
-      },
+      lineageId: lineageId(scenarioId, sceneId, sourceRef),
+      capturePlan: sourceRef,
       durationMillis: scene.durationMillis,
       actorBindings,
       narration,
@@ -229,6 +244,7 @@ function sameSceneMaterialization(left: SceneRun, right: SceneRun): boolean {
     && left.capturePlan.kind === right.capturePlan.kind
     && left.capturePlan.sourceIdentity === right.capturePlan.sourceIdentity
     && left.capturePlan.purposeRef === right.capturePlan.purposeRef
+    && left.capturePlan.exactRightsScope === right.capturePlan.exactRightsScope
     && left.capturePlan.sourceVersionRef === right.capturePlan.sourceVersionRef
     && left.capturePlan.secretsRef === right.capturePlan.secretsRef
     && left.capturePlan.frameClockRef === right.capturePlan.frameClockRef

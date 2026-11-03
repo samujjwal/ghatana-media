@@ -14,10 +14,27 @@ const request: CaptureRequest = {
   kind: "MEDIA_FILE",
   sourceIdentity: "media-file:clip-9",
   purposeRef: "purpose/v1",
+  exactRightsScope: "rights/clip-9/v1",
   sourceVersionRef: "clip-9@v3",
   secretsRef: "secrets/capture-9",
   frameClockRef: "clock/ntsc-30",
 };
+
+function capturedFrame(
+  overrides: Partial<CapturedFrame> = {},
+  bytes: Uint8Array = new Uint8Array([1]),
+): CapturedFrame {
+  return {
+    sourceIdentity: request.sourceIdentity,
+    purposeRef: request.purposeRef,
+    exactRightsScope: request.exactRightsScope,
+    sourceVersionRef: request.sourceVersionRef,
+    frameClockRef: request.frameClockRef,
+    bytes,
+    capturedAtEpochMillis: 1,
+    ...overrides,
+  };
+}
 
 function adapterReturning(frame: CapturedFrame) {
   let calls = 0;
@@ -32,12 +49,7 @@ function adapterReturning(frame: CapturedFrame) {
 
 describe("captureWithAdmission", () => {
   it("runs capture only through an admitted adapter and binds source+clock", async () => {
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1, 2, 3]),
-      capturedAtEpochMillis: 1_700_000_000_000,
-    });
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 1_700_000_000_000 }, new Uint8Array([1, 2, 3])));
     const frame = await captureWithAdmission(
       { check: () => "ADMITTED" }, adapter, request);
     expect(frame.bytes).toEqual(new Uint8Array([1, 2, 3]));
@@ -78,10 +90,8 @@ describe("captureWithAdmission", () => {
 
   it("detaches captured bytes from the adapter-owned frame", async () => {
     const source = new Uint8Array([1, 2]);
-    const frame = await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning({
-      sourceIdentity: request.sourceIdentity, frameClockRef: request.frameClockRef,
-      bytes: source, capturedAtEpochMillis: 1,
-    }), request);
+    const frame = await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(
+      capturedFrame({}, source)), request);
     source[0] = 9;
     expect(frame.bytes).toEqual(new Uint8Array([1, 2]));
     frame.bytes[1] = 8;
@@ -90,12 +100,7 @@ describe("captureWithAdmission", () => {
 
   it.each([["NOT_ADMITTED"], ["UNAVAILABLE"]] as const)(
     "rejects before capture when eligibility is %s", async (decision) => {
-      const adapter = adapterReturning({
-        sourceIdentity: request.sourceIdentity,
-        frameClockRef: request.frameClockRef,
-        bytes: new Uint8Array([1]),
-        capturedAtEpochMillis: 0,
-      });
+      const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
       await expect(captureWithAdmission({ check: () => decision }, adapter, request))
         .rejects.toBeInstanceOf(CaptureNotAdmittedError);
       expect(adapter.calls()).toBe(0);
@@ -104,12 +109,7 @@ describe("captureWithAdmission", () => {
   it.each(["BROWSER", "DESKTOP", "MOBILE", "CAMERA", "HTTP_API", "GRPC_API"] as const)(
     "reports an absent %s host capability as UNAVAILABLE without dispatch", async (kind) => {
       let eligibilityCalls = 0;
-      const adapter = adapterReturning({
-        sourceIdentity: request.sourceIdentity,
-        frameClockRef: request.frameClockRef,
-        bytes: new Uint8Array([1]),
-        capturedAtEpochMillis: 0,
-      });
+      const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
       await expect(captureWithAdmission({
         check: (candidate) => {
           eligibilityCalls++;
@@ -130,41 +130,29 @@ describe("captureWithAdmission", () => {
   });
 
   it("rejects a captured frame bound to a different source or clock", async () => {
-    const adapter = adapterReturning({
-      sourceIdentity: "media-file:other",
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1]),
-      capturedAtEpochMillis: 0,
-    });
+    const adapter = adapterReturning(capturedFrame({ sourceIdentity: "media-file:other", capturedAtEpochMillis: 0 }));
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
       .rejects.toMatchObject({ name: "CaptureOutcomeUnknownError", reason: "INVALID_FRAME" });
   });
 
-  it("rejects requests missing source identity, purpose, version, secrets or clock", async () => {
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1]),
-      capturedAtEpochMillis: 0,
-    });
-    for (const field of ["sourceIdentity", "purposeRef", "sourceVersionRef",
+  it("returns typed NOT_ADMITTED for requests missing any source, rights, purpose, secret ref or clock", async () => {
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
+    let eligibilityCalls = 0;
+    for (const field of ["sourceIdentity", "purposeRef", "exactRightsScope", "sourceVersionRef",
       "secretsRef", "frameClockRef"] as const) {
       await expect(captureWithAdmission(
-        { check: () => "ADMITTED" }, adapter, { ...request, [field]: " " }))
-        .rejects.toThrow(TypeError);
+        { check: () => { eligibilityCalls++; return "ADMITTED"; } }, adapter,
+        { ...request, [field]: " " }))
+        .rejects.toBeInstanceOf(CaptureNotAdmittedError);
     }
+    expect(eligibilityCalls).toBe(0);
     expect(adapter.calls()).toBe(0);
   });
 
   it("rejects non-canonical request references before eligibility or capture", async () => {
     let eligibilityCalls = 0;
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1]),
-      capturedAtEpochMillis: 0,
-    });
-    for (const field of ["sourceIdentity", "purposeRef", "sourceVersionRef",
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
+    for (const field of ["sourceIdentity", "purposeRef", "exactRightsScope", "sourceVersionRef",
       "secretsRef", "frameClockRef"] as const) {
       await expect(captureWithAdmission({
         check: () => { eligibilityCalls++; return "ADMITTED"; },
@@ -176,12 +164,7 @@ describe("captureWithAdmission", () => {
   });
 
   it("rejects an invalid runtime eligibility result without attempting capture", async () => {
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1]),
-      capturedAtEpochMillis: 0,
-    });
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
     await expect(captureWithAdmission({
       check: () => "MAYBE" as "ADMITTED",
     }, adapter, request)).rejects.toThrow(/unsupported decision/u);
@@ -190,12 +173,7 @@ describe("captureWithAdmission", () => {
 
   it("rejects an unrecognized runtime source kind before eligibility or capture", async () => {
     let eligibilityCalls = 0;
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array([1]),
-      capturedAtEpochMillis: 1,
-    });
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 1 }));
     await expect(captureWithAdmission({
       check: () => { eligibilityCalls++; return "ADMITTED"; },
     }, adapter, { ...request, kind: "FAKE_SOURCE" as CaptureRequest["kind"] }))
@@ -216,12 +194,7 @@ describe("captureWithAdmission", () => {
     }, {
       capture: async () => {
         callbackCalls++;
-        return {
-          sourceIdentity: request.sourceIdentity,
-          frameClockRef: request.frameClockRef,
-          bytes: new Uint8Array([1]),
-          capturedAtEpochMillis: 1,
-        };
+        return capturedFrame({ capturedAtEpochMillis: 1 });
       },
     }, changingKindRequest))
       .rejects.toThrow(/source enum/u);
@@ -236,25 +209,26 @@ describe("captureWithAdmission", () => {
     ["negative timestamp", new Uint8Array([1]), -1],
     ["unsafe timestamp", new Uint8Array([1]), Number.MAX_SAFE_INTEGER + 1],
   ])("rejects capture output with %s", async (_label, bytes, capturedAtEpochMillis) => {
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes,
-      capturedAtEpochMillis,
-    });
+    const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis }, bytes));
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
       .rejects.toBeInstanceOf(CaptureOutcomeUnknownError);
     expect(adapter.calls()).toBe(1);
   });
 
   it("rejects captured frames above the bounded byte size", async () => {
-    const adapter = adapterReturning({
-      sourceIdentity: request.sourceIdentity,
-      frameClockRef: request.frameClockRef,
-      bytes: new Uint8Array(64 * 1024 * 1024 + 1),
-      capturedAtEpochMillis: 1,
-    });
+    const adapter = adapterReturning(capturedFrame({}, new Uint8Array(64 * 1024 * 1024 + 1)));
     await expect(captureWithAdmission({ check: () => "ADMITTED" }, adapter, request))
+      .rejects.toMatchObject({ reason: "INVALID_FRAME", kind: "MEDIA_FILE" });
+  });
+
+  it.each([
+    ["purposeRef", { purposeRef: "purpose/other" }],
+    ["exactRightsScope", { exactRightsScope: "rights/other" }],
+    ["sourceVersionRef", { sourceVersionRef: "clip-9@v4" }],
+    ["frameClockRef", { frameClockRef: "clock/other" }],
+  ] as const)("returns sanitized UNKNOWN when captured %s provenance differs", async (_field, binding) => {
+    await expect(captureWithAdmission({ check: () => "ADMITTED" },
+      adapterReturning(capturedFrame(binding)), request))
       .rejects.toMatchObject({ reason: "INVALID_FRAME", kind: "MEDIA_FILE" });
   });
 
@@ -264,12 +238,10 @@ describe("captureWithAdmission", () => {
   ])("returns sanitized UNKNOWN when the captured %s does not match", async (_label, sourceIdentity, frameClockRef) => {
     let outcome: unknown;
     try {
-      await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning({
+      await captureWithAdmission({ check: () => "ADMITTED" }, adapterReturning(capturedFrame({
         sourceIdentity,
         frameClockRef,
-        bytes: new Uint8Array([1]),
-        capturedAtEpochMillis: 1,
-      }), {
+      })), {
         ...request,
         sourceIdentity: "SECRET_EXPECTED_SOURCE",
         frameClockRef: "SECRET_EXPECTED_CLOCK",
@@ -302,6 +274,9 @@ describe("captureWithAdmission", () => {
         await captureGate;
         return {
           sourceIdentity: admitted.sourceIdentity,
+          purposeRef: admitted.purposeRef,
+          exactRightsScope: admitted.exactRightsScope,
+          sourceVersionRef: admitted.sourceVersionRef,
           frameClockRef: admitted.frameClockRef,
           bytes: new Uint8Array([9]),
           capturedAtEpochMillis: 1_700_000_000_000,

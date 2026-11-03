@@ -23,6 +23,8 @@ export interface CaptureRequest {
   readonly kind: CaptureSourceKind;
   readonly sourceIdentity: string;
   readonly purposeRef: string;
+  /** Exact rights scope resolved by policy; never a caller assertion of admission. */
+  readonly exactRightsScope: string;
   readonly sourceVersionRef: string;
   /** Reference to controlled secrets — never the secret value. */
   readonly secretsRef: string;
@@ -31,6 +33,9 @@ export interface CaptureRequest {
 
 export interface CapturedFrame {
   readonly sourceIdentity: string;
+  readonly purposeRef: string;
+  readonly exactRightsScope: string;
+  readonly sourceVersionRef: string;
   readonly frameClockRef: string;
   readonly bytes: Uint8Array;
   readonly capturedAtEpochMillis: number;
@@ -103,6 +108,10 @@ function requireRequestField(value: string | undefined, field: string): string {
   return value;
 }
 
+function hasRequestBinding(value: string | undefined): boolean {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 /**
  * Runs one capture through an admitted adapter. Eligibility is checked per
  * request; unadmitted adapters reject before any capture attempt. The
@@ -127,6 +136,7 @@ export async function captureWithAdmission(
     kind: request.kind,
     sourceIdentity: request.sourceIdentity,
     purposeRef: request.purposeRef,
+    exactRightsScope: request.exactRightsScope,
     sourceVersionRef: request.sourceVersionRef,
     secretsRef: request.secretsRef,
     frameClockRef: request.frameClockRef,
@@ -136,8 +146,14 @@ export async function captureWithAdmission(
   if (!CAPTURE_SOURCE_KINDS.has(admittedRequest.kind)) {
     throw new TypeError("capture request kind is outside the supported source enum");
   }
+  if (![admittedRequest.sourceIdentity, admittedRequest.purposeRef,
+    admittedRequest.exactRightsScope, admittedRequest.sourceVersionRef,
+    admittedRequest.secretsRef, admittedRequest.frameClockRef].every(hasRequestBinding)) {
+    throw new CaptureNotAdmittedError(admittedRequest.kind, "NOT_ADMITTED");
+  }
   requireRequestField(admittedRequest.sourceIdentity, "sourceIdentity");
   requireRequestField(admittedRequest.purposeRef, "purposeRef");
+  requireRequestField(admittedRequest.exactRightsScope, "exactRightsScope");
   requireRequestField(admittedRequest.sourceVersionRef, "sourceVersionRef");
   requireRequestField(admittedRequest.secretsRef, "secretsRef");
   requireRequestField(admittedRequest.frameClockRef, "frameClockRef");
@@ -166,7 +182,10 @@ export async function captureWithAdmission(
     }
     // Read each provider-owned field once, then detach the byte storage. The
     // adapter may reuse or mutate its result after this promise resolves.
-    const { sourceIdentity, frameClockRef, bytes, capturedAtEpochMillis } = frame;
+    const {
+      sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef,
+      frameClockRef, bytes, capturedAtEpochMillis,
+    } = frame;
     if (!(bytes instanceof Uint8Array)
       || bytes.byteLength < 1 || bytes.byteLength > MAX_CAPTURED_FRAME_BYTES) {
       throw new TypeError("captured frame bytes must be non-empty and within the capture bound");
@@ -175,10 +194,16 @@ export async function captureWithAdmission(
       throw new TypeError("captured frame timestamp must be a non-negative safe integer");
     }
     if (sourceIdentity !== admittedRequest.sourceIdentity
+      || purposeRef !== admittedRequest.purposeRef
+      || exactRightsScope !== admittedRequest.exactRightsScope
+      || sourceVersionRef !== admittedRequest.sourceVersionRef
       || frameClockRef !== admittedRequest.frameClockRef) {
-      throw new TypeError("captured frame does not bind the requested source identity and clock");
+      throw new TypeError("captured frame does not bind the authorized source and clock");
     }
-    return { sourceIdentity, frameClockRef, bytes: Uint8Array.from(bytes), capturedAtEpochMillis };
+    return {
+      sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, frameClockRef,
+      bytes: Uint8Array.from(bytes), capturedAtEpochMillis,
+    };
   } catch {
     // The adapter has already run. Even a malformed/mismatched response does
     // not prove that the source capture had no effect; collapse it to a

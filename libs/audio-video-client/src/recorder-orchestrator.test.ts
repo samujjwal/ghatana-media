@@ -9,6 +9,15 @@ import {
 import { CaptureNotAdmittedError, type CapturedFrame } from "./capture-adapters";
 
 function scenario(overrides: Partial<Scenario> = {}): Scenario {
+  const source = (identity: string, sourceVersionRef: string) => ({
+    kind: "BROWSER" as const,
+    sourceIdentity: identity,
+    purposeRef: "purpose/demo-recording",
+    exactRightsScope: "rights/demo-recording/v1",
+    sourceVersionRef,
+    secretsRef: "secrets/demo-host",
+    frameClockRef: "clock/demo-host",
+  });
   return {
     scenarioId: "demo-1",
     revision: "rev-3",
@@ -16,8 +25,7 @@ function scenario(overrides: Partial<Scenario> = {}): Scenario {
     scenes: [
       {
         sceneId: "intro",
-        sourceRef: "media-file:intro-clip",
-        sourceRevision: "intro@v2",
+        sourceRef: source("browser/demo/intro", "intro@v2"),
         actorRefs: ["actor-1"],
         narration: [{ atMillis: 500, trackRef: "narration/intro@v1" }],
         captionRefs: ["captions/intro@v1"],
@@ -25,8 +33,7 @@ function scenario(overrides: Partial<Scenario> = {}): Scenario {
       },
       {
         sceneId: "main",
-        sourceRef: "media-file:main-clip",
-        sourceRevision: "main@v4",
+        sourceRef: source("browser/demo/main", "main@v4"),
         actorRefs: ["actor-1"],
         narration: [],
         captionRefs: [],
@@ -45,7 +52,15 @@ describe("orchestrateScenario", () => {
       .toEqual(b.sceneRuns.map((r) => r.lineageId));
     expect(b).toEqual(a);
     expect(a.dryRunOnly).toBe(true);
-    expect(a.sceneRuns[0]!.capturePlan.sourceVersionRef).toBe("intro@v2");
+    expect(a.sceneRuns[0]!.capturePlan).toEqual({
+      kind: "BROWSER",
+      sourceIdentity: "browser/demo/intro",
+      purposeRef: "purpose/demo-recording",
+      exactRightsScope: "rights/demo-recording/v1",
+      sourceVersionRef: "intro@v2",
+      secretsRef: "secrets/demo-host",
+      frameClockRef: "clock/demo-host",
+    });
     expect(a.sceneRuns[0]!.narration[0]!.atMillis).toBe(500);
   });
 
@@ -53,7 +68,7 @@ describe("orchestrateScenario", () => {
     const prior = orchestrateScenario(scenario());
     const next = orchestrateScenario(scenario({
       scenes: [
-        { ...scenario().scenes[0]!, sourceRevision: "intro@v3" },
+        { ...scenario().scenes[0]!, sourceRef: { ...scenario().scenes[0]!.sourceRef, sourceVersionRef: "intro@v3" } },
         scenario().scenes[1]!,
       ],
     }));
@@ -65,11 +80,12 @@ describe("orchestrateScenario", () => {
   });
 
   it.each([
-    ["source identity", { sourceRef: "media-file:replacement-clip" }],
+    ["source identity", { sourceRef: { ...scenario().scenes[0]!.sourceRef, sourceIdentity: "browser/demo/replacement" } }],
+    ["rights scope", { sourceRef: { ...scenario().scenes[0]!.sourceRef, exactRightsScope: "rights/demo-recording/v2" } }],
     ["narration", { narration: [{ atMillis: 750, trackRef: "narration/intro@v2" }] }],
     ["caption refs", { captionRefs: ["captions/intro@v2"] }],
     ["duration", { durationMillis: 6_000 }],
-  ])("replans a scene when its %s changes without changing the declared lineage ID", (_label, change) => {
+  ])("replans a scene when its %s changes", (label, change) => {
     const base = scenario();
     const prior = orchestrateScenario(base);
     const next = orchestrateScenario({
@@ -77,8 +93,29 @@ describe("orchestrateScenario", () => {
       scenes: [{ ...base.scenes[0]!, ...change }, base.scenes[1]!],
     });
 
-    expect(next.sceneRuns[0]!.lineageId).toBe(prior.sceneRuns[0]!.lineageId);
+    if (label === "source identity") {
+      expect(next.sceneRuns[0]!.lineageId).not.toBe(prior.sceneRuns[0]!.lineageId);
+    } else {
+      expect(next.sceneRuns[0]!.lineageId).toBe(prior.sceneRuns[0]!.lineageId);
+    }
     expect(changedSceneLineages(prior, next)).toEqual({ carried: ["main"], replanned: ["intro"] });
+  });
+
+  it("binds lineage to source kind and identity even when the version label is unchanged", () => {
+    const base = scenario();
+    const prior = orchestrateScenario(base);
+    const changedSource = orchestrateScenario({
+      ...base,
+      scenes: [{
+        ...base.scenes[0]!,
+        sourceRef: { ...base.scenes[0]!.sourceRef, kind: "TERMINAL", sourceIdentity: "terminal/demo/intro" },
+      }, base.scenes[1]!],
+    });
+
+    expect(changedSource.sceneRuns[0]!.sourceRevision).toBe(prior.sceneRuns[0]!.sourceRevision);
+    expect(changedSource.sceneRuns[0]!.lineageId).not.toBe(prior.sceneRuns[0]!.lineageId);
+    expect(changedSceneLineages(prior, changedSource))
+      .toEqual({ carried: ["main"], replanned: ["intro"] });
   });
 
   it("replans when the role bound to a scene actor changes", () => {
@@ -102,6 +139,35 @@ describe("orchestrateScenario", () => {
         narration: [{ atMillis: 9_999, trackRef: "t" }],
       }],
     }))).toThrowError(ScenarioError);
+  });
+
+  it("requires source admission references before producing a plan", () => {
+    const base = scenario();
+    const scene = base.scenes[0]!;
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...scene, sourceRef: { ...scene.sourceRef, purposeRef: " " } }, base.scenes[1]!],
+    })).toThrowError(/sourceRef\.purposeRef/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...scene, sourceRef: { ...scene.sourceRef, exactRightsScope: " " } }, base.scenes[1]!],
+    })).toThrowError(/sourceRef\.exactRightsScope/u);
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{ ...scene, sourceRef: { ...scene.sourceRef, secretsRef: " " } }, base.scenes[1]!],
+    })).toThrowError(/sourceRef\.secretsRef/u);
+  });
+
+  it("rejects unsupported capture source kinds during planning", () => {
+    const base = scenario();
+    const scene = base.scenes[0]!;
+    expect(() => orchestrateScenario({
+      ...base,
+      scenes: [{
+        ...scene,
+        sourceRef: { ...scene.sourceRef, kind: "FIXTURE" },
+      }, base.scenes[1]!],
+    } as unknown as Scenario)).toThrowError(/supported capture source enum/u);
   });
 
   it("rejects duplicate scene, actor, and per-scene actor identities", () => {
@@ -147,8 +213,11 @@ describe("orchestrateScenario", () => {
 
 describe("recaptureScenario", () => {
   const frame: CapturedFrame = {
-    sourceIdentity: "media-file:intro-clip",
-    frameClockRef: "clock/scenario/demo-1",
+    sourceIdentity: "browser/demo/intro",
+    purposeRef: "purpose/demo-recording",
+    exactRightsScope: "rights/demo-recording/v1",
+    sourceVersionRef: "intro@v2",
+    frameClockRef: "clock/demo-host",
     bytes: new Uint8Array([7]),
     capturedAtEpochMillis: 1,
   };
@@ -203,17 +272,24 @@ describe("recaptureScenario", () => {
     await recaptureScenario(plan, { check: () => "ADMITTED" }, {
       capture: async (request) => {
         sourceOrder.push(request.sourceIdentity);
-        return { ...frame, sourceIdentity: request.sourceIdentity, frameClockRef: request.frameClockRef };
+        return {
+          ...frame,
+          sourceIdentity: request.sourceIdentity,
+          purposeRef: request.purposeRef,
+          exactRightsScope: request.exactRightsScope,
+          sourceVersionRef: request.sourceVersionRef,
+          frameClockRef: request.frameClockRef,
+        };
       },
     }, { sceneIds: ["main", "intro"], maxScenes: 2 });
-    expect(sourceOrder).toEqual(["media-file:intro-clip", "media-file:main-clip"]);
+    expect(sourceOrder).toEqual(["browser/demo/intro", "browser/demo/main"]);
   });
 
   it("recaptures only the changed source scene and retains carried scene lineage", async () => {
     const prior = orchestrateScenario(scenario());
     const next = orchestrateScenario(scenario({
       scenes: [
-        { ...scenario().scenes[0]!, sourceRevision: "intro@v3" },
+        { ...scenario().scenes[0]!, sourceRef: { ...scenario().scenes[0]!.sourceRef, sourceVersionRef: "intro@v3" } },
         scenario().scenes[1]!,
       ],
     }));
@@ -237,6 +313,9 @@ describe("recaptureScenario", () => {
         return {
           ...frame,
           sourceIdentity: request.sourceIdentity,
+          purposeRef: request.purposeRef,
+          exactRightsScope: request.exactRightsScope,
+          sourceVersionRef: request.sourceVersionRef,
           frameClockRef: request.frameClockRef,
         };
       },
