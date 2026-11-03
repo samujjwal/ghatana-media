@@ -98,6 +98,10 @@ class MediaObservationPublicationCoordinatorTest {
         synchronized void failAfterNextWrites(int count) {
             failAfterWrites = count;
         }
+
+        synchronized int claimCount() {
+            return claims.size();
+        }
     }
 
     private static MediaDerivedObservation observation(String tenant, String eventId, String version) {
@@ -221,7 +225,7 @@ class MediaObservationPublicationCoordinatorTest {
     }
 
     @Test
-    void refusesCrossTenantDedupCollisionsAndAmbiguousDelimiterKeys() {
+    void tenantScopedKeysSeparateEqualCandidateObservations() {
         InMemoryOutbox outbox = new InMemoryOutbox();
         AtomicInteger publishes = new AtomicInteger();
         var coordinator = coordinator(SourceReadbackAuthority.Decision.ADMITTED,
@@ -231,8 +235,10 @@ class MediaObservationPublicationCoordinatorTest {
                 }, outbox);
         MediaDerivedObservation tenantAObservation = observation("tenant-a", "event-7", "artifact-v3");
         MediaDerivedObservation tenantBObservation = observation("tenant-b", "event-7", "artifact-v3");
-        // The fixtures have the same artifact/version/event/value tuple (the
-        // projector has no source-content-digest field), differing only by tenant.
+        // Model independent tenant-owned candidates with equal fixture values,
+        // not one shared cross-tenant artifact. This fixture does not verify
+        // source ownership; the contract has no verified digest or global
+        // content-deduplication policy.
         assertThat(tenantBObservation.artifactId()).isEqualTo(tenantAObservation.artifactId());
         assertThat(tenantBObservation.sourceArtifactVersionId())
                 .isEqualTo(tenantAObservation.sourceArtifactVersionId());
@@ -240,6 +246,7 @@ class MediaObservationPublicationCoordinatorTest {
         PublishResult tenantA = coordinator.publish(tenantAObservation);
         PublishResult tenantB = coordinator.publish(tenantBObservation);
         assertThat(tenantA.dedupKey()).isNotEqualTo(tenantB.dedupKey());
+        assertThat(tenantA.outcome()).isEqualTo(Outcome.PUBLISHED);
         assertThat(tenantB.outcome()).isEqualTo(Outcome.PUBLISHED);
         String tenantABinding = outbox.find(tenantA.dedupKey()).orElseThrow().bindingFingerprint();
         String tenantBBinding = outbox.find(tenantB.dedupKey()).orElseThrow().bindingFingerprint();
@@ -818,7 +825,7 @@ class MediaObservationPublicationCoordinatorTest {
     }
 
     @Test
-    void malformedObservationFailsBeforeAnyPublicationAttempt() {
+    void crossTenantSourceMismatchIsRejectedBeforePublicationOrOutboxMutation() {
         InMemoryOutbox outbox = new InMemoryOutbox();
         AtomicInteger publishes = new AtomicInteger();
         var coordinator = coordinator(
@@ -837,9 +844,12 @@ class MediaObservationPublicationCoordinatorTest {
                 "privacy-service", "consent-4", "owner-1", "steward-1",
                 "CONFIDENTIAL", "CONFIDENTIAL", List.of("incident-investigation"),
                 "eu", Optional.of("retention-media-30d"), 91, "verified");
+        String dedupKey = MediaObservationPublicationCoordinator.dedupKeyOf(crossTenant);
         assertThatThrownBy(() -> coordinator.publish(crossTenant))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThat(publishes.get()).isZero();
+        assertThat(outbox.claimCount()).isZero();
+        assertThat(outbox.find(dedupKey)).isEmpty();
     }
 
     @Test
