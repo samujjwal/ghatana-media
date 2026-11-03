@@ -110,7 +110,6 @@ try {
 
   await writeFile(path.join(consumerRoot, 'consumer.mjs'), `
     import assert from 'node:assert/strict';
-    import { createServer } from 'node:http';
     import * as client from '@audio-video/client';
     import * as operations from '@audio-video/client/operations';
     import * as routes from '@audio-video/client/canonical-routes';
@@ -169,36 +168,26 @@ try {
       version: 3, expectedArtifactVersion: '', requestFingerprint: 'sha256:' + 'b'.repeat(64),
     };
     const requests = [];
-    const fixtureServer = createServer((request, response) => {
-      requests.push({ method: request.method, url: request.url, headers: request.headers });
-      response.writeHead(200, { 'Content-Type': 'application/json' });
-      response.end(JSON.stringify(fixtureJob));
+    const readClient = canonical.createMediaCanonicalClient({
+      baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
+      defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
+      getAccessToken: () => 'installed-read-fixture-token',
+      fetchImpl: async (input, init) => {
+        requests.push({ url: new URL(String(input)).pathname, method: init?.method,
+          headers: Object.fromEntries(new Headers(init?.headers).entries()) });
+        return new Response(JSON.stringify(fixtureJob), {
+          status: 200, headers: { 'Content-Type': 'application/json' },
+        });
+      },
     });
-    try {
-      await new Promise((resolve, reject) => {
-        fixtureServer.once('error', reject);
-        fixtureServer.listen(0, '127.0.0.1', resolve);
-      });
-      const address = fixtureServer.address();
-      assert.ok(address && typeof address === 'object');
-      const readClient = canonical.createMediaCanonicalClient({
-        baseUrl: 'http://127.0.0.1:' + address.port, tenantId: 'fixture-tenant',
-        defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
-        getAccessToken: () => 'installed-read-fixture-token',
-      });
-      const readJob = await readClient.getJob('job-installed-42');
-      assert.equal(requests.length, 1);
-      assert.equal(requests[0].method, 'GET');
-      assert.equal(requests[0].url, '/api/v1/jobs/job-installed-42');
-      assert.equal(requests[0].headers.authorization, 'Bearer installed-read-fixture-token');
-      assert.equal(requests[0].headers['x-tenant-id'], 'fixture-tenant');
-      assert.equal(requests[0].headers['x-principal-id'], 'fixture-principal');
-      assert.deepEqual(readJob, fixtureJob, 'installed canonical getJob must parse the synthetic HTTP response');
-    } finally {
-      if (fixtureServer.listening) {
-        await new Promise((resolve, reject) => fixtureServer.close((error) => error ? reject(error) : resolve()));
-      }
-    }
+    const readJob = await readClient.getJob('job-installed-42');
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].method, 'GET');
+    assert.equal(requests[0].url, '/api/v1/jobs/job-installed-42');
+    assert.equal(requests[0].headers.authorization, 'Bearer installed-read-fixture-token');
+    assert.equal(requests[0].headers['x-tenant-id'], 'fixture-tenant');
+    assert.equal(requests[0].headers['x-principal-id'], 'fixture-principal');
+    assert.deepEqual(readJob, fixtureJob, 'installed canonical getJob must parse the synthetic HTTP response');
 
     const wrongScopeClient = canonical.createMediaCanonicalClient({
       baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
@@ -254,7 +243,8 @@ try {
     const resolver: CaptureSourceResolver | undefined = undefined;
     const diErrorCodes = [
       'SOURCE_IDENTITY_INVALID', 'SOURCE_PAYLOAD_INVALID', 'SOURCE_MEDIA_TYPE_NOT_ADMITTED',
-      'SOURCE_LANGUAGE_NOT_ADMITTED', 'CLIENT_PROTOCOL_MISMATCH', 'WORKER_VERSION_NOT_ADMITTED',
+      'SOURCE_LANGUAGE_NOT_ADMITTED', 'PROVIDER_CATALOG_UNAVAILABLE', 'CLIENT_PROTOCOL_MISMATCH',
+      'WORKER_VERSION_NOT_ADMITTED',
       'PROVIDER_NOT_ADMITTED', 'PROVIDER_VERSION_MISMATCH', 'RESPONSE_IDENTITY_MISMATCH',
       'PAGE_SCOPE_UNSUPPORTED', 'MODEL_IDENTITY_MISSING', 'MODEL_VERSION_MISMATCH',
       'RESULT_GEOMETRY_INVALID', 'RESULT_CONFIDENCE_MISSING', 'RESULT_SHAPE_UNSUPPORTED',
@@ -310,7 +300,7 @@ try {
   assert.equal((untrustedResult.stdout + untrustedResult.stderr).includes(token), false,
     'installed CLI must not expose the credential while rejecting an endpoint');
 
-  console.log(`Installed ESM/CJS/types consumers, synthetic loopback HTTP job-read and wrong-scope fixtures, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
+  console.log(`Installed ESM/CJS/types consumers, injected-fetch job-read and wrong-scope fixtures, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

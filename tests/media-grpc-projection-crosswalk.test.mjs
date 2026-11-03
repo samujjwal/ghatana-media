@@ -77,9 +77,9 @@ test("all PDP-3 gRPC records project exact protobuf identity, message refs, and 
   const contractFiles = readdirSync(contractDir).filter((path) => path.endsWith(".yaml") && path !== "README.md");
   const registry = readFileSync(join(grpcRoot, "service-registry.yaml"), "utf8");
   const identities = sourceRows.map(({ service, method }) => `${service}.${method}`);
-  assert.equal(sourceRows.length, 43, "the governed protobuf service source population is 43 RPCs");
-  assert.equal(new Set(identities).size, 43, "protobuf RPC identities are unique");
-  assert.equal(contractFiles.length, 43, "there is one PDP-3 gRPC operation record per protobuf RPC");
+  assert.equal(sourceRows.length, 44, "the current governed protobuf service source population is 44 RPCs");
+  assert.equal(new Set(identities).size, 44, "protobuf RPC identities are unique");
+  assert.equal(contractFiles.length, 44, "there is one PDP-3 gRPC operation record per observed protobuf RPC");
 
   for (const row of sourceRows) {
     const identity = `${row.service}.${row.method}`;
@@ -106,6 +106,12 @@ test("all PDP-3 gRPC records project exact protobuf identity, message refs, and 
   for (const file of contractFiles) {
     assert.ok(identities.includes(file.slice(0, -".yaml".length)), `${file} is not an orphan projection`);
   }
+
+  const sceneTextContract = readFileSync(join(contractDir, "VisionService.RecognizeSceneText.yaml"), "utf8");
+  assert.equal(scalar(sceneTextContract, "bindingStatus"), "proposed-exact-source-member-map; owner-review-pending",
+    "the 44th observed RPC retains its pending owner review");
+  assert.equal(scalar(sceneTextContract, "contractStatus"), "proposal-only; owner-review-pending",
+    "the 44th observed RPC remains proposal-only");
 });
 
 test("gRPC registry projection rejects a request or stream-shape drift", () => {

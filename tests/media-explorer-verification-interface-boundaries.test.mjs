@@ -19,8 +19,8 @@ test("Verify has no durable task-local pass or blocked result claim", () => {
 
 test("HTTP and gRPC contractFile references resolve to exact indexed operation artifacts", () => {
   const sources = [
-    [".product-experience/pdp-3-product-experience/api/api-registry.yaml", "api/operations/", 27],
-    [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", "grpc/operations/", 43],
+    [".product-experience/pdp-3-product-experience/api/api-registry.yaml", "api/operations/", 30],
+    [".product-experience/pdp-3-product-experience/grpc/service-registry.yaml", "grpc/operations/", 44],
   ];
   for (const [registryPath, operationDirectory, expectedCount] of sources) {
     const registry = readFileSync(new URL(`../${registryPath}`, import.meta.url), "utf8");
