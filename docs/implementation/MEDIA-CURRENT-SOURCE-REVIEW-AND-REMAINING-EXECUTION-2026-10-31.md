@@ -3620,3 +3620,7 @@ Commit `b59c7696` fixes `AudioData`'s four-argument convenience constructor, whi
 ### 43.32 November 3 IP-01 source-only schema census
 
 Read-only comparison confirmed that `modules/infrastructure/persistence/README.md:72–102` already maps legacy JPA V1/entities to canonical Media V009–V018 tables, columns, tenant/key/version owners, immutable V017 transcripts, and distinct V011/V016 attempt/outbox families; no code or documentation change was warranted. The README records a source mismatch (`AudioFileEntity.failure_reason` is absent from the JPA V1 DDL), which was left unchanged pending applied-history and consumer evidence. The separate `audio_video` and `media_*` namespaces do not establish one deployed writer. Actual Flyway checksums/history, old installed writer/publisher identity, and authorized cutover remain open; this census is not IP-01 or IP-06 acceptance.
+
+### 43.33 November 3 CA-02 cache privacy boundary recheck
+
+The focused `AudioVideoCacheKeyRedactionTest` passed **9/9**; no source change was needed. The existing cache scope requires tenant, authenticated principal, rights scope, purpose, classification, artifact ID/revision, transcript revision and source fingerprint, and hashes all dimensions. Diagnostic key references are bounded HMAC values; protected transcription cache reads/writes remain disabled when the public caller lacks complete protected scope. This verifies local key isolation/redaction cases only; it does not grant cache authority to decide live rights or prove CA-02 as a formally accepted stage row.
