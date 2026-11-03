@@ -420,9 +420,11 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         String retention = environment.get("TTS_MODEL_RETENTION").trim();
         String hardware = environment.get("TTS_MODEL_HARDWARE").trim();
         String rawPath = environment.get("TTS_MODEL_PATH").trim();
-        if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
+        if (!digest.matches("[0-9a-f]{64}")) {
+            return notAdmitted("TTS_MODEL_SHA256 must be a SHA-256 digest");
+        }
         if (!expectedSidecarDigest.matches("[0-9a-f]{64}")) {
-            throw new IllegalArgumentException("TTS_VOICE_SIDECAR_SHA256 must be a SHA-256 digest");
+            return notAdmitted("TTS_VOICE_SIDECAR_SHA256 must be a SHA-256 digest");
         }
         if (!isUsableLanguageTag(language)) {
             return notAdmitted("TTS_MODEL_LANGUAGE must be a well-formed BCP 47 language tag with a language subtag");
@@ -442,7 +444,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
                     "Configured model path must be an absolute, normalized, non-symbolic regular readable provider asset");
         }
         if (!digest.equals(fileDigest(path, beforeModelHash, configuredModelSizeLimit(environment)))) {
-            throw new IllegalArgumentException("TTS model digest does not match TTS_MODEL_SHA256");
+            return notAdmitted("TTS model digest does not match TTS_MODEL_SHA256");
         }
         Path voiceSidecar = voiceSidecarPath(path);
         if (containsSymbolicLink(voiceSidecar)
@@ -452,8 +454,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         }
         String voiceSidecarDigest = fileDigest(voiceSidecar, ignored -> {}, 16L * 1024 * 1024);
         if (!expectedSidecarDigest.equals(voiceSidecarDigest)) {
-            throw new IllegalArgumentException(
-                    "TTS voice sidecar digest does not match TTS_VOICE_SIDECAR_SHA256");
+            return notAdmitted("TTS voice sidecar digest does not match TTS_VOICE_SIDECAR_SHA256");
         }
         String defaultVoice = requireText(
                 environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"), "TTS_DEFAULT_VOICE");

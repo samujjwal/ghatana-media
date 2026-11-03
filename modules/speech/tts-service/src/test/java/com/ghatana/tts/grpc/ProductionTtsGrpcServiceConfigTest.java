@@ -271,8 +271,80 @@ class ProductionTtsGrpcServiceConfigTest {
             Files.writeString(model, "immutable fixture model bytes");
             writeFixtureSidecar(model);
             Map<String, String> environment = localProfile(model, "0".repeat(64));
-            assertRejectedBeforeInitialization(environment, IllegalArgumentException.class,
-                    "does not match TTS_MODEL_SHA256");
+            AtomicInteger resolverCalls = new AtomicInteger();
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+                resolverCalls.incrementAndGet();
+                return new TtsProviderAdmission.Decision(java.util.Set.of(), null, "unexpected");
+            });
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("does not match TTS_MODEL_SHA256");
+            assertThat(resolverCalls).hasValue(0);
+            assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                    "TTS_PROVIDER_NOT_ADMITTED");
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void malformedModelDigestPinsReturnNotAdmittedBeforeTrustedAdmissionOrInitialization() throws Exception {
+        Path model = createModelFile("tts-model-malformed-pin");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String validDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+
+            for (String malformedPin : List.of("abc", "g".repeat(64))) {
+                Map<String, String> environment = new java.util.HashMap<>(localProfile(model, validDigest));
+                environment.put("TTS_MODEL_SHA256", malformedPin);
+                AtomicInteger resolverCalls = new AtomicInteger();
+
+                var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+                    resolverCalls.incrementAndGet();
+                    return new TtsProviderAdmission.Decision(
+                            java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                            "local-fixture-resolver:test-only", "controlled fixture only");
+                });
+
+                assertThat(profile.status()).as("pin %s", malformedPin).isEqualTo("NOT_ADMITTED");
+                assertThat(profile.reason()).contains("TTS_MODEL_SHA256 must be a SHA-256 digest");
+                assertThat(resolverCalls).hasValue(0);
+                assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                        "TTS_PROVIDER_NOT_ADMITTED");
+            }
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
+    void malformedVoiceSidecarDigestPinsReturnNotAdmittedBeforeTrustedAdmissionOrInitialization() throws Exception {
+        Path model = createModelFile("tts-sidecar-malformed-pin");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String validDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+
+            for (String malformedPin : List.of("abc", "g".repeat(64))) {
+                Map<String, String> environment = new java.util.HashMap<>(localProfile(model, validDigest));
+                environment.put("TTS_VOICE_SIDECAR_SHA256", malformedPin);
+                AtomicInteger resolverCalls = new AtomicInteger();
+
+                var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+                    resolverCalls.incrementAndGet();
+                    return new TtsProviderAdmission.Decision(
+                            java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                            "local-fixture-resolver:test-only", "controlled fixture only");
+                });
+
+                assertThat(profile.status()).as("pin %s", malformedPin).isEqualTo("NOT_ADMITTED");
+                assertThat(profile.reason()).contains("TTS_VOICE_SIDECAR_SHA256 must be a SHA-256 digest");
+                assertThat(resolverCalls).hasValue(0);
+                assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                        "TTS_PROVIDER_NOT_ADMITTED");
+            }
         } finally {
             deleteModelFixture(model);
         }
@@ -290,15 +362,17 @@ class ProductionTtsGrpcServiceConfigTest {
             environment.put("TTS_VOICE_SIDECAR_SHA256", "0".repeat(64));
             AtomicInteger resolverCalls = new AtomicInteger();
 
-            assertThatThrownBy(() -> ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+            var profile = ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
                 resolverCalls.incrementAndGet();
                 return new TtsProviderAdmission.Decision(
                         java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
                         "local-fixture-resolver:test-only", "controlled fixture only");
-            }))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("does not match TTS_VOICE_SIDECAR_SHA256");
+            });
+            assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
+            assertThat(profile.reason()).contains("does not match TTS_VOICE_SIDECAR_SHA256");
             assertThat(resolverCalls).hasValue(0);
+            assertRejectedBeforeInitialization(environment, IllegalStateException.class,
+                    "TTS_PROVIDER_NOT_ADMITTED");
         } finally {
             deleteModelFixture(model);
         }
