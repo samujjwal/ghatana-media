@@ -89,6 +89,59 @@ class MediaGrpcRegistryDescriptorParityTest {
     }
 
     @Test
+    void operationContractFilesMatchTheirRegistryRowsAndProtoDescriptors() throws IOException {
+        JsonNode registry = YAML.readTree(Files.readString(REGISTRY_PATH));
+        JsonNode rows = registry.path("rpcs");
+
+        for (JsonNode row : rows) {
+            String id = requiredText(row, "id");
+            String contractFile = requiredText(row, "contractFile");
+            Path contractPath = REPOSITORY_ROOT.resolve(REGISTRY_RELATIVE_PATH.getParent())
+                    .resolve(contractFile).normalize();
+            assertThat(contractPath.startsWith(REPOSITORY_ROOT.resolve(REGISTRY_RELATIVE_PATH.getParent())))
+                    .as("operation contract path for %s remains under the gRPC contract directory", id)
+                    .isTrue();
+            assertThat(Files.isRegularFile(contractPath))
+                    .as("operation contract file for %s exists: %s", id, contractPath)
+                    .isTrue();
+
+            JsonNode contract = YAML.readTree(Files.readString(contractPath));
+            String source = requiredText(row, "source");
+            String serviceName = requiredText(row, "service");
+            String methodName = requiredText(row, "method");
+            String requestName = requiredText(row, "request");
+            String responseName = requiredText(row, "response");
+            String packageName = requiredText(row, "package");
+
+            assertThat(requiredText(contract, "operationId")).isEqualTo(id);
+            assertThat(requiredText(contract, "sourceContract")).isEqualTo(source);
+
+            JsonNode protocol = contract.path("protocolIdentity");
+            assertThat(requiredText(protocol, "protocol")).isEqualTo("gRPC");
+            assertThat(requiredText(protocol, "package")).isEqualTo(packageName);
+            assertThat(requiredText(protocol, "service")).isEqualTo(serviceName);
+            assertThat(requiredText(protocol, "method")).isEqualTo(methodName);
+            assertThat(requiredBoolean(protocol, "clientStreaming", id))
+                    .isEqualTo(requiredBoolean(row, "clientStreaming", id));
+            assertThat(requiredBoolean(protocol, "serverStreaming", id))
+                    .isEqualTo(requiredBoolean(row, "serverStreaming", id));
+
+            assertThat(requiredText(contract.path("request"), "protobufMessage")).isEqualTo(requestName);
+            assertThat(requiredText(contract.path("request"), "schemaRef"))
+                    .isEqualTo(source + "#" + packageName + "." + requestName);
+            assertThat(requiredText(contract.path("response"), "protobufMessage")).isEqualTo(responseName);
+            assertThat(requiredText(contract.path("response"), "schemaRef"))
+                    .isEqualTo(source + "#" + packageName + "." + responseName);
+
+            // These files describe observed/proposed mappings only. They must not
+            // silently promote pending bindings into selected protocol authority.
+            assertThat(requiredText(contract, "contractStatus")).contains("proposal-only", "owner-review-pending");
+            assertThat(requiredText(contract.path("pdp1SemanticBinding"), "ownerReview"))
+                    .isEqualTo("pending");
+        }
+    }
+
+    @Test
     void registryProposalBindingsRemainUnboundUntilOwnerReview() throws IOException {
         assertThat(Files.exists(REGISTRY_PATH)).as("gRPC service registry exists").isTrue();
         JsonNode registry = YAML.readTree(Files.readString(REGISTRY_PATH));
