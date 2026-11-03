@@ -61,14 +61,14 @@ class MediaSubjectIsolationHttpIT {
     private HttpServer server;
     private MediaRuntime runtime;
     private AutoCloseable installed;
+    private Map<String, String> environment;
+    private Map<String, String> securityEnvironment;
     private String jdbcUrl;
     private String bucket;
 
     @AfterEach
     void tearDown() throws Exception {
-        if (server != null) server.stop(0);
-        if (runtime != null) runtime.close();
-        if (installed != null) installed.close();
+        stopStack();
     }
 
     @Test
@@ -105,10 +105,7 @@ class MediaSubjectIsolationHttpIT {
         HttpResponse<String> absentArtifact = send("GET", "/api/v1/artifacts/absent-subject-isolation-artifact",
                 TENANT, otherToken, null, "");
         assertThat(ownerArtifact.statusCode()).as("owner artifact read: %s", ownerArtifact.body()).isEqualTo(200);
-        assertThat(otherArtifact.statusCode()).as("other subject artifact read: %s", otherArtifact.body()).isEqualTo(404);
-        assertThat(MAPPER.readTree(otherArtifact.body()).path("error"))
-                .isEqualTo(MAPPER.readTree(absentArtifact.body()).path("error"));
-        assertThat(otherArtifact.body()).doesNotContain(artifactId);
+        assertEquivalentNotFound(otherArtifact, absentArtifact, artifactId);
 
         String jobBody = """
                 {"requestId":"subject-isolation-job","tenantId":"%s","principalId":"subject-owner",
@@ -127,12 +124,36 @@ class MediaSubjectIsolationHttpIT {
         HttpResponse<String> absentJob = send("GET", "/api/v1/jobs/absent-subject-isolation-job",
                 TENANT, otherToken, null, "");
         assertThat(ownerJob.statusCode()).as("owner job read: %s", ownerJob.body()).isEqualTo(200);
-        assertThat(otherJob.statusCode()).as("other subject job read: %s", otherJob.body()).isEqualTo(404);
-        assertThat(MAPPER.readTree(otherJob.body()).path("error"))
-                .isEqualTo(MAPPER.readTree(absentJob.body()).path("error"));
-        assertThat(otherJob.body()).doesNotContain(jobId);
+        assertEquivalentNotFound(otherJob, absentJob, jobId);
 
         // Verify owner-bound rows committed in the durable PostgreSQL-compatible store.
+        try (var connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
+            assertOwnerRow(connection, "media_artifacts", artifactId);
+            assertOwnerRow(connection, "media_processing_jobs", jobId);
+        }
+
+        restartRuntime();
+
+        HttpResponse<String> restartedOwnerArtifact = send("GET", "/api/v1/artifacts/" + artifactId,
+                TENANT, ownerToken, null, "");
+        HttpResponse<String> restartedOtherArtifact = send("GET", "/api/v1/artifacts/" + artifactId,
+                TENANT, otherToken, null, "");
+        HttpResponse<String> restartedAbsentArtifact = send("GET", "/api/v1/artifacts/absent-after-restart",
+                TENANT, otherToken, null, "");
+        assertThat(restartedOwnerArtifact.statusCode())
+                .as("owner artifact read after runtime restart: %s", restartedOwnerArtifact.body()).isEqualTo(200);
+        assertEquivalentNotFound(restartedOtherArtifact, restartedAbsentArtifact, artifactId);
+
+        HttpResponse<String> restartedOwnerJob = send("GET", "/api/v1/jobs/" + jobId,
+                TENANT, ownerToken, null, "");
+        HttpResponse<String> restartedOtherJob = send("GET", "/api/v1/jobs/" + jobId,
+                TENANT, otherToken, null, "");
+        HttpResponse<String> restartedAbsentJob = send("GET", "/api/v1/jobs/absent-after-restart",
+                TENANT, otherToken, null, "");
+        assertThat(restartedOwnerJob.statusCode())
+                .as("owner job read after runtime restart: %s", restartedOwnerJob.body()).isEqualTo(200);
+        assertEquivalentNotFound(restartedOtherJob, restartedAbsentJob, jobId);
+
         try (var connection = DriverManager.getConnection(jdbcUrl, "sa", "")) {
             assertOwnerRow(connection, "media_artifacts", artifactId);
             assertOwnerRow(connection, "media_processing_jobs", jobId);
@@ -146,7 +167,7 @@ class MediaSubjectIsolationHttpIT {
         try (S3Client s3 = s3()) {
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
         }
-        Map<String, String> environment = new HashMap<>();
+        environment = new HashMap<>();
         environment.put("MEDIA_RUNTIME_ENABLED", "true");
         environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         environment.put("MEDIA_PROFILE", "local");
@@ -168,11 +189,51 @@ class MediaSubjectIsolationHttpIT {
         installed = TestAwsStateInstall.install(environment);
         runtime = MediaRuntime.compose(environment);
 
-        Map<String, String> securityEnvironment = new HashMap<>(environment);
+        securityEnvironment = new HashMap<>(environment);
         securityEnvironment.put("MEDIA_JWT_HMAC_SECRET_REFERENCE", "secret:env:MEDIA_TEST_JWT_SECRET");
         securityEnvironment.put("MEDIA_JWT_ISSUER", "https://issuer.example");
         securityEnvironment.put("MEDIA_JWT_AUDIENCE", "ghatana-runtime");
         securityEnvironment.put("MEDIA_TEST_JWT_SECRET", SECRET);
+        startHttpServer();
+    }
+
+    private void restartRuntime() throws Exception {
+        stopStack();
+
+        installed = TestAwsStateInstall.install(environment);
+        runtime = MediaRuntime.compose(environment);
+        startHttpServer();
+    }
+
+    private void stopStack() throws Exception {
+        if (server != null) {
+            server.stop(0);
+            server = null;
+        }
+        Exception closeFailure = null;
+        if (runtime != null) {
+            try {
+                runtime.close();
+            } catch (Exception failure) {
+                closeFailure = failure;
+            } finally {
+                runtime = null;
+            }
+        }
+        if (installed != null) {
+            try {
+                installed.close();
+            } catch (Exception failure) {
+                if (closeFailure == null) closeFailure = failure;
+                else closeFailure.addSuppressed(failure);
+            } finally {
+                installed = null;
+            }
+        }
+        if (closeFailure != null) throw closeFailure;
+    }
+
+    private void startHttpServer() throws Exception {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", new MediaSecurityFilter(
                 new MediaHttpHandler(runtime), "local", securityEnvironment, CLOCK));
@@ -212,6 +273,18 @@ class MediaSubjectIsolationHttpIT {
     }
 
     private String base() { return "http://127.0.0.1:" + server.getAddress().getPort(); }
+
+    private static void assertEquivalentNotFound(
+            HttpResponse<String> denied, HttpResponse<String> absent, String protectedId) throws Exception {
+        assertThat(denied.statusCode()).isEqualTo(404);
+        assertThat(absent.statusCode()).isEqualTo(denied.statusCode());
+        JsonNode deniedError = MAPPER.readTree(denied.body()).path("error");
+        JsonNode absentError = MAPPER.readTree(absent.body()).path("error");
+        assertThat(deniedError.isObject()).isTrue();
+        assertThat(deniedError.hasNonNull("code")).isTrue();
+        assertThat(deniedError).isEqualTo(absentError);
+        assertThat(denied.body()).doesNotContain(protectedId);
+    }
 
     private static String jwt(String subject) throws Exception {
         String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");

@@ -96,13 +96,33 @@ class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
                 .providerKey("synthetic-fixture:local-v1")
                 .systemMetadata(Map.of("evidenceKind", "SYNTHETIC_FIXTURE_ONLY"))
                 .build();
+        AudioVideoRunLedgerEntry otherTenant = AudioVideoRunLedgerEntry.builder()
+                .runId("fixture-run-other-tenant")
+                .sessionId("fixture-session-other-tenant")
+                .mediaArtifactId("fixture-artifact-other-tenant-v1")
+                .tenantId("other-fixture-tenant")
+                .actorId("other-fixture-actor")
+                .state(AudioVideoRunLedgerEntry.RunState.SUCCEEDED)
+                .startedAt(startedAt)
+                .endedAt(endedAt)
+                .traceId("fixture-trace-other-tenant")
+                .providerKey("synthetic-fixture:local-v1")
+                .systemMetadata(Map.of("evidenceKind", "SYNTHETIC_FIXTURE_ONLY"))
+                .build();
 
         runPromise(() -> ledger.recordRunCompletion(success));
         runPromise(() -> ledger.recordRunCompletion(failure));
+        runPromise(() -> ledger.recordRunCompletion(otherTenant));
 
         List<AudioVideoRunLedgerEntry> readback = runPromise(() ->
                 ledger.queryByTenant("fixture-tenant", startedAt, endedAt));
         assertThat(readback).hasSize(2);
+        assertThat(readback).extracting(AudioVideoRunLedgerEntry::runId)
+                .containsExactlyInAnyOrder("fixture-run-success", "fixture-run-failure");
+        List<AudioVideoRunLedgerEntry> otherTenantReadback = runPromise(() ->
+                ledger.queryByTenant("other-fixture-tenant", startedAt, endedAt));
+        assertThat(otherTenantReadback).singleElement()
+                .extracting(AudioVideoRunLedgerEntry::runId).isEqualTo("fixture-run-other-tenant");
         assertThat(readback).filteredOn(entry -> entry.runId().equals("fixture-run-success"))
                 .singleElement()
                 .satisfies(entry -> {
