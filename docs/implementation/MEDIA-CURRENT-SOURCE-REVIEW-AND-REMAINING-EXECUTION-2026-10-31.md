@@ -4356,3 +4356,8 @@ Focused `LetterboxTransformTest`, `NativeVisionMatInputTest`, `BoundedImageDecod
 ### 43.188 November 3 VIS-10 expired biometric decision negative
 
 Added an admission regression where an otherwise allowed biometric decision has expired; `FacialRecognitionService` rejects it before calling the face provider. The focused `FacialRecognitionServiceAdmissionTest` selector passed **11/11**. Existing code also denies cross-tenant/revoked/unsupported sensitive operations, keeps identity matching `NOT_ADMITTED`, strips embeddings from detection results, and refuses audit effects without authority. No biometric source, consent record or model was used. VIS-10 remains partial pending genuine purpose/region/retention/consent authority and any real model/source/host evidence.
+
+
+### 43.189 November 3 SK-07 loopback integration rerun
+
+The previously sandbox-blocked `AudioVideoClient.integration.test.ts` selector was rerun with loopback binding available and passed **1/1**, with zero failures or skips. The test exercises an HTTP transcription request and checks the POST route, tenant and correlation headers, and parsed response. Existing operation and canonical-operation selectors remain **119/119** and **42/42** from §43.181. No client route or server fixture was changed. This does not establish an installed remote service, real provider/rights effect, or whole SK-07 acceptance; those downstream owner and effect criteria remain open.
