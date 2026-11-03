@@ -138,11 +138,15 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
      * service fail-closed with every operation not-admitted and readiness down.
      */
     static MediaProcessingRuntimePort composeRuntimePort(Map<String, String> environment) {
+        return composeRuntimePort(environment,
+                ServiceLoader.load(com.ghatana.media.runtime.MediaRuntimePortFactory.class));
+    }
+
+    static MediaProcessingRuntimePort composeRuntimePort(
+            Map<String, String> environment,
+            Iterable<com.ghatana.media.runtime.MediaRuntimePortFactory> discoveredFactories) {
         List<com.ghatana.media.runtime.MediaRuntimePortFactory> factories = new ArrayList<>();
-        for (com.ghatana.media.runtime.MediaRuntimePortFactory factory
-                : ServiceLoader.load(com.ghatana.media.runtime.MediaRuntimePortFactory.class)) {
-            factories.add(factory);
-        }
+        discoveredFactories.forEach(factories::add);
         if (factories.isEmpty()) {
             LOG.warn("No MediaRuntimePortFactory installed; multimodal operations stay NOT_ADMITTED");
             return null;
@@ -154,8 +158,13 @@ public final class MultimodalGrpcServer extends AudioVideoGrpcServerBase {
                                     com.ghatana.media.runtime.MediaRuntimePortFactory::factoryId)
                                     .sorted().toList());
         }
-        MediaProcessingRuntimePort port = factories.getFirst().compose(environment);
-        LOG.info("Composed Media runtime port via factory {}", factories.getFirst().factoryId());
+        com.ghatana.media.runtime.MediaRuntimePortFactory factory = factories.getFirst();
+        MediaProcessingRuntimePort port = factory.compose(environment);
+        if (port == null) {
+            throw new IllegalStateException(
+                    "MediaRuntimePortFactory " + factory.factoryId() + " returned a null runtime port");
+        }
+        LOG.info("Composed Media runtime port via factory {}", factory.factoryId());
         return port;
     }
 

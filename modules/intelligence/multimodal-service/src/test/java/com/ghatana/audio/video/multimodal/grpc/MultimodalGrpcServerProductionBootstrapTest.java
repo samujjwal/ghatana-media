@@ -6,6 +6,7 @@ import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalRequest;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
+import com.ghatana.media.runtime.MediaRuntimePortFactory;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
@@ -77,6 +78,18 @@ class MultimodalGrpcServerProductionBootstrapTest {
         // The modality module must not depend on the launcher runtime; without an
         // installed MediaRuntimePortFactory the server stays fail-closed.
         assertThat(MultimodalGrpcServer.composeRuntimePort(Map.of())).isNull();
+    }
+
+    @Test
+    void runtimeFactoryReturningNullFailsComposition() {
+        MediaRuntimePortFactory factory = new MediaRuntimePortFactory() {
+            @Override public String factoryId() { return "null-runtime-test"; }
+            @Override public MediaProcessingRuntimePort compose(Map<String, String> environment) { return null; }
+        };
+
+        assertThatThrownBy(() -> MultimodalGrpcServer.composeRuntimePort(Map.of(), java.util.List.of(factory)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("MediaRuntimePortFactory null-runtime-test returned a null runtime port");
     }
 
     @Test
