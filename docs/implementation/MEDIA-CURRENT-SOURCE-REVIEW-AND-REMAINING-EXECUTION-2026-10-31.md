@@ -4054,3 +4054,28 @@ Strengthened `MediaTestHarnessCatalogTest` to derive the expected Gradle test ar
 ### 43.128 November 3 FLEURS scratch-audio disposition
 
 Rechecked `build/reports/media-fleurs-pilot-70bb2e84` without opening file contents. It currently contains only `manifest.json`; no WAV files or symlinks are present, so there were no audio files to delete. Retained the metadata manifest and did not read it for transcript/audio content, run inference, or acquire any FLEURS data. Any future local FLEURS audio in this scratch path remains unauthorized for evaluation and should be removed without opening unless an authoritative source record and approved retention path are provided.
+
+
+### 43.129 November 3 Common Voice v27 preferred alternative disposition
+
+Adopted the supplied Common Voice Scripted Speech v27.0 proposal as the preferred alternative source for future real en/hi/ne ASR evaluation. Its MDC release records are pinned in `config/qualification/common-voice-v27-asr-alternative.v1.json`, and the profile keeps the official `test` split, CC0-1.0 dataset license, exact locale dataset IDs, private clip-ID/hash manifest, no speaker/demographic fields, local offline inference, no training/identification/rehosting, 24-hour interrupted-audio cleanup, and 90-day manifest/aggregate retention. This is a source-selection decision only: the authorized organization representative still must accept MDC consumer and dataset terms and provide the exact access/split/clip record before any data request or real inference. English sample availability remains `NOT_VERIFIED`; do not request the sample or full archive before that acceptance. Common Voice results remain separate from FLEURS-specific R8/R10 acceptance, and the existing FLEURS profile stays `NOT_ADMITTED` for real inference.
+
+
+### 43.130 November 3 remote ancestry refresh unavailable
+
+Attempted the plan's read-only `git fetch --no-tags origin main` reconciliation. The operation stopped with `cannot open '.git/FETCH_HEAD': Operation not permitted`; no current remote refresh could be established. Local `main` is at `c4d2c755` and reports 278 commits ahead of the cached `origin/main` ref `5677e464`, so this is not a current remote-parity claim. Continued with local source and test work only; no push or force update was attempted.
+
+
+### 43.131 November 3 IT-02 durable integration readback
+
+Read the IT-02 harness and current integration selectors. Existing launcher coverage exercises real local runtime composition and durable artifact/job/outbox behavior with synthetic payloads, while the legacy provider-lifecycle harness is in-memory and cannot prove persistence. The remaining IT-02 scenario still needs isolated PostgreSQL/S3 transcript/caption version, consent, cache/ledger, cancellation, process-restart, and recovery coverage. A read-only Docker capability probe failed with `permission denied` for `/Users/samujjwal/.docker/run/docker.sock`, so no container-backed IT-02 suite was started. This is a host access blocker, not a test failure or acceptance result.
+
+
+### 43.132 November 3 AT-05/AT-06 binder evidence boundary
+
+Independent source review found existing Media tool binder tests for same-key replay, changed tenant/caller identity, concurrent claims, ambiguous dispatch, lost claim/completion acknowledgments, timeout, cancellation-requested status, durable job-state readback, and sanitized diagnostics. Those tests use an in-memory ledger; the production durable-ledger adapter and installed Action Plane consumer/effect receipt remain unproven. No duplicate test or runtime edit was warranted in this pass; AT-05/AT-06 remain open at those external/runtime boundaries.
+
+
+### 43.133 November 3 Common Voice v27 aggregate scorer code path
+
+Added `scripts/qualification/common-voice-aggregate-scorer.mjs`, a pure in-memory helper for exact pinned v27 en/hi/ne-NP `test` records. It enforces the checked public per-locale/combined row ceilings, exact allowed record fields, duplicate rejection, a 16,384-code-unit text bound and a 50,000,000-cell cumulative WER/CER work bound. It returns only per-locale aggregate errors/rates with `SYNTHETIC_LOCAL_CODE_PATH_ONLY` and `NOT_QUALIFIED_THRESHOLDS_UNSET`; synthetic tests cover normalization, empty predictions, denied fields, split/revision/hash mismatches and resource caps. `node --test tests/media-common-voice-aggregate-scorer.test.mjs` passed **12/12**, `node --check` passed, and `pnpm run check:common-voice-v27-profile` reports metadata valid / inference `NOT_ADMITTED`. The helper has no file/network/model I/O, does not create a clip manifest, does not enforce retained-output deletion, and is not wired to audio decoding or a model. It is not an actual Common Voice result and does not satisfy FLEURS-specific STT-10/12 acceptance, independent gold, DER, or quality thresholds.
