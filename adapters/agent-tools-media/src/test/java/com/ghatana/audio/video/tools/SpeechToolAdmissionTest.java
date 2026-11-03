@@ -53,6 +53,11 @@ final class SpeechToolAdmissionTest extends EventloopTestBase {
         assertThat(result.failure().kind()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
         assertThat(result.failure().stage()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.ADMISSION);
         assertThat(result.failure().code()).isEqualTo("STT_NOT_ADMITTED");
+        assertThat(result.invocationId()).isEqualTo(envelope.invocationId());
+        assertThat(result.correlationId()).isEqualTo(envelope.invocationId());
+        assertThat(result.sideEffectSummary()).isEmpty();
+        assertThat(result.operationId()).isNull();
+        assertThat(result.attemptId()).isNull();
         assertThat(providerCalls).hasValue(0);
     }
 
@@ -70,6 +75,11 @@ final class SpeechToolAdmissionTest extends EventloopTestBase {
         assertThat(result.failure().kind()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
         assertThat(result.failure().stage()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.ADMISSION);
         assertThat(result.failure().code()).isEqualTo("TTS_NOT_ADMITTED");
+        assertThat(result.invocationId()).isEqualTo(envelope.invocationId());
+        assertThat(result.correlationId()).isEqualTo(envelope.invocationId());
+        assertThat(result.sideEffectSummary()).isEmpty();
+        assertThat(result.operationId()).isNull();
+        assertThat(result.attemptId()).isNull();
         assertThat(providerCalls).hasValue(0);
     }
 
