@@ -389,6 +389,9 @@ public final class MediaProductionSpecCompiler {
             if (!schema.validate(specificationJson, InputFormat.JSON).isEmpty()) {
                 throw invalidProductionSpecContent();
             }
+            // JSON Schema format is annotation-only by default. Assert the exact custom
+            // PDP-1 formats losslessly before decoding or compiling the typed value.
+            MediaProductionSchemaFormatAssertions.validate(schemaNode, specificationNode);
             decodedSpec = decodeProductionSpec(specificationNode);
         } catch (StackOverflowError excessiveSchemaRecursion) {
             throw invalidProductionSpecContent();

@@ -50,13 +50,14 @@ public final class MediaCaptureSourceContracts {
             CaptureSourceKind kind,
             String sourceIdentity,
             String purposeRef,
+            String exactRightsScope,
             String sourceVersionRef,
             String secretsRef,
             String frameClockRef) {
         public CaptureRequest {
             Objects.requireNonNull(kind, "kind");
             for (String field : new String[]{
-                    sourceIdentity, purposeRef, sourceVersionRef, secretsRef, frameClockRef}) {
+                    sourceIdentity, purposeRef, exactRightsScope, sourceVersionRef, secretsRef, frameClockRef}) {
                 requireCaptureField(field);
             }
         }
@@ -65,11 +66,17 @@ public final class MediaCaptureSourceContracts {
     /** Actual captured output — real bytes with their frame clock, or nothing. */
     public record CapturedBytes(
             String sourceIdentity,
+            String purposeRef,
+            String exactRightsScope,
+            String sourceVersionRef,
             String frameClockRef,
             byte[] bytes,
             long capturedAtEpochMillis) {
         public CapturedBytes {
             requireCaptureField(sourceIdentity);
+            requireCaptureField(purposeRef);
+            requireCaptureField(exactRightsScope);
+            requireCaptureField(sourceVersionRef);
             requireCaptureField(frameClockRef);
             Objects.requireNonNull(bytes, "bytes");
             if (bytes.length == 0 || bytes.length > MAX_CAPTURED_FRAME_BYTES) {
@@ -83,6 +90,16 @@ public final class MediaCaptureSourceContracts {
 
         @Override public byte[] bytes() {
             return bytes.clone();
+        }
+
+        /** Output provenance must bind the full authorized request, not just its clock. */
+        public boolean isBoundTo(CaptureRequest request) {
+            return request != null
+                    && sourceIdentity.equals(request.sourceIdentity())
+                    && purposeRef.equals(request.purposeRef())
+                    && exactRightsScope.equals(request.exactRightsScope())
+                    && sourceVersionRef.equals(request.sourceVersionRef())
+                    && frameClockRef.equals(request.frameClockRef());
         }
     }
 
@@ -108,6 +125,8 @@ public final class MediaCaptureSourceContracts {
      * ADMITTED adapter may produce bytes; every other outcome is denied.
      */
     public static boolean mayCapture(AdapterEligibility eligibility, CaptureRequest request) {
+        Objects.requireNonNull(eligibility, "eligibility");
+        Objects.requireNonNull(request, "request");
         return eligibility.check(request) == Eligibility.ADMITTED;
     }
 }
