@@ -279,6 +279,82 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL hard deletion remains absent after closing and reopening the persistence factory")
+    void postgresHardDeleteRemainsAbsentAfterEntityManagerFactoryRestart() throws Throwable {
+        String databaseName = "media_delete_restart_" + UUID.randomUUID().toString().replace("-", "");
+        String jdbcUrl = postgres.getJdbcUrl().substring(0, postgres.getJdbcUrl().lastIndexOf('/') + 1)
+                + databaseName;
+        EntityManagerFactory writingFactory = null;
+        EntityManagerFactory reopenedFactory = null;
+        EntityManager writingManager = null;
+        EntityManager reopenedManager = null;
+        Throwable primaryFailure = null;
+
+        try {
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE DATABASE \"" + databaseName + "\"");
+            }
+            try (var connection = DriverManager.getConnection(jdbcUrl, postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE SCHEMA audio_video");
+            }
+
+            writingFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", postgresPersistenceProperties(jdbcUrl, "create"));
+            writingManager = writingFactory.createEntityManager();
+            String tenantId = "delete-restart-tenant-" + UUID.randomUUID();
+            AudioFileEntity audio = createAudioFile(tenantId, "deleted.wav");
+            JpaAudioFileRepository writingRepository = new JpaAudioFileRepository(writingManager);
+            writingRepository.save(tenantId, audio);
+            assertThat(writingRepository.hardDelete(tenantId, audio.getId())).isTrue();
+
+            writingManager.close();
+            writingManager = null;
+            writingFactory.close();
+            writingFactory = null;
+
+            reopenedFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", postgresPersistenceProperties(jdbcUrl, "validate"));
+            reopenedManager = reopenedFactory.createEntityManager();
+            JpaAudioFileRepository reopenedRepository = new JpaAudioFileRepository(reopenedManager);
+            assertThat(reopenedRepository.findById(tenantId, audio.getId()))
+                    .as("hard-deleted audio remains absent from a fresh persistence factory")
+                    .isEmpty();
+            assertThat(reopenedManager.createNativeQuery(
+                            "SELECT COUNT(*) FROM audio_video.audio_files WHERE id = :id")
+                    .setParameter("id", audio.getId())
+                    .getSingleResult())
+                    .as("the hard-deleted database row is absent after factory restart")
+                    .isEqualTo(0L);
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            Throwable cleanupFailure = null;
+            cleanupFailure = closeTestEntityManager(reopenedManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(reopenedFactory, cleanupFailure);
+            cleanupFailure = closeTestEntityManager(writingManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(writingFactory, cleanupFailure);
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS \"" + databaseName + "\" WITH (FORCE)");
+            } catch (Throwable dropFailure) {
+                cleanupFailure = appendCleanupFailure(cleanupFailure, dropFailure);
+            }
+            if (cleanupFailure != null) {
+                if (primaryFailure != null) {
+                    primaryFailure.addSuppressed(cleanupFailure);
+                } else {
+                    throw cleanupFailure;
+                }
+            }
+        }
+    }
+
+    @Test
     @DisplayName("PostgreSQL restart readback preserves tenant-scoped audio and transcription visibility")
     void postgresRestartReadbackRemainsTenantScoped() throws Throwable {
         String databaseName = "media_tenant_restart_" + UUID.randomUUID().toString().replace("-", "");
