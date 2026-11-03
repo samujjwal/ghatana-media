@@ -28,12 +28,25 @@ test('IT-01: scaffold files carry an explicit disabled reason, never a silent pa
   }
 });
 
+test('IT-01: runnable synthetic performance fixtures remain local-only and unqualified', () => {
+  const files = census.classification.SYNTHETIC_LOCAL_FIXTURE.files;
+  assert.deepEqual(files, ['PerformanceIntegrationTest.java']);
+  for (const file of files) {
+    const src = readFileSync(join(dir, file), 'utf8');
+    assert.match(src, /in-process byte-frame dispatch/u);
+    assert.match(src, /Qualification\.UNVERIFIED/u);
+    assert.match(src, /does not exercise\s*\*?\s*audio\/video transport, codecs, source clocks, or provider behavior/u);
+  }
+  assert.deepEqual(census.classification.LOCAL_PROCESS_FIXTURE.files, ['AudioVideoContainerProcessTest.java']);
+});
+
 test('IT-01: no integration-named test body is a pure literal/simulated tautology', () => {
   for (const file of files) {
     if (file.endsWith('Base.java') || file.endsWith('Condition.java')) continue;
     const src = readFileSync(join(dir, file), 'utf8');
     const disabled = /@Disabled\(/.test(src);
     const name = file.replace('.java', '');
+    if (census.classification.SYNTHETIC_LOCAL_FIXTURE.files.includes(file)) continue;
     if (/Integration|E2E|Load|Performance|Workflow|Journey/.test(name) && !disabled) {
       // A live integration-named suite must touch a real surface.
       assert.match(src,

@@ -16,6 +16,10 @@ Run from the repository root. The `:services:media:integration-tests:test` task 
   --tests com.ghatana.media.integration.MediaProviderJobLifecycleE2ETest \
   --tests com.ghatana.media.integration.MediaPdp3BusinessRecordingIT
 
+# Synthetic 1/16/64 workload — local dispatcher fixture, not transport/provider evidence
+./gradlew :services:media:integration-tests:test \
+  --tests com.ghatana.audio.video.integration.PerformanceIntegrationTest
+
 # Isolated Docker-backed Postgres/LocalStack or H2/LocalStack profiles
 ./gradlew :services:media:integration-tests:test \
   --tests com.ghatana.media.integration.MediaLauncherEndToEndIT \

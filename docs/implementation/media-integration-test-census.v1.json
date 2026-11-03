@@ -1,13 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "purpose": "IT-01 single registry: classify integration-tests surfaces and expose executable three-tier selectors, prerequisites, assets and safety boundaries. Only suites wired to real containers/channels count as integration evidence; literal/simulated stubs remain scaffold and disabled.",
+  "purpose": "IT-01 single registry: classify integration-tests surfaces and expose executable tiered selectors, prerequisites, assets and safety boundaries. Only suites wired to real containers/channels count as integration evidence; literal/simulated stubs stay disabled, while explicitly registered synthetic fixtures may run locally without counting as integration proof.",
   "module": "services:media:integration-tests",
   "classification": {
     "CONTAINER_GATED_REAL_INTEGRATION": {
       "meaning": "extends AudioVideoContainerBase; IntegrationImagesCondition reports an honest skip when GH-90000 service images are absent",
       "files": [
         "AudioVideoContainerBase.java (base)",
-        "AudioVideoContainerProcessTest.java",
         "AudioVideoIntegrationTest.java",
         "FullWorkflowIntegrationTest.java"
       ]
@@ -19,9 +18,16 @@
         "AudioVideoDataCloudAepIntegrationJourneyTest.java",
         "EndToEndWorkflowTest.java",
         "ErrorScenarioIntegrationTest.java",
-        "LoadTest.java",
-        "PerformanceIntegrationTest.java"
+        "LoadTest.java"
       ]
+    },
+    "SYNTHETIC_LOCAL_FIXTURE": {
+      "meaning": "explicitly runnable in-process synthetic workload; local fixture only, never real transport, codec, provider, host-capacity, or quality evidence",
+      "files": ["PerformanceIntegrationTest.java"]
+    },
+    "LOCAL_PROCESS_FIXTURE": {
+      "meaning": "bounded local child-process cleanup test; no Docker image or external service is required",
+      "files": ["AudioVideoContainerProcessTest.java"]
     },
     "SUPPORT": {
       "files": ["IntegrationImagesCondition.java (image-presence execution condition)"]
@@ -56,6 +62,17 @@
       "evidenceLimit": "MediaTestHarness, MediaProviderJobLifecycleE2ETest, and MediaPdp3BusinessRecordingIT use simulated/local state. Their integration-named selectors are not proof of a real provider, database, object store, capture, or model effect."
     },
     {
+      "id": "synthetic-stream-workload",
+      "tier": "LOCAL_FIXTURE",
+      "selectors": ["com.ghatana.audio.video.integration.PerformanceIntegrationTest"],
+      "sources": ["integration-tests/src/test/java/com/ghatana/audio/video/integration/PerformanceIntegrationTest.java"],
+      "resources": ["JUnit Jupiter", "in-process bounded queues", "generated test bytes"],
+      "prerequisites": ["JDK/Gradle runtime; no Docker or external service is required"],
+      "assets": "Generated synthetic frame bytes and test-owned dispatcher; no codec or licensed media assets are bundled.",
+      "safety": "Uses only synthetic tenant indexes, bounded queues, and local worker threads; every result reports codec qualification as UNVERIFIED.",
+      "evidenceLimit": "Measures the synthetic in-process dispatcher only; not a real audio/video transport, codec, provider, host-capacity, or model-quality result."
+    },
+    {
       "id": "disabled-legacy-scaffolds",
       "tier": "LOCAL_FIXTURE",
       "selectors": [
@@ -67,7 +84,6 @@
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/EndToEndWorkflowTest.java",
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/ErrorScenarioIntegrationTest.java",
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/LoadTest.java",
-        "integration-tests/src/test/java/com/ghatana/audio/video/integration/PerformanceIntegrationTest.java",
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoDataCloudAepAgentE2ETest.java",
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoDataCloudAepIntegrationJourneyTest.java"
       ],
@@ -75,7 +91,7 @@
       "prerequisites": ["No external prerequisite; classes carry an explicit IT-01 @Disabled scaffold reason"],
       "assets": "Literal values and local/synthetic fixtures only; no licensed model or source assets are bundled.",
       "safety": "Scaffolds are disabled and must stay so until wired to actual services/containers/channels. Their names do not make them runnable integration evidence.",
-      "evidenceLimit": "The two listed selectors are disabled and execute zero scaffold assertions. EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, LoadTest.java, and PerformanceIntegrationTest.java also remain disabled scaffolds but lack @Tag(integration), so the integration task excludes them even when passed with --tests."
+      "evidenceLimit": "The two listed selectors are disabled and execute zero scaffold assertions. EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, and LoadTest.java also remain disabled scaffolds without @Tag(integration); PerformanceIntegrationTest.java is separately registered as a synthetic local fixture and never establishes real integration evidence."
     },
     {
       "id": "launcher-h2-localstack",
@@ -171,7 +187,7 @@
     },
     {
       "path": "integration-tests/src/test/java/com/ghatana/audio/video/integration",
-      "reason": "EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, LoadTest.java, and PerformanceIntegrationTest.java are disabled scaffolds without @Tag(integration), so the configured integration task cannot select them."
+      "reason": "EndToEndWorkflowTest.java, ErrorScenarioIntegrationTest.java, and LoadTest.java remain disabled scaffolds without @Tag(integration). PerformanceIntegrationTest.java is a separately classified synthetic local fixture, not a real integration result."
     },
     {
       "path": "modules/integration-tests/src/test/java",
