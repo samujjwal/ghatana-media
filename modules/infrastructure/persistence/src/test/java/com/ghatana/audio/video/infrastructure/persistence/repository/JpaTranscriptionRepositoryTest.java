@@ -89,6 +89,36 @@ class JpaTranscriptionRepositoryTest {
     }
 
     @Test
+    @DisplayName("Matching legacy source metadata cannot reconcile a result into canonical transcript finality")
+    void matchingRequestAndSourceHashDoNotAuthorizeCompletedResult() {
+        TranscriptionEntity pending = createTestTranscription("tenant-lineage");
+        pending.setText("pending legacy row");
+        TranscriptionEntity.TranscriptionMetadata metadata = new TranscriptionEntity.TranscriptionMetadata();
+        metadata.setRequestId("request-1");
+        metadata.setInputHashSha256("a".repeat(64));
+        pending.setMetadata(metadata);
+        repository.save("tenant-lineage", pending);
+        entityManager.clear();
+
+        TranscriptionEntity result = repository.findById("tenant-lineage", pending.getId()).orElseThrow();
+        // These are the only lineage hints on the legacy row. They do not bind a canonical
+        // source artifact version, successful job attempt, provider receipt, or result digest.
+        result.setText("provider result without canonical revision join");
+        result.setStatus(TranscriptionEntity.TranscriptionStatus.COMPLETED);
+
+        assertThatThrownBy(() -> repository.save("tenant-lineage", result))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("successful transcript finality without canonical provider binding");
+
+        entityManager.clear();
+        TranscriptionEntity persisted = repository.findById("tenant-lineage", pending.getId()).orElseThrow();
+        assertThat(persisted.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PENDING);
+        assertThat(persisted.getText()).isEqualTo("pending legacy row");
+        assertThat(persisted.getMetadata().getRequestId()).isEqualTo("request-1");
+        assertThat(persisted.getMetadata().getInputHashSha256()).isEqualTo("a".repeat(64));
+    }
+
+    @Test
     @DisplayName("JPA cannot rewrite a row already marked as successful transcript content")
     void successfulTranscriptContentRowsCannotBeRewrittenThroughJpa() {
         TranscriptionEntity historical = createTestTranscription("tenant-terminal");
