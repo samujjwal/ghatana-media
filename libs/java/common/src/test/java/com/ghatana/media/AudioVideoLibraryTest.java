@@ -8,6 +8,7 @@ import com.ghatana.media.capability.MediaCapabilityInventory;
 import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.config.TtsConfig;
 import com.ghatana.media.config.VisionConfig;
+import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.tts.api.CloneOptions;
 import com.ghatana.media.tts.api.SynthesisOptions;
 import com.ghatana.media.tts.api.TtsEngine;
@@ -129,6 +130,30 @@ class AudioVideoLibraryTest {
 
         assertThat(borrowed.synthesize("hello after borrowed close").data()).isNotEmpty();
         assertThat(borrowed.getStatus().state()).isEqualTo(EngineStatus.State.DEGRADED);
+    }
+
+    @Test
+    void sourceConsumerCanCloseBorrowedSttViewWithoutClosingLibraryOwnedEngine() {
+        AudioVideoLibrary consumerLibrary = AudioVideoLibrary.builder()
+                .withSttConfig(SttConfig.builder()
+                        .modelPath(tempDirectory.resolve("missing-stt.onnx"))
+                        .allowSyntheticFallback(true)
+                        .build())
+                .build();
+        AudioData audio = new AudioData(new byte[3_200], 16_000, 1, 16);
+
+        try (consumerLibrary) {
+            SttEngine sourceConsumerView = consumerLibrary.getSttEngine();
+            try (sourceConsumerView) {
+                assertThat(sourceConsumerView.transcribe(audio).text()).isEmpty();
+            }
+
+            SttEngine nextRequestView = consumerLibrary.getSttEngine();
+            assertThat(nextRequestView).isSameAs(sourceConsumerView);
+            assertThat(nextRequestView.transcribe(audio).text()).isEmpty();
+            assertThat(nextRequestView.getStatus().state()).isEqualTo(EngineStatus.State.DEGRADED);
+            assertCapabilityNotReady(consumerLibrary, MediaCapabilityInventory.Capability.STT);
+        }
     }
 
     @Test

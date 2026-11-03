@@ -1,6 +1,7 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBinding;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptPrincipalConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptRevisionConflictException;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDerivedCapability;
@@ -491,8 +492,27 @@ class PostgresqlMediaTranscriptStoreTest {
             var bound = store.appendFromSuccessfulAttempt(candidate, 0, 1, 23, fingerprint, versionRef);
 
             // The persisted version reference resolves its exact bound revision.
-            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", versionRef))
-                    .contains(bound);
+            var exactReadback = store.revisionByVersionRef("tenant-exact", "principal-a", versionRef);
+            assertThat(exactReadback).contains(bound);
+            var attemptLineage = store.readAttemptBinding(
+                    "tenant-exact", "principal-a", bound.draft().transcriptId(), bound.revision());
+            String expectedResult = semanticResult(state, digest, fingerprint, versionRef, "exact words",
+                    "NOT_REQUESTED", null, null, false, false, false);
+            String resultDigest = java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(
+                            expectedResult.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+            assertThat(attemptLineage).isEqualTo(new TranscriptAttemptBinding(
+                    "job-exact", 1, 23, "provider-a", "op-exact", "receipt-exact", fingerprint,
+                    "sha256:" + digest, versionRef, resultDigest));
+            assertThatThrownBy(() -> store.readAttemptBinding(
+                    "tenant-exact", "principal-b", bound.draft().transcriptId(), bound.revision()))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> store.readAttemptBinding(
+                    "tenant-other", "principal-a", bound.draft().transcriptId(), bound.revision()))
+                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> store.readAttemptBinding(
+                    "tenant-exact", "principal-a", bound.draft().transcriptId(), bound.revision() + 1))
+                    .isInstanceOf(IllegalStateException.class);
             // Scope failures, unknown references and aggregate ids all fail closed.
             assertThat(store.revisionByVersionRef("tenant-exact", "principal-b", versionRef)).isEmpty();
             assertThat(store.revisionByVersionRef("tenant-other", "principal-a", versionRef)).isEmpty();
