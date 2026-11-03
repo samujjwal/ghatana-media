@@ -413,6 +413,34 @@ describe("MediaCanonicalClient stream operations", () => {
     expect(headers.get("Content-Type")).toBe("application/octet-stream");
   });
 
+  it("keeps caller abort linked while reading a dispatched frame acknowledgement", async () => {
+    let responseReady!: () => void;
+    const ready = new Promise<void>((resolve) => { responseReady = resolve; });
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const requestSignal = init?.signal;
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          requestSignal?.addEventListener("abort", () => {
+            controller.error(requestSignal.reason ?? new DOMException("aborted", "AbortError"));
+          }, { once: true });
+        },
+      });
+      responseReady();
+      return new Response(body, { status: 202, headers: { "Content-Type": "application/json" } });
+    }) as unknown as typeof fetch;
+    const client = clientWith(fetchImpl);
+    const controller = new AbortController();
+    const pending = client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"]), { signal: controller.signal });
+    await ready;
+    controller.abort(new DOMException("caller stopped waiting", "AbortError"));
+
+    const failure = await pending.catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/streams/sess-1/frames/0" });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps frame credential setup under abort control and avoids dispatch after abort", async () => {
     let releaseToken!: (token: string) => void;
     const token = new Promise<string>((resolve) => { releaseToken = resolve; });

@@ -635,15 +635,18 @@ export class MediaCanonicalClient {
     let dispatched = false;
     let requestId: string | undefined;
     try {
-      const response = await this.transport.fetchRawMutation(
+      const acknowledgement = await this.transport.fetchRawMutation(
         `${this.transport.baseUrl}/api/v1/streams/${encodeURIComponent(requested)}/frames/${sequence}`,
         { method: "POST", body: frame },
         headers,
+        async (response) => {
+          if (!response.ok) throw await this.transport.errorFromResponse(response);
+          return parseCanonicalStreamAck(await response.json());
+        },
         options.signal,
         (id) => { dispatched = true; requestId = id; },
       );
-      if (!response.ok) throw await this.transport.errorFromResponse(response);
-      return parseCanonicalStreamAck(await response.json());
+      return acknowledgement;
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(

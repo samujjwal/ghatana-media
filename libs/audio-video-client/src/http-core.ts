@@ -280,13 +280,14 @@ export class MediaHttpTransport {
   }
 
   /** Raw mutation request with credential setup included in timeout/abort control. */
-  public async fetchRawMutation(
+  public async fetchRawMutation<T>(
     input: string,
     init: RequestInit,
     additionalHeaders: Readonly<Record<string, string>>,
+    consume: (response: Response) => Promise<T>,
     signal?: AbortSignal,
     onDispatch?: (requestId: string) => void,
-  ): Promise<Response> {
+  ): Promise<T> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
     const timeout = setTimeout(
@@ -299,7 +300,13 @@ export class MediaHttpTransport {
         throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
       }
       onDispatch?.(safeIdentityHeader("requestId", headers.get("X-Request-ID") ?? undefined) ?? "");
-      return await this.fetchImpl(input, { ...init, headers, redirect: "error", signal: controller.signal });
+      const response = await this.fetchImpl(input, {
+        ...init, headers, redirect: "error", signal: controller.signal,
+      });
+      // Keep the timeout and caller-abort linkage alive while the consumer
+      // reads the response body. A raw mutation is not complete at headers:
+      // until its acknowledgement is parsed, a dispatched effect is unknown.
+      return await consume(response);
     } finally {
       clearTimeout(timeout);
       unlink();
