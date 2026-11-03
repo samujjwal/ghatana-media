@@ -111,6 +111,11 @@ describe("media contracts", () => {
       machineId: "media-job", state: "RETRYING", rawState: "RETRYING",
       canonicalState: "RETRY_PENDING", mappingDisposition: "CANONICAL_STATE",
     }).success).toBe(false);
+    expect(MediaJobStateObservationSchema.safeParse({
+      machineId: "media-job", state: "OUTCOME_UNKNOWN", rawState: "OUTCOME_UNKNOWN",
+      canonicalState: "OUTCOME_UNKNOWN", mappingDisposition: "CANONICAL_STATE",
+      providerFinality: "CONFIRMED",
+    }).success).toBe(false);
   });
 
   it("requires transport-safe artifact identity and provenance", () => {

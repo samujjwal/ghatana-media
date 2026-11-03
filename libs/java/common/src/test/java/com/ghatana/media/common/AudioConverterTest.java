@@ -133,6 +133,43 @@ class AudioConverterTest {
     }
 
     @Test
+    @DisplayName("WAV parser skips padded odd-sized ancillary chunks")
+    void wavParserSkipsOddSizedAncillaryChunk() {
+        byte[] canonical = createWavBytes(16000, 1, 16, 4);
+        byte[] withJunk = insertChunkAfterWaveHeader(canonical, true);
+
+        AudioMetadata metadata = AudioMetadataExtractor.fromWavBytes(withJunk);
+
+        assertThat(metadata.sampleRate()).isEqualTo(16000);
+        assertThat(metadata.channels()).isEqualTo(1);
+        assertThat(metadata.sampleCount()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("WAV parser rejects an odd-sized ancillary chunk without its pad byte")
+    void wavParserRejectsMissingOddChunkPadding() {
+        byte[] canonical = createWavBytes(16000, 1, 16, 4);
+        byte[] withoutPadding = insertChunkAfterWaveHeader(canonical, false);
+
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromWavBytes(withoutPadding))
+                .isInstanceOf(ValidationError.class);
+    }
+
+    private static byte[] insertChunkAfterWaveHeader(byte[] wav, boolean includePadding) {
+        int insertedBytes = includePadding ? 12 : 11;
+        byte[] result = new byte[wav.length + insertedBytes];
+        System.arraycopy(wav, 0, result, 0, 12);
+        ByteBuffer chunk = ByteBuffer.wrap(result, 12, insertedBytes).order(ByteOrder.LITTLE_ENDIAN);
+        chunk.put("JUNK".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        chunk.putInt(3);
+        chunk.put(new byte[] {1, 2, 3});
+        if (includePadding) chunk.put((byte) 0);
+        System.arraycopy(wav, 12, result, 12 + insertedBytes, wav.length - 12);
+        ByteBuffer.wrap(result).order(ByteOrder.LITTLE_ENDIAN).putInt(4, result.length - 8);
+        return result;
+    }
+
+    @Test
     @DisplayName("Audio metadata rejects a payload ending inside a channel frame")
     void rejectsAudioDataWithPartialFrame() {
         AudioData partialFrame = AudioData.builder()

@@ -168,7 +168,7 @@ export const MediaJobStateObservationSchema = z.object({
   rawState: z.union([MediaJobStateSchema, LegacyMediaJobStateSchema]),
   canonicalState: MediaJobStateSchema.nullable(),
   mappingDisposition: z.enum(["CANONICAL_STATE", "LEGACY_STATE_UNMAPPED"]),
-}).superRefine((observation, context) => {
+}).strict().superRefine((observation, context) => {
   if (observation.rawState !== observation.state) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ["rawState"], message: "rawState must preserve the observed state" });
   }
