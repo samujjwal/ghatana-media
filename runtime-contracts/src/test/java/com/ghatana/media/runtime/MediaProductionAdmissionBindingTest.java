@@ -102,6 +102,31 @@ class MediaProductionAdmissionBindingTest {
     }
 
     @Test
+    void deterministicCompilerOnlyCandidateRemainsEffectFreeWithoutAdmissionBindings() {
+        var spec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "project-1", "rev-7",
+                "REAL_CAPTURE", "purpose/v1", List.of("scene/1@v1"), "timeline/v1", "rights/v1",
+                List.of("profile/v1"));
+        var compiler = new MediaProductionSpecCompiler();
+        var candidate = compiler.compile(spec);
+
+        assertThat(candidate.planFingerprint()).isEqualTo(compiler.compile(spec).planFingerprint());
+        assertThat(candidate.admissionBindingFingerprint()).isNull();
+        assertThat(candidate.nodes()).filteredOn(node -> node.mode() == MediaProductionSpecCompiler.ExecutionMode.AUTOMATIC)
+                .extracting(MediaProductionSpecCompiler.PlanNode::stepId)
+                .containsExactly("validate-spec", "capture-source-0", "compose-timeline", "render-profile-0");
+
+        Binding otherwiseCompleteBinding = binding(SHA);
+        AtomicInteger effects = new AtomicInteger();
+        assertThatThrownBy(() -> MediaProductionAdmissionBinding.beforeEffect(otherwiseCompleteBinding, candidate,
+                "capture-source-0", "scene/1@v1", () -> state(otherwiseCompleteBinding,
+                        "capture-source-0", "scene/1@v1"), effects::incrementAndGet))
+                .isInstanceOf(AdmissionException.class)
+                .extracting(error -> ((AdmissionException) error).failure())
+                .isEqualTo(AdmissionFailure.BINDING_SPEC_MISMATCH);
+        assertThat(effects).hasValue(0);
+    }
+
+    @Test
     void resolvedCompilerRejectsBindingMismatchBeforeCallingContentResolver() {
         Binding binding = binding(SHA);
         var mismatchedSpec = new MediaProductionSpecCompiler.ProductionSpec("tenant-1", "other-project", "rev-7",
