@@ -193,6 +193,23 @@ class FacialRecognitionServiceAdmissionTest {
         org.assertj.core.api.Assertions.assertThat(providerCalls).hasValue(0);
     }
 
+    @Test
+    void expiredBiometricAdmissionIsRejectedBeforeCallingTheFaceProvider() {
+        AtomicInteger providerCalls = new AtomicInteger();
+        var service = service(providerCalls, (identity, request) -> {
+            var current = admitted(identity.tenantId(), identity.subject(), request);
+            return new FacialRecognitionService.BiometricAdmission(
+                    current.allowed(), current.tenantId(), current.principalId(), current.operation(),
+                    current.sourceArtifactId(), current.sourceVersion(), current.purpose(), current.region(),
+                    current.retentionPolicy(), current.decisionRef(), NOW.minusSeconds(30), NOW.minusSeconds(1),
+                    current.denialReason());
+        });
+
+        assertThatThrownBy(() -> service.detect(new byte[] {1}, REQUEST))
+                .isInstanceOf(FacialRecognitionService.NotAdmittedException.class);
+        org.assertj.core.api.Assertions.assertThat(providerCalls).hasValue(0);
+    }
+
     private static FacialRecognitionService service(
             AtomicInteger providerCalls,
             FacialRecognitionService.BiometricAdmissionResolver resolver) {
