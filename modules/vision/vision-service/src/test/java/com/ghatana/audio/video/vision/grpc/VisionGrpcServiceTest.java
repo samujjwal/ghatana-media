@@ -120,6 +120,34 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: malformed ROI metadata is invalid before provider admission")
+    void detectObjects_malformedRoiMetadataIsRejectedAsInvalidArgument() {
+        List<SourceRasterRoi> malformedRois = List.of(
+                SourceRasterRoi.newBuilder().setX(10).setY(20).setWidth(100).setHeight(80).build(),
+                SourceRasterRoi.newBuilder().setX(10).setY(20).setWidth(0).setHeight(80)
+                        .setSourceFrameVersion("frame-v42").build(),
+                SourceRasterRoi.newBuilder().setX(-1).setY(20).setWidth(100).setHeight(80)
+                        .setSourceFrameVersion("frame-v42").build(),
+                SourceRasterRoi.newBuilder().setX(Integer.MAX_VALUE).setY(20).setWidth(100).setHeight(80)
+                        .setSourceFrameVersion("frame-v42").build());
+
+        for (SourceRasterRoi roi : malformedRois) {
+            DetectRequest request = DetectRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[] {1, 2, 3}))
+                    .setSourceRasterRoi(roi)
+                    .build();
+            CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+            withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+            assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        }
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("detectObjects: detector returns detections → proto response mapped correctly")
     void detectObjects_normal_mapsDetectionsToProto() { 
         // GIVEN

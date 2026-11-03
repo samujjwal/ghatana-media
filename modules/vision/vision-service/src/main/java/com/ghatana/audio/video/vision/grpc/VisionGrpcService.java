@@ -239,6 +239,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             // SPI has no crop-aware dispatch. Fail closed so a requested crop is never silently
             // returned as a full-frame result.
             if (request.hasSourceRasterRoi()) {
+                try {
+                    validateRoiRequestFields(request.getSourceRasterRoi());
+                } catch (IllegalArgumentException invalidRoi) {
+                    recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                        .withDescription("Source-raster ROI requires positive geometry and a source frame version")
+                        .asRuntimeException());
+                    mediaMetrics.recordFailed("vision.detect");
+                    return;
+                }
                 recordResponseFailure(responseObserver, io.grpc.Status.FAILED_PRECONDITION
                     .withDescription("Source-raster ROI detection is not admitted by the active Vision provider")
                     .asRuntimeException());
@@ -358,6 +367,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
                 .asRuntimeException());
         }
         }
+    }
+
+    /** Validates wire-level ROI fields before the provider-admission check. */
+    private static void validateRoiRequestFields(
+            com.ghatana.audio.video.vision.grpc.proto.SourceRasterRoi roi) {
+        new com.ghatana.audio.video.vision.yolo.SourceRasterRoi(
+                roi.getX(), roi.getY(), roi.getWidth(), roi.getHeight(), roi.getSourceFrameVersion());
     }
 
     private com.ghatana.audio.video.common.resilience.ContextAwareBoundedExecutor.Submission<List<DetectedObject>>
