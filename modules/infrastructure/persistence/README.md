@@ -69,6 +69,38 @@ source schemas; the crosswalk below records
 semantic overlap and migration ownership, not a data copy, deployed schema,
 applied Flyway history, or cutover.
 
+### IP-04 transcript lineage boundary
+
+The legacy JPA transcription row is not a projection of canonical transcript
+revision history. Its `id` and `audio_file_id` are UUIDs, and its optional
+metadata only carries `requestId` and `inputHashSha256`; it has no canonical
+`transcript_id`/`revision`, `job_id`/`attempt_number`/`fencing_token`,
+`source_artifact_id`/`source_artifact_version`, provider receipt, transcript
+version reference, or result digest. Its `@Version` is only the JPA row's
+optimistic-lock counter. `JpaTranscriptionRepository` therefore rejects
+`COMPLETED` and `CORRECTED` writes, and rejects edits to historical rows in
+those states. This prevents a second successful-transcript claim; it does not
+join JPA rows to canonical revisions or reconcile their contents.
+
+Canonical transcript lineage belongs to
+`PostgresqlMediaTranscriptStore` and `MediaTranscriptStore`: revisions are
+bound to a successful job attempt using the revision number, job ID, attempt
+number, fencing token, provider operation/receipt, request fingerprint, source
+artifact version, transcript version reference, and result digest. A legacy
+JPA/canonical-store disagreement cannot be safely matched from the available
+JPA identifiers. Treat any such unresolved cross-store outcome as unknown and
+reconcile through the canonical job/transcript stores; do not copy the JPA
+text/status into canonical history or infer success from matching audio IDs,
+request IDs, hashes, or timestamps.
+
+This is a source-level boundary only. Checked-in migrations and repository
+code do not establish which schema history is deployed, whether historical
+JPA rows can be mapped to canonical revisions, or whether a production writer
+cutover occurred. Those claims require the actual applied migration history
+and externally recorded deployment/data-transfer evidence. IP-04 remains
+incomplete until a source-backed cross-store reconciliation path is available;
+this module has no such path today.
+
 ### JPA V1 table and entity bindings
 
 | JPA table / entity | Source columns and identity | Tenant and row-version owner | Canonical overlap and disposition |
