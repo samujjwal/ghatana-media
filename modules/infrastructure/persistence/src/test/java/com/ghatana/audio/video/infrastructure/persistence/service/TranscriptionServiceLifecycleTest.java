@@ -31,6 +31,26 @@ import static org.mockito.Mockito.when;
 class TranscriptionServiceLifecycleTest extends EventloopTestBase {
 
     @Test
+    void repeatedServiceCreateAndCloseTerminatesOwnedDatabaseWorkers() {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        when(repository.save(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(1));
+
+        for (int iteration = 0; iteration < 12; iteration++) {
+            TranscriptionService service = new TranscriptionService(repository, eventloop());
+            TranscriptionEntity transcription = entity();
+
+            TranscriptionEntity saved = runPromise(() -> {
+                Promise<TranscriptionEntity> pending = service.save("tenant", transcription);
+                service.close();
+                return pending;
+            });
+
+            assertThat(saved).isSameAs(transcription);
+            awaitNoDatabaseWorkers("media-transcription-db-");
+        }
+    }
+
+    @Test
     void closeIsNonBlockingAndDrainsAcceptedPromisesWhileSaturatedSubmissionFailsAsPromise() {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
         CountDownLatch firstCallEntered = new CountDownLatch(1);
@@ -228,6 +248,25 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
     private static TranscriptionEntity entity() {
         return new TranscriptionEntity(UUID.randomUUID(), "tenant", UUID.randomUUID(), UUID.randomUUID(),
             "transcript", "en");
+    }
+
+    private static void awaitNoDatabaseWorkers(String prefix) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+        while (System.nanoTime() < deadline) {
+            boolean workerAlive = Thread.getAllStackTraces().keySet().stream()
+                .anyMatch(thread -> thread.isAlive() && thread.getName().startsWith(prefix));
+            if (!workerAlive) return;
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new AssertionError("interrupted while waiting for persistence worker shutdown", interrupted);
+            }
+        }
+        assertThat(Thread.getAllStackTraces().keySet())
+            .filteredOn(thread -> thread.isAlive() && thread.getName().startsWith(prefix))
+            .as("owned persistence workers should terminate after close drains accepted work")
+            .isEmpty();
     }
 
     private static final class InlineExecutorService extends AbstractExecutorService {

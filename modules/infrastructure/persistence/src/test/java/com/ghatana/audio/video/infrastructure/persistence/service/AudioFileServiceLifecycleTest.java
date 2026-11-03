@@ -23,6 +23,26 @@ import static org.mockito.Mockito.when;
 class AudioFileServiceLifecycleTest extends EventloopTestBase {
 
     @Test
+    void repeatedServiceCreateAndCloseTerminatesOwnedDatabaseWorkers() {
+        AudioFileRepository repository = mock(AudioFileRepository.class);
+        when(repository.save(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(1));
+
+        for (int iteration = 0; iteration < 12; iteration++) {
+            AudioFileService service = new AudioFileService(repository, eventloop());
+            AudioFileEntity audioFile = entity();
+
+            AudioFileEntity saved = runPromise(() -> {
+                Promise<AudioFileEntity> pending = service.save("tenant", audioFile);
+                service.close();
+                return pending;
+            });
+
+            assertThat(saved).isSameAs(audioFile);
+            awaitNoDatabaseWorkers("media-audio-file-db-");
+        }
+    }
+
+    @Test
     void closeIsNonBlockingAndDrainsAcceptedPromisesWhileSaturatedSubmissionFailsAsPromise() {
         AudioFileRepository repository = mock(AudioFileRepository.class);
         CountDownLatch firstCallEntered = new CountDownLatch(1);
@@ -86,5 +106,24 @@ class AudioFileServiceLifecycleTest extends EventloopTestBase {
     private static AudioFileEntity entity() {
         return new AudioFileEntity(java.util.UUID.randomUUID(), "tenant", java.util.UUID.randomUUID(),
             "audio.wav", "/tmp/audio.wav", "wav");
+    }
+
+    private static void awaitNoDatabaseWorkers(String prefix) {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+        while (System.nanoTime() < deadline) {
+            boolean workerAlive = Thread.getAllStackTraces().keySet().stream()
+                .anyMatch(thread -> thread.isAlive() && thread.getName().startsWith(prefix));
+            if (!workerAlive) return;
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                throw new AssertionError("interrupted while waiting for persistence worker shutdown", interrupted);
+            }
+        }
+        assertThat(Thread.getAllStackTraces().keySet())
+            .filteredOn(thread -> thread.isAlive() && thread.getName().startsWith(prefix))
+            .as("owned persistence workers should terminate after close drains accepted work")
+            .isEmpty();
     }
 }
