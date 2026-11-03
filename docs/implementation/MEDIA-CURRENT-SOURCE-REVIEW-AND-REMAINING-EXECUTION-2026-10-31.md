@@ -4211,3 +4211,13 @@ The Media-owned `AudioVideoDescriptorIdentityAt01Test` and `AudioVideoCapability
 ### 43.159 November 3 TY-02 strict TypeScript contract readback
 
 Focused review found no safe source-bound schema repair in `@audio-video/types`: current contracts already reject unsafe numeric rounding, signed/positive decimal-int64 overflow, unknown enums/fields and hostile production values. PDP-1 explicitly leaves byte-count wire-range parity pending owner review and does not bind artifact-version IDs into the observed runtime wire shape, so neither was added. Focused contract selectors passed **85/85**, and `pnpm --filter @audio-video/types typecheck` passed. Immutable version linkage, trusted tenant/reference resolution, cross-language installed ABI and whole TY-02 acceptance remain open; no source files changed.
+
+
+### 43.160 November 3 RS-05 WAV contract readback
+
+The Rust WAV writer/decoder already matches its source-defined fixed float32 output contract: finite out-of-±1 samples are preserved, making dither inapplicable; float round-trip bytes/PCM are deterministic; stereo metadata, layout, rate, frame count, duration, tolerance, PCM16/24 range, RIFF/extensible headers and malformed/truncated inputs are covered. No source-defined defect justified a change. The full offline crate command `cargo test --offline --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml` passed **55/55**, doc tests **0**, and `cargo fmt --manifest-path modules/intelligence/speech/libs/speech-audio-rust/Cargo.toml -- --check` passed. Synthetic fixtures do not establish input provenance, license, provider output or real codec/model qualification; no surface acceptance is claimed.
+
+
+### 43.161 November 3 audio/video stream-frame length guards
+
+Rechecked the two frame helpers explicitly called out in AGENTS.md. `AudioStreamSession.decodeFrame` rejects null/short/over-wire-cap buffers, negative or over-cap signed lengths, and any mismatch between declared payload length and remaining bytes before allocation; tests cover `Integer.MIN_VALUE`, `Integer.MAX_VALUE`, truncated/trailing payloads and deterministic length mutations. `VideoStreamSession.decodeFrame` applies the same strict checks plus keyframe-flag validation and computes expected frame size in `long` before allocation; its tests cover arithmetic boundaries, truncation, trailing data and over-wire-cap inputs. An independent Luna source/test review found no gap, and no tests were rerun because no source changed. Both helpers remain local frame codecs only; this does not qualify live AS-01/VS-01 transport or provider behavior.
