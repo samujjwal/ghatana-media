@@ -61,6 +61,40 @@ class BoundedAudioFrameDecoderTest {
     }
 
     @Test
+    @DisplayName("missing source timebase stays unavailable instead of inventing a sample clock")
+    void missingTimebaseUnavailable() {
+        BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declareWithoutTimebase(
+                "pcm_s16le", budget(10, 1_000_000));
+
+        var result = dec.decode(new byte[4], 0, false);
+
+        assertThat(result.verdict()).isEqualTo(DecodeVerdict.UNAVAILABLE);
+        assertThat(result.frame()).isNull();
+        assertThat(result.reason()).contains("timebase is not declared");
+        assertThat(dec.timebase()).isNull();
+        assertThat(dec.framesDecoded()).isZero();
+        assertThat(dec.bytesDecoded()).isZero();
+    }
+
+    @Test
+    @DisplayName("missing timebase does not hide malformed PCM or exhausted byte budgets")
+    void missingTimebasePreservesInputAndBudgetVerdicts() {
+        BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declareWithoutTimebase(
+                "pcm_s16le", budget(10, 2));
+
+        assertThat(dec.decode(null, 0, false).verdict()).isEqualTo(DecodeVerdict.MALFORMED);
+        assertThat(dec.decode(new byte[0], 0, false).verdict()).isEqualTo(DecodeVerdict.MALFORMED);
+        assertThat(dec.decode(new byte[3], 0, false).verdict()).isEqualTo(DecodeVerdict.MALFORMED);
+        assertThat(dec.decode(new byte[2], -1, false).verdict()).isEqualTo(DecodeVerdict.MALFORMED);
+        assertThat(dec.decode(new byte[AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 2], 0, false)
+                .verdict()).isEqualTo(DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(dec.decode(new byte[2], 0, false).verdict()).isEqualTo(DecodeVerdict.UNAVAILABLE);
+        assertThat(dec.decode(new byte[4], 0, false).verdict()).isEqualTo(DecodeVerdict.BUDGET_EXCEEDED);
+        assertThat(dec.framesDecoded()).isZero();
+        assertThat(dec.bytesDecoded()).isZero();
+    }
+
+    @Test
     @DisplayName("odd-byte PCM payload and negative position are MALFORMED")
     void malformedShapesRejected() {
         BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(

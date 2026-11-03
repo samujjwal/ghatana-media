@@ -121,6 +121,25 @@ public final class BoundedAudioFrameDecoder {
     }
 
     /**
+     * Declares a recognized codec when the source clock/timebase is absent.
+     * Frames remain unavailable until a caller can provide an explicit
+     * rational timebase; the decoder never invents one from payload size or
+     * wall-clock time.
+     */
+    public static BoundedAudioFrameDecoder declareWithoutTimebase(
+            String codecName, SessionBudget budget) {
+        Objects.requireNonNull(codecName, "codecName");
+        Objects.requireNonNull(budget, "budget");
+        Codec codec;
+        try {
+            codec = Codec.valueOf(codecName.trim().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException unknown) {
+            codec = null;
+        }
+        return new BoundedAudioFrameDecoder(codec, null, budget);
+    }
+
+    /**
      * Decodes one source frame. A frame carries its declared byte payload,
      * its source tick position, and whether it is a partial (VAD/caption)
      * revision. The output position is ticks * secondsPerTick as an exact
@@ -150,6 +169,14 @@ public final class BoundedAudioFrameDecoder {
         if (positionNumerator < 0) {
             return Result.fail(DecodeVerdict.MALFORMED,
                     "sample position numerator cannot be negative");
+        }
+        if (timebase == null) {
+            if (frames >= budget.maxFrames() || payload.length > budget.maxBytes() - bytes) {
+                return Result.fail(DecodeVerdict.BUDGET_EXCEEDED,
+                        "session frame/byte budget exceeded");
+            }
+            return Result.fail(DecodeVerdict.UNAVAILABLE,
+                    "source timebase is not declared for this session");
         }
         long exactTimeNumerator;
         try {
