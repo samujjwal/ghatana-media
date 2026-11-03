@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 const repo = join(dirname(fileURLToPath(import.meta.url)), '..');
 const canonicalDir = join(repo, 'providers/aws-postgresql/src/main/resources/db/media-runtime');
 const jpaMigration = join(repo, 'modules/infrastructure/persistence/src/main/resources/db/migration/V1__init_schema.sql');
+const canonicalRuntime = join(repo, 'launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java');
 
 const canonicalSql = readdirSync(canonicalDir)
   .filter((name) => /^V\d+__.*\.sql$/.test(name))
@@ -46,4 +47,17 @@ test('IP-01: JPA entities do not auto-manage the canonical schema', () => {
   assert.ok(!/schema\s*=\s*"media"/.test(entitySources)
       && !/"media_/.test(entitySources),
     'JPA entities must not bind to canonical media_* tables');
+});
+
+test('IP-07: canonical MediaRuntime selects store SPIs without constructing legacy JPA writers', () => {
+  const runtimeSource = readFileSync(canonicalRuntime, 'utf8');
+  assert.match(runtimeSource, /loadUnique\(MediaArtifactStore\.class/u,
+    'canonical artifact store comes through the runtime SPI');
+  assert.match(runtimeSource, /loadUnique\(MediaJobStore\.class/u,
+    'canonical job store comes through the runtime SPI');
+  assert.match(runtimeSource, /loadUnique\(MediaTranscriptStore\.class/u,
+    'canonical transcript store comes through the runtime SPI');
+  assert.doesNotMatch(runtimeSource,
+    /com\.ghatana\.audio\.video\.infrastructure\.persistence|\bJpa(?:AudioFile|Transcription)Repository\b|\bnew\s+(?:AudioFileService|TranscriptionService)\s*\(/u,
+    'canonical runtime composition must not directly construct or bind the legacy JPA DAL');
 });
