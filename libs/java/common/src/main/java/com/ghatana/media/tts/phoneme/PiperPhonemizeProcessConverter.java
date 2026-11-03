@@ -100,6 +100,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
 
     @Override
     public String convert(String text, Locale locale) {
+        requireSupportedLocale(locale);
         if (text == null || text.isBlank()) return "";
         if (text.length() > MAX_TEXT_CHARS) {
             throw new PhonemeConversionException("Phonemize input exceeds bounded length");
@@ -191,6 +192,17 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             if (errorLog != null) {
                 try { Files.deleteIfExists(errorLog); } catch (IOException ignored) { }
             }
+        }
+    }
+
+    /** This configured Piper bundle invokes the en-US phonemizer only. */
+    static void requireSupportedLocale(Locale locale) {
+        // Locale.ENGLISH is the legacy in-process spelling used by PiperOnnxEngine;
+        // this model's sole configured profile resolves that unspecified region to en-US.
+        if (!Locale.US.equals(locale) && !Locale.ENGLISH.equals(locale)) {
+            throw new PhonemeConversionException(
+                    "The configured Piper phonemizer only supports en-US; requested locale: "
+                            + (locale == null ? "unspecified" : locale.toLanguageTag()));
         }
     }
 

@@ -28,4 +28,26 @@ class HeuristicPhonemeConverterLocaleTest {
                 .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
                 .hasMessageContaining("locale: unspecified");
     }
+
+    @Test
+    void pinnedPiperProcessPhonemizerRejectsLocalesOutsideItsEnUsBundle() {
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.requireSupportedLocale(
+                Locale.forLanguageTag("en-GB")))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("only supports en-US")
+                .hasMessageContaining("en-GB");
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.requireSupportedLocale(
+                Locale.forLanguageTag("hi-IN")))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("hi-IN");
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.requireSupportedLocale(null))
+                .isInstanceOf(TextToPhonemeConverter.PhonemeConversionException.class)
+                .hasMessageContaining("unspecified");
+    }
+
+    @Test
+    void pinnedPiperProcessPhonemizerAcceptsEnUsAndLegacyUnregionedEnglish() {
+        PiperPhonemizeProcessConverter.requireSupportedLocale(Locale.US);
+        PiperPhonemizeProcessConverter.requireSupportedLocale(Locale.ENGLISH);
+    }
 }

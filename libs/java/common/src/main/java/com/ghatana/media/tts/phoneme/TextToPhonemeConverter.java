@@ -57,8 +57,9 @@ public interface TextToPhonemeConverter {
      * Returns the best available converter for the given locale.
      *
      * <p>Tries {@link EspeakNgPhonemeConverter} first (quality tier 10).
-     * Falls back to {@link HeuristicPhonemeConverter} (quality tier 1) if
-     * espeak-ng native library is not available.
+     * Falls back to {@link HeuristicPhonemeConverter} (quality tier 1) if neither
+     * canonical backend is available. That fallback is development/test-only and
+     * must not be treated as production pronunciation qualification.
      *
      * @param locale target locale
      * @return best available converter

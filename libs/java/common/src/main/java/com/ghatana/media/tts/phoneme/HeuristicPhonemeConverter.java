@@ -9,8 +9,11 @@ import java.util.Map;
  *
  * <p>Covers the most common English phonological patterns without any native
  * library dependency.  Suitable for development, testing, and environments
- * where espeak-ng is unavailable.  {@link EspeakNgPhonemeConverter} provides
- * higher accuracy in production.
+ * where espeak-ng is unavailable. This converter is a development/test fallback
+ * only and does not qualify pronunciation or production voice compatibility.
+ * {@link EspeakNgPhonemeConverter} provides a canonical backend when its
+ * runtime dependency and data are available; that availability alone does not
+ * establish licensing or voice qualification.
  *
  * <p>The algorithm proceeds in three phases:
  * <ol>
