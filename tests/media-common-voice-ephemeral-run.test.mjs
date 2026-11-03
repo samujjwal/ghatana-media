@@ -9,6 +9,7 @@ import { randomUUID } from 'node:crypto';
 import {
   cleanupExpiredCommonVoiceRuns,
   COMMON_VOICE_RUN_MAX_INTERRUPTED_AUDIO_AGE_MS,
+  readBoundedMarkerBytes,
   withEphemeralCommonVoiceRun,
 } from '../scripts/qualification/common-voice-ephemeral-run.mjs';
 
@@ -153,6 +154,68 @@ test('preserves a marked run when marker is malformed or contains reference data
     const result = await cleanupExpiredCommonVoiceRuns(root, { now: new Date() });
     assert.deepEqual(result, { removed: 0, retained: 1, maxInterruptedAgeHours: 24 });
     assert.equal((await lstat(bad)).isDirectory(), true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('bounds marker reads to one byte over the limit', async () => {
+  let consumed = 0;
+  const requestedLengths = [];
+  const handle = {
+    async read(buffer, offset, length, position) {
+      assert.equal(position, null);
+      requestedLengths.push(length);
+      buffer.fill(0x61, offset, offset + length);
+      consumed += length;
+      return { bytesRead: length };
+    },
+  };
+
+  await assert.rejects(readBoundedMarkerBytes(handle), /run marker exceeds the permitted size/);
+  assert.equal(consumed, 4097);
+  assert.deepEqual(requestedLengths, [4097]);
+});
+
+test('accepts an exact-limit marker across short reads and probes EOF once', async () => {
+  const payload = Buffer.alloc(4096, 0x61);
+  const chunkSizes = [701, 113, 1024, 257, 2001];
+  const requests = [];
+  let consumed = 0;
+  let nextChunk = 0;
+  const handle = {
+    async read(buffer, offset, length, position) {
+      assert.equal(position, null);
+      const remaining = payload.length - consumed;
+      if (remaining === 0) {
+        requests.push({ length, bytesRead: 0 });
+        return { bytesRead: 0 };
+      }
+      const bytesRead = Math.min(length, remaining, chunkSizes[nextChunk++]);
+      buffer.set(payload.subarray(consumed, consumed + bytesRead), offset);
+      consumed += bytesRead;
+      requests.push({ length, bytesRead });
+      return { bytesRead };
+    },
+  };
+
+  const result = await readBoundedMarkerBytes(handle);
+  assert.deepEqual(result, payload);
+  assert.equal(consumed, 4096);
+  assert.deepEqual(requests.at(-1), { length: 1, bytesRead: 0 });
+  assert.equal(requests.reduce((total, request) => total + request.bytesRead, 0), 4096);
+});
+
+test('retains an expired run whose marker exceeds the read limit', { skip: hostSkip }, async () => {
+  const root = await privateRoot();
+  try {
+    const runDirectory = await createMarkedRun(root,
+      new Date(Date.now() - COMMON_VOICE_RUN_MAX_INTERRUPTED_AUDIO_AGE_MS * 2).toISOString());
+    await writeFile(join(runDirectory, MARKER_NAME), 'x'.repeat(8192));
+
+    const result = await cleanupExpiredCommonVoiceRuns(root, { now: new Date() });
+    assert.deepEqual(result, { removed: 0, retained: 1, maxInterruptedAgeHours: 24 });
+    assert.equal((await lstat(runDirectory)).isDirectory(), true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

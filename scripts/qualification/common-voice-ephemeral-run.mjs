@@ -49,21 +49,33 @@ async function requirePrivateDirectory(path, { ownerUid = currentUid(), mode = 0
   return canonical;
 }
 
+/** Reads at most one byte beyond the marker limit so overflow can be detected. */
+export async function readBoundedMarkerBytes(handle) {
+  const buffer = Buffer.alloc(MAX_MARKER_BYTES + 1);
+  let total = 0;
+  while (total < buffer.length) {
+    const { bytesRead } = await handle.read(buffer, total, buffer.length - total, null);
+    if (bytesRead === 0) break;
+    total += bytesRead;
+  }
+  assert(total <= MAX_MARKER_BYTES, 'run marker exceeds the permitted size');
+  return buffer.subarray(0, total);
+}
+
 async function readMarker(runDirectory, expectedUid) {
   const markerPath = join(runDirectory, MARKER_NAME);
   const stat = await lstat(markerPath);
   assert(stat.isFile() && !stat.isSymbolicLink(), 'run marker must be a regular non-symlink file');
   assert(stat.uid === expectedUid && isMode(stat, 0o600), 'run marker must be owner-only');
-  assert(stat.size > 0 && stat.size <= MAX_MARKER_BYTES, 'run marker size is invalid');
+  assert(stat.size > 0, 'run marker size is invalid');
 
   const handle = await open(markerPath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
   try {
     const openedStat = await handle.stat();
     assert(openedStat.isFile() && openedStat.uid === expectedUid && isMode(openedStat, 0o600)
-      && openedStat.size > 0 && openedStat.size <= MAX_MARKER_BYTES,
+      && openedStat.size > 0,
     'opened run marker changed or is unsafe');
-    const bytes = await handle.readFile();
-    assert(bytes.length <= MAX_MARKER_BYTES, 'run marker exceeds the permitted size');
+    const bytes = await readBoundedMarkerBytes(handle);
     const marker = JSON.parse(bytes.toString('utf8'));
     const expectedKeys = ['createdAt', 'kind', 'runId', 'schemaVersion'];
     assert(Object.keys(marker).sort().join(',') === expectedKeys.join(','),
