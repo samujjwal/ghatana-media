@@ -180,12 +180,17 @@ public class AudioVideoCache<K, V> {
                         accepted = Optional.empty();
                         failure = new IllegalStateException("Cache read returned no outcome");
                     } else {
-                        if (opt.isPresent()) {
+                        boolean withinValueLimit = opt.isEmpty()
+                                || isCacheValueWithinSharedLimit(opt.get());
+                        if (!withinValueLimit) {
+                            LOG.warn("Cache entry exceeded Shared value limit; treating as miss: namespaceRef={}, keyRef={}",
+                                    namespaceReference(), keyReference(key));
+                        } else if (opt.isPresent()) {
                             LOG.trace("Cache hit: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         } else {
                             LOG.trace("Cache miss: namespaceRef={}, keyRef={}", namespaceReference(), keyReference(key));
                         }
-                        accepted = Optional.of(opt);
+                        accepted = Optional.of(withinValueLimit ? opt : Optional.empty());
                         capturedEpoch.state.deliveries++;
                         activeCacheHitDeliveries++;
                         deliveryReserved = true;
@@ -226,7 +231,7 @@ public class AudioVideoCache<K, V> {
     public AsyncOperation<Void> put(K key, V value) {
         Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(value, "value cannot be null");
-        
+        validateCacheValue(value);
         return putTracked(key, value, DEFAULT_TTL);
     }
     
@@ -237,7 +242,7 @@ public class AudioVideoCache<K, V> {
         Objects.requireNonNull(key, "key cannot be null");
         Objects.requireNonNull(value, "value cannot be null");
         Objects.requireNonNull(ttl, "ttl cannot be null");
-        
+        validateCacheValue(value);
         Duration boundedTtl = boundedTtl(ttl);
         return putTracked(key, value, boundedTtl);
     }
@@ -303,6 +308,11 @@ public class AudioVideoCache<K, V> {
                 } else if (readError != null) {
                     LOG.warn("Cache get failed; loading from source: namespaceRef={}, keyRef={}, causeType={}",
                             namespaceReference(), keyReference(key), failureType(readError));
+                    completeFrom(loadWithoutCache(key, loader), operationFuture);
+                } else if (cached != null && cached.isPresent()
+                        && !isCacheValueWithinSharedLimit(cached.get())) {
+                    LOG.warn("Cache entry exceeded Shared value limit; loading from source: namespaceRef={}, keyRef={}",
+                            namespaceReference(), keyReference(key));
                     completeFrom(loadWithoutCache(key, loader), operationFuture);
                 } else if (cached != null && cached.isPresent()) {
                     if (!completeFromCacheIfCurrent(key, capturedEpoch, cached.get(), operationFuture)) {
@@ -534,6 +544,11 @@ public class AudioVideoCache<K, V> {
             } else if (value == null) {
                 callerResult.complete(null);
                 result.complete(null);
+            } else if (!isCacheValueWithinSharedLimit(value)) {
+                LOG.warn("Source value exceeded Shared cache value limit; returning without caching: namespaceRef={}, keyRef={}",
+                        namespaceReference(), keyReference(key));
+                callerResult.complete(value);
+                result.complete(value);
             } else {
                 Object marker = reservePendingCacheWrite(key, capturedEpoch);
                 if (marker == null) {
@@ -754,6 +769,15 @@ public class AudioVideoCache<K, V> {
             throw new IllegalArgumentException("ttl must be positive");
         }
         return ttl.compareTo(DEFAULT_TTL) > 0 ? DEFAULT_TTL : ttl;
+    }
+
+    /** Applies Shared's payload bound to strings while preserving generic port values. */
+    private static boolean isCacheValueWithinSharedLimit(Object value) {
+        return !(value instanceof String text) || text.length() <= CachePolicy.MAX_VALUE_LENGTH;
+    }
+
+    private static void validateCacheValue(Object value) {
+        if (value instanceof String text) CachePolicy.validateValue(text);
     }
 
     /** Never render backend exception messages or stack traces in cache diagnostics. */

@@ -176,6 +176,25 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void currentAuthorizationDenialPrecedesAnyCachedProtectedTranscript() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        String scopedKey = key("tenant-a", transcriptionId.toString());
+        TranscriptionEntity staleProtectedValue = entity("tenant-a", transcriptionId, false);
+        staleProtectedValue.setText("must not be exposed after revocation");
+        when(cachePort.get(scopedKey)).thenReturn(AsyncOperation.success(
+                Optional.of(objectMapper.writeValueAsString(staleProtectedValue))));
+        IllegalStateException authorizationDenied = new IllegalStateException("current consent denied");
+
+        assertThatThrownBy(() -> await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.failure(authorizationDenied))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("current consent denied");
+
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
 

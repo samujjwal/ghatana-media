@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.infrastructure.cache;
 
 import com.ghatana.cache.DistributedCachePort;
+import com.ghatana.cache.CachePolicy;
 import com.ghatana.cache.CacheBulkInvalidationOutcome;
 import com.ghatana.cache.DistributedCacheService;
 import com.ghatana.cache.backend.CacheOperationResult;
@@ -98,6 +99,27 @@ class AudioVideoCacheTest {
         org.assertj.core.api.Assertions.assertThatThrownBy(
                 () -> cache.put("k1", "v1", Duration.ZERO))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("string cache entries obey Shared value bounds")
+    void stringCacheEntriesObeySharedValueBounds() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        String oversized = "x".repeat(CachePolicy.MAX_VALUE_LENGTH + 1);
+        when(cachePort.get("oversized-hit")).thenReturn(AsyncOperation.success(Optional.of(oversized)));
+        when(cachePort.get("oversized-source")).thenReturn(AsyncOperation.success(Optional.empty()));
+
+        assertThat(await(cache.get("oversized-hit"))).isEmpty();
+        assertThat(await(cache.getOrLoad("oversized-source", ignored -> AsyncOperation.success(oversized)))
+                ).isEqualTo(oversized);
+        assertThatThrownBy(() -> cache.put("oversized-put", oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("value length exceeds");
+
+        verify(cachePort, org.mockito.Mockito.never())
+                .put(eq("oversized-source"), eq(oversized), any(Duration.class));
+        verify(cachePort, org.mockito.Mockito.never())
+                .put(eq("oversized-put"), eq(oversized), any(Duration.class));
     }
 
     @Test
