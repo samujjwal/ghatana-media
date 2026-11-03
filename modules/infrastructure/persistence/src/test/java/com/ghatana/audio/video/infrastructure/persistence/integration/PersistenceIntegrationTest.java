@@ -230,6 +230,88 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("PostgreSQL restart readback preserves tenant-scoped audio and transcription visibility")
+    void postgresRestartReadbackRemainsTenantScoped() throws Throwable {
+        String databaseName = "media_tenant_restart_" + UUID.randomUUID().toString().replace("-", "");
+        String jdbcUrl = postgres.getJdbcUrl().substring(0, postgres.getJdbcUrl().lastIndexOf('/') + 1)
+                + databaseName;
+        String ownerTenant = "restart-owner-" + UUID.randomUUID();
+        String otherTenant = "restart-other-" + UUID.randomUUID();
+        AudioFileEntity audio = createAudioFile(ownerTenant, "tenant-restart.wav");
+        TranscriptionEntity transcription = new TranscriptionEntity(UUID.randomUUID(), ownerTenant,
+                audio.getId(), UUID.randomUUID(), "tenant restart transcript", "en");
+        EntityManagerFactory writingFactory = null;
+        EntityManager writingManager = null;
+        EntityManagerFactory reopenedFactory = null;
+        EntityManager reopenedManager = null;
+        Throwable primaryFailure = null;
+
+        try {
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE DATABASE \"" + databaseName + "\"");
+            }
+            try (var connection = DriverManager.getConnection(jdbcUrl, postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE SCHEMA audio_video");
+            }
+
+            writingFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", postgresPersistenceProperties(jdbcUrl, "create"));
+            writingManager = writingFactory.createEntityManager();
+            new JpaAudioFileRepository(writingManager).save(ownerTenant, audio);
+            new JpaTranscriptionRepository(writingManager).save(ownerTenant, transcription);
+            writingManager.close();
+            writingManager = null;
+            writingFactory.close();
+            writingFactory = null;
+
+            reopenedFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", postgresPersistenceProperties(jdbcUrl, "validate"));
+            reopenedManager = reopenedFactory.createEntityManager();
+            JpaAudioFileRepository audioRepository = new JpaAudioFileRepository(reopenedManager);
+            JpaTranscriptionRepository transcriptionRepository = new JpaTranscriptionRepository(reopenedManager);
+
+            assertThat(audioRepository.findById(ownerTenant, audio.getId()))
+                    .get()
+                    .satisfies(persisted -> {
+                        assertThat(persisted.getTenantId()).isEqualTo(ownerTenant);
+                        assertThat(persisted.getFileName()).isEqualTo("tenant-restart.wav");
+                    });
+            assertThat(transcriptionRepository.findById(ownerTenant, transcription.getId()))
+                    .get()
+                    .satisfies(persisted -> {
+                        assertThat(persisted.getTenantId()).isEqualTo(ownerTenant);
+                        assertThat(persisted.getAudioFileId()).isEqualTo(audio.getId());
+                        assertThat(persisted.getText()).isEqualTo("tenant restart transcript");
+                    });
+            assertThat(audioRepository.findById(otherTenant, audio.getId())).isEmpty();
+            assertThat(transcriptionRepository.findById(otherTenant, transcription.getId())).isEmpty();
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            Throwable cleanupFailure = null;
+            cleanupFailure = closeTestEntityManager(reopenedManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(reopenedFactory, cleanupFailure);
+            cleanupFailure = closeTestEntityManager(writingManager, cleanupFailure);
+            cleanupFailure = closeTestFactory(writingFactory, cleanupFailure);
+            try (var connection = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS \"" + databaseName + "\" WITH (FORCE)");
+            } catch (Throwable dropFailure) {
+                cleanupFailure = appendCleanupFailure(cleanupFailure, dropFailure);
+            }
+            if (cleanupFailure != null) {
+                if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure);
+                else throw cleanupFailure;
+            }
+        }
+    }
+
+    @Test
     @DisplayName("PostgreSQL rolls back an uncommitted row when its backend session is terminated")
     void postgresBackendTerminationDoesNotCommitFlushedAudio() throws Throwable {
         String tenantId = "crash-tenant-" + UUID.randomUUID();

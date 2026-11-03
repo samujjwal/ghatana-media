@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -456,6 +457,64 @@ class RpcDeadlineServerInterceptorTest {
             assertThat(first.result().isCompletedExceptionally()).isTrue();
         } finally {
             release.countDown();
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
+    void deadlineReturnsUnknownBeforeNonCooperativeProviderFinishesAndLaterReceiptCanBeReadBack() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch releaseProvider = new CountDownLatch(1);
+        CountDownLatch providerFinished = new CountDownLatch(1);
+        String requestId = "request-17";
+        ConcurrentHashMap<String, String> providerReceipts = new ConcurrentHashMap<>();
+        AtomicInteger dispatches = new AtomicInteger();
+        try {
+            Context request = Context.current().withDeadline(Deadline.after(50, TimeUnit.MILLISECONDS), TIMER);
+            Context previous = request.attach();
+            ContextAwareBoundedExecutor.Submission<String> submission;
+            try {
+                submission = new ContextAwareBoundedExecutor(pool).submit(() -> {
+                    dispatches.incrementAndGet();
+                    started.countDown();
+                    try {
+                        while (!releaseProvider.await(20, TimeUnit.MILLISECONDS)) {
+                            // Simulates a provider/native call that cannot be stopped by interrupt.
+                        }
+                    } catch (InterruptedException ignored) {
+                        while (releaseProvider.getCount() != 0) {
+                            try {
+                                releaseProvider.await(20, TimeUnit.MILLISECONDS);
+                            } catch (InterruptedException ignoredAgain) {
+                                // Continue until the simulated provider completes on its own.
+                            }
+                        }
+                    }
+                    providerReceipts.put(requestId, "committed");
+                    providerFinished.countDown();
+                    return "late provider success";
+                });
+            } finally {
+                request.detach(previous);
+            }
+
+            assertThat(started.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThatThrownBy(() -> submission.result().get(500, TimeUnit.MILLISECONDS))
+                    .isInstanceOf(ExecutionException.class)
+                    .satisfies(error -> assertThat(Status.fromThrowable(error.getCause()).getCode())
+                            .isEqualTo(Status.Code.UNKNOWN));
+            assertThat(providerFinished.getCount()).isEqualTo(1);
+            assertThat(providerReceipts).doesNotContainKey(requestId);
+
+            releaseProvider.countDown();
+            assertThat(providerFinished.await(1, TimeUnit.SECONDS)).isTrue();
+            assertThat(providerReceipts.get(requestId)).isEqualTo("committed");
+            assertThat(dispatches).hasValue(1);
+            assertStatus(submission, Status.Code.UNKNOWN);
+        } finally {
+            releaseProvider.countDown();
             pool.shutdownNow();
             pool.awaitTermination(1, TimeUnit.SECONDS);
         }

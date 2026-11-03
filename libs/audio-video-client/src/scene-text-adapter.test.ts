@@ -141,6 +141,44 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
     expect(di.parse).not.toHaveBeenCalled();
   });
 
+  it('sanitizes provider-catalog failures as pre-dispatch unavailable', async () => {
+    const sensitiveDetails = 'tenant=private-tenant token=secret-789';
+    const di = client();
+    di.providers = vi.fn(async () => {
+      throw new Error(sensitiveDetails);
+    });
+
+    let rejection: unknown;
+    try {
+      await new DocumentIntelligenceSceneTextAdapter(di, policy).recognizeFrame('op-scene-text', frame);
+    } catch (error) {
+      rejection = error;
+    }
+
+    expect(rejection).toBeInstanceOf(SceneTextAdapterError);
+    expect(rejection).toMatchObject({ code: 'PROVIDER_CATALOG_UNAVAILABLE' });
+    expect((rejection as Error).message).toBe(
+      'Scene-text adapter rejected the operation: PROVIDER_CATALOG_UNAVAILABLE',
+    );
+    expect((rejection as Error).message).not.toContain(sensitiveDetails);
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
+  it('preserves caller abort when provider-catalog lookup rejects', async () => {
+    const controller = new AbortController();
+    const di = client();
+    di.providers = vi.fn(async () => {
+      controller.abort();
+      throw new Error('transport abort detail');
+    });
+
+    await expectCode(
+      new DocumentIntelligenceSceneTextAdapter(di, policy),
+      'REQUEST_ABORTED', frame, controller.signal,
+    );
+    expect(di.parse).not.toHaveBeenCalled();
+  });
+
   it('rejects stale protocol and worker capability versions', async () => {
     const staleProtocol = client({ catalog: catalog({ protocolVersion: 'document-intelligence.v2' }) });
     await expectCode(new DocumentIntelligenceSceneTextAdapter(staleProtocol, policy), 'CLIENT_PROTOCOL_MISMATCH');

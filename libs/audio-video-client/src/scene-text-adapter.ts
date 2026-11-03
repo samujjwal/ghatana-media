@@ -123,6 +123,7 @@ export type SceneTextAdapterErrorCode =
   | "SOURCE_PAYLOAD_INVALID"
   | "SOURCE_MEDIA_TYPE_NOT_ADMITTED"
   | "SOURCE_LANGUAGE_NOT_ADMITTED"
+  | "PROVIDER_CATALOG_UNAVAILABLE"
   | "CLIENT_PROTOCOL_MISMATCH"
   | "WORKER_VERSION_NOT_ADMITTED"
   | "PROVIDER_NOT_ADMITTED"
@@ -246,7 +247,15 @@ export class DocumentIntelligenceSceneTextAdapter {
       languageHint: frame.languageHint,
     });
     abortIfRequested(signal);
-    const catalog = await this.client.providers(signal);
+    let catalog: SceneTextProviderCatalog;
+    try {
+      catalog = await this.client.providers(signal);
+    } catch {
+      // Provider discovery is read-only and happens before parse dispatch, so
+      // it can be reported as unavailable without implying an OCR effect.
+      // An explicit caller abort remains distinct from unavailable service.
+      throw new SceneTextAdapterError(signal?.aborted ? "REQUEST_ABORTED" : "PROVIDER_CATALOG_UNAVAILABLE");
+    }
     abortIfRequested(signal);
     if (catalog === null || typeof catalog !== "object") {
       throw new SceneTextAdapterError("PROVIDER_NOT_ADMITTED");
