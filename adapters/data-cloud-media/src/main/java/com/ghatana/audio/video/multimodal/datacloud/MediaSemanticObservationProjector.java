@@ -155,6 +155,9 @@ public final class MediaSemanticObservationProjector {
             throw new IllegalArgumentException("Observation classification is not in the Data Cloud media vocabulary",
                     invalidClassification);
         }
+        if (!classification.equals(parsed.name())) {
+            throw new IllegalArgumentException("Observation classification must use its canonical Media token");
+        }
         if (parsed == Classification.RESTRICTED) {
             throw new IllegalArgumentException("Restricted observations cannot be projected without an admitted disclosure path");
         }

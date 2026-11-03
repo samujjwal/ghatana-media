@@ -71,6 +71,11 @@ class MediaSemanticObservationProjectorTest {
                 .hasMessage("Observation classification is not in the Data Cloud media vocabulary");
         assertThatThrownBy(() -> new MediaSemanticObservationProjector().project(observation(
                 "tenant-a", "tenant-a", "artifact-v3", "artifact-v3",
+                "confidential", "confidential", "policy-redaction-2")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Observation classification must use its canonical Media token");
+        assertThatThrownBy(() -> new MediaSemanticObservationProjector().project(observation(
+                "tenant-a", "tenant-a", "artifact-v3", "artifact-v3",
                 "CONFIDENTIAL", "INTERNAL", "policy-redaction-2")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Derived classification must preserve the source classification floor");
