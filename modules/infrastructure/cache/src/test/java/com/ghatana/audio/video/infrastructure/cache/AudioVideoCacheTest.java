@@ -138,6 +138,22 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("read-through uses the documented 30-minute default TTL")
+    void readThroughUsesDocumentedDefaultTtl() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "audio-video");
+        when(cachePort.get("source-backed-key"))
+                .thenReturn(AsyncOperation.success(Optional.empty()));
+        when(cachePort.put("source-backed-key", "source-value", Duration.ofMinutes(30)))
+                .thenReturn(AsyncOperation.success(null));
+
+        String result = await(cache.getOrLoad(
+                "source-backed-key", ignored -> AsyncOperation.success("source-value")));
+
+        assertThat(result).isEqualTo("source-value");
+        verify(cachePort).put("source-backed-key", "source-value", Duration.ofMinutes(30));
+    }
+
+    @Test
     @DisplayName("same-key concurrent misses share one source load")
     void concurrentMissesShareOneLoad() {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");

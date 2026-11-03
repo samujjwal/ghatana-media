@@ -23,8 +23,14 @@ Provides a unified facade for audio-video cache operations while keeping service
 cache.provider=redis            # in-process | redis
 cache.redis.host=localhost
 cache.redis.port=6379
-cache.transcription.ttl-seconds=3600
 ```
+
+The generic `AudioVideoCache` facade uses a 30-minute default TTL and caps
+caller-supplied TTLs at 30 minutes. Transcription cache writes are currently
+disabled because the transcription API does not carry complete protected
+scope; there is no active `cache.transcription.ttl-seconds` setting. The
+Shared `DistributedCachePort` owns backend storage and expiration behavior,
+while this adapter applies its local TTL cap before calling the port.
 
 ## Dependencies
 
