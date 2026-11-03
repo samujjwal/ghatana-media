@@ -273,6 +273,16 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls[0]!.url).toBe("https://media.example.test/api/v1/jobs/job-1/cancel");
   });
 
+  it("keeps a dispatched cancel with a mismatched job acknowledgement OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl, calls } = recordedFetch(() =>
+      jsonResponse(job({ jobId: "job-2", status: "CANCELLED" }), 200));
+    const client = clientWith(fetchImpl);
+    const failure = await client.cancelJob("job-1").catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/jobs/job-1/cancel" });
+    expect(calls).toHaveLength(1);
+  });
+
   it("reports a post-dispatch cancel abort as OUTCOME_UNKNOWN without retry", async () => {
     const controller = new AbortController();
     const { fetchImpl, calls } = recordedFetch((_url, init) => new Promise<Response>((_resolve, reject) => {
@@ -368,6 +378,26 @@ describe("MediaCanonicalClient stream operations", () => {
     expect(calls[0]!.url).toContain("/api/v1/streams/sess-1/connect");
     expect(new Headers(calls[1]!.init.headers).get("X-Stream-Token")).toBe(connectionToken);
     expect(calls[1]!.url).toContain("/api/v1/streams/sess-1/close");
+  });
+
+  it("keeps a dispatched connect with a cross-tenant session acknowledgement OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl, calls } = recordedFetch(() =>
+      jsonResponse(session({ tenantId: "tenant-2", state: "CONNECTED" })));
+    const client = clientWith(fetchImpl);
+    const failure = await client.connectStream("sess-1", connectionToken).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/streams/sess-1/connect" });
+    expect(calls).toHaveLength(1);
+  });
+
+  it("keeps a dispatched close with a mismatched session acknowledgement OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl, calls } = recordedFetch(() =>
+      jsonResponse(session({ sessionId: "sess-2", state: "CLOSED", closedAt: timestamp })));
+    const client = clientWith(fetchImpl);
+    const failure = await client.closeStream("sess-1", connectionToken).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/streams/sess-1/close" });
+    expect(calls).toHaveLength(1);
   });
 
   it("submits a frame with sequence path + octet-stream body and parses the ack", async () => {
