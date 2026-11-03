@@ -253,6 +253,19 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("applies generic argument bounds before scanning tool-specific fields")
+    void boundsArgumentMapBeforeWhitelistScan() {
+        Map<String, Object> input = new LinkedHashMap<>();
+        for (int index = 0; index < 20_001; index++) input.put("field-" + index, true);
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", input);
+
+        assertThatThrownBy(() -> AgentToolInput.checked(env, contractFor(env),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("languageCode")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+    }
+
+    @Test
     @DisplayName("rejects aggregate UTF-8 oversized arguments before a delegate effect")
     void rejectsOversizedInputBytesBeforeDispatch() {
         ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("payload", "x".repeat(32 * 1024 * 1024)));

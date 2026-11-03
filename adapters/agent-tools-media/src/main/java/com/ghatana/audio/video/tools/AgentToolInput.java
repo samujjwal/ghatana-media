@@ -72,6 +72,11 @@ final class AgentToolInput {
             throw new IllegalArgumentException("TOOL_VERSION_MISMATCH");
         if (envelope.actionClass() != contract.actionClass())
             throw new IllegalArgumentException("TOOL_ACTION_CLASS_MISMATCH");
+        // Apply generic allocation/shape limits before walking the input key set
+        // for the tool-specific whitelist. Inputs without a registered schema
+        // still need the same bounds, and an oversized map must not force an
+        // unbounded preliminary scan before those limits take effect.
+        validateInputBounds(envelope.input());
         if (!fields.containsAll(envelope.input().keySet()))
             throw new IllegalArgumentException("UNKNOWN_INPUT_FIELD");
         // A Media tool effect is tenant-scoped: without a non-blank tenant
@@ -89,14 +94,6 @@ final class AgentToolInput {
      * for compatibility with source contracts that have not been installed.
      */
     private static void validateInputSchema(Map<String, Object> schema, Object input) {
-        // Bounds apply even when the registry has not installed an input
-        // schema. An unresolved schema must not disable the generic parser
-        // and allocation limits for tool-controlled arguments.
-        if (!withinTreeBounds(input, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
-                MAX_INPUT_ESTIMATED_CHARS)) {
-            throw inputSchemaViolation();
-        }
-        if (!withinUtf8ByteBounds(input, MAX_INPUT_JSON_BYTES)) throw inputSchemaViolation();
         if (schema.isEmpty()) return;
         try {
             if (!withinTreeBounds(schema, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
@@ -127,6 +124,15 @@ final class AgentToolInput {
         } catch (RuntimeException invalidSchemaOrInput) {
             // Remote/unresolved references, unsupported dialects, malformed
             // schemas and non-JSON values fail before any delegate effect.
+            throw inputSchemaViolation();
+        }
+    }
+
+    /** Bounds apply even when the registry has not installed an input schema. */
+    private static void validateInputBounds(Object input) {
+        if (!withinTreeBounds(input, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
+                MAX_INPUT_ESTIMATED_CHARS)
+                || !withinUtf8ByteBounds(input, MAX_INPUT_JSON_BYTES)) {
             throw inputSchemaViolation();
         }
     }
