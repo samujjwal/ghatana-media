@@ -79,13 +79,15 @@ public final class MediaFormatValidator {
             }
         }
 
-        // Check MP3 (ID3 tag)
-        if (matchesMagic(data, 0, MP3_ID3)) {
+        // An ID3 prefix alone is common in truncated or arbitrary data. Require
+        // a complete, structurally plausible v2 header before classifying it.
+        if (hasValidId3Header(data)) {
             return "MP3";
         }
 
-        // Check MP3 (MPEG sync)
-        if (data.length >= 2 && (data[0] & 0xFF) == 0xFF && (data[1] & 0xE0) == 0xE0) {
+        // Check a plausible MPEG audio frame header, not only the 11-bit sync
+        // word (which also occurs in malformed and non-audio payloads).
+        if (hasPlausibleMpegAudioHeader(data, 0)) {
             return "MP3";
         }
 
@@ -100,6 +102,46 @@ public final class MediaFormatValidator {
         }
 
         return "UNKNOWN";
+    }
+
+    private static boolean hasValidId3Header(byte[] data) {
+        if (data.length < 10 || !matchesMagic(data, 0, MP3_ID3)) {
+            return false;
+        }
+        int majorVersion = data[3] & 0xFF;
+        int revision = data[4] & 0xFF;
+        if (majorVersion < 2 || majorVersion > 4 || revision == 0xFF) {
+            return false;
+        }
+        // ID3 tag lengths are 28-bit synchsafe integers. Reject reserved high
+        // bits and truncated tags before treating the prefix as a codec marker.
+        for (int index = 6; index < 10; index++) {
+            if ((data[index] & 0x80) != 0) {
+                return false;
+            }
+        }
+        long tagSize = ((long) (data[6] & 0x7F) << 21)
+                | ((long) (data[7] & 0x7F) << 14)
+                | ((long) (data[8] & 0x7F) << 7)
+                | (data[9] & 0x7F);
+        return tagSize <= data.length - 10L;
+    }
+
+    private static boolean hasPlausibleMpegAudioHeader(byte[] data, int offset) {
+        if (offset < 0 || offset > data.length - 4
+                || (data[offset] & 0xFF) != 0xFF
+                || (data[offset + 1] & 0xE0) != 0xE0) {
+            return false;
+        }
+        int second = data[offset + 1] & 0xFF;
+        int version = (second >>> 3) & 0x03;
+        int layer = (second >>> 1) & 0x03;
+        int third = data[offset + 2] & 0xFF;
+        int bitrateIndex = (third >>> 4) & 0x0F;
+        int sampleRateIndex = (third >>> 2) & 0x03;
+        return version != 0x01 && layer != 0
+                && bitrateIndex != 0 && bitrateIndex != 0x0F
+                && sampleRateIndex != 0x03;
     }
 
     /**

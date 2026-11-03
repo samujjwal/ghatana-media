@@ -36,6 +36,32 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
+    void codecSniffingRejectsMalformedId3AndReservedMpegHeaderFields() {
+        byte[] truncatedId3 = "ID3".getBytes(StandardCharsets.ISO_8859_1);
+        assertThat(MediaFormatValidator.detectAudioFormat(truncatedId3)).isEqualTo("UNKNOWN");
+
+        byte[] invalidTagSize = new byte[10];
+        putAscii(invalidTagSize, 0, "ID3");
+        invalidTagSize[3] = 4;
+        invalidTagSize[6] = (byte) 0x80; // Not a synchsafe length.
+        assertThat(MediaFormatValidator.detectAudioFormat(invalidTagSize)).isEqualTo("UNKNOWN");
+
+        byte[] reservedMpegVersion = new byte[] {(byte) 0xFF, (byte) 0xE0, 0x10, 0};
+        byte[] reservedBitrate = new byte[] {(byte) 0xFF, (byte) 0xFB, (byte) 0xF0, 0};
+        byte[] validMpegHeader = new byte[44];
+        validMpegHeader[0] = (byte) 0xFF;
+        validMpegHeader[1] = (byte) 0xFB;
+        validMpegHeader[2] = (byte) 0x90;
+        validMpegHeader[3] = 0x64;
+        assertThat(MediaFormatValidator.detectAudioFormat(reservedMpegVersion)).isEqualTo("UNKNOWN");
+        assertThat(MediaFormatValidator.detectAudioFormat(reservedBitrate)).isEqualTo("UNKNOWN");
+        // This identifies a plausible container/frame header only. validateAudio
+        // still reports that no qualified MP3 decoder is installed.
+        assertThat(MediaFormatValidator.detectAudioFormat(validMpegHeader)).isEqualTo("MP3");
+        assertThat(MediaFormatValidator.validateAudio(validMpegHeader, null, 0).valid).isFalse();
+    }
+
+    @Test
     void rejectsRiffChunksWhoseUnsignedLengthExceedsTheInput() {
         byte[] wav = new byte[44];
         putAscii(wav, 0, "RIFF");
