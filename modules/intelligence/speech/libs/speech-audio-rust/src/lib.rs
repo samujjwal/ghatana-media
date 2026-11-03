@@ -1840,6 +1840,39 @@ mod tests {
     }
 
     #[test]
+    fn resampler_interior_impulse_response_is_symmetric_and_finite() {
+        // An integer-ratio upsample places this centered impulse exactly on
+        // an output sample. A windowed-sinc response is symmetric about that
+        // rational position; this catches phase asymmetry that peak-only
+        // alignment tests would miss.
+        let source_rate = 16_000u32;
+        let target_rate = 48_000u32;
+        let source_impulse = 512usize;
+        let mut samples = vec![0.0f32; 1_024];
+        samples[source_impulse] = 1.0;
+        let input = AudioBuffer::new(
+            samples,
+            AudioConfig {
+                sample_rate: source_rate,
+                channels: 1,
+                sample_format: SampleFormat::F32,
+            },
+        );
+
+        let output = Resampler::new(target_rate).resample(&input).unwrap();
+        let center = source_impulse * target_rate as usize / source_rate as usize;
+        assert!(output.samples.iter().all(|sample| sample.is_finite()));
+        for offset in 1..=72usize {
+            let left = output.samples[center - offset] as f64;
+            let right = output.samples[center + offset] as f64;
+            assert!(
+                (left - right).abs() < 1e-6,
+                "impulse response is asymmetric at offset {offset}: {left} vs {right}"
+            );
+        }
+    }
+
+    #[test]
     fn resampler_attenuates_alias_content() {
         // 20 kHz source content is above the 4 kHz Nyquist edge of an 8 kHz
         // target and must be attenuated before sampling, not folded.
