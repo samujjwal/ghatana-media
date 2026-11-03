@@ -62,6 +62,40 @@ public final class AudioVideoRunLedgerAdapter {
         String traceId,
         String correlationId
     ) {
+        return fromProcessingJob(
+            jobId, mediaType, processingType, collectionId, mediaArtifactId, inputParams,
+            jobState, createdAtMs, startedAtMs, System.currentTimeMillis(), outputArtifactId,
+            failureReason, providerName, providerJobId, traceId, correlationId);
+    }
+
+    /**
+     * Converts a source observation to RunLedger using its immutable observation time.
+     *
+     * <p>{@code createdAtMs}, {@code startedAtMs}, and {@code observedAtMs} must
+     * use the same epoch-millisecond timebase. Callers replaying a persisted
+     * job/outbox observation must pass the same {@code observedAtMs} on every
+     * conversion. This keeps terminal timestamps and elapsed duration stable so
+     * the LD-04 projection guard can identify an exact replay instead of seeing
+     * a new terminal record on each retry.
+     */
+    public static RunLedger fromProcessingJob(
+        String jobId,
+        String mediaType,
+        String processingType,
+        String collectionId,
+        String mediaArtifactId,
+        Map<String, String> inputParams,
+        String jobState,
+        long createdAtMs,
+        long startedAtMs,
+        long observedAtMs,
+        String outputArtifactId,
+        String failureReason,
+        String providerName,
+        String providerJobId,
+        String traceId,
+        String correlationId
+    ) {
         Objects.requireNonNull(jobId, "jobId must not be null");
         Objects.requireNonNull(mediaType, "mediaType must not be null");
         Objects.requireNonNull(processingType, "processingType must not be null");
@@ -70,13 +104,22 @@ public final class AudioVideoRunLedgerAdapter {
 
         JobExecutionState mappedState = mapProcessingJobState(jobState);
         ExecutionOutcome mappedOutcome = mapProcessingJobOutcome(jobState);
+        if (startedAtMs > 0 && startedAtMs < createdAtMs) {
+            throw new IllegalArgumentException("job start precedes job creation");
+        }
+        if (isTerminal(mappedState)) {
+            if (observedAtMs < createdAtMs) {
+                throw new IllegalArgumentException("terminal observation precedes job creation");
+            }
+            if (startedAtMs > 0 && observedAtMs < startedAtMs) {
+                throw new IllegalArgumentException("terminal observation precedes job start");
+            }
+        }
         String ledgerFailureReason = sanitizeLedgerFailure(failureReason);
         String ledgerMediaArtifactId = safeLedgerReference(mediaArtifactId);
         String ledgerCollectionId = safeLedgerReference(collectionId);
         String ledgerMediaType = safeMetadataToken(mediaType, "UNKNOWN");
         String ledgerProcessingType = safeMetadataToken(processingType, "UNKNOWN");
-        long now = System.currentTimeMillis();
-
         InputSnapshot inputs = new InputSnapshot(
             sanitizeLedgerParams(inputParams),
             null,
@@ -97,7 +140,7 @@ public final class AudioVideoRunLedgerAdapter {
                 mappedOutcome == ExecutionOutcome.DEGRADED ? 206 : 200,
                 null,
                 Map.of(),
-                (startedAtMs > 0 ? now - startedAtMs : 0),
+                (startedAtMs > 0 ? observedAtMs - startedAtMs : 0),
                 Map.of(),
                 ledgerOutputArtifactId
             );
@@ -106,7 +149,7 @@ public final class AudioVideoRunLedgerAdapter {
                 500,
                 ledgerFailureReason,
                 Map.of(),
-                (startedAtMs > 0 ? now - startedAtMs : 0),
+                (startedAtMs > 0 ? observedAtMs - startedAtMs : 0),
                 Map.of(),
                 null
             );
@@ -115,7 +158,7 @@ public final class AudioVideoRunLedgerAdapter {
                 499,
                 null,
                 Map.of(),
-                (startedAtMs > 0 ? now - startedAtMs : 0),
+                (startedAtMs > 0 ? observedAtMs - startedAtMs : 0),
                 Map.of(),
                 null
             );
@@ -163,7 +206,7 @@ public final class AudioVideoRunLedgerAdapter {
             mappedOutcome,
             createdAtMs,
             startedAtMs,
-            isTerminal(mappedState) ? now : 0,
+            isTerminal(mappedState) ? observedAtMs : 0,
             inputs,
             outputs,
             ledgerFailureReason,

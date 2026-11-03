@@ -31,6 +31,59 @@ import static org.assertj.core.api.Assertions.*;
 class AudioVideoRunLedgerAdapterTest {
 
     @Test
+    @DisplayName("Stable source observation converts to an idempotent terminal ledger replay")
+    void stableObservationCanBeReplayedThroughProjection() {
+        var writes = new java.util.concurrent.CopyOnWriteArrayList<RunLedger>();
+        RunLedgerProjection projection = new RunLedgerProjection(writes::add);
+        java.util.function.Supplier<RunLedger> replay = () -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "stable-replay", "AUDIO", "STT", "collection", "source",
+                Map.of("language", "en"), "COMPLETED", 100, 120, 180,
+                "transcript-v1", null, null, null, "trace", "correlation");
+
+        RunLedger first = replay.get();
+        RunLedger retried = replay.get();
+        assertThat(retried).isEqualTo(first);
+        assertThat(first.completedAtMs()).isEqualTo(180);
+        assertThat(first.outputs().durationMs()).isEqualTo(60);
+
+        assertThat(projection.project(first).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+        var duplicate = projection.project(retried);
+        assertThat(duplicate.disposition()).isEqualTo(RunLedgerProjection.Disposition.REPLAYED);
+        assertThat(duplicate.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(writes).containsExactly(first);
+    }
+
+    @Test
+    @DisplayName("Terminal observation rejects timestamps before creation or start")
+    void terminalObservationMustFollowCreationAndStart() {
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "invalid-before-create", "AUDIO", "STT", "collection", "source",
+                Map.of(), "COMPLETED", 100, 120, 99,
+                "transcript-v1", null, null, null, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("terminal observation precedes job creation");
+
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "invalid-before-start", "AUDIO", "STT", "collection", "source",
+                Map.of(), "COMPLETED", 100, 120, 119,
+                "transcript-v1", null, null, null, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("terminal observation precedes job start");
+    }
+
+    @Test
+    @DisplayName("Job start rejects a timestamp before creation")
+    void jobStartMustNotPrecedeCreation() {
+        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "invalid-start-order", "AUDIO", "STT", "collection", "source",
+                Map.of(), "COMPLETED", 100, 99, 180,
+                "transcript-v1", null, null, null, "trace", "correlation"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("job start precedes job creation");
+    }
+
+    @Test
     @DisplayName("Matches LD-02 golden projection and rejects source distinctions absent from RunLedger")
     void testLd02GoldenProjectionAndUnrepresentedSourceTruth() throws Exception {
         Properties golden = new Properties();
