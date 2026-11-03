@@ -13,6 +13,7 @@ import java.net.StandardProtocolFamily;
 import java.net.UnixDomainSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +35,7 @@ class MediaOciBrokerClientTest {
         Path socketPath = root.resolve("broker.sock");
         Path tokenFile = root.resolve("broker.token");
         Files.writeString(tokenFile, "t".repeat(64));
+        Files.setPosixFilePermissions(tokenFile, PosixFilePermissions.fromString("rw-------"));
         CountDownLatch completeRequestReceived = new CountDownLatch(1);
         CountDownLatch allowServerClose = new CountDownLatch(1);
         AtomicInteger acceptedConnections = new AtomicInteger();
@@ -89,6 +91,34 @@ class MediaOciBrokerClientTest {
             serverExecutor.shutdownNow();
             assertThat(serverExecutor.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
         }
+    }
+
+    @Test
+    void clientRejectsBroadlyReadableOrSymlinkedTokenFilesBeforeConnecting() throws Exception {
+        Path socketPath = root.resolve("missing-broker.sock");
+        Path tokenFile = root.resolve("broker.token");
+        Files.writeString(tokenFile, "t".repeat(4097));
+        Files.setPosixFilePermissions(tokenFile, PosixFilePermissions.fromString("rw-------"));
+        var client = new MediaOciBrokerClient(socketPath, tokenFile);
+        assertThatThrownBy(() -> client.execute(launch()))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("too large");
+
+        Files.writeString(tokenFile, "t".repeat(64));
+        Files.setPosixFilePermissions(tokenFile, PosixFilePermissions.fromString("rw-r--r--"));
+        assertThatThrownBy(() -> client.execute(launch()))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("owner-only");
+
+        Path target = root.resolve("private-token");
+        Files.writeString(target, "t".repeat(64));
+        Files.setPosixFilePermissions(target, PosixFilePermissions.fromString("rw-------"));
+        Files.delete(tokenFile);
+        Files.createSymbolicLink(tokenFile, target.getFileName());
+        assertThat(Files.isSymbolicLink(tokenFile)).isTrue();
+        assertThatThrownBy(() -> client.execute(launch()))
+                .isInstanceOf(IOException.class)
+                .hasMessageContaining("owner-only");
     }
 
     private static MediaOciBroker.WorkerLaunch launch() {

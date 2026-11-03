@@ -6,6 +6,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.Channels;
+import java.nio.file.LinkOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,7 +55,17 @@ public final class MediaOciBrokerClient implements MediaOciBroker {
 
     @Override
     public WorkerResult execute(WorkerLaunch launch) throws IOException {
-        String token = Files.readString(tokenFile).trim();
+        if (!MediaOciBrokerPolicy.ownerOnlyFile(tokenFile)) {
+            throw new IOException("Broker token file must be a regular owner-only file");
+        }
+        String token;
+        try (var channel = Files.newByteChannel(tokenFile,
+                     java.util.Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS));
+             var input = Channels.newInputStream(channel)) {
+            byte[] encoded = input.readNBytes(4097);
+            if (encoded.length > 4096) throw new IOException("Broker token file is too large");
+            token = new String(encoded, StandardCharsets.UTF_8).trim();
+        }
         if (token.length() < 32) throw new IOException("Broker token is too short");
         String nonce = HexFormat.of().formatHex(randomBytes(16));
         StringBuilder payload = new StringBuilder("{");
