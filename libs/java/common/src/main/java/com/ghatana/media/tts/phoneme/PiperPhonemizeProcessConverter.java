@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Process adapter for the pinned {@code piper_phonemize} binary, which embeds the
@@ -55,11 +56,15 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     }
 
     public static Optional<TextToPhonemeConverter> tryCreate(Path binaryPath) {
+        return tryCreate(binaryPath, System.getenv(PHONEMIZE_SHA_ENV));
+    }
+
+    static Optional<TextToPhonemeConverter> tryCreate(Path binaryPath, String expectedSha256) {
         try {
             Path binary = binaryPath.toRealPath();
             Path dataDir = binary.getParent().getParent().resolve("share/espeak-ng-data");
             if (!Files.isRegularFile(binary) || !Files.isExecutable(binary) || !Files.isDirectory(dataDir)
-                    || !digestMatches(binary, System.getenv(PHONEMIZE_SHA_ENV))) {
+                    || !digestMatches(binary, expectedSha256)) {
                 return Optional.empty();
             }
             return Optional.of(new PiperPhonemizeProcessConverter(binary, dataDir.toRealPath(), "en-us"));
@@ -100,6 +105,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         // that is always deleted.
         long deadline = System.nanoTime() + TIMEOUT.toNanos();
         java.io.ByteArrayOutputStream stdout = new java.io.ByteArrayOutputStream(MAX_OUTPUT_BYTES);
+        AtomicBoolean outputExceeded = new AtomicBoolean();
         Thread writer = new Thread(() -> {
             try (OutputStream stdin = process.getOutputStream()) {
                 stdin.write(text.getBytes(StandardCharsets.UTF_8));
@@ -113,11 +119,18 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
                 byte[] buffer = new byte[8192];
                 int read;
                 while ((read = in.read(buffer)) >= 0) {
+                    boolean exceeded = false;
                     synchronized (stdout) {
-                        stdout.write(buffer, 0,
-                                Math.min(read, Math.max(0, MAX_OUTPUT_BYTES - stdout.size())));
+                        int remaining = MAX_OUTPUT_BYTES - stdout.size();
+                        int accepted = Math.min(read, remaining);
+                        stdout.write(buffer, 0, accepted);
+                        exceeded = accepted < read;
                     }
-                    if (stdout.size() >= MAX_OUTPUT_BYTES) break;
+                    if (exceeded) {
+                        outputExceeded.set(true);
+                        terminateTree(process);
+                        break;
+                    }
                 }
             } catch (IOException ignored) { }
         }, "media-phonemize-drain");
@@ -134,6 +147,9 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             }
             writer.join(2_000);
             drain.join(2_000);
+            if (outputExceeded.get()) {
+                throw new PhonemeConversionException("Phonemize process exceeded its output budget");
+            }
             if (process.exitValue() != 0) {
                 String err = Files.exists(errorLog) ? Files.readString(errorLog) : "";
                 throw new PhonemeConversionException(
@@ -175,11 +191,15 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
 
     /** Kills the worker and any descendants it spawned so nothing outlives the budget. */
     private static void killTree(Process process) {
+        terminateTree(process);
+        try { process.waitFor(2, TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
+    }
+
+    private static void terminateTree(Process process) {
         process.descendants().forEach(descendant -> {
             try { descendant.destroyForcibly(); } catch (RuntimeException ignored) { }
         });
         process.destroyForcibly();
-        try { process.waitFor(2, TimeUnit.SECONDS); } catch (InterruptedException ignored) { }
     }
 
     @Override
