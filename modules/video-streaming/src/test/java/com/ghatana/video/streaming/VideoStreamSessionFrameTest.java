@@ -39,12 +39,12 @@ class VideoStreamSessionFrameTest {
             assertThat(decoded.payload()).isEqualTo(payload);
         }
         var delta = session.decodeFrame(session.encodeFrame(
-                Integer.MAX_VALUE - 1, false, 0L, new byte[]{2}));
+                VideoStreamSession.MAX_FRAME_SEQUENCE, false, 0L, new byte[]{2}));
         assertThat(delta.keyFrame()).isFalse();
-        assertThat(delta.sequenceNumber()).isEqualTo(Integer.MAX_VALUE - 1);
-        var terminal = session.decodeFrame(session.encodeFrame(
-                Integer.MAX_VALUE, false, 1L, new byte[]{3}));
-        assertThat(terminal.sequenceNumber()).isEqualTo(Integer.MAX_VALUE);
+        assertThat(delta.sequenceNumber()).isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThatThrownBy(() -> session.encodeFrame(Integer.MAX_VALUE, false, 1L, new byte[]{3}))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
     }
 
     @Test
@@ -111,8 +111,9 @@ class VideoStreamSessionFrameTest {
         assertThatThrownBy(() -> session.decodeFrame(header(Integer.MIN_VALUE, 0, 0L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
-        assertThat(session.decodeFrame(header(Integer.MAX_VALUE, 0, 0L, 0)).sequenceNumber())
-                .isEqualTo(Integer.MAX_VALUE);
+        assertThatThrownBy(() -> session.decodeFrame(header(Integer.MAX_VALUE, 0, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
     }
 
     @Test
@@ -125,13 +126,81 @@ class VideoStreamSessionFrameTest {
     }
 
     @Test
+    void seededMalformedFrameMutationsNeverEscapeBoundsOrThrowUnexpectedErrors() {
+        final long seed = 0x7669_6465_6f5f_7632L;
+        final int cases = 256;
+        long state = seed;
+        byte[] valid = session.encodeFrame(17, true, 1234L, new byte[48]);
+
+        for (int caseNumber = 0; caseNumber < cases; caseNumber++) {
+            byte[] mutated = valid.clone();
+            int operations = 1 + (int) (nextRandom(state) & 7);
+            state = nextRandom(state);
+            for (int operation = 0; operation < operations; operation++) {
+                long random = nextRandom(state);
+                state = random;
+                if (mutated.length == 0) {
+                    mutated = new byte[]{(byte) nextRandom(state)};
+                    state = nextRandom(state);
+                    continue;
+                }
+                switch ((int) (random & 3)) {
+                    case 0 -> {
+                        int index = (int) Long.remainderUnsigned(nextRandom(state), mutated.length);
+                        state = nextRandom(state);
+                        mutated[index] ^= (byte) nextRandom(state);
+                    }
+                    case 1 -> {
+                        int index = (int) Long.remainderUnsigned(nextRandom(state), mutated.length);
+                        state = nextRandom(state);
+                        mutated[index] = (byte) nextRandom(state);
+                    }
+                    case 2 -> mutated = Arrays.copyOf(mutated, (int) Long.remainderUnsigned(
+                            nextRandom(state), mutated.length + 1L));
+                    default -> {
+                        if (mutated.length < 128) {
+                            mutated = Arrays.copyOf(mutated, mutated.length + 1);
+                            mutated[mutated.length - 1] = (byte) nextRandom(state);
+                        }
+                    }
+                }
+                state = nextRandom(state);
+            }
+
+            try {
+                var decoded = session.decodeFrame(mutated);
+                assertThat(decoded.sequenceNumber())
+                        .as("accepted mutation %s sequence", caseNumber)
+                        .isBetween(0, VideoStreamSession.MAX_FRAME_SEQUENCE);
+                assertThat(decoded.payload().length)
+                        .as("accepted mutation %s payload", caseNumber)
+                        .isLessThanOrEqualTo(VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES);
+            } catch (IllegalArgumentException expected) {
+                // Malformed mutations must fail through the bounded wire validation path.
+            } catch (RuntimeException unexpected) {
+                throw new AssertionError(
+                        "mutation " + caseNumber + " escaped frame validation unexpectedly", unexpected);
+            }
+        }
+    }
+
+    private static long nextRandom(long value) {
+        value ^= value >>> 12;
+        value ^= value << 25;
+        value ^= value >>> 27;
+        return value * 0x2545_f491_4f6c_dd1dL;
+    }
+
+    @Test
     void reconnectFrameDoesNotWrapIntoAnAmbiguousStreamOrder() {
         assertThat(session.expectedNextFrameAfterReconnect(41)).isEqualTo(42);
         assertThat(session.expectedNextFrameAfterReconnect(-1)).isZero();
         assertThat(session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE - 2))
-                .isEqualTo(Integer.MAX_VALUE - 1);
-        assertThat(session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE - 1))
-                .isEqualTo(Integer.MAX_VALUE);
+                .isEqualTo(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(
+                VideoStreamSession.MAX_FRAME_SEQUENCE))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("new stream");
         assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(-2))
                 .isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> session.expectedNextFrameAfterReconnect(Integer.MAX_VALUE))

@@ -219,6 +219,33 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("maximum deliverable sequence is ACKed without entering the reserved sentinel")
+    void reservesSequenceRolloverSentinelAcrossAckAndResume() {
+        SessionIdentity durable = identity("t1");
+        int lastDeliverable = VideoStreamSession.MAX_FRAME_SEQUENCE;
+        int precedingAck = lastDeliverable - 1;
+
+        VideoFrameReconciler resumed = VideoFrameReconciler.resume(
+                durable, durable, precedingAck, precedingAck - 1, 0L);
+        assertThat(resumed.nextExpected()).isEqualTo(lastDeliverable);
+        assertThat(resumed.offer(frame(lastDeliverable, false, 1L))).isEqualTo(Disposition.DELIVERED);
+        assertThat(resumed.nextAck()).isEqualTo(lastDeliverable);
+        assertThat(resumed.nextExpected()).isEqualTo(Integer.MAX_VALUE);
+        assertThatThrownBy(() -> resumed.offer(frame(Integer.MAX_VALUE, false, 2L)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence is outside");
+
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                durable, durable, lastDeliverable, lastDeliverable, 0L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("last ACK");
+        assertThatThrownBy(() -> VideoFrameReconciler.resume(
+                durable, durable, Integer.MAX_VALUE, -1, 0L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("last ACK");
+    }
+
+    @Test
     @DisplayName("resume cannot change the durable principal or processing purpose")
     void resumeDeniesPrincipalOrPurposeChange() {
         SessionIdentity durable = identity("t1");

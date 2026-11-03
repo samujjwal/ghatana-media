@@ -108,7 +108,7 @@ public final class VideoFrameReconciler {
             throw new IllegalArgumentException(
                     "resume carries an older session revision than the durable session");
         }
-        if (lastAckedSequence < -1 || lastAckedSequence == Integer.MAX_VALUE) {
+        if (lastAckedSequence < -1 || lastAckedSequence >= VideoStreamSession.MAX_FRAME_SEQUENCE) {
             throw new IllegalArgumentException("resume last ACK is outside the supported sequence range");
         }
         if (lastKeyFrameSequence < -1 || lastKeyFrameSequence > lastAckedSequence) {
@@ -122,7 +122,7 @@ public final class VideoFrameReconciler {
     public Disposition offer(VideoStreamSession.DecodedFrame frame) {
         Objects.requireNonNull(frame, "frame");
         int sequence = frame.sequenceNumber();
-        if (sequence < 0 || sequence == Integer.MAX_VALUE) {
+        if (sequence < 0 || sequence > VideoStreamSession.MAX_FRAME_SEQUENCE) {
             throw new IllegalArgumentException("video frame sequence is outside the supported range");
         }
         byte[] payload = frame.payload();

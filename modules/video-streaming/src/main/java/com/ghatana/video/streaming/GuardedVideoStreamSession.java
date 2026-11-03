@@ -180,7 +180,7 @@ public final class GuardedVideoStreamSession {
         // retained for its later provider-egress check. Duplicates remain
         // duplicates even while the egress queue is full.
         if (snapshot.sequenceNumber() >= 0
-                && snapshot.sequenceNumber() < Integer.MAX_VALUE
+                && snapshot.sequenceNumber() <= VideoStreamSession.MAX_FRAME_SEQUENCE
                 && snapshot.sequenceNumber() == reconciler.nextExpected()
                 && reconciler.deliveryOf(snapshot).decodable()
                 && egressCandidates.size() >= MAX_EGRESS_CANDIDATES) {

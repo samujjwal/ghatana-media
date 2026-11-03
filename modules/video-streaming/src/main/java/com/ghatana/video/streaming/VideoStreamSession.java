@@ -17,6 +17,8 @@ public final class VideoStreamSession {
     static final int FRAME_HEADER_BYTES = Integer.BYTES + 1 + Long.BYTES + Integer.BYTES;
     /** Maximum accepted frame payload; larger inputs are rejected before allocation. */
     static final int MAX_FRAME_PAYLOAD_BYTES = 16 * 1024 * 1024;
+    /** Reserve Integer.MAX_VALUE as the exhausted-sequence sentinel. */
+    static final int MAX_FRAME_SEQUENCE = Integer.MAX_VALUE - 1;
 
     /**
      * Encodes one video frame:
@@ -75,15 +77,15 @@ public final class VideoStreamSession {
     }
 
     public int expectedNextFrameAfterReconnect(int lastRenderedFrame) {
-        if (lastRenderedFrame < -1 || lastRenderedFrame == Integer.MAX_VALUE) {
+        if (lastRenderedFrame < -1 || lastRenderedFrame >= MAX_FRAME_SEQUENCE) {
             throw new IllegalStateException("video stream sequence exhausted; reconnect requires a new stream");
         }
         return lastRenderedFrame + 1;
     }
 
     private static void requireSequenceNumber(int sequenceNumber) {
-        if (sequenceNumber < 0) {
-            throw new IllegalArgumentException("video frame sequence must be nonnegative");
+        if (sequenceNumber < 0 || sequenceNumber > MAX_FRAME_SEQUENCE) {
+            throw new IllegalArgumentException("video frame sequence is outside the supported range");
         }
     }
 
