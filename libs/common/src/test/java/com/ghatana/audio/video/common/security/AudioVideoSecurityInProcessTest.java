@@ -93,6 +93,40 @@ class AudioVideoSecurityInProcessTest {
         }
     }
 
+    @Test
+    void forgedAdminRoleCannotReachAdminOnlyProviderOperation() throws Exception {
+        AtomicInteger backendEffects = new AtomicInteger();
+        String method = "com.ghatana.audio.video.stt.grpc.STTService/LoadModel";
+        String serverName = InProcessServerBuilder.generateName();
+        JwtServerInterceptor jwt = new JwtServerInterceptor(realProcessor(), disabledTokenValidator());
+        AudioVideoRequestContextInterceptor rbac = AudioVideoRequestContextInterceptor.loggingOnly();
+        Server server = InProcessServerBuilder.forName(serverName)
+                .directExecutor()
+                .addService(interceptedProvider(method, jwt, rbac, backendEffects))
+                .build()
+                .start();
+        ManagedChannel channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+
+        try {
+            Metadata headers = new Metadata();
+            headers.put(AUTHORIZATION, "Bearer " + signedToken("trusted-user", "tenant-a"));
+            headers.put(Metadata.Key.of("x-user-id", Metadata.ASCII_STRING_MARSHALLER), "forged-admin");
+            headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:admin");
+            Channel requestChannel = ClientInterceptors.intercept(
+                    channel, MetadataUtils.newAttachHeadersInterceptor(headers));
+
+            assertThatThrownBy(() -> ClientCalls.blockingUnaryCall(requestChannel,
+                    methodDescriptor(method), CallOptions.DEFAULT, "request"))
+                    .isInstanceOf(StatusRuntimeException.class)
+                    .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                    .isEqualTo(Status.Code.PERMISSION_DENIED);
+            assertThat(backendEffects).hasValue(0);
+        } finally {
+            channel.shutdownNow();
+            server.shutdownNow();
+        }
+    }
+
     private static ServerServiceDefinition interceptedProvider(
             String fullMethod,
             JwtServerInterceptor jwt,

@@ -370,6 +370,11 @@ class EnginePoolLifecycleTest {
             executor.shutdownNow();
             assertThat(pending.get(1, TimeUnit.SECONDS)).isTrue();
             assertThat(pool.getStats().inUse).isEqualTo(1);
+            held.close();
+            try (var recovered = pool.borrowLease()) {
+                assertThat(recovered.engine()).isNotNull();
+            }
+            assertThat(pool.getStats().inUse).isZero();
         } finally {
             held.close();
             pool.close();

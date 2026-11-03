@@ -753,6 +753,26 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(redacted.toString()).doesNotContain(
                 "user@example.com", "sk-live-secret-value", "source.invalid", "token=abc");
 
+        // The configured personal-data filter also treats phone-like values
+        // and biometric identity terms as sensitive even without URL or token
+        // syntax. Keep this boundary covered independently of the email case.
+        String phoneFailure = "provider rejected call for +1 (415) 555-0198";
+        RunLedger phoneRedacted = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-error-phone", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
+                now, now, null, phoneFailure, "provider", "provider-job", "t", "c");
+        assertThat(phoneRedacted.failureReason())
+                .isEqualTo("Failure details omitted by ledger safety filter");
+        assertThat(phoneRedacted.toString()).doesNotContain(
+                "+1 (415) 555-0198");
+
+        String biometricFailure = "voiceprint mismatch for subject";
+        RunLedger biometricRedacted = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "j-error-biometric", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
+                now, now, null, biometricFailure, "provider", "provider-job", "t", "c");
+        assertThat(biometricRedacted.failureReason())
+                .isEqualTo("Failure details omitted by ledger safety filter");
+        assertThat(biometricRedacted.toString()).doesNotContain("voiceprint", "subject");
+
         RunLedger bounded = AudioVideoRunLedgerAdapter.fromProcessingJob(
                 "j-error-long", "AUDIO", "STT", "col", "src", Map.of(), "FAILED",
                 now, now, null, "provider detail " + "x".repeat(300), "provider", "provider-job", "t", "c");
