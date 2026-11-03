@@ -31,8 +31,10 @@ import java.util.Set;
 final class AgentToolInput {
     private static final int MAX_SCHEMA_JSON_CHARS = 262_144;
     // Inline audio is bounded by the handlers at 20 MiB after base64 decode.
-    // This estimate allows its encoded representation while retaining a finite
-    // total input ceiling. The tree walker conservatively budgets escaped text.
+    // A 20 MiB payload expands to about 27 MiB of base64, so the aggregate
+    // serialized input byte ceiling leaves limited room for the rest of the
+    // request while still allowing the supported inline-media maximum.
+    private static final int MAX_INPUT_JSON_BYTES = 32 * 1024 * 1024;
     private static final int MAX_INPUT_ESTIMATED_CHARS = 180_000_000;
     private static final int MAX_OUTPUT_JSON_CHARS = 1_048_576;
     private static final int MAX_SCHEMA_OR_OUTPUT_NODES = 20_000;
@@ -94,6 +96,7 @@ final class AgentToolInput {
                 MAX_INPUT_ESTIMATED_CHARS)) {
             throw inputSchemaViolation();
         }
+        if (!withinUtf8ByteBounds(input, MAX_INPUT_JSON_BYTES)) throw inputSchemaViolation();
         if (schema.isEmpty()) return;
         try {
             if (!withinTreeBounds(schema, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH,
@@ -162,6 +165,7 @@ final class AgentToolInput {
             if (!withinTreeBounds(output, MAX_SCHEMA_OR_OUTPUT_NODES, MAX_SCHEMA_OR_OUTPUT_DEPTH, MAX_OUTPUT_JSON_CHARS)) {
                 throw outputSchemaViolation();
             }
+            if (!withinUtf8ByteBounds(output, MAX_OUTPUT_JSON_CHARS)) throw outputSchemaViolation();
             if (schema.isEmpty()) return; // An absent registered schema remains unresolved.
             Object declaredDialect = schema.get("$schema");
             if (declaredDialect != null && !SpecificationVersion.DRAFT_2020_12.getDialectId().equals(declaredDialect)) {
@@ -272,6 +276,66 @@ final class AgentToolInput {
             if (estimatedChars > maxSerializedChars) return false;
         }
         return true;
+    }
+
+    /** Counts UTF-8 JSON payload bytes without first allocating a serialized copy. */
+    private static boolean withinUtf8ByteBounds(Object root, int maxBytes) {
+        ArrayDeque<Object> pending = new ArrayDeque<>();
+        IdentityHashMap<Object, Boolean> containers = new IdentityHashMap<>();
+        pending.push(root);
+        long bytes = 2; // Root delimiters, conservatively covering object or array inputs.
+        while (!pending.isEmpty()) {
+            Object value = pending.pop();
+            if (value instanceof Map<?, ?> map) {
+                if (containers.put(map, Boolean.TRUE) != null) return false;
+                bytes += 2L + (2L * map.size()); // braces, commas, and colons, conservatively
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    if (!(entry.getKey() instanceof String key)) return false;
+                    bytes += utf8JsonStringBytes(key);
+                    pending.push(entry.getValue());
+                }
+            } else if (value instanceof java.util.List<?> values) {
+                if (containers.put(values, Boolean.TRUE) != null) return false;
+                bytes += 2L + values.size(); // brackets and commas
+                for (Object child : values) pending.push(child);
+            } else if (value instanceof String text) {
+                bytes += utf8JsonStringBytes(text);
+            } else if (value instanceof Number number) {
+                if (!isSupportedJsonNumber(number)) return false;
+                bytes += number.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+            } else if (value == null) {
+                bytes += 4;
+            } else if (value instanceof Boolean bool) {
+                bytes += bool ? 4 : 5;
+            } else {
+                return false;
+            }
+            if (bytes > maxBytes) return false;
+        }
+        return true;
+    }
+
+    private static long utf8JsonStringBytes(String value) {
+        long bytes = 2; // JSON string quotes.
+        for (int index = 0; index < value.length(); index++) {
+            char current = value.charAt(index);
+            if (current == '"' || current == '\\' || current < 0x20) {
+                bytes += current < 0x20 ? 6 : 2; // conservative JSON escaping
+            } else if (Character.isHighSurrogate(current) && index + 1 < value.length()
+                    && Character.isLowSurrogate(value.charAt(index + 1))) {
+                bytes += 4;
+                index++;
+            } else if (Character.isSurrogate(current)) {
+                bytes += 6; // malformed surrogate is escaped by the JSON serializer
+            } else if (current <= 0x7f) {
+                bytes++;
+            } else if (current <= 0x7ff) {
+                bytes += 2;
+            } else {
+                bytes += 3;
+            }
+        }
+        return bytes;
     }
 
     static boolean isSupportedJsonNumber(Number number) {

@@ -239,6 +239,50 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                 .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
     }
 
+    @Test
+    @DisplayName("rejects aggregate UTF-8 oversized arguments before a delegate effect")
+    void rejectsOversizedInputBytesBeforeDispatch() {
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("payload", "x".repeat(32 * 1024 * 1024)));
+        ToolContract contract = contractFor(env, Map.of(), Map.of());
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        com.ghatana.toolruntime.ToolHandler delegate = (ignoredEnvelope, ignoredContract) -> {
+            effects.incrementAndGet();
+            return Promise.of(ToolExecutionResult.succeeded(env.invocationId(), Map.of(), Map.of(),
+                    env.invocationId(), Instant.now(), Duration.ZERO));
+        };
+
+        assertThatThrownBy(() -> {
+            AgentToolInput.checked(env, contract, SpeechToTextToolHandler.TOOL_ID, Set.of("payload"));
+            await(AgentToolInput.dispatch(delegate, env, contract));
+        }).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+        assertThat(effects).hasValue(0);
+    }
+
+    @Test
+    @DisplayName("counts JSON commas and colons when bounding large argument objects")
+    void countsObjectPunctuationInInputByteLimit() {
+        int entryCount = 10_000;
+        int maxBytes = 32 * 1024 * 1024;
+        Map<String, Object> input = new LinkedHashMap<>();
+        long oldCounterBytes = 2L + 2 + entryCount + (5L * (entryCount - 1));
+        for (int index = 0; index < entryCount - 1; index++) {
+            String key = "k" + index;
+            input.put(key, false);
+            oldCounterBytes += key.length() + 2L;
+        }
+        oldCounterBytes += "payload".length() + 2L;
+        int payloadChars = (int) ((maxBytes - oldCounterBytes - (entryCount / 2L) - 2) / 3);
+        input.put("payload", "\u0800".repeat(payloadChars));
+        ToolExecutionEnvelope env = envelope("av.speech-to-text", input);
+        ToolContract contract = contractFor(env, Map.of(), Map.of());
+
+        assertThatThrownBy(() -> AgentToolInput.checked(env, contract,
+                SpeechToTextToolHandler.TOOL_ID, input.keySet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("TOOL_INPUT_SCHEMA_VIOLATION");
+    }
+
     // =========================================================================
     // SpeechToTextToolHandler
     // =========================================================================
