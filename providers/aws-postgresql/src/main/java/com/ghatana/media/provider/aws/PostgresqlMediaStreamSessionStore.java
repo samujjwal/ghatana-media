@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -27,8 +28,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @doc.pattern Repository
  */
 public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessionStore {
-    private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+    private final MediaAwsPostgresqlRuntimeState state;
+    private final Clock clock;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+
+    public PostgresqlMediaStreamSessionStore() {
+        this(Clock.systemUTC());
+    }
+
+    PostgresqlMediaStreamSessionStore(Clock clock) {
+        this.clock = java.util.Objects.requireNonNull(clock, "clock");
+        this.state = MediaAwsPostgresqlRuntimeState.acquire();
+    }
 
     @Override public String storeId() { return "postgresql"; }
 
@@ -84,7 +95,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         java.util.Objects.requireNonNull(expected, "expected");
         java.util.Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
         requireHash(tokenHash);
-        if (!leaseExpiresAt.isAfter(Instant.now())) {
+        if (!leaseExpiresAt.isAfter(clock.instant())) {
             throw new IllegalArgumentException("Media stream lease must expire in the future");
         }
         if (!tokenMatches(expected.tenantId(), expected.sessionId(), tokenHash)) {
@@ -110,15 +121,58 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 && expected.state() != StreamState.DEGRADED) {
             throw new IllegalStateException("Media stream state cannot connect: " + expected.state());
         }
-        StreamSession updated = persistedPrecision(new StreamSession(
-                expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
-                expected.providerId(), StreamState.CONNECTED, expected.lastSequence(), expected.bufferedBytes(),
-                expected.maximumBufferedBytes(), expected.reconnectCount() + 1, leaseExpiresAt,
-                expected.createdAt(), Instant.now(), null, expected.metadata(), expected.version() + 1,
-                expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
-                null, ""));
-        update(expected, updated, "connection_token_hash=?", statement -> statement.setString(1, tokenHash));
-        return updated;
+        try (Connection connection = state.connection()) {
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try {
+                StreamRow current = read(connection, expected.tenantId(), expected.sessionId(), true);
+                if (current == null || !current.session().equals(expected)) {
+                    throw new IllegalStateException("Media stream session version or ownership changed");
+                }
+                if (!MessageDigest.isEqual(
+                        current.tokenHash().getBytes(StandardCharsets.UTF_8),
+                        tokenHash.getBytes(StandardCharsets.UTF_8))) {
+                    throw new SecurityException("Invalid media stream connection token");
+                }
+                // The row lock serializes this sample after any competing writer. The SQL
+                // UPDATE also applies PostgreSQL's wall clock after the lock is acquired.
+                Instant now = clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+                if (!leaseExpiresAt.isAfter(now)) {
+                    throw new IllegalArgumentException("Media stream lease must expire in the future");
+                }
+                if (current.session().leaseExpiresAt() == null
+                        || !current.session().leaseExpiresAt().isAfter(now)) {
+                    throw new IllegalStateException("Media stream connection lease is absent or expired");
+                }
+                StreamSession updated = persistedPrecision(new StreamSession(
+                        expected.tenantId(), expected.sessionId(), expected.principalId(), expected.streamKind(),
+                        expected.providerId(), StreamState.CONNECTED, expected.lastSequence(), expected.bufferedBytes(),
+                        expected.maximumBufferedBytes(), expected.reconnectCount() + 1, leaseExpiresAt,
+                        expected.createdAt(), now, null, expected.metadata(), expected.version() + 1,
+                        expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
+                        null, ""));
+                update(connection, expected, updated, "connection_token_hash=?",
+                        statement -> statement.setString(1, tokenHash), true, now,
+                        "Media stream connection lease is absent or expired");
+                StreamRow committed = read(connection, expected.tenantId(), expected.sessionId(), false);
+                if (committed == null) {
+                    throw new IllegalStateException("Media stream session disappeared during connection");
+                }
+                connection.commit();
+                return committed.session();
+            } catch (SQLException | RuntimeException failure) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+                throw failure;
+            } finally {
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        } catch (SQLException failure) {
+            throw databaseFailure("connect Media stream session", failure);
+        }
     }
 
     @Override
@@ -381,14 +435,64 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             StreamSession updated,
             String extraPredicate,
             SqlBinder extraBinder) {
+        update(expected, updated, extraPredicate, extraBinder, false, null);
+    }
+
+    private void update(
+            StreamSession expected,
+            StreamSession updated,
+            String extraPredicate,
+            SqlBinder extraBinder,
+            boolean databaseClockLeaseFence,
+            Instant applicationClockFallback) {
+        try (Connection connection = state.connection()) {
+            update(connection, expected, updated, extraPredicate, extraBinder,
+                    databaseClockLeaseFence, applicationClockFallback);
+        } catch (SQLException failure) {
+            throw databaseFailure("prepare Media stream session update", failure);
+        }
+    }
+
+    private void update(
+            Connection connection,
+            StreamSession expected,
+            StreamSession updated,
+            String extraPredicate,
+            SqlBinder extraBinder,
+            boolean databaseClockLeaseFence,
+            Instant applicationClockFallback) throws SQLException {
+        update(connection, expected, updated, extraPredicate, extraBinder,
+                databaseClockLeaseFence, applicationClockFallback,
+                "Media stream session version or ownership changed");
+    }
+
+    private void update(
+            Connection connection,
+            StreamSession expected,
+            StreamSession updated,
+            String extraPredicate,
+            SqlBinder extraBinder,
+            boolean databaseClockLeaseFence,
+            Instant applicationClockFallback,
+            String noRowsMessage) throws SQLException {
+        if (databaseClockLeaseFence) {
+            java.util.Objects.requireNonNull(applicationClockFallback, "applicationClockFallback");
+        }
+        boolean postgresClock = databaseClockLeaseFence
+                && connection.getMetaData().getDatabaseProductName().toLowerCase(java.util.Locale.ROOT)
+                        .contains("postgresql");
+        boolean bindApplicationClock = databaseClockLeaseFence && !postgresClock;
         String sql = "UPDATE media_stream_sessions SET state=?,lease_expires_at=?,last_sequence=?,"
                 + "buffered_bytes=?,reconnect_count=?,updated_at=?,closed_at=?,metadata_json=?,version=?,"
                 + "sequence_token_hash=?,acknowledgement_revision=?,finality=?,in_flight_sequence=?,"
                 + "in_flight_attempt_id=? "
                 + "WHERE tenant_id=? AND session_id=? AND version=?"
-                + (extraPredicate == null ? "" : " AND " + extraPredicate);
-        try (Connection connection = state.connection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                + (extraPredicate == null ? "" : " AND " + extraPredicate)
+                + (databaseClockLeaseFence
+                        ? " AND lease_expires_at>" + (postgresClock
+                                ? "CAST(EXTRACT(EPOCH FROM clock_timestamp()) * 1000 AS BIGINT)" : "?")
+                        : "");
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, updated.state().name());
             nullableLong(statement, 2, updated.leaseExpiresAt());
             statement.setLong(3, updated.lastSequence());
@@ -407,11 +511,10 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             statement.setString(16, expected.sessionId());
             statement.setLong(17, expected.version());
             if (extraBinder != null) extraBinder.bind(new OffsetPreparedStatement(statement, 17));
+            if (bindApplicationClock) statement.setLong(19, applicationClockFallback.toEpochMilli());
             if (statement.executeUpdate() != 1) {
-                throw new IllegalStateException("Media stream session version or ownership changed");
+                throw new IllegalStateException(noRowsMessage);
             }
-        } catch (SQLException failure) {
-            throw databaseFailure("update Media stream session", failure);
         }
     }
 
@@ -565,6 +668,9 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         }
         void setString(int relativeIndex, String value) throws SQLException {
             statement.setString(offset + relativeIndex, value);
+        }
+        void setLong(int relativeIndex, long value) throws SQLException {
+            statement.setLong(offset + relativeIndex, value);
         }
     }
 

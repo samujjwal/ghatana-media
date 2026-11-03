@@ -381,7 +381,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession opened = new StreamSession(
                             "tenant-a", "stream-a", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
-                            null, now, now, null, Map.of("correlationId", "corr-a"), 1);
+                            now.plusSeconds(120), now, now, null, Map.of("correlationId", "corr-a"), 1);
                     StreamSession forgedFinal = new StreamSession(
                             "tenant-a", "stream-forged-final", "principal-a", StreamKind.VIDEO,
                             "http-media-streaming", StreamState.DRAINING, -1, 0, 1024, 0,
@@ -445,6 +445,25 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             expiredLeaseReadback, tokenHash, 0, Instant.now().plusSeconds(600)))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("Expired Media stream lease");
+
+                    StreamSession expiredReconnect = createConnectedStream(
+                            streams, "stream-expired-reconnect", tokenHash, now);
+                    try (var connection = DriverManager.getConnection(environment.get("MEDIA_POSTGRES_JDBC_URL"));
+                         var update = connection.prepareStatement(
+                                 "UPDATE media_stream_sessions SET lease_expires_at=? WHERE tenant_id=? AND session_id=?")) {
+                        update.setLong(1, Instant.now().minusSeconds(1).toEpochMilli());
+                        update.setString(2, expiredReconnect.tenantId());
+                        update.setString(3, expiredReconnect.sessionId());
+                        assertThat(update.executeUpdate()).isEqualTo(1);
+                    }
+                    StreamSession expiredReconnectReadback = streams
+                            .find(expiredReconnect.tenantId(), expiredReconnect.sessionId()).orElseThrow();
+                    assertThatThrownBy(() -> streams.connect(
+                            expiredReconnectReadback, tokenHash, Instant.now().plusSeconds(60)))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("connection lease is absent or expired");
+                    assertThat(streams.find(expiredReconnect.tenantId(), expiredReconnect.sessionId()))
+                            .contains(expiredReconnectReadback);
 
                     StreamSession unresolvedLease = createConnectedStream(
                             streams, "stream-unresolved-lease", tokenHash, now);
@@ -529,7 +548,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession unknownOpen = streams.create(new StreamSession(
                             "tenant-a", "stream-unknown", "principal-a", StreamKind.AUDIO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
-                            null, now, now, null, Map.of(), 1), tokenHash);
+                            now.plusSeconds(120), now, now, null, Map.of(), 1), tokenHash);
                     StreamSession unknownConnected = streams.connect(
                             unknownOpen, tokenHash, Instant.now().plusSeconds(60));
                     StreamSession unknownPending = streams.beginFrame(
@@ -542,7 +561,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession interruptedOpen = streams.create(new StreamSession(
                             "tenant-a", "stream-interrupted", "principal-a", StreamKind.AUDIO,
                             "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
-                            null, now, now, null, Map.of(), 1), tokenHash);
+                            now.plusSeconds(120), now, now, null, Map.of(), 1), tokenHash);
                     StreamSession interruptedConnected = streams.connect(
                             interruptedOpen, tokenHash, Instant.now().plusSeconds(60));
                     StreamSession interruptedPending = streams.beginFrame(
@@ -617,7 +636,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
         StreamSession opened = new StreamSession(
                 "tenant-a", sessionId, "principal-a", StreamKind.VIDEO,
                 "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
-                null, createdAt, createdAt, null, Map.of(), 1);
+                createdAt.plusSeconds(120), createdAt, createdAt, null, Map.of(), 1);
         StreamSession created = streams.create(opened, tokenHash);
         return streams.connect(created, tokenHash, Instant.now().plusSeconds(120));
     }

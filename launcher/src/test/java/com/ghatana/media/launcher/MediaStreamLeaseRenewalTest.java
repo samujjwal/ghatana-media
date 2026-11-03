@@ -92,6 +92,18 @@ class MediaStreamLeaseRenewalTest {
     }
 
     @Test
+    void reconnectCannotExtendAnExpiredPersistedLease() {
+        var fixture = connectedFixture(
+                0, Instant.now().minus(Duration.ofMinutes(5)), Instant.now().minus(Duration.ofSeconds(1)));
+
+        assertThatThrownBy(() -> fixture.store().connect(
+                fixture.session(), TOKEN_HASH, Instant.now().plus(Duration.ofMinutes(1))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("connection lease is absent or expired");
+        assertThat(fixture.store().find("tenant-a", "stream-a")).contains(fixture.session());
+    }
+
+    @Test
     void enforcesOneHourExtensionAndTwentyFourHourSessionHorizon() {
         var recentFixture = connectedFixture(0, Instant.now().minus(Duration.ofMinutes(5)));
         assertThatThrownBy(() -> recentFixture.store().renewLease(

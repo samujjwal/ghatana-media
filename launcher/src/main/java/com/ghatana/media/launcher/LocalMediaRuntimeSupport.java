@@ -1073,7 +1073,11 @@ public final class LocalMediaRuntimeSupport {
                     && expected.state() != StreamState.DEGRADED) {
                 throw new IllegalStateException("Media stream state cannot connect: " + expected.state());
             }
-            if (leaseExpiresAt == null || !leaseExpiresAt.isAfter(Instant.now())) {
+            Instant now = Instant.now();
+            if (expected.leaseExpiresAt() == null || !expected.leaseExpiresAt().isAfter(now)) {
+                throw new IllegalStateException("Media stream connection lease is absent or expired");
+            }
+            if (leaseExpiresAt == null || !leaseExpiresAt.isAfter(now)) {
                 throw new IllegalArgumentException("Media stream lease must expire in the future");
             }
             StreamSession updated = copy(expected, StreamState.CONNECTED, expected.lastSequence(),
