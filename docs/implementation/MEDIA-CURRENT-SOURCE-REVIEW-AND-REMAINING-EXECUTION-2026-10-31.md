@@ -3640,3 +3640,7 @@ The focused Agent Tools adapter selectors passed **64/64**. Existing validation 
 ### 43.37 November 3 RS-03 rational resampler pulse
 
 Source inspection found `Resampler::resample` already uses a Blackman-windowed sinc and rational sample positions. Existing fixtures cover alias attenuation, channel/DC isolation and long-duration drift. Commit `6b3e68d1` adds an interior centered-impulse symmetry/finiteness regression with `<1e-6` symmetry tolerance; the focused Rust DSP suite passed **11/11**, Clippy with `-D warnings` passed, and `cargo fmt --all -- --check` passed. No resampling algorithm change or model/codec qualification is claimed; measured RTF/RSS and platform qualification remain separate.
+
+### 43.38 November 3 IP-02 legacy JPA tenant-fence review
+
+No source change was warranted. Existing JPA tests passed **15/15** (`JpaAudioFileRepositoryTest`) and **20/20** (`JpaTranscriptionRepositoryTest`), covering tenant-predicated reads, cross-tenant ID reuse, stale `@Version` writes, source/principal rebind denial, and retagged managed rows. The legacy model still has no canonical ArtifactVersion/source-version or successful-attempt binding; `@Version` is only optimistic concurrency, and its repositories do not receive trusted authenticated-principal authority. No schema/migration or authoritative writer change was made. These H2 selectors do not prove deployed PostgreSQL history, old-writer identity, or IP-06 cutover.
