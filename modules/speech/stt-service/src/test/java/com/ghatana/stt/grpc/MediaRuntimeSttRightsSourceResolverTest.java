@@ -1,13 +1,22 @@
 package com.ghatana.stt.grpc;
 
 import com.ghatana.audio.video.common.security.JwtServerInterceptor;
+import com.ghatana.governance.PolicyEngine;
+import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceRightsAdministration;
+import com.ghatana.stt.core.grpc.proto.TranscribeRequest;
+import com.ghatana.stt.core.grpc.proto.TranscribeResponse;
 import com.ghatana.stt.grpc.SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.Request;
 import com.ghatana.stt.grpc.SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.Resolution;
 import com.ghatana.stt.grpc.SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.SourceFacts;
 import com.ghatana.stt.grpc.SharedPolicySttRequestAuthorization.MediaRightsSourceResolver.Status;
+import com.ghatana.stt.testutil.VerifiedJwtContext;
+import com.google.protobuf.ByteString;
+import io.grpc.Context;
+import io.grpc.stub.StreamObserver;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -21,6 +30,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /** In-memory source-rights records prove the production resolver's identity and scope binding. */
 class MediaRuntimeSttRightsSourceResolverTest {
@@ -206,6 +217,55 @@ class MediaRuntimeSttRightsSourceResolverTest {
         assertThat(revalidated.status()).isEqualTo(Status.ADMITTED);
         assertThat(revalidated.facts().revocationScope()).isEqualTo("epoch:1");
         assertThat(revalidated.facts()).isNotEqualTo(admitted.facts());
+    }
+
+    @Test
+    void wrongPrincipalTenantAndRevokedSourceStopBeforePolicyOrProviderDispatch() {
+        assertDeniedBeforeEffects(new JwtServerInterceptor.VerifiedIdentity(
+                "99999999-8888-7777-6666-555555555555", TENANT),
+                record(NOW.instant().plusSeconds(600), null));
+        assertDeniedBeforeEffects(new JwtServerInterceptor.VerifiedIdentity(PRINCIPAL, "tenant-b"),
+                record(NOW.instant().plusSeconds(600), null));
+        assertDeniedBeforeEffects(IDENTITY, record(NOW.instant().plusSeconds(600), NOW.instant()));
+    }
+
+    private void assertDeniedBeforeEffects(
+            JwtServerInterceptor.VerifiedIdentity caller,
+            MediaSourceRightsAdministration.SourceRecord sourceRecord) {
+        administration.records.clear();
+        administration.add(sourceRecord);
+        PolicyEngine policyEngine = mock(PolicyEngine.class);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        var rightsResolver = new MediaRuntimeSttRightsSourceResolver(administration, NOW);
+        var authorization = new SharedPolicySttRequestAuthorization(
+                policyEngine, rightsResolver, java.time.Duration.ofSeconds(1));
+        try (SttGrpcService service = new SttGrpcService(
+                library, new SimpleMeterRegistry(), authorization)) {
+            CapturingObserver observer = new CapturingObserver();
+            Context previous = VerifiedJwtContext.create(caller.tenantId(), caller.subject()).attach();
+            try {
+                service.transcribe(TranscribeRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                        .setSampleRate(16_000)
+                        .setArtifactId(ARTIFACT)
+                        .build(), observer);
+            } finally {
+                Context.current().detach(previous);
+            }
+            assertThat(observer.error).isNotNull();
+            assertThat(io.grpc.Status.fromThrowable(observer.error).getCode())
+                    .isEqualTo(io.grpc.Status.Code.PERMISSION_DENIED);
+            assertThat(observer.value).isNull();
+            verifyNoInteractions(policyEngine, library);
+        }
+    }
+
+    private static final class CapturingObserver implements StreamObserver<TranscribeResponse> {
+        private TranscribeResponse value;
+        private Throwable error;
+        @Override public void onNext(TranscribeResponse response) { value = response; }
+        @Override public void onError(Throwable failure) { error = failure; }
+        @Override public void onCompleted() { }
     }
 
     private static Resolution await(CompletionStage<Resolution> stage) throws Exception {
