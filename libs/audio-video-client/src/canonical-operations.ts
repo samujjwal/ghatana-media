@@ -406,6 +406,7 @@ export class MediaCanonicalClient {
         { "Idempotency-Key": idempotencyKey },
         (id) => { dispatched = true; requestId = id; },
       );
+      this.assertJobScope(job, principalId);
     } catch (failure) {
       // A post-dispatch abort is OUTCOME_UNKNOWN — never a clean failure that
       // invites a duplicate submit.
@@ -414,7 +415,7 @@ export class MediaCanonicalClient {
       }
       throw failure;
     }
-    return this.assertJobScope(job, principalId);
+    return job;
   }
 
   /** GET /api/v1/jobs/{jobId} — scope-verified point-in-time job read. */
@@ -476,15 +477,15 @@ export class MediaCanonicalClient {
         { parse: parseCanonicalProcessingJob }, signal,
         {}, (id) => { dispatched = true; requestId = id; },
       );
+      this.assertJobScope(job, principalId);
+      if (job.jobId !== requested) {
+        throw new TypeError("Canonical Media job cancel response identity does not match the request.");
+      }
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/jobs/${requested}/cancel`, failure, { requestId });
       }
       throw failure;
-    }
-    this.assertJobScope(job, principalId);
-    if (job.jobId !== requested) {
-      throw new TypeError("Canonical Media job cancel response identity does not match the request.");
     }
     return job;
   }
@@ -543,13 +544,13 @@ export class MediaCanonicalClient {
         { "Idempotency-Key": idempotencyKey },
         (id) => { dispatched = true; requestId = id; },
       );
+      this.assertSessionScope(registration.session, principalId);
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError("/api/v1/streams", failure, { requestId, requestKey: idempotencyKey });
       }
       throw failure;
     }
-    this.assertSessionScope(registration.session, principalId);
     return registration;
   }
 
@@ -591,15 +592,15 @@ export class MediaCanonicalClient {
         { "X-Stream-Token": token },
         (id) => { dispatched = true; requestId = id; },
       );
+      this.assertSessionScope(session, principalId);
+      if (session.sessionId !== requested) {
+        throw new TypeError("Canonical Media stream connect response identity does not match the request.");
+      }
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/streams/${requested}/connect`, failure, { requestId });
       }
       throw failure;
-    }
-    this.assertSessionScope(session, principalId);
-    if (session.sessionId !== requested) {
-      throw new TypeError("Canonical Media stream connect response identity does not match the request.");
     }
     return session;
   }
@@ -669,15 +670,15 @@ export class MediaCanonicalClient {
         { "X-Stream-Token": token },
         (id) => { dispatched = true; requestId = id; },
       );
+      this.assertSessionScope(session, principalId);
+      if (session.sessionId !== requested) {
+        throw new TypeError("Canonical Media stream close response identity does not match the request.");
+      }
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
         throw new MediaOperationAmbiguousError(`/api/v1/streams/${requested}/close`, failure, { requestId });
       }
       throw failure;
-    }
-    this.assertSessionScope(session, principalId);
-    if (session.sessionId !== requested) {
-      throw new TypeError("Canonical Media stream close response identity does not match the request.");
     }
     return session;
   }

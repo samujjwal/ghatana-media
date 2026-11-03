@@ -88,6 +88,18 @@ describe("MediaCanonicalClient job operations", () => {
     expect(body.principalId).toBe("principal-1");
   });
 
+  it("keeps a dispatched submit with a cross-scope acknowledgement OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({ tenantId: "tenant-2" }), 202));
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitJob({
+      requestId: "req-1", correlationId: "corr-1", artifactId: "art-1",
+      jobType: "TRANSCODE", idempotencyKey: "idem-cross-scope",
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/jobs", requestKey: "idem-cross-scope" });
+    expect(calls).toHaveLength(1);
+  });
+
   it("preserves the server conflict for a changed payload reused with the same idempotency key", async () => {
     const calls: { init: RequestInit }[] = [];
     const fetchImpl = (async (_input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -331,6 +343,20 @@ describe("MediaCanonicalClient stream operations", () => {
     expect(registration.session.sessionId).toBe("sess-1");
     const headers = new Headers(calls[0]!.init.headers);
     expect(headers.get("Idempotency-Key")).toBe("idem-open");
+  });
+
+  it("keeps a dispatched open with a cross-scope session OUTCOME_UNKNOWN", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
+      session: session({ tenantId: "tenant-2" }), connectionToken,
+    }, 201));
+    const client = clientWith(fetchImpl);
+    const failure = await client.openStream({
+      correlationId: "corr-1", streamKind: "AUDIO", maximumBufferedBytes: 1_048_576,
+      leaseDuration: "PT30S", idempotencyKey: "idem-open-cross-scope",
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/streams", requestKey: "idem-open-cross-scope" });
+    expect(calls).toHaveLength(1);
   });
 
   it("connect and close carry the stream token, never the bearer credential in the body", async () => {
