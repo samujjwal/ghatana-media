@@ -389,7 +389,7 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     @Override public CompletableFuture<ProviderAttemptObservation> reconcileAttempt(ProviderAttemptQuery query) {
         return brokerProvider == null
                 ? MediaProcessingProvider.super.reconcileAttempt(query)
-                : brokerProvider.reconcileAttempt(query);
+                : brokerProvider.reconcileAttempt(query, binding.providerId());
     }
 
     static WhisperOnnxEngine.CancellationSignal cancellationSignal(ProcessingContext context) {

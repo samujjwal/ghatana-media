@@ -276,7 +276,19 @@ public final class WhisperBrokerSttProvider implements MediaProcessingProvider {
     }
 
     @Override public CompletableFuture<ProviderAttemptObservation> reconcileAttempt(ProviderAttemptQuery query) {
+        return reconcileAttempt(query, providerId());
+    }
+
+    /** Reconciles a wrapped provider's durable identity while preserving direct-provider binding. */
+    CompletableFuture<ProviderAttemptObservation> reconcileAttempt(
+            ProviderAttemptQuery query, String expectedProviderId) {
         try {
+            // A receipt with a matching profile/source is not sufficient to answer a query
+            // owned by another provider. Wrappers pass their public durable provider ID;
+            // direct calls bind to this provider's own ID above.
+            if (!expectedProviderId.equals(query.providerId())) {
+                return CompletableFuture.completedFuture(unknownObservation(query));
+            }
             Receipt receipt = parseReceipt(query.providerReceiptId());
             if (!profileId.equals(receipt.profileId()) || broker == null) {
                 return CompletableFuture.completedFuture(unknownObservation(query));

@@ -8,6 +8,7 @@ import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.media.stt.engine.onnx.WhisperOnnxEngine;
 import com.ghatana.stt.service.SttAudioInputDecoder;
 import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.config.SttConfig;
 import com.ghatana.media.runtime.MediaModalityContracts;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
@@ -17,6 +18,10 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactContentReader;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
+import com.ghatana.media.runtime.WhisperComputeClient;
+import com.ghatana.media.runtime.WhisperComputeContracts.Result;
+import com.ghatana.media.runtime.WhisperComputeContracts.Status;
 
 import java.time.Instant;
 import java.util.List;
@@ -78,6 +83,46 @@ class WhisperOnnxSttProviderTest {
         assertThatThrownBy(() -> WhisperOnnxSttProvider.observedCapabilityProfile(
                 binding(false), "invalid/engine-path", EngineStatus.State.READY, checkedAt))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void wrappedBrokerReconciliationUsesDurableWrapperIdentityAndRejectsForeignIdentity() {
+        AtomicInteger statusCalls = new AtomicInteger();
+        String sourceDigest = "c".repeat(64);
+        var provider = new WhisperOnnxSttProvider(
+                SttConfig.builder().modelId("whisper-model").build(), binding(false), 1024,
+                (providerId, providerVersion, modelRevision) -> Optional.empty(),
+                new WhisperComputeClient() {
+                    @Override public Result execute(com.ghatana.media.runtime.WhisperComputeContracts.Request request) {
+                        throw new AssertionError("reconciliation must not execute inference");
+                    }
+                    @Override public Result status(java.util.UUID id, String profile, String locale, String digest) {
+                        statusCalls.incrementAndGet();
+                        return new Result(id, profile, digest, "b".repeat(64), "fixture result", Status.SUCCESS,
+                                true, true, false);
+                    }
+                    @Override public Result cancel(java.util.UUID id, String profile, String locale, String digest) {
+                        throw new AssertionError("reconciliation must not cancel");
+                    }
+                }, "b".repeat(64));
+        String receipt = "whisper-broker-v1:whisper-profile:en-US:" + sourceDigest;
+        String invocation = java.util.UUID.randomUUID().toString();
+        var matching = new ProviderAttemptQuery("tenant", "job", "request", 1, 7,
+                "d".repeat(64), "whisper-provider", invocation, receipt);
+        var foreign = new ProviderAttemptQuery("tenant", "job", "request", 1, 7,
+                "d".repeat(64), "another-provider", invocation, receipt);
+
+        var matchingObservation = provider.reconcileAttempt(matching).join();
+        var foreignObservation = provider.reconcileAttempt(foreign).join();
+
+        assertThat(matchingObservation.finality())
+                .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality.SUCCEEDED);
+        assertThat(matchingObservation.query()).isEqualTo(matching);
+        assertThat(foreignObservation.finality())
+                .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality.UNKNOWN);
+        assertThat(foreignObservation.result()).isEmpty();
+        assertThat(statusCalls.get()).isEqualTo(1);
+        provider.close();
     }
 
     @Test

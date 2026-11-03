@@ -88,6 +88,37 @@ class WhisperBrokerSttProviderTest {
     }
 
     @Test
+    void reconciliationWithForeignProviderIdentityStaysUnknownWithoutStatusLookup() {
+        AtomicReference<Integer> statusCalls = new AtomicReference<>(0);
+        var provider = new WhisperBrokerSttProvider(null, null, "profile.en", "whisper-r1",
+                MODEL, CONFIG, new WhisperComputeClient() {
+                    @Override public Result execute(Request request) {
+                        throw new AssertionError("reconciliation must not execute");
+                    }
+                    @Override public Result status(UUID id, String profile, String locale, String digest) {
+                        statusCalls.updateAndGet(calls -> calls + 1);
+                        return new Result(id, profile, digest, MODEL, "foreign receipt result", Status.SUCCESS,
+                                true, true, false);
+                    }
+                    @Override public Result cancel(UUID id, String profile, String locale, String digest) {
+                        throw new AssertionError("reconciliation must not cancel");
+                    }
+                });
+        String source = "c".repeat(64);
+        var query = new MediaRuntimeContracts.ProviderAttemptQuery("tenant", "job", "request", 1, 7,
+                "d".repeat(64), "different-provider", UUID.randomUUID().toString(),
+                "whisper-broker-v1:profile.en:en-GB:" + source);
+
+        var observation = provider.reconcileAttempt(query).join();
+
+        assertThat(observation.query()).isEqualTo(query);
+        assertThat(observation.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+        assertThat(observation.result()).isEmpty();
+        assertThat(statusCalls.get()).isZero();
+        provider.close();
+    }
+
+    @Test
     void blockingStatusReconciliationReturnsPromptlyAndCancellationCannotPromoteSuccess() throws Exception {
         CountDownLatch statusEntered = new CountDownLatch(1);
         CountDownLatch releaseStatus = new CountDownLatch(1);
