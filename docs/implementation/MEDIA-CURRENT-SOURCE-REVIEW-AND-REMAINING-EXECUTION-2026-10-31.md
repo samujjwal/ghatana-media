@@ -2682,3 +2682,11 @@ Focused selectors were `BoundedAudioFrameDecoderTest`, `PiperOnnxEnginePhonemeMa
 - **FLEURS artifact retention:** after the owner asked me to make the disposition, I removed the **30** ignored WAV derivatives in `build/reports/media-fleurs-pilot-70bb2e84` and stripped the **15** `reference_transcript` fields from its metadata manifest. Verification shows 15 metadata rows, zero transcript fields, zero WAVs, and only `manifest.json` remaining. No clip contents were read or used during cleanup; real inference remains `NOT_ADMITTED` pending an authenticated exact source-authorized en/hi/ne subset record with privacy, purpose, retention, and source rights.
 
 Focused selectors were `GuardedAudioStreamSessionTest`, `VideoPrivacyGuardTest`, and `AudioVideoToolHandlersTest.rejectsRemoteInputSchemaReferences`. No source pins, PDP/gtool statuses, model/provider admission, deployment, migration, or release state changed.
+
+### 41.94 November 2 VS-04, AT-03 and AS-06 follow-through
+
+- **VS-04:** `GuardedVideoStreamSessionTest.staleLeaseCannotDrainPendingFrame` holds frame 2 behind a gap, closes the gap, transfers the lease, verifies the old worker cannot drain or ACK the pending frame, and verifies the new worker drains it with the pending count returning to zero. The focused selector passed **1/1**. This is serialized in-memory fencing, not durable lease storage, concurrent takeover, ACK transport, restart, or real capture/provider egress.
+- **AT-03:** `SpeechToolAdmissionTest.unqualifiedModelAndUnreceiptedVoiceInputsCannotReachEitherSpeechDelegate` now verifies typed `UNAVAILABLE/ADMISSION` results with exact STT/TTS `*_NOT_ADMITTED` codes, null output, empty side-effect summary and zero delegate calls. The focused selector passed **1/1**. No model, voice rights, or provider was admitted.
+- **AS-06 no-change review:** the source-backed `StreamIntentSupport` and its test already classify all 17 PDP stream intents as implemented abstract semantics, delegated, or `NOT_ADMITTED`; the provider manifest has no stream-transport profiles. No WebRTC, adaptive HTTP, HLS, DASH, or lease-renewal route was invented. Actual published transport eligibility, source clock, rights, lease and reconnect qualification remain external.
+
+No PDP/gtool status, provider profile, route, model selection, deployment, or release state changed.
