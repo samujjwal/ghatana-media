@@ -338,7 +338,12 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         Map<String, Object> metadata = source.metadata();
         Object evidenceRef = metadata.get("sourceClockMappingEvidenceRef");
         Object ticksPerSecond = metadata.get("sourceClockTicksPerSecond");
-        if (evidenceRef == null && ticksPerSecond == null) {
+        boolean clockMetadataDeclared = metadata.containsKey("sourceClockMappingEvidenceRef")
+                || metadata.containsKey("sourceClockTicksPerSecond")
+                || metadata.containsKey("sourceClockId")
+                || metadata.containsKey("sourceClockEpochOffsetTicks")
+                || metadata.containsKey("sourceDurationTicks");
+        if (!clockMetadataDeclared) {
             return plan.sourceClock();
         }
         if (!(evidenceRef instanceof String ref) || ref.isBlank()) {
@@ -346,15 +351,25 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                     "source artifact clock mapping evidence is missing or malformed");
         }
         long ticks = positiveMetadataLong(ticksPerSecond, "sourceClockTicksPerSecond");
-        String clockId = metadata.get("sourceClockId") instanceof String id ? id : "";
-        long epochOffset = metadata.get("sourceClockEpochOffsetTicks") == null
-                ? 0 : nonnegativeMetadataLong(
-                        metadata.get("sourceClockEpochOffsetTicks"), "sourceClockEpochOffsetTicks");
-        long duration = metadata.get("sourceDurationTicks") == null
-                ? 0 : nonnegativeMetadataLong(
-                        metadata.get("sourceDurationTicks"), "sourceDurationTicks");
+        Object clockIdValue = metadata.get("sourceClockId");
+        String clockId = clockIdValue == null && !metadata.containsKey("sourceClockId")
+                ? "" : requiredMetadataString(clockIdValue, "sourceClockId");
+        long epochOffset = metadata.containsKey("sourceClockEpochOffsetTicks")
+                ? nonnegativeMetadataLong(
+                        metadata.get("sourceClockEpochOffsetTicks"), "sourceClockEpochOffsetTicks")
+                : 0;
+        long duration = metadata.containsKey("sourceDurationTicks")
+                ? nonnegativeMetadataLong(metadata.get("sourceDurationTicks"), "sourceDurationTicks")
+                : 0;
         return new MultimodalOperationSpec.SourceClockBinding(
                 ref, ticks, epochOffset, clockId, duration);
+    }
+
+    private static String requiredMetadataString(Object value, String field) {
+        if (!(value instanceof String text) || text.isBlank()) {
+            throw new IllegalArgumentException("source artifact " + field + " is malformed");
+        }
+        return text;
     }
 
     private static long positiveMetadataLong(Object value, String field) {

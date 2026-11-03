@@ -8,12 +8,25 @@ const productExperienceRoot = resolve(mediaRoot, ".product-experience");
 const artifactManifest = JSON.parse(readFileSync(resolve(appRoot, "specification-artifacts.json"), "utf8"));
 const specificationFiles = artifactManifest.map((artifact) => artifact.path.replace(".product-experience/", ""));
 
+export function decodeSpecificationRequestPath(requestUrl) {
+  try {
+    return decodeURIComponent((requestUrl ?? "/").split("?")[0]).replace(/^\/+/, "");
+  } catch {
+    return null;
+  }
+}
+
 function specificationSourcePlugin() {
   return {
     name: "media-specification-source",
     configureServer(server) {
       server.middlewares.use("/specification", (request, response, next) => {
-        const relativePath = decodeURIComponent((request.url ?? "/").split("?")[0]).replace(/^\/+/, "");
+        const relativePath = decodeSpecificationRequestPath(request.url);
+        if (relativePath === null) {
+          response.statusCode = 400;
+          response.end("Malformed specification path.");
+          return;
+        }
         if (!specificationFiles.includes(relativePath)) return next();
         const sourcePath = resolve(productExperienceRoot, relativePath);
         if (!sourcePath.startsWith(`${productExperienceRoot}/`)) return next();

@@ -600,6 +600,73 @@ class MediaCanonicalOperationExecutorTest {
     }
 
     @Test
+    void partialArtifactClockMetadataFailsClosedBeforeInlineUpload() {
+        List<Map<String, Object>> partialClockMetadata = List.of(
+                Map.of("sourceClockId", "src-clock"),
+                Map.of("sourceClockEpochOffsetTicks", 10),
+                Map.of("sourceDurationTicks", 96_000));
+
+        for (Map<String, Object> metadata : partialClockMetadata) {
+            byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            var port = new FixturePort().withSource(metadata);
+            var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+            CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                    CanonicalOperations.plan("cap", List.of(
+                            CanonicalOperations.childInline(
+                                    "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
+                    () -> null, outcome -> outcome);
+
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                    .as("partial source clock metadata %s", metadata)
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThat(port.uploads).as("uploads for %s", metadata).isEmpty();
+            assertThat(port.submitted).as("submissions for %s", metadata).isEmpty();
+        }
+    }
+
+    @Test
+    void malformedPresentClockMetadataFailsBeforeChildResolutionOrEffects() {
+        List<Map<String, Object>> malformedMetadata = new ArrayList<>();
+        for (String field : List.of(
+                "sourceClockId", "sourceClockEpochOffsetTicks", "sourceDurationTicks")) {
+            Map<String, Object> metadata = new java.util.HashMap<>(clockMetadata());
+            metadata.put(field, field.equals("sourceClockId") ? 17 : "not-a-tick-count");
+            malformedMetadata.add(metadata);
+        }
+
+        byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        for (Map<String, Object> metadata : malformedMetadata) {
+            var port = new FixturePort().withSource(metadata);
+            var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+            CanonicalOperation<CanonicalOperationOutcome> operation = CanonicalOperations.of(
+                    CanonicalOperations.plan("cap", List.of(
+                            CanonicalOperations.childInline(
+                                    "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
+                    () -> null, outcome -> outcome);
+
+            assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                    .as("malformed declared source clock metadata %s", metadata)
+                    .isInstanceOf(IllegalArgumentException.class);
+            assertThat(port.artifactReads).as("artifact reads for %s", metadata).hasValue(1);
+            assertThat(port.uploads).as("uploads for %s", metadata).isEmpty();
+            assertThat(port.submitted).as("submissions for %s", metadata).isEmpty();
+        }
+    }
+
+    @Test
+    void explicitNullClockMetadataIsRejectedByArtifactContractBeforeExecutorCanReadIt() {
+        for (String field : List.of(
+                "sourceClockId", "sourceClockEpochOffsetTicks", "sourceDurationTicks")) {
+            Map<String, Object> metadata = new java.util.HashMap<>(clockMetadata());
+            metadata.put(field, null);
+
+            assertThatThrownBy(() -> FixturePort.artifact("src", SHA, metadata))
+                    .as("explicit null source clock metadata field %s", field)
+                    .isInstanceOf(NullPointerException.class);
+        }
+    }
+
+    @Test
     void invalidGovernancePurposeFailsBeforeInlineChildUpload() {
         byte[] payload = "inline-source".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         var port = new FixturePort().withSource(Map.of());

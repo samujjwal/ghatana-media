@@ -235,6 +235,17 @@ class BoundedAudioFrameDecoderTest {
     }
 
     @Test
+    @DisplayName("timebase denominator must be positive")
+    void rejectsNonPositiveTimebaseDenominator() {
+        for (long denominator : new long[]{0, -1}) {
+            assertThatThrownBy(() -> BoundedAudioFrameDecoder.declare(
+                    "pcm_s16le", 1, denominator, budget(1, 4)))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("timebase denominator");
+        }
+    }
+
+    @Test
     @DisplayName("rational position multiplication overflow is malformed")
     void positionOverflowIsMalformed() {
         BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(
