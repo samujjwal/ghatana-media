@@ -9,6 +9,7 @@ package com.ghatana.media.sync;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.ImageData;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -125,8 +126,10 @@ public class AudioVideoSyncPipeline implements AutoCloseable {
         this.videoBufferMs = videoBufferMs;
         this.syncToleranceMs = syncToleranceMs;
 
-        this.audioBuffer = new LinkedBlockingQueue<>();
-        this.videoBuffer = new LinkedBlockingQueue<>();
+        // The feed methods are called by multiple producer threads. A size() pre-check on an
+        // unbounded queue is racy, so enforce the documented limits in the queue itself too.
+        this.audioBuffer = new LinkedBlockingQueue<>(Math.max(1, audioBufferMs / 10));
+        this.videoBuffer = new LinkedBlockingQueue<>(Math.max(1, videoBufferMs / 16));
 
         this.syncExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "av-sync-pipeline");
@@ -152,6 +155,7 @@ public class AudioVideoSyncPipeline implements AutoCloseable {
      * @return {@code true} if the frame was accepted, {@code false} if the buffer is full
      */
     public boolean feedAudio(AudioData audio, long presentationTimeUs) {
+        Objects.requireNonNull(audio, "audio");
         if (audioBuffer.size() >= audioBufferMs / 10) { // Rough estimate: 10ms chunks
             return false; // Buffer full, backpressure
         }
@@ -173,6 +177,7 @@ public class AudioVideoSyncPipeline implements AutoCloseable {
      * @return {@code true} if the frame was accepted, {@code false} if the buffer is full
      */
     public boolean feedVideo(ImageData frame, long presentationTimeUs) {
+        Objects.requireNonNull(frame, "frame");
         if (videoBuffer.size() >= videoBufferMs / 16) { // ~16ms per frame at 60fps
             return false; // Buffer full, drop frame
         }

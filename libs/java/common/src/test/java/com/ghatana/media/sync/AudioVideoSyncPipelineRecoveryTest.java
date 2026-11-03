@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+import java.util.function.BiPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +26,56 @@ class AudioVideoSyncPipelineRecoveryTest {
     void tearDown() throws Exception { 
         if (pipeline != null) { 
             pipeline.close(); 
+        }
+    }
+
+    @Test
+    @DisplayName("Concurrent producers cannot exceed configured buffer limits")
+    void concurrentFeedBuffersStayWithinConfiguredLimits() throws Exception {
+        AudioData audio = new AudioData(new byte[32], 16_000, 1, 16);
+        ImageData video = ImageData.builder().data(new byte[3]).width(1).height(1)
+                .colorSpace(com.ghatana.media.common.ColorSpace.RGB).build();
+
+        try (AudioVideoSyncPipeline audioOnly = new AudioVideoSyncPipeline(null, 40, 40, 40)) {
+            assertEquals(4, concurrentOffers(12, audioOnly::feedAudio, audio));
+            assertEquals(4, audioOnly.getBufferStats().audioFramesBuffered);
+        }
+
+        try (AudioVideoSyncPipeline videoOnly = new AudioVideoSyncPipeline(null, 40, 32, 40)) {
+            assertEquals(2, concurrentOffers(12, videoOnly::feedVideo, video));
+            assertEquals(2, videoOnly.getBufferStats().videoFramesBuffered);
+        }
+    }
+
+    private static <T> int concurrentOffers(
+            int producerCount,
+            BiPredicate<T, Long> offer,
+            T frame) throws Exception {
+        ExecutorService producers = Executors.newFixedThreadPool(producerCount);
+        CountDownLatch ready = new CountDownLatch(producerCount);
+        CountDownLatch start = new CountDownLatch(1);
+        AtomicInteger accepted = new AtomicInteger();
+        try {
+            for (int i = 0; i < producerCount; i++) {
+                producers.submit(() -> {
+                    ready.countDown();
+                    try {
+                        start.await();
+                        for (int attempt = 0; attempt < 100; attempt++) {
+                            if (offer.test(frame, (long) attempt)) accepted.incrementAndGet();
+                        }
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
+                });
+            }
+            assertTrue(ready.await(5, TimeUnit.SECONDS));
+            start.countDown();
+            producers.shutdown();
+            assertTrue(producers.awaitTermination(5, TimeUnit.SECONDS));
+            return accepted.get();
+        } finally {
+            producers.shutdownNow();
         }
     }
 
