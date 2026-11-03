@@ -3712,3 +3712,19 @@ No safe H-07 implementation change was found within `MediaProductionRunCoordinat
 ### 43.55 November 3 MM-08 queued-cancellation flake remains unresolved
 
 Repeated the exact `MediaCanonicalOperationExecutorTest.cancelledQueuedReadIsRemovedImmediatelyAndReturnsCancelledWithoutDispatch` selector with a Gradle init script that forces the test task to execute. Baseline current-source repeats produced one pass and one queue-empty failure at test line 475 (`FutureTask[Incomplete]`). A speculative synchronized remove-before-cancel change was tested in four forced executions: **2 passed / 2 failed**; it was reverted because it did not eliminate the failure. The no-dispatch assertion and production source are unchanged. Unescalated Gradle execution still intermittently fails on wrapper-lock/local-socket permissions; the init script avoids false UP-TO-DATE repeats. MM-08 remains partial; no unreliable run is promoted to PASS.
+
+### 43.56 November 3 MC-02 negative duration metadata validation
+
+`AudioMetadataExtractor.fromAudioData` now rejects a negative declared `Duration` instead of propagating it into `AudioMetadata`. PDP-1 defines `media.value.duration` as a nonnegative interval; no unit conversion or codec behavior changed. Added a direct regression in `AudioConverterTest`. The focused selector `./gradlew :services:media:libs:java:common:test --tests com.ghatana.media.common.AudioConverterTest --tests com.ghatana.media.common.validation.MediaFormatValidatorQualificationTest` passed **35 tests** (16 + 19; no skips/failures). This closes only the local negative-duration case; advertised-MIME decoding remains unqualified for compressed MP3/FLAC/OGG and WEBP, so MC-02 remains partial.
+
+### 43.57 November 3 MM-08 deterministic cancellation-test ordering
+
+The queue-removal flake was caused by the test starting both requests concurrently: either request could win the single worker, so the request later cancelled could be the blocked active read while the first request remained queued. The fixture now waits for the first request's source read to start before submitting the cancellable request. The original queue-empty, exact cancellation, one source-read, and no-submit assertions are unchanged; no production source or cancellation semantics changed. The forced exact selector passed **10/10** executions. MM-08 remains partial for its broader provider-finality and durable-readback acceptance.
+
+### 43.58 November 3 CT-02 direct and intercepted authentication parity
+
+Extended the STT and TTS integration auth tests to invoke each service directly without an authenticated gRPC context after confirming the interceptor rejects the same missing-principal request. Direct and transport paths now assert matching `UNAUTHENTICATED` status and zero provider/persistence interactions. Existing forged-token, cross-tenant, caller-purpose, and rights-denial negatives remain unchanged. The focused `SttAuthenticatedIntegrationTest` and `TtsAuthenticatedIntegrationTest` selector passed **16/16**. This is synthetic boundary evidence only; no external identity-provider or real provider effects were exercised.
+
+### 43.59 November 3 TTS-08 unknown finality after partial streaming output
+
+When the TTS streaming provider ends with gRPC `UNKNOWN` after emitting a nonfinal prefix, `TtsGrpcService` now preserves `UNKNOWN`, records an unknown response outcome, and reports a terminal error without synthesizing a final chunk or successful completion. Added a fake-engine regression for prefix delivery, terminal status, and metric classification. `./gradlew :services:media:modules:speech:tts-service:test --tests com.ghatana.tts.grpc.TtsGrpcServiceTest` passed **66/66** with no skips/failures/errors. No real voice, model, or quality result is inferred; TTS-08 remains partial pending lawful provider/voice and full streaming host acceptance.
