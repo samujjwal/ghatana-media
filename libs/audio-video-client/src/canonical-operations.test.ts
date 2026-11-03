@@ -94,7 +94,7 @@ describe("MediaCanonicalClient job operations", () => {
       calls.push({ init: init ?? {} });
       if (calls.length === 1) return jsonResponse(job(), 202);
       return jsonResponse({
-        error: { code: "IDEMPOTENCY_KEY_REUSED", message: "Request payload differs", retryable: false },
+        error: { code: "IDEMPOTENCY_CONFLICT", message: "Request payload differs", retryable: false },
         meta: { correlationId: "corr-idempotency-conflict" },
       }, 409);
     }) as typeof fetch;
@@ -115,6 +115,7 @@ describe("MediaCanonicalClient job operations", () => {
     expect(failure).toBeInstanceOf(MediaClientError);
     expect((failure as MediaClientError).statusCode).toBe(409);
     expect((failure as MediaClientError).detail.category).toBe("CONFLICT");
+    expect((failure as MediaClientError).detail.code).toBe("IDEMPOTENCY_CONFLICT");
     expect(calls).toHaveLength(2);
     expect(new Headers(calls[0]!.init.headers).get("Idempotency-Key")).toBe("stable-key");
     expect(new Headers(calls[1]!.init.headers).get("Idempotency-Key")).toBe("stable-key");
@@ -206,6 +207,25 @@ describe("MediaCanonicalClient job operations", () => {
     expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
     expect((failure as MediaOperationAmbiguousError).requestKey).toBe("idem-503");
   });
+
+  it.each([408, 409, 422])(
+    "maps non-definitive HTTP %i after job dispatch to OUTCOME_UNKNOWN",
+    async (status) => {
+      const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
+        error: { code: `HTTP_${status}_UNKNOWN`, message: "response does not prove no effect", retryable: false },
+        meta: { correlationId: `corr-${status}` },
+      }, status));
+      const client = clientWith(fetchImpl);
+      const failure = await client.submitJob({
+        requestId: `req-${status}`, correlationId: `corr-${status}`, artifactId: "art-1",
+        jobType: "SPEECH_TO_TEXT", idempotencyKey: `idem-${status}`,
+      }).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      expect((failure as MediaOperationAmbiguousError).requestKey).toBe(`idem-${status}`);
+      expect(calls).toHaveLength(1);
+    },
+  );
 
   it("preserves a proven pre-dispatch abort as no-effect", async () => {
     let releaseToken!: (token: string) => void;
@@ -430,18 +450,16 @@ describe("MediaCanonicalClient stream operations", () => {
     expect((failure as MediaClientError).detail.retryable).toBe(false);
   });
 
-  it("a 409 on connect surfaces as a CONFLICT MediaClientError", async () => {
+  it("a generic 409 on connect is OUTCOME_UNKNOWN after dispatch", async () => {
     const { fetchImpl } = recordedFetch(() => jsonResponse({
       error: { code: "STREAM_LEASE_CONFLICT", message: "lease held", retryable: false },
       meta: { correlationId: "corr-409" },
     }, 409));
     const client = clientWith(fetchImpl);
-    const failure = await client.connectStream("sess-1", connectionToken).then(
-      () => { throw new Error("unreachable"); },
-      (error: unknown) => error,
-    ) as MediaClientError;
-    expect(failure.statusCode).toBe(409);
-    expect(failure.detail.category).toBe("CONFLICT");
+    const failure = await client.connectStream("sess-1", connectionToken).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/streams/sess-1/connect");
+    expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
   });
 
   it("rejects a short or absent connection token before any dispatch", async () => {

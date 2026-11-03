@@ -114,12 +114,11 @@ const STREAM_KINDS = new Set(["AUDIO", "VIDEO", "MULTIMODAL"]);
 const STREAM_STATES = new Set(["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"]);
 const FINALITIES = new Set(["NONE", "FINAL_ACKNOWLEDGED", "UNKNOWN"]);
 
-/** Only a nonretryable 4xx response proves a mutation was rejected cleanly. */
+/** Only explicit no-effect client statuses and idempotency conflicts are definitive. */
 function isDefinitiveClientRejection(failure: unknown): failure is MediaClientError {
   return failure instanceof MediaClientError
-    && failure.statusCode !== undefined
-    && failure.statusCode >= 400 && failure.statusCode < 500
-    && !failure.detail.retryable;
+    && ([400, 401, 403].includes(failure.statusCode ?? 0)
+      || failure.detail.code === "IDEMPOTENCY_CONFLICT");
 }
 
 const STREAM_SESSION_FIELDS = new Set([
