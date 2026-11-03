@@ -17,6 +17,9 @@ import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.imageio.ImageIO;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,9 +108,9 @@ class VisionGrpcServiceTest {
     @DisplayName("detectObjects: ROI request fails closed until crop-aware provider admission")
     void detectObjects_roiRequestDoesNotDispatchAsFullFrame() {
         DetectRequest request = DetectRequest.newBuilder()
-                .setImageData(ByteString.copyFrom(new byte[] {1, 2, 3}))
+                .setImageData(ByteString.copyFrom(png(4, 3)))
                 .setSourceRasterRoi(SourceRasterRoi.newBuilder()
-                        .setX(10).setY(20).setWidth(100).setHeight(80)
+                        .setX(3).setY(0).setWidth(1).setHeight(3)
                         .setSourceFrameVersion("frame-v42"))
                 .build();
         CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
@@ -116,6 +120,25 @@ class VisionGrpcServiceTest {
         assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
                 .isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    @DisplayName("detectObjects: ROI outside decoded EXIF-oriented raster is invalid before provider admission")
+    void detectObjects_roiOutsideDecodedRasterIsRejectedBeforeProviderDispatch() {
+        DetectRequest request = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(png(4, 3)))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(3).setY(0).setWidth(2).setHeight(3)
+                        .setSourceFrameVersion("frame-v42"))
+                .build();
+        CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
         assertThat(fakeDetector.calls).isZero();
     }
 
@@ -898,6 +921,18 @@ class VisionGrpcServiceTest {
 
     private static void withContext(String tenantId, Runnable action) {
         Context.current().withValue(JwtServerInterceptor.CTX_TENANT, tenantId).run(action);
+    }
+
+    private static byte[] png(int width, int height) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            if (!ImageIO.write(image, "png", output)) {
+                throw new IllegalStateException("PNG writer is unavailable");
+            }
+            return output.toByteArray();
+        } catch (IOException failure) {
+            throw new IllegalStateException("Unable to encode PNG fixture", failure);
+        }
     }
 
     // -------------------------------------------------------------------------

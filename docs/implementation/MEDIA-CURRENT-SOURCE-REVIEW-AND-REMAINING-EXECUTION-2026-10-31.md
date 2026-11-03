@@ -3966,3 +3966,8 @@ A focused review found that the legacy STT/Vision adapter port carries only arti
 ### 43.112 November 3 TY-05 packed CommonJS TypeScript consumer
 
 The isolated packed-package consumer now compiles a `.cts` fixture using CommonJS TypeScript `import = require` for the public root, `./contracts`, and `./production` subpaths, including representative existing types and schemas. `pnpm --filter @audio-video/types test:package:consumer` passed with the packed `zod 4.6.5` dependency. Existing ESM/CJS runtime, request/result fixture, idempotency, cancellation, negative-schema, and mock-versus-provider-result checks remain in the same source-free consumer. This closes only the omitted CommonJS TypeScript import coverage; no contract schema or effect authority changed.
+
+
+### 43.113 November 3 VIS-05 source-raster ROI containment
+
+`VisionGrpcService` now decodes a bounded, EXIF-oriented source raster for ROI requests and checks the pixel-edge rectangle against those dimensions before returning the existing no-provider-admission result. Empty/oversized image bytes fail before decode; an in-bounds rectangle ending exactly at the raster edge remains structurally valid and receives `FAILED_PRECONDITION`, while an out-of-frame rectangle returns `INVALID_ARGUMENT`; both paths make zero detector calls. The focused FULL source-composite `VisionGrpcServiceTest` selector passed **72/72** on Darwin arm64/JDK 27. The proto binds the coordinate space, but the caller-provided frame version is not verified against immutable source identity and valid crops still cannot dispatch; no VIS-05 whole-row acceptance is claimed.

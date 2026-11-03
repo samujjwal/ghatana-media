@@ -239,11 +239,36 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase {
             // SPI has no crop-aware dispatch. Fail closed so a requested crop is never silently
             // returned as a full-frame result.
             if (request.hasSourceRasterRoi()) {
+                dataSize = request.getImageData().size();
+                if (dataSize == 0) {
+                    recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                        .withDescription("Image data cannot be empty")
+                        .asRuntimeException());
+                    mediaMetrics.recordFailed("vision.detect");
+                    return;
+                }
+                if (dataSize > MAX_IMAGE_BYTES) {
+                    recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                        .withDescription("Image data exceeds maximum size of " + (MAX_IMAGE_BYTES / 1024 / 1024) + "MB")
+                        .asRuntimeException());
+                    mediaMetrics.recordFailed("vision.detect");
+                    return;
+                }
                 try {
                     validateRoiRequestFields(request.getSourceRasterRoi());
+                    // The wire coordinates are EXIF-oriented pixel edges; check them against the
+                    // raster decoded from this request. This does not establish that the caller's
+                    // source-frame version identifies these bytes, so dispatch remains refused.
+                    var decoded = com.ghatana.audio.video.vision.image.BoundedImageDecoder
+                            .decodeWithMetadata(request.getImageData().toByteArray());
+                    var roi = new com.ghatana.audio.video.vision.yolo.SourceRasterRoi(
+                            request.getSourceRasterRoi().getX(), request.getSourceRasterRoi().getY(),
+                            request.getSourceRasterRoi().getWidth(), request.getSourceRasterRoi().getHeight(),
+                            request.getSourceRasterRoi().getSourceFrameVersion());
+                    roi.validateWithin(decoded.image().getWidth(), decoded.image().getHeight());
                 } catch (IllegalArgumentException invalidRoi) {
                     recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
-                        .withDescription("Source-raster ROI requires positive geometry and a source frame version")
+                        .withDescription("Source-raster ROI must have valid geometry within the decoded source raster")
                         .asRuntimeException());
                     mediaMetrics.recordFailed("vision.detect");
                     return;
