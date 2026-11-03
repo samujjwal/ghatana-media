@@ -737,6 +737,26 @@ describe("MediaOperationClient", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it("preserves the multimodal SDK signature but fails closed without an admitted route", async () => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({}, 200)) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      fetchImpl,
+    });
+
+    await expect(client.analyzeMultimodal({
+      sources: [{ kind: "ARTIFACT", artifactId: "artifact-1" }],
+      intent: "Summarize the media",
+      outputFormat: "TEXT",
+      idempotencyKey: "multimodal-1",
+    })).rejects.toMatchObject({
+      name: "MediaOperationNotAdmittedError",
+      operation: "media.sdk.analyzeMultimodal",
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("maps a submit abort/timeout after dispatch to OUTCOME_UNKNOWN, never a clean failure", async () => {
     for (const name of ["AbortError", "TimeoutError"] as const) {
       const fetchImpl = vi.fn(async (): Promise<Response> => {
@@ -1065,6 +1085,45 @@ describe("MediaOperationClient", () => {
     });
 
     await expect(handle.cancel()).resolves.toMatchObject({ state: "CANCELLED" });
+  });
+
+  it("treats aborting local wait as stopping observation, without requesting remote cancellation", async () => {
+    const calls: string[] = [];
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = String(input);
+      calls.push(url);
+      if (url.endsWith("/api/v1/media/transcriptions")) {
+        return jsonResponse({
+          operationId: "operation-1",
+          job: queuedJob(),
+          statusUrl: "/api/v1/media/operations/operation-1",
+          cancelUrl: "/api/v1/media/operations/operation-1:cancel",
+          correlationId: "correlation-1",
+        }, 202);
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    }) as unknown as typeof fetch;
+
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      fetchImpl,
+    });
+    const handle = await client.transcribe({
+      artifactId: "artifact-1",
+      idempotencyKey: "idem-wait-observation-1",
+      punctuation: true,
+      wordTimestamps: true,
+      alternatives: 1,
+      profanityPolicy: "PRESERVE",
+    });
+    const controller = new AbortController();
+    const pending = handle.wait({ signal: controller.signal, pollIntervalMs: 60_000 });
+    controller.abort(new DOMException("caller stopped observing", "AbortError"));
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(calls).toEqual(["https://media.example.test/api/v1/media/transcriptions"]);
+    expect(calls.some((url) => url.endsWith(":cancel"))).toBe(false);
   });
 
   it.each(["OUTCOME_UNKNOWN", "RECONCILING"] as const)(

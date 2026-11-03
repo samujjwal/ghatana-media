@@ -1,7 +1,6 @@
 import {
   MediaArtifactSchema,
   MediaProcessingJobSchema,
-  MultimodalAnalysisRequestSchema,
   OperationAcceptedSchema,
   ProviderCapabilitySchema,
   SynthesisRequestSchema,
@@ -818,17 +817,15 @@ export class MediaOperationClient {
     );
   }
 
-  public analyzeMultimodal(
-    request: MultimodalAnalysisRequest,
-    signal?: AbortSignal,
+  /**
+   * Preserve the observed legacy SDK signature while the owner capability
+   * remains execution-admission NOT_ADMITTED and has no admitted HTTP route.
+   */
+  public async analyzeMultimodal(
+    _request: MultimodalAnalysisRequest,
+    _signal?: AbortSignal,
   ): Promise<MediaOperationHandle<MediaArtifact>> {
-    return this.submit(
-      "/api/v1/media/multimodal-analyses",
-      MultimodalAnalysisRequestSchema.parse(request),
-      MediaArtifactSchema,
-      request.idempotencyKey,
-      signal,
-    );
+    throw new MediaOperationNotAdmittedError("media.sdk.analyzeMultimodal");
   }
 
   public getOperation(
