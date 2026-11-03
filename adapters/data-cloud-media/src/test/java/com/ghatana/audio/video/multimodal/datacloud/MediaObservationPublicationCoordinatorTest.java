@@ -101,12 +101,17 @@ class MediaObservationPublicationCoordinatorTest {
     }
 
     private static MediaDerivedObservation observation(String tenant, String eventId, String version) {
+        return observation(tenant, eventId, version, "consent-4", "policy-redaction-2");
+    }
+
+    private static MediaDerivedObservation observation(
+            String tenant, String eventId, String version, String consentRef, String redactionDecisionRef) {
         return new MediaDerivedObservation(
                 tenant, tenant, "artifact-9", version, version,
                 "observation-3", "scene-label", "loading-dock",
                 OBSERVED_AT, OBSERVED_AT.plusSeconds(1), "vision-runtime", eventId,
-                "clip-model", "clip-model-v7", "policy-redaction-2",
-                "privacy-service", "consent-4", "owner-1", "steward-1",
+                "clip-model", "clip-model-v7", redactionDecisionRef,
+                "privacy-service", consentRef, "owner-1", "steward-1",
                 "CONFIDENTIAL", "CONFIDENTIAL", List.of("incident-investigation"),
                 "eu", Optional.of("retention-media-30d"), 91, "verified");
     }
@@ -224,10 +229,21 @@ class MediaObservationPublicationCoordinatorTest {
                     publishes.incrementAndGet();
                     return new PublicationReceipt("receipt-" + tenant, "pub-v1");
                 }, outbox);
-        PublishResult tenantA = coordinator.publish(observation("tenant-a", "event-7", "artifact-v3"));
-        PublishResult tenantB = coordinator.publish(observation("tenant-b", "event-7", "artifact-v3"));
+        MediaDerivedObservation tenantAObservation = observation("tenant-a", "event-7", "artifact-v3");
+        MediaDerivedObservation tenantBObservation = observation("tenant-b", "event-7", "artifact-v3");
+        // The fixtures have the same artifact/version/event/value tuple (the
+        // projector has no source-content-digest field), differing only by tenant.
+        assertThat(tenantBObservation.artifactId()).isEqualTo(tenantAObservation.artifactId());
+        assertThat(tenantBObservation.sourceArtifactVersionId())
+                .isEqualTo(tenantAObservation.sourceArtifactVersionId());
+        assertThat(tenantBObservation.redactedValue()).isEqualTo(tenantAObservation.redactedValue());
+        PublishResult tenantA = coordinator.publish(tenantAObservation);
+        PublishResult tenantB = coordinator.publish(tenantBObservation);
         assertThat(tenantA.dedupKey()).isNotEqualTo(tenantB.dedupKey());
         assertThat(tenantB.outcome()).isEqualTo(Outcome.PUBLISHED);
+        String tenantABinding = outbox.find(tenantA.dedupKey()).orElseThrow().bindingFingerprint();
+        String tenantBBinding = outbox.find(tenantB.dedupKey()).orElseThrow().bindingFingerprint();
+        assertThat(tenantBBinding).isNotEqualTo(tenantABinding);
         assertThat(publishes.get()).isEqualTo(2);
         assertThat(MediaObservationPublicationCoordinator.dedupKeyOf(observation("a|b", "c", "d")))
                 .isNotEqualTo(MediaObservationPublicationCoordinator.dedupKeyOf(observation("a", "b|c", "d")));
@@ -293,6 +309,34 @@ class MediaObservationPublicationCoordinatorTest {
 
         assertThat(result.outcome()).isEqualTo(Outcome.NOT_ADMITTED);
         assertThat(result.detail()).contains("disclosure policy");
+        assertThat(publishes.get()).isZero();
+        assertThat(outbox.find(result.dedupKey())).isEmpty();
+    }
+
+    @Test
+    void syntacticallyValidButUnissuedConsentReferencesAreDeniedBeforePublication() {
+        InMemoryOutbox outbox = new InMemoryOutbox();
+        AtomicInteger publishes = new AtomicInteger();
+        MediaDerivedObservation forgedReferences = observation(
+                "tenant-a", "event-forged-consent", "artifact-v3",
+                "consent-nonexistent-999", "policy-redaction-forged-999");
+        var coordinator = new MediaObservationPublicationCoordinator(
+                new MediaSemanticObservationProjector(),
+                (tenant, artifact, version) -> SourceReadbackAuthority.Decision.ADMITTED,
+                candidate -> {
+                    assertThat(candidate.consentRef()).isEqualTo("consent-nonexistent-999");
+                    assertThat(candidate.redactionDecisionRef()).isEqualTo("policy-redaction-forged-999");
+                    return DisclosureReadbackAuthority.Decision.DENIED;
+                },
+                (tenant, projection) -> {
+                    publishes.incrementAndGet();
+                    return new PublicationReceipt("unexpected", "pub-v1");
+                }, outbox);
+
+        PublishResult result = coordinator.publish(forgedReferences);
+
+        assertThat(result.outcome()).isEqualTo(Outcome.DENIED);
+        assertThat(result.receipt()).isEmpty();
         assertThat(publishes.get()).isZero();
         assertThat(outbox.find(result.dedupKey())).isEmpty();
     }
