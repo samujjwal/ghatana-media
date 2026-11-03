@@ -4,7 +4,7 @@ The executable IT-01 inventory is [`media-integration-test-census.v1.json`](../d
 
 ## How the Gradle task selects tests
 
-Run from the repository root. The `:services:media:integration-tests:test` task includes only JUnit tests tagged `integration`; passing a class selector does not include an untagged or `@Disabled` scaffold. Container suites use `IntegrationImagesCondition` and report a skip when their selected images are absent. Image variables are `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE`; defaults are mutable `:latest` tags and are not qualification inputs.
+Run from the repository root. The `:services:media:integration-tests:test` task includes only JUnit tests tagged `integration`; passing a class selector does not include an untagged or `@Disabled` scaffold. Container suites use `IntegrationImagesCondition` and report a skip unless both selected images are immutable `repository@sha256:<64-hex>` references and Docker reports each exact repository digest locally. This proves selected-digest availability only; it does not verify image approval, signature, provenance, or host qualification. Image variables are `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE`; defaults are mutable `:latest` tags and are not qualification inputs. The image suite separately checks the container Java 27 runtime; record the exact image digests and host/version for any qualification run.
 
 ```bash
 # Inventory contract only; no Docker or provider/model execution
@@ -33,6 +33,6 @@ These fixture profiles use generated or test-authored payloads and isolated data
 
 The `MediaAuthorizedSttTranscriptRestartIT` is an external qualification profile, not part of routine local fixture execution. It requires separately reviewed `GHATANA_MEDIA_WHISPER_PROFILE`, `GHATANA_MEDIA_WHISPER_AUDIO`, and `GHATANA_MEDIA_WHISPER_GOLD_TRANSCRIPT` inputs plus independently verified rights for both model and source audio. The repository contains no such licensed corpus or profile. Do not copy customer/private inputs into the repository or test reports; missing inputs are not grounds to weaken the admission gate.
 
-The Compose startup-refusal selectors require `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` pinned by owner-approved digest and Docker Compose. A passing refusal test proves only typed startup refusal, not a successful provider operation. Previously recorded Wave 2 Compose results are tracked separately and are not changed by this inventory.
+The Compose startup-refusal selectors require `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` selected by immutable digest and available in Docker Compose. This local digest check does not prove owner approval or provenance. A passing refusal test proves only typed startup refusal, not a successful provider operation. Previously recorded Wave 2 Compose results are tracked separately and are not changed by this inventory.
 
 Other modules own additional integration suites: `:services:media:modules:integration-tests`, `:services:media:providers:aws-postgresql`, and `:services:media:audio-video-observability`. They are outside this module's selector and are listed as unrepresented source areas in the canonical census.

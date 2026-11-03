@@ -43,10 +43,6 @@ public abstract class AudioVideoContainerBase {
     protected static final String STT_PROVIDER_REFUSAL = "STT_PROVIDER_NOT_ADMITTED";
     protected static final String TTS_PROVIDER_REFUSAL = "TTS_PROVIDER_NOT_ADMITTED";
 
-    private static final String STT_IMAGE_ENV = "AUDIO_VIDEO_STT_IMAGE";
-    private static final String TTS_IMAGE_ENV = "AUDIO_VIDEO_TTS_IMAGE";
-    private static final String STT_DEFAULT_IMAGE = "ghatana/stt-service:latest";
-    private static final String TTS_DEFAULT_IMAGE = "ghatana/tts-service:latest";
     private static final Duration STARTUP_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration CLEANUP_TIMEOUT = Duration.ofSeconds(8);
     private static final int MAX_CAPTURED_OUTPUT_BYTES = 64 * 1024;
@@ -65,9 +61,7 @@ public abstract class AudioVideoContainerBase {
     }
 
     private static String imageFor(String serviceName) {
-        return STT_SERVICE.equals(serviceName)
-                ? System.getenv().getOrDefault(STT_IMAGE_ENV, STT_DEFAULT_IMAGE)
-                : System.getenv().getOrDefault(TTS_IMAGE_ENV, TTS_DEFAULT_IMAGE);
+        return IntegrationImagesCondition.selectedImage(serviceName);
     }
 
     private static StartupResult runStartupProbe(String serviceName) {

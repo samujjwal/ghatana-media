@@ -16,6 +16,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AudioVideoContainerProcessTest {
     @TempDir Path tempDir;
 
+    private static final String PINNED_STT_IMAGE = "ghatana/stt-service@sha256:" + "a".repeat(64);
+
+    @Test
+    void mutableTagsAreNotPinnedImageProof() {
+        assertThat(IntegrationImagesCondition.isPinnedDigest("ghatana/stt-service:latest")).isFalse();
+        assertThat(IntegrationImagesCondition.isPinnedDigest("ghatana/stt-service:1.2.3")).isFalse();
+        assertThat(IntegrationImagesCondition.isPinnedDigest(PINNED_STT_IMAGE)).isTrue();
+        assertThat(IntegrationImagesCondition.isPinnedDigest("ghatana/stt-service@sha256:" + "A".repeat(64)))
+                .isFalse();
+    }
+
+    @Test
+    void localInspectionMustReportTheExactSelectedRepositoryDigest() {
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE,
+                "[\"" + PINNED_STT_IMAGE + "\"]")).isTrue();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE,
+                "[\"ghatana/stt-service@sha256:" + "b".repeat(64) + "\"]")).isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE, "[]")).isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE,
+                "{\"diagnostic\":\"" + PINNED_STT_IMAGE + "\"}")).isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE,
+                "[\"" + PINNED_STT_IMAGE + "\",{}]")).isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE,
+                "[\"" + PINNED_STT_IMAGE + "\"]\n\"" + PINNED_STT_IMAGE + "\"")).isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(PINNED_STT_IMAGE, "not-json " + PINNED_STT_IMAGE))
+                .isFalse();
+        assertThat(IntegrationImagesCondition.reportsExactDigest(
+                "ghatana/stt-service:latest", "[\"ghatana/stt-service:latest\"]")).isFalse();
+    }
+
     @Test
     void interruptedBoundedCommandStopsItsChildProcesses() throws Exception {
         Path pidFile = tempDir.resolve("compose-command-child.pid");
