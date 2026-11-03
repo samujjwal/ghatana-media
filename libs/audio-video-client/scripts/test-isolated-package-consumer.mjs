@@ -317,6 +317,30 @@ try {
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
     '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.ts'], { cwd: consumerRoot });
+  await writeFile(path.join(consumerRoot, 'consumer.cts'), `
+    import client = require('@audio-video/client');
+    import operations = require('@audio-video/client/operations');
+    import routes = require('@audio-video/client/canonical-routes');
+    import canonical = require('@audio-video/client/canonical-operations');
+    import http = require('@audio-video/client/http-core');
+    import capture = require('@audio-video/client/capture-adapters');
+    import recorder = require('@audio-video/client/recorder-orchestrator');
+    import production = require('@audio-video/client/production-plan');
+    import types = require('@audio-video/types/contracts');
+    const createClient: typeof client.createAudioVideoClient = client.createAudioVideoClient;
+    const createOperationClient: typeof operations.createMediaOperationClient = operations.createMediaOperationClient;
+    const routeTable: typeof routes.canonicalMediaHttpRoutes = routes.canonicalMediaHttpRoutes;
+    const createCanonicalClient: typeof canonical.createMediaCanonicalClient = canonical.createMediaCanonicalClient;
+    const transport: typeof http.MediaHttpTransport = http.MediaHttpTransport;
+    const captureWithAdmission: typeof capture.captureWithAdmission = capture.captureWithAdmission;
+    const orchestrate: typeof recorder.orchestrateScenario = recorder.orchestrateScenario;
+    const compilePlan: typeof production.compileProductionPlan = production.compileProductionPlan;
+    const kind: typeof types.MediaArtifactKindSchema = types.MediaArtifactKindSchema;
+    void [createClient, createOperationClient, routeTable, createCanonicalClient, transport,
+      captureWithAdmission, orchestrate, compilePlan, kind];
+  `);
+  run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',
+    '--module', 'NodeNext', '--moduleResolution', 'NodeNext', 'consumer.cts'], { cwd: consumerRoot });
   run(process.execPath, [path.join(consumerRoot, 'consumer.mjs')], { cwd: consumerRoot });
 
   const cli = path.join(consumerRoot, 'node_modules/@audio-video/client/dist/cli.js');

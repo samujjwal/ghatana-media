@@ -130,6 +130,34 @@ class SharedPolicySttRequestAuthorizationTest {
     }
 
     @Test
+    void authoritativeAllowWithoutPolicyDecisionIdentityOrVersionIsRejectedBeforeProviderDispatch() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine provider = mock(SttEngine.class);
+        when(library.getSttEngine()).thenReturn(provider);
+        when(provider.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("unversioned policy must not run", 0.9, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-model"));
+
+        assertRejectedBeforeProvider(library, authorization(
+                request -> {
+                    PolicyDecisionRecord missingVersion = decision(
+                            PolicyDecisionOutcome.ALLOW, true, null, request);
+                    when(missingVersion.policyVersion()).thenReturn(" ");
+                    return CompletableFuture.completedFuture(missingVersion);
+                },
+                rightsResolver(admitted(SOURCE_FACTS), ignored -> admitted(SOURCE_FACTS))));
+        assertRejectedBeforeProvider(library, authorization(
+                request -> {
+                    PolicyDecisionRecord missingDecisionId = decision(
+                            PolicyDecisionOutcome.ALLOW, true, null, request);
+                    when(missingDecisionId.decisionId()).thenReturn(null);
+                    return CompletableFuture.completedFuture(missingDecisionId);
+                },
+                rightsResolver(admitted(SOURCE_FACTS), ignored -> admitted(SOURCE_FACTS))));
+        verifyNoInteractions(provider);
+    }
+
+    @Test
     void anythingShortOfCurrentPolicyAndUnchangedRightsStopsBeforeProvider() throws Exception {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         SttEngine provider = mock(SttEngine.class);
@@ -288,6 +316,8 @@ class SharedPolicySttRequestAuthorizationTest {
         PolicyDecisionRecord decision = mock(PolicyDecisionRecord.class);
         when(decision.outcome()).thenReturn(outcome);
         when(decision.isAuthoritative()).thenReturn(authoritative);
+        when(decision.decisionId()).thenReturn("fixture-policy-decision");
+        when(decision.policyVersion()).thenReturn("fixture-policy-v1");
         when(decision.expiresAt()).thenReturn(expiresAt);
         when(decision.context()).thenReturn(context(request));
         return decision;

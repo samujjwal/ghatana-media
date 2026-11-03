@@ -86,6 +86,8 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
         if (policyDecision.outcome() == PolicyDecisionOutcome.DENY) return Decision.DENIED;
         if (policyDecision.outcome() != PolicyDecisionOutcome.ALLOW
                 || !policyDecision.isAuthoritative()
+                || policyDecision.decisionId() == null || policyDecision.decisionId().isBlank()
+                || policyDecision.policyVersion() == null || policyDecision.policyVersion().isBlank()
                 || !matchesVerifiedRequest(policyDecision, evaluation)) {
             return Decision.UNAVAILABLE;
         }
