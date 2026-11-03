@@ -37,6 +37,12 @@ public class VisionGrpcServerRuntimePortFactoryTest {
             return runtimePort;
         }
     }
+    public static final class FailingTestFactory implements MediaRuntimePortFactory {
+        @Override public String factoryId() { return "vision-service-loader-failure-test"; }
+        @Override public MediaProcessingRuntimePort compose(Map<String, String> environment) {
+            throw new IllegalStateException("test runtime provider failure");
+        }
+    }
     private String previousSecret;
 
     @BeforeEach void configureLocalAuth() {
@@ -117,6 +123,37 @@ public class VisionGrpcServerRuntimePortFactoryTest {
         } catch (java.io.IOException expected) {
             // A failed standalone composition must not expose a listener.
         }
+    }
+
+    @Test
+    void standaloneOcrOnlyProviderFailurePropagatesBeforeBinding(@org.junit.jupiter.api.io.TempDir Path temp)
+            throws Exception {
+        writeFactoryService(temp, FailingTestFactory.class);
+        var environment = new java.util.HashMap<>(ocrEnvironment());
+        try (URLClassLoader loader = new URLClassLoader(new URL[] {temp.toUri().toURL()}, getClass().getClassLoader())) {
+            assertThatThrownBy(() -> VisionGrpcServer.createStandaloneServer(environment, loader))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("test runtime provider failure");
+        }
+    }
+
+    @Test
+    void startupCompositionFailureClosesFactoryOwnedRuntimePort(@org.junit.jupiter.api.io.TempDir Path temp)
+            throws Exception {
+        MediaProcessingRuntimePort port = mock(MediaProcessingRuntimePort.class,
+                org.mockito.Mockito.withSettings().extraInterfaces(AutoCloseable.class));
+        RegisteredTestFactory.runtimePort = port;
+        writeFactoryService(temp, RegisteredTestFactory.class);
+        var environment = new java.util.HashMap<>(ocrEnvironment());
+        environment.remove("DI_ENDPOINT");
+        try (URLClassLoader loader = new URLClassLoader(new URL[] {temp.toUri().toURL()}, getClass().getClassLoader())) {
+            assertThatThrownBy(() -> VisionGrpcServer.createStandaloneServer(environment, loader))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("DI_ENDPOINT");
+        } finally {
+            RegisteredTestFactory.runtimePort = null;
+        }
+        verify((AutoCloseable) port).close();
     }
 
     @Test
@@ -243,6 +280,14 @@ public class VisionGrpcServerRuntimePortFactoryTest {
             @Override public String factoryId() { return id; }
             @Override public MediaProcessingRuntimePort compose(Map<String, String> environment) { return port; }
         };
+    }
+
+    private static Path writeFactoryService(Path root, Class<? extends MediaRuntimePortFactory> factory)
+            throws Exception {
+        Path serviceFile = root.resolve("META-INF/services/" + MediaRuntimePortFactory.class.getName());
+        Files.createDirectories(serviceFile.getParent());
+        Files.writeString(serviceFile, factory.getName() + "\n");
+        return serviceFile;
     }
 
     private static int freePort() throws Exception {
