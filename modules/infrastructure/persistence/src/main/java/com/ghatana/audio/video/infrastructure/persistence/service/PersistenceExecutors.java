@@ -9,14 +9,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 /** Bounded database execution resources owned by persistence services. */
 final class PersistenceExecutors {
 
-    private static final int MAX_THREADS = 8;
+    static final int MAX_CONCURRENT_DATABASE_OPERATIONS = 8;
     private static final int QUEUE_CAPACITY = 128;
-    static final int MAX_OUTSTANDING_OPERATIONS = MAX_THREADS + QUEUE_CAPACITY;
+    static final int MAX_OUTSTANDING_OPERATIONS = MAX_CONCURRENT_DATABASE_OPERATIONS + QUEUE_CAPACITY;
 
     private PersistenceExecutors() { }
 
     static ThreadPoolExecutor newDatabaseExecutor(String serviceName) {
-        int threads = Math.max(1, Math.min(MAX_THREADS, Runtime.getRuntime().availableProcessors()));
+        int threads = Math.max(1,
+            Math.min(MAX_CONCURRENT_DATABASE_OPERATIONS, Runtime.getRuntime().availableProcessors()));
         AtomicInteger sequence = new AtomicInteger();
         ThreadFactory threadFactory = task -> {
             Thread thread = new Thread(task, "media-" + serviceName + "-db-" + sequence.incrementAndGet());

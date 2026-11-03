@@ -92,6 +92,18 @@ class PiperOnnxEnginePhonemeMapTest {
     }
 
     @Test
+    void compatibilityGuardRejectsIncompatiblePhonemizer() {
+        assertThatThrownBy(() -> PiperOnnxEngine.requireProductionCompatiblePhonemizer(false))
+                .isInstanceOf(InferenceError.class)
+                .hasMessageContaining("no production-compatible phonemizer");
+    }
+
+    @Test
+    void compatibilityGuardAcceptsCompatiblePhonemizer() {
+        PiperOnnxEngine.requireProductionCompatiblePhonemizer(true);
+    }
+
+    @Test
     void voiceCloningNeverReturnsSyntheticVoiceMetadataOrSimilarity() {
         assertThat(PiperOnnxEngine.voiceCloningUnavailable(false))
                 .hasMessageContaining("not enabled");

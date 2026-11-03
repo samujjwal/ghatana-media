@@ -19,6 +19,8 @@ final class PersistenceOperations {
     private final Eventloop eventloop;
     private final ExecutorService executor;
     private final Semaphore outstanding = new Semaphore(PersistenceExecutors.MAX_OUTSTANDING_OPERATIONS);
+    private final Semaphore databaseConcurrency =
+        new Semaphore(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
 
     PersistenceOperations(Eventloop eventloop, ExecutorService executor) {
         this.eventloop = Objects.requireNonNull(eventloop, "eventloop");
@@ -41,13 +43,22 @@ final class PersistenceOperations {
 
         try {
             return Promise.ofBlocking(executor, () -> {
+                boolean acquiredDatabasePermit = false;
                 try {
                     if (eventloop.inReactorThread()) {
                         throw new PersistenceOnEventloopException(
                             "Synchronous persistence operation cannot run on the ActiveJ eventloop");
                     }
+                    databaseConcurrency.acquire();
+                    acquiredDatabasePermit = true;
                     return operation.get();
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw interrupted;
                 } finally {
+                    if (acquiredDatabasePermit) {
+                        databaseConcurrency.release();
+                    }
                     releaseOnce.run();
                 }
             }).whenException(ignored -> releaseOnce.run());

@@ -31,22 +31,93 @@ import static org.mockito.Mockito.when;
 class TranscriptionServiceLifecycleTest extends EventloopTestBase {
 
     @Test
-    void repeatedServiceCreateAndCloseTerminatesOwnedDatabaseWorkers() {
+    void repeatedServiceCreateAndCloseTerminatesOwnedDatabaseWorkers() throws InterruptedException {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
-        when(repository.save(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(1));
+        when(repository.countByTenantId("tenant")).thenReturn(9L);
 
         for (int iteration = 0; iteration < 12; iteration++) {
-            TranscriptionService service = new TranscriptionService(repository, eventloop());
-            TranscriptionEntity transcription = entity();
+            RejectFirstExecutorService executor = new RejectFirstExecutorService();
+            TranscriptionService service = new TranscriptionService(repository, eventloop(), executor,
+                ExecutorOwnership.SERVICE);
+            AtomicReference<Exception> firstFailure = new AtomicReference<>();
+            Boolean failed = runPromise(() -> service.countByTenantId("tenant")
+                .map((result, failure) -> {
+                    firstFailure.set(failure);
+                    return Boolean.TRUE;
+                }));
 
-            TranscriptionEntity saved = runPromise(() -> {
-                Promise<TranscriptionEntity> pending = service.save("tenant", transcription);
-                service.close();
-                return pending;
+            assertThat(failed).isTrue();
+            assertThat(firstFailure.get()).isInstanceOf(RejectedExecutionException.class);
+            assertThat(runPromise(() -> service.countByTenantId("tenant"))).isEqualTo(9L);
+            service.close();
+            assertThat(executor.isShutdown()).isTrue();
+            assertThat(executor.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    @Test
+    void injectedUnboundedExecutorCannotExceedDatabaseConcurrencyLimit() throws InterruptedException {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        int operationCount = PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS * 2;
+        CountDownLatch firstWaveEntered = new CountDownLatch(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+        CountDownLatch releaseOperations = new CountDownLatch(1);
+        CountDownLatch operationsFinished = new CountDownLatch(operationCount);
+        AtomicInteger active = new AtomicInteger();
+        AtomicInteger maximumActive = new AtomicInteger();
+        when(repository.countByTenantId("tenant")).thenAnswer(invocation -> {
+            int current = active.incrementAndGet();
+            maximumActive.accumulateAndGet(current, Math::max);
+            firstWaveEntered.countDown();
+            try {
+                if (!releaseOperations.await(3, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("test did not release blocked repository calls");
+                }
+                return 1L;
+            } finally {
+                active.decrementAndGet();
+                operationsFinished.countDown();
+            }
+        });
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+        TranscriptionService service = new TranscriptionService(repository, eventloop(), executor,
+            ExecutorOwnership.SERVICE);
+        AtomicInteger maximumBeforeRelease = new AtomicInteger();
+        Thread releaseThread = new Thread(() -> {
+            try {
+                if (!firstWaveEntered.await(2, TimeUnit.SECONDS)) {
+                    return;
+                }
+                Thread.sleep(100);
+                maximumBeforeRelease.set(maximumActive.get());
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            } finally {
+                releaseOperations.countDown();
+            }
+        }, "persistence-concurrency-test-release");
+        releaseThread.start();
+
+        try {
+            Long lastResult = runPromise(() -> {
+                Promise<Long> last = null;
+                for (int index = 0; index < operationCount; index++) {
+                    last = service.countByTenantId("tenant");
+                }
+                return last;
             });
 
-            assertThat(saved).isSameAs(transcription);
-            awaitNoDatabaseWorkers("media-transcription-db-");
+            assertThat(lastResult).isEqualTo(1L);
+            assertThat(operationsFinished.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(maximumBeforeRelease.get())
+                .isEqualTo(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+            assertThat(maximumActive.get())
+                .isLessThanOrEqualTo(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+        } finally {
+            releaseOperations.countDown();
+            releaseThread.join(2_000);
+            service.close();
+            assertThat(executor.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
         }
     }
 

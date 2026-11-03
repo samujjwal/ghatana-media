@@ -105,6 +105,7 @@ public final class PiperOnnxEngine implements TtsEngine {
         ensureReady();
         validateText(text);
         validateRequestedSampleRate(options.sampleRate(), voiceSampleRate);
+        requireProductionCompatiblePhonemizer(productionPhonemizerCompatible);
 
         requestCount.incrementAndGet();
         if (!concurrencyLimiter.tryAcquire()) {
@@ -706,6 +707,15 @@ public final class PiperOnnxEngine implements TtsEngine {
             return probe != null && !probe.isBlank() && encodePhonemes(probe, map).length > 0;
         } catch (RuntimeException incompatible) {
             return false;
+        }
+    }
+
+    static void requireProductionCompatiblePhonemizer(boolean compatible) {
+        if (!compatible) {
+            throw new InferenceError(
+                    "Piper synthesis is unavailable: no production-compatible phonemizer covers this voice map",
+                    null,
+                    false);
         }
     }
 
