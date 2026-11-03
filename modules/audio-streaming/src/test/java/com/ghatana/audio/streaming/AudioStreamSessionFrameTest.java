@@ -91,6 +91,9 @@ class AudioStreamSessionFrameTest {
         assertThatThrownBy(() -> session.decodeFrame(header(-1, 0L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
+        assertThatThrownBy(() -> session.decodeFrame(header(Integer.MIN_VALUE, 0L, 0)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sequence");
         assertThatThrownBy(() -> session.decodeFrame(header(Integer.MAX_VALUE, 0L, 0)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sequence");
@@ -190,6 +193,9 @@ class AudioStreamSessionFrameTest {
     void reconnectSequenceDoesNotWrapIntoAnAmbiguousStreamOrder() {
         assertThat(session.expectedNextSequenceAfterReconnect(-1)).isZero();
         assertThat(session.expectedNextSequenceAfterReconnect(41)).isEqualTo(42);
+        assertThat(session.expectedNextSequenceAfterReconnect(
+                        AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER - 1))
+                .isEqualTo(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
         assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(-2))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> session.expectedNextSequenceAfterReconnect(Integer.MIN_VALUE))
