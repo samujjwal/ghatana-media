@@ -50,6 +50,10 @@ class HostOciVisionBrokerIntegrationTest {
         builder.environment().put("MEDIA_OCI_BROKER_DOCKER_CLI", "docker");
         builder.environment().put("MEDIA_OCI_BROKER_IMAGE_ALLOWLIST",
                 System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV));
+        builder.environment().put("MEDIA_OCI_BROKER_VISION_PROFILE_ID", "vision.test.reference.v1");
+        builder.environment().put("MEDIA_OCI_BROKER_VISION_IMAGE",
+                System.getenv(HostOciVisionWorkerSupervisor.IMAGE_ENV));
+        builder.environment().put("MEDIA_OCI_BROKER_VISION_TOOLCHAIN_VERSION", "test-fixture-v1");
         builder.environment().put("MEDIA_OCI_BROKER_WORKER_UID",
                 String.valueOf(Files.getAttribute(sandboxRoot, "unix:uid")));
         builder.environment().put("MEDIA_OCI_BROKER_WORKER_GID",

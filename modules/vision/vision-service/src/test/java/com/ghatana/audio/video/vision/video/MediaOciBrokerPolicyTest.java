@@ -86,6 +86,42 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
+    void visionProfileLoaderBindsImageAndToolchainVersionToBrokerConfiguration() {
+        String image = "worker@sha256:" + "a".repeat(64);
+        var environment = new java.util.HashMap<String, String>();
+        environment.put("MEDIA_OCI_BROKER_VISION_PROFILE_ID", "vision.ffmpeg.reference.v1");
+        environment.put("MEDIA_OCI_BROKER_VISION_IMAGE", image);
+        environment.put("MEDIA_OCI_BROKER_VISION_TOOLCHAIN_VERSION", "ffmpeg-8.1.2+sha256.abc123");
+
+        var profile = MediaOciBrokerPolicy.loadVisionProfile(environment, Set.of(image));
+        assertThat(profile).isPresent().get().satisfies(p -> {
+            assertThat(p.profileId()).isEqualTo("vision.ffmpeg.reference.v1");
+            assertThat(p.imageDigest()).isEqualTo(image);
+            assertThat(p.toolchainVersion()).isEqualTo("ffmpeg-8.1.2+sha256.abc123");
+        });
+        assertThat(MediaOciBrokerPolicy.loadVisionProfile(environment, Set.of())).isEmpty();
+        environment.put("MEDIA_OCI_BROKER_VISION_IMAGE", "worker:latest");
+        assertThat(MediaOciBrokerPolicy.loadVisionProfile(environment, Set.of(image))).isEmpty();
+        environment.put("MEDIA_OCI_BROKER_VISION_IMAGE", image);
+        environment.put("MEDIA_OCI_BROKER_VISION_TOOLCHAIN_VERSION", " ");
+        assertThat(MediaOciBrokerPolicy.loadVisionProfile(environment, Set.of(image))).isEmpty();
+    }
+
+    @Test
+    void visionLaunchMustUseTheSingleBrokerOwnedImage() throws Exception {
+        String pinned = "worker@sha256:" + "a".repeat(64);
+        var base = policy();
+        var profile = new MediaOciBrokerPolicy.VisionProfile(
+                "vision.ffmpeg.reference.v1", pinned, "ffmpeg-8.1.2");
+        var configured = new MediaOciBrokerPolicy.Policy(base.allowedImageDigests(), base.workerUid(),
+                base.workerGid(), base.sourceRoot(), base.outputRoot(), null, null, profile);
+        assertThat(MediaOciBrokerPolicy.visionImageAllowed(configured, pinned)).isTrue();
+        assertThat(MediaOciBrokerPolicy.visionImageAllowed(configured,
+                "worker@sha256:" + "b".repeat(64))).isFalse();
+        assertThat(MediaOciBrokerPolicy.visionImageAllowed(base, pinned)).isFalse();
+    }
+
+    @Test
     void whisperProfileAndLocaleMustMatchExactServerPin() throws Exception {
         String image = "worker@sha256:" + "a".repeat(64);
         var profile = new MediaOciBrokerPolicy.WhisperProfile(

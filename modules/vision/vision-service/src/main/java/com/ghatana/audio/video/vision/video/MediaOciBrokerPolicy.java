@@ -43,15 +43,53 @@ final class MediaOciBrokerPolicy {
             Path sourceRoot,
             Path outputRoot,
             WhisperProfile whisperProfile,
-            WhisperWorkerServerConfig whisperWorkerConfig) {
+            WhisperWorkerServerConfig whisperWorkerConfig,
+            VisionProfile visionProfile) {
         Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
                 Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile) {
-            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, whisperProfile, null);
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, whisperProfile, null, null);
+        }
+        Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
+                Path sourceRoot, Path outputRoot, WhisperProfile whisperProfile,
+                WhisperWorkerServerConfig whisperWorkerConfig) {
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot,
+                    whisperProfile, whisperWorkerConfig, null);
         }
         Policy(Set<String> allowedImageDigests, long workerUid, long workerGid,
                 Path sourceRoot, Path outputRoot) {
-            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, null);
+            this(allowedImageDigests, workerUid, workerGid, sourceRoot, outputRoot, null, null, null);
         }
+    }
+
+    /** One broker-owned FFmpeg toolchain. The immutable image digest binds the actual binaries. */
+    record VisionProfile(String profileId, String imageDigest, String toolchainVersion) {
+        VisionProfile {
+            if (profileId == null || !profileId.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
+                    || imageDigest == null || !imageDigest.matches("(?:[^\\s,@]+@)?sha256:[a-f0-9]{64}")
+                    || toolchainVersion == null || !toolchainVersion.matches("[A-Za-z0-9][A-Za-z0-9._+:-]{0,127}")) {
+                throw new IllegalArgumentException("Vision worker profile pins are invalid");
+            }
+        }
+    }
+
+    static Optional<VisionProfile> loadVisionProfile(Map<String, String> environment,
+                                                       Set<String> allowedImages) {
+        String profileId = environment.get("MEDIA_OCI_BROKER_VISION_PROFILE_ID");
+        String image = environment.get("MEDIA_OCI_BROKER_VISION_IMAGE");
+        String version = environment.get("MEDIA_OCI_BROKER_VISION_TOOLCHAIN_VERSION");
+        if (profileId == null || image == null || version == null) return Optional.empty();
+        try {
+            VisionProfile profile = new VisionProfile(profileId, image, version);
+            return allowedImages.contains(image) ? Optional.of(profile) : Optional.empty();
+        } catch (RuntimeException invalid) {
+            return Optional.empty();
+        }
+    }
+
+    static boolean visionImageAllowed(Policy policy, String image) {
+        VisionProfile profile = policy.visionProfile();
+        return profile != null && profile.imageDigest().equals(image)
+                && imageAllowed(policy, image);
     }
 
     /** Broker-owned pin for one fixed Whisper worker profile. No request field can alter it. */

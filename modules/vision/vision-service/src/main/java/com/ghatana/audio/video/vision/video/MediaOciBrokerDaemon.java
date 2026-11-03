@@ -126,7 +126,8 @@ public final class MediaOciBrokerDaemon {
                 java.util.Set.copyOf(images), uid, gid,
                 Path.of(sourceRoot).toRealPath(), Path.of(outputRoot).toRealPath(),
                 MediaOciBrokerPolicy.loadWhisperProfile(System.getenv(), java.util.Set.copyOf(images)).orElse(null),
-                WhisperWorkerServerConfig.load(System.getenv(), java.util.Set.copyOf(images)).orElse(null));
+                WhisperWorkerServerConfig.load(System.getenv(), java.util.Set.copyOf(images)).orElse(null),
+                MediaOciBrokerPolicy.loadVisionProfile(System.getenv(), java.util.Set.copyOf(images)).orElse(null));
         WhisperOciWorkerSupervisor whisperSupervisor = null;
         MediaOciBrokerWhisperJournal whisperJournal = null;
         if (policy.whisperWorkerConfig() != null) {
@@ -265,7 +266,7 @@ public final class MediaOciBrokerDaemon {
         long uid = number(payload, "uid", 0, 1, Integer.MAX_VALUE);
         long gid = number(payload, "gid", 0, 0, Integer.MAX_VALUE);
         if (image == null || !IMAGE.matcher(image).matches()
-                || !MediaOciBrokerPolicy.imageAllowed(policy, image)
+                || !MediaOciBrokerPolicy.visionImageAllowed(policy, image)
                 || name == null || !NAME.matcher(name).matches()
                 || executable == null || !EXECUTABLE.matcher(executable).matches()
                 || uid <= 0 || workerArgs.size() > MAX_ARGS
@@ -574,9 +575,22 @@ public final class MediaOciBrokerDaemon {
         return cursor;
     }
 
-    private static String runWorker(String docker, String image, String name,
+    @FunctionalInterface
+    interface WorkerCommandRunner {
+        CommandResult run(List<String> command, Duration timeout) throws IOException;
+    }
+
+    static String runWorker(String docker, String image, String name,
             String executable, List<String> workerArgs, Path source, Path output,
             long uid, long gid, Duration timeout, long outputLimit) throws IOException {
+        return runWorker(docker, image, name, executable, workerArgs, source, output,
+                uid, gid, timeout, outputLimit, MediaOciBrokerDaemon::run);
+    }
+
+    static String runWorker(String docker, String image, String name,
+            String executable, List<String> workerArgs, Path source, Path output,
+            long uid, long gid, Duration timeout, long outputLimit,
+            WorkerCommandRunner runner) throws IOException {
         List<String> create = new ArrayList<>(List.of(docker, "create", "--name", name,
                 "--pull=never", "--platform=linux/arm64",
                 "--label", "com.ghatana.media.vision.worker=true",
@@ -600,23 +614,23 @@ public final class MediaOciBrokerDaemon {
         create.add(image);
         create.addAll(workerArgs);
         try {
-            CommandResult created = run(create, Duration.ofSeconds(15));
+            CommandResult created = runner.run(create, Duration.ofSeconds(15));
             String id = created.output().trim();
             if (created.exitCode() != 0 || !CONTAINER_ID.matcher(id).matches()) {
-                remove(docker, name);
+                remove(docker, name, runner);
                 return "create-failed";
             }
-            CommandResult started = run(List.of(docker, "start", "--attach", id), timeout);
+            CommandResult started = runner.run(List.of(docker, "start", "--attach", id), timeout);
             boolean timedOut = started.timedOut();
-            if (timedOut) kill(docker, id);
-            CommandResult oom = run(List.of(docker, "inspect",
+            if (timedOut) kill(docker, id, runner);
+            CommandResult oom = runner.run(List.of(docker, "inspect",
                     "--format", "{{.State.OOMKilled}}", id), Duration.ofSeconds(10));
             boolean oomKilled = parseOomKilledState(oom.exitCode(), oom.output(), oom.timedOut());
             long outputBytes = output != null && Files.exists(output)
                     ? Files.walk(output).filter(Files::isRegularFile)
                             .mapToLong(p -> { try { return Files.size(p); } catch (IOException e) { return 0L; } })
                             .sum() : 0L;
-            remove(docker, id);
+            remove(docker, id, runner);
             String tail = started.output().length() > OUTPUT_TAIL
                     ? started.output().substring(started.output().length() - OUTPUT_TAIL)
                     : started.output();
@@ -627,7 +641,7 @@ public final class MediaOciBrokerDaemon {
                     + ",\"outputExceeded\":" + (outputBytes > outputLimit)
                     + ",\"tail\":" + json(tail) + "}";
         } catch (IOException failure) {
-            remove(docker, name);
+            remove(docker, name, runner);
             throw failure;
         }
     }
@@ -678,6 +692,13 @@ public final class MediaOciBrokerDaemon {
         }
     }
 
+    private static void remove(String docker, String id, WorkerCommandRunner runner) throws IOException {
+        CommandResult result = runner.run(List.of(docker, "rm", "--force", id), Duration.ofSeconds(5));
+        if (result.timedOut() || result.exitCode() != 0) {
+            throw new IOException("Vision OCI broker could not confirm worker container cleanup");
+        }
+    }
+
     static boolean parseOomKilledState(int exitCode, String output, boolean timedOut) throws IOException {
         if (timedOut || exitCode != 0 || output == null) {
             throw new IOException("Vision OCI broker could not confirm worker OOM state");
@@ -691,6 +712,13 @@ public final class MediaOciBrokerDaemon {
 
     private static void kill(String docker, String id) throws IOException {
         run(List.of(docker, "kill", "--signal=KILL", id), Duration.ofSeconds(5));
+    }
+
+    private static void kill(String docker, String id, WorkerCommandRunner runner) throws IOException {
+        CommandResult result = runner.run(List.of(docker, "kill", "--signal=KILL", id), Duration.ofSeconds(5));
+        if (result.timedOut() || result.exitCode() != 0) {
+            throw new IOException("Vision OCI broker could not confirm worker termination");
+        }
     }
 
     private static byte[] readFrame(SocketChannel channel, int limit, long deadlineNanos)
@@ -876,5 +904,5 @@ public final class MediaOciBrokerDaemon {
         return value == null || value.isBlank();
     }
 
-    private record CommandResult(int exitCode, String output, boolean timedOut) { }
+    record CommandResult(int exitCode, String output, boolean timedOut) { }
 }
