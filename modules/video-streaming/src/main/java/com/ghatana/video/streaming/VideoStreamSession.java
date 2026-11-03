@@ -61,7 +61,15 @@ public final class VideoStreamSession {
         boolean keyFrame = keyFlag == 1;
         long timestamp = buffer.getLong();
         int length = buffer.getInt();
-        if (length < 0 || length > MAX_FRAME_PAYLOAD_BYTES || buffer.remaining() != length) {
+        if (length < 0 || length > MAX_FRAME_PAYLOAD_BYTES) {
+            throw new IllegalArgumentException("video frame payload length is invalid");
+        }
+        // Keep the size calculation wide even though the configured payload
+        // bound is currently small enough to fit in an int. This check ties
+        // the declared length to the complete 4+1+8+4 wire frame before the
+        // payload copy, and cannot wrap for hostile signed lengths.
+        long expectedFrameBytes = (long) FRAME_HEADER_BYTES + length;
+        if (expectedFrameBytes != encodedFrame.length || buffer.remaining() != length) {
             throw new IllegalArgumentException("video frame payload length is invalid");
         }
         byte[] payload = new byte[length];

@@ -135,6 +135,26 @@ class VideoStreamSessionFrameTest {
     }
 
     @Test
+    void declaredLengthMustMatchCompleteFrameWithoutSignedOrOverflowWraparound() {
+        for (int declaredLength : new int[]{-1, Integer.MIN_VALUE, Integer.MAX_VALUE,
+                VideoStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1}) {
+            assertThatThrownBy(() -> session.decodeFrame(header(0, 1, 7L, declaredLength)))
+                    .as("declared payload length %s", declaredLength)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        byte[] oneBytePayload = session.encodeFrame(0, true, 7L, new byte[]{42});
+        assertThat(session.decodeFrame(oneBytePayload).payload()).containsExactly(42);
+
+        byte[] truncated = Arrays.copyOf(oneBytePayload, oneBytePayload.length - 1);
+        byte[] trailing = Arrays.copyOf(oneBytePayload, oneBytePayload.length + 1);
+        assertThatThrownBy(() -> session.decodeFrame(truncated))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> session.decodeFrame(trailing))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void seededMalformedFrameMutationsNeverEscapeBoundsOrThrowUnexpectedErrors() {
         final long seed = 0x7669_6465_6f5f_7632L;
         final int cases = 256;
