@@ -2590,3 +2590,15 @@ At local `main@84504afd`, the Media TypeScript DI consumer now treats a rejected
 This is isolated database-backend termination evidence for a flushed, uncommitted metadata row. It is not process death of the canonical Media job/outbox writer, S3/object-store recovery, deployed Flyway history, old-writer fencing, or authorized one-writer cutover/rollback. No production source, migration, or database was changed.
 
 **Fresh no-write PDP matrix checks at `8363dfd1`:** PDP-0 failed currentness at **21/188**, PDP-1 at **30/137**, PDP-2 at **20/157**, and PDP-3 at **21/367** stale required source pins. An in-memory PDP-1 build reports **40** stale semantic-review source pins and a reviewed/current topology denominator mismatch of **54/56**. The changed DI adapter source and its test are among the stale PDP-1 pins; no status, pin, semantic review, projection, or receipt was rewritten. Currentness remains fail-closed pending owning-source review and its authorized projection process; the PDP-0 status remains `IN_PROGRESS`.
+
+### 41.85 November 2 owner-directed local continuation: scenario identity, transport, DSP, timing, and FLEURS gate
+
+Starting from local `main@5677e464`, four disjoint W3/H implementation slices and one FLEURS safety-gate slice were implemented and committed locally:
+
+- **H-03:** scenario plan identity is serialized incrementally per scene and rejected at the 1 MiB cap before later scenes are read. The 29 focused client tests and package typecheck passed.
+- **JC-01:** staging/production/sovereign gRPC profiles with a mismatched TLS certificate/key fail during server construction before the port binds. The focused common transport-policy/server selectors passed (27 tests).
+- **RS-05:** stereo WAV round-trip now checks decoded metadata (16 kHz, 2 channels, WAV), four frames, exact duration, channel count, and <= `1e-6` PCM error. The Rust audio crate passed **48/48** tests.
+- **VS-03:** the new `VideoFrameTimebase` adapter keeps source PTS/timebases and capture/source clock IDs separate from legacy wire milliseconds, preserves keyframe/GOP, discontinuity and codec-configuration identity, and defaults presentation mapping to `UNKNOWN`. A known mapping can only be carried when its origin, uncertainty, policy, and evidence are explicit. The selected video-streaming tests passed **25/25**. Source capture-to-presentation relationship and exact output mapping semantics remain unresolved; no wire or transport behavior changed.
+
+
+The implementation commits are `e710fa66` (H-03), `26db0c9e` (JC-01), `f22ae310` (RS-05), `a0aaa752` (VS-03), and `6cafbeb0` (FLEURS gate). They remain local on `main`; this continuation did not update a remote ref. No PDP/gtool status, candidate selection, provider admission, deployment, or release was changed.
