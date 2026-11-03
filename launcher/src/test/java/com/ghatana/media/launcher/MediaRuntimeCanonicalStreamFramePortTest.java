@@ -18,9 +18,51 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
 class MediaRuntimeCanonicalStreamFramePortTest {
+
+    @Test
+    void framePayloadReachesLocalProviderExactlyAndResistsCallerAndProviderMutation() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-stream-payload-");
+        var expectedPayload = new byte[] {
+            0x00, 0x7f, (byte) 0x80, (byte) 0xff, 0x11, 0x22, 0x33, 0x44,
+            0x55, 0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa, (byte) 0xbb, (byte) 0xcc, 0x0d
+        };
+        var callerPayload = expectedPayload.clone();
+        var decodedFrame = new AudioStreamSession.DecodedFrame(0, 12_345L, callerPayload);
+        var provider = new MutatingStreamingProvider(expectedPayload);
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+
+        try {
+            var registration = runtime.openStream(request(provider, "correlation-payload"));
+            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+
+            callerPayload[0] = 0x5a;
+            var result = port.offer(binding, decodedFrame);
+
+            assertThat(result).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(0));
+            assertThat(provider.calls()).isEqualTo(1);
+            assertThat(provider.receivedPayload()).containsExactly(expectedPayload);
+            assertThat(provider.payloadAfterMutationAttempt()).containsExactly(expectedPayload);
+            assertThat(decodedFrame.payload()).containsExactly(expectedPayload);
+        } finally {
+            runtime.close();
+        }
+    }
 
     @Test
     void frameAckUsesCanonicalStoreAndRejectsStaleOrDuplicateBinding() throws Exception {
@@ -202,5 +244,45 @@ class MediaRuntimeCanonicalStreamFramePortTest {
         }
 
         int calls() { return calls.get(); }
+    }
+
+    private static final class MutatingStreamingProvider implements MediaStreamingProvider {
+        private final byte[] expectedPayload;
+        private final AtomicInteger calls = new AtomicInteger();
+        private final AtomicReference<byte[]> receivedPayload = new AtomicReference<>();
+        private final AtomicReference<byte[]> payloadAfterMutationAttempt = new AtomicReference<>();
+
+        private MutatingStreamingProvider(byte[] expectedPayload) {
+            this.expectedPayload = expectedPayload.clone();
+        }
+
+        @Override public String providerId() { return "mutating-local-audio-stream-provider"; }
+        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 1; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+
+        @Override
+        public CompletableFuture<StreamAck> accept(StreamContext context,
+                com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
+            calls.incrementAndGet();
+            byte[] providerView = frame.payload();
+            receivedPayload.set(providerView.clone());
+            providerView[0] ^= (byte) 0xff;
+            byte[] afterMutationAttempt = frame.payload();
+            payloadAfterMutationAttempt.set(afterMutationAttempt.clone());
+            if (!java.util.Arrays.equals(expectedPayload, afterMutationAttempt)) {
+                return CompletableFuture.failedFuture(
+                        new AssertionError("provider mutation changed the original stream frame payload"));
+            }
+            return CompletableFuture.completedFuture(
+                    new StreamAck(frame.sequence(), afterMutationAttempt.length, false));
+        }
+
+        int calls() { return calls.get(); }
+        byte[] receivedPayload() { return receivedPayload.get().clone(); }
+        byte[] payloadAfterMutationAttempt() { return payloadAfterMutationAttempt.get().clone(); }
     }
 }
