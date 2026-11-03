@@ -3418,12 +3418,22 @@ mod tests {
         );
 
         write_wav(&path, &buffer).unwrap();
+        let metadata = load_audio_metadata(&path).unwrap();
         let decoded = load_audio_buffer(&path).unwrap();
 
+        assert_eq!(metadata.duration, 4.0 / 16_000.0);
+        assert_eq!(metadata.sample_rate, 16_000);
+        assert_eq!(metadata.channels, 2);
+        assert_eq!(metadata.format, "wav");
         assert_eq!(decoded.config.channels, 2);
+        assert_eq!(decoded.config.sample_rate, 16_000);
+        assert_eq!(decoded.frame_count(), 4);
         assert_eq!(decoded.samples.len(), buffer.samples.len());
         for (actual, expected) in decoded.samples.iter().zip(buffer.samples.iter()) {
-            assert!((actual - expected).abs() < 1e-6, "channel data corrupted");
+            assert!(
+                (actual - expected).abs() <= 1e-6,
+                "stereo round trip changed sample: {actual} != {expected}"
+            );
         }
     }
 
