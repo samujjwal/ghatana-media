@@ -2250,6 +2250,31 @@ mod tests {
     }
 
     #[test]
+    fn adjacent_slice_windows_partition_stereo_audio_without_overlap_or_drift() {
+        let config = AudioConfig {
+            sample_rate: 3,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        let buffer = AudioBuffer::new(vec![0.0, 10.0, 1.0, 11.0, 2.0, 12.0], config);
+
+        // Adjacent half-open windows use seconds at 3 Hz. Their shared edges
+        // must neither duplicate nor omit a frame, and each frame stays paired.
+        let windows = [
+            slice_audio_buffer(&buffer, 0.0, 1.0 / 3.0).unwrap(),
+            slice_audio_buffer(&buffer, 1.0 / 3.0, 2.0 / 3.0).unwrap(),
+            slice_audio_buffer(&buffer, 2.0 / 3.0, 1.0).unwrap(),
+        ];
+        let joined = windows
+            .iter()
+            .flat_map(|window| window.samples.iter().copied())
+            .collect::<Vec<_>>();
+
+        assert_eq!(joined, buffer.samples);
+        assert!(windows.iter().all(|window| window.frame_count() == 1));
+    }
+
+    #[test]
     fn slice_audio_buffer_rejects_non_finite_times_instead_of_coercing_indices() {
         let buffer = AudioBuffer::new(
             vec![0.0, 0.2, 0.4, 0.6],
@@ -2528,6 +2553,39 @@ mod tests {
             })
             .collect::<Vec<_>>();
         assert_eq!(mixed.samples, expected);
+    }
+
+    #[test]
+    fn mix_audio_keeps_stereo_alignment_across_accumulation_block_boundary() {
+        let config = AudioConfig {
+            sample_rate: 16_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        // The internal accumulation block is 4096 interleaved samples. Place
+        // distinct channel values on both sides of that boundary and let the
+        // second input end halfway through the final stereo frame range.
+        let mut long_samples = vec![0.0; 4_102];
+        long_samples[4_094..4_098].copy_from_slice(&[0.25, -0.25, 0.5, -0.5]);
+        long_samples[4_100..].copy_from_slice(&[0.75, -0.75]);
+        let mut short_samples = vec![0.0; 4_098];
+        short_samples[4_094..4_098].copy_from_slice(&[0.5, 0.5, -0.25, 0.25]);
+        let mixed = mix_audio(
+            &[
+                AudioBuffer::new(long_samples, config),
+                AudioBuffer::new(short_samples, config),
+            ],
+            &[1.0, 1.0],
+        )
+        .unwrap();
+
+        assert_eq!(mixed.samples.len(), 4_102);
+        assert_eq!(mixed.frame_count(), 2_051);
+        assert_eq!(
+            mixed.samples[4_094..4_100],
+            [0.75, 0.25, 0.25, -0.25, 0.0, 0.0]
+        );
+        assert_eq!(mixed.samples[4_100..], [0.75, -0.75]);
     }
 
     #[test]
