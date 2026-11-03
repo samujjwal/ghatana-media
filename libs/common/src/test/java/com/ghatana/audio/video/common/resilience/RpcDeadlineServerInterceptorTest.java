@@ -223,6 +223,34 @@ class RpcDeadlineServerInterceptorTest {
     }
 
     @Test
+    void childWorkerPreservesStableRequestIdAndEffectiveDeadline() throws Exception {
+        ThreadPoolExecutor pool = pool(1, 1);
+        Context.Key<String> requestIdKey = Context.key("media-request-id");
+        String requestId = "request-stable-17";
+        try {
+            Context request = Context.current()
+                    .withValue(requestIdKey, requestId)
+                    .withDeadline(Deadline.after(5, TimeUnit.SECONDS), TIMER);
+            Context previous = request.attach();
+            ContextAwareBoundedExecutor.Submission<RequestContextSnapshot> submission;
+            try {
+                submission = new ContextAwareBoundedExecutor(pool).submit(() -> new RequestContextSnapshot(
+                        requestIdKey.get(), Context.current().getDeadline()));
+            } finally {
+                request.detach(previous);
+            }
+
+            RequestContextSnapshot snapshot = submission.result().get(1, TimeUnit.SECONDS);
+            assertThat(snapshot.requestId()).isEqualTo(requestId);
+            assertThat(snapshot.deadline()).isNotNull();
+            assertThat(snapshot.deadline().isExpired()).isFalse();
+        } finally {
+            pool.shutdownNow();
+            pool.awaitTermination(1, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test
     void alreadyCancelledContextNeverDispatchesCallableAndReturnsCancelled() throws Exception {
         ThreadPoolExecutor pool = pool(1, 1);
         try {
@@ -581,6 +609,8 @@ class RpcDeadlineServerInterceptorTest {
             pool.shutdownNow();
         }
     }
+
+    private record RequestContextSnapshot(String requestId, Deadline deadline) {}
 
     private static void assertStatus(ContextAwareBoundedExecutor.Submission<?> submission,
                                      Status.Code code) throws Exception {
