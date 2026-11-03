@@ -3636,3 +3636,7 @@ Commit `262a9cef` aligns `SceneBindingSchema.semanticAnchorRefs` with PDP-1's `$
 ### 43.36 November 3 AT-02 tool input and identity boundary review
 
 The focused Agent Tools adapter selectors passed **64/64**. Existing validation already bounds nested/large JSON and base64, refuses remote `$ref`, rejects malformed input before effect, and covers tenant attribution plus caller-agent replay. No source change was justified: the current `ToolExecutionEnvelope` has no trusted principal field and its identity is documented as consistency-only, so adding principal authorization in Media would invent a second auth authority. Exact principal authorization remains a Shared/runtime identity integration dependency; this review does not claim AT-02 source-free principal admission or whole-task acceptance.
+
+### 43.37 November 3 RS-03 rational resampler pulse
+
+Source inspection found `Resampler::resample` already uses a Blackman-windowed sinc and rational sample positions. Existing fixtures cover alias attenuation, channel/DC isolation and long-duration drift. Commit `6b3e68d1` adds an interior centered-impulse symmetry/finiteness regression with `<1e-6` symmetry tolerance; the focused Rust DSP suite passed **11/11**, Clippy with `-D warnings` passed, and `cargo fmt --all -- --check` passed. No resampling algorithm change or model/codec qualification is claimed; measured RTF/RSS and platform qualification remain separate.
