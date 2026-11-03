@@ -163,6 +163,51 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("64 simultaneous same-key contenders share one cache read and source load")
+    void simultaneousContendersShareOneLoad() throws Exception {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        CompletableFuture<Optional<String>> cacheRead = new CompletableFuture<>();
+        CompletableFuture<String> source = new CompletableFuture<>();
+        AtomicInteger loads = new AtomicInteger();
+        when(cachePort.get("same-key")).thenReturn(AsyncOperation.from(cacheRead));
+        when(cachePort.put(eq("same-key"), eq("loaded-once"), any(Duration.class)))
+                .thenReturn(AsyncOperation.success(null));
+
+        ExecutorService workers = Executors.newFixedThreadPool(64);
+        CountDownLatch start = new CountDownLatch(1);
+        List<Future<AsyncOperation<String>>> submitted = new ArrayList<>();
+        try {
+            for (int index = 0; index < 64; index++) {
+                submitted.add(workers.submit(() -> {
+                    start.await();
+                    return cache.getOrLoad("same-key", ignored -> {
+                        loads.incrementAndGet();
+                        return AsyncOperation.from(source);
+                    });
+                }));
+            }
+            start.countDown();
+
+            List<AsyncOperation<String>> requests = new ArrayList<>();
+            for (Future<AsyncOperation<String>> contender : submitted) {
+                requests.add(contender.get(10, TimeUnit.SECONDS));
+            }
+            verify(cachePort, times(1)).get("same-key");
+            assertThat(loads).hasValue(0);
+
+            cacheRead.complete(Optional.empty());
+            assertThat(loads).hasValue(1);
+            source.complete("loaded-once");
+            for (AsyncOperation<String> request : requests) {
+                assertThat(await(request)).isEqualTo("loaded-once");
+            }
+            verify(cachePort, times(1)).put(eq("same-key"), eq("loaded-once"), any(Duration.class));
+        } finally {
+            workers.shutdownNow();
+        }
+    }
+
+    @Test
     @DisplayName("distinct-key contention caps source concurrency and rejects overflow")
     void distinctKeyContentionRespectsInFlightCap() throws Exception {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
