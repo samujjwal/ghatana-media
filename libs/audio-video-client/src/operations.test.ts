@@ -1162,6 +1162,39 @@ describe("MediaOperationClient", () => {
     },
   );
 
+  it.each(["+artifact", "_artifact", "artifact+1", "a".repeat(129)])(
+    "rejects artifact ID %j outside the PDP-1 opaque-id scalar before transport",
+    async (artifactId) => {
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(canonicalArtifact())) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test",
+        tenantId: "tenant-1",
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+        fetchImpl,
+      });
+
+      await expect(client.getArtifact(artifactId)).rejects.toThrow("PDP-1 opaque ID");
+      expect(fetchImpl).not.toHaveBeenCalled();
+    },
+  );
+
+  it("retains PDP-1 opaque artifact IDs with dot, underscore, colon, and hyphen", async () => {
+    const artifactId = "Artifact_01:revision-2.test";
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      expect(String(input)).toBe(`https://media.example.test/api/v1/artifacts/${encodeURIComponent(artifactId)}`);
+      return jsonResponse(canonicalArtifact({ artifactId }));
+    }) as unknown as typeof fetch;
+    const client = createMediaOperationClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      fetchImpl,
+    });
+
+    await expect(client.getArtifact(artifactId)).resolves.toMatchObject({ artifactId });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     ["an unsupported classification", { classification: "BIOMETRIC" }],
     ["an unsafe numeric size", { sizeBytes: Number.MAX_SAFE_INTEGER + 1 }],

@@ -191,6 +191,14 @@ function isCanonicalMediaClassification(value: unknown): value is CanonicalMedia
   return value === "PUBLIC" || value === "INTERNAL" || value === "CONFIDENTIAL" || value === "RESTRICTED";
 }
 
+/** PDP-1 operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id. */
+function canonicalOpaqueId(name: string, value: string): string {
+  if (value.length > 128 || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/u.test(value)) {
+    throw new Error(`Canonical ${name} must be a PDP-1 opaque ID.`);
+  }
+  return value;
+}
+
 function uploadImmutableFieldsMatch(
   actual: CanonicalMediaUploadSessionObservation,
   expected: Pick<CanonicalMediaUploadSessionObservation,
@@ -701,9 +709,7 @@ export class MediaOperationClient {
   ): Promise<CanonicalMediaArtifactObservation> {
     const requestedArtifactId = safeIdentityHeader("artifactId", artifactId);
     if (!requestedArtifactId) throw new Error("Canonical artifact reads require a non-empty artifact ID.");
-    if (requestedArtifactId === "." || requestedArtifactId === ".." || /[\\/]/u.test(requestedArtifactId)) {
-      throw new Error("Canonical artifact reads require a safe single path-segment artifact ID.");
-    }
+    canonicalOpaqueId("artifactId", requestedArtifactId);
     const principalValue = Object.entries(this.transport.callerDefaultHeaders())
       .find(([name]) => name.toLowerCase() === "x-principal-id")?.[1];
     if (!principalValue) {
