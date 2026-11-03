@@ -69,9 +69,8 @@ public class VisionEngineIntegrationTest {
         EngineStatus status = engine.getStatus(); 
 
         assertNotNull(status); 
-        assertTrue(status.state() == EngineStatus.State.READY 
-                || status.state() == EngineStatus.State.DEGRADED, 
-            "Engine should be ready or in stub fallback mode");
+        assertEquals(EngineStatus.State.DEGRADED, status.state(),
+            "Synthetic Vision fallback must remain degraded and cannot report READY");
     }
 
     @Test
