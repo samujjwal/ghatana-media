@@ -4,14 +4,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.FileVisitResult;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -39,6 +48,7 @@ final class HostOciVisionWorkerSupervisor {
 
     static final String BROKER_SOCKET_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_SOCKET";
     static final String BROKER_TOKEN_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_TOKEN_FILE";
+    static final String BROKER_OUTPUT_ROOT_ENV = "MEDIA_OCI_BROKER_OUTPUT_ROOT";
     /** When set to true, codec workers may only run through the authenticated broker. */
     static final String BROKER_REQUIRED_ENV = "GHATANA_MEDIA_VISION_OCI_BROKER_REQUIRED";
 
@@ -93,16 +103,203 @@ final class HostOciVisionWorkerSupervisor {
                 : List.of();
         String executable = Path.of(command.getFirst()).getFileName()
                 .toString().toLowerCase(Locale.ROOT);
-        MediaOciBrokerClient client = new MediaOciBrokerClient(
-                Path.of(System.getenv(BROKER_SOCKET_ENV)),
-                Path.of(System.getenv(BROKER_TOKEN_ENV)));
-        MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
-                plan.imageDigest(), plan.containerName(), executable, workerArgs,
-                plan.source() == null ? null : plan.source().toString(),
-                plan.source() == null ? null : sha256File(plan.source()),
-                plan.output() == null ? null : plan.output().toString(),
-                plan.uid(), plan.gid(), plan.outputFileLimit(), timeout));
-        return toProcessResult(result, maxOutputChars);
+        Path brokerOutput = outputDirectory == null ? null
+                : createBrokerOutputDirectory(Path.of(requiredEnvironment(BROKER_OUTPUT_ROOT_ENV)),
+                        plan.uid(), plan.gid());
+        boolean preserveForReconciliation = false;
+        IOException primaryFailure = null;
+        try {
+            MediaOciBrokerClient client = new MediaOciBrokerClient(
+                    Path.of(System.getenv(BROKER_SOCKET_ENV)),
+                    Path.of(System.getenv(BROKER_TOKEN_ENV)));
+            MediaOciBroker.WorkerResult result = client.execute(new MediaOciBroker.WorkerLaunch(
+                    plan.imageDigest(), plan.containerName(), executable, workerArgs,
+                    plan.source() == null ? null : plan.source().toString(),
+                    plan.source() == null ? null : sha256File(plan.source()),
+                    brokerOutput == null ? null : brokerOutput.toString(),
+                    plan.uid(), plan.gid(), plan.outputFileLimit(), timeout));
+            if (brokerOutput != null && result.completed() && result.exitCode() == 0
+                    && !result.timedOut() && !result.oomKilled() && !result.outputExceeded()
+                    && !result.outputRejected()) {
+                copyVerifiedBrokerOutput(brokerOutput, outputDirectory, result.outputBytes(), result.outputFiles());
+            }
+            return toProcessResult(result, maxOutputChars);
+        } catch (MediaOciBrokerClient.UnknownOutcomeException unknown) {
+            preserveForReconciliation = true;
+            primaryFailure = unknown;
+            throw unknown;
+        } catch (IOException failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            if (brokerOutput != null && !preserveForReconciliation) {
+                try {
+                    deleteBrokerOutputDirectory(brokerOutput, Path.of(requiredEnvironment(BROKER_OUTPUT_ROOT_ENV)));
+                } catch (IOException cleanupFailure) {
+                    if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure);
+                    else throw cleanupFailure;
+                }
+            } else if (brokerOutput != null) {
+                System.err.println("Vision broker output retained for operator reconciliation: "
+                        + brokerOutput.getFileName());
+            }
+        }
+    }
+
+    static Path createBrokerOutputDirectory(Path configuredRoot, long expectedUid, long expectedGid)
+            throws IOException {
+        Path root = MediaOciBrokerPolicy.validateSharedOutputRoot(configuredRoot, expectedUid, expectedGid);
+        Path directory = root.resolve("media-vision-output-" + UUID.randomUUID());
+        Files.createDirectory(directory);
+        try {
+            Files.setPosixFilePermissions(directory, PosixFilePermissions.fromString("rwxr-x---"));
+            if (Files.isSymbolicLink(directory) || !Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS)
+                    || unixId(directory, "uid") != expectedUid || unixId(directory, "gid") != expectedGid
+                    || (((Number) Files.getAttribute(directory, "unix:mode", LinkOption.NOFOLLOW_LINKS)).intValue()
+                            & 07777) != 0750) {
+                throw new IOException("Broker output directory could not preserve the pinned owner/group permissions");
+            }
+            return directory.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException | RuntimeException failure) {
+            try { Files.deleteIfExists(directory); } catch (IOException cleanup) { failure.addSuppressed(cleanup); }
+            throw failure;
+        }
+    }
+
+    static void copyVerifiedBrokerOutput(Path brokerOutput, Path privateOutput,
+            long expectedTotalBytes, List<MediaOciBroker.OutputFile> manifest) throws IOException {
+        Path sourceRoot = brokerOutput.toAbsolutePath().normalize();
+        Path destinationRoot = canonicalPrivateDirectory(privateOutput, "Media output staging directory");
+        if (sourceRoot.getParent() == null || destinationRoot == null || expectedTotalBytes < 0
+                || expectedTotalBytes > MediaOciBrokerPolicy.MAX_VISION_OUTPUT_BYTES
+                || Files.isSymbolicLink(sourceRoot)
+                || !Files.isDirectory(sourceRoot, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Broker output transfer root or byte total is invalid");
+        }
+        Object outputKey = Files.readAttributes(sourceRoot, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).fileKey();
+        if (outputKey == null) throw new IOException("Broker output directory identity cannot be established");
+        List<MediaOciBroker.OutputFile> files = List.copyOf(manifest == null ? List.of() : manifest);
+        Set<String> names = new HashSet<>();
+        long measuredTotal = 0;
+        for (MediaOciBroker.OutputFile file : files) {
+            if (file == null || file.name() == null || !file.name().matches(
+                    "frame_[0-9]{4,}\\.(?:jpg|jpeg|png|bmp|tiff)|frame\\.(?:jpg|jpeg|png|bmp|tiff)|audio\\.pcm")
+                    || !names.add(file.name()) || file.size() <= 0
+                    || file.size() > MediaOciBrokerPolicy.MAX_VISION_FRAME_BYTES
+                    || file.sha256() == null || !file.sha256().matches("[0-9a-f]{64}")
+                    || measuredTotal > Long.MAX_VALUE - file.size()) {
+                throw new IOException("Broker output manifest contains an invalid entry");
+            }
+            measuredTotal += file.size();
+        }
+        if (measuredTotal != expectedTotalBytes) {
+            throw new IOException("Broker output manifest does not match its declared byte total");
+        }
+        List<Path> observed;
+        try (var stream = Files.list(sourceRoot)) { observed = stream.toList(); }
+        if (observed.size() != files.size()
+                || observed.stream().anyMatch(path -> !names.contains(path.getFileName().toString()))) {
+            throw new IOException("Broker output directory does not match its signed manifest");
+        }
+
+        List<Path> created = new ArrayList<>();
+        try {
+            for (MediaOciBroker.OutputFile entry : files) {
+                Path source = sourceRoot.resolve(entry.name());
+                Path destination = destinationRoot.resolve(entry.name());
+                if (!destination.getParent().equals(destinationRoot)
+                        || Files.exists(destination, LinkOption.NOFOLLOW_LINKS)
+                        || Files.isSymbolicLink(source)
+                        || !Files.isRegularFile(source, LinkOption.NOFOLLOW_LINKS)) {
+                    throw new IOException("Broker output file is not a new regular file");
+                }
+                BasicFileAttributes before = Files.readAttributes(source, BasicFileAttributes.class,
+                        LinkOption.NOFOLLOW_LINKS);
+                if (before.fileKey() == null || before.size() != entry.size()) {
+                    throw new IOException("Broker output file changed before Media readback");
+                }
+                java.security.MessageDigest digest;
+                try { digest = java.security.MessageDigest.getInstance("SHA-256"); }
+                catch (java.security.NoSuchAlgorithmException impossible) {
+                    throw new IllegalStateException(impossible);
+                }
+                try (SeekableByteChannel input = Files.newByteChannel(source,
+                             Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS));
+                     SeekableByteChannel output = Files.newByteChannel(destination,
+                             Set.of(StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS))) {
+                    created.add(destination);
+                    ByteBuffer buffer = ByteBuffer.allocate(64 * 1024);
+                    long copied = 0;
+                    while (true) {
+                        buffer.clear();
+                        int read = input.read(buffer);
+                        if (read < 0) break;
+                        if (read == 0) continue;
+                        copied += read;
+                        if (copied > entry.size() || copied > MediaOciBrokerPolicy.MAX_VISION_FRAME_BYTES) {
+                            throw new IOException("Broker output file exceeded its signed byte bound");
+                        }
+                        digest.update(buffer.array(), 0, read);
+                        buffer.flip();
+                        while (buffer.hasRemaining()) output.write(buffer);
+                    }
+                    if (copied != entry.size()) throw new IOException("Broker output file was truncated during transfer");
+                }
+                BasicFileAttributes after = Files.readAttributes(source, BasicFileAttributes.class,
+                        LinkOption.NOFOLLOW_LINKS);
+                String actual = java.util.HexFormat.of().formatHex(digest.digest());
+                if (!after.isRegularFile() || after.fileKey() == null || !before.fileKey().equals(after.fileKey())
+                        || after.size() != entry.size() || Files.isSymbolicLink(source)
+                        || !java.security.MessageDigest.isEqual(actual.getBytes(StandardCharsets.US_ASCII),
+                                entry.sha256().getBytes(StandardCharsets.US_ASCII))) {
+                    throw new IOException("Broker output file hash or identity changed during transfer");
+                }
+                Files.setPosixFilePermissions(destination, PosixFilePermissions.fromString("rw-------"));
+                if (Files.size(destination) != entry.size() || !sha256File(destination).equals(entry.sha256())) {
+                    throw new IOException("Media output staging hash differs from broker manifest");
+                }
+            }
+            BasicFileAttributes afterRoot = Files.readAttributes(sourceRoot, BasicFileAttributes.class,
+                    LinkOption.NOFOLLOW_LINKS);
+            if (afterRoot.fileKey() == null || !outputKey.equals(afterRoot.fileKey())
+                    || Files.isSymbolicLink(sourceRoot)) {
+                throw new IOException("Broker output directory identity changed during transfer");
+            }
+        } catch (IOException | RuntimeException failure) {
+            for (Path destination : created) {
+                try { Files.deleteIfExists(destination); }
+                catch (IOException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
+            throw failure;
+        }
+    }
+
+    private static void deleteBrokerOutputDirectory(Path directory, Path configuredRoot) throws IOException {
+        Path root = MediaOciBrokerPolicy.validateSharedOutputRoot(configuredRoot,
+                unixId(directory, "uid"), unixId(directory, "gid"));
+        Path normalized = directory.toAbsolutePath().normalize();
+        Path real = normalized.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        if (!real.getParent().equals(root) || Files.isSymbolicLink(real)
+                || !real.getFileName().toString().matches("media-vision-output-[a-f0-9-]{36}")) {
+            throw new IOException("Refusing to clean a broker output directory outside its owner-scoped root");
+        }
+        Files.walkFileTree(real, new SimpleFileVisitor<>() {
+            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+            @Override public FileVisitResult postVisitDirectory(Path dir, IOException failure) throws IOException {
+                if (failure != null) throw failure;
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private static String requiredEnvironment(String name) throws IOException {
+        String value = System.getenv(name);
+        if (value == null || value.isBlank()) throw new IOException("Authenticated OCI broker output root is not configured");
+        return value;
     }
 
     /** Preserve broker terminal failures even if a runtime reports an inconsistent zero exit code. */
@@ -116,7 +313,7 @@ final class HostOciVisionWorkerSupervisor {
         if (result.oomKilled() && exitCode == 0) exitCode = 137;
         return new VideoFrameExtractor.ProcessResult(
                 exitCode, result.timedOut(),
-                output, result.outputExceeded(), false);
+                output, result.outputExceeded(), false, result.outputRejected());
     }
 
     static Prepared prepare(List<String> command, Path workspace, Path outputDirectory) throws IOException {

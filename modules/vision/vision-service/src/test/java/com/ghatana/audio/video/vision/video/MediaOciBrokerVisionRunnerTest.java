@@ -34,6 +34,8 @@ class MediaOciBrokerVisionRunnerTest {
         List<List<String>> commands = new ArrayList<>();
         MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
             commands.add(List.copyOf(command));
+            if (command.get(1).equals("start")) Files.write(outputRoot.resolve("frame.png"),
+                    "encoded-frame".getBytes());
             if (command.get(1).equals("create")) {
                 Files.write(source, "caller-mutated".getBytes());
                 String mount = command.get(command.indexOf("--mount") + 1);
@@ -56,7 +58,8 @@ class MediaOciBrokerVisionRunnerTest {
                         "-i", "/source/input", "-y", "/output/frame.png"), source, sha, stage,
                 outputRoot, 501, 20, Duration.ofSeconds(3), 1024, runner);
 
-        assertThat(result).contains("\"exitCode\":0");
+        assertThat(result).contains("\"exitCode\":0", "\"outputBytes\":13",
+                "\"name\":\"frame.png\"");
         assertThat(commands.getFirst()).anySatisfy(arg -> assertThat(arg).startsWith("type=bind,source="));
         assertThat(Files.list(stage).toList()).isEmpty();
     }
@@ -109,8 +112,55 @@ class MediaOciBrokerVisionRunnerTest {
         assertThat(MediaOciBrokerDaemon.sourceProbePairValid(null, List.of("-version"))).isTrue();
         assertThat(MediaOciBrokerDaemon.sourceProbePairValid(null, List.of("-i", "/source/input"))).isFalse();
         assertThat(MediaOciBrokerDaemon.sourceProbePairValid("/source/input", List.of("-version"))).isFalse();
-        assertThat(MediaOciBrokerDaemon.writableOutputTransferAdmitted(null)).isTrue();
-        assertThat(MediaOciBrokerDaemon.writableOutputTransferAdmitted("/output/staging")).isFalse();
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
+                "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/result.out"))).isFalse();
+    }
+
+    @Test
+    void outputManifestIsBoundedHashCheckedAndRejectsSymlinksOrSequenceGaps() throws Exception {
+        Path output = Files.createDirectory(temp.resolve("manifest-output"));
+        Files.writeString(output.resolve("frame_0001.png"), "one");
+        Files.writeString(output.resolve("frame_0002.png"), "two-two");
+        List<String> workerArgs = batchFrameArgs(2);
+
+        MediaOciBrokerDaemon.OutputSummary summary =
+                MediaOciBrokerDaemon.inspectVisionOutput(output, workerArgs, 1024);
+        assertThat(summary.rejected()).isFalse();
+        assertThat(summary.exceeded()).isFalse();
+        assertThat(summary.totalBytes()).isEqualTo(10);
+        assertThat(summary.files()).extracting(MediaOciBroker.OutputFile::name)
+                .containsExactly("frame_0001.png", "frame_0002.png");
+        assertThat(summary.files().getFirst().sha256()).isEqualTo(sha("one".getBytes()));
+
+        Files.delete(output.resolve("frame_0002.png"));
+        Files.move(output.resolve("frame_0001.png"), output.resolve("frame_0002.png"));
+        assertThat(MediaOciBrokerDaemon.inspectVisionOutput(output, workerArgs, 1024).rejected()).isTrue();
+        Files.delete(output.resolve("frame_0002.png"));
+        Files.createSymbolicLink(output.resolve("frame_0001.png"), Path.of("/etc/hosts"));
+        assertThat(MediaOciBrokerDaemon.inspectVisionOutput(output, workerArgs, 1024).rejected()).isTrue();
+    }
+
+    @Test
+    void outputManifestRejectsPerFileAggregateAndCountLimits() throws Exception {
+        Path output = Files.createDirectory(temp.resolve("manifest-bounds"));
+        List<String> args = batchFrameArgs(2);
+        Files.write(output.resolve("frame_0001.png"), new byte[33 * 1024 * 1024]);
+        assertThat(MediaOciBrokerDaemon.inspectVisionOutput(output, args, 40L * 1024 * 1024).exceeded()).isTrue();
+
+        Files.delete(output.resolve("frame_0001.png"));
+        Files.write(output.resolve("frame_0001.png"), new byte[600]);
+        assertThat(MediaOciBrokerDaemon.inspectVisionOutput(output, args, 500).exceeded()).isTrue();
+    }
+
+    private static List<String> batchFrameArgs(int maxFrames) {
+        return List.of("-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
+                "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
+                "-filter_threads", "1", "-f", "mov", "-i", "/source/input", "-threads", "2",
+                "-vf", "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/2)',showinfo,"
+                        + "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
+                "-fps_mode", "passthrough", "-enc_time_base", "demux", "-frames:v",
+                Integer.toString(maxFrames), "-q:v", "2", "/output/frame_%04d.png", "-n");
     }
 
     @Test

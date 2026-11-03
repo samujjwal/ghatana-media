@@ -15,6 +15,9 @@ import java.util.List;
  */
 public interface MediaOciBroker {
 
+    /** A broker-verified, owner-scoped output file produced by one completed worker. */
+    record OutputFile(String name, long size, String sha256) { }
+
     record WorkerLaunch(
             String imageDigest,
             String containerName,
@@ -29,7 +32,19 @@ public interface MediaOciBroker {
             Duration timeout) { }
 
     record WorkerResult(boolean completed, int exitCode, boolean timedOut, boolean oomKilled,
-            boolean outputExceeded, String outputTail) { }
+            boolean outputExceeded, boolean outputRejected, String outputTail,
+            long outputBytes, List<OutputFile> outputFiles) {
+        public WorkerResult {
+            outputFiles = List.copyOf(outputFiles == null ? List.of() : outputFiles);
+        }
+
+        /** Compatibility constructor for worker results that do not carry file output. */
+        public WorkerResult(boolean completed, int exitCode, boolean timedOut, boolean oomKilled,
+                boolean outputExceeded, String outputTail) {
+            this(completed, exitCode, timedOut, oomKilled, outputExceeded, false,
+                    outputTail, 0, List.of());
+        }
+    }
 
     /**
      * Creates, verifies effective sandbox limits, starts, awaits and destroys one

@@ -364,6 +364,7 @@ public class VideoFrameExtractor {
                 ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS), timestampDiagnosticBudget,
                         staging, MAX_EXTRACTED_BYTES);
                 if (result.timedOut()) throw new IOException("FFmpeg process timed out after " + DEFAULT_TIMEOUT_SECONDS + " seconds");
+                if (result.outputRejected()) throw new IOException("FFmpeg broker rejected the extracted frame files");
                 if (result.outputExceeded()) throw new IOException("FFmpeg exceeded the extracted-output byte limit");
                 if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
                 int exitCode = result.exitCode();
@@ -426,6 +427,7 @@ public class VideoFrameExtractor {
                 ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(120), MAX_DIAGNOSTIC_BYTES,
                         staging, MAX_DEMUXED_AUDIO_BYTES);
                 if (result.timedOut()) throw new IOException("FFmpeg audio demux timed out");
+                if (result.outputRejected()) throw new IOException("FFmpeg broker rejected the demuxed audio file");
                 if (result.outputExceeded()) throw new IOException("FFmpeg audio output exceeded its byte limit");
                 if (result.diagnosticExceeded()) throw new IOException("FFmpeg audio diagnostics exceeded their byte limit");
                 if (result.exitCode() != 0) throw new IOException("FFmpeg audio demux failed with exit code: " + result.exitCode());
@@ -656,6 +658,7 @@ public class VideoFrameExtractor {
                 ProcessResult result = runFFmpegProcess(command, Duration.ofSeconds(30), MAX_DIAGNOSTIC_BYTES,
                         staging, MAX_SINGLE_FRAME_BYTES);
                 if (result.timedOut()) throw new IOException("FFmpeg process timed out");
+                if (result.outputRejected()) throw new IOException("FFmpeg broker rejected the extracted frame file");
                 if (result.diagnosticExceeded()) throw new IOException("FFmpeg diagnostic output exceeded its byte budget");
                 if (result.outputExceeded()) throw new IOException("FFmpeg output exceeded its byte budget");
                 if (result.exitCode() != 0) throw new IOException("FFmpeg failed with exit code: " + result.exitCode());
@@ -1078,10 +1081,14 @@ public class VideoFrameExtractor {
     }
 
     record ProcessResult(int exitCode, boolean timedOut, String output, boolean outputExceeded,
-            boolean diagnosticExceeded) {
-        ProcessResult(int exitCode, boolean timedOut, String output) { this(exitCode, timedOut, output, false, false); }
+            boolean diagnosticExceeded, boolean outputRejected) {
+        ProcessResult(int exitCode, boolean timedOut, String output, boolean outputExceeded,
+                boolean diagnosticExceeded) {
+            this(exitCode, timedOut, output, outputExceeded, diagnosticExceeded, false);
+        }
+        ProcessResult(int exitCode, boolean timedOut, String output) { this(exitCode, timedOut, output, false, false, false); }
         ProcessResult(int exitCode, boolean timedOut, String output, boolean outputExceeded) {
-            this(exitCode, timedOut, output, outputExceeded, false);
+            this(exitCode, timedOut, output, outputExceeded, false, false);
         }
     }
 

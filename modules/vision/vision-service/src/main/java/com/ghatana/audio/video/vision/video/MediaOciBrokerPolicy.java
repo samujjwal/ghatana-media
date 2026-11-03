@@ -35,6 +35,10 @@ final class MediaOciBrokerPolicy {
     static final int MAX_WHISPER_INPUT_BYTES = 4 * 1024 * 1024;
     static final int MAX_WHISPER_RESPONSE_BYTES = 1024 * 1024;
     static final long MAX_VISION_SOURCE_BYTES = 500L * 1024 * 1024;
+    static final long MAX_VISION_OUTPUT_BYTES = 512L * 1024 * 1024;
+    static final long MAX_VISION_FRAME_BYTES = 32L * 1024 * 1024;
+    static final long MAX_VISION_AUDIO_BYTES = 16_000L * 2L * 300L;
+    static final int MAX_VISION_OUTPUT_FILES = 10_000;
 
     private MediaOciBrokerPolicy() { }
 
@@ -256,7 +260,7 @@ final class MediaOciBrokerPolicy {
         // only, null muxer to stdout. No output path or arbitrary filter is admitted.
         if (args.equals(List.of("-nostdin", "-protocol_whitelist", "file", "-i",
                 "/source/input", "-f", "null", "-"))) return true;
-        // Narrow fixture-worker plan used by the OCI boundary suite.
+        // Narrow fixture-worker plans used by the OCI boundary suite.
         if (args.size() == 8 && args.get(0).equals("-nostdin")
                 && args.get(1).equals("-hide_banner") && args.get(2).equals("-loglevel")
                 && args.get(3).equals("error") && args.get(4).equals("-i")
@@ -264,6 +268,7 @@ final class MediaOciBrokerPolicy {
                 && (args.get(6).equals("-y") || args.get(6).equals("-n"))) {
             return outputFile(args.get(7));
         }
+        if (singleFrameArgsAllowed(args) || audioDemuxArgsAllowed(args)) return true;
         // Production VideoFrameExtractor frame extraction plan, including its bounded
         // select/scale filter and fixed output format/options.
         if (args.size() != 32 || !args.subList(0, 16).equals(List.of(
@@ -319,12 +324,54 @@ final class MediaOciBrokerPolicy {
     }
 
     private static boolean outputFile(String path) {
-        return path != null && path.matches("/output/[A-Za-z0-9_.-]{1,180}")
-                && !path.equals("/output/.") && !path.equals("/output/..");
+        return path != null && (path.matches("/output/frame\\.(?:jpg|jpeg|png|bmp|tiff)")
+                || path.equals("/output/audio.pcm"));
     }
 
     private static boolean outputPattern(String path) {
         return path != null && path.matches("/output/frame_%04d\\.(?:jpg|jpeg|png|bmp|tiff)");
+    }
+
+    private static boolean singleFrameArgsAllowed(List<String> args) {
+        if (args.size() != 25 || !args.subList(0, 11).equals(List.of(
+                "-nostdin", "-v", "error", "-protocol_whitelist", "file", "-f", args.get(6),
+                "-max_alloc", "268435456", "-max_pixels", "16000000"))
+                || !INPUT_FORMATS.contains(args.get(6)) || !args.get(11).equals("-ss")
+                || !args.get(12).matches("[0-9]{1,13}\\.[0-9]{3}")
+                || !args.get(13).equals("-i") || !args.get(14).equals("/source/input")
+                || !args.get(15).equals("-frames:v") || !args.get(16).equals("1")
+                || !args.get(17).equals("-vf")
+                || !args.get(18).equals("scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease")
+                || !args.get(19).equals("-q:v") || !args.get(20).equals("2")
+                || !args.get(21).equals("-fs") || !args.get(22).equals(Long.toString(MAX_VISION_FRAME_BYTES))
+                || !outputFile(args.get(23)) || !args.get(24).equals("-n")) return false;
+        return true;
+    }
+
+    private static boolean audioDemuxArgsAllowed(List<String> args) {
+        if (args.size() != 30 || !args.subList(0, 12).equals(List.of(
+                "-nostdin", "-v", "error", "-protocol_whitelist", "file", "-max_alloc",
+                "268435456", "-threads", "2", "-i", "/source/input", "-map"))
+                || !args.get(12).matches("0:(?:0|[1-9][0-9]{0,4})")
+                || !args.subList(13, 27).equals(List.of("-vn", "-sn", "-dn", "-threads", "2",
+                        "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", "-f", "s16le", "-fs"))
+                || !args.get(27).equals(Long.toString(MAX_VISION_AUDIO_BYTES))
+                || !args.get(28).equals("/output/audio.pcm") || !args.get(29).equals("-n")) return false;
+        return true;
+    }
+
+    static boolean outputLimitAllowed(String executable, List<String> args, long limit) {
+        if (limit <= 0 || limit > MAX_VISION_OUTPUT_BYTES || !"ffmpeg".equals(executable)) return false;
+        if (args != null && args.contains("/output/audio.pcm")) return limit <= MAX_VISION_AUDIO_BYTES;
+        if (args != null && args.stream().anyMatch(value -> value.matches("/output/frame\\.(?:jpg|jpeg|png|bmp|tiff)"))) {
+            return limit <= MAX_VISION_FRAME_BYTES;
+        }
+        return true;
+    }
+
+    static boolean outputBindingAllowed(String output, List<String> args) {
+        boolean workerWritesFile = args != null && args.stream().anyMatch(value -> value.startsWith("/output/"));
+        return workerWritesFile == (output != null);
     }
 
     private static boolean positiveInt(String value, int maximum) {
@@ -369,7 +416,45 @@ final class MediaOciBrokerPolicy {
         Path literal = Path.of(output);
         if (!pathHasNoSymlinkComponents(literal, policy.outputRoot())) return false;
         Path resolved = literal.toRealPath();
-        return resolved.startsWith(policy.outputRoot()) && Files.isDirectory(resolved);
+        if (!resolved.getParent().equals(policy.outputRoot())
+                || !resolved.getFileName().toString().matches("media-vision-output-[a-f0-9-]{36}")
+                || !Files.isDirectory(resolved, LinkOption.NOFOLLOW_LINKS)
+                || Files.isSymbolicLink(resolved)
+                || !unixIdentityMatches(resolved, policy.workerUid(), policy.workerGid())
+                || unixMode(resolved) != 0750) return false;
+        try (var entries = Files.list(resolved)) { return entries.findAny().isEmpty(); }
+    }
+
+    static Path validateSharedOutputRoot(Path configured, long workerUid, long workerGid) throws IOException {
+        if (configured == null || Files.isSymbolicLink(configured)
+                || !Files.isDirectory(configured, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Broker output root must be a real worker-owned directory");
+        }
+        Path root = configured.toRealPath();
+        if (!unixIdentityMatches(root, workerUid, workerGid) || unixMode(root) != 02750) {
+            throw new IOException("Broker output root must be worker-owned with dedicated shared-group mode 02750");
+        }
+        return root;
+    }
+
+    private static boolean unixIdentityMatches(Path path, long uid, long gid) throws IOException {
+        try {
+            Object owner = Files.getAttribute(path, "unix:uid", LinkOption.NOFOLLOW_LINKS);
+            Object group = Files.getAttribute(path, "unix:gid", LinkOption.NOFOLLOW_LINKS);
+            return owner instanceof Number ownerNumber && group instanceof Number groupNumber
+                    && ownerNumber.longValue() == uid && groupNumber.longValue() == gid;
+        } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
+            throw new IOException("Broker output ownership cannot be verified", unsupported);
+        }
+    }
+
+    private static int unixMode(Path path) throws IOException {
+        try {
+            Object mode = Files.getAttribute(path, "unix:mode", LinkOption.NOFOLLOW_LINKS);
+            return mode instanceof Number number ? number.intValue() & 07777 : -1;
+        } catch (UnsupportedOperationException | IllegalArgumentException unsupported) {
+            throw new IOException("Broker output permissions cannot be verified", unsupported);
+        }
     }
 
     /** Reject aliases in every path component, including a symlinked parent directory. */

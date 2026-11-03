@@ -9,6 +9,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
@@ -45,11 +46,13 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * <p>The broker enforces the sandbox server-side: network=none, read-only root
  * fs, no capabilities, unprivileged uid, cgroup memory/CPU/PID/fd ceilings,
- * exactly one read-only source snapshot mount and a read-only probe path, entrypoint
- * restricted to ffmpeg/ffprobe inside the pinned image. Writable output mounts are
- * rejected until an authenticated bounded return path preserves Media ownership.
+ * exactly one read-only source snapshot mount and an optional peer-created output
+ * directory under the pinned shared root, with entrypoint restricted to ffmpeg/ffprobe
+ * inside the pinned image. Output is returned only as an authenticated manifest of
+ * bounded, enumerated regular files and is rechecked by Media before private staging.
  * Callers cannot widen any admitted operation — only the executable name, bounded
- * arguments, bounded output ceiling and source file are request fields.
+ * arguments, bounded output ceiling, source file and owner-scoped output directory
+ * are request fields.
  */
 public final class MediaOciBrokerDaemon {
 
@@ -62,6 +65,10 @@ public final class MediaOciBrokerDaemon {
     private static final int PID_LIMIT = 32;
     private static final int FD_LIMIT = 64;
     private static final long OUTPUT_FILE_LIMIT = 512L * 1024 * 1024;
+    private static final long OUTPUT_FRAME_LIMIT = 32L * 1024 * 1024;
+    private static final long OUTPUT_TOTAL_LIMIT = 512L * 1024 * 1024;
+    private static final int OUTPUT_COUNT_LIMIT = 10_000;
+    private static final int MAX_WORKER_RESPONSE_BYTES = 4 * 1024 * 1024;
     private static final int MAX_ARGS = 64;
     private static final int MAX_FFMPEG_REQUEST_BYTES = 64 * 1024;
     private static final int MAX_REQUEST_BYTES = 8 * 1024 * 1024;
@@ -153,7 +160,7 @@ public final class MediaOciBrokerDaemon {
             System.exit(2);
         }
         Path sourceReal = Path.of(sourceRoot).toRealPath();
-        Path outputReal = Path.of(outputRoot).toRealPath();
+        Path outputReal = MediaOciBrokerPolicy.validateSharedOutputRoot(Path.of(outputRoot), uid, gid);
         Path stageReal = validateStageRoot(Path.of(stageRoot), sourceReal, outputReal, brokerOsUser, allowedPeerUser);
         if (!stageOwnerDistinctFromPeer(stageReal, allowedPeerUser)) {
             System.err.println("Broker OS identity must differ from the allowed Media peer identity");
@@ -313,10 +320,6 @@ public final class MediaOciBrokerDaemon {
         long outLimit = number(payload, "outputLimit", OUTPUT_FILE_LIMIT, 1, OUTPUT_FILE_LIMIT);
         long uid = number(payload, "uid", 0, 1, Integer.MAX_VALUE);
         long gid = number(payload, "gid", 0, 0, Integer.MAX_VALUE);
-        if (!writableOutputTransferAdmitted(output)) {
-            writeResult(client, -2, "writable output transfer is not admitted");
-            return;
-        }
         if (image == null || !IMAGE.matcher(image).matches()
                 || !MediaOciBrokerPolicy.visionImageAllowed(policy, image)
                 || name == null || !NAME.matcher(name).matches()
@@ -324,7 +327,9 @@ public final class MediaOciBrokerDaemon {
                 || uid <= 0 || workerArgs.size() > MAX_ARGS
                 || !MediaOciBrokerPolicy.workerIdentityAllowed(policy, uid, gid)
                 || !MediaOciBrokerPolicy.sourceAllowed(policy, source, sourceSha256)
-                || !MediaOciBrokerPolicy.outputAllowed(policy, output)) {
+                || !MediaOciBrokerPolicy.outputAllowed(policy, output)
+                || !MediaOciBrokerPolicy.outputBindingAllowed(output, workerArgs)
+                || output != null && !MediaOciBrokerPolicy.outputLimitAllowed(executable, workerArgs, outLimit)) {
             writeResult(client, -2, "rejected"); return;
         }
         boolean versionProbe = isVersionProbe(workerArgs);
@@ -345,7 +350,7 @@ public final class MediaOciBrokerDaemon {
             else result = runWorkerWithSnapshot(docker, image, name, executable, workerArgs,
                     sourcePath, sourceSha256, policy.stageRoot(), outputPath, policy.workerUid(), policy.workerGid(),
                     Duration.ofMillis(timeout), outLimit);
-            writeResult(client, 0, result);
+            writeVisionResult(client, token, nonce, issuedAt, result);
         } finally {
             WORKER_ADMISSION.release();
         }
@@ -356,17 +361,13 @@ public final class MediaOciBrokerDaemon {
     }
 
     static boolean sourceProbePairValid(String source, List<String> args) {
-        return source == null ? isVersionProbe(args) : isSourceReadProbe(args);
+        return source == null ? isVersionProbe(args)
+                : args != null && !isVersionProbe(args) && args.contains("/source/input");
     }
 
     static boolean isSourceReadProbe(List<String> args) {
         return args != null && args.equals(List.of("-nostdin", "-protocol_whitelist", "file", "-i",
                 "/source/input", "-f", "null", "-"));
-    }
-
-    /** The current bounded JSON reply cannot return worker output under Media ownership. */
-    static boolean writableOutputTransferAdmitted(String output) {
-        return output == null;
     }
 
     static Path validateStageRoot(Path configured, Path sourceRoot, Path outputRoot) throws IOException {
@@ -963,24 +964,137 @@ public final class MediaOciBrokerDaemon {
             CommandResult oom = runner.run(List.of(docker, "inspect",
                     "--format", "{{.State.OOMKilled}}", id), Duration.ofSeconds(10));
             boolean oomKilled = parseOomKilledState(oom.exitCode(), oom.output(), oom.timedOut());
-            long outputBytes = output != null && Files.exists(output)
-                    ? Files.walk(output).filter(Files::isRegularFile)
-                            .mapToLong(p -> { try { return Files.size(p); } catch (IOException e) { return 0L; } })
-                            .sum() : 0L;
             remove(docker, id, runner);
+            OutputSummary outputSummary = output == null || timedOut || oomKilled || started.exitCode() != 0
+                    ? OutputSummary.empty()
+                    : inspectVisionOutput(output, workerArgs, outputLimit);
             String tail = started.output().length() > OUTPUT_TAIL
                     ? started.output().substring(started.output().length() - OUTPUT_TAIL)
                     : started.output();
+            long returnedBytes = outputSummary.rejected() || outputSummary.exceeded() ? 0 : outputSummary.totalBytes();
+            List<MediaOciBroker.OutputFile> returnedFiles = outputSummary.rejected() || outputSummary.exceeded()
+                    ? List.of() : outputSummary.files();
             return "{\"exitCode\":" + (timedOut ? -1 : started.exitCode())
                     + ",\"timedOut\":" + timedOut
                     + ",\"oomKilled\":" + oomKilled
-                    + ",\"outputBytes\":" + outputBytes
-                    + ",\"outputExceeded\":" + (outputBytes > outputLimit)
+                    + ",\"outputBytes\":" + returnedBytes
+                    + ",\"outputExceeded\":" + outputSummary.exceeded()
+                    + ",\"outputRejected\":" + outputSummary.rejected()
+                    + ",\"files\":" + outputFilesJson(returnedFiles)
                     + ",\"tail\":" + json(tail) + "}";
         } catch (IOException failure) {
             remove(docker, name, runner);
             throw failure;
         }
+    }
+
+    record OutputSummary(long totalBytes, List<MediaOciBroker.OutputFile> files,
+            boolean exceeded, boolean rejected) {
+        OutputSummary { files = List.copyOf(files); }
+        private static OutputSummary empty() { return new OutputSummary(0, List.of(), false, false); }
+    }
+
+    /** Enumerates only the fixed output shapes generated by VideoFrameExtractor. */
+    static OutputSummary inspectVisionOutput(Path output, List<String> workerArgs, long outputLimit) {
+        if (output == null) return OutputSummary.empty();
+        try {
+            if (Files.isSymbolicLink(output) || !Files.isDirectory(output, LinkOption.NOFOLLOW_LINKS)
+                    || outputLimit <= 0) return new OutputSummary(0, List.of(), false, true);
+            OutputShape shape = outputShape(workerArgs);
+            if (shape == null) return new OutputSummary(0, List.of(), false, true);
+            List<Path> entries;
+            try (var stream = Files.list(output)) { entries = stream.sorted().toList(); }
+            if (entries.size() > Math.min(shape.maximumFiles(), OUTPUT_COUNT_LIMIT)) {
+                return new OutputSummary(0, List.of(), true, false);
+            }
+            long total = 0;
+            List<MediaOciBroker.OutputFile> files = new ArrayList<>(entries.size());
+            int expectedSequence = 1;
+            for (Path entry : entries) {
+                String name = entry.getFileName().toString();
+                if (!shape.accepts(name) || Files.isSymbolicLink(entry)
+                        || !Files.isRegularFile(entry, LinkOption.NOFOLLOW_LINKS)) {
+                    return new OutputSummary(0, List.of(), false, true);
+                }
+                if (shape.kind().equals("frames")) {
+                    int sequence = VideoFrameExtractor.frameSequenceNumber(name);
+                    if (sequence != expectedSequence++) return new OutputSummary(0, List.of(), false, true);
+                }
+                long size = Files.size(entry);
+                if (size <= 0 || size > shape.maximumFileBytes() || size > OUTPUT_FRAME_LIMIT) {
+                    return new OutputSummary(0, List.of(), true, false);
+                }
+                if (total > Long.MAX_VALUE - size) return new OutputSummary(0, List.of(), true, false);
+                total += size;
+                if (total > Math.min(outputLimit, OUTPUT_TOTAL_LIMIT)) {
+                    return new OutputSummary(0, List.of(), true, false);
+                }
+                Object beforeKey = Files.readAttributes(entry, java.nio.file.attribute.BasicFileAttributes.class,
+                        LinkOption.NOFOLLOW_LINKS).fileKey();
+                if (beforeKey == null) return new OutputSummary(0, List.of(), false, true);
+                String digest = MediaOciBrokerPolicy.sha256File(entry);
+                java.nio.file.attribute.BasicFileAttributes after = Files.readAttributes(entry,
+                        java.nio.file.attribute.BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                if (!after.isRegularFile() || after.fileKey() == null || !beforeKey.equals(after.fileKey())
+                        || after.size() != size || Files.isSymbolicLink(entry)) {
+                    return new OutputSummary(0, List.of(), false, true);
+                }
+                files.add(new MediaOciBroker.OutputFile(name, size, digest));
+            }
+            return new OutputSummary(total, files, false, false);
+        } catch (IOException | RuntimeException invalid) {
+            return new OutputSummary(0, List.of(), false, true);
+        }
+    }
+
+    record OutputShape(String kind, String extension, int maximumFiles, long maximumFileBytes) {
+        private boolean accepts(String name) {
+            return switch (kind) {
+                case "frames" -> name.matches("frame_[0-9]{4,}\\." + extension);
+                case "single" -> name.equals("frame." + extension);
+                case "audio" -> name.equals("audio.pcm");
+                default -> false;
+            };
+        }
+    }
+
+    static OutputShape outputShape(List<String> workerArgs) {
+        if (workerArgs == null || workerArgs.isEmpty()) return null;
+        List<String> outputArguments = workerArgs.stream().filter(argument -> argument.startsWith("/output/")).toList();
+        if (outputArguments.size() != 1) return null;
+        String output = outputArguments.getFirst();
+        if (output.matches("/output/frame_%04d\\.(jpg|jpeg|png|bmp|tiff)")) {
+            int framesIndex = workerArgs.indexOf("-frames:v");
+            if (framesIndex < 0 || framesIndex + 1 >= workerArgs.size()) return null;
+            try {
+                int maxFrames = Integer.parseInt(workerArgs.get(framesIndex + 1));
+                return maxFrames > 0 && maxFrames <= OUTPUT_COUNT_LIMIT
+                        ? new OutputShape("frames", output.substring(output.lastIndexOf('.') + 1),
+                                maxFrames, OUTPUT_FRAME_LIMIT) : null;
+            } catch (NumberFormatException invalid) { return null; }
+        }
+        if (output.matches("/output/frame\\.(jpg|jpeg|png|bmp|tiff)")) {
+            return new OutputShape("single", output.substring(output.lastIndexOf('.') + 1), 1,
+                    OUTPUT_FRAME_LIMIT);
+        }
+        if (output.equals("/output/audio.pcm")) {
+            return new OutputShape("audio", "pcm", 1, Math.min(outputLimitForAudio(), OUTPUT_FRAME_LIMIT));
+        }
+        return null;
+    }
+
+    private static long outputLimitForAudio() { return 16_000L * 2L * 300L; }
+
+    private static String outputFilesJson(List<MediaOciBroker.OutputFile> files) {
+        StringBuilder json = new StringBuilder("[");
+        for (int i = 0; i < files.size(); i++) {
+            if (i > 0) json.append(',');
+            MediaOciBroker.OutputFile file = files.get(i);
+            json.append("{\"name\":").append(json(file.name()))
+                    .append(",\"size\":").append(file.size())
+                    .append(",\"sha256\":").append(json(file.sha256())).append('}');
+        }
+        return json.append(']').toString();
     }
 
     static boolean safeDockerPath(Path path) {
@@ -1110,7 +1224,22 @@ public final class MediaOciBrokerDaemon {
     private static void writeResult(SocketChannel channel, int status, String jsonBody)
             throws IOException {
         String frame = "{\"status\":" + status + ",\"body\":" + json(jsonBody) + "}";
+        writeJsonFrame(channel, frame, MAX_WORKER_RESPONSE_BYTES);
+    }
+
+    private static void writeVisionResult(SocketChannel channel, String token,
+            String nonce, long timestamp, String unsignedBody) throws Exception {
+        String proof = hmac(token, "response\n" + nonce + "\n" + timestamp + "\n" + unsignedBody);
+        String signedBody = unsignedBody.substring(0, unsignedBody.length() - 1)
+                + ",\"proof\":" + json(proof) + "}";
+        writeJsonFrame(channel, "{\"status\":0,\"body\":" + json(signedBody) + "}",
+                MAX_WORKER_RESPONSE_BYTES);
+    }
+
+    private static void writeJsonFrame(SocketChannel channel, String frame, int maximumBytes)
+            throws IOException {
         byte[] bytes = frame.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > maximumBytes) throw new IOException("Broker response exceeds its manifest byte limit");
         ByteBuffer out = ByteBuffer.allocate(4 + bytes.length);
         out.putInt(bytes.length);
         out.put(bytes);

@@ -47,12 +47,112 @@ class PersistenceProcessCrashIntegrationTest {
         verifyKilledWriterAfterCommit(true);
     }
 
+    @Test
+    void killedWriterProcessKeepsEarlierCommitAndRollsBackLaterTransaction() throws Throwable {
+        verifyKilledWriterWithCommittedAudioAndPendingTranscription();
+    }
+
     private void verifyKilledWriterLeavesNoCommit(boolean includeTranscription) throws Throwable {
         verifyKilledWriter(includeTranscription, false);
     }
 
     private void verifyKilledWriterAfterCommit(boolean includeTranscription) throws Throwable {
         verifyKilledWriter(includeTranscription, true);
+    }
+
+    private void verifyKilledWriterWithCommittedAudioAndPendingTranscription() throws Throwable {
+        String databaseName = "media_crash_boundary_" + UUID.randomUUID().toString().replace("-", "");
+        String jdbcUrl = POSTGRES.getJdbcUrl().substring(0, POSTGRES.getJdbcUrl().lastIndexOf('/') + 1)
+                + databaseName;
+        String tenantId = "process-crash-boundary-" + UUID.randomUUID();
+        UUID audioId = UUID.randomUUID();
+        UUID transcriptionId = UUID.randomUUID();
+        Path readyFile = Files.createTempFile("media-persistence-child-", ".ready");
+        Files.delete(readyFile);
+        Process child = null;
+        EntityManagerFactory schemaFactory = null;
+        EntityManagerFactory readFactory = null;
+        Throwable primaryFailure = null;
+        try {
+            try (var connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE DATABASE \"" + databaseName + "\"");
+            }
+            try (var connection = DriverManager.getConnection(
+                    jdbcUrl, POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE SCHEMA audio_video");
+            }
+
+            schemaFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", persistenceProperties(jdbcUrl, "create"));
+            schemaFactory.close();
+            schemaFactory = null;
+
+            String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+            child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
+                    ChildTransactionWriter.class.getName(), jdbcUrl, POSTGRES.getUsername(),
+                    POSTGRES.getPassword(), tenantId, audioId.toString(), readyFile.toString(),
+                    transcriptionId.toString(), "false", "true")
+                    .redirectErrorStream(true)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .start();
+
+            long readyDeadline = System.nanoTime() + Duration.ofSeconds(20).toNanos();
+            while (!Files.exists(readyFile) && child.isAlive() && System.nanoTime() < readyDeadline) {
+                Thread.sleep(20L);
+            }
+            assertThat(Files.exists(readyFile))
+                    .as("child committed audio, then reached the kill boundary with a flushed transcription")
+                    .isTrue();
+            assertThat(child.isAlive()).isTrue();
+
+            child.destroyForcibly();
+            assertThat(child.waitFor(10, TimeUnit.SECONDS)).as("writer JVM exits after forced termination").isTrue();
+            child = null;
+
+            readFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", persistenceProperties(jdbcUrl, "validate"));
+            EntityManager readManager = readFactory.createEntityManager();
+            try {
+                Long audioRows = readManager.createQuery(
+                                "select count(a) from AudioFileEntity a where a.id = :id and a.tenantId = :tenant",
+                                Long.class)
+                        .setParameter("id", audioId)
+                        .setParameter("tenant", tenantId)
+                        .getSingleResult();
+                Long transcriptionRows = readManager.createQuery(
+                                "select count(t) from TranscriptionEntity t where t.id = :id and t.tenantId = :tenant",
+                                Long.class)
+                        .setParameter("id", transcriptionId)
+                        .setParameter("tenant", tenantId)
+                        .getSingleResult();
+                assertThat(audioRows).as("earlier committed audio survives writer termination").isEqualTo(1L);
+                assertThat(transcriptionRows).as("later uncommitted transcription is rolled back").isZero();
+            } finally {
+                readManager.close();
+            }
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            if (child != null && child.isAlive()) {
+                child.destroyForcibly();
+                child.waitFor(10, TimeUnit.SECONDS);
+            }
+            close(readFactory);
+            close(schemaFactory);
+            try (var connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS \"" + databaseName + "\" WITH (FORCE)");
+            } catch (Throwable cleanupFailure) {
+                if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure);
+                else throw cleanupFailure;
+            }
+            Files.deleteIfExists(readyFile);
+        }
     }
 
     private void verifyKilledWriter(boolean includeTranscription, boolean commitBeforeWait) throws Throwable {
@@ -192,6 +292,7 @@ class PersistenceProcessCrashIntegrationTest {
             UUID audioId = UUID.fromString(args[4]);
             Path readyFile = Path.of(args[5]);
             UUID transcriptionId = "-".equals(args[6]) ? null : UUID.fromString(args[6]);
+            boolean commitAudioBeforeTranscription = args.length > 8 && Boolean.parseBoolean(args[8]);
             Map<String, Object> properties = new HashMap<>();
             properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
             properties.put("jakarta.persistence.jdbc.user", username);
@@ -207,6 +308,11 @@ class PersistenceProcessCrashIntegrationTest {
             manager.getTransaction().begin();
             manager.persist(new AudioFileEntity(audioId, tenantId, UUID.randomUUID(),
                     "crash.wav", "/storage/crash.wav", "wav"));
+            if (commitAudioBeforeTranscription) {
+                manager.flush();
+                manager.getTransaction().commit();
+                manager.getTransaction().begin();
+            }
             if (transcriptionId != null) {
                 manager.persist(new TranscriptionEntity(
                         transcriptionId, tenantId, audioId, UUID.randomUUID(), "crash-boundary-transcript", "en"));

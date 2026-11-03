@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.security.MessageDigest;
 import java.util.EnumSet;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -164,6 +168,89 @@ class HostOciVisionWorkerSupervisorTest {
                         + "|" + config + "|" + mounts,
                 true, true, "501:20", "/usr/bin/ffmpeg", IMAGE,
                 Path.of("/tmp/input.mp4"), Path.of("/tmp/output"))).isFalse();
+    }
+
+    @Test
+    void copiesOnlyManifestBoundFilesIntoOwnerOnlyStaging() throws Exception {
+        Path brokerOutput = brokerOutputDirectory();
+        Path privateOutput = privateOutputDirectory();
+        byte[] content = "verified-frame".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Files.write(brokerOutput.resolve("frame_0001.png"), content);
+
+        HostOciVisionWorkerSupervisor.copyVerifiedBrokerOutput(brokerOutput, privateOutput,
+                content.length, List.of(outputFile("frame_0001.png", content)));
+
+        Path copied = privateOutput.resolve("frame_0001.png");
+        assertThat(Files.readAllBytes(copied)).isEqualTo(content);
+        assertThat(Files.getPosixFilePermissions(copied))
+                .containsExactlyInAnyOrderElementsOf(PosixFilePermissions.fromString("rw-------"));
+    }
+
+    @Test
+    void hashFailureRollsBackEarlierFilesFromTheSameTransfer() throws Exception {
+        Path brokerOutput = brokerOutputDirectory();
+        Path privateOutput = privateOutputDirectory();
+        byte[] first = "first-frame".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        byte[] second = "second-frame".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Files.write(brokerOutput.resolve("frame_0001.png"), first);
+        Files.write(brokerOutput.resolve("frame_0002.png"), second);
+
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.copyVerifiedBrokerOutput(
+                brokerOutput, privateOutput, first.length + second.length, List.of(
+                        outputFile("frame_0001.png", first),
+                        new MediaOciBroker.OutputFile("frame_0002.png", second.length, "0".repeat(64)))))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("hash or identity changed");
+
+        assertThat(privateOutput.resolve("frame_0001.png")).doesNotExist();
+        assertThat(privateOutput.resolve("frame_0002.png")).doesNotExist();
+    }
+
+    @Test
+    void rejectsSymlinkedBrokerEntriesAndPreservesDestinationCollisions() throws Exception {
+        Path brokerOutput = brokerOutputDirectory();
+        Path privateOutput = privateOutputDirectory();
+        byte[] content = "frame-bytes".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        Path outside = temporaryDirectory.resolve("outside.bin");
+        Files.write(outside, content);
+        Files.createSymbolicLink(brokerOutput.resolve("frame.png"), outside);
+
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.copyVerifiedBrokerOutput(
+                brokerOutput, privateOutput, content.length, List.of(outputFile("frame.png", content))))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("not a new regular file");
+        assertThat(privateOutput.resolve("frame.png")).doesNotExist();
+
+        Files.delete(brokerOutput.resolve("frame.png"));
+        Files.write(brokerOutput.resolve("frame.png"), content);
+        Path collision = privateOutput.resolve("frame.png");
+        Files.writeString(collision, "keep-existing");
+        assertThatThrownBy(() -> HostOciVisionWorkerSupervisor.copyVerifiedBrokerOutput(
+                brokerOutput, privateOutput, content.length, List.of(outputFile("frame.png", content))))
+                .isInstanceOf(java.io.IOException.class)
+                .hasMessageContaining("not a new regular file");
+        assertThat(Files.readString(collision)).isEqualTo("keep-existing");
+    }
+
+    private Path brokerOutputDirectory() throws Exception {
+        Path sharedRoot = Files.createDirectory(temporaryDirectory.resolve("shared-output"));
+        Files.setAttribute(sharedRoot, "unix:mode", 02750);
+        long uid = ((Number) Files.getAttribute(sharedRoot, "unix:uid")).longValue();
+        long gid = ((Number) Files.getAttribute(sharedRoot, "unix:gid")).longValue();
+        Path output = HostOciVisionWorkerSupervisor.createBrokerOutputDirectory(sharedRoot, uid, gid);
+        assertThat(output.getFileName().toString()).matches("media-vision-output-[a-f0-9-]{36}");
+        return output;
+    }
+
+    private Path privateOutputDirectory() throws Exception {
+        Path output = Files.createDirectory(temporaryDirectory.resolve("private-" + UUID.randomUUID()));
+        Files.setPosixFilePermissions(output, PosixFilePermissions.fromString("rwx------"));
+        return output;
+    }
+
+    private static MediaOciBroker.OutputFile outputFile(String name, byte[] bytes) throws Exception {
+        return new MediaOciBroker.OutputFile(name, bytes.length,
+                HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)));
     }
 
     private Path privateDirectory(String name) throws IOException {

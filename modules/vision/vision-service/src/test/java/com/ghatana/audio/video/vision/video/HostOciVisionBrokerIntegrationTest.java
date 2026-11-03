@@ -15,11 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * External-broker contract check. It only runs an authenticated source-only
- * FFmpeg sentinel probe and proves that a writable-output request is rejected
- * before dispatch. It does not qualify codec processing or output return.
- */
+/** External-broker contract checks; enabled only with an explicitly provisioned broker fixture. */
 @EnabledIf("brokerInputsConfigured")
 class HostOciVisionBrokerIntegrationTest {
 
@@ -173,13 +169,63 @@ class HostOciVisionBrokerIntegrationTest {
     }
 
     @Test
-    void externalBrokerRejectsWritableOutputBeforeDispatch() {
+    void externalBrokerReturnsBoundedFrameWithAuthenticatedManifest() throws Exception {
+        byte[] ppm = new byte[] {'P', '6', '\n', '1', ' ', '1', '\n', '2', '5', '5', '\n',
+                (byte) 255, 0, 0};
+        Path source = sourceRoot.resolve("broker-frame-probe-" + UUID.randomUUID());
+        Path output = HostOciVisionWorkerSupervisor.createBrokerOutputDirectory(outputRoot, workerUid, workerGid);
+        boolean preserveForReconciliation = false;
+        try {
+            Files.write(source, ppm);
+            Files.setPosixFilePermissions(source, java.nio.file.attribute.PosixFilePermissions.fromString("r--r-----"));
+            assertThat(((Number) Files.getAttribute(source, "unix:uid")).longValue()).isEqualTo(workerUid);
+            assertThat(((Number) Files.getAttribute(source, "unix:gid")).longValue()).isEqualTo(workerGid);
+            String sha = java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(ppm));
+
+            MediaOciBroker.WorkerResult result = client().execute(new MediaOciBroker.WorkerLaunch(
+                    image, "frame-probe-" + UUID.randomUUID(), "ffmpeg",
+                    List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                            "-y", "/output/frame.png"),
+                    source.toString(), sha, output.toString(), workerUid, workerGid,
+                    MediaOciBrokerPolicy.MAX_VISION_FRAME_BYTES, Duration.ofSeconds(30)));
+
+            assertThat(result.completed()).isTrue();
+            assertThat(result.exitCode()).isZero();
+            assertThat(result.outputRejected()).isFalse();
+            assertThat(result.outputExceeded()).isFalse();
+            assertThat(result.outputFiles()).hasSize(1);
+            MediaOciBroker.OutputFile frame = result.outputFiles().getFirst();
+            assertThat(frame.name()).isEqualTo("frame.png");
+            assertThat(frame.size()).isPositive().isEqualTo(Files.size(output.resolve(frame.name())));
+            String actualSha = java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(output.resolve(frame.name()))));
+            assertThat(frame.sha256()).isEqualTo(actualSha);
+        } catch (MediaOciBrokerClient.UnknownOutcomeException unknown) {
+            preserveForReconciliation = true;
+            throw unknown;
+        } finally {
+            if (!preserveForReconciliation) {
+                Files.deleteIfExists(source);
+                try (var files = Files.list(output)) {
+                    for (Path file : files.toList()) Files.deleteIfExists(file);
+                }
+                Files.deleteIfExists(output);
+            } else {
+                System.err.println("Vision broker frame probe retained for reconciliation: "
+                        + output.getFileName());
+            }
+        }
+    }
+
+    @Test
+    void externalBrokerRejectsOutputOutsideThePinnedWorkerRootBeforeDispatch() {
         assertThatThrownBy(() -> client().execute(new MediaOciBroker.WorkerLaunch(
                 image, "output-reject-" + UUID.randomUUID(), "ffmpeg", List.of("-version"),
-                null, null, "/output/not-admitted.out", workerUid, workerGid,
+                null, null, outputRoot.getParent().toString(), workerUid, workerGid,
                 65_536L, Duration.ofSeconds(30))))
                 .isInstanceOf(IOException.class)
-                .hasMessageContaining("writable output transfer is not admitted");
+                .hasMessageContaining("rejected");
     }
 
     private static MediaOciBrokerClient client() {

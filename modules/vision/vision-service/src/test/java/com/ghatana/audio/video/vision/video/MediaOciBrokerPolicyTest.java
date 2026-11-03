@@ -275,7 +275,7 @@ class MediaOciBrokerPolicyTest {
                 .isFalse();
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
                 "-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
-                "-y", "/output/result.out"))).isTrue();
+                "-y", "/output/frame.png"))).isTrue();
         assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", List.of(
                 "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
                 "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
@@ -421,7 +421,8 @@ class MediaOciBrokerPolicyTest {
     @Test
     void outputRejectsNestedParentDirectorySymlink() throws Exception {
         var policy = policy();
-        Path realOutput = Files.createDirectory(root.resolve("real-output"));
+        Path realOutput = Files.createDirectory(root.resolve("media-vision-output-" + java.util.UUID.randomUUID()));
+        Files.setPosixFilePermissions(realOutput, PosixFilePermissions.fromString("rwxr-x---"));
         Path alias = root.resolve("output-alias");
         Files.createSymbolicLink(alias, realOutput);
 
@@ -429,6 +430,31 @@ class MediaOciBrokerPolicyTest {
         assertThat(MediaOciBrokerPolicy.outputAllowed(policy, alias.toString()))
                 .as("parent-directory symlink must not alias an admitted output directory")
                 .isFalse();
+    }
+
+    @Test
+    void outputRootAndPerInvocationDirectoryRequirePinnedOwnerAndModes() throws Exception {
+        long uid = uidOf(root);
+        long gid = gidOf(root);
+        Files.setAttribute(root, "unix:mode", 02750);
+        Path outputRoot = MediaOciBrokerPolicy.validateSharedOutputRoot(root, uid, gid);
+        assertThat(outputRoot).isEqualTo(root.toRealPath());
+        Path output = Files.createDirectory(root.resolve("media-vision-output-" + java.util.UUID.randomUUID()));
+        Files.setPosixFilePermissions(output, PosixFilePermissions.fromString("rwxr-x---"));
+        assertThat(output.toRealPath().getParent()).isEqualTo(root.toRealPath());
+        assertThat(uidOf(output)).isEqualTo(uid);
+        assertThat(gidOf(output)).isEqualTo(gid);
+        assertThat(((Number) Files.getAttribute(output, "unix:mode")).intValue() & 07777).isEqualTo(0750);
+        assertThat(output.getFileName().toString()).matches("media-vision-output-[a-f0-9-]{36}");
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isTrue();
+        Files.writeString(output.resolve("unexpected"), "x");
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isFalse();
+        Files.delete(output.resolve("unexpected"));
+        Files.setPosixFilePermissions(output, PosixFilePermissions.fromString("rwx------"));
+        assertThat(MediaOciBrokerPolicy.outputAllowed(
+                new MediaOciBrokerPolicy.Policy(Set.of(), uid, gid, outputRoot, outputRoot), output.toString())).isFalse();
     }
 
     @Test

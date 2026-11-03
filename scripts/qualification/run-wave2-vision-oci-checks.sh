@@ -73,6 +73,7 @@ elif [[ "$mode" == "broker" ]]; then
     echo "Run this selector as the configured peer OS account; user.name is not an identity substitute" >&2; exit 3;
   }
   export GHATANA_MEDIA_VISION_OCI_BROKER_TEST_EXTERNAL=1
+  export MEDIA_OCI_BROKER_OUTPUT_ROOT="$GHATANA_MEDIA_VISION_OCI_BROKER_TEST_OUTPUT_ROOT"
   # Deliberately unusable: any direct Docker access from the Media JVM fails.
   export GHATANA_MEDIA_VISION_DOCKER_CLI="/nonexistent-media-jvm-must-not-exec-docker"
   selection="com.ghatana.audio.video.vision.video.HostOciVisionBrokerIntegrationTest"
