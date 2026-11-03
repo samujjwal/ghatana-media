@@ -226,7 +226,10 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
     @DisplayName("GIVEN forged JWT WHEN transcribe THEN request fails with no provider or storage effects")
     void forgedJwt_failsUnauthenticatedWithoutEffects() {
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
-        String forgedJwt = jwt.substring(0, jwt.length() - 1) + (jwt.endsWith("A") ? "B" : "A");
+        int signatureStart = jwt.lastIndexOf('.') + 1;
+        String forgedJwt = jwt.substring(0, signatureStart)
+            + (jwt.charAt(signatureStart) == 'A' ? 'B' : 'A')
+            + jwt.substring(signatureStart + 1);
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + forgedJwt);
         TranscribeRequest request = TranscribeRequest.newBuilder()
