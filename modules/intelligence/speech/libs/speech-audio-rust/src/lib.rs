@@ -1242,6 +1242,7 @@ fn validate_riff_wav(
 
     let mut offset = 12u64;
     let mut fmt: Option<(u16, u16, u32, u32, u16, u16)> = None;
+    let mut extensible_metadata: Option<(u16, u32)> = None;
     let mut data_size: Option<u32> = None;
     while offset < declared_len {
         ensure_decode_time(started_at, max_decode_time)?;
@@ -1305,6 +1306,10 @@ fn validate_riff_wav(
                         "WAVE extensible fmt chunk uses an unsupported audio subformat".to_string(),
                     ));
                 }
+                extensible_metadata = Some((
+                    u16::from_le_bytes(raw[18..20].try_into().unwrap()),
+                    u32::from_le_bytes(raw[20..24].try_into().unwrap()),
+                ));
             }
             fmt = Some((
                 encoding,
@@ -1350,6 +1355,24 @@ fn validate_riff_wav(
             return Err(SpeechAudioError::Decode(
                 "WAVE PCM/float bit depth, byte rate, or channel alignment is invalid".to_string(),
             ));
+        }
+        if let Some((valid_bits, channel_mask)) = extensible_metadata {
+            // This decoder consumes the complete PCM container word. A
+            // smaller valid-bit field would require alignment-aware scaling;
+            // reject it rather than silently mis-normalizing the samples.
+            if valid_bits != bits {
+                return Err(SpeechAudioError::Decode(
+                    "WAVE extensible valid bit depth must match its sample container".to_string(),
+                ));
+            }
+            // A zero mask means the speaker layout is unspecified. When a
+            // layout is supplied, its speaker count must describe every
+            // interleaved channel or downstream channel identity is ambiguous.
+            if channel_mask != 0 && channel_mask.count_ones() != u32::from(channels) {
+                return Err(SpeechAudioError::Decode(
+                    "WAVE extensible speaker mask does not match channel count".to_string(),
+                ));
+            }
         }
         if data_size % u32::from(block_align) != 0 {
             return Err(SpeechAudioError::Decode(
@@ -2718,6 +2741,47 @@ mod tests {
             16
         );
         assert_eq!(bytes.len(), data_start + 16);
+    }
+
+    #[test]
+    fn decode_rejects_inconsistent_extensible_valid_bits_and_channel_mask() {
+        let temp = tempdir().unwrap();
+        let source = temp.path().join("extensible-source.wav");
+        let buffer = AudioBuffer::new(
+            vec![-0.5, 0.5, 0.25, -0.25],
+            AudioConfig {
+                sample_rate: 48_000,
+                channels: 2,
+                sample_format: SampleFormat::F32,
+            },
+        );
+        write_wav(&source, &buffer).unwrap();
+        let original = std::fs::read(&source).unwrap();
+        let (_, _, fmt) = wav_chunk(&original, b"fmt ");
+        assert_eq!(
+            u16::from_le_bytes(original[fmt..fmt + 2].try_into().unwrap()),
+            0xfffe,
+            "fixture must exercise WAVE_FORMAT_EXTENSIBLE"
+        );
+
+        let output = temp.path().join("malformed-extensible.wav");
+        let mut wrong_valid_bits = original.clone();
+        wrong_valid_bits[fmt + 18..fmt + 20].copy_from_slice(&31u16.to_le_bytes());
+        std::fs::write(&output, wrong_valid_bits).unwrap();
+        assert!(matches!(
+            load_audio_buffer(&output),
+            Err(SpeechAudioError::Decode(message))
+                if message == "WAVE extensible valid bit depth must match its sample container"
+        ));
+
+        let mut wrong_channel_mask = original;
+        wrong_channel_mask[fmt + 20..fmt + 24].copy_from_slice(&1u32.to_le_bytes());
+        std::fs::write(&output, wrong_channel_mask).unwrap();
+        assert!(matches!(
+            load_audio_buffer(&output),
+            Err(SpeechAudioError::Decode(message))
+                if message == "WAVE extensible speaker mask does not match channel count"
+        ));
     }
 
     #[test]
