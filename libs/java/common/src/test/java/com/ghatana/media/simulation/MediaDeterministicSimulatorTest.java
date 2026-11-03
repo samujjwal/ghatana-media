@@ -65,6 +65,25 @@ class MediaDeterministicSimulatorTest {
     }
 
     @Test
+    void adaptiveUncertaintyBoundsAccumulatedNumericalResidualForLongTrajectory() {
+        var simulator = new MediaDeterministicSimulator();
+        var ir = new SimulationModelIR(
+                new ModelSpec("constant-force", "1.0.0", "SI", 2.0, 6.0, 0.01, 20_000, 1e-9),
+                new InitialState(0, 0), BoundaryCondition.UNCONSTRAINED_1D);
+
+        var result = simulator.runAdaptive(ir, 42L, 100.0, 0.01);
+
+        assertThat(result.verdict()).isEqualTo(Verdict.CONVERGED);
+        var sample = result.samples().get(result.samples().size() - 1);
+        double exactPosition = 0.5 * 3.0 * sample.simulationTimeSeconds() * sample.simulationTimeSeconds();
+        double exactVelocity = 3.0 * sample.simulationTimeSeconds();
+        assertThat(sample.positionUncertaintyMeters())
+                .isGreaterThanOrEqualTo(Math.abs(sample.positionMeters() - exactPosition));
+        assertThat(sample.velocityUncertaintyMetersPerSecond())
+                .isGreaterThanOrEqualTo(Math.abs(sample.velocityMetersPerSecond() - exactVelocity));
+    }
+
+    @Test
     void adaptiveCheckpointResumeMatchesUninterruptedRunExactly() {
         var simulator = new MediaDeterministicSimulator();
         var ir = new SimulationModelIR(

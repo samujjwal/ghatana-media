@@ -336,8 +336,13 @@ public final class MediaDeterministicSimulator {
         }
         List<AdaptiveSample> samples = new ArrayList<>();
         while (time < durationSeconds && acceptedStep < model.maxSteps()) {
-            double dt = Math.min(stepSize, durationSeconds - time);
-            if (dt < minStepSeconds && durationSeconds - time > Math.ulp(durationSeconds)) {
+            double remaining = durationSeconds - time;
+            double dt = Math.min(stepSize, remaining);
+            // The requested endpoint may leave a final partial step smaller than
+            // minStepSeconds (including from accumulated floating-point rounding).
+            // Permit that bounded endpoint step; a genuinely undersized adaptive
+            // step still abstains before numerical integration.
+            if (dt < minStepSeconds && remaining > stepSize) {
                 return new AdaptiveResult(Verdict.ABSTAIN, samples, checkpoint,
                         "adaptive solver reached minimum step before satisfying tolerance");
             }
@@ -377,8 +382,16 @@ public final class MediaDeterministicSimulator {
                 return new AdaptiveResult(Verdict.ABSTAIN, samples, checkpoint,
                         "solver diverged from closed form at adaptive step " + (acceptedStep + 1));
             }
-            double positionUncertainty = positionError + 2.0 * Math.ulp(twoHalfPosition);
-            double velocityUncertainty = velocityError + 2.0 * Math.ulp(halfVelocity);
+            // Include the accumulated trajectory residual as well as this step's
+            // embedded error and local round-off. The closed form is available
+            // only for this bounded constant-force fixture; this is a numerical
+            // bound, not physical or scientific model uncertainty.
+            double positionUncertainty = Math.max(
+                    positionError + 2.0 * Math.ulp(twoHalfPosition),
+                    Math.abs(twoHalfPosition - analyticPosition));
+            double velocityUncertainty = Math.max(
+                    velocityError + 2.0 * Math.ulp(halfVelocity),
+                    Math.abs(halfVelocity - analyticVelocity));
             acceptedStep++;
             samples.add(new AdaptiveSample(acceptedStep, seed, nextTime, twoHalfPosition, halfVelocity,
                     acceleration, positionError, velocityError, positionUncertainty, velocityUncertainty));
