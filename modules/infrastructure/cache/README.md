@@ -8,7 +8,7 @@ Provides a unified facade for audio-video cache operations while keeping service
 
 ## Layer
 
-`infrastructure` — caching adapter; no domain or business logic. Consumed by `stt-service` and `multimodal-service`.
+`infrastructure` — caching adapter; no domain or business logic. A source search found no runtime callers under `modules/` or `adapters/`; the only out-of-module caller is the cache benchmark. Do not infer STT or multimodal runtime integration from this module's presence in the build.
 
 ## Key Components
 
@@ -43,4 +43,4 @@ Focused unit tests:
 ./gradlew :services:media:modules:infrastructure:cache:test --tests 'com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheServiceTest'
 ```
 
-The Redis integration test uses Testcontainers to verify that unscoped transcript methods do not persist protected values, source-backed reads preserve current source results, and explicit key invalidation works through the Shared cache port. Redis persistence does not prove consent, retention, source-version, transcript-revision, or Shared adapter acceptance. TTL and generic `AudioVideoCache` behavior are tested separately; transcript Redis persistence remains unavailable until the public API carries complete current protected scope.
+The Redis integration test uses Testcontainers to verify that unscoped transcript methods do not persist protected values, source-backed reads preserve current source results, and explicit key invalidation works through the Shared cache port. Transcript reads call the supplied current-source loader on each request, and transcript writes are intentionally skipped; therefore this IT does not establish cache-backed Postgres read-path behavior or transcript-cache survival across a process restart. Redis persistence does not prove consent, retention, source-version, transcript-revision, or Shared adapter acceptance. TTL and generic `AudioVideoCache` behavior are tested separately; transcript Redis persistence remains unavailable until the public API carries complete current protected scope.
