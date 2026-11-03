@@ -88,6 +88,12 @@ describe('TY-04 headless declarative parsers', () => {
     for (let index = 0; index < 66; index++) deeplyNested = [deeplyNested];
     expect(SceneBindingSchema.safeParse(deeplyNested).success).toBe(false);
   });
+  it('bounds recursive JSON values for animation and model execution specs', () => {
+    let deeplyNested: unknown = null;
+    for (let index = 0; index < 66; index++) deeplyNested = [deeplyNested];
+    expect(AnimationSpecSchema.safeParse(deeplyNested).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse(deeplyNested).success).toBe(false);
+  });
   it('rejects sparse or decorated arrays before Zod can iterate or ignore array properties', () => {
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: new Array(100_001) }).success).toBe(false);
     expect(ProductionSpecSchema.safeParse({ ...spec, sceneRefs: new Array(1) }).success).toBe(false);
@@ -221,6 +227,49 @@ describe('TY-04 headless declarative parsers', () => {
     }).success).toBe(false);
     const { modelDigest: _modelDigest, ...withoutModelDigest } = execSpec;
     expect(ModelExecutionSpecSchema.safeParse(withoutModelDigest).success).toBe(false);
+  });
+  it('requires the source-declared unit registry and both model and solver digests', () => {
+    const { unitsRegistryRef: _unitsRegistryRef, ...withoutUnitsRegistry } = execSpec;
+    expect(ModelExecutionSpecSchema.safeParse(withoutUnitsRegistry).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, unitsRegistryRef: '' }).success).toBe(false);
+
+    const { solverBuildDigest: _solverBuildDigest, ...withoutSolverDigest } = execSpec;
+    expect(ModelExecutionSpecSchema.safeParse(withoutSolverDigest).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({
+      ...execSpec,
+      modelDigest: { ...execSpec.modelDigest, value: '' },
+    }).success).toBe(false);
+    expect(ModelExecutionSpecSchema.safeParse({
+      ...execSpec,
+      solverBuildDigest: { ...execSpec.solverBuildDigest, value: '' },
+    }).success).toBe(false);
+  });
+  it('requires finite positive recursion bounds', () => {
+    expect(ModelExecutionSpecSchema.safeParse({
+      ...execSpec,
+      resourceBounds: { ...execSpec.resourceBounds, recursionLimit: 1 },
+    }).success).toBe(true);
+    for (const recursionLimit of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+      expect(ModelExecutionSpecSchema.safeParse({
+        ...execSpec,
+        resourceBounds: { ...execSpec.resourceBounds, recursionLimit },
+      }).success, `recursionLimit ${recursionLimit}`).toBe(false);
+    }
+  });
+  it('keeps executable code, shaders, and untyped parameter bags outside closed specs', () => {
+    const animation = {
+      schemaVersion: 'media.declarative.value.animation-spec.v1',
+      sceneGraphRef: ref, animationGraphRef: ref, operatorTreeRef: ref,
+      assetsRef: ref, propertyCurveRefs: [], tStoryRef: storyClock, renderingRef: ref,
+    };
+    for (const unsafeField of [
+      { code: 'return fetch(...)' },
+      { shader: 'void main() {}' },
+      { parameters: { expression: 'process.exit(1)' } },
+    ]) {
+      expect(AnimationSpecSchema.safeParse({ ...animation, ...unsafeField }).success).toBe(false);
+      expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, ...unsafeField }).success).toBe(false);
+    }
   });
   it('simulation state rejects unbounded or wrong-version checkpoints', () => {
     const state = {
