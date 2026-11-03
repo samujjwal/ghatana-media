@@ -7,6 +7,7 @@ import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionS
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.runtime.MediaTranscriptContracts;
 import com.ghatana.media.stt.api.SttEngine;
 import com.ghatana.media.stt.api.TranscriptionOptions;
 import com.ghatana.media.stt.api.TranscriptionResult;
@@ -170,6 +171,17 @@ public class PersistentSttService {
             super("STT_TRANSCRIPT_VERSION_NOT_ADMITTED: governed source artifact/version, admitted provider, "
                     + "rights provenance and immutable transcript store are unavailable");
         }
+    }
+
+    /**
+     * Reports derived transcript operations that this compatibility service cannot perform.
+     * This is an explicit, typed no-effect result; it does not mint a transcript or caption
+     * version and remains independent of caller-supplied transcript content.
+     */
+    public MediaTranscriptContracts.TranscriptCapabilityResult derivedCapability(
+            MediaTranscriptContracts.TranscriptDerivedCapability capability) {
+        return MediaTranscriptContracts.unavailableCapability(
+                Objects.requireNonNull(capability, "capability"));
     }
 
     public Promise<Optional<TranscriptionEntity>> getTranscription(

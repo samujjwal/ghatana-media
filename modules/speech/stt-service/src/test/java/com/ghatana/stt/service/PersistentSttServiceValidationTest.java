@@ -16,6 +16,7 @@ import com.ghatana.audio.video.infrastructure.persistence.service.AudioFileServi
 import com.ghatana.audio.video.infrastructure.persistence.service.TranscriptionService;
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.AudioFormat;
+import com.ghatana.media.runtime.MediaTranscriptContracts;
 import com.ghatana.media.stt.api.TranscriptionResult;
 import com.ghatana.audit.AuditEvent;
 import com.ghatana.audit.AuditService;
@@ -269,6 +270,52 @@ class PersistentSttServiceValidationTest {
         assertThatThrownBy(() -> service.deleteTranscription(TENANT, UUID.randomUUID()))
             .isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("Principal-scoped");
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
+    @DisplayName("derived transcript capabilities report typed unmet outcomes without creating versions")
+    void derivedCapabilitiesAreTypedNoEffectOutcomes() {
+        var alignment = service.derivedCapability(
+                MediaTranscriptContracts.TranscriptDerivedCapability.FORCED_ALIGNMENT);
+        var translation = service.derivedCapability(
+                MediaTranscriptContracts.TranscriptDerivedCapability.TRANSLATION);
+        var captions = service.derivedCapability(
+                MediaTranscriptContracts.TranscriptDerivedCapability.CAPTION_VERSION_REGISTRATION);
+
+        assertThat(alignment.capability())
+                .isEqualTo(MediaTranscriptContracts.TranscriptDerivedCapability.FORCED_ALIGNMENT);
+        assertThat(alignment.disposition())
+                .isEqualTo(MediaTranscriptContracts.TranscriptCapabilityDisposition.UNMET_CAPABILITY);
+        assertThat(alignment.blockers()).contains(
+                MediaTranscriptContracts.TranscriptCapabilityBlocker.QUALIFIED_ENGINE_UNAVAILABLE,
+                MediaTranscriptContracts.TranscriptCapabilityBlocker.AUTHORITATIVE_SOURCE_CLOCK_UNAVAILABLE);
+        assertThat(translation.capability())
+                .isEqualTo(MediaTranscriptContracts.TranscriptDerivedCapability.TRANSLATION);
+        assertThat(translation.disposition())
+                .isEqualTo(MediaTranscriptContracts.TranscriptCapabilityDisposition.UNMET_CAPABILITY);
+        assertThat(translation.blockers())
+                .contains(MediaTranscriptContracts.TranscriptCapabilityBlocker.QUALIFIED_ENGINE_UNAVAILABLE);
+        assertThat(captions.capability())
+                .isEqualTo(MediaTranscriptContracts.TranscriptDerivedCapability.CAPTION_VERSION_REGISTRATION);
+        assertThat(captions.disposition())
+                .isEqualTo(MediaTranscriptContracts.TranscriptCapabilityDisposition.UNMET_CAPABILITY);
+        assertThat(captions.blockers()).contains(
+                MediaTranscriptContracts.TranscriptCapabilityBlocker.CANONICAL_TRANSCRIPT_VERSION_UNAVAILABLE,
+                MediaTranscriptContracts.TranscriptCapabilityBlocker.AUTHORITATIVE_SOURCE_CLOCK_UNAVAILABLE,
+                MediaTranscriptContracts.TranscriptCapabilityBlocker.DERIVED_CONTENT_AUTHORITY_UNAVAILABLE);
+        assertThat(alignment.effectOccurred()).isFalse();
+        assertThat(translation.effectOccurred()).isFalse();
+        assertThat(captions.effectOccurred()).isFalse();
+        verifyNoInteractions(audioFileService, transcriptionService, library);
+    }
+
+    @Test
+    @DisplayName("derived capability lookup rejects a missing capability")
+    void derivedCapabilityRequiresOperation() {
+        assertThatThrownBy(() -> service.derivedCapability(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("capability");
         verifyNoInteractions(audioFileService, transcriptionService, library);
     }
 
