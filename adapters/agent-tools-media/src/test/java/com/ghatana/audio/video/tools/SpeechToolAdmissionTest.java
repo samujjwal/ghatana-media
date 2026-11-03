@@ -101,7 +101,16 @@ final class SpeechToolAdmissionTest extends EventloopTestBase {
                     ? new SpeechToTextToolHandler(delegate)
                     : new TextToSpeechToolHandler(delegate)).handle(envelope, mismatched));
 
+            String expectedUnavailableCode = toolId.equals("av.speech-to-text")
+                    ? "STT_NOT_ADMITTED" : "TTS_NOT_ADMITTED";
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.output()).isNull();
+            assertThat(result.failure().kind()).isEqualTo(
+                    com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.UNAVAILABLE);
+            assertThat(result.failure().stage()).isEqualTo(
+                    com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.ADMISSION);
+            assertThat(result.failure().code()).isEqualTo(expectedUnavailableCode);
+            assertThat(result.sideEffectSummary()).isEmpty();
             assertThat(providerCalls).hasValue(0);
         }
     }
