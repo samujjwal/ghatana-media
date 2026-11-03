@@ -88,6 +88,16 @@ function containsCredential(value: unknown, token: string): boolean {
   return false;
 }
 
+function canonicalizeJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJsonValue);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+      .map(([key, nested]) => [key, canonicalizeJsonValue(nested)]));
+  }
+  return value;
+}
+
 async function run(argv: readonly string[], token: string | undefined): Promise<void> {
   let args: Arguments;
   try { args = parseArguments(argv); }
@@ -119,7 +129,8 @@ async function run(argv: readonly string[], token: string | undefined): Promise<
       writeError('INVALID_MEDIA_RESPONSE', 'Media returned an artifact response containing credential material.');
       return;
     }
-    process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: COMMAND_ID, artifact })}\n`);
+    const canonicalArtifact = { ...artifact, metadata: canonicalizeJsonValue(artifact.metadata) };
+    process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: COMMAND_ID, artifact: canonicalArtifact })}\n`);
   } catch (error) {
     if (error instanceof MediaClientError) {
       if (error.statusCode === 404 && error.detail.code === 'ARTIFACT_NOT_FOUND') {

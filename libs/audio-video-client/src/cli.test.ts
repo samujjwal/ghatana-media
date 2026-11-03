@@ -92,6 +92,36 @@ describe('ghatanamedia-api artifact inspect executable', () => {
     });
   });
 
+  it('serializes semantically equal nested metadata with identical canonical JSON bytes', async () => {
+    let requests = 0;
+    await withServer((_request, response) => {
+      requests++;
+      const metadata = requests === 1
+        ? { z: 1, a: { y: 2, b: 3 }, list: [{ z: 4, a: 5 }] }
+        : { list: [{ a: 5, z: 4 }], a: { b: 3, y: 2 }, z: 1 };
+      response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ ...artifact, metadata }));
+    }, async endpoint => {
+      const first = await invoke(command(endpoint));
+      const second = await invoke(command(endpoint));
+      expect(first.status).toBe(0);
+      expect(second.status).toBe(0);
+      expect(first.stderr).toBe('');
+      expect(second.stderr).toBe('');
+      expect(first.stdout).toBe(second.stdout);
+      const expected = {
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.artifact.inspect',
+        artifact: {
+          ...artifact,
+          metadata: { a: { b: 3, y: 2 }, list: [{ a: 5, z: 4 }], z: 1 },
+        },
+      };
+      expect(first.stdout).toBe(`${JSON.stringify(expected)}\n`);
+      expect(JSON.parse(first.stdout)).toEqual(expected);
+      expect(first.stdout).not.toContain(token);
+      expect(requests).toBe(2);
+    });
+  });
+
   it.each([
     ['tenant', { tenantId: 'tenant-b' }],
     ['principal', { principalId: 'principal-b' }],
