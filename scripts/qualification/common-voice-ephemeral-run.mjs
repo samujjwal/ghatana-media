@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   chmod,
   lstat,
@@ -5,10 +6,12 @@ import {
   open,
   opendir,
   realpath,
+  rename,
   rm,
+  unlink,
 } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const MARKER_NAME = '.media-common-voice-run.json';
@@ -16,6 +19,33 @@ const MARKER_KIND = 'ghatana-media-common-voice-ephemeral-run';
 const RUN_PREFIX = 'run-';
 const MAX_INTERRUPTED_AUDIO_AGE_MS = 24 * 60 * 60 * 1000;
 const MAX_MARKER_BYTES = 4096;
+const METADATA_PREFIX = 'metadata-';
+const METADATA_MARKER_NAME = '.media-common-voice-metadata.json';
+const METADATA_MARKER_KIND = 'ghatana-media-common-voice-retained-metadata';
+const METADATA_SCHEMA_VERSION = '1.0.0';
+const METADATA_RETENTION_DAYS = 90;
+const METADATA_RETENTION_MS = METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const MAX_METADATA_BYTES = 16 * 1024 * 1024;
+const MAX_METADATA_RUN_BYTES = 16 * 1024 * 1024;
+const COMMON_VOICE_V27_REVISION = 'cv-corpus-27.0-2026-09-11';
+const COMMON_VOICE_V27_DATASET_IDS = Object.freeze({
+  en: 'cmu5jplf300nwmh07iqvk9leo',
+  hi: 'cmu5vlext009to107ev1s9lk8',
+  'ne-NP': 'cmu61478v00j9o107alzuue1z',
+});
+const COMMON_VOICE_V27_TEST_CLIP_COUNTS = Object.freeze({ en: 16403, hi: 3402, 'ne-NP': 302 });
+const CLIP_MANIFEST_FIELDS = Object.freeze([
+  'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'clipId', 'audioSha256',
+]);
+const RUN_MANIFEST_FIELDS = Object.freeze([
+  'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit',
+  'clipManifestDigest', 'modelDigest', 'host', 'clipManifest',
+]);
+const AGGREGATE_FIELDS = Object.freeze([
+  'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit',
+  'clipManifestDigest', 'modelDigest', 'host', 'wer', 'cer',
+]);
+const ACTIVE_RUN_DIRECTORIES = new Set();
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -47,6 +77,146 @@ async function requirePrivateDirectory(path, { ownerUid = currentUid(), mode = 0
   // The final root component itself was lstat-checked above. Parent aliases
   // such as macOS /tmp -> /private/tmp are accepted after canonicalization.
   return canonical;
+}
+
+function isWithinDirectory(root, path) {
+  const pathFromRoot = relative(root, path);
+  return pathFromRoot === '' || (pathFromRoot !== '..'
+    && !pathFromRoot.startsWith(`..${sep}`) && !isAbsolute(pathFromRoot));
+}
+
+async function requireSeparatePrivateRoots(metadataRootPath, audioRootPath, ownerUid) {
+  const metadataRoot = await requirePrivateDirectory(metadataRootPath, { ownerUid, mode: 0o700 });
+  const audioRoot = await requirePrivateDirectory(audioRootPath, { ownerUid, mode: 0o700 });
+  assert(!isWithinDirectory(metadataRoot, audioRoot) && !isWithinDirectory(audioRoot, metadataRoot),
+    'metadata root must be separate from and outside the ephemeral audio root');
+  return metadataRoot;
+}
+
+function exactKeys(value, expected, message) {
+  assert(value !== null && typeof value === 'object' && !Array.isArray(value), message);
+  const keys = Object.keys(value).sort();
+  assert(keys.join(',') === [...expected].sort().join(','), message);
+}
+
+function requiredText(value, field, maxLength = 512) {
+  assert(typeof value === 'string' && value.trim().length > 0 && value.length <= maxLength
+    && !/[\u0000-\u001f\u007f]/u.test(value), `${field} is invalid`);
+}
+
+function validateClipRecord(record, manifest) {
+  exactKeys(record, CLIP_MANIFEST_FIELDS, 'clip record must contain exactly the approved fields');
+  assert(record.locale === manifest.locale
+    && record.sourceDatasetId === manifest.sourceDatasetId
+    && record.sourceRevision === COMMON_VOICE_V27_REVISION
+    && record.sourceSplit === 'test', 'clip record does not match the pinned v27 source');
+  requiredText(record.clipId, 'clipId', 256);
+  assert(typeof record.audioSha256 === 'string' && /^[0-9a-f]{64}$/u.test(record.audioSha256),
+    'clip audioSha256 must be a lowercase SHA-256 digest');
+}
+
+function deterministicClipManifestDigest(rows) {
+  const canonicalRows = rows.map((record) => Object.fromEntries(
+    CLIP_MANIFEST_FIELDS.map((field) => [field, record[field]]),
+  ));
+  return createHash('sha256').update(JSON.stringify(canonicalRows), 'utf8').digest('hex');
+}
+
+function validateRunManifest(manifest) {
+  exactKeys(manifest, RUN_MANIFEST_FIELDS, 'run manifest must contain exactly the approved fields');
+  assert(Object.hasOwn(COMMON_VOICE_V27_DATASET_IDS, manifest.locale)
+    && manifest.sourceDatasetId === COMMON_VOICE_V27_DATASET_IDS[manifest.locale]
+    && manifest.sourceRevision === COMMON_VOICE_V27_REVISION
+    && manifest.sourceSplit === 'test', 'run manifest does not match a pinned v27 test dataset');
+  assert(typeof manifest.clipManifestDigest === 'string'
+    && /^[0-9a-f]{64}$/u.test(manifest.clipManifestDigest),
+  'clipManifestDigest must be a lowercase SHA-256 digest');
+  assert(typeof manifest.modelDigest === 'string' && /^[0-9a-f]{64}$/u.test(manifest.modelDigest),
+    'modelDigest must be a lowercase SHA-256 digest');
+  requiredText(manifest.host, 'host');
+  assert(Array.isArray(manifest.clipManifest) && manifest.clipManifest.length > 0,
+    'clipManifest must contain at least one selected test clip');
+  assert(manifest.clipManifest.length <= COMMON_VOICE_V27_TEST_CLIP_COUNTS[manifest.locale],
+    'clipManifest exceeds the pinned v27 test-split count');
+  const seenClipIds = new Set();
+  const seenAudioHashes = new Set();
+  for (const record of manifest.clipManifest) {
+    validateClipRecord(record, manifest);
+    assert(!seenClipIds.has(record.clipId), 'clipManifest contains duplicate clip IDs');
+    assert(!seenAudioHashes.has(record.audioSha256), 'clipManifest contains duplicate audio hashes');
+    seenClipIds.add(record.clipId);
+    seenAudioHashes.add(record.audioSha256);
+  }
+  assert(manifest.clipManifestDigest === deterministicClipManifestDigest(manifest.clipManifest),
+    'clipManifestDigest does not match the canonical pinned clip rows');
+}
+
+function validateAggregate(aggregate, manifest) {
+  exactKeys(aggregate, AGGREGATE_FIELDS, 'aggregate must contain only scoped dimensions and WER/CER');
+  for (const field of ['locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit',
+    'clipManifestDigest', 'modelDigest', 'host']) {
+    assert(aggregate[field] === manifest[field], `aggregate ${field} does not match its run manifest`);
+  }
+  for (const metric of ['wer', 'cer']) {
+    assert(typeof aggregate[metric] === 'number' && Number.isFinite(aggregate[metric])
+      && aggregate[metric] >= 0, `${metric} must be a finite nonnegative aggregate`);
+  }
+}
+
+function canonicalJson(value) {
+  return `${JSON.stringify(value)}\n`;
+}
+
+async function writeAtomicOwnerOnlyJson(directory, name, value, maxBytes = MAX_METADATA_BYTES) {
+  const bytes = Buffer.from(canonicalJson(value), 'utf8');
+  assert(bytes.length <= maxBytes, `${name} exceeds the permitted size`);
+  const temporaryPath = join(directory, `.${name}.${randomUUID()}.tmp`);
+  const finalPath = join(directory, name);
+  const handle = await open(temporaryPath,
+    fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_EXCL | fsConstants.O_NOFOLLOW, 0o600);
+  try {
+    await handle.chmod(0o600);
+    await handle.writeFile(bytes);
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+  try {
+    await rename(temporaryPath, finalPath);
+    const stat = await lstat(finalPath);
+    assert(stat.isFile() && !stat.isSymbolicLink() && stat.uid === currentUid() && isMode(stat, 0o600),
+      `${name} did not receive owner-only file permissions`);
+  } catch (failure) {
+    await unlink(temporaryPath).catch(() => {});
+    throw failure;
+  }
+}
+
+async function readBoundedOwnerOnlyJson(directory, name, expectedUid, maxBytes = MAX_METADATA_BYTES) {
+  const filePath = join(directory, name);
+  const stat = await lstat(filePath);
+  assert(stat.isFile() && !stat.isSymbolicLink() && stat.uid === expectedUid && isMode(stat, 0o600)
+    && stat.size > 0 && stat.size <= maxBytes, `${name} is missing or unsafe`);
+  const handle = await open(filePath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
+  try {
+    const openedStat = await handle.stat();
+    assert(openedStat.isFile() && openedStat.uid === expectedUid && isMode(openedStat, 0o600)
+      && openedStat.size > 0 && openedStat.size <= maxBytes, `${name} changed or is unsafe`);
+    const buffer = Buffer.alloc(maxBytes + 1);
+    let total = 0;
+    while (total < buffer.length) {
+      const { bytesRead } = await handle.read(buffer, total, buffer.length - total, null);
+      if (bytesRead === 0) break;
+      total += bytesRead;
+    }
+    assert(total <= maxBytes, `${name} exceeds the permitted size`);
+    const bytes = buffer.subarray(0, total);
+    const value = JSON.parse(bytes.toString('utf8'));
+    assert(bytes.equals(Buffer.from(canonicalJson(value), 'utf8')), `${name} is not canonical JSON`);
+    return value;
+  } finally {
+    await handle.close();
+  }
 }
 
 /** Reads at most one byte beyond the marker limit so overflow can be detected. */
@@ -112,7 +282,10 @@ async function removeOwnedRun(root, runDirectory, expectedUid) {
 /**
  * Creates one owner-only scratch directory and removes it on every normal or
  * exceptional callback exit. This helper does not grant dataset access or
- * authorize model inference; callers must obtain those independently.
+ * authorize model inference; callers must obtain those independently. The
+ * ephemeral root must be process-exclusive while an evaluation is live: the
+ * in-memory active-run guard protects cleanup in this Node process only and
+ * does not coordinate another same-UID process using the same root.
  */
 export async function withEphemeralCommonVoiceRun(rootPath, callback, { now = () => new Date() } = {}) {
   assert(typeof callback === 'function', 'run callback is required');
@@ -155,6 +328,7 @@ export async function withEphemeralCommonVoiceRun(rootPath, callback, { now = ()
     throw setupFailure;
   }
 
+  ACTIVE_RUN_DIRECTORIES.add(resolve(runDirectory));
   let result;
   let callbackFailure;
   let callbackFailed = false;
@@ -168,12 +342,14 @@ export async function withEphemeralCommonVoiceRun(rootPath, callback, { now = ()
   try {
     await removeOwnedRun(root, runDirectory, uid);
   } catch (cleanupFailure) {
+    ACTIVE_RUN_DIRECTORIES.delete(resolve(runDirectory));
     if (callbackFailed) {
       throw new AggregateError([callbackFailure, cleanupFailure],
         'run failed and ephemeral audio cleanup could not be confirmed');
     }
     throw cleanupFailure;
   }
+  ACTIVE_RUN_DIRECTORIES.delete(resolve(runDirectory));
   if (callbackFailed) throw callbackFailure;
   return result;
 }
@@ -201,6 +377,10 @@ export async function cleanupExpiredCommonVoiceRuns(rootPath, { now = new Date()
       continue;
     }
     const runDirectory = join(root, entry.name);
+    if (ACTIVE_RUN_DIRECTORIES.has(resolve(runDirectory))) {
+      retained += 1;
+      continue;
+    }
     try {
       const stat = await lstat(runDirectory);
       assert(stat.isDirectory() && !stat.isSymbolicLink() && stat.uid === uid && isMode(stat, 0o700),
@@ -223,4 +403,151 @@ export async function cleanupExpiredCommonVoiceRuns(rootPath, { now = new Date()
   return Object.freeze({ removed, retained, maxInterruptedAgeHours: 24 });
 }
 
+/**
+ * Stores only the pinned source manifest dimensions and aggregate WER/CER in an
+ * explicit owner-only metadata root, separate from ephemeral audio scratch.
+ * This is retention plumbing only; it does not admit dataset access or prove a
+ * quality/acceptance result.
+ */
+export async function retainCommonVoiceRunMetadata(
+  metadataRootPath,
+  ephemeralAudioRootPath,
+  { runManifest, aggregate },
+  { now = () => new Date() } = {},
+) {
+  const ownerUid = currentUid();
+  const metadataRoot = await requireSeparatePrivateRoots(
+    metadataRootPath, ephemeralAudioRootPath, ownerUid);
+  const createdAt = now();
+  assert(createdAt instanceof Date && Number.isFinite(createdAt.getTime()),
+    'metadata retention clock must return a valid Date');
+
+  // Snapshot the caller values before the first async write so validation and
+  // persisted bytes refer to exactly the same JSON values.
+  const manifestSnapshot = JSON.parse(canonicalJson(runManifest));
+  const aggregateSnapshot = JSON.parse(canonicalJson(aggregate));
+  validateRunManifest(manifestSnapshot);
+  validateAggregate(aggregateSnapshot, manifestSnapshot);
+
+  const runId = randomUUID();
+  const marker = {
+    kind: METADATA_MARKER_KIND,
+    schemaVersion: METADATA_SCHEMA_VERSION,
+    runId,
+    createdAt: createdAt.toISOString(),
+  };
+  const totalBytes = [manifestSnapshot, aggregateSnapshot, marker]
+    .reduce((total, value) => total + Buffer.byteLength(canonicalJson(value), 'utf8'), 0);
+  assert(totalBytes <= MAX_METADATA_RUN_BYTES,
+    'metadata run exceeds the permitted total size');
+  const runDirectory = join(metadataRoot, `${METADATA_PREFIX}${runId}`);
+  await mkdir(runDirectory, { mode: 0o700 });
+  try {
+    await chmod(runDirectory, 0o700);
+    const directoryStat = await lstat(runDirectory);
+    assert(directoryStat.isDirectory() && !directoryStat.isSymbolicLink()
+      && directoryStat.uid === ownerUid && isMode(directoryStat, 0o700),
+    'created metadata directory did not receive owner-only permissions');
+
+    await writeAtomicOwnerOnlyJson(runDirectory, 'run-manifest.json', manifestSnapshot);
+    await writeAtomicOwnerOnlyJson(runDirectory, 'aggregate.json', aggregateSnapshot);
+    // The marker is the commit point. Cleanup ignores directories without this
+    // exact marker, so interrupted writes are preserved for operator review.
+    await writeAtomicOwnerOnlyJson(runDirectory, METADATA_MARKER_NAME, marker, MAX_MARKER_BYTES);
+  } catch (failure) {
+    try {
+      await removeOwnedRun(metadataRoot, runDirectory, ownerUid);
+    } catch (cleanupFailure) {
+      throw new AggregateError([failure, cleanupFailure],
+        'metadata write failed and its owner-only directory could not be removed');
+    }
+    throw failure;
+  }
+  return Object.freeze({ runId, createdAt: createdAt.toISOString(), directory: runDirectory });
+}
+
+/**
+ * Removes only valid helper-owned v27 metadata after the exact 90-day retention
+ * period. This enforces persistence duration only; it grants no access and
+ * establishes no consent, quality, or acceptance authority.
+ */
+export async function cleanupExpiredCommonVoiceMetadataRuns(
+  metadataRootPath,
+  ephemeralAudioRootPath,
+  { now = new Date() } = {},
+) {
+  const ownerUid = currentUid();
+  const metadataRoot = await requireSeparatePrivateRoots(
+    metadataRootPath, ephemeralAudioRootPath, ownerUid);
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  assert(Number.isFinite(nowMs), 'metadata cleanup clock must be finite');
+  let removed = 0;
+  let retained = 0;
+  const expectedEntries = [METADATA_MARKER_NAME, 'aggregate.json', 'run-manifest.json'].sort();
+  const directory = await opendir(metadataRoot);
+  for await (const entry of directory) {
+    if (!entry.name.startsWith(METADATA_PREFIX)) {
+      retained += 1;
+      continue;
+    }
+    const match = /^metadata-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/u
+      .exec(entry.name);
+    if (!match || !entry.isDirectory()) {
+      retained += 1;
+      continue;
+    }
+    const runDirectory = join(metadataRoot, entry.name);
+    try {
+      const stat = await lstat(runDirectory);
+      assert(stat.isDirectory() && !stat.isSymbolicLink()
+        && stat.uid === ownerUid && isMode(stat, 0o700), 'metadata directory is unsafe');
+      const runEntries = [];
+      let totalBytes = 0;
+      const runContents = await opendir(runDirectory);
+      for await (const child of runContents) {
+        runEntries.push(child.name);
+        const childStat = await lstat(join(runDirectory, child.name));
+        assert(childStat.isFile() && !childStat.isSymbolicLink()
+          && childStat.uid === ownerUid && isMode(childStat, 0o600),
+        'metadata run contains an unsafe file');
+        totalBytes += childStat.size;
+      }
+      assert(runEntries.sort().join(',') === expectedEntries.join(','),
+        'metadata run has missing or unrecognized files');
+      assert(totalBytes <= MAX_METADATA_RUN_BYTES,
+        'metadata run exceeds the permitted total size');
+
+      const marker = await readBoundedOwnerOnlyJson(
+        runDirectory, METADATA_MARKER_NAME, ownerUid, MAX_MARKER_BYTES);
+      exactKeys(marker, ['createdAt', 'kind', 'runId', 'schemaVersion'],
+        'metadata marker contains unexpected fields');
+      assert(marker.kind === METADATA_MARKER_KIND
+        && marker.schemaVersion === METADATA_SCHEMA_VERSION
+        && marker.runId === match[1], 'metadata marker identity is invalid');
+      assert(typeof marker.createdAt === 'string'
+        && Number.isFinite(Date.parse(marker.createdAt))
+        && new Date(marker.createdAt).toISOString() === marker.createdAt,
+      'metadata marker timestamp is invalid');
+
+      const manifest = await readBoundedOwnerOnlyJson(
+        runDirectory, 'run-manifest.json', ownerUid);
+      const aggregate = await readBoundedOwnerOnlyJson(runDirectory, 'aggregate.json', ownerUid);
+      validateRunManifest(manifest);
+      validateAggregate(aggregate, manifest);
+      const age = nowMs - Date.parse(marker.createdAt);
+      if (age < METADATA_RETENTION_MS || age < 0) {
+        retained += 1;
+        continue;
+      }
+      await removeOwnedRun(metadataRoot, runDirectory, ownerUid);
+      removed += 1;
+    } catch {
+      // Unrecognized, malformed, raced, or future-dated entries stay for review.
+      retained += 1;
+    }
+  }
+  return Object.freeze({ removed, retained, retentionDays: METADATA_RETENTION_DAYS });
+}
+
 export const COMMON_VOICE_RUN_MAX_INTERRUPTED_AUDIO_AGE_MS = MAX_INTERRUPTED_AUDIO_AGE_MS;
+export const COMMON_VOICE_METADATA_RETENTION_DAYS = METADATA_RETENTION_DAYS;
