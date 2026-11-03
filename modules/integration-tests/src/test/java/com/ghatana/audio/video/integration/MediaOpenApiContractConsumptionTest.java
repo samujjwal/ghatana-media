@@ -45,14 +45,20 @@ class MediaOpenApiContractConsumptionTest {
         Assertions.assertEquals("media", textOrEmpty(manifest.path("serviceId")));
 
         Map<String, OperationRoute> contractOperations = new HashMap<>();
+        Set<String> contractOperationIds = new HashSet<>();
         for (Map.Entry<String, JsonNode> path : spec.path("paths").properties()) {
             for (Map.Entry<String, JsonNode> method : path.getValue().properties()) {
                 String normalizedMethod = method.getKey().toLowerCase(Locale.ROOT);
                 if (!HTTP_METHODS.contains(normalizedMethod)) continue;
                 String key = normalizedMethod + " " + normalizePath(path.getKey());
                 String operationId = textOrEmpty(method.getValue().path("operationId"));
+                String extensionOperationId = textOrEmpty(method.getValue().path("x-ghatana-operationId"));
                 String routeId = textOrEmpty(method.getValue().path("x-ghatana-routeId"));
                 Assertions.assertFalse(operationId.isBlank(), "OpenAPI operationId is required for " + key);
+                Assertions.assertEquals(operationId, extensionOperationId,
+                        "OpenAPI x-ghatana-operationId must match operationId for " + key);
+                Assertions.assertTrue(contractOperationIds.add(operationId),
+                        "OpenAPI operationId must be unique: " + operationId);
                 Assertions.assertFalse(routeId.isBlank(), "OpenAPI route id is required for " + key);
                 Assertions.assertNull(contractOperations.putIfAbsent(key, new OperationRoute(operationId, routeId)),
                         "OpenAPI route must be unique: " + key);
@@ -61,6 +67,7 @@ class MediaOpenApiContractConsumptionTest {
 
         Map<String, OperationRoute> runtimeRoutes = new HashMap<>();
         Set<String> routeIds = new HashSet<>();
+        Set<String> runtimeOperationIds = new HashSet<>();
         for (JsonNode route : manifest.path("routes")) {
             String method = textOrEmpty(route.path("method")).toLowerCase(Locale.ROOT);
             String path = textOrEmpty(route.path("path"));
@@ -69,6 +76,8 @@ class MediaOpenApiContractConsumptionTest {
             Assertions.assertTrue(HTTP_METHODS.contains(method), "Unsupported route method: " + method);
             Assertions.assertFalse(path.isBlank(), "Runtime route path is required");
             Assertions.assertFalse(operationId.isBlank(), "Runtime operationId is required for " + path);
+            Assertions.assertTrue(runtimeOperationIds.add(operationId),
+                    "Runtime operationId must be unique: " + operationId);
             Assertions.assertFalse(routeId.isBlank(), "Runtime route id is required for " + path);
             Assertions.assertTrue(routeIds.add(routeId), "Duplicate runtime route id: " + routeId);
             String key = method + " " + normalizePath(path);

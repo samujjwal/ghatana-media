@@ -64,13 +64,19 @@ function assertSourceFreePackage(packResult, packageName) {
 try {
   const sourceClient = JSON.parse(await readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const sourceTypes = JSON.parse(await readFile(path.join(typesRoot, 'package.json'), 'utf8'));
-  const zodManifest = JSON.parse(await readFile(path.join(typeNodeModules, 'zod/package.json'), 'utf8'));
+  const zodRoot = path.join(typeNodeModules, 'zod');
+  const zodManifest = JSON.parse(await readFile(path.join(zodRoot, 'package.json'), 'utf8'));
+  const zodTarball = path.join(tempRoot, 'zod-pack');
+  await mkdir(zodTarball, { recursive: true });
+  const zodPacked = JSON.parse(run('npm', ['pack', '--json', '--pack-destination', zodTarball], npmOptions(zodRoot)));
+  assert.equal(zodPacked.length, 1, 'expected one local zod dependency tarball');
+  const zodPackage = path.join(zodTarball, zodPacked[0].filename);
 
   await copyTree(path.join(typesRoot, 'dist'), path.join(typePackRoot, 'dist'));
   await copyTree(path.join(typesRoot, 'dist-cjs'), path.join(typePackRoot, 'dist-cjs'));
   const typesTarball = await pack(typePackRoot, {
     ...sourceTypes,
-    dependencies: { ...sourceTypes.dependencies, zod: zodManifest.version },
+    dependencies: { ...sourceTypes.dependencies, zod: `file:${zodPackage}` },
     devDependencies: undefined,
     scripts: undefined,
   }, tempRoot);
@@ -186,7 +192,34 @@ try {
   assert.equal(cliError.code, 'MISSING_AUTH_TOKEN');
   assert.match(cliError.message, /environment/u);
 
-  console.log(`Installed ESM/CJS/types consumers and CLI passed (zod ${zodManifest.version}).`);
+  const token = 'installed-consumer-secret-do-not-print';
+  const args = ['artifact', 'inspect', '--endpoint', 'http://127.0.0.1:1', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--artifact', 'fixture-artifact'];
+  const trustedResult = spawnSync(process.execPath, [cli, ...args], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: token },
+  });
+  assert.equal(trustedResult.status, 1, 'loopback HTTP must pass endpoint admission and attempt a read');
+  assert.equal(JSON.parse(trustedResult.stderr.trim()).code, 'OBSERVATION_UNAVAILABLE');
+  assert.equal(trustedResult.stdout, '');
+  assert.equal((trustedResult.stdout + trustedResult.stderr).includes(token), false,
+    'installed CLI must not expose the credential on transport failure');
+
+  const untrustedArgs = [...args];
+  untrustedArgs[3] = 'http://media.example.test';
+  const untrustedResult = spawnSync(process.execPath, [cli, ...untrustedArgs], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: token },
+  });
+  assert.equal(untrustedResult.status, 2);
+  assert.equal(JSON.parse(untrustedResult.stderr.trim()).code, 'INVALID_ENDPOINT');
+  assert.equal(untrustedResult.stdout, '');
+  assert.equal((untrustedResult.stdout + untrustedResult.stderr).includes(token), false,
+    'installed CLI must not expose the credential while rejecting an endpoint');
+
+  console.log(`Installed ESM/CJS/types consumers and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }
