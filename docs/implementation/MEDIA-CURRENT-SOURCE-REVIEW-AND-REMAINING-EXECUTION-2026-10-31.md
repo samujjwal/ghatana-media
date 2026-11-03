@@ -2882,3 +2882,11 @@ These A1 observations are local engineering evidence or scoped no-change reviews
 - **IT-01 no-change:** `MediaTestHarnessCatalogTest` passed **5/5**. The existing census registry already identifies local-fixture, isolated-integration, and external-qualification tiers, selectors, resource/prerequisite boundaries, assets, and evidence limits; no second registry or build wiring was added.
 
 These checks do not establish complete IT-02/CT-04 acceptance, production authentication, PostgreSQL deployment/cutover, provider rights, or lifecycle status.
+
+### 42.20 November 2 SK-08 installed HTTP, CT-02 forged identity, and CT-03 UNKNOWN clock checks
+
+- **SK-08:** the isolated packed consumer now runs installed `getJob` over an ephemeral loopback HTTP server and checks the exact GET path, bearer/tenant/principal headers, and parsed job; the wrong-scope fixture, ESM/CJS/types install, and CLI boundary checks remain. `pnpm --filter @audio-video/client test:package` passed. The local Node listener required reviewed sandbox network permission; no external endpoint or provider was contacted. This proves the packed client's local HTTP exchange with synthetic fixture data, not a real Media server, published package or provider effect.
+- **CT-02:** `SttAuthenticatedIntegrationTest.jwtMissingTenant_failsUnauthenticated` now supplies forged tenant and processing-purpose metadata alongside a JWT missing its tenant claim; the request remains `UNAUTHENTICATED` with zero storage/provider/service interactions. The focused test passed. No auth policy or interceptor changed.
+- **CT-03:** `AudioVideoAdvancedServicesIntegrationTest.sourceTimebase_preservesExactSamplePositionAndUnknownState` now asserts UNKNOWN has no clock domain, matching the `MediaClockTimestamp` invariant against fabricated clock values. The two CT-03 focused classes passed **14/14**. No timestamp producer or clock mapping changed.
+
+These checks advance only their named source-free/local integration assertions. SK-08, CT-02 and CT-03 whole-row acceptance remains open where actual server/provider/owner evidence is required.
