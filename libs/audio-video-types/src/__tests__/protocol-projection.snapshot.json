@@ -23,6 +23,63 @@
         "path": "/api/v1/caption-versions/{captionVersionId}",
         "routeId": "GET /api/v1/caption-versions/{captionVersionId}"
       },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "captionVersionId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "captionSegments",
+          "captionVersionId",
+          "languageDisposition",
+          "languageTag",
+          "parentVersionId",
+          "parentVersionKind",
+          "purpose",
+          "registeredAt",
+          "registrationReceiptId",
+          "requestFingerprint",
+          "requestId",
+          "sourceArtifactId",
+          "sourceArtifactVersionId",
+          "sourceClockId",
+          "sourceDurationTicks",
+          "ticksPerSecond"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "404": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
+        ]
+      },
       "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
     },
     {
@@ -32,6 +89,51 @@
         "path": "/api/v1/caption-versions",
         "routeId": "GET /api/v1/caption-versions"
       },
+      "requestFields": [],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sourceArtifactId",
+          "in": "query",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "sourceArtifactVersionId",
+          "in": "query",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "200": [
+          "captionVersions",
+          "count"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
+        ]
+      },
       "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
     },
     {
@@ -40,6 +142,70 @@
         "method": "POST",
         "path": "/api/v1/caption-versions",
         "routeId": "POST /api/v1/caption-versions"
+      },
+      "requestFields": [
+        "captionSegments",
+        "languageDisposition",
+        "languageTag",
+        "parentVersionId",
+        "parentVersionKind",
+        "purpose",
+        "requestFingerprint",
+        "requestId",
+        "sourceArtifactId",
+        "sourceArtifactVersionId",
+        "sourceClockId",
+        "sourceDurationTicks",
+        "ticksPerSecond"
+      ],
+      "parameters": [
+        {
+          "name": "X-Principal-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "X-Tenant-Id",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "responseFieldsByStatus": {
+        "201": [
+          "captionVersionId",
+          "languageDisposition",
+          "parentVersionId",
+          "parentVersionKind",
+          "registeredAt",
+          "registrationReceiptId",
+          "requestFingerprint",
+          "requestId",
+          "sourceArtifactId",
+          "sourceArtifactVersionId",
+          "sourceClockId"
+        ],
+        "400": [
+          "error",
+          "meta"
+        ],
+        "403": [
+          "error",
+          "meta"
+        ],
+        "409": [
+          "error",
+          "meta"
+        ],
+        "422": [
+          "error",
+          "meta"
+        ],
+        "503": [
+          "error",
+          "meta"
+        ]
       },
       "disposition": "UNBOUND/NOT_ADMITTED: unresolved-no-source-explicit-http-member-crosswalk"
     }

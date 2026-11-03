@@ -112,8 +112,9 @@ const httpSourceExtras = extrasHttp.map((identityRow) => {
   const [id, method, path] = identityRow.split("\t");
   const sourceRow = byHttpId.get(id);
   const route = routeManifest.routes.find((item) => item.operationId === id);
+  const source = openApiOperation(id);
   const bindingStatus = sourceRow?.pdp1SemanticBinding?.bindingStatus;
-  assert.ok(sourceRow, `extra HTTP identity ${id} must exist in PDP-3`);
+  assert.ok(sourceRow && source, `extra HTTP identity ${id} must exist in PDP-3 and OpenAPI`);
   assert.equal(sourceRow.protocolIdentity?.protocol, "HTTP", `extra PDP-3 protocol must be HTTP for ${id}`);
   assert.equal(sourceRow.protocolIdentity?.operationId, id, `extra PDP-3 operationId must match OpenAPI for ${id}`);
   assert.equal(sourceRow.protocolIdentity?.method, method, `extra PDP-3 method must match OpenAPI for ${id}`);
@@ -125,9 +126,31 @@ const httpSourceExtras = extrasHttp.map((identityRow) => {
   assert.equal(sourceRow.routeManifestObservation?.identityMatch, "exact-method-path-operationId",
     `extra PDP-3 route observation must be exact for ${id}`);
   assert.ok(bindingStatus?.startsWith("unresolved-"), `extra HTTP identity ${id} must remain explicitly unbound`);
+  const body = source.operation.requestBody?.$ref
+    ? resolveRef(source.operation.requestBody.$ref)
+    : source.operation.requestBody;
+  const requestFields = [];
+  for (const media of Object.values(body?.content ?? {})) requestFields.push(...schemaFields(media.schema));
+  const parameters = [...(source.pathItem.parameters ?? []), ...(source.operation.parameters ?? [])]
+    .map((parameter) => parameter.$ref ? resolveRef(parameter.$ref) : parameter)
+    .filter(Boolean)
+    .map((parameter) => {
+      const projection = {
+        name: parameter.name,
+        in: parameter.in,
+        required: Boolean(parameter.required),
+        type: parameter.schema?.type ?? parameter.content?.["application/json"]?.schema?.type ?? "UNSPECIFIED",
+      };
+      if (parameter.schema?.format) projection.format = parameter.schema.format;
+      return projection;
+    })
+    .sort((a, b) => `${a.in}:${a.name}`.localeCompare(`${b.in}:${b.name}`));
   return {
     id,
     identity: { method, path, routeId: route.id },
+    requestFields: [...new Set(requestFields)].sort(),
+    parameters,
+    responseFieldsByStatus: responseFields(source.operation),
     disposition: `UNBOUND/NOT_ADMITTED: ${bindingStatus}`,
   };
 });
@@ -325,5 +348,5 @@ if (process.argv.includes("--write")) {
   assert.equal(extraHttpIds.length, 3, "HTTP additions outside the named 27 must stay visible");
   assert.ok(extraRpcIds.includes("VisionService.RecognizeSceneText"), "extra scene-text RPC must stay unbound outside the named 43");
   assert.equal(grpc.filter((row) => row.pdpBinding === "UNBOUND/NOT_ADMITTED").length, 26);
-  console.log("Protocol projection snapshot: 27 HTTP + 43 gRPC identities checked; 3 HTTP and 1 gRPC source extras retained as gaps.");
+  console.log("Protocol projection snapshot: 30 HTTP routes and 44 gRPC RPCs checked; PDP-1 names 27/43, with 3 HTTP and 1 gRPC source extras retained as unbound gaps.");
 }

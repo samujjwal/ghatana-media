@@ -11,6 +11,7 @@ dependencies {
     testImplementation(project(":services:media:modules:intelligence:multimodal-service"))
     testImplementation(project(":services:media:modules:infrastructure:persistence"))
     testImplementation(project(":services:media:modules:audio-streaming"))
+    testImplementation(project(":services:media:modules:video-streaming"))
     testImplementation(project(":integration-tests:service-contract-test-utils"))
 
     testImplementation("com.ghatana.platform:testing:${providers.gradleProperty("ghatana.shared.version").get()}")
