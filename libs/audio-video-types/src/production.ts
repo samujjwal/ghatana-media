@@ -149,7 +149,9 @@ export const PositiveInt64DecimalSchema = z.string().refine((value) => {
 
 export const DigestSchema = z.object({
   algorithmRef: VersionRefSchema,
-  value: z.string().min(1).max(384).regex(/^\S+$/),
+  value: z.string().min(1).refine(hasAtMost384UnicodeCodePoints,
+    "must contain at most 384 Unicode code points").regex(/^\S+$/)
+    .refine(hasWellFormedUtf16, "must contain well-formed Unicode"),
   subjectVersionRef: VersionRefSchema,
 }).strict();
 

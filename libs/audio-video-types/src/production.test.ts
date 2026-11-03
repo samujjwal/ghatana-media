@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
   ModelExecutionSpecSchema, SimulationStateSchema, SignedInt64DecimalSchema,
-  PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema,
+  PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema, DigestSchema,
 } from './production';
 
 const ref = 'media://revision/abc123';
@@ -117,6 +117,12 @@ describe('TY-04 headless declarative parsers', () => {
   it('counts version reference maximum length by Unicode code point', () => {
     expect(VersionRefSchema.safeParse('🚀'.repeat(384)).success).toBe(true);
     expect(VersionRefSchema.safeParse('🚀'.repeat(385)).success).toBe(false);
+  });
+  it('counts digest values by Unicode code point and rejects malformed UTF-16', () => {
+    const digest = { algorithmRef: ref, value: '🚀'.repeat(384), subjectVersionRef: ref };
+    expect(DigestSchema.safeParse(digest).success).toBe(true);
+    expect(DigestSchema.safeParse({ ...digest, value: `${digest.value}🚀` }).success).toBe(false);
+    expect(DigestSchema.safeParse({ ...digest, value: 'digest/\uD800' }).success).toBe(false);
   });
   it('rejects the wrong clock kind — a story clock is not a simulation clock', () => {
     const anim = {
