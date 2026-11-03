@@ -486,5 +486,10 @@ describe("media contracts", () => {
     expect(() => MediaArtifactSchema.parse({
       ...artifact, provenance: { ...artifact.provenance, sourceRevisionIds: ["r1"] },
     })).toThrow();
+    // Preserve OpenAPI's existing metadata maxProperties: 64 boundary.
+    const metadataAtLimit = Object.fromEntries(Array.from({ length: 64 }, (_, index) => [`key-${index}`, index]));
+    const metadataOverLimit = Object.fromEntries(Array.from({ length: 65 }, (_, index) => [`key-${index}`, index]));
+    expect(MediaArtifactSchema.parse({ ...artifact, metadata: metadataAtLimit }).metadata).toEqual(metadataAtLimit);
+    expect(() => MediaArtifactSchema.parse({ ...artifact, metadata: metadataOverLimit })).toThrow();
   });
 });

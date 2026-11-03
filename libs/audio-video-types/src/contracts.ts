@@ -89,7 +89,12 @@ export const MediaArtifactSchema = z
         modelVersion: z.string().max(128).optional(),
       })
       .strict(),
-    metadata: z.record(z.string().max(128), z.unknown()).default({}),
+    // Match the established Media OpenAPI projection's maxProperties: 64
+    // bound. Values remain opaque here because this projection does not define
+    // their domain; the parser enforces the existing envelope limit only.
+    metadata: z.record(z.string().max(128), z.unknown()).refine((metadata) => Object.keys(metadata).length <= 64, {
+      message: "metadata must contain at most 64 properties",
+    }).default({}),
   })
   .strict();
 export type MediaArtifact = z.infer<typeof MediaArtifactSchema>;
