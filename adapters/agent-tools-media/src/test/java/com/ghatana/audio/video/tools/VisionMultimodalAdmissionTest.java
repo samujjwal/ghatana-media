@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,13 +92,20 @@ class VisionMultimodalAdmissionTest extends EventloopTestBase {
         String rawFrameSentinel = "cHJpdmF0ZS1mcmFtZS1zZW50aW5lbA==";
         ToolExecutionEnvelope envelope = envelope(VisionAnalysisToolHandler.TOOL_ID,
                 Map.of("mediaSource", Map.of("imageBytes", rawFrameSentinel)));
+        AtomicReference<ToolExecutionResult> resultRef = new AtomicReference<>();
 
-        ToolExecutionResult result = runPromise(() -> new VisionAnalysisToolHandler(delegateReturningSuccess(calls))
-                .handle(envelope, contract(envelope)));
+        List<String> logs = captureLogs(VisionAnalysisToolHandler.class, () -> resultRef.set(runPromise(
+                () -> new VisionAnalysisToolHandler(delegateReturningSuccess(calls))
+                        .handle(envelope, contract(envelope)))));
+        ToolExecutionResult result = resultRef.get();
 
         assertPreDispatchFailure(result);
         assertThat(result.failure().code()).isNotEqualTo("VISION_NOT_ADMITTED");
         assertThat(calls).hasValue(0);
+        assertThat(result.errorMessage()).doesNotContain(rawFrameSentinel, "private-frame-sentinel");
+        assertThat(result.toString()).doesNotContain(rawFrameSentinel, "private-frame-sentinel");
+        assertThat(logs).noneMatch(message -> message.contains(rawFrameSentinel)
+                || message.contains("private-frame-sentinel"));
     }
 
     @Test
