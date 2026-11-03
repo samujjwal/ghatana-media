@@ -29,8 +29,12 @@ public final class AudioMetadataExtractor {
             throw new ValidationError("Audio data must contain complete sample frames");
         }
         long sampleCount = dataLength / bytesPerFrame;
-        Duration duration = audio.duration() != null
-            ? audio.duration()
+        Duration declaredDuration = audio.duration();
+        if (declaredDuration != null && declaredDuration.isNegative()) {
+            throw new ValidationError("Audio duration must be nonnegative");
+        }
+        Duration duration = declaredDuration != null
+            ? declaredDuration
             : durationForFrames(sampleCount, audio.sampleRate());
         return new AudioMetadata(
             audio.sampleRate(),

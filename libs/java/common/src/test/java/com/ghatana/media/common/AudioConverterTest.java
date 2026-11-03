@@ -185,6 +185,22 @@ class AudioConverterTest {
     }
 
     @Test
+    @DisplayName("Audio metadata rejects negative declared durations")
+    void rejectsNegativeAudioDuration() {
+        AudioData negativeDuration = AudioData.builder()
+                .data(new byte[] {0, 0})
+                .sampleRate(16000)
+                .channels(1)
+                .bitsPerSample(16)
+                .duration(Duration.ofNanos(-1))
+                .build();
+
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromAudioData(negativeDuration))
+                .isInstanceOf(ValidationError.class)
+                .hasMessageContaining("duration must be nonnegative");
+    }
+
+    @Test
     @DisplayName("WAV metadata parser rejects unsigned lengths outside the RIFF buffer")
     void wavParserRejectsUnsignedChunkAndContainerOverflow() {
         byte[] oversizedRiff = createWavBytes(16000, 1, 16, 4);
