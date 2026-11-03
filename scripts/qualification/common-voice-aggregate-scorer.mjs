@@ -55,8 +55,18 @@ function assertExactRecordFields(record) {
   }
 }
 
-function validateAndCountRawTextCodeUnits(record) {
+function snapshotRecord(record) {
   assertExactRecordFields(record);
+  // Read descriptor values once. A Proxy can otherwise return one value during
+  // preflight and a different, unbounded value during scoring.
+  const snapshot = {};
+  for (const key of RECORD_FIELDS) {
+    snapshot[key] = Object.getOwnPropertyDescriptor(record, key).value;
+  }
+  return Object.freeze(snapshot);
+}
+
+function validateAndCountRawTextCodeUnits(record) {
   assert(typeof record.reference === 'string', 'score input reference must be a string');
   assert(typeof record.prediction === 'string', 'score input prediction must be a string');
   assert(record.reference.length <= MAX_TEXT_CODE_UNITS
@@ -155,8 +165,9 @@ export function scoreCommonVoiceV27Aggregates(records) {
     `score input exceeds the pinned v27 public test-row ceiling of ${MAX_TOTAL_TEST_ROWS}`);
 
   // Bound total raw text before NFC/lowercase normalization allocates copies.
+  const snapshots = records.map(snapshotRecord);
   let cumulativeTextCodeUnits = 0;
-  for (const record of records) {
+  for (const record of snapshots) {
     cumulativeTextCodeUnits += validateAndCountRawTextCodeUnits(record);
     assert(cumulativeTextCodeUnits <= MAX_CUMULATIVE_TEXT_CODE_UNITS,
       `score input exceeds the ${MAX_CUMULATIVE_TEXT_CODE_UNITS}-code-unit cumulative text limit`);
@@ -174,7 +185,7 @@ export function scoreCommonVoiceV27Aggregates(records) {
   const validatedRecords = [];
   let cumulativeEditCells = 0;
 
-  for (const record of records) {
+  for (const record of snapshots) {
     const validated = validateRecord(record);
     const localeKey = Object.keys(LOCALES).find((key) => LOCALES[key].locale === validated.locale);
     const datasetId = LOCALES[localeKey].sourceDatasetId;

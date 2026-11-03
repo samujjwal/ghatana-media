@@ -150,6 +150,20 @@ test('rejects non-string predictions and accessor-backed fields', () => {
   assert.throws(() => scoreCommonVoiceV27Aggregates(accessor), /data properties/u);
 });
 
+test('scores snapshotted data descriptor values when proxy reads would vary between passes', () => {
+  const records = validThreeLocaleInput();
+  const stable = records[0];
+  records[0] = new Proxy(stable, {
+    get(target, key, receiver) {
+      if (key === 'reference' || key === 'prediction') return 'x'.repeat(1_000_000);
+      return Reflect.get(target, key, receiver);
+    },
+  });
+  const result = scoreCommonVoiceV27Aggregates(records);
+  assert.equal(result.locales.en.wer, 1 / 3);
+  assert.equal(result.locales.en.cer, 1 / 5);
+});
+
 test('rejects input above the combined pinned v27 public test-row ceiling before record processing', () => {
   const tooMany = new Array(20_108).fill(null);
   assert.throws(() => scoreCommonVoiceV27Aggregates(tooMany), /test-row ceiling of 20107/u);
