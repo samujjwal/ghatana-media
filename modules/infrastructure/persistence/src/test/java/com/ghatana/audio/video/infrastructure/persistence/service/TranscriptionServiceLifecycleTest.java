@@ -122,6 +122,77 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
     }
 
     @Test
+    void cachedExecutorBurstStagesWorkWithoutProvisioningOneThreadPerOperation() throws InterruptedException {
+        TranscriptionRepository repository = mock(TranscriptionRepository.class);
+        int acceptedCount = PersistenceExecutors.MAX_OUTSTANDING_OPERATIONS;
+        CountDownLatch firstWaveEntered = new CountDownLatch(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+        CountDownLatch releaseOperations = new CountDownLatch(1);
+        AtomicInteger active = new AtomicInteger();
+        AtomicInteger maximumActive = new AtomicInteger();
+        AtomicInteger terminalCount = new AtomicInteger();
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicReference<Exception> overflowFailure = new AtomicReference<>();
+        when(repository.countByTenantId("tenant")).thenAnswer(invocation -> {
+            int current = active.incrementAndGet();
+            maximumActive.accumulateAndGet(current, Math::max);
+            firstWaveEntered.countDown();
+            try {
+                if (!releaseOperations.await(5, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("test did not release blocked repository calls");
+                }
+                return 1L;
+            } finally {
+                active.decrementAndGet();
+            }
+        });
+
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
+        TranscriptionService service = new TranscriptionService(repository, eventloop(), executor,
+            ExecutorOwnership.SERVICE);
+        AtomicInteger workerCountBeforeRelease = new AtomicInteger();
+        Thread releaseThread = new Thread(() -> {
+            try {
+                if (!firstWaveEntered.await(3, TimeUnit.SECONDS)) return;
+                Thread.sleep(100);
+                workerCountBeforeRelease.set(executor.getLargestPoolSize());
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            } finally {
+                releaseOperations.countDown();
+            }
+        }, "persistence-cached-burst-release");
+        releaseThread.start();
+
+        try {
+            Long lastResult = runPromise(() -> {
+                Promise<Long> last = null;
+                for (int index = 0; index < acceptedCount; index++) {
+                    last = service.countByTenantId("tenant").whenComplete((value, failure) -> {
+                        terminalCount.incrementAndGet();
+                        if (failure == null) successCount.incrementAndGet();
+                    });
+                }
+                service.countByTenantId("tenant").whenException(overflowFailure::set);
+                return last;
+            });
+
+            assertThat(lastResult).isEqualTo(1L);
+            assertThat(terminalCount).hasValue(acceptedCount);
+            assertThat(successCount).hasValue(acceptedCount);
+            assertThat(overflowFailure.get()).isInstanceOf(RejectedExecutionException.class);
+            assertThat(workerCountBeforeRelease.get())
+                .isLessThanOrEqualTo(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+            assertThat(maximumActive.get())
+                .isEqualTo(PersistenceExecutors.MAX_CONCURRENT_DATABASE_OPERATIONS);
+        } finally {
+            releaseOperations.countDown();
+            releaseThread.join(2_000);
+            service.close();
+            assertThat(executor.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
+        }
+    }
+
+    @Test
     void closeIsNonBlockingAndDrainsAcceptedPromisesWhileSaturatedSubmissionFailsAsPromise() {
         TranscriptionRepository repository = mock(TranscriptionRepository.class);
         CountDownLatch firstCallEntered = new CountDownLatch(1);

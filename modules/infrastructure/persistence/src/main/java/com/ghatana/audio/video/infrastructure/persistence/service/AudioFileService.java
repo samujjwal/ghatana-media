@@ -26,7 +26,6 @@ public class AudioFileService implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(AudioFileService.class);
 
     private final AudioFileRepository repository;
-    private final ExecutorService dbExecutor;
     private final PersistenceOperations operations;
     private final ExecutorOwnership executorOwnership;
 
@@ -45,20 +44,14 @@ public class AudioFileService implements AutoCloseable {
     public AudioFileService(AudioFileRepository repository, Eventloop eventloop, ExecutorService dbExecutor,
                             ExecutorOwnership executorOwnership) {
         this.repository = repository;
-        this.dbExecutor = Objects.requireNonNull(dbExecutor, "dbExecutor");
-        this.operations = new PersistenceOperations(eventloop, dbExecutor);
+        this.operations = new PersistenceOperations(eventloop, Objects.requireNonNull(dbExecutor, "dbExecutor"));
         this.executorOwnership = Objects.requireNonNull(executorOwnership, "executorOwnership");
     }
 
     /** Initiates graceful shutdown of an owned executor without waiting on the caller/eventloop. */
     @Override
     public void close() {
-        if (executorOwnership != ExecutorOwnership.SERVICE) {
-            return;
-        }
-        // shutdown() stops admission but drains already accepted tasks. Do not await or interrupt here:
-        // callers may be on the eventloop, and Promise.ofBlocking needs accepted tasks to complete.
-        dbExecutor.shutdown();
+        operations.close(executorOwnership == ExecutorOwnership.SERVICE);
     }
 
     /**
