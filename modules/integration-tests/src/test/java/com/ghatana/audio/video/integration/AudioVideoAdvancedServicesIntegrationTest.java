@@ -146,6 +146,7 @@ class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
             assertThat(absent.ticks()).isNull();
             assertThat(absent.timeBaseNumerator()).isNull();
             assertThat(absent.timeBaseDenominator()).isNull();
+            assertThat(absent.domain()).isNull();
             assertThat(absent.clockId()).isNull();
             assertThat(absent.unknownReason()).isEqualTo("NO_SOURCE_PTS");
         }
