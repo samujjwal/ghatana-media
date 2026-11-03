@@ -139,7 +139,7 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
-    void transcriptionRequiresTheRegisteredTranscriptionPurpose() throws Exception {
+    void developmentDefaultRejectsTranscribeWhenSourcePurposeIsNotTranscription() throws Exception {
         administration.add(recordWithPurpose("quality-review"));
 
         Resolution resolution = await(resolver.resolve(request(IDENTITY)));

@@ -172,7 +172,11 @@ final class MediaRuntimeSttRightsSourceResolver
         };
     }
 
-    /** Direct speech-to-text dispatch has the canonical Media purpose {@code transcription}. */
+    /**
+     * Conservative development-lane default while PDP-1's transcription purpose binding is unresolved.
+     * The source leaves {@code context.consent purpose} unset and the operation proposal-only, so
+     * {@code transcription} is not asserted as a canonical purpose taxonomy or evaluation grant.
+     */
     private static String requiredPurpose(SttRequestAuthorization.Operation operation) {
         return switch (operation) {
             case TRANSCRIBE, STREAM_TRANSCRIBE -> "transcription";
