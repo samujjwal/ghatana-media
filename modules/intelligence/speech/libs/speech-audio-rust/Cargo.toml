@@ -11,3 +11,6 @@ symphonia = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }
+
+[target.'cfg(any(target_os = "macos", target_os = "linux"))'.dev-dependencies]
+libc = "0.2.183"

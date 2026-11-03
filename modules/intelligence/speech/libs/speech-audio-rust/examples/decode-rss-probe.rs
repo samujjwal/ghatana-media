@@ -81,6 +81,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     if decoded.samples.iter().any(|sample| !sample.is_finite()) {
         return Err("decoded output contains a non-finite sample".into());
     }
+    let peak_rss = peak_rss_bytes()?;
     println!(
         "decoded input_bytes={} sample_rate_hz={} channels={} duration_seconds={} samples={}",
         metadata.len(),
@@ -89,7 +90,39 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         DURATION_SECONDS,
         decoded.samples.len()
     );
+    match peak_rss {
+        Some(bytes) => println!("peak_rss_bytes={bytes} measurement=process_getrusage"),
+        None => println!("peak_rss_bytes=UNAVAILABLE measurement=unsupported_platform"),
+    }
     Ok(())
+}
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+fn peak_rss_bytes() -> Result<Option<u64>, std::io::Error> {
+    let mut usage = std::mem::MaybeUninit::<libc::rusage>::zeroed();
+    // SAFETY: RUSAGE_SELF is a valid selector and the pointer targets writable storage.
+    let result = unsafe { libc::getrusage(libc::RUSAGE_SELF, usage.as_mut_ptr()) };
+    if result != 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+    // SAFETY: getrusage returned success, so the rusage structure was initialized.
+    let max_rss = unsafe { usage.assume_init() }.ru_maxrss;
+    let raw = u64::try_from(max_rss).map_err(|_| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "getrusage returned negative ru_maxrss",
+        )
+    })?;
+    #[cfg(target_os = "macos")]
+    let bytes = raw;
+    #[cfg(target_os = "linux")]
+    let bytes = raw.saturating_mul(1024);
+    Ok(Some(bytes))
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+fn peak_rss_bytes() -> Result<Option<u64>, std::io::Error> {
+    Ok(None)
 }
 
 fn main() {

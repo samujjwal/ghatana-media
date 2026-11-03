@@ -152,6 +152,7 @@ name = "speech-audio-rust"
 version = "0.1.0-SNAPSHOT"
 dependencies = [
  "hound",
+ "libc",
  "symphonia",
  "tempfile",
  "thiserror",
