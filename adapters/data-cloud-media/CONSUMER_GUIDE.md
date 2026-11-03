@@ -1,53 +1,51 @@
-# Data Cloud media provider adapters
+# Data Cloud media consumer guide
 
-This Gradle library implements the Data Cloud `MediaProcessorPort` SPI. Its
-source types define the adapter contract; the library being present in the
-FULL build does not establish runtime wiring, provider availability, or
-qualification.
+This adapter is an optional compatibility boundary. Media remains the source
+of truth for artifacts, uploads, jobs, streams, consent, processing results,
+and finality. A Data Cloud read-model or publication failure does not change
+Media state.
 
-## Public boundary and dependencies
+## Current SPI behavior
 
 `DataCloudSttAdapter`, `DataCloudVisionAdapter`, and
-`DataCloudMultimodalAdapter` implement
-`com.ghatana.datacloud.memory.media.MediaProcessorPort`. Their constructor
-inputs are the Media-owned `PersistentSttService`, `PersistentVisionService`,
-and `PersistentMultimodalService` respectively. The Gradle project also
-requires Data Cloud's delivery API and shared SPI projects, ActiveJ promises,
-and SLF4J.
+`DataCloudMultimodalAdapter` implement Data Cloud's
+`com.ghatana.datacloud.memory.media.MediaProcessorPort`. The SPI accepts an
+artifact ID, tenant ID, operation selector, and string parameters. Those
+arguments do not include an authenticated principal, immutable artifact
+version, purpose, or live rights/disclosure readback.
 
-The SPI calls carry an `artifactId`, `tenantId`, one operation selector
-(`languageCode`, `analysisType`, or `indexType`), and `Map<String, String>`
-parameters. Successful calls return `Promise<String>` containing a transcript,
-frame-index, or multimodal-index identifier. `isAvailable` and the supported
-language, analysis, and index arrays advertise each adapter's source-declared
-capabilities. Unsupported operations currently resolve to `null` in the STT
-and Vision adapters and fail with `UnsupportedOperationException` in the
-Multimodal adapter. Consumers must not interpret these source declarations as
-proof that any adapter is wired or admitted.
+Because those bindings are absent, every adapter currently reports
+`isAvailable(...) == false`, advertises no supported operation values, and
+fails closed for direct supported-operation calls. Legacy unsupported
+operation methods retain their compatibility behavior. Neither a constructed
+adapter nor a local service result is evidence of source authority, provider
+admission, publication, or destination readback.
 
-The adapter sources declare no local SPI version or compatibility negotiation.
-Their Java compatibility follows the Data Cloud API project selected by the
-Gradle dependency; Data Cloud owns evolution of `MediaProcessorPort`.
+## Projection and publication seams
 
-## Errors, tenant, and data handling
+`MediaSemanticObservationProjector` validates tenant and artifact-version
+consistency, classification, provenance references, and redaction metadata
+before constructing a bounded semantic object. It does not authenticate those
+references or authorize disclosure.
 
-The SPI requires callers to enforce tenant, consent, retention, and event
-publication rules. Adapter calls pass the tenant identifier through to their
-Media service. STT and Vision preserve delegated promise failures and emit
-message-only logs. Multimodal validates nonblank artifact, tenant, and index
-type; a missing service or delegated failure returns a generic integration
-unavailable error. No adapter accepts credentials or declares a resource
-ceiling, deadline, or cancellation mechanism.
+`MediaObservationPublicationCoordinator` accepts injected source-readback,
+publication-client, and outbox seams. The default outbox claim returns
+unavailable, and no installed Data Cloud client or real destination receipt is
+wired by this module. The coordinator's in-memory tests verify local boundary
+behavior only. Missing or ambiguous publication evidence is not success and
+must not be converted into Media job finality.
 
-`MediaSemanticObservationProjector` is a separate local projection helper. It
-requires matching source/projection tenant and artifact version, classification
-preservation, and a redaction reference, then returns a Data Cloud semantic
-object with source/provider/consent/provenance references. It validates the
-projection's fields; it does not authenticate those references, authorize
-publication, or perform evidence admission.
+## Build and external contract
 
-The existing Media `DEP-DATA-CLOUD` boundary remains authoritative for the
-owner split: Data Cloud may expose governed metadata/read models, while Media
-retains artifact, upload, job, stream, consent, and processing lifecycle
-semantics. The exact Java SPI source and each adapter class are linked from the
-Media contract-definition surface matrix.
+In `DEV_SOURCE_COMPOSITE`, the adapter compiles against Data Cloud's
+`:services:data-cloud:delivery:api` and `:services:data-cloud:planes:shared-spi`
+projects and Media's STT, Vision, and Multimodal service projects. This source
+graph supports local compilation; it is not a source-free installed consumer
+or proof that the public API is versioned and compatible. Media core modality
+projects do not depend on this adapter.
+
+The Data Cloud contract owner (Ghatana #254) must supply the versioned public
+projection client and receipt/readback contract. Until that owner contract and
+installed consumer are available, keep the integration unavailable. Do not
+send raw media bytes, credentials, or content excluded by source rights or
+redaction policy.

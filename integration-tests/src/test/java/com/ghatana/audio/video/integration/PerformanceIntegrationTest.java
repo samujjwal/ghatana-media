@@ -106,6 +106,11 @@ class PerformanceIntegrationTest {
             for (int tenant = 0; tenant < clientCount; tenant++) {
                 final int expectedTenant = tenant;
                 List<SyntheticFrame> inbox = dispatcher.drain(tenant);
+                assertThat(inbox).extracting(SyntheticFrame::sequence)
+                        .containsExactlyElementsOf(
+                                java.util.stream.IntStream.range(0, FRAMES_PER_CLIENT)
+                                        .boxed()
+                                        .toList());
                 received += inbox.size();
                 leaks += (int) inbox.stream().filter(frame -> !frame.belongsTo(expectedTenant)).count();
             }

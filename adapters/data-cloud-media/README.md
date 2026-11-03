@@ -1,51 +1,50 @@
-# data-cloud-media adapter boundary (DC-06)
+# Data Cloud media adapter boundary (DC-06)
 
-This adapter is the only place Media consumes Data Cloud public contracts
-(`com.ghatana.datacloud.*`). It does not make Data Cloud an authority over
-Media behavior.
+Data Cloud is an optional downstream consumer of governed Media metadata. It
+does not own Media artifacts, uploads, jobs, attempts, streams, consent,
+processing results, or finality. A Data Cloud outage or an unavailable adapter
+must not change canonical Media state.
 
-## Ownership and finality
+## Current integration state
 
-- **Media owns job finality.** Nothing in this module mutates Media job
-  state, attempts or outcomes. `DataCloudMultimodalAdapter` reports
-  `isAvailable(...) == false` for every operation type until a trusted
-  artifact/version reader and rights/consent admission path are wired.
-- **Publication is observation-only.** `MediaObservationPublicationCoordinator`
-  projects bounded `MediaDerivedObservation` values into the Data Cloud
-  semantic contract (`OperationalSemanticContext.SemanticObject`) and
-  publishes them through an admitted destination client. Raw media payloads
-  never cross the boundary — only bounded redacted values, references and
-  provenance.
-- **Tenant-scoped idempotent outbox, never a blind double write.** One logical
-  downstream projection is keyed by a length-framed
-  `(tenantId, sourceEventId, sourceArtifactVersionId)`. Every replay first
-  rechecks live source authority and returns no prior receipt when access is
-  denied. Dispatch requires an atomic durable exclusive claim; an unresolved
-  claim or ambiguous receipt stays `OUTCOME_UNKNOWN` and is never republished
-  blindly.
-- **Source authority is live.** Every publish validates and re-verifies the
-  source owner readback before replay or dispatch. Explicit `DENIED` remains a
-  policy denial; `NOT_ADMITTED`/`UNAVAILABLE` remain unavailable and neither
-  path mutates the outbox or dispatches.
+- `DataCloudSttAdapter`, `DataCloudVisionAdapter`, and
+  `DataCloudMultimodalAdapter` are compatibility implementations of Data
+  Cloud's `MediaProcessorPort`. All three currently report unavailable for
+  every operation. Their legacy calls fail closed (or return `null` for
+  unsupported operations); constructing an adapter does not admit provider
+  work.
+- `MediaObservationPublicationCoordinator` is a source-side integration seam.
+  Its publication client, live source authority, and durable outbox are
+  injected. The default outbox claim is unavailable. No installed Data Cloud
+  public client or real destination receipt/readback is wired here, so local
+  fixtures do not prove a platform effect.
+- `MediaSemanticObservationProjector` validates and bounds a proposed
+  semantic projection. Its references are not authenticated by projection,
+  and it does not authorize disclosure or publication.
+- The adapter surface has no Media job-state mutation API. Media retains job
+  and processing finality; an ambiguous downstream publication remains
+  unresolved at the publication boundary and is never promoted to job success
+  or failure.
 
-## External handoff status
+Only bounded, redacted, source-grounded metadata may cross a future admitted
+public client. Raw media bytes, credentials, and disallowed transcript or
+biometric content must not be sent to Data Cloud.
 
-The `PublicationClient`, `SourceReadbackAuthority` and `PublicationOutbox`
-seams are injected here. `PublicationOutbox.claim` defaults to `UNAVAILABLE`,
-so existing implementations fail closed before dispatch until they provide a
-durable atomic claim bound to the exact source and projection fingerprint,
-plus monotonic completion behavior. The claim adapter must also reconcile or
-reject legacy `sourceEventId|sourceArtifactVersionId` rows atomically before
-enabling the tenant-scoped key; this migration has not been performed.
-Unbound legacy records fail closed and are not replayed. The test fixture
-exercises that contract in memory only. Real platform Data Cloud clients and
-the durable shared outbox binding remain external-owner integrations; local
-fixtures are UNVERIFIED_EXTERNAL, not proof of a platform effect or production
-admission.
+## Build and dependency boundary
 
-## Dependency reconciliation
+The adapter is a separate Gradle project, so Data Cloud is not a dependency of
+Media's core modality projects. In the current `DEV_SOURCE_COMPOSITE` build,
+this adapter compiles against the source projects
+`:services:data-cloud:delivery:api` and `:services:data-cloud:planes:shared-spi`.
+The delivery API currently brings a broad source-composite transitive graph;
+this is not evidence of a source-free installed client or a stable published
+consumer contract. The adapter also depends on Media STT, Vision, and
+Multimodal service projects to preserve the existing SPI implementation
+signatures.
 
-Data Cloud contracts enter via `project(":services:data-cloud:delivery:api")`
-and `project(":services:data-cloud:planes:shared-spi")` — source-free client
-dependencies on their owning repositories' public APIs only. No Data Cloud
-internals are imported; no second aggregate spec is created.
+The external Data Cloud contract owner must publish the versioned public
+projection API/client and consumer receipt/readback contract (Ghatana #254).
+Until then, retain the source-composite dependency for local compilation, keep
+all operations unavailable, and do not claim latency or live publication
+qualification. Do not copy Data Cloud internals, add a second aggregate spec,
+or transfer Media lifecycle ownership.
