@@ -193,6 +193,33 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void synchronousSourceLoaderFailureIsReturnedAsFailedOperation() {
+        UUID transcriptionId = UUID.randomUUID();
+        IllegalStateException sourceFailure = new IllegalStateException("source lookup failed");
+
+        AsyncOperation<TranscriptionEntity> operation = cacheService.getOrLoadTranscription(
+                "tenant-a", transcriptionId, id -> { throw sourceFailure; });
+
+        assertThatThrownBy(() -> await(operation))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("source lookup failed");
+        verifyNoInteractions(cachePort);
+    }
+
+    @Test
+    void nullSourceLoaderOperationIsReturnedAsFailedOperation() {
+        UUID transcriptionId = UUID.randomUUID();
+
+        AsyncOperation<TranscriptionEntity> operation = cacheService.getOrLoadTranscription(
+                "tenant-a", transcriptionId, id -> null);
+
+        assertThatThrownBy(() -> await(operation))
+                .hasRootCauseInstanceOf(NullPointerException.class)
+                .hasRootCauseMessage("loader returned null operation");
+        verifyNoInteractions(cachePort);
+    }
+
+    @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
         DistributedCacheService scopedPort = mock(DistributedCacheService.class);

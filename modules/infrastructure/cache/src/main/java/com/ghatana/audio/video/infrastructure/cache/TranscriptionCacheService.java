@@ -98,7 +98,13 @@ public class TranscriptionCacheService {
             UUID transcriptionId,
             String key,
             Function<UUID, AsyncOperation<Optional<TranscriptionEntity>>> loader) {
-        return loader.apply(transcriptionId).flatMap(source -> {
+        final AsyncOperation<Optional<TranscriptionEntity>> load;
+        try {
+            load = Objects.requireNonNull(loader.apply(transcriptionId), "loader returned null operation");
+        } catch (RuntimeException loaderFailure) {
+            return AsyncOperation.failure(loaderFailure);
+        }
+        return load.flatMap(source -> {
             if (source.isEmpty() || source.get() == null) {
                 return invalidateAfterSourceDenial(key);
             }
