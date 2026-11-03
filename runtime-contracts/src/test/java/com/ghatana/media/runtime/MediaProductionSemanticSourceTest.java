@@ -744,14 +744,22 @@ class MediaProductionSemanticSourceTest {
         assertThatThrownBy(() -> new MediaProductionSemanticSource.Node("step", "DETERMINISTIC", OP,
                 List.of("artifact/has\u00A0space@v1"), List.of(), List.of(), List.of(), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class);
-        for (String whitespace : List.of(" ", "\t", "\u00A0", "\uFEFF")) {
+        for (String whitespace : List.of(" ", "\t", "\n", "\u001C", "\u001F",
+                "\u00A0", "\u3000", "\uFEFF")) {
             assertThatThrownBy(() -> new MediaProductionSemanticSource.Node("step", "DETERMINISTIC",
                     "operation/left" + whitespace + "right", List.of(), List.of(), List.of(), List.of(), Optional.empty()))
                     .isInstanceOf(IllegalArgumentException.class);
         }
+        assertThat(new MediaProductionSemanticSource.Node("step", "DETERMINISTIC",
+                "operation/\u0085v1", List.of(), List.of(), List.of(), List.of(), Optional.empty()))
+                .isNotNull();
         var invalidRefFixture = graphFixture(source(List.of(node("step", "DETERMINISTIC", List.of()))));
         assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileSemanticSource(Optional.of(invalidRefFixture.content()),
                 "semantic-source/\uD800", invalidRefFixture.fingerprint().sha256(), inputs(),
+                resolvedWithSemanticSource(invalidRefFixture), Map.of(OP, 1)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new MediaProductionSpecCompiler().compileSemanticSource(Optional.of(invalidRefFixture.content()),
+                "semantic-source/\u001C", invalidRefFixture.fingerprint().sha256(), inputs(),
                 resolvedWithSemanticSource(invalidRefFixture), Map.of(OP, 1)))
                 .isInstanceOf(IllegalArgumentException.class);
     }

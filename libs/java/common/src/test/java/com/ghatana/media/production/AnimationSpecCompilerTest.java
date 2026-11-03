@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** H-05: PDP-1 envelope validation and truthful non-admission without rendering. */
@@ -115,6 +116,15 @@ class AnimationSpecCompilerTest {
                 valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(), valid.renderingRef()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("sceneGraphRef");
+        assertThatThrownBy(() -> new AnimationSpec(
+                valid.schemaVersion(), "scene/\uFEFFv1", valid.animationGraphRef(), valid.operatorTreeRef(),
+                valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(), valid.renderingRef()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("sceneGraphRef");
+        assertThatCode(() -> new AnimationSpec(
+                valid.schemaVersion(), "scene/\u0085\u001Cv1", valid.animationGraphRef(), valid.operatorTreeRef(),
+                valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(), valid.renderingRef()))
+                .doesNotThrowAnyException();
         assertThatThrownBy(() -> new AnimationSpec(
                 valid.schemaVersion(), valid.sceneGraphRef(), valid.animationGraphRef(),
                 valid.operatorTreeRef(), valid.assetsRef(), valid.propertyCurveRefs(), valid.tStoryRef(),

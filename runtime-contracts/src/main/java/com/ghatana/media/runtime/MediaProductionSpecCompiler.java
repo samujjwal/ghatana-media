@@ -1082,10 +1082,7 @@ public final class MediaProductionSpecCompiler {
     }
 
     private static boolean isValidSemanticVersionRef(String value) {
-        return value != null && !value.isEmpty() && value.codePointCount(0, value.length()) <= 384
-                && hasWellFormedUtf16(value)
-                && value.codePoints().noneMatch(ch -> Character.isWhitespace(ch)
-                        || Character.isSpaceChar(ch) || ch == 0xFEFF);
+        return MediaVersionRefRules.isValidSemanticSourceRef(value);
     }
 
     /**
@@ -1352,9 +1349,7 @@ public final class MediaProductionSpecCompiler {
     }
 
     private static void requireVersionRef(String value, String field) {
-        if (value == null || value.length() > 384 || value.isEmpty()
-                || !hasWellFormedUtf16(value)
-                || value.codePoints().anyMatch(ch -> Character.isWhitespace(ch) || Character.isSpaceChar(ch))) {
+        if (!MediaVersionRefRules.isValid(value)) {
             throw new IllegalArgumentException(field + " must be a bounded version reference");
         }
     }

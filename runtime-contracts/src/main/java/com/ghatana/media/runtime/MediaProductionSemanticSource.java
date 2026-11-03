@@ -298,8 +298,7 @@ public record MediaProductionSemanticSource(
         if (value == null || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) throw new IllegalArgumentException(field + " is invalid");
     }
     private static void requireVersionRef(String value, String field) {
-        if (value == null || value.isEmpty() || value.codePointCount(0, value.length()) > 384 || !hasWellFormedUtf16(value)
-                || value.codePoints().anyMatch(ch -> Character.isWhitespace(ch) || Character.isSpaceChar(ch) || ch == 0xFEFF)) {
+        if (!MediaVersionRefRules.isValidSemanticSourceRef(value)) {
             throw new IllegalArgumentException(field + " is invalid");
         }
     }

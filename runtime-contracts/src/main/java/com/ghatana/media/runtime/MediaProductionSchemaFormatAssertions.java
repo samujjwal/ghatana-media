@@ -106,9 +106,7 @@ final class MediaProductionSchemaFormatAssertions {
                 }
             }
             case "opaque-versioned-reference" -> {
-                if (text.isEmpty() || text.codePointCount(0, text.length()) > 384 || !wellFormedUtf16(text)
-                        || text.codePoints().anyMatch(ch -> Character.isWhitespace(ch)
-                                || Character.isSpaceChar(ch))) {
+                if (!MediaVersionRefRules.isValid(text)) {
                     throw invalid("opaque-versioned-reference format is invalid");
                 }
             }
@@ -133,18 +131,6 @@ final class MediaProductionSchemaFormatAssertions {
                 || (positive && value.signum() <= 0)) {
             throw invalid("decimal integer is outside the declared signed-64-bit range");
         }
-    }
-
-    private static boolean wellFormedUtf16(String text) {
-        for (int i = 0; i < text.length(); i++) {
-            char current = text.charAt(i);
-            if (Character.isHighSurrogate(current)) {
-                if (++i >= text.length() || !Character.isLowSurrogate(text.charAt(i))) return false;
-            } else if (Character.isLowSurrogate(current)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static IllegalArgumentException invalid(String reason) {

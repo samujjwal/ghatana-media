@@ -500,6 +500,30 @@ class MediaProductionSpecCompilerTest {
     }
 
     @Test
+    void versionReferencesUseUnicodeCodePointBoundsAndRejectBomWhitespace() {
+        String maximumReference = "\uD83D\uDE80".repeat(384);
+        ProductionSpec validUnicodeRef = new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", maximumReference,
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1"));
+        assertThat(new MediaProductionSpecCompiler().compile(validUnicodeRef).planFingerprint()).isNotBlank();
+
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", maximumReference + "\uD83D\uDE80",
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purposeRef");
+        assertThatThrownBy(() -> new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose/\uFEFFv1",
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("purposeRef");
+        ProductionSpec ecmaScriptNonWhitespace = new ProductionSpec(
+                "t", "p", "r", "REAL_CAPTURE", "purpose/\u0085\u001Cv1",
+                List.of("scene/v1"), "timeline/v1", "rights/v1", List.of("output/v1"));
+        assertThat(new MediaProductionSpecCompiler().compile(ecmaScriptNonWhitespace).planFingerprint()).isNotBlank();
+    }
+
+    @Test
     void removedNodesAreIncludedInInvalidation() {
         var compiler = new MediaProductionSpecCompiler();
         var before = compiler.compile(spec());

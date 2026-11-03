@@ -117,12 +117,20 @@ describe('TY-04 headless declarative parsers', () => {
   it('counts version reference maximum length by Unicode code point', () => {
     expect(VersionRefSchema.safeParse('🚀'.repeat(384)).success).toBe(true);
     expect(VersionRefSchema.safeParse('🚀'.repeat(385)).success).toBe(false);
+    for (const whitespace of [' ', '\t', '\n', '\u00A0', '\u3000', '\uFEFF']) {
+      expect(VersionRefSchema.safeParse(`reference/${whitespace}v1`).success).toBe(false);
+    }
+    expect(VersionRefSchema.safeParse('reference/\u0085\u001Cv1').success).toBe(true);
   });
   it('counts digest values by Unicode code point and rejects malformed UTF-16', () => {
     const digest = { algorithmRef: ref, value: '🚀'.repeat(384), subjectVersionRef: ref };
     expect(DigestSchema.safeParse(digest).success).toBe(true);
     expect(DigestSchema.safeParse({ ...digest, value: `${digest.value}🚀` }).success).toBe(false);
     expect(DigestSchema.safeParse({ ...digest, value: 'digest/\uD800' }).success).toBe(false);
+    for (const whitespace of [' ', '\t', '\n', '\u00A0', '\u3000', '\uFEFF']) {
+      expect(DigestSchema.safeParse({ ...digest, value: `digest/${whitespace}v1` }).success).toBe(false);
+    }
+    expect(DigestSchema.safeParse({ ...digest, value: 'digest/\u0085\u001Cv1' }).success).toBe(true);
   });
   it('rejects the wrong clock kind — a story clock is not a simulation clock', () => {
     const anim = {

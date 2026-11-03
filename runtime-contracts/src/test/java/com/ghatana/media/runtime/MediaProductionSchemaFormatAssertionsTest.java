@@ -90,7 +90,10 @@ class MediaProductionSchemaFormatAssertionsTest {
 
         assertThatCode(() -> MediaProductionSchemaFormatAssertions.assertFormat("opaque-versioned-reference",
                 stringNode("artifact/source@rev-1"))).doesNotThrowAnyException();
-        for (String invalid : new String[] {"", "artifact/has space", "x".repeat(385), "bad\uD800"}) {
+        assertThatCode(() -> MediaProductionSchemaFormatAssertions.assertFormat("opaque-versioned-reference",
+                stringNode("artifact/\u0085\u001Cv1"))).doesNotThrowAnyException();
+        for (String invalid : new String[] {"", "artifact/has space", "artifact/\uFEFFv1",
+                "artifact/\u00A0v1", "artifact/\u3000v1", "x".repeat(385), "bad\uD800"}) {
             assertThatThrownBy(() -> MediaProductionSchemaFormatAssertions.assertFormat(
                     "opaque-versioned-reference", stringNode(invalid)))
                     .as("reject malformed version reference")
@@ -115,8 +118,13 @@ class MediaProductionSchemaFormatAssertionsTest {
                 JSON.readTree("\"artifact/source@rev-1\""))).doesNotThrowAnyException();
         assertThatCode(() -> MediaProductionSchemaFormatAssertions.validate(nullableVersionRefSchema,
                 JSON.readTree("null"))).doesNotThrowAnyException();
+        assertThatCode(() -> MediaProductionSchemaFormatAssertions.validate(nullableVersionRefSchema,
+                stringNode("artifact/\u0085\u001Cv1"))).doesNotThrowAnyException();
         assertThatThrownBy(() -> MediaProductionSchemaFormatAssertions.validate(nullableVersionRefSchema,
                 stringNode("artifact/has space")))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque-versioned-reference");
+        assertThatThrownBy(() -> MediaProductionSchemaFormatAssertions.validate(nullableVersionRefSchema,
+                stringNode("artifact/\uFEFFv1")))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("opaque-versioned-reference");
     }
 }
