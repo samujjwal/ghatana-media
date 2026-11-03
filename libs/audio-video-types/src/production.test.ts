@@ -293,4 +293,31 @@ describe('TY-04 headless declarative parsers', () => {
     expect(SimulationStateSchema.safeParse({ ...state, unknown: 1 }).success).toBe(false);
     expect(SimulationStateSchema.safeParse({ ...state, schemaVersion: 'media.declarative.value.simulation-state.v1' }).success).toBe(false);
   });
+  it('enforces PDP-1 checkpoint RNG-state consistency', () => {
+    const state = {
+      runId: 'run-1', attemptId: 'att-1', modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
+      familyApplicability: { applicability: 'UNKNOWN', evidenceRefs: [] },
+      familyQualificationRef: ref, replayability: 'UNKNOWN', solverVersionRef: ref,
+      tSimTicks: '42', stepIndex: 7, stateVersion: 'state/v1',
+      stateDigest: { algorithmRef: ref, value: 'sha256:s', subjectVersionRef: ref },
+      parameterDigest: { algorithmRef: ref, value: 'sha256:p', subjectVersionRef: ref },
+      rngStateOrNull: ref,
+      randomnessSemantics: { disposition: 'NOT_APPLICABLE', nonStochasticDeclarationVersionRef: ref, reason: 'deterministic' },
+      checkpointParentRefOrNull: null,
+    };
+    expect(SimulationStateSchema.safeParse(state).success).toBe(false);
+    expect(SimulationStateSchema.safeParse({ ...state, rngStateOrNull: null }).success).toBe(true);
+
+    const specified = {
+      ...state,
+      randomnessSemantics: {
+        disposition: 'SPECIFIED', prngAlgorithmVersionRef: ref,
+        prngImplementationVersionRef: ref, randomStreamVersionRef: ref,
+        seedPolicyVersionRef: ref, seedMaterialVersionRef: ref,
+        checkpointStateFormatVersionRef: ref, checkpointStateVersionRefs: [ref],
+      },
+    };
+    expect(SimulationStateSchema.safeParse({ ...specified, rngStateOrNull: null }).success).toBe(false);
+    expect(SimulationStateSchema.safeParse(specified).success).toBe(true);
+  });
 });

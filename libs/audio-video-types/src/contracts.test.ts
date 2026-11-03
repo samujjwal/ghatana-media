@@ -14,11 +14,16 @@ import {
   SourcePresentationTimeSchema,
   UploadSessionSchema,
   VoiceTrainingRequestSchema,
+  ProductionSpecSchema,
 } from "./contracts";
 
 const timestamp = "2026-08-05T12:00:00.000Z";
 
 describe("media contracts", () => {
+  it("re-exports the source-defined production parser from the contracts subpath", () => {
+    expect(ProductionSpecSchema.safeParse({}).success).toBe(false);
+  });
+
   it("preserves source presentation time as a clock-bound rational point", () => {
     const position = { numerator: -3, denominator: 2, clockRef: "source-clock-1" };
     expect(SourcePresentationTimeSchema.parse(JSON.parse(JSON.stringify(position)))).toEqual(position);

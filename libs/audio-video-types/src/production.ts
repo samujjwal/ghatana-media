@@ -314,5 +314,23 @@ export const SimulationStateSchema = boundedTypedValue(z.object({
   rngStateOrNull: NullableVersionRefSchema,
   randomnessSemantics: RandomnessSemanticsSchema,
   checkpointParentRefOrNull: NullableVersionRefSchema,
-}).strict());
+}).strict().superRefine((state, ctx) => {
+  // PDP-1 checkpoint rules: a specified PRNG must carry its exact state;
+  // a declared non-stochastic run must not carry RNG state. UNKNOWN remains
+  // representable but does not gain replayability or execution admission.
+  if (state.randomnessSemantics.disposition === "SPECIFIED" && state.rngStateOrNull === null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "SPECIFIED randomness requires an RNG checkpoint state",
+      path: ["rngStateOrNull"],
+    });
+  }
+  if (state.randomnessSemantics.disposition === "NOT_APPLICABLE" && state.rngStateOrNull !== null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "NOT_APPLICABLE randomness forbids an RNG checkpoint state",
+      path: ["rngStateOrNull"],
+    });
+  }
+}));
 export type SimulationState = z.infer<typeof SimulationStateSchema>;

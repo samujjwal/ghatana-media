@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+// Keep the declarative PDP-1 values available from the established contracts
+// subpath as well as the dedicated `@audio-video/types/production` subpath.
+// These are the same parsers, not a second wire-contract implementation.
+export * from "./production.js";
+
 // Identity-bearing wire fields must contain a visible character. Keep the
 // original spelling intact (identifiers are opaque), but reject whitespace-only
 // values that otherwise pass `.min(1)` and can become ambiguous in logs/storage.
