@@ -62,6 +62,25 @@ class PerformanceIntegrationTest {
         }
     }
 
+    @Test
+    @DisplayName("synthetic bounded inbox rejects overflow and accepts frames after drain")
+    void boundedInboxAppliesBackpressureUntilConsumerDrains() {
+        TenantInboxDispatcher dispatcher = new TenantInboxDispatcher(1);
+
+        for (int sequence = 0; sequence < FRAMES_PER_CLIENT; sequence++) {
+            assertThat(dispatcher.dispatch(0, SyntheticFrame.forTenant(0, sequence))).isTrue();
+        }
+        assertThat(dispatcher.dispatch(0, SyntheticFrame.forTenant(0, FRAMES_PER_CLIENT))).isFalse();
+
+        List<SyntheticFrame> firstBatch = dispatcher.drain(0);
+        assertThat(firstBatch).extracting(SyntheticFrame::sequence)
+                .containsExactly(0, 1, 2, 3, 4, 5, 6, 7);
+
+        assertThat(dispatcher.dispatch(0, SyntheticFrame.forTenant(0, FRAMES_PER_CLIENT))).isTrue();
+        assertThat(dispatcher.drain(0)).extracting(SyntheticFrame::sequence)
+                .containsExactly(FRAMES_PER_CLIENT);
+    }
+
     private static WorkloadResult runWorkload(int clientCount) throws Exception {
         ExecutorService workers = Executors.newFixedThreadPool(clientCount);
         TenantInboxDispatcher dispatcher = new TenantInboxDispatcher(clientCount);
