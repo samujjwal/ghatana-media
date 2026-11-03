@@ -4331,3 +4331,28 @@ No source change was justified in the canonical SDK path: existing tests cover t
 ### 43.183 November 3 remaining-plan and Common Voice profile guards
 
 At the current local source, the terminal-qualification, remaining-surfaces, modality-Wave2, and R10 owner-resolution selectors passed **7/7**, **12/12**, **7/7**, and **15/15** respectively (**41 total**). These guard checks preserve the original 36+84+8 task identities, dependency graph, 22 accepted Wave-2 rows, external owner gates, and no-status-promotion policy; they validate planning/accounting rather than runtime task completion. The Common Voice profile checker reported metadata valid / real inference `NOT_ADMITTED`, and its profile selector passed **10/10**, preserving the no-request-before-authorized-acceptance, private manifest, offline, no-training, 24-hour audio and 90-day aggregate policy. No MDC request, audio access or inference occurred.
+
+
+### 43.184 November 3 TTS-03 immutable pin mismatch refusal
+
+`ProductionTtsGrpcService` now returns the existing `NOT_ADMITTED` profile for malformed or mismatched model and voice-sidecar SHA-256 pins before invoking the trusted admission resolver; initialization then fails closed before library construction or warmup. Tests cover short and non-hex pins for both values, stale model/sidecar hashes, zero resolver calls and pre-initialization refusal. `ProductionTtsGrpcServiceConfigTest` passed **24/24**. Independent review found the behavior aligned with the existing provider-profile contract and confirmed file mutation/path failures retain their prior error semantics. No voice/model, phonemizer identity or license was added; the current contract has no separate phonemizer identity pin, and actual eSpeak/voice rights and synthesis remain open.
+
+
+### 43.185 November 3 STT-04 bounded input selectors
+
+At the current source, focused `MediaRuntimeSttRightsSourceResolverTest`, `SharedPolicySttRequestAuthorizationTest`, `SttAudioInputDecoderTest`, and `PersistentSttGrpcServiceTest` selectors passed **60/60**, with zero failures or skips. They cover bounded malformed WAV/FLAC headers, sample/byte clocks, duration/frame boundaries, container-sniff mismatch, unauthenticated and source-version failures, and rejection before provider/persistence work. Valid FLAC remains explicitly `NOT_ADMITTED`; these synthetic boundary tests do not provide the rights-cleared source audio, independent complete-transcript gold, or admitted production codec required for STT-04 whole-row acceptance.
+
+
+### 43.186 November 3 MM-02 pre-fanout rights and identity checks
+
+Three focused `MultimodalGrpcServiceTest` selectors passed: exact authorization request binding, mixed-modality denial, and mixed-modality unavailable/admission denial. Tenant/principal come from verified gRPC identity; the selected modality set is authorized against the canonical source artifact/version and purpose before executor/fanout; denied and unavailable cases made zero STT/image/video gateway calls. No code change was justified. This path makes one combined decision for the requested set; separate per-child Shared policy enforcement is not established by these selectors. Owner-authoritative rights/purpose evidence and real child outputs remain absent (`ownerRightsAvailable:false`); MM-02 remains partial.
+
+
+### 43.187 November 3 VIS-05 geometry and native input selectors
+
+Focused `LetterboxTransformTest`, `NativeVisionMatInputTest`, `BoundedImageDecoderTest`, and `SrgbToBgrTest` passed **28/28**. Existing coverage verifies BGR conversion, all eight EXIF orientations, inverse letterbox mapping, ROI crop translation/clipping, and native Mat dimensions/channels. No source-supported code gap was found. The active request contract still does not carry exact content version, and no measured native leak-rate stress or real detector/heldout model evidence is established; VIS-05 remains partial.
+
+
+### 43.188 November 3 VIS-10 expired biometric decision negative
+
+Added an admission regression where an otherwise allowed biometric decision has expired; `FacialRecognitionService` rejects it before calling the face provider. The focused `FacialRecognitionServiceAdmissionTest` selector passed **11/11**. Existing code also denies cross-tenant/revoked/unsupported sensitive operations, keeps identity matching `NOT_ADMITTED`, strips embeddings from detection results, and refuses audit effects without authority. No biometric source, consent record or model was used. VIS-10 remains partial pending genuine purpose/region/retention/consent authority and any real model/source/host evidence.
