@@ -513,6 +513,10 @@ pub fn slice_audio_buffer(
     Ok(AudioBuffer::new(samples, buffer.config))
 }
 
+/// Sum aligned interleaved samples after applying one scalar gain per buffer.
+/// Shorter inputs are silence-padded to the longest input. This helper does
+/// not apply panning, a pan law, or perceptual loudness normalization; values
+/// above unity are preserved, and sums outside finite `f32` range are rejected.
 pub fn mix_audio(buffers: &[AudioBuffer], volumes: &[f32]) -> Result<AudioBuffer> {
     if buffers.is_empty() {
         return Err(SpeechAudioError::InvalidInput(
@@ -2293,15 +2297,15 @@ mod tests {
     }
 
     #[test]
-    fn mix_audio_preserves_stereo_pan_loudness_and_shorter_track_timing() {
+    fn mix_audio_preserves_pre_panned_channels_and_shorter_track_timing() {
         let config = AudioConfig {
             sample_rate: 16_000,
             channels: 2,
             sample_format: SampleFormat::F32,
         };
-        // The first track is panned left and lasts two frames; the second is
-        // panned right and lasts one. Summation preserves gain (including
-        // values above unity) and pads the shorter track with silence.
+        // The inputs already contain isolated left/right content; this helper
+        // performs no pan processing. It preserves raw gain (including values
+        // above unity) and pads the shorter track with silence.
         let left = AudioBuffer::new(vec![0.8, 0.0, 0.8, 0.0], config);
         let right = AudioBuffer::new(vec![0.0, -0.6], config);
         let mixed = mix_audio(&[left, right], &[2.0, 2.0]).unwrap();
