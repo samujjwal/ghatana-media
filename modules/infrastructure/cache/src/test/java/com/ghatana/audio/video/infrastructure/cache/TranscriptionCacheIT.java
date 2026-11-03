@@ -230,6 +230,32 @@ class TranscriptionCacheIT {
         verify(cacheOffPort, never()).put(any(), any(), any(Duration.class));
     }
 
+    @Test
+    @DisplayName("Generic authorized fixture survives Redis client restart and matches uncached source")
+    void shouldReadGenericFixtureAfterRedisClientRestart() {
+        String tenantId = "tenant-restart-fixture";
+        String sourceValue = "non-sensitive versioned fixture v1";
+        AudioVideoCache<String, String> cacheOn = new AudioVideoCache<>(cachePort, "restart-fixture");
+        String key = cacheOn.buildKey(tenantId, "fixture-v1");
+
+        assertThat(await(cacheOn.getOrLoad(key, ignored -> AsyncOperation.success(sourceValue))))
+                .isEqualTo(sourceValue);
+
+        // Recreate the Media-side Redis client/adapter while leaving the isolated Redis
+        // container alive. This exercises process-local state loss without involving
+        // protected transcript persistence or changing its fail-closed policy.
+        redisBackend.close();
+        redisBackend = new AsyncRedisCacheBackend(REDIS.getHost(), REDIS.getFirstMappedPort(), null, 0, 2_000);
+        cachePort = new DistributedCacheService(redisBackend, "transcription-cache-it");
+        cacheOn = new AudioVideoCache<>(cachePort, "restart-fixture");
+
+        String afterRestart = await(cacheOn.get(key)).orElseThrow();
+        String uncachedSourceResult = sourceValue;
+
+        assertThat(afterRestart).isEqualTo(sourceValue);
+        assertThat(afterRestart).isEqualTo(uncachedSourceResult);
+    }
+
     private String cacheKey(String tenantId, UUID transcriptionId) {
         return new AudioVideoCache<String, String>(cachePort, "transcription")
                 .buildKey(tenantId, transcriptionId.toString());
