@@ -105,7 +105,9 @@ test('keeps the English publisher-sample status unresolved and full download una
   validateCandidateProfile(profile);
   assert.equal(profile.englishSubset.sampleAvailability, 'NOT_VERIFIED');
   assert.equal(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard, false);
-  assert.match(profile.englishSubset.sampleVerificationNote, /five text sentences only/);
+  assert.equal(profile.englishSubset.publicTextSampleSentenceCount, 5);
+  assert.equal(profile.englishSubset.sampleApiDocumentationUrl, 'https://mozilladatacollective.com/api-reference/docs');
+  assert.match(profile.englishSubset.sampleVerificationNote, /five text sentences, not a downloadable audio sample/);
   assert.equal(profile.englishSubset.fullArchiveDownloadAuthorized, false);
 });
 

@@ -4361,3 +4361,8 @@ Added an admission regression where an otherwise allowed biometric decision has 
 ### 43.189 November 3 SK-07 loopback integration rerun
 
 The previously sandbox-blocked `AudioVideoClient.integration.test.ts` selector was rerun with loopback binding available and passed **1/1**, with zero failures or skips. The test exercises an HTTP transcription request and checks the POST route, tenant and correlation headers, and parsed response. Existing operation and canonical-operation selectors remain **119/119** and **42/42** from §43.181. No client route or server fixture was changed. This does not establish an installed remote service, real provider/rights effect, or whole SK-07 acceptance; those downstream owner and effect criteria remain open.
+
+
+### 43.190 November 3 Common Voice English sample metadata distinction
+
+Opened the public [English v27 dataset card](https://mozilladatacollective.com/datasets/cmu5jplf300nwmh07iqvk9leo): it lists five randomly selected text sentences under “Sample,” and the Files section lists the 88.43 GB archive without a separate audio-sample link. The [MDC API documentation](https://mozilladatacollective.com/api-reference/docs) says sample-download is authenticated and its 404 response includes datasets with no publisher sample. The metadata profile now records the five-sentence text preview and API documentation URL separately while keeping downloadable-audio availability `NOT_VERIFIED`. `pnpm run check:common-voice-v27-profile` passed; `pnpm run test:common-voice-v27-profile` passed **10/10**. No authenticated endpoint was called, and no sample/audio was requested, downloaded, or opened; authorized organizational acceptance and a private exact clip/hash manifest are still prerequisites to inference.

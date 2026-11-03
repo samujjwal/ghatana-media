@@ -109,6 +109,10 @@ export function validateCandidateProfile(profile) {
   assert(profile.englishSubset?.sampleAvailability === 'NOT_VERIFIED', 'English sample status must stay unverified');
   assert(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard === false,
     'English public card must not claim a publisher audio-sample link');
+  assert(profile.englishSubset.publicTextSampleSentenceCount === 5,
+    'English public card text-sample count must match its current pinned record');
+  assert(profile.englishSubset.sampleApiDocumentationUrl === 'https://mozilladatacollective.com/api-reference/docs',
+    'publisher audio-sample status must cite the MDC API documentation');
   assert(profile.englishSubset.fullArchiveDownloadAuthorized === false, 'English full archive is not authorized');
 
   const selection = profile.selection;
