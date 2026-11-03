@@ -110,6 +110,7 @@ try {
 
   await writeFile(path.join(consumerRoot, 'consumer.mjs'), `
     import assert from 'node:assert/strict';
+    import { createServer } from 'node:http';
     import * as client from '@audio-video/client';
     import * as operations from '@audio-video/client/operations';
     import * as routes from '@audio-video/client/canonical-routes';
@@ -139,30 +140,37 @@ try {
       createdAt: timestamp, startedAt: timestamp, completedAt: null, result: {}, failureCode: null,
       version: 3, expectedArtifactVersion: '', requestFingerprint: 'sha256:' + 'b'.repeat(64),
     };
-    const calls = [];
-    const fetchImpl = async (input, init = {}) => {
-      calls.push({ url: String(input), init });
-      return new Response(JSON.stringify(fixtureJob), {
-        status: 200, headers: { 'Content-Type': 'application/json' },
-      });
-    };
-    const readClient = canonical.createMediaCanonicalClient({
-      baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
-      defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
-      getAccessToken: () => 'installed-read-fixture-token', fetchImpl,
+    const requests = [];
+    const fixtureServer = createServer((request, response) => {
+      requests.push({ method: request.method, url: request.url, headers: request.headers });
+      response.writeHead(200, { 'Content-Type': 'application/json' });
+      response.end(JSON.stringify(fixtureJob));
     });
-    const readJob = await readClient.getJob('job-installed-42');
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0].url, 'https://media.example.test/api/v1/jobs/job-installed-42');
-    assert.equal(calls[0].init.method, 'GET');
-    const headers = new Headers(calls[0].init.headers);
-    assert.equal(headers.get('Authorization'), 'Bearer installed-read-fixture-token');
-    assert.equal(headers.get('X-Tenant-ID'), 'fixture-tenant');
-    assert.equal(headers.get('X-Principal-Id'), 'fixture-principal');
-    assert.equal(readJob.jobId, 'job-installed-42');
-    assert.equal(readJob.tenantId, 'fixture-tenant');
-    assert.equal(readJob.principalId, 'fixture-principal');
-    assert.equal(readJob.status, 'RUNNING');
+    try {
+      await new Promise((resolve, reject) => {
+        fixtureServer.once('error', reject);
+        fixtureServer.listen(0, '127.0.0.1', resolve);
+      });
+      const address = fixtureServer.address();
+      assert.ok(address && typeof address === 'object');
+      const readClient = canonical.createMediaCanonicalClient({
+        baseUrl: 'http://127.0.0.1:' + address.port, tenantId: 'fixture-tenant',
+        defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
+        getAccessToken: () => 'installed-read-fixture-token',
+      });
+      const readJob = await readClient.getJob('job-installed-42');
+      assert.equal(requests.length, 1);
+      assert.equal(requests[0].method, 'GET');
+      assert.equal(requests[0].url, '/api/v1/jobs/job-installed-42');
+      assert.equal(requests[0].headers.authorization, 'Bearer installed-read-fixture-token');
+      assert.equal(requests[0].headers['x-tenant-id'], 'fixture-tenant');
+      assert.equal(requests[0].headers['x-principal-id'], 'fixture-principal');
+      assert.deepEqual(readJob, fixtureJob, 'installed canonical getJob must parse the synthetic HTTP response');
+    } finally {
+      if (fixtureServer.listening) {
+        await new Promise((resolve, reject) => fixtureServer.close((error) => error ? reject(error) : resolve()));
+      }
+    }
 
     const wrongScopeClient = canonical.createMediaCanonicalClient({
       baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
