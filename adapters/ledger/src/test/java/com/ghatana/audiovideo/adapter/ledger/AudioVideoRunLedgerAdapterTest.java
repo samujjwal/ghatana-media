@@ -674,6 +674,40 @@ class AudioVideoRunLedgerAdapterTest {
                     .isInstanceOf(IllegalArgumentException.class);
         }
 
+        // Quality and delivery are independent Media state machines. Their states
+        // cannot be passed as aggregate job states: in particular PASS must not
+        // become job success and destination ACK must not complete a job.
+        List<String> qualityStates = List.of(
+                "NOT_ASSESSED", "ASSESSING", "PASS", "FAIL", "ABSTAINED",
+                "REVIEW_REQUIRED", "SUPERSEDED");
+        // The adapter accepts a legacy state-token string, so omit tokens that
+        // also exist in the aggregate job vocabulary or legacy aliases. Those
+        // collisions are classified by the exhaustive job-state matrix above.
+        List<String> deliveryOnlyStates = List.of(
+                "NOT_STARTED", "READY_FOR_AUTHORIZED_DELIVERY",
+                "ACKNOWLEDGED", "PARTIALLY_DELIVERED", "REVOKED");
+        for (String dimensionState : java.util.stream.Stream.concat(
+                qualityStates.stream(), deliveryOnlyStates.stream()).toList()) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-independent-" + dimensionState, "AUDIO", "STT", "collection", "source",
+                    Map.of(), dimensionState, now, 0, null, null,
+                    null, null, "trace", "correlation"))
+                    .as("independent state %s is not a job state", dimensionState)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        // RunLedger exposes no UNKNOWN lifecycle bucket. Both the canonical
+        // unknown value and unknown spellings therefore fail closed instead of
+        // being recast as progress, failure, or successful completion.
+        for (String unknown : List.of("UNKNOWN", "OUTCOME_UNKNOWN", "MYSTERY_STATE")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-unknown-" + unknown, "AUDIO", "STT", "collection", "source",
+                    Map.of(), unknown, now, 0, null, null,
+                    null, null, "trace", "correlation"))
+                    .as("unknown state %s has no safe RunLedger fallback", unknown)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
         assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
                 "matrix-unknown", "AUDIO", "STT", "collection", "source",
                 Map.of(), "UNRECOGNIZED_STATE", now, 0, null, null,

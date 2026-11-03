@@ -7,6 +7,55 @@ API dependency is an `api` dependency because `RunLedger` is part of the
 adapter's public Java signatures; Gradle consumers therefore receive the same
 contract on their compile classpath.
 
+## State mapping boundary (LD-01)
+
+The source vocabularies are `MediaLifecycleProjection.LogicalJobStatus`,
+`LogicalAttemptStatus`, the PDP-1 `media-quality-disposition` and
+`media-delivery` state machines, and the public RunLedger's
+`JobExecutionState`/`ExecutionOutcome`. The adapter accepts only aggregate job
+states. Attempt, quality, and delivery are separate dimensions and are not
+encoded as job finality.
+
+| Media logical job state | RunLedger state | RunLedger outcome | Result |
+| --- | --- | --- | --- |
+| `QUEUED` | `PENDING` | none | mapped |
+| `RUNNING` | `RUNNING` | none | mapped |
+| `RETRY_PENDING` | `PENDING` | none | mapped; retry authority is not represented by the ledger state |
+| `OUTCOME_UNKNOWN` | — | — | rejected: RunLedger has no unknown state |
+| `RECONCILING` | — | — | rejected: RunLedger has no reconciliation state |
+| `COMPLETED` | `COMPLETED` | `SUCCEEDED` | mapped |
+| `PARTIALLY_SUCCEEDED` | `COMPLETED` | `DEGRADED` | mapped only from the explicit partial job state |
+| `FAILED` | `COMPLETED` | `FAILED` | mapped as terminal execution outcome; RunLedger has no separate failed terminal state |
+| `CANCELLED` | `CANCELLED` | `CANCELLED` | mapped |
+
+Legacy phase labels `SUBMITTED`, `TRANSCODING`, `PROCESSING`, and `STORING`
+map respectively to `PENDING`, `RUNNING`, `RUNNING`, and `RUNNING`, all with
+no outcome. Other unrecognized job tokens are rejected. Media's logical
+attempt states (`CLAIMED`, `DISPATCH_INTENT_RECORDED`, `DISPATCHED`, `RUNNING`,
+`CANCEL_REQUESTED`, `SUCCEEDED`, `FAILED`, `CANCEL_CONFIRMED`,
+`OUTCOME_UNKNOWN`, `SUPERSEDED`) describe an attempt, not an aggregate job;
+the adapter does not accept them as job-state substitutes. Because the method
+takes an untyped string, shared tokens `RUNNING`, `FAILED`, and
+`OUTCOME_UNKNOWN` are interpreted only by the aggregate job-state rules above
+(`OUTCOME_UNKNOWN` is rejected); this API cannot carry the attempt-state
+meaning for those same tokens.
+
+The quality-disposition states (`NOT_ASSESSED`, `ASSESSING`, `PASS`, `FAIL`,
+`ABSTAINED`, `REVIEW_REQUIRED`, `SUPERSEDED`) and delivery states
+(`NOT_STARTED`, `PREPARING`, `READY_FOR_AUTHORIZED_DELIVERY`, `SUBMITTED`,
+`ACKNOWLEDGED`, `PARTIALLY_DELIVERED`, `OUTCOME_UNKNOWN`, `RECONCILING`,
+`FAILED`, `REVOKED`) are not independent RunLedger job-state projections.
+The current adapter signature receives a string state token without a typed
+state-machine discriminator: lexical collisions therefore retain their
+aggregate job/legacy meaning (`SUBMITTED` and `PREPARING` map to `PENDING`,
+`FAILED` remains the canonical job state, and `OUTCOME_UNKNOWN`/
+`RECONCILING` are rejected as unrepresentable job states). The adapter cannot
+consume a standalone delivery state context through that API. Distinct values
+such as quality `PASS` and delivery `ACKNOWLEDGED` are rejected as job inputs;
+quality `PASS` is not job success and delivery `ACKNOWLEDGED` is not job
+completion. The public RunLedger has no typed `UNKNOWN` state or outcome;
+unknown/unrepresentable job input is rejected instead of assigned a fallback.
+
 ## Build profiles
 
 The verified development path is `DEV_SOURCE_COMPOSITE`. In the standalone
