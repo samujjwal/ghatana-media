@@ -177,6 +177,22 @@ public final class SttAudioInputDecoder {
         if (blockType != 0 || streamInfoLength != 34 || 8L + streamInfoLength > input.length) {
             throw invalid("STT_AUDIO_INVALID_HEADER: FLAC must begin with a complete STREAMINFO block");
         }
+
+        // STREAMINFO starts at byte 8. Its mandatory block-size and sample-rate
+        // fields are enough to reject impossible headers before returning the
+        // truthful no-decoder result. Do not infer a decoded duration here.
+        int minBlockSize = unsignedShortBigEndian(input, 8);
+        int maxBlockSize = unsignedShortBigEndian(input, 10);
+        long sampleClock = ((long) (input[18] & 0xff) << 12)
+                | ((long) (input[19] & 0xff) << 4)
+                | ((input[20] & 0xf0L) >>> 4);
+        if (minBlockSize < 16 || maxBlockSize < minBlockSize || sampleClock == 0) {
+            throw invalid("STT_AUDIO_INVALID_HEADER: FLAC STREAMINFO has invalid block-size or sample-rate fields");
+        }
+    }
+
+    private static int unsignedShortBigEndian(byte[] bytes, int offset) {
+        return ((bytes[offset] & 0xff) << 8) | (bytes[offset + 1] & 0xff);
     }
 
     public static void requireSampleRate(int sampleRate) {

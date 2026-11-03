@@ -169,6 +169,27 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void rejectsImpossibleFlacStreamInfoClockAndBlockBoundsAsMalformed() {
+        byte[] zeroSampleRate = validFlacStreamInfoHeader();
+        // STREAMINFO sample rate is the high 20 bits of its packed clock word.
+        ByteBuffer.wrap(zeroSampleRate).order(ByteOrder.BIG_ENDIAN)
+                .putLong(18, 15L << 36); // Keep 16-bit samples, but encode a zero sample rate.
+        assertMalformedFlac(zeroSampleRate);
+
+        byte[] undersizedBlock = validFlacStreamInfoHeader();
+        undersizedBlock[8] = 0;
+        undersizedBlock[9] = 15; // FLAC block sizes cannot be below 16 samples.
+        assertMalformedFlac(undersizedBlock);
+
+        byte[] invertedBlockBounds = validFlacStreamInfoHeader();
+        invertedBlockBounds[8] = 1;
+        invertedBlockBounds[9] = 0; // min block size 256
+        invertedBlockBounds[10] = 0;
+        invertedBlockBounds[11] = (byte) 255; // max block size 255
+        assertMalformedFlac(invertedBlockBounds);
+    }
+
+    @Test
     void rejectsDeclaredCompressedFormatWhenBytesDoNotSniffAsThatContainer() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 new byte[44], AudioFormat.MP3, 16_000))
@@ -330,7 +351,24 @@ class SttAudioInputDecoderTest {
         putAscii(flac, 0, "fLaC");
         flac[4] = (byte) 0x80; // Last metadata block, type STREAMINFO.
         flac[7] = 34; // STREAMINFO payload length.
+        flac[9] = 16; // Minimum block size.
+        flac[11] = 16; // Maximum block size.
+        ByteBuffer.wrap(flac).order(ByteOrder.BIG_ENDIAN)
+                .putLong(18, ((long) 16_000 << 44) | (15L << 36));
         return flac;
+    }
+
+    private static void assertMalformedFlac(byte[] input) {
+        assertThatThrownBy(() -> SttAudioInputDecoder.decode(input, AudioFormat.FLAC, 16_000))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
+        assertThatThrownBy(() -> SttAudioInputDecoder.inspectDuration(input, AudioFormat.FLAC, 16_000, 300))
+                .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.INVALID_ARGUMENT);
+                    assertThat(failure).hasMessageContaining("STT_AUDIO_INVALID_HEADER");
+                });
     }
 
     private static void putAscii(byte[] bytes, int offset, String text) {
