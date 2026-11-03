@@ -86,6 +86,8 @@ class MediaSemanticObservationProjectorTest {
         assertCandidateRejected(builder -> builder.artifactId = " ", "artifactId is required and bounded");
         assertCandidateRejected(builder -> builder.observationId = "x".repeat(513),
                 "observationId is required and bounded");
+        assertCandidateRejected(builder -> builder.redactedValue = "x".repeat(513),
+                "redactedValue is required and bounded");
         assertCandidateRejected(builder -> builder.observationType = "scene label",
                 "observationType must be a token");
         assertCandidateRejected(builder -> builder.sourceSystem = " ",
