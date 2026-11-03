@@ -287,6 +287,59 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void rechecksCurrentSourceAcrossRevisionConsentAndRetentionChanges() {
+        UUID transcriptionId = UUID.randomUUID();
+        String currentKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(currentKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+        AtomicInteger sourceLoads = new AtomicInteger();
+        java.util.concurrent.atomic.AtomicReference<Optional<TranscriptionEntity>> currentSource =
+                new java.util.concurrent.atomic.AtomicReference<>(
+                        Optional.of(versionedEntity("tenant-a", transcriptionId, 1L, "revision 1")));
+
+        TranscriptionEntity first = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(currentSource.get());
+                }));
+        assertThat(first.getVersion()).isEqualTo(1L);
+
+        // The authoritative source advances the immutable transcript revision.
+        currentSource.set(Optional.of(versionedEntity("tenant-a", transcriptionId, 2L, "revision 2")));
+        TranscriptionEntity revised = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(currentSource.get());
+                }));
+        assertThat(revised.getVersion()).isEqualTo(2L);
+        assertThat(revised.getText()).isEqualTo("revision 2");
+
+        // The loader represents the current rights/consent check. Revocation
+        // denies the same request even though an earlier call returned content.
+        currentSource.set(Optional.empty());
+        assertThat(await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(currentSource.get());
+                }))).isNull();
+
+        // A current source marked deleted represents retention/erasure expiry;
+        // it also wins over the previously authorized revision.
+        currentSource.set(Optional.of(entity("tenant-a", transcriptionId, true)));
+        assertThat(await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success(currentSource.get());
+                }))).isNull();
+
+        assertThat(sourceLoads).hasValue(4);
+        verify(scopedPort, org.mockito.Mockito.times(4)).invalidateAsync(currentKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
     void currentVersionedSourceEvictsLegacySnapshotForExactTenantAndTranscript() {
         UUID transcriptionId = UUID.randomUUID();
         String currentKey = key("tenant-a", transcriptionId.toString());
@@ -578,6 +631,13 @@ class TranscriptionCacheServiceTest {
         TranscriptionEntity entity = new TranscriptionEntity(id, tenant, UUID.randomUUID(), UUID.randomUUID(),
                 "private transcript", "en");
         entity.setDeleted(deleted);
+        return entity;
+    }
+
+    private static TranscriptionEntity versionedEntity(String tenant, UUID id, long version, String text) {
+        TranscriptionEntity entity = entity(tenant, id, false);
+        entity.setVersion(version);
+        entity.setText(text);
         return entity;
     }
 
