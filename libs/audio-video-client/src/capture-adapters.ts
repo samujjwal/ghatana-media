@@ -130,6 +130,8 @@ export class CaptureNotAdmittedError extends Error {
 /** A host capability is absent; eligibility rejected capture before dispatch. */
 export class CaptureUnavailableError extends CaptureNotAdmittedError {
   public constructor(kind: CaptureSourceKind) {
+    // Preserve the source distinction: unavailable means eligibility could
+    // not be decided, while NOT_ADMITTED is an explicit denial.
     super(kind, "UNAVAILABLE");
     this.name = "CaptureUnavailableError";
   }

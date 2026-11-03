@@ -108,18 +108,20 @@ describe("captureWithAdmission", () => {
       expect(adapter.calls()).toBe(0);
     });
 
-  it.each(["BROWSER", "DESKTOP", "MOBILE", "CAMERA", "HTTP_API", "GRPC_API"] as const)(
-    "reports an absent %s host capability as UNAVAILABLE without dispatch", async (kind) => {
+  it.each(["BROWSER", "DESKTOP", "MOBILE", "TERMINAL",
+    "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE"] as const)(
+    "keeps an unavailable %s host typed UNAVAILABLE without dispatch", async (kind) => {
       let eligibilityCalls = 0;
       const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
-      await expect(captureWithAdmission({
+      const outcome = captureWithAdmission({
         check: (candidate) => {
           eligibilityCalls++;
           expect(candidate.kind).toBe(kind);
           return unavailableCaptureAdapter.check(candidate);
         },
-      }, adapter, { ...request, kind }))
-        .rejects.toBeInstanceOf(CaptureUnavailableError);
+      }, adapter, { ...request, kind });
+      await expect(outcome).rejects.toBeInstanceOf(CaptureUnavailableError);
+      await expect(outcome).rejects.toMatchObject({ eligibility: "UNAVAILABLE" });
       expect(eligibilityCalls).toBe(1);
       expect(adapter.calls()).toBe(0);
     });
@@ -128,6 +130,16 @@ describe("captureWithAdmission", () => {
     for (const kind of ["BROWSER", "DESKTOP", "MOBILE", "TERMINAL",
       "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE"] as const) {
       expect(noAdmittedCaptureAdapter.check({ ...request, kind })).toBe("NOT_ADMITTED");
+    }
+  });
+
+  it("returns NOT_ADMITTED from the disabled adapter for every kind without capture", async () => {
+    for (const kind of ["BROWSER", "DESKTOP", "MOBILE", "TERMINAL",
+      "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE"] as const) {
+      const adapter = adapterReturning(capturedFrame({ capturedAtEpochMillis: 0 }));
+      await expect(captureWithAdmission(noAdmittedCaptureAdapter, adapter, { ...request, kind }))
+        .rejects.toMatchObject({ name: "CaptureNotAdmittedError", eligibility: "NOT_ADMITTED" });
+      expect(adapter.calls()).toBe(0);
     }
   });
 
