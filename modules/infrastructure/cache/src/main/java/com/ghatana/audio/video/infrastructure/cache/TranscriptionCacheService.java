@@ -88,7 +88,8 @@ public class TranscriptionCacheService {
         // entity contains no trusted current scope, consent, retention, source
         // version, or immutable transcript revision to validate before exposure.
         // This API also cannot safely write the returned protected content under
-        // its tenant/entity-only key, so it performs no cache I/O.
+        // its tenant/entity-only key. On a validated source hit, it only issues
+        // best-effort invalidation of a legacy snapshot under that exact key.
         return loadCurrentTranscription(tenantId, transcriptionId, key, loader);
     }
 
@@ -107,8 +108,28 @@ public class TranscriptionCacheService {
             if (source.get().isDeleted()) {
                 return invalidateAfterSourceDenial(key);
             }
+            // Evict any legacy tenant/entity-keyed snapshot after the current
+            // source has been checked. Its key carries no source version, so
+            // retaining it would let a later cache consumer observe an older
+            // transcript revision. Cache cleanup is best effort; the value
+            // returned here remains the authoritative source result.
+            invalidateStaleSnapshot(key);
             return AsyncOperation.success(source.get());
         });
+    }
+
+    private void invalidateStaleSnapshot(String key) {
+        try {
+            cache.invalidate(key).whenComplete((ignored, invalidationFailure) -> {
+                if (invalidationFailure != null) {
+                    LOG.debug("Stale transcription cache invalidation failed; source result remains authoritative: causeType={}",
+                            invalidationFailure.getClass().getSimpleName());
+                }
+            });
+        } catch (RuntimeException invalidationFailure) {
+            LOG.debug("Stale transcription cache invalidation failed; source result remains authoritative: causeType={}",
+                    invalidationFailure.getClass().getSimpleName());
+        }
     }
 
     /** Best-effort cleanup never delays or changes the authoritative source denial. */

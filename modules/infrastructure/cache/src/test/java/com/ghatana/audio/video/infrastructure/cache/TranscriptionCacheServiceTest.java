@@ -147,7 +147,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void getOrLoadReturnsCurrentSourceWithoutAnyCacheIo() {
+    void getOrLoadReturnsCurrentSourceWithoutReadingOrWritingCache() {
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
         AtomicInteger loads = new AtomicInteger();
@@ -160,7 +160,8 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -172,41 +173,40 @@ class TranscriptionCacheServiceTest {
                 id -> AsyncOperation.success(Optional.of(source))));
 
         assertThat(result).isSameAs(source);
-        verifyNoInteractions(cachePort);
-    }
-
-    @Test
-    void currentAuthorizationDenialPrecedesAnyCachedProtectedTranscript() throws Exception {
-        UUID transcriptionId = UUID.randomUUID();
-        String scopedKey = key("tenant-a", transcriptionId.toString());
-        TranscriptionEntity staleProtectedValue = entity("tenant-a", transcriptionId, false);
-        staleProtectedValue.setText("must not be exposed after revocation");
-        when(cachePort.get(scopedKey)).thenReturn(AsyncOperation.success(
-                Optional.of(objectMapper.writeValueAsString(staleProtectedValue))));
-        IllegalStateException authorizationDenied = new IllegalStateException("current consent denied");
-
-        assertThatThrownBy(() -> await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
-                id -> AsyncOperation.failure(authorizationDenied))))
-                .hasRootCauseInstanceOf(IllegalStateException.class)
-                .hasRootCauseMessage("current consent denied");
-
         verify(cachePort, never()).get(any());
         verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
+    void currentAuthorizationDenialPrecedesAnyCachedProtectedTranscript() throws Exception {
+        UUID transcriptionId = UUID.randomUUID();
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+        IllegalStateException authorizationDenied = new IllegalStateException("current consent denied");
+
+        assertThatThrownBy(() -> await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.failure(authorizationDenied))))
+                .hasRootCauseInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("current consent denied");
+
+        verifyNoInteractions(scopedPort);
+    }
+
+    @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
 
         for (TranscriptionEntity mismatched : new TranscriptionEntity[] {
                 entity("tenant-b", transcriptionId, false),
                 entity("tenant-a", UUID.randomUUID(), false) }) {
-            assertThatThrownBy(() -> await(cacheService.getOrLoadTranscription("tenant-a", transcriptionId,
+            assertThatThrownBy(() -> await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
                     id -> AsyncOperation.success(Optional.of(mismatched)))))
                     .hasRootCauseInstanceOf(IllegalStateException.class)
                     .hasRootCauseMessage("Transcription identity does not match requested scope");
         }
-        verifyNoInteractions(cachePort);
+        verifyNoInteractions(scopedPort);
     }
 
     @Test
@@ -282,7 +282,71 @@ class TranscriptionCacheServiceTest {
                 id -> AsyncOperation.success(Optional.of(current))));
 
         assertThat(result.getText()).isEqualTo("current authorized revision");
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void currentVersionedSourceEvictsLegacySnapshotForExactTenantAndTranscript() {
+        UUID transcriptionId = UUID.randomUUID();
+        String currentKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(currentKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+        TranscriptionEntity current = entity("tenant-a", transcriptionId, false);
+        current.setVersion(8L);
+        current.setText("source version 8");
+
+        TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(current))));
+
+        assertThat(result.getVersion()).isEqualTo(8L);
+        assertThat(result.getText()).isEqualTo("source version 8");
+        verify(scopedPort).invalidateAsync(currentKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
+        verify(scopedPort, never()).invalidateAsync(key("tenant-b", transcriptionId.toString()));
+    }
+
+    @Test
+    void currentSourceDoesNotWaitForBestEffortLegacySnapshotInvalidation() {
+        UUID transcriptionId = UUID.randomUUID();
+        String currentKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        java.util.concurrent.CompletableFuture<Void> pendingInvalidation = new java.util.concurrent.CompletableFuture<>();
+        when(scopedPort.invalidateAsync(currentKey)).thenReturn(AsyncOperation.from(pendingInvalidation));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+        TranscriptionEntity current = entity("tenant-a", transcriptionId, false);
+
+        TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(current))));
+
+        assertThat(result).isSameAs(current);
+        assertThat(pendingInvalidation).isNotDone();
+        verify(scopedPort).invalidateAsync(currentKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
+        pendingInvalidation.complete(null);
+    }
+
+    @Test
+    void staleSnapshotInvalidationFailureDoesNotReplaceCurrentSource() {
+        UUID transcriptionId = UUID.randomUUID();
+        String currentKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(currentKey))
+                .thenReturn(AsyncOperation.failure(new IllegalStateException("cache unavailable")));
+        TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
+        TranscriptionEntity current = entity("tenant-a", transcriptionId, false);
+        current.setVersion(9L);
+
+        TranscriptionEntity result = await(scopedService.getOrLoadTranscription("tenant-a", transcriptionId,
+                id -> AsyncOperation.success(Optional.of(current))));
+
+        assertThat(result).isSameAs(current);
+        verify(scopedPort).invalidateAsync(currentKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -297,7 +361,8 @@ class TranscriptionCacheServiceTest {
                 id -> AsyncOperation.success(Optional.of(currentProcessing))));
 
         assertThat(result.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PROCESSING);
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -362,7 +427,8 @@ class TranscriptionCacheServiceTest {
             assertThatThrownBy(() -> await(invalidCall.get()))
                     .hasRootCauseInstanceOf(IllegalArgumentException.class);
         }
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -429,7 +495,8 @@ class TranscriptionCacheServiceTest {
 
         assertThat(result).isSameAs(source);
         assertThat(loads.get()).isEqualTo(1);
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -447,7 +514,8 @@ class TranscriptionCacheServiceTest {
                 .hasRootCauseInstanceOf(IllegalArgumentException.class)
                 .hasRootCauseMessage("ttl must be positive");
 
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test
@@ -461,7 +529,7 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
-    void oversizedSourceValueIsReturnedWithoutSerializationOrCacheIo() {
+    void oversizedSourceValueIsReturnedWithoutSerializationOrCacheReadWrite() {
         UUID transcriptionId = UUID.randomUUID();
         String marker = "oversized-source-private-marker";
         TranscriptionEntity source = entity("tenant-a", transcriptionId, false);
@@ -474,7 +542,8 @@ class TranscriptionCacheServiceTest {
             assertThat(logs.output()).doesNotContain(marker);
         }
 
-        verifyNoInteractions(cachePort);
+        verify(cachePort, never()).get(any());
+        verify(cachePort, never()).put(any(), any(), any(Duration.class));
     }
 
     @Test

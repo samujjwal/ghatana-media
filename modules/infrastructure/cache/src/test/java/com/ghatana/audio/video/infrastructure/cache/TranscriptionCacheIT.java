@@ -160,6 +160,9 @@ class TranscriptionCacheIT {
         UUID transcriptionId = UUID.randomUUID();
         TranscriptionEntity expected = buildEntityWithIdAndText(
                 tenantId, transcriptionId, "Current authorized source result");
+        expected.setVersion(4L);
+        await(cachePort.put(cacheKey(tenantId, transcriptionId),
+                "stale-source-version-3", Duration.ofMinutes(5)));
         AtomicInteger currentSourceLoads = new AtomicInteger();
 
         TranscriptionEntity result = await(cacheService.getOrLoadTranscription(
@@ -171,6 +174,7 @@ class TranscriptionCacheIT {
         ));
 
         assertThat(result.getText()).isEqualTo("Current authorized source result");
+        assertThat(result.getVersion()).isEqualTo(4L);
         assertThat(await(cachePort.get(cacheKey(tenantId, transcriptionId)))).isEmpty();
 
         TranscriptionEntity readback = await(cacheService.getOrLoadTranscription(
