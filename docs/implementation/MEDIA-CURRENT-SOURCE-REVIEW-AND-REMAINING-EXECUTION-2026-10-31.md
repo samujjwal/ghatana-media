@@ -2615,3 +2615,15 @@ Starting from local `main@d72c650c`, added four deterministic test slices on dis
 Independent review found no defect in the VS-07 or IP-06 assertions. It identified overbroad AS-07 durable/timebase wording and JC-03 process-restart wording; test names/comments were narrowed, then the changed AS-07 and JC-03 selectors passed again. `git diff --check` passed. No runtime source, migration, source pin, status, admission, deployment, cutover, or release state changed.
 
 **FLEURS owner disposition:** absent a source-authorized exact en/hi/ne subset record covering privacy, evaluation purpose, and retention, real FLEURS inference remains `NOT_ADMITTED`; keep its audio manifest metadata-only and do not download or process clips. Synthetic audio remains valid for code-path and robustness tests only and cannot establish real model quality. A different corpus would require its own exact rights/privacy/purpose/retention evidence; no substitute is inferred from a license label.
+
+### 41.87 November 2 CA-05 Redis integration rerun on an available Docker host
+
+The previously unrun `TranscriptionCacheIT` selector was executed with `--rerun-tasks` after the current host successfully started PostgreSQL Testcontainers. All **8/8 Redis/Testcontainers integration cases passed**, including tenant-key isolation, explicit invalidation, stale/revoked source behavior, current-source equivalence, and fail-closed cache behavior when protected scope is missing.
+
+```bash
+./gradlew :services:media:modules:infrastructure:cache:integrationTest \
+  --tests 'com.ghatana.audio.video.infrastructure.cache.TranscriptionCacheIT' \
+  --no-daemon --no-parallel --max-workers=2 --console=plain --rerun-tasks
+```
+
+This verifies the current Redis-backed safe read-through/cache-disabled behavior against its integration fixture. It does not prove protected transcript caching (the API lacks the complete principal/rights/version scope), cache restart equivalence for protected values, Shared production admission, or whole-row CA-05 closure. No cache policy, source pin, status, or runtime admission changed.
