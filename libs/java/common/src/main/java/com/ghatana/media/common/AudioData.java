@@ -31,7 +31,7 @@ public record AudioData(
     }
 
     public AudioData(byte[] data, int sampleRate, int channels, int bitsPerSample) {
-        this(data, sampleRate, channels, bitsPerSample, Duration.ofSeconds(1), AudioFormat.PCM);
+        this(data, sampleRate, channels, bitsPerSample, null, AudioFormat.PCM);
     }
 
     /** Get the number of samples per channel. */
@@ -85,7 +85,9 @@ public record AudioData(
             return Duration.ZERO;
         }
         long frames = data.length / bytesPerFrame;
-        long millis = Math.round((frames * 1000.0d) / sampleRate);
-        return Duration.ofMillis(millis);
+        long wholeSeconds = frames / sampleRate;
+        long remainingFrames = frames % sampleRate;
+        long fractionalNanos = (remainingFrames * 1_000_000_000L + sampleRate / 2L) / sampleRate;
+        return Duration.ofSeconds(wholeSeconds, fractionalNanos);
     }
 }

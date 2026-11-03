@@ -28,6 +28,18 @@ class AudioDataContractTest {
     }
 
     @Test
+    @DisplayName("convenience constructor derives duration from sample frames with rational rounding")
+    void convenienceConstructorUsesSampleClockForDuration() {
+        AudioData oneFrameAtThreeHz = new AudioData(new byte[2], 3, 1, 16);
+        AudioData twoFramesAtThreeHz = new AudioData(new byte[4], 3, 1, 16);
+        AudioData justOverOneSecond = new AudioData(new byte[32_002], 16_000, 1, 16);
+
+        assertEquals(Duration.ofNanos(333_333_333L), oneFrameAtThreeHz.duration());
+        assertEquals(Duration.ofNanos(666_666_667L), twoFramesAtThreeHz.duration());
+        assertEquals(Duration.ofNanos(1_000_062_500L), justOverOneSecond.duration());
+    }
+
+    @Test
     @DisplayName("defensively copies byte content")
     void defensivelyCopiesByteContent() { 
         byte[] raw = new byte[] {1, 2, 3, 4};
