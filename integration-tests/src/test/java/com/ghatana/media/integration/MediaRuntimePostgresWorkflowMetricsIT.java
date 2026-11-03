@@ -163,6 +163,7 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
         assertThat(classpath).as("Gradle-resolved child application classpath").isNotBlank();
         String ownerToken = subjectJwt("subject-owner");
         String otherToken = subjectJwt("subject-other");
+        String foreignTenantToken = subjectJwt("subject-foreign-tenant", "tenant-foreign-recovery");
         String jobId = "unknown-recovery-" + runId;
         String requestId = "request-unknown-recovery-" + runId;
 
@@ -234,7 +235,7 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
         try {
             awaitReady(recovered.process(), port);
             assertSubjectRecoveryReadback(port, artifactId, jobId, sha, objectReference, ownerToken, otherToken,
-                    requestId);
+                    foreignTenantToken, requestId);
         } finally {
             killLauncherProcess(recovered);
         }
@@ -242,14 +243,15 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
         try {
             awaitReady(recoveredAgain.process(), port);
             assertSubjectRecoveryReadback(port, artifactId, jobId, sha, objectReference, ownerToken, otherToken,
-                    requestId);
+                    foreignTenantToken, requestId);
         } finally {
             stopLauncherProcess(recoveredAgain);
         }
     }
 
     private static void assertSubjectRecoveryReadback(int port, String artifactId, String jobId, String sha,
-            String objectReference, String ownerToken, String otherToken, String requestId) throws Exception {
+            String objectReference, String ownerToken, String otherToken, String foreignTenantToken,
+            String requestId) throws Exception {
         HttpResponse<String> ownerArtifact = http("GET", port, "/api/v1/artifacts/" + artifactId,
                 ownerToken, null, "", "application/json", null);
         HttpResponse<String> ownerJob = http("GET", port, "/api/v1/jobs/" + jobId,
@@ -262,6 +264,14 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                 otherToken, null, "", "application/json", null);
         HttpResponse<String> absentJob = http("GET", port, "/api/v1/jobs/absent-recovery-job",
                 otherToken, null, "", "application/json", null);
+        HttpResponse<String> foreignTenantArtifact = http("tenant-foreign-recovery", "GET", port,
+                "/api/v1/artifacts/" + artifactId, foreignTenantToken, null, "", "application/json", null);
+        HttpResponse<String> absentForeignTenantArtifact = http("tenant-foreign-recovery", "GET", port,
+                "/api/v1/artifacts/absent-recovery-artifact", foreignTenantToken, null, "", "application/json", null);
+        HttpResponse<String> foreignTenantJob = http("tenant-foreign-recovery", "GET", port,
+                "/api/v1/jobs/" + jobId, foreignTenantToken, null, "", "application/json", null);
+        HttpResponse<String> absentForeignTenantJob = http("tenant-foreign-recovery", "GET", port,
+                "/api/v1/jobs/absent-recovery-job", foreignTenantToken, null, "", "application/json", null);
         assertThat(ownerArtifact.statusCode()).as(ownerArtifact.body()).isEqualTo(200);
         assertThat(ownerJob.statusCode()).as(ownerJob.body()).isEqualTo(200);
         JsonNode recoveredArtifact = JSON.readTree(ownerArtifact.body());
@@ -271,6 +281,8 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
         assertThat(JSON.readTree(ownerJob.body()).path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
         assertEquivalentNotFound(otherArtifact, absentArtifact, artifactId);
         assertEquivalentNotFound(otherJob, absentJob, jobId);
+        assertEquivalentNotFound(foreignTenantArtifact, absentForeignTenantArtifact, artifactId);
+        assertEquivalentNotFound(foreignTenantJob, absentForeignTenantJob, jobId);
         assertSingleRecoveryRows(jobId, requestId, artifactId, sha);
     }
 
@@ -440,8 +452,13 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
 
     private static HttpResponse<String> http(String method, int port, String path, String token,
             String idempotencyKey, String body, String contentType, byte[] bytes) throws Exception {
+        return http(SUBJECT_TENANT, method, port, path, token, idempotencyKey, body, contentType, bytes);
+    }
+
+    private static HttpResponse<String> http(String tenantId, String method, int port, String path, String token,
+            String idempotencyKey, String body, String contentType, byte[] bytes) throws Exception {
         var builder = java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:" + port + path))
-                .header("X-Tenant-Id", SUBJECT_TENANT).header("Authorization", "Bearer " + token)
+                .header("X-Tenant-Id", tenantId).header("Authorization", "Bearer " + token)
                 .header("Content-Type", contentType);
         if (idempotencyKey != null) builder.header("Idempotency-Key", idempotencyKey);
         if ("GET".equals(method)) builder.GET();
@@ -498,10 +515,14 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
     }
 
     private static String subjectJwt(String subject) throws Exception {
+        return subjectJwt(subject, SUBJECT_TENANT);
+    }
+
+    private static String subjectJwt(String subject, String tenantId) throws Exception {
         String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         String permissions = "\"media:artifact:create\",\"media:artifact:write\",\"media:artifact:read\","
                 + "\"media:job:create\",\"media:job:read\"";
-        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + SUBJECT_TENANT
+        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + tenantId
                 + "\",\"iss\":\"https://issuer.example\",\"aud\":\"ghatana-runtime\",\"exp\":"
                 + Instant.now().plusSeconds(600).getEpochSecond() + ",\"permissions\":[" + permissions + "]}");
         String signed = header + "." + payload;

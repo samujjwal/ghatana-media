@@ -130,12 +130,16 @@
       "code": [
         "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/LinuxVisionWorkerSandbox.java",
         "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/VideoFrameExtractor.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/HostOciVisionWorkerSupervisor.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/MediaOciBrokerDaemon.java",
+        "modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/video/MediaOciBrokerClient.java",
+        "modules/vision/vision-service/src/test/java/com/ghatana/audio/video/vision/video/HostOciVisionWorkerSupervisorTest.java",
         "scripts/test-media-wave2-platform-matrix.sh"
       ],
       "engineeringDecision": "APPROVE_HOST_SUPERVISOR_OVER_UNAVAILABLE_DELEGATED_IN_CONTAINER_CGROUP; never expose docker socket to untrusted codec",
       "input": "Docker Desktop Linux VM/host daemon authorized for launcher, digest-pinned worker+codec image, no-network read-only image/mounted source",
-      "action": "Implement trusted host-only OCI supervisor and Media ProcessRunner public seam; one request per container, --memory=1536m --memory-swap=1536m --cpus=2 --pids-limit=32 --network none --read-only --cap-drop ALL --security-opt no-new-privileges, private 128m tmpfs, explicit timeout and cleanup; read cgroup effective limits and test OOM/PID/time attacks",
-      "pass": "Adversarial request dies inside hard per-worker CPU/RAM/PID/tmp bounds on Docker Desktop and Linux; no service socket, process leak, output overrun, partial success or hidden global privileged access The present HostOciVisionWorkerSupervisor runs Docker CLI inside the Media JVM; it qualifies only trusted local host testing until a separate authenticated narrow host broker is implemented. Production Media JVM must have no general Docker/CRI daemon authority.",
+      "action": "Qualify the implemented trusted host-only OCI broker and Media ProcessRunner seam on an authorized native Linux ARM64 host: one request per container, --memory=1536m --memory-swap=1536m --cpus=2 --pids-limit=32 --network none --read-only --cap-drop ALL --security-opt no-new-privileges, private 128m tmpfs, explicit timeout and cleanup; read effective cgroup limits and test OOM/PID/time attacks",
+      "pass": "Adversarial request dies inside hard per-worker CPU/RAM/PID/tmp bounds on Docker Desktop Linux ARM64 and any separately selected Linux host; no service socket, process leak, output overrun, partial success or hidden global privileged access. The Media source now includes a separate authenticated narrow host broker and broker-bound VideoFrameExtractor path; the production Media JVM must not hold general Docker/CRI daemon authority. Source presence and local fake-runner/unit tests do not prove deployed broker authorization or native enforcement.",
       "fallback": "Current in-container cgroup/bwrap backend remains supported ONLY if delegated writable cgroups are proven; otherwise require host OCI adapter and fail closed"
     },
     {
@@ -2006,10 +2010,10 @@
       },
       "G06": {
         "implementationDisposition": "CODED_SOURCE_WITH_NATIVE_VERIFICATION_PENDING",
-        "observedGap": "Server-pinned OCI image and nonce policy source present; live real/png assets and host peer/source TOCTOU limits unverified.",
-        "nextAction": "W2-R07 provision actual pinned codec directories and run real/png plus source/peer/TOCTOU/native fault tests.",
+        "observedGap": "HostOciVisionWorkerSupervisor, authenticated MediaOciBrokerDaemon/Client, VideoFrameExtractor broker integration, and fail-closed OOM/incomplete result mapping are present. Live pinned codec execution, host peer/source TOCTOU limits, and native Linux ARM64 enforcement/attack tests remain unverified.",
+        "nextAction": "W2-R07 use the implemented broker path with actual pinned codec directories and run real/png, source/peer/TOCTOU, effective-cgroup, OOM/PID/CPU/tmpfs/time, cleanup, and native fault tests on an authorized native Linux ARM64 host.",
         "wholeRowAcceptance": "NOT_ACCEPTED",
-        "productionPrivilegeBoundary": "DEVELOPMENT_ONLY_CURRENT_DIRECT_JVM_DOCKER_CLI; PRODUCTION_REQUIRES_SEPARATE_AUTHENTICATED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL",
+        "productionPrivilegeBoundary": "CODED_SEPARATE_AUTHENTICATED_BROKER; PRODUCTION_REQUIRES_DEPLOYED_AUTHORIZED_LEAST_PRIVILEGE_BROKER_AND_SOURCE_OWNER_PROTOCOL; MEDIA_JVM_MUST_NOT_HOLD_GENERAL_DOCKER_OR_CRI_AUTHORITY",
         "verificationClass": "SOURCE_INSPECTED_REAL_EFFECT_AND_QUALIFICATION_PENDING"
       },
       "G07": {
