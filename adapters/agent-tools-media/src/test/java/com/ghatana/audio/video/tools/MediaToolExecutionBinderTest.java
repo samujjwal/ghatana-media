@@ -664,6 +664,33 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
     }
 
     @Test
+    void terminalJobStatusWithoutAttemptReceiptDoesNotResolveUnknownToolOutcome() {
+        InMemoryLedger ledger = new InMemoryLedger();
+        ToolExecutionEnvelope envelope = envelope("av.speech-to-text");
+        AtomicInteger dispatches = new AtomicInteger();
+        var binder = binder(ledger, Map.of(envelope.invocationId(), "COMPLETED"));
+        var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) -> {
+            dispatches.incrementAndGet();
+            return Promise.ofException(new IllegalStateException("response lost after dispatch"));
+        };
+
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+                .isInstanceOf(OutcomeUnknownException.class)
+                .satisfies(thrown -> assertThat(((OutcomeUnknownException) thrown).durableJobState())
+                        .isEqualTo("COMPLETED"));
+        assertThat(ledger.find(envelope.invocationId())).hasValueSatisfying(action ->
+                assertThat(action.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
+
+        // A terminal job status alone does not contain the canonical attempt
+        // receipt/result needed to reconcile the tool action.
+        assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contractFor(envelope))))
+                .isInstanceOf(OutcomeUnknownException.class)
+                .satisfies(thrown -> assertThat(((OutcomeUnknownException) thrown).durableJobState())
+                        .isEqualTo("COMPLETED"));
+        assertThat(dispatches.get()).isEqualTo(1);
+    }
+
+    @Test
     void recordedFailedOutcomeReplaysAsFailedNotRedispatched() {
         InMemoryLedger ledger = new InMemoryLedger();
         var binder = binder(ledger, Map.of());
