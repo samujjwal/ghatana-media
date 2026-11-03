@@ -49,10 +49,12 @@ import java.time.Instant;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -265,6 +267,248 @@ class MediaSttTranscriptCommitFenceIT {
             }
         } finally {
             installed.close();
+        }
+    }
+
+    @Test
+    void hardRuntimeProcessRestartReadsBackSyntheticTranscriptLineageWithoutReplay(
+            @org.junit.jupiter.api.io.TempDir Path root) throws Exception {
+        Path committed = root.resolve("transcript-committed.properties");
+        Path seedLog = root.resolve("seed.log");
+        Map<String, String> environment = environment();
+        Process seed = startTranscriptWorker(environment, "seed", root, committed, seedLog);
+        try {
+            awaitChildMarker(seed, committed, seedLog);
+            // The first runtime process has durably committed the fixture-provider result and transcript.
+            // Kill its JVM before it can close stores or return an acknowledgement to this process.
+            seed.destroyForcibly();
+            assertThat(seed.waitFor(15, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            if (seed.isAlive()) seed.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        Properties identity = new Properties();
+        try (var input = Files.newInputStream(committed)) {
+            identity.load(input);
+        }
+        assertThat(identity.getProperty("providerCalls")).isEqualTo("1");
+        Path recovered = root.resolve("transcript-recovered.properties");
+        Path recoveryLog = root.resolve("recovery.log");
+        Process recovery = startTranscriptWorker(environment, "recover", root, recovered, recoveryLog,
+                identity.getProperty("tenantId"), identity.getProperty("principalId"),
+                identity.getProperty("jobId"), identity.getProperty("artifactId"),
+                identity.getProperty("artifactVersion"), identity.getProperty("artifactSha256"),
+                identity.getProperty("transcriptId"), identity.getProperty("transcriptVersionRef"));
+        try {
+            awaitChildMarker(recovery, recovered, recoveryLog);
+            assertThat(recovery.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            assertThat(recovery.exitValue()).isZero();
+        } finally {
+            if (recovery.isAlive()) recovery.destroyForcibly().waitFor(15, TimeUnit.SECONDS);
+        }
+
+        Properties readback = new Properties();
+        try (var input = Files.newInputStream(recovered)) {
+            readback.load(input);
+        }
+        assertThat(readback.getProperty("transcriptText")).isEqualTo("fence transcript");
+        // This ADMITTED marker is confined to the disposable integration database and test fixture;
+        // it is not evidence of a real provider, rights decision, or source authorization.
+        assertThat(readback.getProperty("transcriptStatus")).isEqualTo("ADMITTED");
+        assertThat(readback.getProperty("revision")).isEqualTo("1");
+        assertThat(readback.getProperty("sourceArtifactId")).isEqualTo(identity.getProperty("artifactId"));
+        assertThat(readback.getProperty("sourceVersion")).isEqualTo(identity.getProperty("artifactVersion"));
+        assertThat(readback.getProperty("sourceSha256")).isEqualTo(identity.getProperty("artifactSha256"));
+        assertThat(readback.getProperty("transcriptVersionRef")).isEqualTo(
+                identity.getProperty("transcriptVersionRef"));
+        assertThat(readback.getProperty("providerOperationId")).isEqualTo("op-fence-1");
+        assertThat(readback.getProperty("providerReceiptId")).isEqualTo("receipt-fence-1");
+        assertThat(readback.getProperty("providerCalls")).isEqualTo("0");
+        assertThat(readback.getProperty("attemptTwoExists")).isEqualTo("false");
+    }
+
+    private static Process startTranscriptWorker(Map<String, String> environment, String mode, Path root,
+            Path marker, Path log, String... identity) throws Exception {
+        String classpath = System.getProperty("media.child.classpath", "");
+        if (classpath.isBlank()) throw new IllegalStateException("Gradle did not provide media.child.classpath");
+        Path javaBin = Path.of(System.getProperty("java.home"), "bin", "java");
+        var command = new java.util.ArrayList<String>();
+        command.add(javaBin.toString());
+        command.add("-Djavax.net.ssl.trustStore=" + keystore.toAbsolutePath());
+        command.add("-Djavax.net.ssl.trustStorePassword=changeit");
+        command.add("-Djavax.net.ssl.trustStoreType=PKCS12");
+        command.add("-cp");
+        command.add(classpath);
+        command.add(HardRestartWorker.class.getName());
+        command.add(mode);
+        command.add(root.toString());
+        command.add(marker.toString());
+        java.util.Collections.addAll(command, identity);
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.environment().putAll(environment);
+        builder.redirectErrorStream(true);
+        builder.redirectOutput(log.toFile());
+        return builder.start();
+    }
+
+    private static void awaitChildMarker(Process process, Path marker, Path log) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
+        while (System.nanoTime() < deadline) {
+            if (Files.exists(marker)) return;
+            if (!process.isAlive()) {
+                throw new AssertionError("runtime worker exited before its durable marker: "
+                        + (Files.exists(log) ? Files.readString(log) : "<no child output>"));
+            }
+            Thread.sleep(25);
+        }
+        throw new AssertionError("timed out waiting for runtime worker marker: "
+                + (Files.exists(log) ? Files.readString(log) : "<no child output>"));
+    }
+
+    /** Child process boundary: each mode installs independent runtime stores from the same env. */
+    public static final class HardRestartWorker {
+        private HardRestartWorker() { }
+
+        public static void main(String[] args) throws Exception {
+            if (args.length < 3) throw new IllegalArgumentException("mode, root, and marker are required");
+            String mode = args[0];
+            Path root = Path.of(args[1]);
+            Path marker = Path.of(args[2]);
+            if (mode.equals("seed")) seed(root, marker);
+            else if (mode.equals("recover")) recover(root, marker, args);
+            else throw new IllegalArgumentException("unsupported hard-restart mode: " + mode);
+        }
+
+        private static void seed(Path root, Path marker) throws Exception {
+            AtomicBoolean providerRan = new AtomicBoolean();
+            AtomicInteger providerCalls = new AtomicInteger();
+            Map<String, String> env = System.getenv();
+            AutoCloseable installed = TestAwsStateInstall.install(env);
+            try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var administration = new PostgresqlMediaSourceRightsAdministration();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
+                         authority, transcriptStore, List.of(fenceProviderWithCallCount(providerRan, providerCalls)))) {
+                MediaArtifact artifact = upload(runtime, "hard-restart");
+                seedArtifactRow(artifact, env.get("MEDIA_POSTGRES_JDBC_URL"),
+                        env.get("MEDIA_POSTGRES_USER"), env.get("MEDIA_FENCE_DB_PASSWORD"));
+                administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
+                var accepted = runtime.submit(jobRequest(artifact, "hard-restart"),
+                        authenticated("tenant-a", "principal-a"));
+                var terminal = await(runtime, accepted.jobId());
+                if (terminal.status() != JobStatus.COMPLETED || !providerRan.get() || providerCalls.get() != 1) {
+                    throw new AssertionError("synthetic fixture STT did not commit exactly once");
+                }
+                var revision = transcriptStore.revisions(
+                        "tenant-a", "principal-a", "transcript:" + accepted.jobId()).getFirst();
+                if (!"ADMITTED".equals(revision.admissionStatus())) {
+                    throw new AssertionError("test fixture did not persist through the admitted attempt path");
+                }
+                Properties identity = new Properties();
+                identity.setProperty("tenantId", artifact.tenantId());
+                identity.setProperty("principalId", artifact.principalId());
+                identity.setProperty("jobId", accepted.jobId());
+                identity.setProperty("artifactId", artifact.artifactId());
+                identity.setProperty("artifactVersion", artifact.version().value());
+                identity.setProperty("artifactSha256", artifact.sha256());
+                identity.setProperty("transcriptId", revision.draft().transcriptId());
+                identity.setProperty("transcriptVersionRef", "tv-fence-1");
+                identity.setProperty("providerCalls", Integer.toString(providerCalls.get()));
+                writePropertiesAtomically(marker, identity, "fixture committed");
+                // Parent forcibly kills this runtime process after the durable marker is written.
+                while (true) Thread.sleep(60_000);
+            } finally {
+                installed.close();
+            }
+        }
+
+        private static void recover(Path root, Path marker, String[] args) throws Exception {
+            if (args.length != 11) throw new IllegalArgumentException("recovery identity is incomplete");
+            String tenant = args[3], principal = args[4], jobId = args[5], artifactId = args[6];
+            String artifactVersion = args[7], sha256 = args[8], transcriptId = args[9], versionRef = args[10];
+            AtomicBoolean providerRan = new AtomicBoolean();
+            AtomicInteger providerCalls = new AtomicInteger();
+            Map<String, String> env = System.getenv();
+            AutoCloseable installed = TestAwsStateInstall.install(env);
+            try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
+                         authority, transcriptStore, List.of(fenceProviderWithCallCount(providerRan, providerCalls)))) {
+                var job = runtime.job(tenant, principal, jobId).orElseThrow();
+                if (job.status() != JobStatus.COMPLETED) throw new AssertionError("completed state changed on restart");
+                var revisions = transcriptStore.revisions(tenant, principal, transcriptId);
+                if (revisions.size() != 1) throw new AssertionError("transcript revision did not read back exactly once");
+                var revision = revisions.getFirst();
+                if (!"ADMITTED".equals(revision.admissionStatus())
+                        || !"fence transcript".equals(revision.draft().text())
+                        || !artifactId.equals(revision.draft().sourceArtifactId())
+                        || !artifactVersion.equals(revision.draft().sourceVersion())
+                        || !sha256.equals(revision.draft().sourceSha256())) {
+                    throw new AssertionError("transcript bytes or source lineage changed on restart");
+                }
+                var version = transcriptStore.revisionByVersionRef(tenant, principal, versionRef).orElseThrow();
+                if (!version.equals(revision)) throw new AssertionError("exact version ref resolved another revision");
+                var attempt = jobStore.findProcessingAttempt(tenant, jobId, 1).orElseThrow();
+                var binding = transcriptStore.readAttemptBinding(tenant, principal, transcriptId, 1);
+                if (!"op-fence-1".equals(binding.providerOperationId())
+                        || !"receipt-fence-1".equals(binding.providerReceiptId())
+                        || !versionRef.equals(binding.transcriptVersionRef())
+                        || !artifactVersion.equals(binding.sourceArtifactVersionRef())
+                        || !attempt.requestFingerprint().equals(binding.requestFingerprint())) {
+                    throw new AssertionError("attempt lineage changed on restart");
+                }
+                boolean attemptTwoExists = jobStore.findProcessingAttempt(tenant, jobId, 2).isPresent();
+                if (attempt.finality() != AttemptFinality.SUCCEEDED
+                        || attemptTwoExists
+                        || providerRan.get() || providerCalls.get() != 0) {
+                    throw new AssertionError("provider attempt was replayed or lost after restart");
+                }
+                byte[] expected = "fence-audio-bytes-hard-restart".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                var content = new java.io.ByteArrayOutputStream();
+                var receipt = artifactStore.copyContent(tenant, principal, artifactId,
+                        new com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion(artifactVersion),
+                        content, expected.length).orElseThrow();
+                if (!java.util.Arrays.equals(expected, content.toByteArray())
+                        || !sha256.equals(receipt.sha256()) || receipt.bytesCopied() != expected.length) {
+                    throw new AssertionError("source artifact bytes/hash/version changed on restart");
+                }
+                Properties result = new Properties();
+                result.setProperty("transcriptText", revision.draft().text());
+                result.setProperty("transcriptStatus", revision.admissionStatus());
+                result.setProperty("revision", Integer.toString(revision.revision()));
+                result.setProperty("sourceArtifactId", revision.draft().sourceArtifactId());
+                result.setProperty("sourceVersion", revision.draft().sourceVersion());
+                result.setProperty("sourceSha256", revision.draft().sourceSha256());
+                result.setProperty("transcriptVersionRef", binding.transcriptVersionRef());
+                result.setProperty("providerOperationId", binding.providerOperationId());
+                result.setProperty("providerReceiptId", binding.providerReceiptId());
+                result.setProperty("providerCalls", Integer.toString(providerCalls.get()));
+                result.setProperty("attemptTwoExists", Boolean.toString(attemptTwoExists));
+                writePropertiesAtomically(marker, result, "fixture recovered");
+            } finally {
+                installed.close();
+            }
+        }
+    }
+
+    private static void writePropertiesAtomically(Path marker, Properties properties, String comment)
+            throws Exception {
+        Path temporary = Files.createTempFile(marker.getParent(), marker.getFileName().toString(), ".tmp");
+        try {
+            try (var output = Files.newOutputStream(temporary)) {
+                properties.store(output, comment);
+            }
+            Files.move(temporary, marker, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+        } finally {
+            Files.deleteIfExists(temporary);
         }
     }
 
@@ -818,8 +1062,13 @@ class MediaSttTranscriptCommitFenceIT {
 
     /** Mirrors the artifact store's durable admission record for the fixture upload. */
     private static void seedArtifactRow(MediaArtifact artifact) throws Exception {
+        seedArtifactRow(artifact, POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+    }
+
+    private static void seedArtifactRow(
+            MediaArtifact artifact, String jdbcUrl, String username, String password) throws Exception {
         try (var connection = java.sql.DriverManager.getConnection(
-                POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                jdbcUrl, username, password);
              var statement = connection.prepareStatement(
                      "INSERT INTO media_artifacts (tenant_id,artifact_id,principal_id,file_name,"
                              + "content_type,size_bytes,sha256,object_reference,classification,"
