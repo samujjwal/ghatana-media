@@ -166,6 +166,22 @@ class TtsVoiceConsentNegativeTest {
     }
 
     @Test
+    @DisplayName("authority-reported expired consent denies before synthesis or provider reuse")
+    void authorityReportsExpiredConsentAsRevokedBeforeSynthesis() throws Exception {
+        // Expiry is evaluated by the owner authority; Media must honor its current
+        // REVOKED decision instead of letting a prior grant or profile override it.
+        start(request -> "expired-voice".equals(request.voiceId())
+                ? TtsRequestAuthorization.Decision.REVOKED
+                : TtsRequestAuthorization.Decision.ADMITTED, "expired-voice");
+
+        var blocking = stub(OWNER_SUBJECT);
+        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
+                        .setText("hello").setVoiceId("expired-voice").build()),
+                Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
+        verifyNoInteractions(guardedLibrary, engine);
+    }
+
+    @Test
     @DisplayName("revocation after an admitted synthesis prevents the next provider effect")
     void revocationAfterAdmittedSynthesisBlocksRetryBeforeProvider() throws Exception {
         AtomicReference<TtsRequestAuthorization.Decision> decision =
@@ -216,11 +232,14 @@ class TtsVoiceConsentNegativeTest {
         };
         String digest = HexFormat.of().formatHex(
                 MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(model)));
+        String sidecarDigest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(sidecar)));
         Map<String, String> environment = Map.ofEntries(
                 Map.entry("TTS_PROVIDER_MODE", "LOCAL_ONNX"),
                 Map.entry("TTS_MODEL_ID", "fixture-model"),
                 Map.entry("TTS_MODEL_VERSION", "fixture-version"),
                 Map.entry("TTS_MODEL_SHA256", digest),
+                Map.entry("TTS_VOICE_SIDECAR_SHA256", sidecarDigest),
                 Map.entry("TTS_MODEL_LICENSE", "test-fixture-placeholder"),
                 Map.entry("TTS_MODEL_LANGUAGE", "en-US"),
                 Map.entry("TTS_MODEL_REGION", "test-fixture-region"),
