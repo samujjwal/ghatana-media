@@ -108,16 +108,23 @@ class TtsGrpcServerCompositionTest {
 
     @Test
     void failedGrpcBindLeavesProductionRootDownAndClosed() throws Exception {
-        try (ServerSocket occupied = new ServerSocket(0)) {
+        int occupiedPort = freePort();
+        io.grpc.Server occupyingGrpcServer = io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
+                .forAddress(new java.net.InetSocketAddress("127.0.0.1", occupiedPort))
+                .build()
+                .start();
+        try {
             var metrics = new SimpleMeterRegistry();
             var service = new ProductionTtsGrpcService(mock(AudioVideoLibrary.class), metrics);
             var readiness = TtsGrpcServer.createReadinessLifecycle(metrics, service::isProviderReady);
-            var server = new TtsGrpcServer(occupied.getLocalPort(),
+            var server = new TtsGrpcServer(occupiedPort,
                     AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service, readiness);
             assertThatThrownBy(server::start).isInstanceOf(java.io.IOException.class);
             assertThat(server.isShutdown()).isTrue();
             assertThat(server.isReady()).isFalse();
             server.close();
+        } finally {
+            occupyingGrpcServer.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);
         }
     }
 
