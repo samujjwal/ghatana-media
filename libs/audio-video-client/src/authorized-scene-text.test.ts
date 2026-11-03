@@ -276,7 +276,10 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     di.providers.mockRejectedValueOnce(new TypeError('fetch failed: ECONNREFUSED'));
     await expect(recognizeAuthorizedMediaSceneText(
       authorized(), di, policy, 'op-1', frame, await admission()))
-      .rejects.toThrow(/ECONNREFUSED/);
+      .rejects.toMatchObject({
+        code: 'PROVIDER_CATALOG_UNAVAILABLE',
+        message: 'Scene-text adapter rejected the operation: PROVIDER_CATALOG_UNAVAILABLE',
+      });
     expect(di.parse).not.toHaveBeenCalled();
   });
 
