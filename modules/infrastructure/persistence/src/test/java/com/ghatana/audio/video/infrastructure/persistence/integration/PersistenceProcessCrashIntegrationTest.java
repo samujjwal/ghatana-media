@@ -1,0 +1,169 @@
+package com.ghatana.audio.video.infrastructure.persistence.integration;
+
+import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.DriverManager;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/** Verifies PostgreSQL recovery after the JVM owning an uncommitted transaction is killed. */
+@Testcontainers
+class PersistenceProcessCrashIntegrationTest {
+    @Container
+    static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"))
+            .withDatabaseName("media_process_crash_test")
+            .withUsername("test")
+            .withPassword("test");
+
+    @Test
+    void killedWriterProcessLeavesNoFlushedUncommittedRow() throws Throwable {
+        String databaseName = "media_crash_" + UUID.randomUUID().toString().replace("-", "");
+        String jdbcUrl = POSTGRES.getJdbcUrl().substring(0, POSTGRES.getJdbcUrl().lastIndexOf('/') + 1)
+                + databaseName;
+        String tenantId = "process-crash-" + UUID.randomUUID();
+        UUID audioId = UUID.randomUUID();
+        Path readyFile = Files.createTempFile("media-persistence-child-", ".ready");
+        Files.delete(readyFile);
+        Process child = null;
+        EntityManagerFactory schemaFactory = null;
+        EntityManagerFactory readFactory = null;
+        Throwable primaryFailure = null;
+        try {
+            try (var connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE DATABASE \"" + databaseName + "\"");
+            }
+            try (var connection = DriverManager.getConnection(
+                    jdbcUrl, POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("CREATE SCHEMA audio_video");
+            }
+
+            schemaFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", persistenceProperties(jdbcUrl, "create"));
+            schemaFactory.close();
+            schemaFactory = null;
+
+            String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
+            child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
+                    ChildTransactionWriter.class.getName(), jdbcUrl, POSTGRES.getUsername(),
+                    POSTGRES.getPassword(), tenantId, audioId.toString(), readyFile.toString())
+                    .redirectErrorStream(true)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .start();
+
+            long readyDeadline = System.nanoTime() + Duration.ofSeconds(20).toNanos();
+            while (!Files.exists(readyFile) && child.isAlive() && System.nanoTime() < readyDeadline) {
+                Thread.sleep(20L);
+            }
+            assertThat(Files.exists(readyFile))
+                    .as("child has flushed the row and entered its uncommitted wait")
+                    .isTrue();
+            assertThat(child.isAlive()).isTrue();
+
+            child.destroyForcibly();
+            assertThat(child.waitFor(10, TimeUnit.SECONDS))
+                    .as("writer JVM exits after forced termination")
+                    .isTrue();
+            child = null;
+
+            readFactory = Persistence.createEntityManagerFactory(
+                    "audio-video-test", persistenceProperties(jdbcUrl, "validate"));
+            EntityManager readManager = readFactory.createEntityManager();
+            try {
+                Long rows = readManager.createQuery(
+                                "select count(a) from AudioFileEntity a where a.id = :id", Long.class)
+                        .setParameter("id", audioId)
+                        .getSingleResult();
+                assertThat(rows).as("flushed row rolls back when its owning JVM is killed").isZero();
+            } finally {
+                readManager.close();
+            }
+        } catch (Throwable failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            if (child != null && child.isAlive()) {
+                child.destroyForcibly();
+                child.waitFor(10, TimeUnit.SECONDS);
+            }
+            close(readFactory);
+            close(schemaFactory);
+            try (var connection = DriverManager.getConnection(
+                    POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = connection.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS \"" + databaseName + "\" WITH (FORCE)");
+            } catch (Throwable cleanupFailure) {
+                if (primaryFailure != null) primaryFailure.addSuppressed(cleanupFailure);
+                else throw cleanupFailure;
+            }
+            Files.deleteIfExists(readyFile);
+        }
+    }
+
+    private static Map<String, Object> persistenceProperties(String jdbcUrl, String ddlMode) {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
+        properties.put("jakarta.persistence.jdbc.user", POSTGRES.getUsername());
+        properties.put("jakarta.persistence.jdbc.password", POSTGRES.getPassword());
+        properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+        properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.put("hibernate.hbm2ddl.auto", ddlMode);
+        properties.put("hibernate.default_schema", "audio_video");
+        properties.put("hibernate.show_sql", "false");
+        return properties;
+    }
+
+    private static void close(EntityManagerFactory factory) {
+        if (factory != null && factory.isOpen()) factory.close();
+    }
+
+    /** Child JVM boundary is intentional: killing it exercises PostgreSQL crash recovery. */
+    public static final class ChildTransactionWriter {
+        private ChildTransactionWriter() {}
+
+        public static void main(String[] args) throws Exception {
+            String jdbcUrl = args[0];
+            String username = args[1];
+            String password = args[2];
+            String tenantId = args[3];
+            UUID audioId = UUID.fromString(args[4]);
+            Path readyFile = Path.of(args[5]);
+            Map<String, Object> properties = new HashMap<>();
+            properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
+            properties.put("jakarta.persistence.jdbc.user", username);
+            properties.put("jakarta.persistence.jdbc.password", password);
+            properties.put("jakarta.persistence.jdbc.driver", "org.postgresql.Driver");
+            properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+            properties.put("hibernate.hbm2ddl.auto", "validate");
+            properties.put("hibernate.default_schema", "audio_video");
+            properties.put("hibernate.show_sql", "false");
+
+            EntityManagerFactory factory = Persistence.createEntityManagerFactory("audio-video-test", properties);
+            EntityManager manager = factory.createEntityManager();
+            manager.getTransaction().begin();
+            manager.persist(new AudioFileEntity(audioId, tenantId, UUID.randomUUID(),
+                    "crash.wav", "/storage/crash.wav", "wav"));
+            manager.flush();
+            Files.createFile(readyFile);
+            Thread.sleep(TimeUnit.MINUTES.toMillis(5));
+        }
+    }
+}
