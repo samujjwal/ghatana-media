@@ -78,26 +78,20 @@ class SynthesisControlPolicyTest {
     }
 
     @Test
-    void mapsBoundedSpeedDirectlyAndPitchSemitonesToRuntimeRatios() {
-        var lower = SynthesisControlPolicy.resolve(
-                SynthesizeRequest.newBuilder().setText("hello")
-                        .setOptions(SynthesisOptions.newBuilder().setSpeed(0.5f).setPitch(-12.0f).build())
-                        .build(), AudioFormat.PCM);
-        var upper = SynthesisControlPolicy.resolve(
-                SynthesizeRequest.newBuilder().setText("hello")
-                        .setOptions(SynthesisOptions.newBuilder().setSpeed(2.0f).setPitch(12.0f).build())
-                        .build(), AudioFormat.PCM);
-        var octaveFraction = SynthesisControlPolicy.resolve(
-                SynthesizeRequest.newBuilder().setText("hello")
-                        .setOptions(SynthesisOptions.newBuilder().setPitch(6.0f).build())
-                        .build(), AudioFormat.PCM);
-
-        assertThat(lower.speed()).isEqualTo(0.5);
-        assertThat(lower.pitch()).isEqualTo(0.5);
-        assertThat(upper.speed()).isEqualTo(2.0);
-        assertThat(upper.pitch()).isEqualTo(2.0);
-        assertThat(octaveFraction.pitch()).isCloseTo(Math.sqrt(2.0),
-                org.assertj.core.data.Offset.offset(1.0e-6));
+    void boundedNonNeutralRateAndPitchRemainTypedNotAdmittedUntilEffectsAreQualified() {
+        for (var testCase : List.of(
+                Map.entry(SynthesisOptions.newBuilder().setSpeed(0.5f).build(), "speed"),
+                Map.entry(SynthesisOptions.newBuilder().setSpeed(2.0f).build(), "speed"),
+                Map.entry(SynthesisOptions.newBuilder().setPitch(-12.0f).build(), "pitch"),
+                Map.entry(SynthesisOptions.newBuilder().setPitch(12.0f).build(), "pitch"),
+                Map.entry(SynthesisOptions.newBuilder().setPitch(6.0f).build(), "pitch"))) {
+            var request = SynthesizeRequest.newBuilder().setText("hello")
+                    .setOptions(testCase.getKey()).build();
+            assertThatThrownBy(() -> SynthesisControlPolicy.resolve(request, AudioFormat.PCM))
+                    .isInstanceOfSatisfying(SynthesisControlPolicy.UnsupportedControlException.class, error ->
+                            assertThat(error.control()).isEqualTo(testCase.getValue()))
+                    .hasMessageContaining("no qualified observable effect or mapping");
+        }
     }
 
     @Test

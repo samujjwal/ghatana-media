@@ -8,7 +8,7 @@ import com.ghatana.tts.ssml.SsmlProcessor;
 import java.util.IllformedLocaleException;
 import java.util.Locale;
 
-/** Validates wire prosody units and maps only the speed and pitch controls supported by Piper. */
+/** Validates wire prosody units and keeps unqualified non-neutral controls out of provider dispatch. */
 final class SynthesisControlPolicy {
     private SynthesisControlPolicy() {}
 
@@ -34,9 +34,14 @@ final class SynthesisControlPolicy {
         }
         if (energy != 1.0) throw unsupported("energy");
         if (emotion != Emotion.NEUTRAL) throw unsupported("emotion");
+        // A numeric conversion into SynthesisOptions is not evidence that this exact admitted
+        // provider/voice has an observable effect. TTS-06 requires matched A/B audio before
+        // enabling a non-neutral control, so keep rate and pitch fail-closed until qualified.
+        if (speed != 1.0) throw unsupported("speed");
+        if (pitchSemitones != 0.0) throw unsupported("pitch");
 
-        // The wire uses semitones; SynthesisOptions and Piper consume a multiplicative ratio.
-        double pitchRatio = Math.pow(2.0, pitchSemitones / 12.0);
+        // Neutral values are the only admitted prosody values until provider-specific A/B proof.
+        double pitchRatio = 1.0;
         String languageTag = wire.getLanguage();
         Locale language = languageTag.isBlank() ? null : parseLanguageTag(languageTag);
 

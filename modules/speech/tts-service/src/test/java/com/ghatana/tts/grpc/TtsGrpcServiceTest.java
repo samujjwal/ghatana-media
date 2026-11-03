@@ -1980,19 +1980,20 @@ class TtsGrpcServiceTest {
     }
 
     @Test
-    void boundedSpeedAndPitchControlsStillRequireAnAdmittedProfile() {
+    void boundedNonNeutralSpeedAndPitchCannotDispatchEvenWithAnAdmittedSynthesisProfile() {
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
         for (var supportedOptions : List.of(
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(0.5f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setSpeed(2.0f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(-12.0f).build(),
                 com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder().setPitch(12.0f).build())) {
             CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-            service.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+            admitted.synthesize(SynthesizeRequest.newBuilder().setText("hello")
                     .setOptions(supportedOptions).build(), observer);
 
-            assertStatus(observer, Status.Code.UNAVAILABLE);
+            assertStatus(observer, Status.Code.UNIMPLEMENTED);
             assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
-                    .contains("TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile");
+                    .contains("TTS_NOT_ADMITTED: control", "no qualified effect or mapping for the admitted provider");
             assertThat(observer.value).isNull();
             assertThat(observer.completed).isFalse();
         }
