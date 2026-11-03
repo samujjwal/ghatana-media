@@ -54,6 +54,65 @@ class AvJobLifecycleAdapterTest {
     }
 
     @Test
+    void refusesCompletedCanonicalReadbackWithoutImmutableTranscriptVersion() {
+        CanonicalJobRecord completed = AvJobLifecycleAdapter.toCanonical(
+                jobAt(AvTranscriptionJob.JobStatus.COMPLETED));
+        CanonicalJobRecord missingResult = new CanonicalJobRecord(
+                completed.jobId(), completed.jobType(), completed.status(), completed.tenantId(),
+                completed.correlationId(), completed.traceId(), completed.createdAt(), completed.startedAt(),
+                completed.completedAt(), completed.progressPercent(), completed.input(), null,
+                completed.resultType(), completed.failureCode(), completed.failureMessage(), completed.retryCount(),
+                completed.maxRetries(), completed.tags(), completed.metadata());
+        CanonicalJobRecord blankResult = new CanonicalJobRecord(
+                completed.jobId(), completed.jobType(), completed.status(), completed.tenantId(),
+                completed.correlationId(), completed.traceId(), completed.createdAt(), completed.startedAt(),
+                completed.completedAt(), completed.progressPercent(), completed.input(), "  ",
+                completed.resultType(), completed.failureCode(), completed.failureMessage(), completed.retryCount(),
+                completed.maxRetries(), completed.tags(), null);
+
+        assertThat(AvJobLifecycleAdapter.fromCanonical(missingResult))
+                .as("Media-marked completed readback requires the immutable transcript version")
+                .isNull();
+        assertThat(AvJobLifecycleAdapter.fromCanonical(blankResult))
+                .as("legacy status-only completed readback also requires the immutable transcript version")
+                .isNull();
+    }
+
+    @Test
+    void completedCanonicalReadbackRejectsConflictingResultTypeAndPreservesOptionalLegacyType() {
+        CanonicalJobRecord completed = AvJobLifecycleAdapter.toCanonical(
+                jobAt(AvTranscriptionJob.JobStatus.COMPLETED));
+        CanonicalJobRecord statusOnlyTranscript = new CanonicalJobRecord(
+                completed.jobId(), completed.jobType(), completed.status(), completed.tenantId(),
+                completed.correlationId(), completed.traceId(), completed.createdAt(), completed.startedAt(),
+                completed.completedAt(), completed.progressPercent(), completed.input(), completed.resultId(),
+                "transcript", completed.failureCode(), completed.failureMessage(), completed.retryCount(),
+                completed.maxRetries(), completed.tags(), null);
+        CanonicalJobRecord legacyWithoutResultType = new CanonicalJobRecord(
+                completed.jobId(), completed.jobType(), completed.status(), completed.tenantId(),
+                completed.correlationId(), completed.traceId(), completed.createdAt(), completed.startedAt(),
+                completed.completedAt(), completed.progressPercent(), completed.input(), completed.resultId(),
+                null, completed.failureCode(), completed.failureMessage(), completed.retryCount(),
+                completed.maxRetries(), completed.tags(), null);
+        CanonicalJobRecord conflictingResultType = new CanonicalJobRecord(
+                completed.jobId(), completed.jobType(), completed.status(), completed.tenantId(),
+                completed.correlationId(), completed.traceId(), completed.createdAt(), completed.startedAt(),
+                completed.completedAt(), completed.progressPercent(), completed.input(), completed.resultId(),
+                "frame-index", completed.failureCode(), completed.failureMessage(), completed.retryCount(),
+                completed.maxRetries(), completed.tags(), completed.metadata());
+
+        assertThat(AvJobLifecycleAdapter.fromCanonical(statusOnlyTranscript))
+                .as("legacy status-only transcript readback remains supported")
+                .isEqualTo(AvTranscriptionJob.JobStatus.COMPLETED);
+        assertThat(AvJobLifecycleAdapter.fromCanonical(legacyWithoutResultType))
+                .as("Shared CanonicalJobRecord defines resultType as optional")
+                .isEqualTo(AvTranscriptionJob.JobStatus.COMPLETED);
+        assertThat(AvJobLifecycleAdapter.fromCanonical(conflictingResultType))
+                .as("a present non-transcript result type cannot finalize an STT job")
+                .isNull();
+    }
+
+    @Test
     @DisplayName("maps failed job to canonical")
     void mapsFailedJobToCanonical() {
         AvTranscriptionJob job = jobAt(AvTranscriptionJob.JobStatus.FAILED);

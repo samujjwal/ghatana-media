@@ -4176,3 +4176,8 @@ Read the Rust speech-audio benchmark and RSS harness before changing code; the b
 ### 43.152 November 3 provider-quality numeric alert source review
 
 The R10 `QUALITY-NUMERIC-ALERT` source slice is already implemented: the pinned-report reader exposes bounded per-locale WER/CER/CI rows with `REFERENCE_ONLY` or `INDEPENDENT_QUALIFIED` scope; stale, revoked, missing, or identity-mismatched evidence stays empty/NaN; metrics cap series and clear stale rows; Prometheus rules use the existing registered limits and distinguish reference warnings from qualified regression. Existing fixtures cover threshold boundaries, fixture/NOT_MEASURED exclusion, missing/NaN evidence, qualified fire and recovery. No duplicate code or thresholds were added, and no tests were rerun. The genuine immutable evaluation report and named-host delivery remain absent, so this source review does not establish live quality or OBS-07 acceptance.
+
+
+### 43.153 November 3 STT-09 completed transcript readback guard
+
+`AvJobLifecycleAdapter.fromCanonical(CanonicalJobRecord)` now refuses a `COMPLETED` `media.transcribe` projection when its `resultId` is null/blank, and rejects a present `resultType` other than `transcript`. It preserves legacy records with an absent result type because Shared defines that field as optional; positive status-only transcript readback is covered. The focused `AvJobLifecycleAdapterTest` selector passed **15/15**; independent Luna review found no material issue. This guards malformed local projection only: STT-09 remains partial pending authorized runtime dispatch, real provider receipt/reconciliation and process/PostgreSQL restart readback. No store, dispatch, lifecycle acceptance, or rights gate changed.

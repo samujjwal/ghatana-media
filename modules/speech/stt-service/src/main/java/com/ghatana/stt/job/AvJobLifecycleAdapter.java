@@ -124,6 +124,14 @@ public final class AvJobLifecycleAdapter {
         // The Media state marker is meaningful only on this adapter's canonical job type.
         // Never interpret another service's similarly named metadata as an STT lifecycle state.
         if (!JOB_TYPE.equals(record.jobType())) return null;
+        // A completed STT job is only final when its immutable transcript version is
+        // present. The legacy status-only projection must not turn a malformed shared
+        // record into a successful local readback either.
+        if (record.status() == CanonicalJobStatus.COMPLETED
+                && (record.resultId() == null || record.resultId().isBlank())) return null;
+        if (record.status() == CanonicalJobStatus.COMPLETED
+                && record.resultType() != null
+                && !"transcript".equals(record.resultType())) return null;
         if (record.metadata().containsKey("mediaCanonicalState")) {
             Object mediaState = record.metadata().get("mediaCanonicalState");
             if (!(mediaState instanceof String state)) return null;
