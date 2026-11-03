@@ -18,6 +18,8 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -30,10 +32,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * Opt-in FLEURS ASR batch evaluation: transcribes every clip in the frozen
- * CC BY 4.0 FLEURS manifest with the pinned Whisper profile and writes a
- * predictions file consumed by {@code scripts/qualification/evaluate-fleurs-asr.mjs}.
- * Writes incrementally so a long run preserves progress.
+ * Opt-in FLEURS ASR batch evaluation. A separate exact-subset source
+ * authorization record is required before engine creation. This local test
+ * has no trusted source-authority verifier, so it deliberately fails closed
+ * before inference even when a caller supplies a structurally matching record.
+ * The predictions contract is consumed by {@code scripts/qualification/evaluate-fleurs-asr.mjs}.
  */
 class FleursAsrBatchEvaluationTest {
 
@@ -45,6 +48,7 @@ class FleursAsrBatchEvaluationTest {
     private static final String SAFE_TOKEN = "[A-Za-z0-9][A-Za-z0-9._-]{0,127}";
 
     private static final String MANIFEST_ENV = "GHATANA_MEDIA_FLEURS_MANIFEST";
+    private static final String AUTHORIZATION_ENV = "GHATANA_MEDIA_FLEURS_AUTHORIZATION_RECORD";
     private static final String OUT_ENV = "GHATANA_MEDIA_FLEURS_PREDICTIONS";
     private static final String CLIP_DIR_ENV = "GHATANA_MEDIA_FLEURS_CLIP_DIR";
     private static final Map<String, Locale> LOCALES = Map.of(
@@ -57,7 +61,7 @@ class FleursAsrBatchEvaluationTest {
         assumeTrue(profileValue != null && manifestValue != null && System.getenv(OUT_ENV) != null
                         && System.getenv(CLIP_DIR_ENV) != null,
                 "Set GHATANA_MEDIA_WHISPER_PROFILE, " + MANIFEST_ENV + ", " + OUT_ENV
-                        + " and " + CLIP_DIR_ENV);
+                        + ", " + CLIP_DIR_ENV + " and " + AUTHORIZATION_ENV);
         Path clipDir = Path.of(System.getenv(CLIP_DIR_ENV)).toAbsolutePath();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode manifest;
@@ -73,6 +77,7 @@ class FleursAsrBatchEvaluationTest {
             }
             manifest = mapper.readTree(manifestBytes);
         }
+        JsonNode authorization = readOptionalBoundedJson(System.getenv(AUTHORIZATION_ENV), mapper);
         assertThat(manifest.get("status").asText()).isEqualTo("FROZEN");
         JsonNode clips = manifest.path("selection").path("clips");
         Path out = Path.of(System.getenv(OUT_ENV)).toAbsolutePath();
@@ -88,7 +93,8 @@ class FleursAsrBatchEvaluationTest {
 
         List<String> lines = new ArrayList<>();
         int failures = 0;
-        try (WhisperOnnxEngine engine = new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState())) {
+        try (WhisperOnnxEngine engine = createEngineAfterFleursAuthorization(manifest, authorization,
+                () -> new WhisperOnnxEngine(config, new AudioVideoLibrary.LibraryState()))) {
             int done = 0;
             for (JsonNode clip : clips) {
                 // The canonical scorer consumes HOLDOUT predictions only. Pilot/training
@@ -128,6 +134,171 @@ class FleursAsrBatchEvaluationTest {
 
     private static boolean isHoldout(JsonNode clip) {
         return "holdout".equals(clip.path("partition").asText());
+    }
+
+    /**
+     * Reads a caller-supplied authorization record without treating its contents as
+     * proof of source authority. This test has no trusted authority verifier, so the
+     * final fail-closed result deliberately prevents real inference even when the
+     * record is structurally complete and exactly matches the manifest.
+     */
+    private static JsonNode readOptionalBoundedJson(String value, ObjectMapper mapper) throws IOException {
+        if (value == null || value.isBlank()) return null;
+        Path path = Path.of(value).toAbsolutePath();
+        long size = Files.size(path);
+        if (size <= 0 || size > MAX_MANIFEST_BYTES) {
+            throw new IOException("FLEURS authorization record exceeds the bounded input size");
+        }
+        try (var input = Files.newInputStream(path)) {
+            byte[] bytes = input.readNBytes(MAX_MANIFEST_BYTES + 1);
+            if (bytes.length != size || bytes.length > MAX_MANIFEST_BYTES) {
+                throw new IOException("FLEURS authorization record changed or exceeded the bounded read size");
+            }
+            return mapper.readTree(bytes);
+        }
+    }
+
+    private static void requireSourceAuthorizedFleursScope(JsonNode manifest, JsonNode authorization)
+            throws IOException {
+        if (authorization == null || !authorization.isObject()) {
+            throw new IOException("FLEURS source-authorized exact subset record is absent or unverifiable");
+        }
+        JsonNode dataset = manifest.path("dataset");
+        if (!"google/fleurs".equals(dataset.path("name").asText())
+                || dataset.path("sourceRevision").asText().isBlank()) {
+            throw new IOException("FLEURS manifest dataset identity or revision is incomplete");
+        }
+        if (!dataset.path("sourceRevision").asText().equals(authorization.path("datasetRevision").asText())) {
+            throw new IOException("FLEURS authorization dataset revision does not match the manifest");
+        }
+        String split = manifest.path("selection").path("holdoutSplit").asText();
+        if (split.isBlank() || !split.equals(authorization.path("split").asText())) {
+            throw new IOException("FLEURS authorization split does not match the manifest");
+        }
+        if (!"ASR_EVALUATION_ONLY".equals(authorization.path("purpose").asText())
+                || authorization.path("privacy").isMissingNode()
+                || !authorization.path("privacy").isObject()
+                || authorization.path("privacy").isEmpty()
+                || authorization.path("retention").isMissingNode()
+                || !authorization.path("retention").isObject()
+                || authorization.path("retention").isEmpty()) {
+            throw new IOException("FLEURS authorization purpose, privacy, or retention scope is incomplete");
+        }
+        JsonNode manifestClips = manifest.path("selection").path("clips");
+        JsonNode authorizedClips = authorization.path("clips");
+        if (!manifestClips.isArray() || manifestClips.isEmpty() || !authorizedClips.isArray()) {
+            throw new IOException("FLEURS authorization clip scope is absent or incomplete");
+        }
+        Map<String, String> manifestScope = clipScope(manifestClips, true);
+        Map<String, String> authorizedScope = clipScope(authorizedClips, false);
+        if (manifestScope.isEmpty() || !manifestScope.equals(authorizedScope)) {
+            throw new IOException("FLEURS authorization clip IDs or audio hashes do not match the manifest");
+        }
+        if (!manifestScope.keySet().stream().map(key -> key.substring(0, key.indexOf(':'))).collect(
+                java.util.stream.Collectors.toSet()).equals(Set.of("eng", "hin", "npi"))) {
+            throw new IOException("FLEURS authorization must cover the exact en/hi/ne locale set");
+        }
+        // A caller-provided JSON record can assert source authorization, but this
+        // local test has no trusted source-authority verifier to establish it.
+        throw new IOException("FLEURS source authority is unverifiable in this local batch test; inference denied");
+    }
+
+    private static WhisperOnnxEngine createEngineAfterFleursAuthorization(JsonNode manifest, JsonNode authorization,
+            Supplier<WhisperOnnxEngine> engineFactory) throws IOException {
+        requireSourceAuthorizedFleursScope(manifest, authorization);
+        return engineFactory.get();
+    }
+
+    private static Map<String, String> clipScope(JsonNode clips, boolean holdoutOnly) throws IOException {
+        Map<String, String> scope = new java.util.TreeMap<>();
+        for (JsonNode clip : clips) {
+            if (holdoutOnly && !isHoldout(clip)) continue;
+            if (!holdoutOnly && !isHoldout(clip)) {
+                throw new IOException("FLEURS authorization clip partition must be holdout");
+            }
+            String locale = requiredToken(clip, "locale");
+            String clipId = requiredToken(clip, "clipId");
+            JsonNode digestNode = clip.get("audioSha256");
+            String digest = digestNode != null && digestNode.isTextual() ? digestNode.asText() : "";
+            if (!digest.matches("(?i)[0-9a-f]{64}")) {
+                throw new IOException("FLEURS authorization clip audioSha256 is absent or malformed");
+            }
+            String key = locale + ":" + clipId;
+            if (scope.putIfAbsent(key, digest.toLowerCase(Locale.ROOT)) != null) {
+                throw new IOException("FLEURS authorization contains duplicate clip IDs");
+            }
+        }
+        return scope;
+    }
+
+    @Test
+    void absentIncompleteOrAlteredAuthorizationCannotCreateEngine() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode manifest = fleursManifest(mapper);
+        JsonNode completeRecord = fleursAuthorization(mapper);
+        List<JsonNode> invalidRecords = new ArrayList<>();
+        invalidRecords.add(null);
+        invalidRecords.add(mapper.readTree("{}"));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "\"privacy\":{\"scope\":\"local evaluation; no identity or biometric use\"},", "")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "," + fleursClip("npi", "clip-nep-1", "a".repeat(64)), "")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "\"partition\":\"holdout\"", "\"partition\":\"training\"")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace("\"split\":\"dev\"", "\"split\":\"train\"")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "\"privacy\":{\"scope\":\"local evaluation; no identity or biometric use\"}", "\"privacy\":{}")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "\"retention\":{\"scope\":\"delete selected audio after evaluation\"}", "\"retention\":{}")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "70bb2e84b976b7e960aa89f1c648e09c59f894dd", "altered-revision")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "clip-eng-1", "clip-eng-other")));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "a".repeat(64), "b".repeat(64))));
+        invalidRecords.add(mapper.readTree(completeRecord.toString().replace(
+                "ASR_EVALUATION_ONLY", "OTHER_PURPOSE")));
+        for (JsonNode invalid : invalidRecords) {
+            int[] creations = {0};
+            assertThatThrownBy(() -> createEngineAfterFleursAuthorization(manifest, invalid, () -> {
+                creations[0]++;
+                return null;
+            })).isInstanceOf(IOException.class);
+            assertThat(creations[0]).as("engine factory must not run for invalid or unverifiable scope").isZero();
+        }
+
+        int[] creations = {0};
+        assertThatThrownBy(() -> createEngineAfterFleursAuthorization(manifest, completeRecord, () -> {
+            creations[0]++;
+            return null;
+        })).isInstanceOf(IOException.class).hasMessageContaining("unverifiable");
+        assertThat(creations[0]).as("structural scope matching is not source-authority verification").isZero();
+    }
+
+    private static JsonNode fleursManifest(ObjectMapper mapper) throws IOException {
+        String sha = "a".repeat(64);
+        return mapper.readTree("{\"dataset\":{\"name\":\"google/fleurs\","
+                + "\"sourceRevision\":\"70bb2e84b976b7e960aa89f1c648e09c59f894dd\"},"
+                + "\"selection\":{\"holdoutSplit\":\"dev\",\"clips\":["
+                + fleursClip("eng", "clip-eng-1", sha) + ","
+                + fleursClip("hin", "clip-hin-1", sha) + ","
+                + fleursClip("npi", "clip-nep-1", sha) + "]}}");
+    }
+
+    private static JsonNode fleursAuthorization(ObjectMapper mapper) throws IOException {
+        String sha = "a".repeat(64);
+        return mapper.readTree("{\"datasetRevision\":\"70bb2e84b976b7e960aa89f1c648e09c59f894dd\","
+                + "\"split\":\"dev\",\"purpose\":\"ASR_EVALUATION_ONLY\","
+                + "\"privacy\":{\"scope\":\"local evaluation; no identity or biometric use\"},"
+                + "\"retention\":{\"scope\":\"delete selected audio after evaluation\"},\"clips\":["
+                + fleursClip("eng", "clip-eng-1", sha) + ","
+                + fleursClip("hin", "clip-hin-1", sha) + ","
+                + fleursClip("npi", "clip-nep-1", sha) + "]}");
+    }
+
+    private static String fleursClip(String locale, String clipId, String sha) {
+        return "{\"locale\":\"" + locale + "\",\"clipId\":\"" + clipId
+                + "\",\"partition\":\"holdout\",\"audioSha256\":\"" + sha + "\"}";
     }
 
     @Test
