@@ -366,8 +366,8 @@ groups:
           product: audio-video
           component: stt
         annotations:
-          summary: "STT Transcribe p95 latency above 5s"
-          description: "STT p95 transcription latency is {{ $value | humanizeDuration }} on {{ $labels.instance }}."
+          summary: "Provisional STT whole-gRPC-RPC handling threshold: p95 above 5s (heuristic; not an approved model-latency target or production SLO)"
+          description: "Provisional whole-gRPC-RPC handling heuristic only, not an approved model-latency target or production SLO: p95 is grpc_server_handling_seconds duration for Transcribe on {{ $labels.instance }} ({{ $value | humanizeDuration }})."
 
       - alert: SttTranscriptionLatencyCritical
         expr: |
@@ -380,8 +380,8 @@ groups:
           product: audio-video
           component: stt
         annotations:
-          summary: "STT Transcribe p95 latency above 15s (critical)"
-          description: "STT transcription severely degraded: p95={{ $value | humanizeDuration }} on {{ $labels.instance }}."
+          summary: "Provisional STT whole-gRPC-RPC handling threshold: p95 above 15s (critical heuristic; not an approved model-latency target or production SLO)"
+          description: "Provisional whole-gRPC-RPC handling heuristic only, not an approved model-latency target or production SLO: p95 is grpc_server_handling_seconds duration for Transcribe on {{ $labels.instance }} ({{ $value | humanizeDuration }})."
 
   # -------------------------------------------------------------------------
   # 3. TTS (Text-to-Speech) Performance
@@ -415,8 +415,8 @@ groups:
           product: audio-video
           component: tts
         annotations:
-          summary: "TTS Synthesize p95 latency above 3s"
-          description: "TTS p95 synthesis latency is {{ $value | humanizeDuration }} on {{ $labels.instance }}."
+          summary: "Provisional TTS whole-gRPC-RPC handling threshold: p95 above 3s (heuristic; not an approved model-latency target or production SLO)"
+          description: "Provisional whole-gRPC-RPC handling heuristic only, not an approved model-latency target or production SLO: p95 is grpc_server_handling_seconds duration for Synthesize on {{ $labels.instance }} ({{ $value | humanizeDuration }})."
 
   # -------------------------------------------------------------------------
   # 4. Vision Service Performance
@@ -450,8 +450,8 @@ groups:
           product: audio-video
           component: vision
         annotations:
-          summary: "Vision service p95 inference latency above 2s"
-          description: "Vision inference p95={{ $value | humanizeDuration }} on {{ $labels.instance }}."
+          summary: "Provisional Vision whole-gRPC-RPC handling threshold: p95 above 2s (heuristic; not an approved model-latency target or production SLO)"
+          description: "Provisional whole-gRPC-RPC handling heuristic only, not an approved model-latency target or production SLO: p95 is grpc_server_handling_seconds duration for the Vision server handling series on {{ $labels.instance }} ({{ $value | humanizeDuration }}); this is not inference-only latency."
 
   # -------------------------------------------------------------------------
   # 5. JVM Health (STT + TTS + Vision + Multimodal — all Java gRPC services)

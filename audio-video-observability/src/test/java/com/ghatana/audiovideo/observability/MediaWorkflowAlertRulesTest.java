@@ -15,6 +15,47 @@ import org.junit.jupiter.api.Test;
 
 class MediaWorkflowAlertRulesTest {
     @Test
+    void modalityLatencyAlertsAreExplicitlyProvisionalWholeRpcHandlingHeuristics() throws IOException {
+        Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
+        String rules = Files.readString(rulesPath);
+        Map<String, String> expectedExpressions = Map.of(
+                "SttTranscriptionLatencyHigh", "grpc_server_handling_seconds_bucket{job=\"stt-service\", grpc_method=\"Transcribe\"}[5m])\n          ) > 5",
+                "SttTranscriptionLatencyCritical", "grpc_server_handling_seconds_bucket{job=\"stt-service\", grpc_method=\"Transcribe\"}[5m])\n          ) > 15",
+                "TtsSynthesisLatencyHigh", "grpc_server_handling_seconds_bucket{job=\"tts-service\", grpc_method=\"Synthesize\"}[5m])\n          ) > 3",
+                "VisionInferenceLatencyHigh", "grpc_server_handling_seconds_bucket{job=\"vision-service\"}[5m])\n          ) > 2");
+        Map<String, String> expectedDurations = Map.of(
+                "SttTranscriptionLatencyHigh", "for: 5m",
+                "SttTranscriptionLatencyCritical", "for: 3m",
+                "TtsSynthesisLatencyHigh", "for: 5m",
+                "VisionInferenceLatencyHigh", "for: 5m");
+        Map<String, String> expectedLabels = Map.of(
+                "SttTranscriptionLatencyHigh", "component: stt",
+                "SttTranscriptionLatencyCritical", "component: stt",
+                "TtsSynthesisLatencyHigh", "component: tts",
+                "VisionInferenceLatencyHigh", "component: vision");
+
+        for (String alert : expectedExpressions.keySet()) {
+            String block = alertBlock(rules, alert);
+            assertThat(block).contains(expectedExpressions.get(alert), expectedDurations.get(alert),
+                    expectedLabels.get(alert), "severity:");
+            assertThat(block).contains("Provisional", "whole-gRPC-RPC handling",
+                    "not an approved model-latency target or production SLO",
+                    "p95 is grpc_server_handling_seconds duration");
+        }
+
+        assertThat(alertBlock(rules, "VisionInferenceLatencyHigh"))
+                .contains("this is not inference-only latency");
+    }
+
+    private static String alertBlock(String rules, String alert) {
+        String marker = "      - alert: " + alert + "\n";
+        int start = rules.indexOf(marker);
+        if (start < 0) return "";
+        int next = rules.indexOf("      - alert:", start + marker.length());
+        return rules.substring(start, next < 0 ? rules.length() : next);
+    }
+
+    @Test
     void definesAlertsForDurableWorkflowFailureSignalsWithoutIdentityLabels() throws IOException {
         Path rulesPath = Path.of("..", "infra", "monitoring", "alerts", "audio-video.yml");
         String rules = Files.readString(rulesPath);
@@ -286,7 +327,7 @@ class MediaWorkflowAlertRulesTest {
                 "values: 0x11",
                 "values: 590x11");
         assertThat(fixture).contains(
-                "name: qualified-quality-regression-fires-and-recovers",
+                "name: qualified-quality-regression-fires-then-clears",
                 "name: reference-quality-below-threshold-warns-without-admission",
                 "name: quality-thresholds-hold-at-registered-values",
                 "name: missing-quality-evidence-alerts-on-observed-profile",
