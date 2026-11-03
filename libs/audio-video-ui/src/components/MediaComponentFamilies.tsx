@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { Badge, Button } from "@ghatana/design-system";
 import type { MediaActionDispatchResult } from "../ports";
 import { MediaComponentValueTypes } from "./MediaComponentValueTypes";
@@ -102,6 +102,7 @@ function resultMessage(result: MediaActionDispatchResult): string {
 }
 
 export function MediaFamily<Props extends FamilyContractFields>({ definition, ...props }: { readonly definition: FamilyDefinition } & Props & MediaComponentUiExtras): React.ReactElement {
+  const instanceId = useId();
   const { state, variant, actionIntents, keyboardBehavior, actions = [], className, ...rawValues } = props;
   const values: Readonly<Record<string, unknown>> = Object.fromEntries(Object.entries(rawValues));
   const keys = Object.keys(values).filter((key) => values[key] !== undefined);
@@ -120,6 +121,21 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
     ? (matchingActions.length === 1 ? matchingActions[0]?.id : undefined)
     : selectedActionValue;
   const selectionAction = typeof selectedActionId === "string" ? matchingActions.find((action) => action.id === selectedActionId) : undefined;
+  const selectionDisabledReason = definition.selectionList
+    ? pendingAction
+      ? "Selection is unavailable while another action is being requested."
+      : !selectionAction
+        ? "Selection is unavailable because the current owner projection has no eligible action."
+        : !selectionAction.enabled
+          ? selectionAction.disabledReason ?? "Selection is unavailable in the current owner projection."
+          : !selectionAction.invoke
+            ? "Selection is unavailable because no action handler is connected."
+            : !selectionAction.selectionPayloadAvailable
+              ? "Selection is unavailable because no exact selection-to-request adapter is defined."
+              : undefined
+    : undefined;
+  const selectionDisabledReasonId = `${instanceId}-selection-disabled-reason`;
+  const selectionGroupName = `${instanceId}-selection`;
   const facts = (fields: readonly string[]) => fields.map((field) => <div key={field}>
     <dt>{labelFor(field)}</dt><dd><ValueView value={values[field]} />
       {definition.fieldDescriptions[field] && <small>{definition.fieldDescriptions[field]}</small>}
@@ -143,20 +159,48 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
     if (!Array.isArray(entries)) return <ValueView value={entries} />;
     if (entries.length === 0) return <p>No records are available in this projection.</p>;
     const ordered = definition.id === "media.component.timeline-keyframe-editor" || definition.id === "media.component.storyboard" || definition.id === "media.component.transcript-review" || definition.id === "media.component.caption-track-editor" || definition.id === "media.component.activity-recovery-feed";
-    return <ol className={ordered ? "media-family__records media-family__records--ordered" : "media-family__records"} aria-label={labelFor(field)}>
-      {entries.map((entry, index) => {
+    const list = <ol className={ordered ? "media-family__records media-family__records--ordered" : "media-family__records"} aria-label={labelFor(field)}>
+        {entries.map((entry, index) => {
         const keyValue = definition.selectionKey ? recordSelectionField(entry, definition.selectionKey) : undefined;
         const selectable = field === definition.selectionList && keyValue !== undefined;
         const selected = selectedValue !== undefined && keyValue === selectedValue;
         const titleValue = recordLabel(entry) ?? keyValue;
+        const optionId = `${instanceId}-selection-option-${index}`;
         return <li key={index}>
-          {selectable && <Button type="button" variant="outline" aria-pressed={selected} disabled={!selectionAction?.enabled || !selectionAction?.invoke || !selectionAction.selectionPayloadAvailable || Boolean(pendingAction)} onClick={() => setSelectedValue(keyValue)}>
-            {selected ? "Selected for this review" : `Select ${typeof titleValue === "string" ? titleValue : `record ${index + 1}`}`}
-          </Button>}
+          {selectable && <div className="media-family__selection-option">
+            <input
+              id={optionId}
+              className="media-family__radio"
+              type="radio"
+              name={selectionGroupName}
+              value={String(index)}
+              checked={selected}
+              aria-disabled={selectionDisabledReason !== undefined}
+              aria-describedby={selectionDisabledReason ? selectionDisabledReasonId : undefined}
+              onClick={(event) => {
+                if (selectionDisabledReason !== undefined) event.preventDefault();
+              }}
+              onChange={(event) => {
+                if (selectionDisabledReason !== undefined) {
+                  event.preventDefault();
+                  event.currentTarget.checked = selected;
+                  return;
+                }
+                setSelectedValue(keyValue);
+              }}
+            />
+            <label htmlFor={optionId}>{`Select ${typeof titleValue === "string" ? titleValue : `record ${index + 1}`}`}</label>
+          </div>}
           <div><ValueView value={entry} /></div>
         </li>;
-      })}
-    </ol>;
+        })}
+      </ol>;
+    if (field !== definition.selectionList) return list;
+    return <fieldset className="media-family__selection-group">
+      <legend>{labelFor(field)}</legend>
+      {list}
+      {selectionDisabledReason && <p id={selectionDisabledReasonId} className="media-family__reason">{selectionDisabledReason}</p>}
+    </fieldset>;
   };
 
   const renderReadOnlyFields = (title: string, fields: readonly string[]) => {
@@ -164,7 +208,7 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
     if (present.length === 0) return null;
     return <section className="media-family__anatomy" aria-label={title}>
       <h5>{title}</h5>
-      {present.filter((field) => collections.includes(field)).map((field) => <div key={field} className="media-family__anatomy-list"><h6>{labelFor(field)}</h6>{renderCollection(field)}</div>)}
+      {present.filter((field) => collections.includes(field)).map((field) => <div key={field} className="media-family__anatomy-list">{field !== definition.selectionList && <h6>{labelFor(field)}</h6>}{renderCollection(field)}</div>)}
       {present.filter((field) => !collections.includes(field)).length > 0 && <dl>{facts(present.filter((field) => !collections.includes(field)))}</dl>}
     </section>;
   };
@@ -221,10 +265,10 @@ export function MediaFamily<Props extends FamilyContractFields>({ definition, ..
     </div>}
     {matchingActions.filter((action) => action.id !== selectionAction?.id).length > 0 && <div className="media-family__actions" aria-label="Available component actions">
       {matchingActions.filter((action) => action.id !== selectionAction?.id).map((action) => <span key={action.id}>
-        <Button type="button" variant="outline" disabled={!action.enabled || !action.invoke || Boolean(pendingAction)} aria-describedby={action.disabledReason ? `${definition.id}-action-${action.id}-reason` : undefined} onClick={() => void invokeAction(action)}>
+        <Button type="button" variant="outline" disabled={!action.enabled || !action.invoke || Boolean(pendingAction)} aria-describedby={action.disabledReason ? `${instanceId}-action-${action.id}-reason` : undefined} onClick={() => void invokeAction(action)}>
           {pendingAction === action.id ? "Requesting…" : action.label}
         </Button>
-        {action.disabledReason && <span id={`${definition.id}-action-${action.id}-reason`} className="media-family__reason">{action.disabledReason}</span>}
+        {action.disabledReason && <span id={`${instanceId}-action-${action.id}-reason`} className="media-family__reason">{action.disabledReason}</span>}
       </span>)}
     </div>}
     {invalidActions.length > 0 && <p role="status">An action not declared by this component was withheld.</p>}

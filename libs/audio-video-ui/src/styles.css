@@ -282,6 +282,13 @@
 .media-family dd { min-width: 0; margin: .15rem 0 0; overflow-wrap: anywhere; }
 .media-family ul { padding-inline-start: 1.5rem; }
 .media-family__nested-facts { margin-block: .25rem; }
+.media-family__selection-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.media-family__selection-group legend { margin-block-end: var(--media-space-compact); font-weight: var(--media-weight-emphasis); }
+.media-family__selection-option { display: flex; align-items: flex-start; gap: var(--media-space-compact); min-height: var(--media-interactive-target); }
+.media-family__radio { width: 1rem; height: 1rem; flex: 0 0 auto; margin-block: .2rem 0; accent-color: Highlight; }
+.media-family__radio[aria-disabled="true"] { opacity: .65; cursor: not-allowed; }
+.media-family__selection-option label { cursor: pointer; }
+.media-family__radio[aria-disabled="true"] + label { cursor: not-allowed; }
 .media-family__actions { display: flex; flex-wrap: wrap; gap: var(--media-space-compact); margin-block-start: var(--media-space-standard); }
 .media-family__actions > span { display: grid; justify-items: start; gap: var(--media-space-compact); }
 .media-family__reason { color: GrayText; }
