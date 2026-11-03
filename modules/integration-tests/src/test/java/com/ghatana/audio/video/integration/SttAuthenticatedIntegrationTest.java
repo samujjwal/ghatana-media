@@ -264,6 +264,33 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @Order(7)
+    @DisplayName("GIVEN valid JWT with caller-supplied unauthorized purpose WHEN transcribe THEN rights remain NOT_ADMITTED without effects")
+    void callerSuppliedPurpose_cannotAuthorizeTranscription() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        // Purpose and tenant headers are untrusted caller input. They cannot substitute
+        // for the trusted source-rights decision or alter the authenticated tenant.
+        headers.put(Metadata.Key.of("x-processing-purpose", Metadata.ASCII_STRING_MARSHALLER), "marketing");
+        headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), OTHER_TENANT_ID);
+
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+            .setAudioData(com.google.protobuf.ByteString.copyFrom(buildMinimalWavBytes()))
+            .setSampleRate(16000)
+            .setLanguage("en")
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.FAILED_PRECONDITION);
+        assertThat(exception.getStatus().getDescription()).contains("STT_RIGHTS_NOT_ADMITTED");
+        verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
+    }
+
+    @Test
     @Order(6)
     @DisplayName("GIVEN JWT with tenant A and no STT admission WHEN transcribe THEN NOT_ADMITTED without effects")
     void crossTenantRequestWithoutAdmission_failsClosed() {

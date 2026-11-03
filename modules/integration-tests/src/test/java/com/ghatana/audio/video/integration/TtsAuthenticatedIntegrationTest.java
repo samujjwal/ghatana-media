@@ -245,11 +245,41 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @Order(9)
+    @DisplayName("GIVEN valid JWT with caller-supplied unauthorized purpose WHEN synthesize THEN voice remains NOT_ADMITTED without effects")
+    void callerSuppliedPurpose_cannotAuthorizeVoiceSelection() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        // Caller metadata cannot substitute for trusted tenant identity or voice rights.
+        headers.put(Metadata.Key.of("x-processing-purpose", Metadata.ASCII_STRING_MARSHALLER), "marketing");
+        headers.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), OTHER_TENANT_ID);
+
+        SynthesizeRequest request = SynthesizeRequest.newBuilder()
+            .setText("caller metadata authorization negative test")
+            .setVoiceId("en-US-Neural2-A")
+            .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                .setSpeed(1.0f).setPitch(1.0f).setLanguage("en").build())
+            .build();
+
+        io.grpc.StatusRuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+
+        assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNIMPLEMENTED);
+        assertThat(exception.getStatus().getDescription()).contains("Voice/profile selection is NOT_ADMITTED");
+        verifyNoInteractions(audioFileService, ttsEngine);
+    }
+
+    @Test
     @Order(7)
     @DisplayName("GIVEN forged JWT WHEN synthesize THEN request fails with no provider or storage effects")
     void forgedJwt_failsUnauthenticatedWithoutEffects() {
         String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
-        String forgedJwt = jwt.substring(0, jwt.length() - 1) + (jwt.endsWith("A") ? "B" : "A");
+        int signatureStart = jwt.lastIndexOf('.') + 1;
+        String forgedJwt = jwt.substring(0, signatureStart)
+            + (jwt.charAt(signatureStart) == 'A' ? 'B' : 'A')
+            + jwt.substring(signatureStart + 1);
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + forgedJwt);
         SynthesizeRequest request = SynthesizeRequest.newBuilder()
