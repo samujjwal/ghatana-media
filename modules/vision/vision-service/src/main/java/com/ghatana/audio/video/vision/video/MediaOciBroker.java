@@ -9,8 +9,9 @@ import java.util.List;
  * a broker that owns the container engine relationship. Requests are bounded —
  * image must be an immutable digest, the command is a fixed single-executable
  * worker shape, the source mount is read-only, and the sandbox profile is enforced
- * server-side, not caller-set. The current daemon rejects a non-null output
- * directory until it can return bounded output under Media-owned permissions.
+ * server-side, not caller-set. Output is returned only through the broker's
+ * bounded diagnostic tail and the owner-scoped output directory validated by
+ * the broker; the Media client does not receive engine access.
  */
 public interface MediaOciBroker {
 

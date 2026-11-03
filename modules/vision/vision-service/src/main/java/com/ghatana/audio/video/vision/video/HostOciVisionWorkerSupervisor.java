@@ -102,12 +102,20 @@ final class HostOciVisionWorkerSupervisor {
                 plan.source() == null ? null : sha256File(plan.source()),
                 plan.output() == null ? null : plan.output().toString(),
                 plan.uid(), plan.gid(), plan.outputFileLimit(), timeout));
+        return toProcessResult(result, maxOutputChars);
+    }
+
+    /** Preserve broker terminal failures even if a runtime reports an inconsistent zero exit code. */
+    static VideoFrameExtractor.ProcessResult toProcessResult(
+            MediaOciBroker.WorkerResult result, int maxOutputChars) {
         String output = result.outputTail();
         if (maxOutputChars >= 0 && output.length() > maxOutputChars) {
             output = output.substring(output.length() - maxOutputChars);
         }
+        int exitCode = result.timedOut() || !result.completed() ? -1 : result.exitCode();
+        if (result.oomKilled() && exitCode == 0) exitCode = 137;
         return new VideoFrameExtractor.ProcessResult(
-                result.timedOut() ? -1 : result.exitCode(), result.timedOut(),
+                exitCode, result.timedOut(),
                 output, result.outputExceeded(), false);
     }
 

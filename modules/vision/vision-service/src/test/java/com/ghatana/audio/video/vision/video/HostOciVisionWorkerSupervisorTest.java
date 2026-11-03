@@ -33,6 +33,25 @@ class HostOciVisionWorkerSupervisorTest {
     }
 
     @Test
+    void brokerTerminalFlagsCannotBeLostByTheProcessAdapter() {
+        var oom = HostOciVisionWorkerSupervisor.toProcessResult(
+                new MediaOciBroker.WorkerResult(true, 0, false, true, false, "oom"), 128);
+        assertThat(oom.exitCode()).isEqualTo(137);
+        assertThat(oom.timedOut()).isFalse();
+
+        var incomplete = HostOciVisionWorkerSupervisor.toProcessResult(
+                new MediaOciBroker.WorkerResult(false, 0, false, false, false, "incomplete"), 128);
+        assertThat(incomplete.exitCode()).isEqualTo(-1);
+        assertThat(incomplete.timedOut()).isFalse();
+
+        var exceeded = HostOciVisionWorkerSupervisor.toProcessResult(
+                new MediaOciBroker.WorkerResult(true, 0, false, false, true, "bounded tail"), 4);
+        assertThat(exceeded.exitCode()).isZero();
+        assertThat(exceeded.outputExceeded()).isTrue();
+        assertThat(exceeded.output()).isEqualTo("tail");
+    }
+
+    @Test
     void launchPlanPinsTheWorkerAndLimitsItToPrivateSourceAndOutputMounts() throws Exception {
         Path workspace = privateDirectory("request");
         Path source = workspace.resolve("input.mp4");
