@@ -2742,3 +2742,10 @@ H-05 review found the existing animation compiler stays within the source-define
 - **FLEURS decision:** there is no valid real-inference workaround while the exact en/hi/ne subset lacks a trusted source record covering revision, selected rows, privacy, evaluation purpose, retention, and rights. Keep the audio manifest metadata-only and inference `NOT_ADMITTED`. Synthetic fixtures may exercise parsing, guards, and pipeline code, but cannot establish model quality. A replacement corpus is usable only after its own exact source authority and data-use terms are recorded; a public license label alone does not fill those fields.
 
 No dataset clips were opened or used. No source pin, PDP/gtool status, model/provider admission, deployment, migration, cutover, or release state changed.
+
+### 42.01 November 2 STT purpose binding and Piper binary pin
+
+- **G02 / STT source-purpose scope:** `MediaRuntimeSttRightsSourceResolver` now denies `TRANSCRIBE` and `STREAM_TRANSCRIBE` unless the current source-rights record includes the canonical `transcription` purpose. The regression proves an otherwise matching `speech_to_text` record scoped only to `quality-review` is denied. `MediaRuntimeSttRightsSourceResolverTest` passed **16/16**. This exercises synthetic in-memory authority records; the production rights authority, independently reviewed human consent, provider admission, and FLEURS authorization remain external.
+- **G04 / phonemizer integrity:** `PiperPhonemizeProcessConverter.tryCreate` now requires a nonblank exact SHA-256 pin for the configured binary. Synthetic executable fixtures cover missing, blank, mismatched, and matching pins; `PiperPhonemizeProcessConverterTest` passed **3/3**. The pin does not bind the adjacent eSpeak data directory, establish distribution rights, voice rights, pronunciation quality, or real synthesis.
+
+No dataset, model, or human voice assets were read or used. No technology choice, source pin, PDP/gtool status, provider admission, deployment, migration, cutover, or release state changed.

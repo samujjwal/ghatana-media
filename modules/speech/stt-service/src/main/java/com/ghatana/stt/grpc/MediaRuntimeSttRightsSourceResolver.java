@@ -111,6 +111,10 @@ final class MediaRuntimeSttRightsSourceResolver
                 || !record.allowedOperations().contains(operationToken(request.operation()))) {
             return new Resolution(Status.DENIED, null);
         }
+        String requiredPurpose = requiredPurpose(request.operation());
+        if (requiredPurpose != null && !record.allowedPurposes().contains(requiredPurpose)) {
+            return new Resolution(Status.DENIED, null);
+        }
         if (request.operation() == SttRequestAuthorization.Operation.TRANSCRIBE) {
             if (!hasValidContentBinding(record)) return new Resolution(Status.UNAVAILABLE, null);
             if (!constantTimeDigestEquals(request.sourceSha256(), record.sourceSha256())) {
@@ -165,6 +169,14 @@ final class MediaRuntimeSttRightsSourceResolver
             case LOAD_MODEL, UNLOAD_MODEL, ADAPT_MODEL, SUBMIT_CORRECTION,
                     CREATE_SPEAKER_IDENTITY, READ_SPEAKER_IDENTITY, UPDATE_SPEAKER_IDENTITY,
                     READ_STATUS, LIST_MODELS -> operation.name().toLowerCase(Locale.ROOT);
+        };
+    }
+
+    /** Direct speech-to-text dispatch has the canonical Media purpose {@code transcription}. */
+    private static String requiredPurpose(SttRequestAuthorization.Operation operation) {
+        return switch (operation) {
+            case TRANSCRIBE, STREAM_TRANSCRIBE -> "transcription";
+            default -> null;
         };
     }
 

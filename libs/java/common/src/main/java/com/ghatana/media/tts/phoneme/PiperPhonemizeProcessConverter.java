@@ -26,7 +26,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
 
     /** Environment variable naming the pinned piper_phonemize binary. */
     public static final String PHONEMIZE_ENV = "GHATANA_MEDIA_PIPER_PHONEMIZE";
-    /** Optional SHA-256 pin for the OS-specific binary; when set it must match exactly. */
+    /** Required SHA-256 pin for the OS-specific binary. */
     public static final String PHONEMIZE_SHA_ENV = "GHATANA_MEDIA_PIPER_PHONEMIZE_SHA256";
 
     private static final int MAX_TEXT_CHARS = 4_096;
@@ -64,6 +64,7 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             Path binary = binaryPath.toRealPath();
             Path dataDir = binary.getParent().getParent().resolve("share/espeak-ng-data");
             if (!Files.isRegularFile(binary) || !Files.isExecutable(binary) || !Files.isDirectory(dataDir)
+                    || expectedSha256 == null || expectedSha256.isBlank()
                     || !digestMatches(binary, expectedSha256)) {
                 return Optional.empty();
             }
@@ -170,9 +171,8 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         }
     }
 
-    /** When a pin is configured the binary digest must match it exactly. */
+    /** The binary digest must match its configured pin exactly. */
     private static boolean digestMatches(Path binary, String expectedSha256) throws IOException {
-        if (expectedSha256 == null || expectedSha256.isBlank()) return true;
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             try (var in = Files.newInputStream(binary)) {

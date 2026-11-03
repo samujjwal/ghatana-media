@@ -139,6 +139,16 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
+    void transcriptionRequiresTheRegisteredTranscriptionPurpose() throws Exception {
+        administration.add(recordWithPurpose("quality-review"));
+
+        Resolution resolution = await(resolver.resolve(request(IDENTITY)));
+
+        assertThat(resolution.status()).isEqualTo(Status.DENIED);
+        assertThat(resolution.facts()).isNull();
+    }
+
+    @Test
     void multipleLiveVersionsFailClosedAsUnavailable() throws Exception {
         administration.add(record(NOW.instant().plusSeconds(600), null));
         administration.add(recordWithVersion(
@@ -223,6 +233,16 @@ class MediaRuntimeSttRightsSourceResolverTest {
                 "", Set.of("speech_to_text"), Set.of("transcription"), Set.of("local"),
                 Set.of(ProviderDataRetention.NONE), "clock-evidence", "provenance://test/1",
                 PRINCIPAL, Instant.now(), NOW.instant().plusSeconds(600), epoch, null);
+    }
+
+    private static MediaSourceRightsAdministration.SourceRecord recordWithPurpose(String purpose) {
+        return new MediaSourceRightsAdministration.SourceRecord(
+                TENANT, ARTIFACT, recordVersion(), "a".repeat(64), PRINCIPAL, PRINCIPAL,
+                MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
+                MediaSourceAuthorizationContracts.HumanConsentDisposition.NOT_APPLICABLE_HUMAN_CONSENT,
+                "", Set.of("speech_to_text"), Set.of(purpose), Set.of("local"),
+                Set.of(ProviderDataRetention.NONE), "clock-evidence", "provenance://test/1",
+                PRINCIPAL, Instant.now(), NOW.instant().plusSeconds(600), 0, null);
     }
 
     private static MediaSourceRightsAdministration.SourceRecord recordWithVersion(

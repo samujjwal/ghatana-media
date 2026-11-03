@@ -40,7 +40,27 @@ class PiperPhonemizeProcessConverterTest {
                 .hasMessageContaining("exceeded its output budget");
     }
 
+    @Test
+    void requiresExactBinaryDigestPinBeforeAcceptingCanonicalPhonemizer() throws Exception {
+        Path executable = executableWithScript("printf '%s\\n' '{\"phonemes\":[\"h\",\"i\"]}'");
+        String digest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(executable)));
+
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, null)).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, " ")).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, "0".repeat(64))).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, digest)).isPresent();
+    }
+
     private TextToPhonemeConverter converterWithScript(String body) throws Exception {
+        Path executable = executableWithScript(body);
+        String digest = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(executable)));
+        return PiperPhonemizeProcessConverter.tryCreate(executable, digest)
+                .orElseThrow(() -> new IOException("test phonemizer fixture was not accepted"));
+    }
+
+    private Path executableWithScript(String body) throws IOException {
         Path root = Files.createDirectories(tempDir.resolve("piper"));
         Path bin = Files.createDirectories(root.resolve("bin"));
         Files.createDirectories(root.resolve("share/espeak-ng-data"));
@@ -50,9 +70,6 @@ class PiperPhonemizeProcessConverterTest {
                 PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE,
                 PosixFilePermission.OWNER_EXECUTE));
-        String digest = HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(executable)));
-        return PiperPhonemizeProcessConverter.tryCreate(executable, digest)
-                .orElseThrow(() -> new IOException("test phonemizer fixture was not accepted"));
+        return executable;
     }
 }
