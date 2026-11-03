@@ -403,6 +403,37 @@ class WhisperOciWorkerSupervisorTest {
     }
 
     @Test
+    void timeoutUnknownJournalSurvivesSupervisorReconstructionAndPreventsRedispatch() throws Exception {
+        // Both Startup instances execute in this JVM. This proves file-backed journal recovery and
+        // conservative redispatch behavior, not broker-process termination or host kill proof.
+        FakeRunner timedOutRunner = new FakeRunner();
+        timedOutRunner.startTimedOut = true;
+        WhisperWorkerServerConfig config;
+        try (Context context = context("restart-unknown", timedOutRunner)) {
+            config = context.config();
+            assertThat(context.supervisor().execute(id(0), PROFILE, "en-US", INPUT_SHA,
+                    WAV.getBytes(StandardCharsets.UTF_8), 1000).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(context.journal().lookup(id(0)).status())
+                    .isEqualTo(MediaOciBrokerWhisperJournal.Status.UNKNOWN_OUTCOME);
+        }
+
+        FakeRunner restartedRunner = new FakeRunner();
+        WhisperOciWorkerSupervisor.Startup startup = WhisperOciWorkerSupervisor.start(
+                "docker", UID, GID, config, TOKEN, restartedRunner);
+        assertThat(startup.admitted()).isTrue();
+        try (MediaOciBrokerWhisperJournal journal = startup.journal()) {
+            assertThat(startup.supervisor().status(id(0), PROFILE, "en-US", INPUT_SHA).status())
+                    .isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(startup.supervisor().execute(id(0), PROFILE, "en-US", INPUT_SHA,
+                    WAV.getBytes(StandardCharsets.UTF_8), 30_000).status()).isEqualTo(Status.UNKNOWN_OUTCOME);
+            assertThat(journal.lookup(id(0)).status())
+                    .isEqualTo(MediaOciBrokerWhisperJournal.Status.UNKNOWN_OUTCOME);
+            assertThat(restartedRunner.commands.stream().map(command -> command.get(1)))
+                    .contains("ps").doesNotContain("create", "start");
+        }
+    }
+
+    @Test
     void activeStatusRemainsResponsiveAndSecondInvocationIsRejectedAtSingleFlightLimit() throws Exception {
         FakeRunner runner = new FakeRunner();
         runner.blockStart = true;

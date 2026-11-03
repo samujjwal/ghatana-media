@@ -1,6 +1,7 @@
 package com.ghatana.audio.video.infrastructure.persistence.integration;
 
 import com.ghatana.audio.video.infrastructure.persistence.entity.AudioFileEntity;
+import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -33,11 +34,21 @@ class PersistenceProcessCrashIntegrationTest {
 
     @Test
     void killedWriterProcessLeavesNoFlushedUncommittedRow() throws Throwable {
+        verifyKilledWriterLeavesNoCommit(false);
+    }
+
+    @Test
+    void killedWriterProcessLeavesNoFlushedAudioOrTranscription() throws Throwable {
+        verifyKilledWriterLeavesNoCommit(true);
+    }
+
+    private void verifyKilledWriterLeavesNoCommit(boolean includeTranscription) throws Throwable {
         String databaseName = "media_crash_" + UUID.randomUUID().toString().replace("-", "");
         String jdbcUrl = POSTGRES.getJdbcUrl().substring(0, POSTGRES.getJdbcUrl().lastIndexOf('/') + 1)
                 + databaseName;
         String tenantId = "process-crash-" + UUID.randomUUID();
         UUID audioId = UUID.randomUUID();
+        UUID transcriptionId = includeTranscription ? UUID.randomUUID() : null;
         Path readyFile = Files.createTempFile("media-persistence-child-", ".ready");
         Files.delete(readyFile);
         Process child = null;
@@ -64,7 +75,8 @@ class PersistenceProcessCrashIntegrationTest {
             String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
             child = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
                     ChildTransactionWriter.class.getName(), jdbcUrl, POSTGRES.getUsername(),
-                    POSTGRES.getPassword(), tenantId, audioId.toString(), readyFile.toString())
+                    POSTGRES.getPassword(), tenantId, audioId.toString(), readyFile.toString(),
+                    transcriptionId == null ? "-" : transcriptionId.toString())
                     .redirectErrorStream(true)
                     .redirectOutput(ProcessBuilder.Redirect.DISCARD)
                     .start();
@@ -93,6 +105,15 @@ class PersistenceProcessCrashIntegrationTest {
                         .setParameter("id", audioId)
                         .getSingleResult();
                 assertThat(rows).as("flushed row rolls back when its owning JVM is killed").isZero();
+                if (transcriptionId != null) {
+                    Long transcriptionRows = readManager.createQuery(
+                                    "select count(t) from TranscriptionEntity t where t.id = :id", Long.class)
+                            .setParameter("id", transcriptionId)
+                            .getSingleResult();
+                    assertThat(transcriptionRows)
+                            .as("transcription row rolls back with its audio when the owning JVM is killed")
+                            .isZero();
+                }
             } finally {
                 readManager.close();
             }
@@ -146,6 +167,7 @@ class PersistenceProcessCrashIntegrationTest {
             String tenantId = args[3];
             UUID audioId = UUID.fromString(args[4]);
             Path readyFile = Path.of(args[5]);
+            UUID transcriptionId = "-".equals(args[6]) ? null : UUID.fromString(args[6]);
             Map<String, Object> properties = new HashMap<>();
             properties.put("jakarta.persistence.jdbc.url", jdbcUrl);
             properties.put("jakarta.persistence.jdbc.user", username);
@@ -161,6 +183,10 @@ class PersistenceProcessCrashIntegrationTest {
             manager.getTransaction().begin();
             manager.persist(new AudioFileEntity(audioId, tenantId, UUID.randomUUID(),
                     "crash.wav", "/storage/crash.wav", "wav"));
+            if (transcriptionId != null) {
+                manager.persist(new TranscriptionEntity(
+                        transcriptionId, tenantId, audioId, UUID.randomUUID(), "uncommitted", "en"));
+            }
             manager.flush();
             Files.createFile(readyFile);
             Thread.sleep(TimeUnit.MINUTES.toMillis(5));

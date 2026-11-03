@@ -2602,3 +2602,16 @@ Starting from local `main@5677e464`, four disjoint W3/H implementation slices an
 
 
 The implementation commits are `e710fa66` (H-03), `26db0c9e` (JC-01), `f22ae310` (RS-05), `a0aaa752` (VS-03), and `6cafbeb0` (FLEURS gate). They remain local on `main`; this continuation did not update a remote ref. No PDP/gtool status, candidate selection, provider admission, deployment, or release was changed.
+
+### 41.86 November 2 owner-directed local continuation: stream, recovery, persistence, and FLEURS disposition
+
+Starting from local `main@d72c650c`, added four deterministic test slices on disjoint paths:
+
+- **AS-07:** `AudioPcmTransportIntegrationTest` checks signed PCM_S16LE fixture bytes and the decoder's exact rational sample position before local frame transport, out-of-order hold/release, contiguous ACK, a caller-supplied cursor resume, duplicate suppression, and bounded decode-budget rejection. The focused selector passed **2/2**. The supplied resume cursor is simulated; this does not test durable storage, a real process restart, transport timebase preservation, or an external stream provider.
+- **VS-07:** `VideoVfrTransportIntegrationTest` checks an in-process wire round-trip, irregular fixture timestamps, a sequence gap and ordered release, payload/keyframe continuity, and `SOURCE_TIME_MAPPING_NOT_ADMITTED` with no promoted source PTS. The focused selector passed **1/1**. It does not qualify a codec or external transport.
+- **JC-03:** `WhisperOciWorkerSupervisorTest.timeoutUnknownJournalSurvivesSupervisorReconstructionAndPreventsRedispatch` verifies that a timed-out `UNKNOWN_OUTCOME` journal entry remains unknown when a fresh supervisor/startup instance reopens it, and that `create`/`start` are not redispatched. The focused selector passed **1/1**. Both instances run in one JVM with a fake runner; native-process termination, host kill confirmation, provider receipt reconciliation, and installed ABI remain unproven.
+- **IP-06:** extended `PersistenceProcessCrashIntegrationTest` to kill a separate child JVM after flushing audio and its transcription in one uncommitted transaction, then verify both rows are absent after reopening. The focused PostgreSQL 16 Testcontainers class passed **2/2**. This is isolated JPA transaction recovery, not deployed Flyway history, canonical job/outbox writer recovery, S3 consistency, old-writer fencing, or cutover evidence.
+
+Independent review found no defect in the VS-07 or IP-06 assertions. It identified overbroad AS-07 durable/timebase wording and JC-03 process-restart wording; test names/comments were narrowed, then the changed AS-07 and JC-03 selectors passed again. `git diff --check` passed. No runtime source, migration, source pin, status, admission, deployment, cutover, or release state changed.
+
+**FLEURS owner disposition:** absent a source-authorized exact en/hi/ne subset record covering privacy, evaluation purpose, and retention, real FLEURS inference remains `NOT_ADMITTED`; keep its audio manifest metadata-only and do not download or process clips. Synthetic audio remains valid for code-path and robustness tests only and cannot establish real model quality. A different corpus would require its own exact rights/privacy/purpose/retention evidence; no substitute is inferred from a license label.
