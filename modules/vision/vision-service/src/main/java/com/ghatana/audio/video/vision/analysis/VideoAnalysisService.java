@@ -99,7 +99,8 @@ public final class VideoAnalysisService {
                 if (previousFrame != null) {
                     ShotBoundaryHeuristic.Assessment shotBoundary = ShotBoundaryHeuristic.compare(
                             previousFrame.frameNumber(), previousFrame.sourceTimestamp(), previousLuma,
-                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), currentLuma);
+                            observedFrame.frameNumber(), observedFrame.sourceTimestamp(), currentLuma,
+                            config.getFps());
                     shotBoundaryAssessments.add(shotBoundary);
                     if (shotBoundary.disposition() == ShotBoundaryHeuristic.Disposition.BOUNDARY_CANDIDATE) {
                         // Optical flow across a possible cut compares different scene content; it

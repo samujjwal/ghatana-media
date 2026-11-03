@@ -24,6 +24,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.HexFormat;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -277,6 +279,32 @@ class ProductionTtsGrpcServiceConfigTest {
     }
 
     @Test
+    void staleVoiceSidecarPinFailsBeforeTrustedProviderAdmission() throws Exception {
+        Path model = createModelFile("tts-model-stale-sidecar-pin");
+        try {
+            Files.writeString(model, "fixture model bytes");
+            writeFixtureSidecar(model);
+            String modelDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(model)));
+            Map<String, String> environment = new java.util.HashMap<>(localProfile(model, modelDigest));
+            environment.put("TTS_VOICE_SIDECAR_SHA256", "0".repeat(64));
+            AtomicInteger resolverCalls = new AtomicInteger();
+
+            assertThatThrownBy(() -> ProductionTtsGrpcService.resolveProviderProfile(environment, candidate -> {
+                resolverCalls.incrementAndGet();
+                return new TtsProviderAdmission.Decision(
+                        java.util.Set.of(TtsProviderAdmission.Capability.SYNTHESIS),
+                        "local-fixture-resolver:test-only", "controlled fixture only");
+            }))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("does not match TTS_VOICE_SIDECAR_SHA256");
+            assertThat(resolverCalls).hasValue(0);
+        } finally {
+            deleteModelFixture(model);
+        }
+    }
+
+    @Test
     void missingVoiceSidecarCannotReachTrustedProviderResolver() throws Exception {
         Path model = createModelFile("tts-model-without-voice-sidecar");
         try {
@@ -444,6 +472,9 @@ class ProductionTtsGrpcServiceConfigTest {
                                         .setLanguage("en-US").build())
                                 .build(),
                         observer));
+                assertThat(observer.awaitTerminal(5, TimeUnit.SECONDS))
+                        .as("asynchronous synthesis must report a terminal observer callback")
+                        .isTrue();
                 assertThat(observer.error.get()).isNull();
                 assertThat(observer.value.get()).isNotNull();
                 org.mockito.Mockito.verify(engine).synthesize(
@@ -649,17 +680,18 @@ class ProductionTtsGrpcServiceConfigTest {
         if (Files.isRegularFile(model, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
             writeFixtureSidecar(model);
         }
-        return Map.of(
-                "TTS_PROVIDER_MODE", "LOCAL_ONNX",
-                "TTS_MODEL_PATH", model.toString(),
-                "TTS_MODEL_ID", "fixture-model",
-                "TTS_MODEL_VERSION", "fixture-version",
-                "TTS_MODEL_SHA256", digest,
-                "TTS_MODEL_LICENSE", "test-fixture-license-placeholder",
-                "TTS_MODEL_LANGUAGE", "en-US",
-                "TTS_MODEL_REGION", "test-fixture-region",
-                "TTS_MODEL_RETENTION", "test-fixture-policy-placeholder",
-                "TTS_MODEL_HARDWARE", "test-fixture-hardware-placeholder");
+        return Map.ofEntries(
+                Map.entry("TTS_PROVIDER_MODE", "LOCAL_ONNX"),
+                Map.entry("TTS_MODEL_PATH", model.toString()),
+                Map.entry("TTS_MODEL_ID", "fixture-model"),
+                Map.entry("TTS_MODEL_VERSION", "fixture-version"),
+                Map.entry("TTS_MODEL_SHA256", digest),
+                Map.entry("TTS_VOICE_SIDECAR_SHA256", fixtureSidecarDigestUnchecked(model)),
+                Map.entry("TTS_MODEL_LICENSE", "test-fixture-license-placeholder"),
+                Map.entry("TTS_MODEL_LANGUAGE", "en-US"),
+                Map.entry("TTS_MODEL_REGION", "test-fixture-region"),
+                Map.entry("TTS_MODEL_RETENTION", "test-fixture-policy-placeholder"),
+                Map.entry("TTS_MODEL_HARDWARE", "test-fixture-hardware-placeholder"));
     }
 
     private static void writeFixtureSidecar(Path model) {
@@ -674,6 +706,19 @@ class ProductionTtsGrpcServiceConfigTest {
     private static String fixtureSidecarDigest(Path model) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(Files.readAllBytes(Path.of(model.toString() + ".json"))));
+    }
+
+    private static String fixtureSidecarDigestUnchecked(Path model) {
+        Path sidecar = Path.of(model.toString() + ".json");
+        if (!Files.isRegularFile(sidecar, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
+            return "0".repeat(64);
+        }
+        try {
+            return fixtureSidecarDigest(model);
+        } catch (Exception failure) {
+            throw new java.io.UncheckedIOException(new java.io.IOException(
+                    "Unable to hash fixture TTS voice sidecar", failure));
+        }
     }
 
     private static void deleteModelFixture(Path model) throws java.io.IOException {
@@ -749,9 +794,16 @@ class ProductionTtsGrpcServiceConfigTest {
     private static final class RecordingObserver<T> implements StreamObserver<T> {
         private final AtomicReference<T> value = new AtomicReference<>();
         private final AtomicReference<Throwable> error = new AtomicReference<>();
+        private final CountDownLatch terminal = new CountDownLatch(1);
 
         @Override public void onNext(T next) { value.set(next); }
-        @Override public void onError(Throwable failure) { error.set(failure); }
-        @Override public void onCompleted() { }
+        @Override public void onError(Throwable failure) {
+            error.set(failure);
+            terminal.countDown();
+        }
+        @Override public void onCompleted() { terminal.countDown(); }
+        private boolean awaitTerminal(long timeout, TimeUnit unit) throws InterruptedException {
+            return terminal.await(timeout, unit);
+        }
     }
 }

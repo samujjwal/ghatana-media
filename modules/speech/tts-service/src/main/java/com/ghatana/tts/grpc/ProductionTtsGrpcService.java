@@ -400,6 +400,7 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             return notAdmitted("TTS_PROVIDER_MODE must explicitly select an admitted LOCAL_ONNX provider");
         }
         List<String> missing = List.of("TTS_MODEL_ID", "TTS_MODEL_VERSION", "TTS_MODEL_SHA256",
+                        "TTS_VOICE_SIDECAR_SHA256",
                         "TTS_MODEL_LICENSE", "TTS_MODEL_LANGUAGE", "TTS_MODEL_REGION",
                         "TTS_MODEL_RETENTION", "TTS_MODEL_HARDWARE", "TTS_MODEL_PATH")
                 .stream()
@@ -411,6 +412,8 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         String modelId = environment.get("TTS_MODEL_ID").trim();
         String version = environment.get("TTS_MODEL_VERSION").trim();
         String digest = environment.get("TTS_MODEL_SHA256").trim().toLowerCase(java.util.Locale.ROOT);
+        String expectedSidecarDigest = environment.get("TTS_VOICE_SIDECAR_SHA256")
+                .trim().toLowerCase(java.util.Locale.ROOT);
         String license = environment.get("TTS_MODEL_LICENSE").trim();
         String language = environment.get("TTS_MODEL_LANGUAGE").trim();
         String region = environment.get("TTS_MODEL_REGION").trim();
@@ -418,6 +421,9 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
         String hardware = environment.get("TTS_MODEL_HARDWARE").trim();
         String rawPath = environment.get("TTS_MODEL_PATH").trim();
         if (!digest.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("TTS_MODEL_SHA256 must be a SHA-256 digest");
+        if (!expectedSidecarDigest.matches("[0-9a-f]{64}")) {
+            throw new IllegalArgumentException("TTS_VOICE_SIDECAR_SHA256 must be a SHA-256 digest");
+        }
         if (!isUsableLanguageTag(language)) {
             return notAdmitted("TTS_MODEL_LANGUAGE must be a well-formed BCP 47 language tag with a language subtag");
         }
@@ -445,6 +451,10 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             return notAdmitted("Configured Piper voice sidecar is unavailable or not a regular readable file");
         }
         String voiceSidecarDigest = fileDigest(voiceSidecar, ignored -> {}, 16L * 1024 * 1024);
+        if (!expectedSidecarDigest.equals(voiceSidecarDigest)) {
+            throw new IllegalArgumentException(
+                    "TTS voice sidecar digest does not match TTS_VOICE_SIDECAR_SHA256");
+        }
         String defaultVoice = requireText(
                 environment.getOrDefault("TTS_DEFAULT_VOICE", "piper-en"), "TTS_DEFAULT_VOICE");
         TtsProviderAdmission.Candidate candidate = new TtsProviderAdmission.Candidate(

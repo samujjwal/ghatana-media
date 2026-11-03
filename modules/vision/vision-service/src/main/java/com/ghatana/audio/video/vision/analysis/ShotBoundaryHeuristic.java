@@ -44,7 +44,8 @@ public final class ShotBoundaryHeuristic {
             int[] previousLuma,
             int frameNumber,
             SourceMediaTimestamp timestamp,
-            int[] luma) {
+            int[] luma,
+            int samplingFps) {
         if ((long) frameNumber != (long) previousFrameNumber + 1L) {
             return Assessment.unknown(previousFrameNumber, frameNumber, timestamp, UnknownReason.FRAME_GAP);
         }
@@ -56,6 +57,10 @@ public final class ShotBoundaryHeuristic {
         if (comparePts(timestamp, previousTimestamp) <= 0) {
             return Assessment.unknown(previousFrameNumber, frameNumber, timestamp,
                     UnknownReason.SOURCE_TIMESTAMP_NOT_MONOTONIC);
+        }
+        if (samplingFps < 1 || exceedsGap(timestamp, previousTimestamp, samplingFps)) {
+            return Assessment.unknown(previousFrameNumber, frameNumber, timestamp,
+                    UnknownReason.SOURCE_TIMESTAMP_GAP);
         }
         if (previousLuma == null || luma == null) {
             return Assessment.unknown(previousFrameNumber, frameNumber, timestamp,
@@ -100,12 +105,24 @@ public final class ShotBoundaryHeuristic {
         return left.compareTo(right);
     }
 
+    /** Keep the same two-sampling-interval bound used by tracking and camera-motion analysis. */
+    private static boolean exceedsGap(SourceMediaTimestamp current, SourceMediaTimestamp previous, int fps) {
+        BigInteger deltaN = BigInteger.valueOf(current.pts()).multiply(BigInteger.valueOf(current.timeBaseNumerator()))
+                .multiply(BigInteger.valueOf(previous.timeBaseDenominator()))
+                .subtract(BigInteger.valueOf(previous.pts()).multiply(BigInteger.valueOf(previous.timeBaseNumerator()))
+                        .multiply(BigInteger.valueOf(current.timeBaseDenominator())));
+        BigInteger deltaD = BigInteger.valueOf(current.timeBaseDenominator())
+                .multiply(BigInteger.valueOf(previous.timeBaseDenominator()));
+        return deltaN.multiply(BigInteger.valueOf(fps)).compareTo(deltaD.multiply(BigInteger.TWO)) > 0;
+    }
+
     public enum Disposition { BOUNDARY_CANDIDATE, NO_BOUNDARY_CANDIDATE, UNKNOWN }
 
     public enum UnknownReason {
         FRAME_GAP,
         SOURCE_TIMESTAMP_UNKNOWN,
         SOURCE_TIMESTAMP_NOT_MONOTONIC,
+        SOURCE_TIMESTAMP_GAP,
         FRAME_PIXELS_UNAVAILABLE,
         PIXEL_ASSESSMENT_NOT_COMPUTED
     }

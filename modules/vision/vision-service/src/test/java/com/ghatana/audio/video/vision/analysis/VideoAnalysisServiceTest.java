@@ -299,6 +299,34 @@ class VideoAnalysisServiceTest {
     }
 
     @Test
+    void sourceTimeGapMakesShotBoundaryUnknownEvenWhenPixelsDiffer() throws IOException {
+        Path darkFrame = writeSolidPng("gap-dark.png", 0x000000);
+        Path brightFrame = writeSolidPng("gap-bright.png", 0xffffff);
+        Path video = tempDir.resolve("gap-cut.mp4");
+        Files.write(video, new byte[] {0});
+        when(frameExtractor.extractFrames(any(), any(), any())).thenReturn(List.of(
+                new VideoFrameExtractor.ExtractedFrame(darkFrame,
+                        SourceMediaTimestamp.fromPts("0", "1/1"), 0),
+                // Three seconds exceeds the existing two-interval tolerance for 1 fps sampling.
+                new VideoFrameExtractor.ExtractedFrame(brightFrame,
+                        SourceMediaTimestamp.fromPts("3", "1/1"), 1)));
+        when(detector.detectObjects(any(), any())).thenReturn(List.of());
+
+        VideoAnalysisResult result = service.analyze(video,
+                VideoFrameExtractor.ExtractionConfig.builder().fps(1).build(), defaultOptions);
+
+        var assessment = result.shotBoundaryAssessments().getFirst();
+        assertThat(assessment.disposition()).isEqualTo(ShotBoundaryHeuristic.Disposition.UNKNOWN);
+        assertThat(assessment.unknownReason()).isEqualTo(ShotBoundaryHeuristic.UnknownReason.SOURCE_TIMESTAMP_GAP);
+        assertThat(assessment.meanAbsoluteLumaDifference()).isNull();
+        assertThat(assessment.sourceTimestamp().pts()).isEqualTo(3L);
+        assertThat(result.cameraMotionAssessments().getFirst().disposition())
+                .isEqualTo(CameraMotionHeuristic.Disposition.UNKNOWN);
+        assertThat(result.cameraMotionAssessments().getFirst().unknownReason())
+                .isEqualTo(CameraMotionHeuristic.UnknownReason.SOURCE_TIMESTAMP_GAP);
+    }
+
+    @Test
     void malformedFramePixelsYieldUnknownShotBoundaryAssessment() throws IOException {
         Path validFrame = writeSolidPng("valid-pixels.png", 0x000000);
         Path malformedFrame = tempDir.resolve("malformed-pixels.jpg");
