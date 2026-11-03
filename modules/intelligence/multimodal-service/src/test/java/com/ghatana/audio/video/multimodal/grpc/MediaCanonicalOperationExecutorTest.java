@@ -509,7 +509,7 @@ class MediaCanonicalOperationExecutorTest {
                 CanonicalOperations.plan("cap", List.of(
                         CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"))),
                 () -> null,
-                CanonicalOperations::toVideoAudioResult);
+                outcome -> CanonicalOperations.toVideoAudioResult(outcome, true, false));
         assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
                 .isInstanceOf(CanonicalOperationFailedException.class)
                 .satisfies(error -> {
@@ -530,7 +530,7 @@ class MediaCanonicalOperationExecutorTest {
                 () -> null,
                 outcome -> {
                     assertThat(outcome.status()).isEqualTo(JobStatus.CANCELLED);
-                    return CanonicalOperations.toVideoAudioResult(outcome);
+                    return CanonicalOperations.toVideoAudioResult(outcome, true, false);
                 });
 
         assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))

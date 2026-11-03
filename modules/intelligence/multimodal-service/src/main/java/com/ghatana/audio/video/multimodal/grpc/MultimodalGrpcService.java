@@ -488,7 +488,8 @@ public class MultimodalGrpcService extends MultimodalServiceGrpc.MultimodalServi
                                         request.getAnalyzeFrames(),
                                         request.getFrameSampleRate() > 0
                                                 ? request.getFrameSampleRate() : 1),
-                                CanonicalOperations::toVideoAudioResult));
+                                outcome -> CanonicalOperations.toVideoAudioResult(
+                                        outcome, request.getExtractAudio(), request.getAnalyzeFrames())));
             }
             if (trace.isCancelledOrTerminal()) {
                 trace.finishUnknown();

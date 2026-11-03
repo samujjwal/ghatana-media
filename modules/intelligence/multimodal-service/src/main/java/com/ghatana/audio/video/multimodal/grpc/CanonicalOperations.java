@@ -158,6 +158,13 @@ final class CanonicalOperations {
             CanonicalOperationOutcome outcome, boolean wantAudio, boolean wantVisual)
             throws Exception {
         Map<JobType, Map<String, Object>> children = requireGroundedChildren(outcome);
+        java.util.Set<JobType> expected = new java.util.HashSet<>();
+        if (wantAudio) expected.add(JobType.SPEECH_TO_TEXT);
+        if (wantVisual) expected.add(JobType.VISION);
+        if (!children.keySet().equals(expected)) {
+            throw new CanonicalOperationUnknownException(outcome.jobId(),
+                    new IllegalStateException("multimodal child observations do not match selected operations"));
+        }
         AudioResult audio = wantAudio
                 ? audioFrom(requireChild(children, JobType.SPEECH_TO_TEXT)) : null;
         VisualResult visual = wantVisual
@@ -170,15 +177,26 @@ final class CanonicalOperations {
                 .build();
     }
 
-    static VideoAudioResult toVideoAudioResult(CanonicalOperationOutcome outcome)
+    static VideoAudioResult toVideoAudioResult(
+            CanonicalOperationOutcome outcome, boolean wantAudio, boolean wantVideo)
             throws Exception {
+        if (!wantAudio && !wantVideo) {
+            throw new IllegalArgumentException("At least one video-audio child must be selected");
+        }
         Map<JobType, Map<String, Object>> children = requireGroundedChildren(outcome);
-        return VideoAudioResult.builder()
-                .audioResult(audioFrom(requireChild(children, JobType.SPEECH_TO_TEXT)))
-                .videoResult(visualFrom(requireChild(children, JobType.VISION)))
+        java.util.Set<JobType> expected = new java.util.HashSet<>();
+        if (wantAudio) expected.add(JobType.SPEECH_TO_TEXT);
+        if (wantVideo) expected.add(JobType.VISION);
+        if (!children.keySet().equals(expected)) {
+            throw new CanonicalOperationUnknownException(outcome.jobId(),
+                    new IllegalStateException("multimodal child observations do not match selected operations"));
+        }
+        VideoAudioResult.Builder result = VideoAudioResult.builder()
                 .combinedNarrative(groundedNarrative(outcome, children))
-                .processingTimeMs(0)
-                .build();
+                .processingTimeMs(0);
+        if (wantAudio) result.audioResult(audioFrom(requireChild(children, JobType.SPEECH_TO_TEXT)));
+        if (wantVideo) result.videoResult(visualFrom(requireChild(children, JobType.VISION)));
+        return result.build();
     }
 
     private static Map<String, Object> requireChild(

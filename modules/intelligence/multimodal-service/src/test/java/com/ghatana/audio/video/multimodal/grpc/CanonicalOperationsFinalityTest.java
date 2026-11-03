@@ -43,6 +43,17 @@ class CanonicalOperationsFinalityTest {
     }
 
     @Test
+    void unselectedChildObservationCannotLeakIntoMultimodalFamilyNarrative() {
+        CanonicalOperationOutcome outcome = completed(List.of(
+                child(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "grounded words")),
+                child(JobType.VISION, JobStatus.COMPLETED, Map.of("caption", "unselected frame"))));
+
+        assertThatThrownBy(() -> CanonicalOperations.toMultimodalResult(outcome, true, false))
+                .isInstanceOfSatisfying(CanonicalOperationUnknownException.class, failure ->
+                        assertThat(failure.jobId()).isEqualTo("job-mm-1"));
+    }
+
+    @Test
     void failedChildCannotBeFusedAsSuccessfulParentOutput() {
         CanonicalOperationOutcome outcome = completed(List.of(child(
                 JobType.SPEECH_TO_TEXT, JobStatus.FAILED, Map.of("text", "untrusted"))));
@@ -71,9 +82,52 @@ class CanonicalOperationsFinalityTest {
         CanonicalOperationOutcome outcome = completed(List.of(child(
                 JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "grounded words"))));
 
-        assertThatThrownBy(() -> CanonicalOperations.toMultimodalResult(outcome, true, true))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("missing the declared VISION child");
+        assertThatThrownBy(() -> CanonicalOperations.toVideoAudioResult(outcome, true, true))
+                .isInstanceOfSatisfying(CanonicalOperationUnknownException.class, failure ->
+                        assertThat(failure.jobId()).isEqualTo("job-mm-1"));
+    }
+
+    @Test
+    void selectedAudioOnlyOperationDoesNotRequireOrInventVideoResult() throws Exception {
+        CanonicalOperationOutcome outcome = completed(List.of(child(
+                JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "grounded words"))));
+
+        var result = CanonicalOperations.toVideoAudioResult(outcome, true, false);
+
+        assertThat(result.getAudioResult().getTranscription()).isEqualTo("grounded words");
+        assertThat(result.getVideoResult()).isNull();
+    }
+
+    @Test
+    void selectedVideoOnlyOperationDoesNotRequireOrInventAudioResult() throws Exception {
+        CanonicalOperationOutcome outcome = completed(List.of(child(
+                JobType.VISION, JobStatus.COMPLETED, Map.of("caption", "grounded frame"))));
+
+        var result = CanonicalOperations.toVideoAudioResult(outcome, false, true);
+
+        assertThat(result.getAudioResult()).isNull();
+        assertThat(result.getVideoResult().getSceneDescription()).isEqualTo("grounded frame");
+    }
+
+    @Test
+    void unknownSelectedChildRemainsUnknownWithoutPartialFamilyResult() {
+        CanonicalOperationOutcome outcome = completed(List.of(child(
+                JobType.SPEECH_TO_TEXT, JobStatus.OUTCOME_UNKNOWN, Map.of("text", "partial"))));
+
+        assertThatThrownBy(() -> CanonicalOperations.toVideoAudioResult(outcome, true, false))
+                .isInstanceOfSatisfying(CanonicalOperationUnknownException.class, failure ->
+                        assertThat(failure.jobId()).isEqualTo("job-mm-1"));
+    }
+
+    @Test
+    void unselectedChildObservationCannotBeFoldedIntoSelectedOperation() {
+        CanonicalOperationOutcome outcome = completed(List.of(
+                child(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "grounded words")),
+                child(JobType.VISION, JobStatus.COMPLETED, Map.of("caption", "unselected frame"))));
+
+        assertThatThrownBy(() -> CanonicalOperations.toVideoAudioResult(outcome, true, false))
+                .isInstanceOfSatisfying(CanonicalOperationUnknownException.class, failure ->
+                        assertThat(failure.jobId()).isEqualTo("job-mm-1"));
     }
 
     private static CanonicalOperationOutcome completed(List<Map<String, Object>> observations) {
