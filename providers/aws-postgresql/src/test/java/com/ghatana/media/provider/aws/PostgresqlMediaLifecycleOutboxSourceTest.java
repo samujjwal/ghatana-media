@@ -18,11 +18,31 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** H2-only regression coverage for durable lifecycle outbox claims and retries. */
 class PostgresqlMediaLifecycleOutboxSourceTest {
+
+    @Test
+    void retryDelayUsesCappedFullJitterWithinPositiveBounds() {
+        assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                0, 250, 500, 0.0)).isEqualTo(1);
+        assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                0, 250, 500, 0.5)).isEqualTo(126);
+        assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                1, 250, 500, 0.5)).isEqualTo(251);
+        assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                2, 250, 350, Math.nextDown(1.0))).isEqualTo(350);
+        assertThat(PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                Integer.MAX_VALUE, 250, 350, 0.75)).isBetween(1L, 350L);
+        assertThatThrownBy(() -> PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                0, 250, 500, 1.0)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> PostgresqlMediaLifecycleOutboxSource.cappedJitteredRetryDelayMillis(
+                0, 0, 500, 0.5)).isInstanceOf(IllegalArgumentException.class);
+    }
 
     @Test
     void fencesConcurrentAndExpiredClaimsAndBoundsRetries() throws Exception {
@@ -125,7 +145,8 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     private static void verifyRetryDelayAndDeadLetter() throws Exception {
         String eventId = "media:test:outbox-poison";
         insertEvent(eventId);
-        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(250), Duration.ofMillis(500));
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(250), Duration.ofMillis(500),
+                () -> Math.nextDown(1.0));
         MediaLifecycleEventPublisher poison = publisher(event -> { throw new IllegalStateException("poison"); });
         try {
             assertThat(source.publishPending(poison, 10).failed()).isEqualTo(1);
@@ -157,6 +178,13 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     private static PostgresqlMediaLifecycleOutboxSource source(
             int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax) {
         return new PostgresqlMediaLifecycleOutboxSource(maxAttempts, claimLease, retryBase, retryMax);
+    }
+
+    private static PostgresqlMediaLifecycleOutboxSource source(
+            int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax,
+            DoubleSupplier jitterSample) {
+        return new PostgresqlMediaLifecycleOutboxSource(
+                maxAttempts, claimLease, retryBase, retryMax, jitterSample);
     }
 
     private static void insertEvent(String eventId) throws Exception {

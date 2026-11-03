@@ -13,7 +13,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.DoubleSupplier;
 
 /** Publishes outbox events using fenced claims, bounded backoff, and terminal dead-lettering. */
 public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycleOutboxSource {
@@ -28,24 +30,38 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     private final Duration claimLease;
     private final Duration retryBase;
     private final Duration retryMax;
+    private final DoubleSupplier jitterSample;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public record BatchResult(int attempted, int published, int failed) { }
 
     public PostgresqlMediaLifecycleOutboxSource() {
         this(integerProperty("media.lifecycle.outbox.maxAttempts", DEFAULT_MAX_ATTEMPTS),
-                DEFAULT_CLAIM_LEASE, DEFAULT_RETRY_BASE, DEFAULT_RETRY_MAX);
+                DEFAULT_CLAIM_LEASE, DEFAULT_RETRY_BASE, DEFAULT_RETRY_MAX,
+                () -> ThreadLocalRandom.current().nextDouble());
     }
 
     /** Package-private timing seam for deterministic H2 reliability tests. */
     PostgresqlMediaLifecycleOutboxSource(
             int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax) {
+        this(maxAttempts, claimLease, retryBase, retryMax,
+                () -> ThreadLocalRandom.current().nextDouble());
+    }
+
+    /** Package-private jitter seam for deterministic retry-policy tests. */
+    PostgresqlMediaLifecycleOutboxSource(
+            int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax,
+            DoubleSupplier jitterSample) {
         if (maxAttempts < 1 || maxAttempts > 100) throw new IllegalArgumentException("maxAttempts must be 1..100");
         this.maxAttempts = maxAttempts;
         this.claimLease = positive(claimLease, "claimLease");
         this.retryBase = positive(retryBase, "retryBase");
         this.retryMax = positive(retryMax, "retryMax");
         if (retryMax.compareTo(retryBase) < 0) throw new IllegalArgumentException("retryMax must be >= retryBase");
+        if (retryBase.toMillis() < 1 || retryMax.toMillis() < 1) {
+            throw new IllegalArgumentException("retry bounds must be at least one millisecond");
+        }
+        this.jitterSample = java.util.Objects.requireNonNull(jitterSample, "jitterSample");
     }
 
     public BatchResult publishPending(MediaLifecycleEventPublisher publisher, int limit) {
@@ -214,12 +230,25 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     }
 
     private long retryDelayMillis(int attemptsSoFar) {
-        int shift = Math.min(Math.max(attemptsSoFar, 0), 30);
+        return cappedJitteredRetryDelayMillis(
+                attemptsSoFar, retryBase.toMillis(), retryMax.toMillis(), jitterSample.getAsDouble());
+    }
+
+    static long cappedJitteredRetryDelayMillis(
+            int attemptsSoFar, long retryBaseMillis, long retryMaxMillis, double sample) {
+        if (retryBaseMillis <= 0 || retryMaxMillis <= 0 || retryBaseMillis > retryMaxMillis) {
+            throw new IllegalArgumentException("retry bounds must be positive and retryBaseMillis <= retryMaxMillis");
+        }
+        if (!Double.isFinite(sample) || sample < 0.0 || sample >= 1.0) {
+            throw new IllegalArgumentException("jitter sample must be in [0, 1)");
+        }
+        int shift = Math.min(Math.max(attemptsSoFar, 0), 62);
         long multiplier = 1L << shift;
-        long base = retryBase.toMillis();
-        long max = retryMax.toMillis();
-        if (base >= max || multiplier > max / Math.max(1, base)) return max;
-        return Math.min(max, base * multiplier);
+        long ceiling = multiplier > retryMaxMillis / retryBaseMillis
+                ? retryMaxMillis : Math.min(retryMaxMillis, retryBaseMillis * multiplier);
+        long selected = (long) Math.floor(sample * (double) ceiling);
+        if (selected >= ceiling) selected = ceiling - 1;
+        return selected + 1;
     }
 
     private static int integerProperty(String property, int fallback) {
