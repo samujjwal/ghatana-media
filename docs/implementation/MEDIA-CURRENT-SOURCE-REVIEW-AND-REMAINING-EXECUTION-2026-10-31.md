@@ -3740,3 +3740,7 @@ When the TTS streaming provider ends with gRPC `UNKNOWN` after emitting a nonfin
 ### 43.62 November 3 TY-02 metadata property bound parity
 
 `MediaArtifactSchema.metadata` now enforces the existing OpenAPI `maxProperties: 64` bound while preserving opaque metadata values and the current schema shape. Regression tests accept 64 properties and reject 65. `pnpm --filter @audio-video/types exec vitest run src/contracts.test.ts` passed **20/20**; `pnpm --filter @audio-video/types typecheck` and `git diff --check` passed. This closes the local metadata-count mismatch only; it does not complete all TY-02 overflow, precision, revision, tenant, and hostile-payload cases.
+
+### 43.63 November 3 TY-01 canonical job-state projection review
+
+No cross-artifact state mapping change is safe. PDP-1 `states.yaml` defines the nine Media job states, which the TypeScript `MediaJobStateSchema` already matches and roundtrips; `CANCELLING` and `RETRYING` remain raw unmapped legacy observations. PDP-1 explicitly has no selected canonical projection across the differing runtime Java, STT Java, OpenAPI, and TypeScript vocabularies, while owner decisions keep acceptance, job state, attempt state, cancellation, retry, and provider finality distinct. PTS is already a safe rational, and adding a shared attempt field or coercing divergent states would invent a contract. No files/tests changed; TY-01 remains open pending owner-defined cross-projection semantics and installed-consumer evidence.
