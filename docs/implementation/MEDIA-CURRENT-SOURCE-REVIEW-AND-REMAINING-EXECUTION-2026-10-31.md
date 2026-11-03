@@ -2576,3 +2576,17 @@ At local `main@84504afd`, the Media TypeScript DI consumer now treats a rejected
 **Owner-requested H-02/IP-06 readback:** the V001–V016 synthetic schema fixture, applied-history CSV, and migration source manifest are present at the paths in §41.73 and were re-hashed unchanged: `1afad850…c883`, `8aebbf66…667`, and `d54d1768…78b0`. The independent H-02 technical disposition remains `ACCEPT_LOCAL_CANDIDATE_ONLY` for effect-free candidate preparation; canonical operation mapping, resolver authority/currentness and runtime admission remain unaccepted. These are reproducible test inputs and technical review evidence, not deployed Flyway history or PDP-1 owner acceptance.
 
 **Currentness follow-up:** read-only inspection found PXD-226's source application chain internally consistent, but the PXD-227 owner/apply chain binds a previous peer-review digest after commit `3fe3174a` changed the peer candidate. The prepared PDP-0 ten-pin status successor records no owner decision (`NOT_PRESENT; DO NOT INFER APPROVAL`). PXD-225's quality candidate also lacks source-bound proof for its deferred PXD-222/PXD-223 delta and historical PXD-213 caption pin. No successor was applied and no source pin, PDP status, matrix, or receipt was changed; the status remains `IN_PROGRESS` and all currentness gates remain fail-closed.
+
+### 41.84 November 2 IP-06 backend-loss rollback test and fresh PDP currentness readback
+
+**IP-06 metadata transaction-loss regression:** `PersistenceIntegrationTest.postgresBackendTerminationDoesNotCommitFlushedAudio` opens a Testcontainers PostgreSQL 16 transaction, flushes but does not commit one tenant-owned audio row, terminates its exact backend session, polls `pg_stat_activity` until that backend has exited, and then asserts commit raises `RollbackException`. A direct SQL lookup by row ID proves the row is globally absent; the repository read also confirms tenant-scoped absence. Cleanup rollback/close failures are suppressed onto the primary failure. The focused integration selector passed (**1 test; BUILD SUCCESSFUL in 12s**), and independent Luna review found no material defect.
+
+```bash
+./gradlew :services:media:modules:infrastructure:persistence:integrationTest \
+  --tests 'com.ghatana.audio.video.infrastructure.persistence.integration.PersistenceIntegrationTest.postgresBackendTerminationDoesNotCommitFlushedAudio' \
+  --no-daemon --no-parallel --max-workers=2 --console=plain
+```
+
+This is isolated database-backend termination evidence for a flushed, uncommitted metadata row. It is not process death of the canonical Media job/outbox writer, S3/object-store recovery, deployed Flyway history, old-writer fencing, or authorized one-writer cutover/rollback. No production source, migration, or database was changed.
+
+**Fresh no-write PDP matrix checks at `8363dfd1`:** PDP-0 failed currentness at **21/188**, PDP-1 at **30/137**, PDP-2 at **20/157**, and PDP-3 at **21/367** stale required source pins. An in-memory PDP-1 build reports **40** stale semantic-review source pins and a reviewed/current topology denominator mismatch of **54/56**. The changed DI adapter source and its test are among the stale PDP-1 pins; no status, pin, semantic review, projection, or receipt was rewritten. Currentness remains fail-closed pending owning-source review and its authorized projection process; the PDP-0 status remains `IN_PROGRESS`.
