@@ -92,7 +92,8 @@ public final class VideoFrameTimebase {
     /** Explicit mapping from a source frame position to a presentation timeline position. */
     public record PresentationMapping(
             Status status,
-            SourceTimestamp presentationPosition,
+            SourceTimestamp sourcePosition,
+            TimelineTimestamp presentationPosition,
             String origin,
             String uncertainty,
             String roundingPolicy,
@@ -101,14 +102,16 @@ public final class VideoFrameTimebase {
         public PresentationMapping {
             Objects.requireNonNull(status, "status");
             if (status == Status.KNOWN) {
+                Objects.requireNonNull(sourcePosition, "sourcePosition");
                 Objects.requireNonNull(presentationPosition, "presentationPosition");
-                if (presentationPosition.status() != Status.KNOWN
+                if (sourcePosition.status() != Status.KNOWN
+                        || presentationPosition.domain() != ClockDomain.STORY_EXPLANATION
                         || blank(origin) || blank(uncertainty) || blank(roundingPolicy)
                         || blank(evidenceRef) || unknownReason != null) {
                     throw new IllegalArgumentException(
-                            "known presentation mappings require a known position, origin, uncertainty, policy, and evidence");
+                            "known presentation mappings require source and story positions, origin, uncertainty, policy, and evidence");
                 }
-            } else if (presentationPosition != null || origin != null || uncertainty != null
+            } else if (sourcePosition != null || presentationPosition != null || origin != null || uncertainty != null
                     || roundingPolicy != null || evidenceRef != null
                     || blank(unknownReason)) {
                 throw new IllegalArgumentException("unknown presentation mappings must not contain fabricated mapping values");
@@ -116,8 +119,41 @@ public final class VideoFrameTimebase {
         }
 
         public static PresentationMapping unknown(String reason) {
-            return new PresentationMapping(Status.UNKNOWN, null, null, null, null, null, reason);
+            return new PresentationMapping(Status.UNKNOWN, null, null, null, null, null, null, reason);
         }
+    }
+
+    /** Exact target position in one of the product-defined clock domains. */
+    public record TimelineTimestamp(
+            long ticks,
+            long timebaseNumerator,
+            long timebaseDenominator,
+            ClockDomain domain,
+            String clockId) {
+        public TimelineTimestamp {
+            if (timebaseNumerator <= 0 || timebaseDenominator <= 0
+                    || timebaseNumerator > 1_000_000_000L || timebaseDenominator > 1_000_000_000L) {
+                throw new IllegalArgumentException("timeline timebase must be a bounded positive rational");
+            }
+            Objects.requireNonNull(domain, "domain");
+            if (clockId == null || clockId.isBlank()) {
+                throw new IllegalArgumentException("timeline timestamp requires clock identity");
+            }
+        }
+
+        public static TimelineTimestamp known(long ticks, long timebaseNumerator,
+                long timebaseDenominator, ClockDomain domain, String clockId) {
+            return new TimelineTimestamp(ticks, timebaseNumerator, timebaseDenominator, domain, clockId);
+        }
+    }
+
+    /** Product clock domains remain distinct; source PTS itself is represented by SourceTimestamp. */
+    public enum ClockDomain {
+        SOURCE_VIDEO_PRESENTATION,
+        AUDIO_SAMPLE,
+        STORY_EXPLANATION,
+        SIMULATION_EXECUTION,
+        WALL_CLOCK
     }
 
     /** The source frame identity and all clock/codec boundary facts preserved for that frame. */
@@ -150,6 +186,11 @@ public final class VideoFrameTimebase {
             codecId = required(codecId, "codecId");
             codecConfigurationId = required(codecConfigurationId, "codecConfigurationId");
             Objects.requireNonNull(presentationMapping, "presentationMapping");
+            if (presentationMapping.status() == Status.KNOWN
+                    && !presentationMapping.sourcePosition().equals(presentationPts)) {
+                throw new IllegalArgumentException(
+                        "presentation mapping source position must match the frame presentation PTS");
+            }
         }
     }
 

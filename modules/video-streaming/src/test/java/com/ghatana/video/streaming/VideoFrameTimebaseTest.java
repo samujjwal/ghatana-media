@@ -98,6 +98,8 @@ class VideoFrameTimebaseTest {
         assertThatThrownBy(() -> new VideoFrameTimebase.PresentationMapping(
                 VideoFrameTimebase.Status.KNOWN,
                 VideoFrameTimebase.SourceTimestamp.known(1, 1, 90_000, "output-clock"),
+                VideoFrameTimebase.TimelineTimestamp.known(1, 24_000, 1,
+                        VideoFrameTimebase.ClockDomain.STORY_EXPLANATION, "story-clock"),
                 "origin", "", "ROUND_NEAREST_TIES_TO_EVEN", "evidence", null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("uncertainty");
@@ -107,7 +109,9 @@ class VideoFrameTimebaseTest {
     void knownPresentationMappingSurvivesFrameBindingWithoutRescaling() {
         var mapping = new VideoFrameTimebase.PresentationMapping(
                 VideoFrameTimebase.Status.KNOWN,
-                VideoFrameTimebase.SourceTimestamp.known(24_024, 24_000, 1, "story-clock-v1"),
+                VideoFrameTimebase.SourceTimestamp.known(90_090, 1, 90_000, "source-clock-A"),
+                VideoFrameTimebase.TimelineTimestamp.known(24_024, 24_000, 1,
+                        VideoFrameTimebase.ClockDomain.STORY_EXPLANATION, "story-clock-v1"),
                 "source-PTS-zero-to-story-frame-zero",
                 "SYNTHETIC_FIXTURE_BOUND_1_TICK",
                 "ROUND_NEAREST_TIES_TO_EVEN",
@@ -122,13 +126,39 @@ class VideoFrameTimebaseTest {
 
         assertThat(frame.presentationPts().ticks()).isEqualTo(90_090L);
         assertThat(frame.presentationMapping()).isEqualTo(mapping);
+        assertThat(frame.presentationMapping().sourcePosition()).isEqualTo(frame.presentationPts());
         assertThat(frame.presentationMapping().presentationPosition().ticks()).isEqualTo(24_024L);
         assertThat(frame.presentationMapping().presentationPosition().timebaseNumerator()).isEqualTo(24_000L);
         assertThat(frame.presentationMapping().presentationPosition().timebaseDenominator()).isEqualTo(1L);
+        assertThat(frame.presentationMapping().presentationPosition().domain())
+                .isEqualTo(VideoFrameTimebase.ClockDomain.STORY_EXPLANATION);
         assertThat(frame.presentationMapping().origin()).isEqualTo("source-PTS-zero-to-story-frame-zero");
         assertThat(frame.presentationMapping().uncertainty()).isEqualTo("SYNTHETIC_FIXTURE_BOUND_1_TICK");
         assertThat(frame.presentationMapping().roundingPolicy()).isEqualTo("ROUND_NEAREST_TIES_TO_EVEN");
         assertThat(frame.presentationMapping().evidenceRef()).isEqualTo("mapping-evidence:fixture-v1");
+    }
+
+    @Test
+    void knownPresentationMappingMustReferToThisFramesExactSourcePts() {
+        var mismatchedSource = VideoFrameTimebase.SourceTimestamp.known(90_000, 1, 90_000, "source-clock-A");
+        var mapping = new VideoFrameTimebase.PresentationMapping(
+                VideoFrameTimebase.Status.KNOWN,
+                mismatchedSource,
+                VideoFrameTimebase.TimelineTimestamp.known(24_000, 24_000, 1,
+                        VideoFrameTimebase.ClockDomain.STORY_EXPLANATION, "story-clock-v1"),
+                "synthetic-origin",
+                "SYNTHETIC_FIXTURE_BOUND_1_TICK",
+                "ROUND_NEAREST_TIES_TO_EVEN",
+                "mapping-evidence:fixture-v1",
+                null);
+
+        assertThatThrownBy(() -> VideoFrameTimebase.bind(
+                "camera-A", wireFrame(8, false, 1_700_000_000_008L), 0,
+                VideoFrameTimebase.SourceTimestamp.known(90_090, 1, 90_000, "capture-clock-A"),
+                VideoFrameTimebase.SourceTimestamp.known(90_090, 1, 90_000, "source-clock-A"),
+                "segment-0", "h264", "h264-config-1", mapping))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("source position must match");
     }
 
     @Test
@@ -151,7 +181,7 @@ class VideoFrameTimebaseTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("unknown presentation mappings");
         assertThatThrownBy(() -> new VideoFrameTimebase.PresentationMapping(
-                VideoFrameTimebase.Status.UNKNOWN, null, null, null, null, null, null))
+                VideoFrameTimebase.Status.UNKNOWN, null, null, null, null, null, null, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("unknown presentation mappings");
     }
