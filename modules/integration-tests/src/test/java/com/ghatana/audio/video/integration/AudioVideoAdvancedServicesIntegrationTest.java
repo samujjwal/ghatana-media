@@ -6,6 +6,9 @@ import com.ghatana.audio.video.vision.recognition.FacialRecognitionService;
 import com.ghatana.audio.video.vision.scene.SceneUnderstandingService;
 import com.ghatana.audio.video.multimodal.engine.MediaClockTimestamp;
 import com.ghatana.audio.video.multimodal.datacloud.MediaProcessingProvider;
+import com.ghatana.audio.video.infrastructure.persistence.ledger.AudioVideoRunLedgerEntry;
+import com.ghatana.audio.video.infrastructure.persistence.ledger.InMemoryAudioVideoRunLedgerAdapter;
+import com.ghatana.testing.activej.EventloopTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -18,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 @Tag("integration")
 @DisplayName("Audio-Video Service Integration Tests — AV-012")
-class AudioVideoAdvancedServicesIntegrationTest {
+class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
 
     @Test
     @DisplayName("Data Cloud media boundary exposes projection reads only")
@@ -52,6 +56,72 @@ class AudioVideoAdvancedServicesIntegrationTest {
                 "fetchExtractedEvents",
                 "fetchEmbeddings",
                 "listJobsForArtifact");
+    }
+
+    @Test
+    @DisplayName("in-memory ledger round-trips labeled fixture outcomes and exact source provenance")
+    void ledgerFixturePreservesOutcomeAndProvenance() {
+        InMemoryAudioVideoRunLedgerAdapter ledger = new InMemoryAudioVideoRunLedgerAdapter();
+        Instant startedAt = Instant.parse("2026-11-02T12:00:00Z");
+        Instant endedAt = startedAt.plusSeconds(2);
+        AudioVideoRunLedgerEntry success = AudioVideoRunLedgerEntry.builder()
+                .runId("fixture-run-success")
+                .sessionId("fixture-session")
+                .mediaArtifactId("fixture-artifact-v1")
+                .tenantId("fixture-tenant")
+                .actorId("fixture-actor")
+                .state(AudioVideoRunLedgerEntry.RunState.SUCCEEDED)
+                .startedAt(startedAt)
+                .endedAt(endedAt)
+                .traceId("fixture-trace-success")
+                .sttJobId("fixture-stt-job-v1")
+                .providerKey("synthetic-fixture:local-v1")
+                .systemMetadata(Map.of(
+                        "evidenceKind", "SYNTHETIC_FIXTURE_ONLY",
+                        "sourceArtifactVersion", "fixture-artifact-v1",
+                        "transcriptVersion", "fixture-transcript-v1"))
+                .build();
+        AudioVideoRunLedgerEntry failure = AudioVideoRunLedgerEntry.builder()
+                .runId("fixture-run-failure")
+                .sessionId("fixture-session")
+                .mediaArtifactId("fixture-artifact-v1")
+                .tenantId("fixture-tenant")
+                .actorId("fixture-actor")
+                .state(AudioVideoRunLedgerEntry.RunState.FAILED)
+                .startedAt(startedAt)
+                .endedAt(endedAt)
+                .traceId("fixture-trace-failure")
+                .errorCode(4001)
+                .errorMessage("synthetic fixture failure")
+                .providerKey("synthetic-fixture:local-v1")
+                .systemMetadata(Map.of("evidenceKind", "SYNTHETIC_FIXTURE_ONLY"))
+                .build();
+
+        runPromise(() -> ledger.recordRunCompletion(success));
+        runPromise(() -> ledger.recordRunCompletion(failure));
+
+        List<AudioVideoRunLedgerEntry> readback = runPromise(() ->
+                ledger.queryByTenant("fixture-tenant", startedAt, endedAt));
+        assertThat(readback).hasSize(2);
+        assertThat(readback).filteredOn(entry -> entry.runId().equals("fixture-run-success"))
+                .singleElement()
+                .satisfies(entry -> {
+                    assertThat(entry.state()).isEqualTo(AudioVideoRunLedgerEntry.RunState.SUCCEEDED);
+                    assertThat(entry.mediaArtifactId()).isEqualTo("fixture-artifact-v1");
+                    assertThat(entry.getSttJobId()).contains("fixture-stt-job-v1");
+                    assertThat(entry.getProviderKey()).contains("synthetic-fixture:local-v1");
+                    assertThat(entry.systemMetadata()).containsEntry("evidenceKind", "SYNTHETIC_FIXTURE_ONLY")
+                            .containsEntry("sourceArtifactVersion", "fixture-artifact-v1")
+                            .containsEntry("transcriptVersion", "fixture-transcript-v1");
+                });
+        assertThat(readback).filteredOn(entry -> entry.runId().equals("fixture-run-failure"))
+                .singleElement()
+                .satisfies(entry -> {
+                    assertThat(entry.state()).isEqualTo(AudioVideoRunLedgerEntry.RunState.FAILED);
+                    assertThat(entry.getErrorCode()).contains(4001);
+                    assertThat(entry.getErrorMessage()).contains("synthetic fixture failure");
+                    assertThat(entry.systemMetadata()).containsEntry("evidenceKind", "SYNTHETIC_FIXTURE_ONLY");
+                });
     }
 
     @Nested
