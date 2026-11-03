@@ -29,17 +29,7 @@ public final class GrpcTransportSecurityPolicy {
             String servicePrefix) {
         Objects.requireNonNull(environment, "environment");
         String prefix = canonicalPrefix(servicePrefix);
-        String profile = firstNonBlank(
-                environment.get(prefix + "_ENVIRONMENT"),
-                environment.get("MEDIA_ENVIRONMENT"),
-                environment.get("GHATANA_DEPLOYMENT_PROFILE"),
-                "local").toLowerCase(Locale.ROOT);
-        boolean productionLike = switch (profile) {
-            case "production", "staging", "sovereign" -> true;
-            case "local", "test", "development" -> false;
-            default -> throw new IllegalArgumentException(
-                    "Unsupported " + prefix + " gRPC environment profile");
-        };
+        boolean productionLike = resolveProductionLikeProfile(environment, prefix);
 
         String serviceCertificateKey = prefix + "_GRPC_TLS_CERT_CHAIN_PATH";
         String servicePrivateKeyKey = prefix + "_GRPC_TLS_PRIVATE_KEY_PATH";
@@ -66,6 +56,31 @@ public final class GrpcTransportSecurityPolicy {
         }
         return AudioVideoGrpcServerBase.TransportSecurity.tls(
                 Path.of(pair.certificate()), Path.of(pair.privateKey()));
+    }
+
+    /**
+     * A service override can make a development profile stricter, but cannot downgrade an
+     * explicitly production-like deployment or Media profile to plaintext. Conflicting
+     * profile sources therefore retain the most restrictive transport requirement.
+     */
+    private static boolean resolveProductionLikeProfile(Map<String, String> environment, String prefix) {
+        boolean productionLike = false;
+        for (String candidate : new String[] {
+                environment.get(prefix + "_ENVIRONMENT"),
+                environment.get("MEDIA_ENVIRONMENT"),
+                environment.get("GHATANA_DEPLOYMENT_PROFILE")}) {
+            String value = text(candidate);
+            if (value.isBlank()) continue;
+            String normalized = value.toLowerCase(Locale.ROOT);
+            boolean candidateProductionLike = switch (normalized) {
+                case "production", "staging", "sovereign" -> true;
+                case "local", "test", "development" -> false;
+                default -> throw new IllegalArgumentException(
+                        "Unsupported " + prefix + " gRPC environment profile");
+            };
+            productionLike |= candidateProductionLike;
+        }
+        return productionLike;
     }
 
     private static Pair completePair(

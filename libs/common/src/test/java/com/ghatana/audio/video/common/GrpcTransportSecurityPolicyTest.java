@@ -181,12 +181,25 @@ class GrpcTransportSecurityPolicyTest {
     }
 
     @Test
-    void serviceProfileOverridesSharedAndDeploymentProfiles() {
-        var security = GrpcTransportSecurityPolicy.resolve(Map.of(
-                "GHATANA_DEPLOYMENT_PROFILE", "production",
-                "MEDIA_ENVIRONMENT", "staging",
-                "STT_ENVIRONMENT", "local"), "STT");
-        assertThat(security.tlsEnabled()).isFalse();
+    void developmentServiceProfileCannotDowngradeProductionDeploymentToPlaintext() {
+        assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(
+                        "GHATANA_DEPLOYMENT_PROFILE", "production",
+                        "MEDIA_ENVIRONMENT", "staging",
+                        "STT_ENVIRONMENT", "local"), "STT"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Production-like STT gRPC requires TLS");
+    }
+
+    @Test
+    void anyProductionLikeProfileSourceRequiresTlsEvenWhenServiceProfileIsDevelopment() {
+        for (String globalKey : new String[] {"MEDIA_ENVIRONMENT", "GHATANA_DEPLOYMENT_PROFILE"}) {
+            assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(
+                            globalKey, "staging",
+                            "STT_ENVIRONMENT", "development"), "STT"))
+                    .as("%s cannot be downgraded by service profile", globalKey)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Production-like STT gRPC requires TLS");
+        }
     }
 
     @Test
