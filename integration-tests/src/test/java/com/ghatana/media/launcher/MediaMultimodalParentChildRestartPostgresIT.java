@@ -68,7 +68,7 @@ class MediaMultimodalParentChildRestartPostgresIT {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
-    void completedParentAndDurableChildrenSurviveRuntimeReconstruction() throws Exception {
+    void unknownParentAndDurableChildrenSurviveRuntimeReconstructionWithoutRedispatch() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-mm-restart-" + runId;
         try (S3Client s3 = s3()) {
@@ -85,6 +85,7 @@ class MediaMultimodalParentChildRestartPostgresIT {
             MediaArtifact source;
             MediaArtifact sttChild;
             MediaArtifact visionChild;
+            Map<String, Object> unknownResult;
             try (MediaRuntime firstRuntime = runtime(root, sttEffects, visionEffects)) {
                 source = upload(firstRuntime, tenant, principal, "mm-parent-" + runId);
                 sttChild = upload(firstRuntime, tenant, principal, "stt-child-" + runId);
@@ -99,10 +100,14 @@ class MediaMultimodalParentChildRestartPostgresIT {
                         .as("parent terminal state; failureCode=%s result=%s jobs=%s attempts=%s",
                                 terminal.failureCode(), terminal.result(), dumpJobs(tenant),
                                 dumpAttempts(tenant))
-                        .isEqualTo(JobStatus.COMPLETED);
-                assertThat(terminal.result()).containsKey("observations");
-                // Both children ran as their own canonical durable jobs.
-                assertThat(jobState(tenant, "request-" + runId + ":stt")).isEqualTo("COMPLETED");
+                        .isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(terminal.failureCode()).isEqualTo("PROCESSING_OUTCOME_UNKNOWN");
+                assertThat(terminal.result()).containsEntry("providerOutcome", "UNKNOWN");
+                unknownResult = terminal.result();
+                // The deterministic STT fixture omits the canonical transcript-version
+                // projection required for atomic transcript finalization. Preserve its
+                // successful attempt receipt without claiming a completed STT job.
+                assertThat(jobState(tenant, "request-" + runId + ":stt")).isEqualTo("OUTCOME_UNKNOWN");
                 assertThat(jobState(tenant, "request-" + runId + ":vision")).isEqualTo("COMPLETED");
                 assertThat(sttEffects).hasValue(1);
                 assertThat(visionEffects).hasValue(1);
@@ -113,8 +118,11 @@ class MediaMultimodalParentChildRestartPostgresIT {
             try (MediaRuntime restarted = runtime(root, sttEffects, visionEffects)) {
                 ProcessingJob recovered = restarted.job(
                         tenant, principal, accepted.jobId()).orElseThrow();
-                assertThat(recovered.status()).isEqualTo(JobStatus.COMPLETED);
-                assertThat(jobState(tenant, "request-" + runId + ":stt")).isEqualTo("COMPLETED");
+                assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(recovered.result())
+                        .as("durable unknown parent result must survive runtime reconstruction unchanged")
+                        .isEqualTo(unknownResult);
+                assertThat(jobState(tenant, "request-" + runId + ":stt")).isEqualTo("OUTCOME_UNKNOWN");
                 assertThat(jobState(tenant, "request-" + runId + ":vision")).isEqualTo("COMPLETED");
                 // Restart must not redispatch any child or parent effect.
                 assertThat(sttEffects).hasValue(1);
