@@ -179,6 +179,7 @@ class MediaSttTranscriptCommitFenceIT {
         AutoCloseable installed = TestAwsStateInstall.install(environment());
         String jobId;
         ProcessingJobRequest request;
+        MediaArtifact sourceArtifact;
         try {
             try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
                  var jobStore = new PostgresqlMediaJobStore();
@@ -191,10 +192,10 @@ class MediaSttTranscriptCommitFenceIT {
                  var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
                         authority, transcriptStore,
                         List.of(fenceProviderWithCallCount(providerRan, providerCalls)))) {
-                MediaArtifact artifact = upload(runtime, "success-restart");
-                seedArtifactRow(artifact);
-                administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
-                request = jobRequest(artifact, "success-restart");
+                sourceArtifact = upload(runtime, "success-restart");
+                seedArtifactRow(sourceArtifact);
+                administration.register(register(sourceArtifact), authenticated("tenant-a", "principal-a"));
+                request = jobRequest(sourceArtifact, "success-restart");
 
                 var accepted = runtime.submit(request, authenticated("tenant-a", "principal-a"));
                 jobId = accepted.jobId();
@@ -222,6 +223,19 @@ class MediaSttTranscriptCommitFenceIT {
                  var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
                      authority, transcriptStore,
                      List.of(fenceProviderWithCallCount(providerRan, providerCalls)))) {
+                // Verify the fixture bytes themselves after all stores have been recreated. The
+                // metadata-only artifact lookup would not detect a corrupt or substituted file.
+                byte[] expectedSourceBytes = "fence-audio-bytes-success-restart"
+                        .getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                var sourceReadback = new java.io.ByteArrayOutputStream();
+                var sourceReceipt = artifactStore.copyContent("tenant-a", "principal-a",
+                        sourceArtifact.artifactId(), sourceArtifact.version(), sourceReadback,
+                        sourceArtifact.sizeBytes()).orElseThrow();
+                assertThat(sourceReadback.toByteArray()).containsExactly(expectedSourceBytes);
+                assertThat(sourceReceipt.version()).isEqualTo(sourceArtifact.version());
+                assertThat(sourceReceipt.sha256()).isEqualTo(sourceArtifact.sha256());
+                assertThat(sourceReceipt.bytesCopied()).isEqualTo(expectedSourceBytes.length);
+
                 assertThat(runtime.job("tenant-a", "principal-a", jobId).orElseThrow().status())
                         .isEqualTo(JobStatus.COMPLETED);
                 var replay = runtime.submit(request, authenticated("tenant-a", "principal-a"));
@@ -238,6 +252,10 @@ class MediaSttTranscriptCommitFenceIT {
                 assertThat(revisions).hasSize(1);
                 assertThat(revisions.getFirst().admissionStatus()).isEqualTo("ADMITTED");
                 assertThat(revisions.getFirst().draft().text()).isEqualTo("fence transcript");
+                assertThat(revisions.getFirst().revision()).isEqualTo(1);
+                assertThat(revisions.getFirst().draft().sourceArtifactId()).isEqualTo(sourceArtifact.artifactId());
+                assertThat(revisions.getFirst().draft().sourceVersion()).isEqualTo(sourceArtifact.version().value());
+                assertThat(revisions.getFirst().draft().sourceSha256()).isEqualTo(sourceArtifact.sha256());
                 var binding = transcriptStore.readAttemptBinding(
                         "tenant-a", "principal-a", "transcript:" + jobId, 1);
                 assertThat(binding.providerOperationId()).isEqualTo("op-fence-1");
