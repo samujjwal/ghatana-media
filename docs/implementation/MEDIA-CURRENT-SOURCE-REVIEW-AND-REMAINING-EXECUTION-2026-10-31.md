@@ -3624,3 +3624,15 @@ Read-only comparison confirmed that `modules/infrastructure/persistence/README.m
 ### 43.33 November 3 CA-02 cache privacy boundary recheck
 
 The focused `AudioVideoCacheKeyRedactionTest` passed **9/9**; no source change was needed. The existing cache scope requires tenant, authenticated principal, rights scope, purpose, classification, artifact ID/revision, transcript revision and source fingerprint, and hashes all dimensions. Diagnostic key references are bounded HMAC values; protected transcription cache reads/writes remain disabled when the public caller lacks complete protected scope. This verifies local key isolation/redaction cases only; it does not grant cache authority to decide live rights or prove CA-02 as a formally accepted stage row.
+
+### 43.34 November 3 CA-03 cache freshness and revocation
+
+Added a focused `TranscriptionCacheServiceTest` case that advances the authoritative transcript from version 1 to 2, then returns a current consent denial and a deleted/retention-expired source. Each call reloads current source state; the denial and deletion return no transcript; only exact-key best-effort invalidation runs, with no protected cache get/put. The selector passed **31/31** (zero failures/errors/skips). The cache does not make the rights decision; the source loader supplies current authority. This is a synthetic cache-boundary check, not a real Shared cache/backend restart or complete CA-03 acceptance.
+
+### 43.35 November 3 TY-04 scene semantic anchor schema parity
+
+Commit `262a9cef` aligns `SceneBindingSchema.semanticAnchorRefs` with PDP-1's `$defs/opaqueIdList` (unique, bounded opaque identifiers), rather than the prior version-reference list. New parser negatives reject duplicate, slash, whitespace and non-ASCII identifiers. `pnpm exec vitest run src/production.test.ts` passed **26/26**; `pnpm typecheck` and `git diff --check` passed. No Capture, MediaRun or RenderOutcome schema was invented because PDP-1 has no typed descriptors for those proposed/pending values; their source-owner decisions remain outstanding.
+
+### 43.36 November 3 AT-02 tool input and identity boundary review
+
+The focused Agent Tools adapter selectors passed **64/64**. Existing validation already bounds nested/large JSON and base64, refuses remote `$ref`, rejects malformed input before effect, and covers tenant attribution plus caller-agent replay. No source change was justified: the current `ToolExecutionEnvelope` has no trusted principal field and its identity is documented as consistency-only, so adding principal authorization in Media would invent a second auth authority. Exact principal authorization remains a Shared/runtime identity integration dependency; this review does not claim AT-02 source-free principal admission or whole-task acceptance.
