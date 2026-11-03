@@ -160,6 +160,8 @@ describe("MediaProductRenderer", () => {
     expect(html).toContain('<progress class="media-progress media-progress--primary" max="100"');
     expect(html).toContain('value="42"');
     expect(html).toContain('aria-label="Upload progress"');
+    expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).toContain('<h2 id="media-operation-title">uploading</h2>');
     expect(html).not.toMatch(/<progress[^>]*style=/);
   });
 

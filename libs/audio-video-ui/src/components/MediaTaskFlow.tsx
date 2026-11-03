@@ -192,7 +192,7 @@ export function MediaTaskFlow({
       </nav>
 
       {observation && <section aria-labelledby="media-operation-title" >
-        <div >
+        <div role="status" aria-live="polite" aria-atomic="true">
           <div>
             <h2 id="media-operation-title" >{observation.state.replaceAll("_", " ").toLowerCase()}</h2>
             <p >{observation.message ?? "Operation status was observed."}</p>
@@ -209,7 +209,7 @@ export function MediaTaskFlow({
           <p >Progress is ongoing; amount is not measured.</p>
         </div>}
         {progress?.kind === "none" && <p >No meaningful progress measurement is available.</p>}
-        {progress?.kind === "unknown" && <p  role="status">{progress.label ?? "The remote outcome is unknown. Check the operation status before taking another action."}</p>}
+        {progress?.kind === "unknown" && <p>{progress.label ?? "The remote outcome is unknown. Check the operation status before taking another action."}</p>}
       </section>}
 
       <div >

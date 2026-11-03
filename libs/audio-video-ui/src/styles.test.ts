@@ -78,7 +78,8 @@ describe("central Media UI treatment", () => {
     }));
 
     expect(html).toContain('class="media-task-flow " data-density="compact" data-color-scheme="dark"');
-    expect(html).toContain('role="status">The remote outcome is unknown. Check the operation status before taking another action.</p>');
+    expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).toContain('The remote outcome is unknown. Check the operation status before taking another action.');
     expect(html).toContain("Still unknown; check before taking another action.");
     expect(html).not.toContain("style=");
   });
