@@ -211,6 +211,43 @@ class MediaProductionRunCoordinatorTest {
     }
 
     @Test
+    void successfulEffectWithoutDurableProducedReadbackRemainsUnknownAndIsNotRetried() {
+        Map<String, StepRecord> records = new HashMap<>();
+        MediaProductionRunCoordinator.StepLedger lostWriteLedger = new MediaProductionRunCoordinator.StepLedger() {
+            @Override public Optional<StepRecord> find(String runId, String stepId) {
+                return Optional.ofNullable(records.get(runId + "/" + stepId));
+            }
+            @Override public void record(String runId, StepRecord record) {
+                // Simulate an adapter that acknowledges but loses the result write.
+            }
+            @Override public synchronized ClaimResult claim(String runId, StepRecord fence) {
+                String key = runId + "/" + fence.stepId();
+                if (records.containsKey(key)) return ClaimResult.ALREADY_CLAIMED;
+                records.put(key, fence);
+                return ClaimResult.CLAIMED;
+            }
+        };
+        var coordinator = new MediaProductionRunCoordinator(lostWriteLedger);
+        AtomicInteger executions = new AtomicInteger();
+        var step = step("lost-result-write", OriginClass.MODEL_SIMULATION, false);
+        var executor = (MediaProductionRunCoordinator.StepExecutor) (id, s) -> {
+            executions.incrementAndGet();
+            return new byte[] {4, 2};
+        };
+
+        StepResult first = coordinator.executeStep(
+                "run-lost-result", "sha256:" + "f".repeat(64), step, executor);
+        StepResult replay = coordinator.executeStep(
+                "run-lost-result", "sha256:" + "f".repeat(64), step, executor);
+
+        assertThat(first.outcome()).isEqualTo(StepOutcome.OUTCOME_UNKNOWN);
+        assertThat(first.output()).isEmpty();
+        assertThat(first.detail()).contains("persistence could not be verified");
+        assertThat(replay.outcome()).isEqualTo(StepOutcome.OUTCOME_UNKNOWN);
+        assertThat(executions.get()).isEqualTo(1);
+    }
+
+    @Test
     void missingAtomicClaimCapabilityDoesNotDispatch() {
         MediaProductionRunCoordinator.StepLedger legacyLedger = new MediaProductionRunCoordinator.StepLedger() {
             @Override public Optional<StepRecord> find(String runId, String stepId) { return Optional.empty(); }

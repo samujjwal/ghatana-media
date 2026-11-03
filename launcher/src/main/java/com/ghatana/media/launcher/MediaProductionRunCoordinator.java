@@ -283,7 +283,17 @@ public final class MediaProductionRunCoordinator {
             ProducedOutput output = new ProducedOutput(
                     step.stepId(), step.originClass(), step.sourceRevisionRef(),
                     planFingerprint, sha256(bytes), step.effectiveRightsRef(), bytes.length);
-            ledger.record(runId, new StepRecord(step.stepId(), planFingerprint, step, StepOutcome.PRODUCED, output));
+            StepRecord producedRecord = new StepRecord(
+                    step.stepId(), planFingerprint, step, StepOutcome.PRODUCED, output);
+            ledger.record(runId, producedRecord);
+            // A void write acknowledgment is not proof that the canonical
+            // result was durably recorded. Keep the pre-effect UNKNOWN fence
+            // as the externally visible result unless exact readback confirms
+            // the produced record.
+            if (ledger.find(runId, step.stepId()).filter(producedRecord::equals).isEmpty()) {
+                return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
+                        Optional.empty(), "post-dispatch persistence could not be verified; outcome requires reconciliation");
+            }
             return new StepResult(step.stepId(), StepOutcome.PRODUCED,
                     Optional.of(output), "produced");
         } catch (RuntimeException persistenceFailure) {
