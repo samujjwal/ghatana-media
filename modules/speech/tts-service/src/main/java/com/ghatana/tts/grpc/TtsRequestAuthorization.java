@@ -64,7 +64,12 @@ interface TtsRequestAuthorization {
             String voiceId,
             String profileId) {
         Objects.requireNonNull(authorization, "authorization");
-        String configuredDefaultVoiceId = authorization.configuredDefaultVoiceId();
+        String configuredDefaultVoiceId;
+        try {
+            configuredDefaultVoiceId = authorization.configuredDefaultVoiceId();
+        } catch (RuntimeException unavailable) {
+            throw unavailableAuthority();
+        }
         if (configuredDefaultVoiceId != null && configuredDefaultVoiceId.isBlank()) {
             configuredDefaultVoiceId = null;
         }
@@ -80,7 +85,13 @@ interface TtsRequestAuthorization {
             throw new AuthorizationException(Status.UNAUTHENTICATED,
                     "TTS_IDENTITY_REQUIRED: verified tenant and subject are required for synthesis");
         }
-        if (!authorization.isConfigured()) {
+        final boolean configured;
+        try {
+            configured = authorization.isConfigured();
+        } catch (RuntimeException unavailable) {
+            throw unavailableAuthority();
+        }
+        if (!configured) {
             throw new AuthorizationException(Status.UNAVAILABLE,
                     "TTS_VOICE_AUTH_NOT_ADMITTED: owner, consent, purpose, and revocation authority is unavailable");
         }
@@ -101,6 +112,11 @@ interface TtsRequestAuthorization {
             case UNAVAILABLE -> throw new AuthorizationException(Status.UNAVAILABLE,
                     "TTS_VOICE_AUTH_NOT_ADMITTED: owner, consent, purpose, and revocation authority is unavailable");
         }
+    }
+
+    private static AuthorizationException unavailableAuthority() {
+        return new AuthorizationException(Status.UNAVAILABLE,
+                "TTS_VOICE_AUTH_NOT_ADMITTED: owner, consent, purpose, and revocation authority is unavailable");
     }
 
     final class AuthorizationException extends RuntimeException {

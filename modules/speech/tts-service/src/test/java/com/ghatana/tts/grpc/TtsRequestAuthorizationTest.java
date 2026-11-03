@@ -140,6 +140,40 @@ class TtsRequestAuthorizationTest {
     }
 
     @Test
+    void defaultVoiceAndConfigurationResolverFailuresBecomeUnavailable() {
+        for (TtsRequestAuthorization resolver : new TtsRequestAuthorization[] {
+                new TtsRequestAuthorization() {
+                    @Override public Decision authorize(Request request) {
+                        throw new AssertionError("authorization must not run when default lookup fails");
+                    }
+                    @Override public String configuredDefaultVoiceId() {
+                        throw new IllegalStateException("private default lookup failure");
+                    }
+                },
+                new TtsRequestAuthorization() {
+                    @Override public Decision authorize(Request request) {
+                        throw new AssertionError("authorization must not run when configuration lookup fails");
+                    }
+                    @Override public boolean isConfigured() {
+                        throw new IllegalStateException("private configuration lookup failure");
+                    }
+                    @Override public String configuredDefaultVoiceId() { return "configured-voice"; }
+                }
+        }) {
+            assertThatThrownBy(() -> TtsRequestAuthorization.requireAdmission(
+                    resolver, IDENTITY, TtsRequestAuthorization.Operation.SYNTHESIZE, null, null))
+                    .isInstanceOf(TtsRequestAuthorization.AuthorizationException.class)
+                    .satisfies(failure -> {
+                        var authorization = (TtsRequestAuthorization.AuthorizationException) failure;
+                        assertThat(authorization.status().getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                        assertThat(authorization.getMessage())
+                                .contains("TTS_VOICE_AUTH_NOT_ADMITTED")
+                                .doesNotContain("private", "lookup failure");
+                    });
+        }
+    }
+
+    @Test
     void selectedConfiguredDefaultVoiceRequiresIdentityAndAuthorization() {
         TtsRequestAuthorization defaultVoice = ProductionTtsGrpcService.bindConfiguredDefaultVoice(
                 TtsRequestAuthorization.unavailable(), "piper-en");
