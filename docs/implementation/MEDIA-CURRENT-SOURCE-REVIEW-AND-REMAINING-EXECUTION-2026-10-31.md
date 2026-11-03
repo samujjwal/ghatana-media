@@ -4079,3 +4079,18 @@ Independent source review found existing Media tool binder tests for same-key re
 ### 43.133 November 3 Common Voice v27 aggregate scorer code path
 
 Added `scripts/qualification/common-voice-aggregate-scorer.mjs`, a pure in-memory helper for exact pinned v27 en/hi/ne-NP `test` records. It enforces the checked public per-locale/combined row ceilings, exact allowed record fields, duplicate rejection, a 16,384-code-unit text bound and a 50,000,000-cell cumulative WER/CER work bound. It returns only per-locale aggregate errors/rates with `SYNTHETIC_LOCAL_CODE_PATH_ONLY` and `NOT_QUALIFIED_THRESHOLDS_UNSET`; synthetic tests cover normalization, empty predictions, denied fields, split/revision/hash mismatches and resource caps. `node --test tests/media-common-voice-aggregate-scorer.test.mjs` passed **12/12**, `node --check` passed, and `pnpm run check:common-voice-v27-profile` reports metadata valid / inference `NOT_ADMITTED`. The helper has no file/network/model I/O, does not create a clip manifest, does not enforce retained-output deletion, and is not wired to audio decoding or a model. It is not an actual Common Voice result and does not satisfy FLEURS-specific STT-10/12 acceptance, independent gold, DER, or quality thresholds.
+
+
+### 43.134 November 3 remote main lookup also unavailable
+
+A non-mutating `git ls-remote origin refs/heads/main` check failed with `Could not resolve host: github.com`. Together with the `.git/FETCH_HEAD` permission failure, the live GitHub `main` SHA could not be established from this host. Cached ancestry figures above must remain explicitly stale/unverified.
+
+
+### 43.135 November 3 LD-04 production callsite readback
+
+A focused repository-wide search found `AudioVideoRunLedgerAdapter.fromProcessingJob(...)` only in its adapter definition and tests; no production job/outbox consumer supplies a persisted observation timestamp for the deterministic overload. No callsite or timestamp was invented. LD-04 still needs the admitted Data Cloud RunLedger API, durable ordering/replay behavior, and store-acknowledgment evidence; existing local projection tests establish only deterministic fixture behavior.
+
+
+### 43.136 November 3 Common Voice scorer cumulative-memory bound
+
+Added a 1,000,000 cumulative raw UTF-16-code-unit cap checked before normalization allocates per-record token/codepoint sequences. This complements the per-record text and edit-cell budgets and prevents empty predictions from bypassing the edit-work limit while accumulating oversized reference arrays. A synthetic maximum-reference/empty-prediction case proves the cumulative cap. The focused suite passed **13/13**, `node --check` passed, and the metadata checker still reports real inference `NOT_ADMITTED`. The scorer remains an in-memory synthetic helper only.

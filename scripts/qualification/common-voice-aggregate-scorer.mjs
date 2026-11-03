@@ -13,6 +13,7 @@
 const SOURCE_REVISION = 'cv-corpus-27.0-2026-09-11';
 const MAX_TOTAL_TEST_ROWS = 16_403 + 3_402 + 302;
 const MAX_TEXT_CODE_UNITS = 16_384;
+const MAX_CUMULATIVE_TEXT_CODE_UNITS = 1_000_000;
 const MAX_CUMULATIVE_EDIT_CELLS = 50_000_000;
 const LOCALES = Object.freeze({
   en: Object.freeze({ locale: 'en', sourceDatasetId: 'cmu5jplf300nwmh07iqvk9leo', testRowCap: 16_403 }),
@@ -52,6 +53,16 @@ function assertExactRecordFields(record) {
     assert(descriptor?.enumerable === true && Object.hasOwn(descriptor, 'value'),
       'score input fields must be enumerable data properties');
   }
+}
+
+function validateAndCountRawTextCodeUnits(record) {
+  assertExactRecordFields(record);
+  assert(typeof record.reference === 'string', 'score input reference must be a string');
+  assert(typeof record.prediction === 'string', 'score input prediction must be a string');
+  assert(record.reference.length <= MAX_TEXT_CODE_UNITS
+    && record.prediction.length <= MAX_TEXT_CODE_UNITS,
+  `score input text exceeds the ${MAX_TEXT_CODE_UNITS}-code-unit limit`);
+  return record.reference.length + record.prediction.length;
 }
 
 function normalizeWer(text) {
@@ -142,6 +153,14 @@ export function scoreCommonVoiceV27Aggregates(records) {
   assert(Array.isArray(records) && records.length > 0, 'score input must be a non-empty array');
   assert(records.length <= MAX_TOTAL_TEST_ROWS,
     `score input exceeds the pinned v27 public test-row ceiling of ${MAX_TOTAL_TEST_ROWS}`);
+
+  // Bound total raw text before NFC/lowercase normalization allocates copies.
+  let cumulativeTextCodeUnits = 0;
+  for (const record of records) {
+    cumulativeTextCodeUnits += validateAndCountRawTextCodeUnits(record);
+    assert(cumulativeTextCodeUnits <= MAX_CUMULATIVE_TEXT_CODE_UNITS,
+      `score input exceeds the ${MAX_CUMULATIVE_TEXT_CODE_UNITS}-code-unit cumulative text limit`);
+  }
 
   const totals = Object.fromEntries(Object.keys(LOCALES).map((key) => [key, {
     clipsScored: 0,

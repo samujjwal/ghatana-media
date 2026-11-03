@@ -172,6 +172,16 @@ test('rejects overlong text before normalization or distance scoring', () => {
   assert.throws(() => scoreCommonVoiceV27Aggregates(records), /16384-code-unit limit/u);
 });
 
+test('bounds cumulative raw text before normalization for maximum-length references and empty predictions', () => {
+  const records = Array.from({ length: 62 }, (_, index) => {
+    const record = clip('en', `en-max-${index}`, 'x'.repeat(16_384), '', '0');
+    record.audioSha256 = index.toString(16).padStart(64, '0');
+    return record;
+  });
+  assert.throws(() => scoreCommonVoiceV27Aggregates(records),
+    /1000000-code-unit cumulative text limit/u);
+});
+
 test('preflights cumulative WER and CER edit cells before any scoring loops', () => {
   const records = [
     clip('en', 'en-large', 'a'.repeat(7_100), 'b'.repeat(7_100), 'a'),
