@@ -2841,3 +2841,9 @@ No public auth/profile, Data Cloud, source, provider, lifecycle, or release cont
 - **AT-01:** the former Action Plane-looking YAML is now explicitly a Media-local inventory. Four factory handlers are locally `SUPPORTED` but `NOT_ADMITTED`; the unimplemented Data Cloud entry has no invented controller, route, permission, surface mapping, or `enabled` field. The updated inventory test passed **2/2**. Actual Actions/Tool registry, permission/delegation policy, and Data Cloud public client remain Ghatana #254 inputs.
 
 These focused checks do not establish installed platform registration, production provider readiness, licensed assets, durable DB behavior, or formal surface completion.
+
+### 42.14 November 2 IP-02 tenant/revision repository readback
+
+No IP-02 source change was justified: both legacy JPA repositories already predicate reads on tenant, enforce tenant/user/source-audio immutability on writes, fence mutations with persisted-row locks, and use optimistic `@Version` checks. The selected H2 repository tests passed **35/35** (audio 15, transcription 20); the PostgreSQL 16 Testcontainers integration selector passed **20/20**, including cross-tenant ID reuse, managed-row retagging, stale optimistic updates, and process-session termination rollback.
+
+These legacy rows still lack the canonical Media `ArtifactVersion`/source-version binding and authenticated principal authority required by the plan. Adding a new JPA source-version column or declaring this a second canonical writer would bypass IP-01 lineage and migration ownership, so that part remains open. The test container used `create-drop`; it is not deployed Flyway history, production data, or cutover evidence.
