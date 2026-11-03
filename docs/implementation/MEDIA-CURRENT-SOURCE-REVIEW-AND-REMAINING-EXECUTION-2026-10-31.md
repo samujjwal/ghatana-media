@@ -3152,3 +3152,9 @@ The source test inputs exist locally, so no skip is an environmental fixture exc
 - **Multimodal child durability:** no module-local patch was warranted. Existing child dispatch/readback, UNKNOWN finality, cancellation and invalid-child tests cover the current module-owned seam. Process-restart reconciliation belongs to the canonical runtime's durable operation/job stores; real STT/Vision rights, child authority, public Data Cloud API and qualified model/corpus/host remain external dependencies. Adding an in-memory multimodal recovery cache would not satisfy restart finality.
 
 These focused engineering results do not change IP-06 deployment status, G06 host qualification, H02 source review/admission, multimodal provider qualification, source/status records, R8 acceptance, or release.
+
+### 42.62 November 3 AEP integration test disposition
+
+The 32 disabled AEP methods are exactly 17 fixture-only methods in `integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoDataCloudAepAgentE2ETest.java` and 15 in `AudioVideoDataCloudAepIntegrationJourneyTest.java`. Both classes remain `@Disabled` as IT-01 scaffolds; their bodies use literal/simulated local values and do not contact a service, container, channel or client. Re-enabling these tests would misstate fixture assertions as cross-service evidence. No test was enabled and no Media source code changed.
+
+Media's `MediaObservationPublicationCoordinatorTest` already exercises the Media-owned publication boundary for unavailable authority, idempotency and missing/ambiguous receipt (`OUTCOME_UNKNOWN`); it does not assert AEP consumption. The exact remaining input is an admitted public Data Cloud/Event Plane API plus an authorized integration host and real source → Media job/outbox → Event Plane → Data Cloud/AEP readback. Until then these 32 placeholders stay disabled and the real consumer journey stays unqualified.
