@@ -2989,3 +2989,13 @@ The `MediaSemanticObservationProjector` and `MediaObservationPublicationCoordina
 ### 42.38 November 2 CT-05 test-only public-API verifier boundary
 
 Ran `./gradlew :services:media:modules:integration-tests:verifyIntentionalPublicApi :services:media:integration-tests:verifyIntentionalPublicApi --no-daemon --no-parallel --max-workers=2 --console=plain --offline`. Both test-only modules reported `compileJava NO-SOURCE` and their narrow `verifyIntentionalPublicApi` tasks were `SKIPPED`; the build succeeded. The opt-out is scoped to modules with no compiled main classes, leaving public-API verification active for modules that publish source. Shared's upstream no-source verifier behavior remains its own issue; no public API policy was disabled or changed.
+
+### 42.39 November 2 IT-03 mixed-media source-timebase contract smoke
+
+Added `MixedMediaFrameContractIT` to compose the existing bounded PCM decoder and audio/video frame helpers. It sends generated PCM through the declared 48 kHz rational source-timebase decoder and audio wire roundtrip, sends a generated PNG fixture through video wire roundtrip, and checks exact rational equality at shared synthetic 0/20/60 ms audio/video boundaries. The source video points use a 90 kHz clock and irregular 20/40 ms presentation intervals; the fixture does not claim an externally qualified clock mapping. One, 16, and 64 local workers synchronize behind bounded start/completion/shutdown deadlines. The focused `./gradlew :services:media:integration-tests:test --tests com.ghatana.audio.video.integration.MixedMediaFrameContractIT --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain` run passed **1/1** on Gradle 9.8.2 / Temurin Java 27.0.1. Independent review accepted this as narrow local progress and confirmed the test-only streaming module dependencies are appropriate.
+
+The PNG is a payload fixture, not a qualified video codec profile. No real source capture, transport, reconnect/cancellation/backpressure, cross-tenant routing, p50/p95/p99, CPU/RSS, frames/s/RTF, provider effect, or host capacity was measured. IT-03 remains in progress and codec/transport qualification remains `UNVERIFIED`.
+
+### 42.40 November 2 FLEURS pilot artifact retention check
+
+The existing ignored metadata manifest under `build/reports/media-fleurs-pilot-70bb2e84` has 15 sample records and references 30 source/evaluation WAV paths; none of those WAV files were present in the directory at this check. The manifest was retained unchanged. I did not open or use any WAV, and no audio deletion was needed. Its CC-BY label and pilot metadata still do not establish source authorization covering the exact subset's privacy, purpose, and retention, so real FLEURS inference remains `NOT_ADMITTED`.

@@ -19,6 +19,8 @@ dependencies {
     // Runtime helpers shared across audio-video Java modules
     testImplementation(project(":services:media:libs:java:common"))
     testImplementation(project(":services:media:modules:speech:stt-service"))
+    testImplementation(project(":services:media:modules:audio-streaming"))
+    testImplementation(project(":services:media:modules:video-streaming"))
 
     // Real launcher + durable-provider wiring for launcher-level end-to-end tests
     testImplementation(project(":services:media:launcher"))
