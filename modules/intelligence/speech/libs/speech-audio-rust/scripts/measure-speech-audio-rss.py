@@ -4,6 +4,7 @@
 import argparse
 import os
 import platform
+import re
 import subprocess
 import sys
 
@@ -11,6 +12,7 @@ EXPECTED_CHILD_OUTPUT = (
     "decoded input_bytes=320044 sample_rate_hz=16000 channels=1 "
     "duration_seconds=10 samples=160000"
 )
+PEAK_RSS_OUTPUT = re.compile(r"peak_rss_bytes=([1-9][0-9]*) measurement=process_getrusage")
 
 
 def parse_args():
@@ -36,6 +38,19 @@ def rss_unit():
     if sys.platform == "linux":
         return "KiB"
     raise ValueError(f"unsupported platform for ru_maxrss units: {sys.platform}")
+
+
+def parse_child_output(stdout, run_index):
+    lines = stdout.splitlines()
+    if len(lines) != 2 or lines[0] != EXPECTED_CHILD_OUTPUT:
+        raise ValueError(
+            f"run={run_index} child output mismatch: expected decode report and RSS measurement, "
+            f"got {stdout.strip()!r}"
+        )
+    match = PEAK_RSS_OUTPUT.fullmatch(lines[1])
+    if match is None:
+        raise ValueError(f"run={run_index} child RSS measurement is malformed: {lines[1]!r}")
+    return int(match.group(1))
 
 
 def main():
@@ -64,15 +79,16 @@ def main():
         if child.returncode != 0:
             print(f"run={index} child_exit={child.returncode} stderr={stderr.strip()}", file=sys.stderr)
             return child.returncode or 1
-        if stdout.strip() != EXPECTED_CHILD_OUTPUT:
-            print(
-                f"run={index} child output mismatch: expected {EXPECTED_CHILD_OUTPUT!r}, "
-                f"got {stdout.strip()!r}",
-                file=sys.stderr,
-            )
+        try:
+            reported_peak_rss_bytes = parse_child_output(stdout, index)
+        except ValueError as mismatch:
+            print(str(mismatch), file=sys.stderr)
             return 1
         rss_values.append(usage.ru_maxrss)
-        print(f"run={index} ru_maxrss={usage.ru_maxrss} {unit} child={stdout.strip()}")
+        print(
+            f"run={index} ru_maxrss={usage.ru_maxrss} {unit} "
+            f"reported_peak_rss_bytes={reported_peak_rss_bytes}"
+        )
 
     ordered = sorted(rss_values)
     middle = len(ordered) // 2
