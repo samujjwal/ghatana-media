@@ -81,6 +81,11 @@ tasks.test {
 // runtime classpath. The fixture passes that same path to MediaLauncher children;
 // it does not depend on Gradle Test worker classloader internals or nested builds.
 val integrationTestRuntimeClasspath = sourceSets.named("test").get().runtimeClasspath
+tasks.named<Test>("test") {
+    doFirst {
+        systemProperty("media.child.classpath", integrationTestRuntimeClasspath.asPath)
+    }
+}
 tasks.register<JavaExec>("postgresWorkflowProcessRestart") {
     group = "verification"
     description = "Verify PostgreSQL-backed Media metrics across separate launcher processes"

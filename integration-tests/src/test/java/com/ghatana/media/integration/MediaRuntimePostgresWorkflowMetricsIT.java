@@ -5,13 +5,24 @@ import com.ghatana.media.provider.aws.TestAwsStateInstall;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaLifecycleEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.HexFormat;
+import java.util.Base64;
+import java.net.http.HttpResponse;
+import java.net.URI;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -33,6 +44,9 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("integration")
 public class MediaRuntimePostgresWorkflowMetricsIT {
+    private static final String SUBJECT_JWT_SECRET = "0123456789abcdef0123456789abcdef";
+    private static final String SUBJECT_TENANT = "tenant-process-recovery";
+    private static final ObjectMapper JSON = new ObjectMapper();
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
             DockerImageName.parse("postgres:16-alpine"));
@@ -43,6 +57,7 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
 
     /** Entry point used by the Gradle JavaExec task to keep a resolved classpath for child JVMs. */
     public static void main(String[] args) throws Exception {
+        String childClasspath = System.getProperty("media.child.classpath", "");
         boolean postgresStarted = false;
         boolean localstackStarted = false;
         try {
@@ -50,7 +65,10 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
             postgresStarted = true;
             LOCALSTACK.start();
             localstackStarted = true;
-            new MediaRuntimePostgresWorkflowMetricsIT().separateLauncherProcessesScrapeDurableMetrics();
+            MediaRuntimePostgresWorkflowMetricsIT fixture = new MediaRuntimePostgresWorkflowMetricsIT();
+            fixture.separateLauncherProcessesScrapeDurableMetrics();
+            System.setProperty("media.child.classpath", childClasspath);
+            fixture.hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects();
         } finally {
             try {
                 if (localstackStarted) LOCALSTACK.stop();
@@ -122,6 +140,138 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
                 .contains(") > 25");
         assertThat(rules).contains("MediaQueueCapacityHigh",
                         "media_workflow_queue_depth{contract_version=\"v1\"}").contains(") > 500");
+    }
+
+    @Test
+    void hardProcessLossRetainsSubjectArtifactAndUnknownJobWithoutReplayingEffects() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-hard-recovery-" + runId;
+        byte[] payload = new byte[] {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10, 4, 5, 6};
+        String sha = sha256(payload);
+        try (S3Client client = s3()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+        Map<String, String> environment = environment(bucket);
+        environment.put("MEDIA_HTTP_PORT", Integer.toString(port));
+        environment.put("MEDIA_JWT_HMAC_SECRET_REFERENCE", "secret:env:MEDIA_PROCESS_JWT_SECRET");
+        environment.put("MEDIA_JWT_ISSUER", "https://issuer.example");
+        environment.put("MEDIA_JWT_AUDIENCE", "ghatana-runtime");
+        environment.put("MEDIA_PROCESS_JWT_SECRET", SUBJECT_JWT_SECRET);
+        String classpath = System.getProperty("media.child.classpath", "");
+        assertThat(classpath).as("Gradle-resolved child application classpath").isNotBlank();
+        String ownerToken = subjectJwt("subject-owner");
+        String otherToken = subjectJwt("subject-other");
+        String jobId = "unknown-recovery-" + runId;
+        String requestId = "request-unknown-recovery-" + runId;
+
+        LauncherChild first = startLauncherProcess(classpath, environment);
+        String artifactId;
+        String objectReference;
+        try {
+            try { awaitReady(first.process(), port); }
+            catch (Throwable failure) { throw new AssertionError("launcher startup log: " + Files.readString(first.log()), failure); }
+            String uploadBody = """
+                    {"tenantId":"%s","principalId":"subject-owner","fileName":"recovery.png",
+                     "contentType":"image/png","expectedSizeBytes":%d,"expectedSha256":"%s",
+                     "classification":"INTERNAL","retention":"P30D","metadata":{}}
+                    """.formatted(SUBJECT_TENANT, payload.length, sha);
+            JsonNode begun = JSON.readTree(http("POST", port, "/api/v1/artifacts/uploads", ownerToken,
+                    "owner-recovery-upload", uploadBody, "application/json", null).body());
+            String uploadId = begun.path("uploadId").asText();
+            assertThat(uploadId).isNotBlank();
+            assertThat(http("PUT", port, "/api/v1/artifacts/uploads/" + uploadId + "/chunks/0", ownerToken,
+                    null, null, "application/octet-stream", payload).statusCode()).isEqualTo(200);
+            HttpResponse<String> completed = http("POST", port,
+                    "/api/v1/artifacts/uploads/" + uploadId + "/complete", ownerToken,
+                    null, "", "application/json", null);
+            assertThat(completed.statusCode()).as(completed.body()).isEqualTo(201);
+            JsonNode artifact = JSON.readTree(completed.body());
+            artifactId = artifact.path("artifactId").asText();
+            objectReference = artifact.path("objectReference").asText();
+            assertThat(artifactId).isNotBlank();
+        } finally {
+            killLauncherProcess(first);
+        }
+
+        // The fixture records an accepted job and a synthetic dispatch-unknown attempt. No provider is invoked;
+        // UNKNOWN remains non-replayable and is used only to exercise durable recovery/readback.
+        AutoCloseable installed = TestAwsStateInstall.install(environment);
+        try (var store = new com.ghatana.media.provider.aws.PostgresqlMediaJobStore()) {
+            ProcessingJob accepted = new ProcessingJob(jobId, requestId, SUBJECT_TENANT, "subject-owner",
+                    artifactId, JobType.VISION, "provider-local", JobStatus.ACCEPTED,
+                    Instant.now(), null, null, Map.of(), "", 1L, "", sha256(("request:" + requestId).getBytes(StandardCharsets.UTF_8)));
+            store.create(accepted, "");
+            var lease = store.claim(accepted, "fixture-worker", Instant.now().plusSeconds(120));
+            ProcessingJob running = new ProcessingJob(jobId, requestId, SUBJECT_TENANT, "subject-owner",
+                    artifactId, JobType.VISION, "provider-local", JobStatus.RUNNING, accepted.createdAt(),
+                    Instant.now(), null, Map.of(), "", accepted.version() + 1, "", accepted.requestFingerprint());
+            var started = store.startAttempt(accepted, running, lease, 1, accepted.requestFingerprint());
+            ProcessingJob unknown = new ProcessingJob(jobId, requestId, SUBJECT_TENANT, "subject-owner", artifactId,
+                    JobType.VISION, "provider-local", JobStatus.OUTCOME_UNKNOWN, accepted.createdAt(),
+                    started.running().startedAt(), Instant.now(), Map.of(), "PROCESSING_OUTCOME_UNKNOWN",
+                    started.running().version() + 1, "", accepted.requestFingerprint());
+            MediaLifecycleEvent outcomeUnknown = new MediaLifecycleEvent(
+                    "fixture-unknown-" + jobId, "MEDIA_JOB_OUTCOME_UNKNOWN", SUBJECT_TENANT, "subject-owner",
+                    requestId, requestId, "job", jobId, unknown.version(), "INTERNAL", unknown.completedAt(), Map.of());
+            store.markOutcomeUnknown(started.running(), started.attempt(), unknown,
+                    Map.of("fixture", "synthetic-dispatch-unknown"), outcomeUnknown);
+        } finally {
+            installed.close();
+        }
+        assertSingleRecoveryRows(jobId, requestId, artifactId, sha);
+
+        try (S3Client client = s3()) {
+            byte[] persisted = client.getObjectAsBytes(software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                    .bucket(bucket).key(URI.create(objectReference).getPath().substring(1)).build()).asByteArray();
+            assertThat(persisted).containsExactly(payload);
+            assertThat(sha256(persisted)).isEqualTo(sha);
+        }
+        assertSingleRecoveryRows(jobId, requestId, artifactId, sha);
+
+        LauncherChild recovered = startLauncherProcess(classpath, environment);
+        try {
+            awaitReady(recovered.process(), port);
+            assertSubjectRecoveryReadback(port, artifactId, jobId, sha, objectReference, ownerToken, otherToken,
+                    requestId);
+        } finally {
+            killLauncherProcess(recovered);
+        }
+        LauncherChild recoveredAgain = startLauncherProcess(classpath, environment);
+        try {
+            awaitReady(recoveredAgain.process(), port);
+            assertSubjectRecoveryReadback(port, artifactId, jobId, sha, objectReference, ownerToken, otherToken,
+                    requestId);
+        } finally {
+            stopLauncherProcess(recoveredAgain);
+        }
+    }
+
+    private static void assertSubjectRecoveryReadback(int port, String artifactId, String jobId, String sha,
+            String objectReference, String ownerToken, String otherToken, String requestId) throws Exception {
+        HttpResponse<String> ownerArtifact = http("GET", port, "/api/v1/artifacts/" + artifactId,
+                ownerToken, null, "", "application/json", null);
+        HttpResponse<String> ownerJob = http("GET", port, "/api/v1/jobs/" + jobId,
+                ownerToken, null, "", "application/json", null);
+        HttpResponse<String> otherArtifact = http("GET", port, "/api/v1/artifacts/" + artifactId,
+                otherToken, null, "", "application/json", null);
+        HttpResponse<String> absentArtifact = http("GET", port, "/api/v1/artifacts/absent-recovery-artifact",
+                otherToken, null, "", "application/json", null);
+        HttpResponse<String> otherJob = http("GET", port, "/api/v1/jobs/" + jobId,
+                otherToken, null, "", "application/json", null);
+        HttpResponse<String> absentJob = http("GET", port, "/api/v1/jobs/absent-recovery-job",
+                otherToken, null, "", "application/json", null);
+        assertThat(ownerArtifact.statusCode()).as(ownerArtifact.body()).isEqualTo(200);
+        assertThat(ownerJob.statusCode()).as(ownerJob.body()).isEqualTo(200);
+        JsonNode recoveredArtifact = JSON.readTree(ownerArtifact.body());
+        assertThat(recoveredArtifact.path("artifactId").asText()).isEqualTo(artifactId);
+        assertThat(recoveredArtifact.path("sha256").asText()).isEqualTo(sha);
+        assertThat(recoveredArtifact.path("objectReference").asText()).isEqualTo(objectReference);
+        assertThat(JSON.readTree(ownerJob.body()).path("status").asText()).isEqualTo("OUTCOME_UNKNOWN");
+        assertEquivalentNotFound(otherArtifact, absentArtifact, artifactId);
+        assertEquivalentNotFound(otherJob, absentJob, jobId);
+        assertSingleRecoveryRows(jobId, requestId, artifactId, sha);
     }
 
     private void separateLauncherProcessesScrapeDurableMetrics() throws Exception {
@@ -273,6 +423,100 @@ public class MediaRuntimePostgresWorkflowMetricsIT {
         } finally {
             Files.deleteIfExists(child.log());
         }
+    }
+
+    private static void killLauncherProcess(LauncherChild child) throws Exception {
+        try {
+            Process process = child.process();
+            assertThat(process.isAlive()).as("launcher process alive at forced-kill boundary").isTrue();
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
+            process.destroyForcibly();
+            assertThat(process.waitFor(15, java.util.concurrent.TimeUnit.SECONDS))
+                    .as("launcher process terminated forcibly").isTrue();
+        } finally {
+            Files.deleteIfExists(child.log());
+        }
+    }
+
+    private static HttpResponse<String> http(String method, int port, String path, String token,
+            String idempotencyKey, String body, String contentType, byte[] bytes) throws Exception {
+        var builder = java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:" + port + path))
+                .header("X-Tenant-Id", SUBJECT_TENANT).header("Authorization", "Bearer " + token)
+                .header("Content-Type", contentType);
+        if (idempotencyKey != null) builder.header("Idempotency-Key", idempotencyKey);
+        if ("GET".equals(method)) builder.GET();
+        else if (bytes != null) builder.PUT(java.net.http.HttpRequest.BodyPublishers.ofByteArray(bytes));
+        else if ("POST".equals(method)) builder.POST(java.net.http.HttpRequest.BodyPublishers.ofString(body));
+        else throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+        return java.net.http.HttpClient.newHttpClient().send(builder.build(),
+                java.net.http.HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    }
+
+    private static void assertEquivalentNotFound(HttpResponse<String> denied, HttpResponse<String> absent,
+            String protectedId) throws Exception {
+        assertThat(denied.statusCode()).isEqualTo(404);
+        assertThat(absent.statusCode()).isEqualTo(denied.statusCode());
+        JsonNode deniedError = JSON.readTree(denied.body()).path("error");
+        JsonNode absentError = JSON.readTree(absent.body()).path("error");
+        assertThat(deniedError).isEqualTo(absentError);
+        assertThat(denied.body()).doesNotContain(protectedId);
+    }
+
+    private static void assertSingleRecoveryRows(String jobId, String requestId, String artifactId, String sha)
+            throws Exception {
+        try (var connection = DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())) {
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND job_id=?",
+                    SUBJECT_TENANT, jobId)).isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id=?",
+                    SUBJECT_TENANT, requestId)).isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_lifecycle_outbox WHERE tenant_id=? "
+                    + "AND correlation_id=? AND event_type='MEDIA_JOB_ACCEPTED'", SUBJECT_TENANT, requestId))
+                    .as("single accepted lifecycle outbox event").isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_processing_lifecycle_outbox WHERE tenant_id=? "
+                    + "AND aggregate_id=? AND event_type='MEDIA_JOB_OUTCOME_UNKNOWN'", SUBJECT_TENANT, jobId))
+                    .as("single terminal UNKNOWN lifecycle event").isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=? AND artifact_id=? "
+                    + "AND principal_id=? AND sha256=?", SUBJECT_TENANT, artifactId, "subject-owner", sha)).isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_processing_attempts WHERE tenant_id=? "
+                    + "AND job_id=? AND state='OUTCOME_UNKNOWN'", SUBJECT_TENANT, jobId))
+                    .as("single terminal unknown attempt").isEqualTo(1);
+            assertThat(count(connection, "SELECT COUNT(*) FROM media_processing_attempts WHERE tenant_id=? "
+                    + "AND job_id=?", SUBJECT_TENANT, jobId))
+                    .as("no duplicate attempt in any state").isEqualTo(1);
+        }
+    }
+
+    private static long count(java.sql.Connection connection, String sql, String... values) throws Exception {
+        try (var statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < values.length; i++) statement.setString(i + 1, values[i]);
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                return rows.getLong(1);
+            }
+        }
+    }
+
+    private static String subjectJwt(String subject) throws Exception {
+        String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        String permissions = "\"media:artifact:create\",\"media:artifact:write\",\"media:artifact:read\","
+                + "\"media:job:create\",\"media:job:read\"";
+        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenant_id\":\"" + SUBJECT_TENANT
+                + "\",\"iss\":\"https://issuer.example\",\"aud\":\"ghatana-runtime\",\"exp\":"
+                + Instant.now().plusSeconds(600).getEpochSecond() + ",\"permissions\":[" + permissions + "]}");
+        String signed = header + "." + payload;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(SUBJECT_JWT_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return signed + "." + Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(mac.doFinal(signed.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    private static String base64Url(String value) {
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static String sha256(byte[] value) throws Exception {
+        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }
 
     private record LauncherChild(Process process, Path log) {}
