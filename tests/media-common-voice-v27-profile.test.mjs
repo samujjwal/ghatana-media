@@ -60,6 +60,24 @@ test('does not allow unsafe fields to be added to the persisted-manifest schema'
   assert.throws(() => validateCandidateProfile(mutated), /exactly the approved fields/);
 });
 
+test('keeps transient source fields limited to the approved in-memory clip inputs', () => {
+  const mutations = [
+    (fields) => fields.push('speaker_id'),
+    (fields) => fields.push('client_id'),
+    (fields) => fields.push('provider'),
+    (fields) => fields.push('externalProvider'),
+    (fields) => fields.push('trainingRunId'),
+    (fields) => fields.push('sentence'),
+    (fields) => fields.splice(fields.indexOf('sentence_id'), 1),
+    (fields) => fields.splice(fields.indexOf('sentence_id'), 1, 'speaker_id'),
+  ];
+  for (const mutate of mutations) {
+    const mutated = structuredClone(profile);
+    mutate(mutated.selection.transientSourceFieldsAllowed);
+    assert.throws(() => validateCandidateProfile(mutated), /exactly the approved in-memory fields/u);
+  }
+});
+
 test('requires the complete exact persisted-manifest field set and validates any record', () => {
   const missing = structuredClone(profile);
   missing.selection.requiredManifestFields = ['clipId', 'audioSha256'];

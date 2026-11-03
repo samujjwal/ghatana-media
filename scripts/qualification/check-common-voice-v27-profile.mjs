@@ -28,6 +28,9 @@ const REQUIRED_DECLARED_FORBIDDEN_FIELDS = Object.freeze([
 const REQUIRED_MANIFEST_FIELDS = Object.freeze([
   'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'clipId', 'audioSha256',
 ]);
+const ALLOWED_TRANSIENT_SOURCE_FIELDS = Object.freeze([
+  'locale', 'path', 'sentence_id', 'sentence',
+]);
 
 function canonicalFieldName(field) {
   return field.toLowerCase().replace(/[^a-z0-9]/gu, '');
@@ -127,6 +130,11 @@ export function validateCandidateProfile(profile) {
     && selection.requiredManifestFields.length === REQUIRED_MANIFEST_FIELDS.length
     && [...selection.requiredManifestFields].sort().join(',') === [...REQUIRED_MANIFEST_FIELDS].sort().join(','),
   'persisted clip manifest must use exactly the approved fields');
+  assert(Array.isArray(selection.transientSourceFieldsAllowed)
+    && selection.transientSourceFieldsAllowed.length === ALLOWED_TRANSIENT_SOURCE_FIELDS.length
+    && [...selection.transientSourceFieldsAllowed].sort().join(',')
+      === [...ALLOWED_TRANSIENT_SOURCE_FIELDS].sort().join(','),
+  'transient source fields must use exactly the approved in-memory fields');
   assert(selection.requiredManifestFields.every((field) => !FORBIDDEN_FIELD_NAMES.has(canonicalFieldName(field))),
     'persisted manifest required fields include a forbidden field');
   assert(Array.isArray(selection.forbiddenManifestFields)
