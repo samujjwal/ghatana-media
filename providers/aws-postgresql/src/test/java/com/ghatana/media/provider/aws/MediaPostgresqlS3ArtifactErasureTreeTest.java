@@ -262,6 +262,77 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
     }
 
     @Test
+    void malformedUploadChunkKeyFailsClosedBeforeMetadataDeletion() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "m-ip06-bad-key-" + runId;
+        String prefix = "ip06-erasure-bad-chunk-key/" + runId;
+        String tenant = "tenant-ip06-erasure-bad-chunk-key-" + runId;
+        String principal = "principal-ip06-erasure-bad-chunk-key-" + runId;
+        createBucket(bucket);
+
+        Map<String, String> environment = environment(bucket, prefix);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             S3PostgresqlMediaArtifactStore store = new S3PostgresqlMediaArtifactStore();
+             PostgresqlMediaPrivacyMaintenance maintenance = new PostgresqlMediaPrivacyMaintenance(environment);
+             S3Client admin = s3Client()) {
+            byte[] bytes = wav(("unfinished-upload:" + runId).getBytes(StandardCharsets.UTF_8));
+            var upload = store.begin(new UploadRequest(tenant, principal, "unfinished.wav", "audio/wav",
+                    bytes.length, sha256(bytes), "RESTRICTED", Duration.ofDays(1), Map.of()), "bad-key-" + runId);
+            store.append(tenant, principal, upload.uploadId(), 0, bytes);
+
+            String originalKey;
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var query = connection.prepareStatement(
+                         "SELECT object_key FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+                query.setString(1, tenant);
+                query.setString(2, upload.uploadId());
+                try (var rows = query.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    originalKey = rows.getString(1);
+                }
+            }
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var corrupt = connection.prepareStatement(
+                         "UPDATE media_upload_chunks SET object_key=' ' WHERE tenant_id=? AND upload_id=?")) {
+                corrupt.setString(1, tenant);
+                corrupt.setString(2, upload.uploadId());
+                assertThat(corrupt.executeUpdate()).isEqualTo(1);
+            }
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var expire = connection.prepareStatement(
+                         "UPDATE media_upload_sessions SET expires_at=? WHERE tenant_id=? AND upload_id=?")) {
+                expire.setLong(1, Instant.now().minusSeconds(60).toEpochMilli());
+                expire.setString(2, tenant);
+                expire.setString(3, upload.uploadId());
+                assertThat(expire.executeUpdate()).isEqualTo(1);
+            }
+
+            assertThatThrownBy(() -> maintenance.purgeExpired(Instant.now()))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Refusing to delete Media object without a valid object key");
+
+            assertThat(store.upload(tenant, upload.uploadId())).isPresent();
+            try (var connection = DriverManager.getConnection(
+                         POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var count = connection.prepareStatement(
+                         "SELECT COUNT(*) FROM media_upload_chunks WHERE tenant_id=? AND upload_id=?")) {
+                count.setString(1, tenant);
+                count.setString(2, upload.uploadId());
+                try (var rows = count.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    assertThat(rows.getInt(1)).isEqualTo(1);
+                }
+            }
+            assertObjectExists(admin, bucket, originalKey);
+        } finally {
+            deleteBucket(bucket);
+        }
+    }
+
+    @Test
     void derivedRegistrationSerializesWithExpiryTreePurge() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-ip06-erasure-race-" + runId;

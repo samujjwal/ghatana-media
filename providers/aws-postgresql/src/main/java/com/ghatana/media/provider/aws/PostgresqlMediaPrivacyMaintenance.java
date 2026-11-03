@@ -418,7 +418,11 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
     }
 
     private void deleteObject(String objectKey) {
-        if (objectKey == null || objectKey.isBlank()) return;
+        if (objectKey == null || objectKey.isBlank()) {
+            // A missing key is not evidence that there are no bytes to remove. In particular,
+            // do not let a malformed upload-chunk row fall through to metadata deletion.
+            throw new IllegalStateException("Refusing to delete Media object without a valid object key");
+        }
         state.s3().deleteObject(DeleteObjectRequest.builder()
                 .bucket(state.bucket())
                 .key(objectKey)
