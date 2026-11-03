@@ -21,6 +21,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /** Regression coverage for STT transport mapping after real JWT interceptor verification. */
-class SttGrpcAuthorizationUnavailableMappingTest {
+class SttGrpcAuthorizationDecisionMappingTest {
     private static final String SECRET = "stt-authorization-parity-test-secret";
     private static final String SUBJECT = "00000000-0000-0000-0000-000000000001";
     private static final String TENANT = "tenant-stt-authorization-parity";
@@ -49,19 +50,21 @@ class SttGrpcAuthorizationUnavailableMappingTest {
     }
 
     @Test
-    void unavailableAuthorizationDecisionMapsToGrpcFailureAfterJwtVerification() throws Exception {
+    void rejectedAuthorizationDecisionsMapToGrpcFailuresAfterJwtVerification() throws Exception {
         previousSecret = System.getProperty("AV_JWT_SECRET");
         System.setProperty("AV_JWT_SECRET", SECRET);
 
         AtomicReference<SttRequestAuthorization.Request> requestSeenByTransport = new AtomicReference<>();
-        // Deterministic unavailable fixture: this test proves identity/request parity and fail-closed mapping,
-        // not provider rights, model quality, or an external authority decision.
-        SttRequestAuthorization unavailableFixture = request -> {
-            requestSeenByTransport.compareAndSet(null, request);
-            return SttRequestAuthorization.Decision.UNAVAILABLE;
+        AtomicReference<SttRequestAuthorization.Decision> decision =
+                new AtomicReference<>(SttRequestAuthorization.Decision.UNAVAILABLE);
+        // Deterministic fixtures exercise fail-closed transport mapping only; they do not claim
+        // provider rights, model quality, or an external authority decision.
+        SttRequestAuthorization decisionFixture = request -> {
+            requestSeenByTransport.set(request);
+            return decision.get();
         };
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
-        service = new SttGrpcService(library, new SimpleMeterRegistry(), unavailableFixture);
+        service = new SttGrpcService(library, new SimpleMeterRegistry(), decisionFixture);
 
         String serverName = InProcessServerBuilder.generateName();
         server = InProcessServerBuilder.forName(serverName)
@@ -83,26 +86,41 @@ class SttGrpcAuthorizationUnavailableMappingTest {
                 .setArtifactId("artifact-fixture")
                 .build();
 
-        AtomicReference<StatusRuntimeException> transportFailure = new AtomicReference<>();
-        assertThatThrownBy(() -> stub.transcribe(grpcRequest))
-                .isInstanceOf(StatusRuntimeException.class)
-                .satisfies(error -> transportFailure.set((StatusRuntimeException) error));
+        for (SttRequestAuthorization.Decision rejectedDecision : List.of(
+                SttRequestAuthorization.Decision.DENIED,
+                SttRequestAuthorization.Decision.REVOKED,
+                SttRequestAuthorization.Decision.UNAVAILABLE)) {
+            decision.set(rejectedDecision);
+            requestSeenByTransport.set(null);
+            AtomicReference<StatusRuntimeException> transportFailure = new AtomicReference<>();
+            assertThatThrownBy(() -> stub.transcribe(grpcRequest))
+                    .isInstanceOf(StatusRuntimeException.class)
+                    .satisfies(error -> transportFailure.set((StatusRuntimeException) error));
 
-        SttRequestAuthorization.Request capturedRequest = requestSeenByTransport.get();
-        assertThat(capturedRequest).as("transport must reach domain authorization after JWT verification")
-                .isNotNull();
-        JwtServerInterceptor.VerifiedIdentity verifiedIdentity = capturedRequest.identity();
-        assertThat(verifiedIdentity.subject()).isEqualTo(SUBJECT);
-        assertThat(verifiedIdentity.tenantId()).isEqualTo(TENANT);
-        assertThat(capturedRequest.operation()).isEqualTo(SttRequestAuthorization.Operation.TRANSCRIBE);
-        assertThat(capturedRequest.resourceId()).isEqualTo("artifact-fixture");
+            SttRequestAuthorization.Request capturedRequest = requestSeenByTransport.get();
+            assertThat(capturedRequest).as("transport must reach domain authorization after JWT verification")
+                    .isNotNull();
+            JwtServerInterceptor.VerifiedIdentity verifiedIdentity = capturedRequest.identity();
+            assertThat(verifiedIdentity.subject()).isEqualTo(SUBJECT);
+            assertThat(verifiedIdentity.tenantId()).isEqualTo(TENANT);
+            assertThat(capturedRequest.operation()).isEqualTo(SttRequestAuthorization.Operation.TRANSCRIBE);
+            assertThat(capturedRequest.resourceId()).isEqualTo("artifact-fixture");
 
-        // Evaluate the same authorization contract again with the exact identity and request captured
-        // from the actual interceptor -> service -> authorization transport path.
-        StatusRuntimeException grpcFailure = transportFailure.get();
-        assertThat(grpcFailure.getStatus().getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
-        assertThat(grpcFailure.getStatus().getDescription()).isEqualTo(
-                "STT_RIGHTS_NOT_ADMITTED: trusted rights and ownership authority is unavailable");
+            StatusRuntimeException grpcFailure = transportFailure.get();
+            Status.Code expectedCode = rejectedDecision == SttRequestAuthorization.Decision.UNAVAILABLE
+                    ? Status.Code.FAILED_PRECONDITION : Status.Code.PERMISSION_DENIED;
+            String expectedName = switch (rejectedDecision) {
+                case DENIED -> "STT_RIGHTS_DENIED";
+                case REVOKED -> "STT_RIGHTS_REVOKED";
+                case UNAVAILABLE -> "STT_RIGHTS_NOT_ADMITTED";
+                case ADMITTED -> throw new IllegalArgumentException("admitted is not a rejected decision");
+            };
+            String expectedDetail = rejectedDecision == SttRequestAuthorization.Decision.UNAVAILABLE
+                    ? "trusted rights and ownership authority is unavailable"
+                    : "trusted rights and ownership policy denied the request";
+            assertThat(grpcFailure.getStatus().getCode()).isEqualTo(expectedCode);
+            assertThat(grpcFailure.getStatus().getDescription()).isEqualTo(expectedName + ": " + expectedDetail);
+        }
         verifyNoInteractions(library);
     }
 

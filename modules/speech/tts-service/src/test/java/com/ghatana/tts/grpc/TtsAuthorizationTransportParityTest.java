@@ -23,6 +23,8 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /** Regression for CT-02: direct and gRPC TTS authorization outcomes stay aligned. */
 class TtsAuthorizationTransportParityTest {
@@ -36,32 +38,36 @@ class TtsAuthorizationTransportParityTest {
     private Server server;
     private ManagedChannel channel;
     private TtsGrpcService service;
+    private AudioVideoLibrary library;
 
     @AfterEach
     void tearDown() {
         if (channel != null) channel.shutdownNow();
         if (server != null) server.shutdownNow();
         if (service != null) service.close();
+        library = null;
         if (previousJwtSecret == null) System.clearProperty("AV_JWT_SECRET");
         else System.setProperty("AV_JWT_SECRET", previousJwtSecret);
     }
 
     @Test
-    void directAndTransportAuthorizationHaveSameUnavailableStatus() throws Exception {
+    void directAndTransportAuthorizationHaveSameStatusForRejectedDecisions() throws Exception {
         previousJwtSecret = System.getProperty("AV_JWT_SECRET");
         System.setProperty("AV_JWT_SECRET", JWT_SECRET);
 
         AtomicReference<JwtServerInterceptor.VerifiedIdentity> interceptedIdentity =
                 new AtomicReference<>();
+        AtomicReference<TtsRequestAuthorization.Decision> currentDecision = new AtomicReference<>();
         TtsRequestAuthorization transportFixture = new TtsRequestAuthorization() {
             @Override
             public Decision authorize(Request request) {
                 interceptedIdentity.set(request.identity());
-                return Decision.UNAVAILABLE;
+                return currentDecision.get();
             }
         };
+        library = mock(AudioVideoLibrary.class);
         service = new TtsGrpcService(
-                org.mockito.Mockito.mock(AudioVideoLibrary.class),
+                library,
                 new SimpleMeterRegistry(),
                 () -> true,
                 () -> false,
@@ -87,29 +93,41 @@ class TtsAuthorizationTransportParityTest {
                 .setVoiceId(VOICE_ID)
                 .build();
 
-        Status transportStatus;
-        try {
-            stub.synthesize(request);
-            throw new AssertionError("unavailable authorization fixture must fail closed");
-        } catch (StatusRuntimeException failure) {
-            transportStatus = failure.getStatus();
+        for (TtsRequestAuthorization.Decision decision : new TtsRequestAuthorization.Decision[] {
+                TtsRequestAuthorization.Decision.DENIED,
+                TtsRequestAuthorization.Decision.REVOKED,
+                TtsRequestAuthorization.Decision.UNAVAILABLE
+        }) {
+            currentDecision.set(decision);
+            interceptedIdentity.set(null);
+
+            Status transportStatus;
+            try {
+                stub.synthesize(request);
+                throw new AssertionError("rejected fixture must fail closed: " + decision);
+            } catch (StatusRuntimeException failure) {
+                transportStatus = failure.getStatus();
+            }
+
+            JwtServerInterceptor.VerifiedIdentity identity = interceptedIdentity.get();
+            assertThat(identity).as("interceptor identity for %s", decision).isNotNull();
+
+            Status directStatus;
+            try {
+                TtsRequestAuthorization.requireAdmission(
+                        transportFixture, identity,
+                        TtsRequestAuthorization.Operation.SYNTHESIZE, VOICE_ID, null);
+                throw new AssertionError("rejected fixture must fail closed: " + decision);
+            } catch (TtsRequestAuthorization.AuthorizationException failure) {
+                directStatus = failure.status();
+            }
+
+            assertThat(transportStatus.getCode()).as("transport code for %s", decision)
+                    .isEqualTo(directStatus.getCode());
+            assertThat(transportStatus.getDescription()).as("transport description for %s", decision)
+                    .isEqualTo(directStatus.getDescription());
+            verifyNoInteractions(library);
         }
-
-        JwtServerInterceptor.VerifiedIdentity identity = interceptedIdentity.get();
-        assertThat(identity).isNotNull();
-
-        Status directStatus;
-        try {
-            TtsRequestAuthorization.requireAdmission(
-                    transportFixture, identity,
-                    TtsRequestAuthorization.Operation.SYNTHESIZE, VOICE_ID, null);
-            throw new AssertionError("unavailable authorization must fail closed");
-        } catch (TtsRequestAuthorization.AuthorizationException failure) {
-            directStatus = failure.status();
-        }
-
-        assertThat(transportStatus.getCode()).isEqualTo(directStatus.getCode());
-        assertThat(transportStatus.getDescription()).isEqualTo(directStatus.getDescription());
     }
 
     private static String signedJwt(String subject, String tenantId) throws Exception {

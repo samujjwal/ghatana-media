@@ -94,7 +94,9 @@ class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
                 .errorCode(4001)
                 .errorMessage("synthetic fixture failure")
                 .providerKey("synthetic-fixture:local-v1")
-                .systemMetadata(Map.of("evidenceKind", "SYNTHETIC_FIXTURE_ONLY"))
+                .systemMetadata(Map.of(
+                        "evidenceKind", "SYNTHETIC_FIXTURE_ONLY",
+                        "sourceArtifactVersion", "fixture-artifact-v1"))
                 .build();
         AudioVideoRunLedgerEntry otherTenant = AudioVideoRunLedgerEntry.builder()
                 .runId("fixture-run-other-tenant")
@@ -140,7 +142,10 @@ class AudioVideoAdvancedServicesIntegrationTest extends EventloopTestBase {
                     assertThat(entry.state()).isEqualTo(AudioVideoRunLedgerEntry.RunState.FAILED);
                     assertThat(entry.getErrorCode()).contains(4001);
                     assertThat(entry.getErrorMessage()).contains("synthetic fixture failure");
-                    assertThat(entry.systemMetadata()).containsEntry("evidenceKind", "SYNTHETIC_FIXTURE_ONLY");
+                    assertThat(entry.systemMetadata())
+                            .containsEntry("evidenceKind", "SYNTHETIC_FIXTURE_ONLY")
+                            .containsEntry("sourceArtifactVersion", "fixture-artifact-v1")
+                            .doesNotContainKey("transcriptVersion");
                 });
     }
 
