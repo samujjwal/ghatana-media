@@ -95,6 +95,10 @@ pub type Result<T> = std::result::Result<T, SpeechAudioError>;
 /// operations when the deadline expires. Callers that need a hard kill of a
 /// potentially stuck native codec must isolate decoding in a worker process.
 const MAX_DECODE_TIME: Duration = Duration::from_secs(60);
+/// A single in-memory decode is capped at six hours even when callers request
+/// a larger sample budget. This keeps low sample rates from turning a finite
+/// sample cap into an impractically long stream.
+const MAX_DECODE_DURATION_SECONDS: u64 = 6 * 60 * 60;
 
 /**
  * Finite decode budget protecting against decoded-memory bombs. Container
@@ -117,11 +121,16 @@ pub struct DecodeLimits {
 }
 
 impl DecodeLimits {
+    const HARD_MAX_INPUT_BYTES: u64 = 512 * 1024 * 1024;
+    const HARD_MAX_DECODED_SAMPLES: usize = 96_000_000;
+    const HARD_MAX_CHANNELS: u16 = 8;
+    const HARD_MAX_SAMPLE_RATE: u32 = 768_000;
+
     pub const DEFAULT: Self = Self {
-        max_input_bytes: 512 * 1024 * 1024,
-        max_decoded_samples: 96_000_000,
-        max_channels: 8,
-        max_sample_rate: 768_000,
+        max_input_bytes: Self::HARD_MAX_INPUT_BYTES,
+        max_decoded_samples: Self::HARD_MAX_DECODED_SAMPLES,
+        max_channels: Self::HARD_MAX_CHANNELS,
+        max_sample_rate: Self::HARD_MAX_SAMPLE_RATE,
     };
 
     fn validate(&self) -> Result<()> {
@@ -132,6 +141,15 @@ impl DecodeLimits {
         {
             return Err(SpeechAudioError::InvalidInput(
                 "decode limits must be positive".to_string(),
+            ));
+        }
+        if self.max_input_bytes > Self::HARD_MAX_INPUT_BYTES
+            || self.max_decoded_samples > Self::HARD_MAX_DECODED_SAMPLES
+            || self.max_channels > Self::HARD_MAX_CHANNELS
+            || self.max_sample_rate > Self::HARD_MAX_SAMPLE_RATE
+        {
+            return Err(SpeechAudioError::InvalidInput(
+                "decode limits cannot exceed the crate hard resource caps".to_string(),
             ));
         }
         Ok(())
@@ -682,6 +700,34 @@ fn trusted_expected_frames(n_frames: Option<u64>, has_exact_frame_count: bool) -
     }
 }
 
+fn validate_declared_frame_count(
+    frames: u64,
+    sample_rate: u32,
+    channels: u16,
+    limits: DecodeLimits,
+) -> Result<()> {
+    let interleaved_samples = frames.checked_mul(u64::from(channels)).ok_or_else(|| {
+        SpeechAudioError::ResourceLimit("declared audio sample count overflow".to_string())
+    })?;
+    if interleaved_samples > limits.max_decoded_samples as u64 {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "container declares {interleaved_samples} samples, exceeding the {} sample budget",
+            limits.max_decoded_samples
+        )));
+    }
+    let max_frames = u64::from(sample_rate)
+        .checked_mul(MAX_DECODE_DURATION_SECONDS)
+        .ok_or_else(|| {
+            SpeechAudioError::ResourceLimit("decode duration limit overflow".to_string())
+        })?;
+    if frames > max_frames {
+        return Err(SpeechAudioError::ResourceLimit(format!(
+            "container declares {frames} frames, exceeding the {MAX_DECODE_DURATION_SECONDS} second duration budget"
+        )));
+    }
+    Ok(())
+}
+
 fn decode_audio_bounded(path: &Path, limits: DecodeLimits) -> Result<DecodedAudio> {
     decode_audio_bounded_with_time_budget(path, limits, MAX_DECODE_TIME)
 }
@@ -901,17 +947,7 @@ fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
         )));
     }
     if let Some(expected_frames) = expected_frames {
-        let expected_samples = expected_frames
-            .checked_mul(u64::from(channels))
-            .ok_or_else(|| {
-                SpeechAudioError::ResourceLimit("declared audio sample count overflow".to_string())
-            })?;
-        if expected_samples > limits.max_decoded_samples as u64 {
-            return Err(SpeechAudioError::ResourceLimit(format!(
-                "container declares {expected_samples} samples, exceeding the {} sample budget",
-                limits.max_decoded_samples
-            )));
-        }
+        validate_declared_frame_count(expected_frames, sample_rate, channels, limits)?;
     }
 
     let mut decoder = get_codecs()
@@ -988,11 +1024,14 @@ fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
         if packet_frames == 0 {
             continue;
         }
-        decoded_frames = decoded_frames
+        let new_decoded_frames = decoded_frames
             .checked_add(packet_frames as u64)
             .ok_or_else(|| {
                 SpeechAudioError::ResourceLimit("decoded frame count overflow".to_string())
             })?;
+        // Enforce duration before allocating the additional interleaved copy.
+        validate_declared_frame_count(new_decoded_frames, sample_rate, channels, limits)?;
+        decoded_frames = new_decoded_frames;
         let mut interleaved = SampleBuffer::<f32>::new(packet_frames as u64, spec);
         interleaved.copy_interleaved_ref(decoded);
         let decoded_samples = interleaved.samples();
@@ -1008,7 +1047,7 @@ fn decode_audio_from_source(input: DecodeSource<'_>) -> Result<DecodedAudio> {
             )));
         }
         samples
-            .try_reserve(decoded_samples.len())
+            .try_reserve_exact(decoded_samples.len())
             .map_err(|error| {
                 SpeechAudioError::ResourceLimit(format!(
                     "cannot reserve bounded decoded sample output: {error}"
@@ -1205,6 +1244,8 @@ fn validate_riff_wav(
                 "WAVE data chunk does not contain complete interleaved frames".to_string(),
             ));
         }
+        let frames = u64::from(data_size / u32::from(block_align));
+        validate_declared_frame_count(frames, rate, channels, limits)?;
     }
     Ok(())
 }
@@ -2742,6 +2783,78 @@ mod tests {
                 }
             ),
             Err(SpeechAudioError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn decode_limits_cannot_raise_crate_hard_caps() {
+        let too_many_samples = DecodeLimits {
+            max_decoded_samples: DecodeLimits::HARD_MAX_DECODED_SAMPLES + 1,
+            ..DecodeLimits::DEFAULT
+        };
+        let oversized_caps = [
+            DecodeLimits {
+                max_input_bytes: DecodeLimits::HARD_MAX_INPUT_BYTES + 1,
+                ..DecodeLimits::DEFAULT
+            },
+            too_many_samples,
+            DecodeLimits {
+                max_channels: DecodeLimits::HARD_MAX_CHANNELS + 1,
+                ..DecodeLimits::DEFAULT
+            },
+            DecodeLimits {
+                max_sample_rate: DecodeLimits::HARD_MAX_SAMPLE_RATE + 1,
+                ..DecodeLimits::DEFAULT
+            },
+        ];
+        for limits in oversized_caps {
+            assert!(matches!(
+                limits.validate(),
+                Err(SpeechAudioError::InvalidInput(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn declared_frame_count_checks_sample_overflow_and_duration_before_decode() {
+        let limits = DecodeLimits::DEFAULT;
+        assert!(matches!(
+            validate_declared_frame_count(u64::MAX, 16_000, 2, limits),
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message == "declared audio sample count overflow"
+        ));
+        assert!(matches!(
+            validate_declared_frame_count(
+                MAX_DECODE_DURATION_SECONDS + 1,
+                1,
+                1,
+                limits,
+            ),
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message.contains("duration budget")
+        ));
+        assert!(validate_declared_frame_count(16_000 * 60, 16_000, 2, limits).is_ok());
+
+        // A valid, modest-size low-rate WAVE crosses the duration cap while
+        // remaining below the sample cap, so RIFF preflight must reject it.
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("duration-budget.wav");
+        write_wav(
+            &path,
+            &AudioBuffer::new(
+                vec![0.0; (MAX_DECODE_DURATION_SECONDS + 1) as usize],
+                AudioConfig {
+                    sample_rate: 1,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        assert!(matches!(
+            load_audio_buffer(&path),
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message.contains("duration budget")
         ));
     }
 
