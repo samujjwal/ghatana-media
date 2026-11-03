@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,6 +29,87 @@ import static org.assertj.core.api.Assertions.*;
  */
 @DisplayName("Audio-Video RunLedger Adapter Tests")
 class AudioVideoRunLedgerAdapterTest {
+
+    @Test
+    @DisplayName("Matches LD-02 golden projection and rejects source distinctions absent from RunLedger")
+    void testLd02GoldenProjectionAndUnrepresentedSourceTruth() throws Exception {
+        Properties golden = new Properties();
+        try (var fixture = getClass().getResourceAsStream("ld-02-golden.properties")) {
+            assertThat(fixture).as("LD-02 golden fixture is present").isNotNull();
+            golden.load(fixture);
+        }
+        long createdAt = Long.parseLong(golden.getProperty("createdAtMs"));
+        long startedAt = Long.parseLong(golden.getProperty("startedAtMs"));
+        Map<String, String> params = Map.of("rightsRef", golden.getProperty("rightsRef"));
+
+        RunLedger terminal = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                golden.getProperty("mediaArtifactId"), params, golden.getProperty("terminalState"),
+                createdAt, startedAt, golden.getProperty("terminalOutputArtifactId"), null,
+                null, null, golden.getProperty("traceId"), golden.getProperty("correlationId"));
+        assertThat(terminal.runId()).isEqualTo(golden.getProperty("jobId"));
+        assertThat(terminal.contextId()).isEqualTo(golden.getProperty("collectionId"));
+        assertThat(terminal.state().name()).isEqualTo(golden.getProperty("terminalLedgerState"));
+        assertThat(terminal.outcome().name()).isEqualTo(golden.getProperty("terminalOutcome"));
+        assertThat(terminal.inputs().parameters()).containsEntry("rightsRef", golden.getProperty("rightsRef"));
+        assertThat(terminal.inputs().headers()).containsEntry("mediaArtifactId", golden.getProperty("mediaArtifactId"));
+        assertThat(terminal.outputs().resultId()).isEqualTo(golden.getProperty("terminalOutputArtifactId"));
+
+        RunLedger partial = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                golden.getProperty("mediaArtifactId"), params, golden.getProperty("partialState"),
+                createdAt, startedAt, golden.getProperty("terminalOutputArtifactId"), null,
+                null, null, golden.getProperty("traceId"), golden.getProperty("correlationId"));
+        assertThat(partial.state().name()).isEqualTo(golden.getProperty("partialLedgerState"));
+        assertThat(partial.outcome().name()).isEqualTo(golden.getProperty("partialOutcome"));
+        assertThat(partial.outputs().statusCode())
+                .isEqualTo(Integer.parseInt(golden.getProperty("partialOutputStatusCode")));
+        assertThat(partial.attributes()).containsEntry("effectFinality", "PARTIAL");
+
+        RunLedger retry = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                golden.getProperty("mediaArtifactId"), params, golden.getProperty("retryState"),
+                createdAt, 0, null, null, null, null,
+                golden.getProperty("traceId"), golden.getProperty("correlationId"));
+        assertThat(retry.state().name()).isEqualTo(golden.getProperty("retryLedgerState"));
+        assertThat(retry.outcome()).isNull();
+        assertThat(retry.outputs()).isNull();
+        assertThat(retry.attributes()).containsEntry("effectFinality", "UNRESOLVED");
+
+        RunLedger cancelled = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                golden.getProperty("mediaArtifactId"), params, golden.getProperty("cancelledState"),
+                createdAt, startedAt, null, null, null, null,
+                golden.getProperty("traceId"), golden.getProperty("correlationId"));
+        assertThat(cancelled.state().name()).isEqualTo(golden.getProperty("cancelledLedgerState"));
+        assertThat(cancelled.outcome().name()).isEqualTo(golden.getProperty("cancelledOutcome"));
+
+        // The public shape has no fields for these source-bound immutable values.
+        // In particular, its attemptNumber=1 and initiatedBy="system" are adapter
+        // defaults, not recovered source facts. Do not promote them to authority.
+        assertThat(terminal.attemptNumber()).isEqualTo(1);
+        assertThat(terminal.inputs().initiatedBy()).isEqualTo("system");
+        for (String absent : golden.getProperty("unrepresented").split(",")) {
+            assertThat(terminal.attributes()).doesNotContainKey(absent);
+            assertThat(terminal.inputs().parameters()).doesNotContainKey(absent);
+            assertThat(terminal.inputs().headers()).doesNotContainKey(absent);
+        }
+
+        for (String unknown : golden.getProperty("unknownStates").split(",")) {
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                    golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                    golden.getProperty("mediaArtifactId"), params, unknown, createdAt, startedAt,
+                    null, null, "provider", "provider-terminal", golden.getProperty("traceId"),
+                    golden.getProperty("correlationId")))
+                    .as("%s must not be conflated with aggregate job completion", unknown)
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+    }
 
     @Test
     @DisplayName("Converts completed ProcessingJob to RunLedger with correct state")

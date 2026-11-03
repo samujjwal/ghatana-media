@@ -3652,3 +3652,11 @@ Commit `1818ee00` extends the isolated source-free package check to scan packed 
 ### 43.40 November 3 LD-01 exhaustive ledger state mapping
 
 Commit `ea73e1de` documents the exact aggregate-job projection and the boundary between job, attempt, quality and delivery state machines. The focused FULL-composite selector `:services:media:adapters:ledger:test --tests com.ghatana.audiovideo.adapter.ledger.AudioVideoRunLedgerAdapterTest` passed **27/27**. Unknown/unrepresentable job states remain rejected because public RunLedger has no typed `UNKNOWN` state. The adapter API still takes an untyped string, so colliding values such as `PREPARING`, `SUBMITTED`, `FAILED`, `RUNNING`, and `OUTCOME_UNKNOWN` use the job/legacy interpretation or rejection, not a separately typed delivery/attempt meaning. No mapping code or ledger writer changed; actual platform consumer admission and LD-02..05 acceptance remain open.
+
+### 43.41 November 3 LD-02 golden projection boundary
+
+Added the LD-02 golden fixture and projection test for terminal, partial, retry, and cancelled jobs, plus rejection of unknown, reconciling, cancellation-request, and cancellation-confirmation states. The focused FULL-composite ledger selector passed **28/28**. The test confirms that the public `RunLedger` cannot represent canonical tenant, request fingerprint, attempt/fence, source version/digest, rights authority, or effect-UNKNOWN distinctions; adapter defaults `attemptNumber=1` and `initiatedBy="system"` remain defaults rather than recovered source facts. No Media ledger writer or public contract was added. Durable Data Cloud CAS/readback and LD-03..05 remain outstanding.
+
+### 43.42 November 3 RS-04 audio window and mix boundaries
+
+Commit `454a09c2` adds exact stereo half-open adjacent-slice partition checks at a 3 Hz clock and a stereo mix case crossing the 4096-sample accumulation boundary, including short-track padding. The Rust library suite passed **54/54**; `cargo fmt`, Clippy with warnings denied, and `git diff --check` passed. These deterministic synthetic fixtures do not establish real provider output, codec qualification, or RS-04's remaining waveform/clipping/pan/loudness cases.
