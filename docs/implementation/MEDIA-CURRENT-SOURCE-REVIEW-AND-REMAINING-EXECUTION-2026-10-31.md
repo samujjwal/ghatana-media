@@ -4221,3 +4221,8 @@ The Rust WAV writer/decoder already matches its source-defined fixed float32 out
 ### 43.161 November 3 audio/video stream-frame length guards
 
 Rechecked the two frame helpers explicitly called out in AGENTS.md. `AudioStreamSession.decodeFrame` rejects null/short/over-wire-cap buffers, negative or over-cap signed lengths, and any mismatch between declared payload length and remaining bytes before allocation; tests cover `Integer.MIN_VALUE`, `Integer.MAX_VALUE`, truncated/trailing payloads and deterministic length mutations. `VideoStreamSession.decodeFrame` applies the same strict checks plus keyframe-flag validation and computes expected frame size in `long` before allocation; its tests cover arithmetic boundaries, truncation, trailing data and over-wire-cap inputs. An independent Luna source/test review found no gap, and no tests were rerun because no source changed. Both helpers remain local frame codecs only; this does not qualify live AS-01/VS-01 transport or provider behavior.
+
+
+### 43.162 November 3 TY-03 protocol projection parity readback
+
+The existing projection keeps the PDP-1 named-operation denominators **27/43** distinct from the observed **30 HTTP / 44 gRPC** inventories, preserving the three caption-version routes and `VisionService.RecognizeSceneText` as source extras. `tests/media-ty03-contract-identity-snapshot.test.mjs` already verifies those exact identities and keeps scene-text proposal-only / owner-review-pending, with the projection labeled UNBOUND/NOT_ADMITTED outside the PDP-1 denominator. The YAML/descriptor has one PDP-3 service-registry owner; no duplicate semantic registry or safe missing mapping was found, so no change or test rerun was justified. No operation mapping or owner status was invented.
