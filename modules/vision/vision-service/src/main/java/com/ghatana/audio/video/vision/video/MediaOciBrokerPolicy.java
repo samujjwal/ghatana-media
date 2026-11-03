@@ -288,7 +288,7 @@ final class MediaOciBrokerPolicy {
         if (source == null) return true;
         if (sourceSha256 == null || !sourceSha256.matches("[0-9a-f]{64}")) return false;
         Path literal = Path.of(source);
-        if (Files.isSymbolicLink(literal)) return false;
+        if (!pathHasNoSymlinkComponents(literal, policy.sourceRoot())) return false;
         Path resolved = literal.toRealPath();
         if (!resolved.startsWith(policy.sourceRoot()) || !Files.isRegularFile(resolved)) {
             return false;
@@ -312,9 +312,28 @@ final class MediaOciBrokerPolicy {
     static boolean outputAllowed(Policy policy, String output) throws IOException {
         if (output == null) return true;
         Path literal = Path.of(output);
-        if (Files.isSymbolicLink(literal)) return false;
+        if (!pathHasNoSymlinkComponents(literal, policy.outputRoot())) return false;
         Path resolved = literal.toRealPath();
         return resolved.startsWith(policy.outputRoot()) && Files.isDirectory(resolved);
+    }
+
+    /** Reject aliases in every path component, including a symlinked parent directory. */
+    private static boolean pathHasNoSymlinkComponents(Path literal, Path trustedRoot) throws IOException {
+        Path normalized = literal.toAbsolutePath().normalize();
+        Path current = normalized.getRoot();
+        if (current == null) return false;
+        boolean insideTrustedRoot = false;
+        for (Path component : normalized) {
+            current = current.resolve(component);
+            // macOS commonly exposes /var as an alias for /private/var. Allow
+            // such leading aliases while reaching the already-canonical root,
+            // then reject every symlink in the caller-controlled suffix.
+            if (insideTrustedRoot && Files.isSymbolicLink(current)) return false;
+            Path physical = current.toRealPath();
+            if (physical.equals(trustedRoot)) insideTrustedRoot = true;
+            current = physical;
+        }
+        return insideTrustedRoot && current.startsWith(trustedRoot);
     }
 
     /** Credential material must never be group/other readable. */

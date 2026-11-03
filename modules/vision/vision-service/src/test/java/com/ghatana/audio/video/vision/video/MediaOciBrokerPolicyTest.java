@@ -326,7 +326,28 @@ class MediaOciBrokerPolicyTest {
         Files.createSymbolicLink(link, source);
         assertThat(MediaOciBrokerPolicy.sourceAllowed(policy, link.toString(), sha))
                 .as("symlink").isFalse();
+        Path realDirectory = Files.createDirectory(root.resolve("real-dir"));
+        Path nestedSource = realDirectory.resolve("nested.bin");
+        Files.write(nestedSource, bytes);
+        Path parentAlias = root.resolve("aliased-dir");
+        Files.createSymbolicLink(parentAlias, realDirectory);
+        assertThat(MediaOciBrokerPolicy.sourceAllowed(policy,
+                parentAlias.resolve("nested.bin").toString(), sha))
+                .as("parent-directory symlink must not alias an admitted source path").isFalse();
         assertThat(MediaOciBrokerPolicy.sourceAllowed(policy, null, null)).isTrue();
+    }
+
+    @Test
+    void outputRejectsNestedParentDirectorySymlink() throws Exception {
+        var policy = policy();
+        Path realOutput = Files.createDirectory(root.resolve("real-output"));
+        Path alias = root.resolve("output-alias");
+        Files.createSymbolicLink(alias, realOutput);
+
+        assertThat(MediaOciBrokerPolicy.outputAllowed(policy, realOutput.toString())).isTrue();
+        assertThat(MediaOciBrokerPolicy.outputAllowed(policy, alias.toString()))
+                .as("parent-directory symlink must not alias an admitted output directory")
+                .isFalse();
     }
 
     @Test
