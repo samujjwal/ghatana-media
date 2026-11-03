@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CountDownLatch;
@@ -134,7 +135,10 @@ class SttGrpcServerCompositionTest {
 
     @Test
     void failedGrpcBindLeavesProductionRootDownAndClosed() throws Exception {
-        try (ServerSocket occupied = new ServerSocket(0)) {
+        // The plaintext Media server binds IPv4 loopback; reserve that same address family so
+        // the test does not accidentally hold an IPv6-only port on dual-stack hosts.
+        try (ServerSocket occupied = new ServerSocket(0, 1,
+                InetAddress.getByAddress(new byte[] {127, 0, 0, 1}))) {
             var service = new ProductionSttGrpcService(mock(AudioVideoLibrary.class), new SimpleMeterRegistry());
             var server = new SttGrpcServer(occupied.getLocalPort(),
                     AudioVideoGrpcServerBase.TransportSecurity.plaintext(), service);

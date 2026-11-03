@@ -93,8 +93,10 @@ class SttFunctionalCompletenessTest {
     @Test
     @DisplayName("AV-004: MP3 remains not admitted until a decoder is qualified")
     void mp3RemainsNotAdmittedWithoutDecoder() {
+        // A structurally valid empty ID3v2 tag identifies the declared container.
+        // The decoder should then report the missing qualified MP3 decoder, not a bad header.
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
-                new byte[] {'I', 'D', '3', 0, 0, 0}, AudioFormat.MP3, 16_000))
+                new byte[] {'I', 'D', '3', 3, 0, 0, 0, 0, 0, 0}, AudioFormat.MP3, 16_000))
             .isInstanceOfSatisfying(SttAudioInputDecoder.InputException.class, failure -> {
                 assertThat(failure.kind()).isEqualTo(SttAudioInputDecoder.FailureKind.NOT_ADMITTED);
                 assertThat(failure).hasMessageContaining("STT_AUDIO_FORMAT_NOT_ADMITTED");
