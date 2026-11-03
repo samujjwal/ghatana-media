@@ -815,8 +815,8 @@ class MediaRuntimeActiveTest {
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(open.statusCode()).as("open response: %s", open.body()).isEqualTo(201);
             JsonNode registration = mapper.readTree(open.body());
-            String sessionId = registration.path("session").path("sessionId").asText();
-            String token = registration.path("connectionToken").asText();
+            String sessionId = registration.path("session").path("sessionId").asString();
+            String token = registration.path("connectionToken").asString();
             assertThat(sessionId).isNotBlank();
             assertThat(token).isNotBlank();
 
@@ -828,7 +828,7 @@ class MediaRuntimeActiveTest {
                     .POST(java.net.http.HttpRequest.BodyPublishers.noBody())
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(connected.statusCode()).as("connect response: %s", connected.body()).isEqualTo(200);
-            assertThat(mapper.readTree(connected.body()).path("state").asText()).isEqualTo("CONNECTED");
+            assertThat(mapper.readTree(connected.body()).path("state").asString()).isEqualTo("CONNECTED");
 
             byte[] pcm = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
             var accepted = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
@@ -855,7 +855,7 @@ class MediaRuntimeActiveTest {
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(wrongToken.statusCode()).as("wrong-token frame response: %s", wrongToken.body())
                     .isEqualTo(403);
-            assertThat(mapper.readTree(wrongToken.body()).path("error").path("code").asText()).isNotBlank();
+            assertThat(mapper.readTree(wrongToken.body()).path("error").path("code").asString()).isNotBlank();
             assertThat(wrongToken.body()).doesNotContain("wrong-stream-token");
 
             byte[] oversizedPcm = new byte[17];
@@ -868,7 +868,7 @@ class MediaRuntimeActiveTest {
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(oversizedPcm))
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(oversized.statusCode()).as("oversized frame response: %s", oversized.body()).isEqualTo(400);
-            assertThat(mapper.readTree(oversized.body()).path("error").path("code").asText())
+            assertThat(mapper.readTree(oversized.body()).path("error").path("code").asString())
                     .isEqualTo("INVALID_REQUEST");
 
             var sequenceGap = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
@@ -880,7 +880,7 @@ class MediaRuntimeActiveTest {
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofByteArray(new byte[] { 9 }))
                     .build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             assertThat(sequenceGap.statusCode()).as("gap response: %s", sequenceGap.body()).isEqualTo(400);
-            assertThat(mapper.readTree(sequenceGap.body()).path("error").path("code").asText())
+            assertThat(mapper.readTree(sequenceGap.body()).path("error").path("code").asString())
                     .isEqualTo("INVALID_REQUEST");
 
             var readback = client.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(
