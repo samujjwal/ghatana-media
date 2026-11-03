@@ -72,6 +72,10 @@ describe('TY-04 headless declarative parsers', () => {
     expect(SceneBindingSchema.safeParse({ ...scene, sourceRefs: [ref, ref] }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, modelStateRefOrNull: ' ' }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor-1', 'anchor-1'] }).success).toBe(false);
+    // PDP-1 defines semanticAnchorRefs as opaqueIdList, not versionRefList.
+    expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor/1'] }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['anchor 1'] }).success).toBe(false);
+    expect(SceneBindingSchema.safeParse({ ...scene, semanticAnchorRefs: ['🚀'] }).success).toBe(false);
     expect(SceneBindingSchema.safeParse({ ...scene, schemaVersion: 'media.declarative.value.scene-binding.v1' }).success).toBe(false);
   });
   it('refuses cyclic and over-deep caller values before schema descent', () => {

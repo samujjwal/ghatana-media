@@ -100,6 +100,10 @@ function boundedTypedValue<T extends z.ZodTypeAny>(schema: T) {
 }
 
 export const OpaqueIdSchema = z.string().min(1).max(128).regex(OPAQUE_ID_RE);
+const OpaqueIdListSchema = z.array(OpaqueIdSchema).refine(
+  (list) => new Set(list).size === list.length,
+  { message: "duplicate opaque identifiers" },
+);
 /** Opaque versioned reference — never a raw URI to fetch; it names a stored revision. */
 function hasWellFormedUtf16(value: string): boolean {
   for (let index = 0; index < value.length; index++) {
@@ -251,7 +255,9 @@ export const SceneBindingSchema = boundedTypedValue(z.object({
   modelStateRefOrNull: NullableVersionRefSchema,
   sourceRefs: NonEmptyVersionRefListSchema,
   temporalMappingRef: VersionRefSchema,
-  semanticAnchorRefs: VersionRefListSchema,
+  // PDP-1 $defs/opaqueIdList: anchors are opaque identifiers, not versioned
+  // references. Keep their alphabet/length and uniqueness rules distinct.
+  semanticAnchorRefs: OpaqueIdListSchema,
   accessibilityRef: VersionRefSchema,
 }).strict());
 export type SceneBinding = z.infer<typeof SceneBindingSchema>;
