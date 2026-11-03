@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
-/** H-06: deterministic seeded simulation; analytical Newton fixture validates the solver. */
+/** H-06: deterministic seeded simulation compared with fixed analytical references. */
 class MediaDeterministicSimulatorTest {
 
     private static ModelSpec newtonModel(double stepSeconds) {
@@ -28,8 +28,11 @@ class MediaDeterministicSimulatorTest {
         SimulationResult result = new MediaDeterministicSimulator()
                 .run(newtonModel(0.5), new InitialState(0.0, 0.0), 42L);
         assertThat(result.verdict()).isEqualTo(Verdict.CONVERGED);
+        Checkpoint step3 = result.checkpoints().get(2); // t = 1.5 s
         Checkpoint step4 = result.checkpoints().get(3); // t = 2.0 s
         assertThat(step4.stepIndex()).isEqualTo(4);
+        assertThat((step4.velocityMetersPerSecond() - step3.velocityMetersPerSecond()) / 0.5)
+                .isCloseTo(3.0, within(1e-9));
         assertThat(step4.velocityMetersPerSecond()).isCloseTo(6.0, within(1e-9));
         assertThat(step4.positionMeters()).isCloseTo(6.0, within(1e-9));
     }
