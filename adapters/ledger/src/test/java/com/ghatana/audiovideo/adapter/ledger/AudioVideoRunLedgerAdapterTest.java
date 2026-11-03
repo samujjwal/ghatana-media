@@ -7,6 +7,8 @@ package com.ghatana.audiovideo.adapter.ledger;
 import com.ghatana.core.lifecycle.ExecutionOutcome;
 import com.ghatana.core.lifecycle.JobExecutionState;
 import com.ghatana.datacloud.delivery.ledger.*;
+import com.ghatana.media.runtime.MediaLifecycleProjection.LogicalAttemptStatus;
+import com.ghatana.media.runtime.MediaLifecycleProjection.LogicalJobStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -593,6 +596,29 @@ class AudioVideoRunLedgerAdapterTest {
                     null, null, "trace", "correlation"))
                 .as(unrepresentable)
                 .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        // Keep the hand-maintained adapter matrix exhaustive when either Media
+        // lifecycle enum grows. RUNNING, FAILED, and OUTCOME_UNKNOWN overlap
+        // job and attempt vocabularies; the remaining attempt-only states must
+        // never be accepted as a job state.
+        Set<String> classifiedJobStates = new java.util.HashSet<>();
+        representable.forEach(testCase -> classifiedJobStates.add(testCase.mediaState()));
+        classifiedJobStates.addAll(List.of("OUTCOME_UNKNOWN", "RECONCILING"));
+        assertThat(classifiedJobStates)
+                .containsExactlyInAnyOrderElementsOf(Arrays.stream(LogicalJobStatus.values())
+                        .map(Enum::name).toList());
+
+        Set<String> jobVocabulary = Arrays.stream(LogicalJobStatus.values())
+                .map(Enum::name).collect(java.util.stream.Collectors.toSet());
+        for (LogicalAttemptStatus attemptStatus : LogicalAttemptStatus.values()) {
+            if (jobVocabulary.contains(attemptStatus.name())) continue;
+            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                    "matrix-attempt-" + attemptStatus, "AUDIO", "STT", "collection", "source",
+                    Map.of(), attemptStatus.name(), now, 0, null, null,
+                    null, null, "trace", "correlation"))
+                    .as(attemptStatus.name())
+                    .isInstanceOf(IllegalArgumentException.class);
         }
 
         assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(

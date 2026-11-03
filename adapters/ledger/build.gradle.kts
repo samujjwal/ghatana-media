@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.jackson.databind)
     
     // Testing
+    testImplementation(project(":services:media:runtime-contracts"))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockito.core)
 }
