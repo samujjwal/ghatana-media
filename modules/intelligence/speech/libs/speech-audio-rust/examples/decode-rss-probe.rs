@@ -13,12 +13,76 @@ use tempfile::Builder;
 
 const SAMPLE_RATE: u32 = 16_000;
 const CHANNELS: u16 = 1;
-const DURATION_SECONDS: u32 = 10;
-const MAX_INPUT_BYTES: u64 = 1_000_000;
-const MAX_DECODED_SAMPLES: usize = SAMPLE_RATE as usize * DURATION_SECONDS as usize;
-const EXPECTED_WAV_BYTES: u64 = 44 + (MAX_DECODED_SAMPLES as u64 * 2);
+const GLOBAL_MAX_INPUT_BYTES: u64 = 32 * 1024 * 1024 + 44;
+const GLOBAL_MAX_DECODED_SAMPLES: usize = 16_000_000;
 
-fn run() -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Clone, Copy)]
+struct Profile {
+    name: &'static str,
+    duration_seconds: u32,
+    max_input_bytes: u64,
+    max_decoded_samples: usize,
+}
+
+impl Profile {
+    const BASELINE: Self = Self {
+        name: "baseline",
+        duration_seconds: 10,
+        max_input_bytes: 1_000_000,
+        max_decoded_samples: SAMPLE_RATE as usize * 10,
+    };
+    const HIGH_WATER: Self = Self {
+        name: "high-water",
+        duration_seconds: 1_000,
+        max_input_bytes: GLOBAL_MAX_INPUT_BYTES,
+        max_decoded_samples: GLOBAL_MAX_DECODED_SAMPLES,
+    };
+
+    fn parse(args: impl Iterator<Item = String>) -> Result<Self, String> {
+        let args = args.collect::<Vec<_>>();
+        match args.as_slice() {
+            [] => Ok(Self::BASELINE),
+            [flag, name] if flag == "--profile" && name == "baseline" => Ok(Self::BASELINE),
+            [flag, name] if flag == "--profile" && name == "high-water" => Ok(Self::HIGH_WATER),
+            _ => Err("usage: decode-rss-probe [--profile baseline|high-water]".to_string()),
+        }
+    }
+
+    fn samples(self) -> usize {
+        SAMPLE_RATE as usize * self.duration_seconds as usize
+    }
+
+    fn expected_wav_bytes(self) -> u64 {
+        44 + (self.samples() as u64 * 2)
+    }
+
+    fn validate(self) -> Result<(), String> {
+        let samples = self.samples();
+        let input_bytes = self.expected_wav_bytes();
+        if samples > GLOBAL_MAX_DECODED_SAMPLES
+            || input_bytes > GLOBAL_MAX_INPUT_BYTES
+            || self.max_decoded_samples > GLOBAL_MAX_DECODED_SAMPLES
+            || self.max_input_bytes > GLOBAL_MAX_INPUT_BYTES
+        {
+            return Err(format!(
+                "profile {} exceeds global high-water ceilings",
+                self.name
+            ));
+        }
+        if samples > self.max_decoded_samples || input_bytes > self.max_input_bytes {
+            return Err(format!(
+                "profile {} fixture exceeds its selected input or decoded-sample cap",
+                self.name
+            ));
+        }
+        Ok(())
+    }
+}
+
+fn run(profile: Profile) -> Result<(), Box<dyn std::error::Error>> {
+    profile.validate().map_err(std::io::Error::other)?;
+    let sample_count = profile.samples();
+    let expected_wav_bytes = profile.expected_wav_bytes();
     // NamedTempFile creates the path with exclusive creation and removes it
     // from its Drop implementation on success or any early error return.
     let fixture = Builder::new()
@@ -38,7 +102,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         let mut writer = WavWriter::new(file, spec)?;
         // A repeatable low-amplitude triangle sequence avoids random input and
         // keeps the fixture independent of external assets.
-        for index in 0..MAX_DECODED_SAMPLES {
+        for index in 0..sample_count {
             let phase = (index % 200) as i32;
             let triangle = if phase < 100 { phase } else { 200 - phase };
             let sample = ((triangle - 50) * 200) as i16;
@@ -48,9 +112,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let metadata = fixture.as_file().metadata()?;
-    if metadata.len() != EXPECTED_WAV_BYTES {
+    if metadata.len() != expected_wav_bytes {
         return Err(format!(
-            "unexpected encoded WAV size: expected {EXPECTED_WAV_BYTES} bytes, got {}",
+            "unexpected encoded WAV size: expected {expected_wav_bytes} bytes, got {}",
             metadata.len()
         )
         .into());
@@ -58,13 +122,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let decoded = load_audio_buffer_bounded(
         path,
         DecodeLimits {
-            max_input_bytes: MAX_INPUT_BYTES,
-            max_decoded_samples: MAX_DECODED_SAMPLES,
+            max_input_bytes: profile.max_input_bytes,
+            max_decoded_samples: profile.max_decoded_samples,
             max_channels: CHANNELS,
             max_sample_rate: SAMPLE_RATE,
         },
     )?;
-    if decoded.samples.len() != MAX_DECODED_SAMPLES
+    if decoded.samples.len() != sample_count
         || decoded.config.sample_rate != SAMPLE_RATE
         || decoded.config.channels != CHANNELS
         || decoded.config.sample_format != AudioSampleFormat::F32
@@ -83,12 +147,15 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     let peak_rss = peak_rss_bytes()?;
     println!(
-        "decoded input_bytes={} sample_rate_hz={} channels={} duration_seconds={} samples={}",
+        "profile={} decoded input_bytes={} sample_rate_hz={} channels={} duration_seconds={} samples={} max_input_bytes={} max_decoded_samples={}",
+        profile.name,
         metadata.len(),
         SAMPLE_RATE,
         CHANNELS,
-        DURATION_SECONDS,
-        decoded.samples.len()
+        profile.duration_seconds,
+        decoded.samples.len(),
+        profile.max_input_bytes,
+        profile.max_decoded_samples
     );
     match peak_rss {
         Some(bytes) => println!("peak_rss_bytes={bytes} measurement=process_getrusage"),
@@ -126,8 +193,57 @@ fn peak_rss_bytes() -> Result<Option<u64>, std::io::Error> {
 }
 
 fn main() {
-    if let Err(error) = run() {
+    let profile = match Profile::parse(std::env::args().skip(1)) {
+        Ok(profile) => profile,
+        Err(error) => {
+            eprintln!("{error}");
+            process::exit(2);
+        }
+    };
+    if let Err(error) = run(profile) {
         eprintln!("RSS probe failed: {error}");
         process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Profile, GLOBAL_MAX_DECODED_SAMPLES};
+
+    #[test]
+    fn profile_selection_is_closed_and_baseline_remains_the_default() {
+        let baseline = Profile::parse(std::iter::empty()).unwrap();
+        assert_eq!(baseline.name, "baseline");
+        assert_eq!(baseline.samples(), 160_000);
+        baseline.validate().unwrap();
+
+        let high_water =
+            Profile::parse(["--profile".to_string(), "high-water".to_string()].into_iter())
+                .unwrap();
+        assert_eq!(high_water.samples(), 16_000_000);
+        high_water.validate().unwrap();
+        assert!(
+            Profile::parse(["--profile".to_string(), "arbitrary".to_string()].into_iter()).is_err()
+        );
+    }
+
+    #[test]
+    fn profile_validation_rejects_fixture_larger_than_selected_bound() {
+        let mut profile = Profile::BASELINE;
+        profile.max_input_bytes = profile.expected_wav_bytes() - 1;
+        assert!(profile
+            .validate()
+            .unwrap_err()
+            .contains("selected input or decoded-sample cap"));
+    }
+
+    #[test]
+    fn profile_validation_rejects_caps_above_global_ceilings() {
+        let mut profile = Profile::BASELINE;
+        profile.max_decoded_samples = GLOBAL_MAX_DECODED_SAMPLES + 1;
+        assert!(profile
+            .validate()
+            .unwrap_err()
+            .contains("global high-water ceilings"));
     }
 }

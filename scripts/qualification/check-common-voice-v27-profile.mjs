@@ -98,13 +98,14 @@ export function validateCandidateProfile(profile) {
   // changing booleans or filling local reference fields. Access evidence must be
   // reviewed and a new frozen run manifest handled outside this candidate file.
   assert(profile.access?.consumerTermsAccepted === false
+    && profile.access.downloadOrSampleRequested === false
     && profile.access.status === 'WAITING_FOR_AUTHORIZED_ORGANIZATIONAL_ACCEPTANCE'
     && profile.access.acceptedAt === null
     && profile.access.organizationRef === null
     && profile.access.authorizedRepresentativeRef === null
     && profile.access.datasetAccessRecordRef === null
     && profile.access.evidenceRef === null,
-  'candidate must not contain locally asserted MDC access acceptance');
+  'candidate must not contain locally asserted MDC access acceptance or a dataset/sample request');
   assert(profile.englishSubset?.sampleAvailability === 'NOT_VERIFIED', 'English sample status must stay unverified');
   assert(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard === false,
     'English public card must not claim a publisher audio-sample link');

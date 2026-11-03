@@ -28,6 +28,12 @@ test('does not turn local access booleans into an admission record', () => {
   assert.throws(() => validateCandidateProfile(mutated), /locally asserted MDC access acceptance/);
 });
 
+test('does not claim a dataset or sample request before authorized terms acceptance', () => {
+  const mutated = structuredClone(profile);
+  mutated.access.downloadOrSampleRequested = true;
+  assert.throws(() => validateCandidateProfile(mutated), /dataset\/sample request/);
+});
+
 test('blocks selected clips until the authorized-access and clip-manifest path exists', () => {
   const mutated = structuredClone(profile);
   mutated.selection.clipManifest = [{

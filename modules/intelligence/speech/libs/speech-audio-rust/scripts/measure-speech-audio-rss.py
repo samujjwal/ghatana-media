@@ -12,10 +12,62 @@ import subprocess
 import sys
 import time
 
-EXPECTED_CHILD_OUTPUT = (
-    "decoded input_bytes=320044 sample_rate_hz=16000 channels=1 "
-    "duration_seconds=10 samples=160000"
-)
+GLOBAL_MAX_INPUT_BYTES = 32 * 1024 * 1024 + 44
+GLOBAL_MAX_DECODED_SAMPLES = 16_000_000
+
+PROFILES = {
+    "baseline": {
+        "duration_seconds": 10,
+        "samples": 160_000,
+        "input_bytes": 320_044,
+        "max_input_bytes": 1_000_000,
+        "max_decoded_samples": 160_000,
+        "description": "10 s / 160,000 samples",
+    },
+    "high-water": {
+        "duration_seconds": 1_000,
+        "samples": 16_000_000,
+        "input_bytes": 32_000_044,
+        "max_input_bytes": GLOBAL_MAX_INPUT_BYTES,
+        "max_decoded_samples": 16_000_000,
+        "description": "1,000 s / 16,000,000 samples (64,000,000 bytes, about 61 MiB f32 output)",
+    },
+}
+
+
+def validate_profile(profile, values=None):
+    """Validate a closed profile against global ceilings and its own caps."""
+    if profile not in PROFILES:
+        raise ValueError(f"unknown closed probe profile: {profile}")
+    selected = PROFILES[profile] if values is None else values
+    expected_input_bytes = 44 + selected["samples"] * 2
+    if (
+        selected["samples"] > GLOBAL_MAX_DECODED_SAMPLES
+        or expected_input_bytes > GLOBAL_MAX_INPUT_BYTES
+        or selected["max_decoded_samples"] > GLOBAL_MAX_DECODED_SAMPLES
+        or selected["max_input_bytes"] > GLOBAL_MAX_INPUT_BYTES
+    ):
+        raise ValueError(f"profile {profile} exceeds global high-water ceilings")
+    if (
+        selected["samples"] > selected["max_decoded_samples"]
+        or expected_input_bytes > selected["max_input_bytes"]
+        or expected_input_bytes != selected["input_bytes"]
+    ):
+        raise ValueError(f"profile {profile} fixture exceeds its selected input or decoded-sample cap")
+    return selected
+
+
+def expected_child_output(profile):
+    values = validate_profile(profile)
+    return (
+        f"profile={profile} decoded input_bytes={values['input_bytes']} sample_rate_hz=16000 "
+        f"channels=1 duration_seconds={values['duration_seconds']} samples={values['samples']} "
+        f"max_input_bytes={values['max_input_bytes']} "
+        f"max_decoded_samples={values['max_decoded_samples']}"
+    )
+
+
+EXPECTED_CHILD_OUTPUT = expected_child_output("baseline")
 PEAK_RSS_OUTPUT = re.compile(r"peak_rss_bytes=([1-9][0-9]*) measurement=process_getrusage")
 MAX_CHILD_OUTPUT_BYTES = 64 * 1024
 CHILD_TIMEOUT_SECONDS = 120
@@ -28,6 +80,12 @@ def parse_args():
     )
     parser.add_argument("binary", help="path to the already-built decode-rss-probe executable")
     parser.add_argument("--runs", type=int, default=5, help="number of child processes (1..100; default: 5)")
+    parser.add_argument(
+        "--profile",
+        choices=tuple(PROFILES),
+        default="baseline",
+        help="closed deterministic workload profile (default: baseline)",
+    )
     args = parser.parse_args()
     if not 1 <= args.runs <= 100:
         parser.error("--runs must be between 1 and 100")
@@ -47,9 +105,10 @@ def rss_unit():
     raise ValueError(f"unsupported platform for ru_maxrss units: {sys.platform}")
 
 
-def parse_child_output(stdout, run_index):
+def parse_child_output(stdout, run_index, profile="baseline"):
     lines = stdout.splitlines()
-    if len(lines) != 2 or lines[0] != EXPECTED_CHILD_OUTPUT:
+    expected_output = expected_child_output(profile)
+    if len(lines) != 2 or lines[0] != expected_output:
         raise ValueError(
             f"run={run_index} child output mismatch: expected decode report and RSS measurement, "
             f"got {stdout.strip()!r}"
@@ -60,10 +119,11 @@ def parse_child_output(stdout, run_index):
     return int(match.group(1))
 
 
-def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
+def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS, profile="baseline"):
     """Drain bounded child output while wait4 collects that child's peak RSS."""
+    validate_profile(profile)
     child = subprocess.Popen(
-        [binary],
+        [binary, "--profile", profile],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         bufsize=0,
@@ -73,6 +133,7 @@ def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
     output = {"stdout": bytearray(), "stderr": bytearray()}
     usage = None
     status = None
+    reap_unavailable = False
     failure = None
     cleanup_note = None
     cleanup_deadline = None
@@ -88,16 +149,44 @@ def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
         except OSError as error:
             if error.errno == errno.ESRCH:
                 return
-            if error.errno != errno.EPERM:
-                cleanup_note = f"process-group SIGKILL failed: {error}"
+            group_error = error
             try:
                 # Keep the measured child killable even when group signaling is denied.
                 os.kill(child.pid, signal.SIGKILL)
             except OSError as child_error:
-                if child_error.errno != errno.ESRCH:
-                    cleanup_note = f"child SIGKILL failed: {child_error}"
-            if error.errno == errno.EPERM:
-                cleanup_note = "process-group SIGKILL denied (EPERM); attempted direct-child SIGKILL"
+                if child_error.errno == errno.ESRCH:
+                    return
+                cleanup_note = (
+                    f"process-group SIGKILL failed: {group_error}; "
+                    f"direct-child SIGKILL failed: {child_error}"
+                )
+            else:
+                cleanup_note = (
+                    "process-group SIGKILL denied (EPERM); "
+                    "direct-child SIGKILL was attempted"
+                    if group_error.errno == errno.EPERM
+                    else f"process-group SIGKILL failed: {group_error}; direct-child SIGKILL was sent"
+                )
+
+    def reap_until(reap_deadline):
+        nonlocal status, usage, reap_unavailable
+        while status is None:
+            try:
+                waited_pid, child_status, child_usage = os.wait4(child.pid, os.WNOHANG)
+            except InterruptedError:
+                continue
+            except ChildProcessError:
+                reap_unavailable = True
+                return False
+            if waited_pid == child.pid:
+                status = child_status
+                usage = child_usage
+                child.returncode = os.waitstatus_to_exitcode(status)
+                return True
+            if time.monotonic() >= reap_deadline:
+                return False
+            time.sleep(min(0.05, max(0, reap_deadline - time.monotonic())))
+        return status is not None
 
     try:
         while selector.get_map() or status is None:
@@ -110,6 +199,15 @@ def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
                 # inherited pipes open. Stop draining after the bounded cleanup window.
                 for key in list(selector.get_map().values()):
                     selector.unregister(key.fileobj)
+                if status is None and not reap_until(time.monotonic()):
+                    if reap_unavailable:
+                        failure = (
+                            f"{failure}; child_wait_status_unavailable; ru_maxrss_unavailable; "
+                            f"child_pid_unconfirmed={child.pid}"
+                        )
+                    else:
+                        failure = f"{failure}; child_pid_unconfirmed={child.pid}"
+                    break
 
             wait_seconds = 0.05
             if failure is None:
@@ -136,6 +234,15 @@ def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
                     waited_pid, child_status, child_usage = os.wait4(child.pid, os.WNOHANG)
                 except InterruptedError:
                     continue
+                except ChildProcessError:
+                    reap_unavailable = True
+                    failure = (
+                        f"run={run_index} child wait status unavailable; ru_maxrss unavailable; "
+                        f"child_pid_unconfirmed={child.pid}"
+                    )
+                    for key in list(selector.get_map().values()):
+                        selector.unregister(key.fileobj)
+                    break
                 if waited_pid == child.pid:
                     status = child_status
                     usage = child_usage
@@ -151,22 +258,31 @@ def collect_child(binary, run_index, timeout_seconds=CHILD_TIMEOUT_SECONDS):
             child.returncode,
             usage,
         )
-    except BaseException:
-        # If interrupted or selector handling fails, always reap the exact child.
+    except BaseException as original_error:
+        # Cleanup remains bounded even when both group and direct-child signals fail.
+        if reap_unavailable:
+            cleanup_error = RuntimeError(
+                f"{original_error}; child wait status unavailable; ru_maxrss unavailable; "
+                f"child_pid_unconfirmed={child.pid}"
+            )
+            cleanup_error.child_process = child
+            raise cleanup_error from original_error
+        if (
+            status is None
+            and cleanup_deadline is not None
+            and time.monotonic() >= cleanup_deadline
+            and f"child_pid_unconfirmed={child.pid}" in str(original_error)
+        ):
+            original_error.child_process = child
+            raise
         kill_child()
-        if status is None:
-            while True:
-                try:
-                    waited_pid, child_status, child_usage = os.wait4(child.pid, 0)
-                    if waited_pid == child.pid:
-                        child.returncode = os.waitstatus_to_exitcode(child_status)
-                        status = child_status
-                        usage = child_usage
-                        break
-                except InterruptedError:
-                    continue
-                except ChildProcessError:
-                    break
+        if status is None and not reap_until(time.monotonic() + CHILD_CLEANUP_SECONDS):
+            details = cleanup_note or "child did not exit before the bounded cleanup deadline"
+            cleanup_error = RuntimeError(
+                f"{original_error}; child_pid_unconfirmed={child.pid}; cleanup={details}"
+            )
+            cleanup_error.child_process = child
+            raise cleanup_error from original_error
         raise
     finally:
         selector.close()
@@ -183,13 +299,20 @@ def main():
         return 2
     rss_values = []
     print(f"platform={platform.platform()} system={platform.system()} ru_maxrss_unit={unit}")
-    print("input=deterministic PCM WAV sample_rate_hz=16000 channels=1 duration_seconds=10 samples=160000 max_input_bytes=1000000 max_decoded_samples=160000")
+    profile = args.profile
+    profile_values = PROFILES[profile]
+    print(
+        f"input=deterministic PCM WAV profile={profile} {profile_values['description']} "
+        f"sample_rate_hz=16000 channels=1 input_bytes={profile_values['input_bytes']} "
+        f"max_input_bytes={profile_values['max_input_bytes']} "
+        f"max_decoded_samples={profile_values['max_decoded_samples']}"
+    )
     print("measurement_scope=ru_maxrss includes process startup and WAV fixture creation")
     print(f"runs={args.runs}")
 
     for index in range(1, args.runs + 1):
         try:
-            stdout, stderr, returncode, usage = collect_child(args.binary, index)
+            stdout, stderr, returncode, usage = collect_child(args.binary, index, profile=profile)
         except RuntimeError as error:
             print(str(error), file=sys.stderr)
             return 1
@@ -197,7 +320,7 @@ def main():
             print(f"run={index} child_exit={returncode} stderr={stderr.strip()}", file=sys.stderr)
             return returncode or 1
         try:
-            reported_peak_rss_bytes = parse_child_output(stdout, index)
+            reported_peak_rss_bytes = parse_child_output(stdout, index, profile)
         except ValueError as mismatch:
             print(str(mismatch), file=sys.stderr)
             return 1

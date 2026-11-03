@@ -3635,6 +3635,148 @@ mod tests {
     }
 
     #[test]
+    fn seeded_bounded_mp3_mutations_are_panic_free_and_respect_decode_caps() {
+        const SEED: u64 = 0x6d70_335f_7273_3032;
+        const CASES: usize = 48;
+        const MAX_INPUT_BYTES: usize = 1024;
+        const MAX_OUTPUT_SAMPLES: usize = 32_768;
+
+        fn next_random(state: &mut u64) -> u64 {
+            *state ^= *state >> 12;
+            *state ^= *state << 25;
+            *state ^= *state >> 27;
+            (*state).wrapping_mul(0x2545_f491_4f6c_dd1d)
+        }
+
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("mutated.mp3");
+        // Keep the recognizable MPEG-1 Layer III header from the corrupt-packet
+        // regression, then exercise deterministic payload, header and truncation
+        // changes that the WAVE-only mutation corpus cannot reach.
+        let mut seed = vec![0xff; 417];
+        seed[..4].copy_from_slice(&[0xff, 0xfb, 0x90, 0x64]);
+        let limits = DecodeLimits {
+            max_input_bytes: MAX_INPUT_BYTES as u64,
+            max_decoded_samples: MAX_OUTPUT_SAMPLES,
+            max_channels: 2,
+            ..DecodeLimits::DEFAULT
+        };
+        let mut state = SEED;
+
+        for case in 0..CASES {
+            let mut mutated = seed.clone();
+            match case / 16 {
+                0 => {
+                    // Mutate payload bytes without changing the recognizable
+                    // MP3 header, covering decoder packet handling.
+                    let operations = 1 + next_random(&mut state) as usize % 6;
+                    for _ in 0..operations {
+                        let index = 4 + next_random(&mut state) as usize % (mutated.len() - 4);
+                        mutated[index] ^= (next_random(&mut state) as u8) | 1;
+                    }
+                }
+                1 => {
+                    // Cover EOF before the sync/header, inside the header, and
+                    // throughout the packet payload at deterministic lengths.
+                    let length = 1 + (case - 16) * (seed.len() - 1) / 15;
+                    mutated.truncate(length);
+                }
+                _ => {
+                    // Mutate each of the four framing/header bytes while the
+                    // remaining bytes keep the packet large enough to probe.
+                    let index = (case - 32) % 4;
+                    mutated[index] ^= (next_random(&mut state) as u8) | 1;
+                }
+            }
+            assert!(mutated.len() <= MAX_INPUT_BYTES);
+            std::fs::write(&path, mutated).unwrap();
+
+            let outcome = std::panic::catch_unwind(|| {
+                decode_audio_bounded_with_time_budget(&path, limits, Duration::from_millis(250))
+            });
+            assert!(
+                outcome.is_ok(),
+                "decoder panicked for fixed-seed MP3 case {case}"
+            );
+            if let Ok(decoded) = outcome.unwrap() {
+                assert!(
+                    decoded.config.channels > 0 && decoded.config.channels <= limits.max_channels
+                );
+                assert!(
+                    decoded.config.sample_rate > 0
+                        && decoded.config.sample_rate <= limits.max_sample_rate
+                );
+                assert!(decoded.samples.len() <= limits.max_decoded_samples);
+                assert_eq!(decoded.samples.len() % decoded.config.channels as usize, 0);
+                assert!(decoded.samples.iter().all(|sample| sample.is_finite()));
+            }
+        }
+    }
+
+    #[test]
+    fn large_ancillary_riff_chunks_are_walked_without_unbounded_allocation() {
+        const ANCILLARY_CHUNKS: usize = 512;
+        const MAX_FIXTURE_BYTES: usize = 8 * 1024;
+
+        let temp = tempdir().unwrap();
+        let source_path = temp.path().join("source.wav");
+        let hostile_path = temp.path().join("many-chunks.wav");
+        write_wav(
+            &source_path,
+            &AudioBuffer::new(
+                vec![0.125, -0.25, 0.375, -0.5],
+                AudioConfig {
+                    sample_rate: 16_000,
+                    channels: 1,
+                    sample_format: SampleFormat::F32,
+                },
+            ),
+        )
+        .unwrap();
+        let valid = std::fs::read(source_path).unwrap();
+        let (fmt_offset, _, _) = wav_chunk(&valid, b"fmt ");
+        let mut many_chunks = valid[..fmt_offset].to_vec();
+        for _ in 0..ANCILLARY_CHUNKS {
+            many_chunks.extend_from_slice(b"JUNK");
+            many_chunks.extend_from_slice(&0u32.to_le_bytes());
+        }
+        many_chunks.extend_from_slice(&valid[fmt_offset..]);
+        let riff_size = u32::try_from(many_chunks.len() - 8).unwrap();
+        many_chunks[4..8].copy_from_slice(&riff_size.to_le_bytes());
+        assert!(many_chunks.len() <= MAX_FIXTURE_BYTES);
+
+        std::fs::write(&hostile_path, &many_chunks).unwrap();
+        let decoded = load_audio_buffer_bounded(
+            &hostile_path,
+            DecodeLimits {
+                max_input_bytes: MAX_FIXTURE_BYTES as u64,
+                max_decoded_samples: 4,
+                max_channels: 1,
+                max_sample_rate: 16_000,
+            },
+        )
+        .unwrap();
+        assert_eq!(decoded.samples.len(), 4);
+        assert!(decoded.samples.iter().all(|sample| sample.is_finite()));
+
+        // A tiny physical file that advertises a multi-gigabyte ancillary
+        // chunk must be rejected from its extent before any payload read/allocation.
+        let mut oversized = valid;
+        let (data_header, _, _) = wav_chunk(&oversized, b"data");
+        oversized[data_header..data_header + 4].copy_from_slice(b"JUNK");
+        oversized[data_header + 4..data_header + 8].copy_from_slice(&u32::MAX.to_le_bytes());
+        std::fs::write(&hostile_path, oversized).unwrap();
+        let outcome = std::panic::catch_unwind(|| load_audio_buffer(&hostile_path));
+        assert!(
+            outcome.is_ok(),
+            "decoder panicked on a huge declared RIFF chunk"
+        );
+        assert!(
+            matches!(outcome.unwrap(), Err(SpeechAudioError::Decode(message)) if message.contains("extends beyond declared container size"))
+        );
+    }
+
+    #[test]
     fn truncated_codec_packet_eof_is_a_decode_error() {
         let error = map_packet_decode_error(SymphoniaError::IoError(std::io::Error::new(
             ErrorKind::UnexpectedEof,
