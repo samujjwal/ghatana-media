@@ -552,12 +552,16 @@ export class MediaOperationClient {
           controller.signal,
         );
       } catch (failure) {
-        throw new MediaOperationAmbiguousError(path, failure);
+        throw new MediaOperationAmbiguousError(path, failure, {
+          requestId: headers.get("X-Request-ID") ?? undefined,
+        });
       }
       if (!response.ok) {
         const error = await this.transport.errorFromResponse(response);
         if (response.status === 408 || response.status === 429 || response.status >= 500) {
-          throw new MediaOperationAmbiguousError(path, error);
+          throw new MediaOperationAmbiguousError(path, error, {
+            requestId: headers.get("X-Request-ID") ?? undefined,
+          });
         }
         throw error;
       }
@@ -573,7 +577,9 @@ export class MediaOperationClient {
       } catch (failure) {
         // A successful HTTP status without a receipt bound to this exact append
         // cannot establish whether the server committed the chunk.
-        throw new MediaOperationAmbiguousError(path, failure);
+        throw new MediaOperationAmbiguousError(path, failure, {
+          requestId: headers.get("X-Request-ID") ?? undefined,
+        });
       }
       try {
         options.onProgress?.({ uploadedBytes: data.size, totalBytes: data.size, percentage: 100 });
@@ -672,10 +678,11 @@ export class MediaOperationClient {
     validate?: (value: T) => T,
   ): Promise<T> {
     let dispatched = false;
+    let requestId: string | undefined;
     try {
       const result = await this.transport.request(
         "POST", path, body, parser, signal, headers,
-        () => { dispatched = true; },
+        (id) => { dispatched = true; requestId = id; },
       );
       return validate ? validate(result) : result;
     } catch (failure) {
@@ -686,7 +693,10 @@ export class MediaOperationClient {
           // they do not establish mutation finality for every operation.
           || failure.detail.code === "IDEMPOTENCY_CONFLICT");
       if (dispatched && !definitiveClientRejection) {
-        throw new MediaOperationAmbiguousError(path, failure);
+        throw new MediaOperationAmbiguousError(path, failure, {
+          requestId,
+          requestKey: headers["Idempotency-Key"],
+        });
       }
       throw failure;
     }

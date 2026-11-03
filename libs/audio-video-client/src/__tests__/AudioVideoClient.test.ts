@@ -171,7 +171,7 @@ describe('AudioVideoClient', () => {
       const client = makeClient();
       const response = await client.transcribe(makeSTTRequest());
       expect(response.success).toBe(false);
-      expect(response.error?.code).toBe('STT_ERROR');
+      expect(response.error?.code).toBe('OUTCOME_UNKNOWN');
       expect(response.error?.service).toBe('stt');
       g.mockRestore();
     });
@@ -192,7 +192,7 @@ describe('AudioVideoClient', () => {
       const response = await client.transcribe(makeSTTRequest());
 
       expect(response.success).toBe(false);
-      expect(response.error?.code).toBe('STT_ERROR');
+      expect(response.error).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
       g.mockRestore();
     });
 
@@ -204,31 +204,108 @@ describe('AudioVideoClient', () => {
       const onError = vi.fn();
       await client.transcribe(makeSTTRequest(), { onError });
       expect(onError).toHaveBeenCalledOnce();
-      expect(onError.mock.calls[0][0]).toMatchObject({ code: 'STT_ERROR', retryable: true });
+      expect(onError.mock.calls[0][0]).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
       g.mockRestore();
     });
 
-    it('retries on 500 and succeeds on second attempt', async () => {
-      const sttResult = {
-        text: 'Retry ok',
-        confidence: 0.9,
-        processingTimeMs: 80,
-        language: 'en',
-        model: 'default',
-      };
-      const g = vi
-        .spyOn(globalThis, 'fetch')
-        .mockImplementation(
-          mockFetch([{ status: 500, body: 'err' }, { status: 200, body: sttResult }]),
-        );
-      const client = makeClient({ retries: 1 });
-      const resultP = client.transcribe(makeSTTRequest());
-      // advance timers to allow backoff delay
+    it('does not retry a dispatched processing POST after 500 and reports OUTCOME_UNKNOWN', async () => {
+      const requestIds: Array<string | null> = [];
+      const responder = mockFetch([{ status: 500, body: 'err' }]);
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+        requestIds.push(new Headers(init?.headers).get('X-Request-ID'));
+        return responder(url, init);
+      });
+      const client = makeClient({ retries: 3, additionalHeaders: {
+        'x-request-id': 'caller-lower-id', 'X-Request-Id': 'caller-mixed-id',
+      } });
+      const result = await client.transcribe(makeSTTRequest());
+      expect(result).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(result.error?.message).not.toContain('err');
+      expect(g).toHaveBeenCalledTimes(1);
+      expect(requestIds).toHaveLength(1);
+      expect(requestIds[0]).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(requestIds[0]).not.toBe('caller-lower-id');
+      expect(requestIds[0]).not.toBe('caller-mixed-id');
+      expect(result.error?.details?.requestId).toBe(requestIds[0]);
+      const sentHeaders = new Headers((g.mock.calls[0]?.[1] as RequestInit).headers);
+      expect(Array.from(sentHeaders.entries()).filter(([name]) => name.toLowerCase() === 'x-request-id'))
+        .toEqual([['x-request-id', requestIds[0]]]);
+      g.mockRestore();
+    });
+
+    it.each([408, 429, 409, 422])('maps ambiguous POST HTTP %i to OUTCOME_UNKNOWN without retry', async (status) => {
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
+        mockFetch([
+          { status, body: 'response does not prove no effect' },
+          { status: 200, body: { text: 'must not retry', confidence: 1, processingTimeMs: 1, language: 'en', model: 'm' } },
+        ]),
+      );
+      const client = makeClient({ retries: 3 });
+      const response = await client.transcribe(makeSTTRequest());
+      expect(response).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(response.error?.details?.requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(g).toHaveBeenCalledTimes(1);
+      g.mockRestore();
+    });
+
+    it('does not retry a processing POST after network loss and reports OUTCOME_UNKNOWN', async () => {
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
+        mockFetch([new TypeError('network connection dropped')]),
+      );
+      const client = makeClient({ retries: 3 });
+      const result = await client.transcribe(makeSTTRequest());
+      expect(result).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(result.error?.message).not.toContain('network connection dropped');
+      expect(g).toHaveBeenCalledTimes(1);
+      g.mockRestore();
+    });
+
+    it('rejects a POST redirect without following or replaying it', async () => {
+      const requestIds: string[] = [];
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+        expect(init?.redirect).toBe('error');
+        requestIds.push(new Headers(init?.headers).get('X-Request-ID') ?? '');
+        return Promise.reject(new TypeError('redirect mode error'));
+      });
+      const client = makeClient({ retries: 3 });
+      const response = await client.transcribe(makeSTTRequest());
+      expect(response).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(g).toHaveBeenCalledTimes(1);
+      expect(response.error?.details?.requestId).toBe(requestIds[0]);
+      g.mockRestore();
+    });
+
+    it('reuses one generated request ID across safe GET retries', async () => {
+      const requestIds: Array<string | null> = [];
+      const responder = mockFetch([
+        { status: 503, body: 'temporary read failure' },
+        { status: 200, body: { status: 'UP' } },
+      ]);
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+        requestIds.push(new Headers(init?.headers).get('X-Request-ID'));
+        return responder(url, init);
+      });
+      const client = makeClient({ retries: 1, additionalHeaders: { 'x-request-id': 'caller-id' } });
+      const pending = client.getServiceStatus('stt');
       await vi.runAllTimersAsync();
-      const result = await resultP;
-      expect(result.success).toBe(true);
-      expect(result.data?.text).toBe('Retry ok');
+      await expect(pending).resolves.toMatchObject({ status: 'healthy' });
       expect(g).toHaveBeenCalledTimes(2);
+      expect(requestIds).toHaveLength(2);
+      expect(requestIds[0]).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(requestIds[0]).not.toBe('caller-id');
+      expect(requestIds[1]).toBe(requestIds[0]);
       g.mockRestore();
     });
 
@@ -292,11 +369,14 @@ describe('AudioVideoClient', () => {
   describe('synthesize()', () => {
     it('returns success with audio data on 200', async () => {
       const ttsResult = {
-        audio: new ArrayBuffer(0),
-        duration: 2.5,
+        audio: {
+          data: new ArrayBuffer(0), sampleRate: 22050, channels: 1, bitsPerSample: 16,
+          durationMs: 2500, format: 'mp3',
+        },
+        voiceUsed: 'voice-1',
         processingTimeMs: 200,
-        sampleRate: 22050,
-        format: 'mp3',
+        characters: 11,
+        durationMs: 2500,
       };
       const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
         mockFetch([{ status: 200, body: ttsResult }]),
@@ -308,6 +388,40 @@ describe('AudioVideoClient', () => {
       g.mockRestore();
     });
 
+    it('reports a partial TTS object as OUTCOME_UNKNOWN after dispatch', async () => {
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
+        mockFetch([{ status: 200, body: { audio: {}, processingTimeMs: 1 } }]),
+      );
+      const client = makeClient();
+      const response = await client.synthesize(makeTTSRequest());
+      expect(response).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(response.error?.details?.requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      g.mockRestore();
+    });
+
+    it.each([
+      ['non-ArrayBuffer data', { data: {}, sampleRate: 22050, channels: 1, bitsPerSample: 16, durationMs: 2500, format: 'mp3' }],
+      ['unsupported audio format', { data: new ArrayBuffer(0), sampleRate: 22050, channels: 1, bitsPerSample: 16, durationMs: 2500, format: 'garbage' }],
+    ])('reports TTS %s as OUTCOME_UNKNOWN without transforming the wire data', async (_case, audio) => {
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
+        mockFetch([{ status: 200, body: {
+          audio, voiceUsed: 'voice-1', processingTimeMs: 1, characters: 1, durationMs: 1,
+        } }]),
+      );
+      const client = makeClient();
+      const response = await client.synthesize(makeTTSRequest());
+      expect(response).toMatchObject({
+        success: false,
+        error: { code: 'OUTCOME_UNKNOWN', retryable: false },
+      });
+      expect(response.error?.details?.requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(g).toHaveBeenCalledTimes(1);
+      g.mockRestore();
+    });
+
     it('returns failure when service responds with 503', async () => {
       const g = vi
         .spyOn(globalThis, 'fetch')
@@ -315,7 +429,7 @@ describe('AudioVideoClient', () => {
       const client = makeClient();
       const response = await client.synthesize(makeTTSRequest());
       expect(response.success).toBe(false);
-      expect(response.error?.retryable).toBe(true);
+      expect(response.error).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
       g.mockRestore();
     });
   });
@@ -357,7 +471,7 @@ describe('AudioVideoClient', () => {
       const response = await client.processVision(makeVisionRequest());
 
       expect(response.success).toBe(false);
-      expect(response.error?.code).toBe('VISION_ERROR');
+      expect(response.error).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
       g.mockRestore();
     });
   });
@@ -381,6 +495,28 @@ describe('AudioVideoClient', () => {
       expect(response.success).toBe(true);
       g.mockRestore();
     });
+  });
+
+  it('reports syntactically valid malformed POST result objects as OUTCOME_UNKNOWN', async () => {
+    const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
+      mockFetch(Array.from({ length: 5 }, () => ({ status: 200, body: {} }))),
+    );
+    const client = makeClient();
+    const results = await Promise.all([
+      client.transcribe(makeSTTRequest()),
+      client.synthesize(makeTTSRequest()),
+      client.processAIVoice({ text: 'hello', task: 'enhance' }),
+      client.processVision(makeVisionRequest()),
+      client.processMultimodal(makeMultimodalRequest()),
+    ]);
+
+    expect(results.map((result) => result.success)).toEqual([false, false, false, false, false]);
+    for (const result of results) {
+      expect(result.error).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
+      expect(result.error?.details?.requestId).toMatch(/^[0-9a-f-]{36}$/u);
+    }
+    expect(g).toHaveBeenCalledTimes(5);
+    g.mockRestore();
   });
 
   // ─── Circuit breaker ──────────────────────────────────────────────────
@@ -586,12 +722,12 @@ describe('AudioVideoClient', () => {
           setTimeout(() => reject(Object.assign(new Error('The operation was aborted'), { name: 'AbortError' })), 10);
         });
       });
-      const client = makeClient({ timeout: 5, retries: 0 });
+      const client = makeClient({ timeout: 5, retries: 3 });
       const pending = client.transcribe(makeSTTRequest());
       await vi.runAllTimersAsync();
       const result = await pending;
       expect(result.success).toBe(false);
-      expect(result.error?.retryable).toBe(true);
+      expect(result.error).toMatchObject({ code: 'OUTCOME_UNKNOWN', retryable: false });
       g.mockRestore();
     });
   });

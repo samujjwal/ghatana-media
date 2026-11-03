@@ -536,6 +536,10 @@ describe("MediaOperationClient", () => {
       const failure = await invoke(client).catch((error: unknown) => error);
       expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
       expect((failure as MediaOperationAmbiguousError).path).toBe(expectedPath);
+      expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
+      if (_label === "upload creation") {
+        expect((failure as MediaOperationAmbiguousError).requestKey).toBe("upload-ambiguous-1");
+      }
       expect(fetchImpl).toHaveBeenCalledTimes(1);
     }
   });

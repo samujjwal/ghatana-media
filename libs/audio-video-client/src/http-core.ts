@@ -43,10 +43,18 @@ export class MediaClientError extends Error {
  */
 export class MediaOperationAmbiguousError extends Error {
   public readonly path: string;
-  public constructor(path: string, cause: unknown) {
+  public readonly requestId?: string;
+  public readonly requestKey?: string;
+  public constructor(
+    path: string,
+    cause: unknown,
+    identity: { readonly requestId?: string; readonly requestKey?: string } = {},
+  ) {
     super(`Media operation outcome is unconfirmed after dispatch on ${path}`);
     this.name = "MediaOperationAmbiguousError";
     this.path = path;
+    if (identity.requestId !== undefined) this.requestId = identity.requestId;
+    if (identity.requestKey !== undefined) this.requestKey = identity.requestKey;
     this.cause = cause;
   }
 }
@@ -205,6 +213,9 @@ export class MediaHttpTransport {
   ): Promise<Headers> {
     const headers = new Headers(this.defaultHeaders);
     const callerPrincipalId = headers.get("X-Principal-Id");
+    // A caller default cannot choose request identity. Operation-specific
+    // additions may carry the already-generated ID across an internal retry.
+    headers.delete("X-Request-ID");
     // Apply operation-specific headers before restoring the caller's trusted
     // identity/context below. Additions may carry idempotency or stream tokens,
     // but cannot change the authority under which this client was configured.
@@ -213,8 +224,11 @@ export class MediaHttpTransport {
     }
     headers.set("Accept", "application/json");
     const requestId = crypto.randomUUID();
-    headers.set("X-Request-ID", requestId);
-    headers.set("X-Correlation-ID", this.requestContext.correlationId ?? requestId);
+    const stableRequestId = safeIdentityHeader(
+      "requestId", headers.get("X-Request-ID") ?? undefined,
+    ) ?? requestId;
+    headers.set("X-Request-ID", stableRequestId);
+    headers.set("X-Correlation-ID", this.requestContext.correlationId ?? stableRequestId);
     headers.set("X-Tenant-ID", this.tenantId);
     if (this.requestContext.causationId) {
       headers.set("X-Causation-ID", this.requestContext.causationId);
@@ -244,7 +258,7 @@ export class MediaHttpTransport {
     input: string,
     init: RequestInit,
     signal?: AbortSignal,
-    onDispatch?: () => void,
+    onDispatch?: (requestId: string) => void,
   ): Promise<Response> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
@@ -256,8 +270,9 @@ export class MediaHttpTransport {
       if (controller.signal.aborted) {
         throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
       }
-      onDispatch?.();
-      return await this.fetchImpl(input, { ...init, signal: controller.signal });
+      const requestId = new Headers(init.headers).get("X-Request-ID") ?? "";
+      onDispatch?.(safeIdentityHeader("requestId", requestId) ?? "");
+      return await this.fetchImpl(input, { ...init, redirect: "error", signal: controller.signal });
     } finally {
       clearTimeout(timeout);
       unlink();
@@ -270,7 +285,7 @@ export class MediaHttpTransport {
     init: RequestInit,
     additionalHeaders: Readonly<Record<string, string>>,
     signal?: AbortSignal,
-    onDispatch?: () => void,
+    onDispatch?: (requestId: string) => void,
   ): Promise<Response> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
@@ -283,8 +298,8 @@ export class MediaHttpTransport {
       if (controller.signal.aborted) {
         throw controller.signal.reason ?? new DOMException("Operation cancelled", "AbortError");
       }
-      onDispatch?.();
-      return await this.fetchImpl(input, { ...init, headers, signal: controller.signal });
+      onDispatch?.(safeIdentityHeader("requestId", headers.get("X-Request-ID") ?? undefined) ?? "");
+      return await this.fetchImpl(input, { ...init, headers, redirect: "error", signal: controller.signal });
     } finally {
       clearTimeout(timeout);
       unlink();
@@ -298,7 +313,7 @@ export class MediaHttpTransport {
     parser: RuntimeParser<T>,
     signal?: AbortSignal,
     additionalHeaders: Readonly<Record<string, string>> = {},
-    onDispatch?: () => void,
+    onDispatch?: (requestId: string) => void,
   ): Promise<T> {
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
@@ -319,11 +334,12 @@ export class MediaHttpTransport {
       }
       // Callers that perform mutations can distinguish local setup failures
       // from failures after the request may have crossed the network boundary.
-      onDispatch?.();
+      onDispatch?.(safeIdentityHeader("requestId", headers.get("X-Request-ID") ?? undefined) ?? "");
       const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
         method,
         headers,
         ...(serializedBody === undefined ? {} : { body: serializedBody }),
+        ...(method === "GET" ? {} : { redirect: "error" as const }),
         signal: controller.signal,
       });
       if (!response.ok) throw await this.errorFromResponse(response);

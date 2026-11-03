@@ -82,6 +82,7 @@ describe("MediaCanonicalClient job operations", () => {
     expect(headers.get("Authorization")).toBe("Bearer bearer-secret");
     expect(headers.get("X-Tenant-ID")).toBe("tenant-1");
     expect(headers.get("X-Principal-Id")).toBe("principal-1");
+    expect(call.init.redirect).toBe("error");
     const body = JSON.parse(String(call.init.body));
     expect(body.tenantId).toBe("tenant-1");
     expect(body.principalId).toBe("principal-1");
@@ -202,6 +203,8 @@ describe("MediaCanonicalClient job operations", () => {
     }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect((failure as MediaOperationAmbiguousError).cause).toBeInstanceOf(MediaClientError);
+    expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
+    expect((failure as MediaOperationAmbiguousError).requestKey).toBe("idem-503");
   });
 
   it("preserves a proven pre-dispatch abort as no-effect", async () => {
@@ -388,6 +391,19 @@ describe("MediaCanonicalClient stream operations", () => {
       "sess-1", connectionToken, 0, new Blob(["f"])).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect((failure as MediaOperationAmbiguousError).cause).toBeInstanceOf(MediaClientError);
+  });
+
+  it("rejects frame mutation redirects without following or replaying the frame", async () => {
+    const { fetchImpl, calls } = recordedFetch((_url, init) => {
+      expect(init.redirect).toBe("error");
+      throw new TypeError("redirect mode error");
+    });
+    const client = clientWith(fetchImpl);
+    const failure = await client.submitStreamFrame(
+      "sess-1", connectionToken, 0, new Blob(["f"])).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect((failure as MediaOperationAmbiguousError).requestId).toMatch(/^[0-9a-f-]{36}$/u);
+    expect(calls).toHaveLength(1);
   });
 
   it.each([

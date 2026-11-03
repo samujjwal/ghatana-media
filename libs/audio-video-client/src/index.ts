@@ -6,6 +6,7 @@
  */
 
 import type {
+  AudioFormat,
   ServiceType,
   STTRequest,
   STTResult,
@@ -105,6 +106,49 @@ interface ServiceCallOptions<T> {
   body?: unknown;
   config: ServiceClientConfig;
   serviceLabel: string;
+  validateResponse?: (input: unknown) => T;
+}
+
+/** A legacy processing POST crossed dispatch without a final receipt. */
+class LegacyOperationOutcomeUnknownError extends Error {
+  public constructor(public readonly requestId: string) {
+    super('The Media operation outcome is unknown after dispatch. Reconcile its durable status before retrying.');
+    this.name = 'LegacyOperationOutcomeUnknownError';
+  }
+}
+
+function asResponseRecord(input: unknown, label: string): Record<string, unknown> {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new TypeError(`${label} response must be an object.`);
+  }
+  return input as Record<string, unknown>;
+}
+
+function validateLegacyTtsResponse(input: unknown): TTSResult {
+  const result = asResponseRecord(input, 'TTS');
+  const audio = asResponseRecord(result.audio, 'TTS audio');
+  const finiteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
+  const audioFormats: ReadonlySet<AudioFormat> = new Set(['pcm', 'wav', 'mp3', 'flac', 'ogg', 'aac']);
+  if (!(audio.data instanceof ArrayBuffer) || !finiteNumber(audio.sampleRate)
+    || !finiteNumber(audio.channels) || !finiteNumber(audio.bitsPerSample)
+    || !finiteNumber(audio.durationMs) || typeof audio.format !== 'string'
+    || !audioFormats.has(audio.format as AudioFormat)
+    || typeof result.voiceUsed !== 'string' || !finiteNumber(result.processingTimeMs)
+    || !finiteNumber(result.characters) || !finiteNumber(result.durationMs)) {
+    throw new TypeError('TTS response does not match the declared result fields.');
+  }
+  return input as TTSResult;
+}
+
+function validateLegacyAiVoiceResponse(input: unknown): AIVoiceResult {
+  const result = asResponseRecord(input, 'AI voice');
+  if (typeof result.processedText !== 'string' || typeof result.originalText !== 'string'
+    || typeof result.task !== 'string' || typeof result.processingTimeMs !== 'number'
+    || !Number.isFinite(result.processingTimeMs) || typeof result.confidence !== 'number'
+    || !Number.isFinite(result.confidence)) {
+    throw new TypeError('AI voice response does not match the declared result fields.');
+  }
+  return input as AIVoiceResult;
 }
 
 // ─── Circuit Breaker ──────────────────────────────────────────────────────────
@@ -217,6 +261,7 @@ export class AudioVideoClient {
         body: request,
         config,
         serviceLabel: 'stt',
+        validateResponse: parseSTTResult,
       });
       const validated = parseSTTResult(result);
       this.emitEvent('stt:transcription:complete', { request, result });
@@ -245,6 +290,7 @@ export class AudioVideoClient {
         body: request,
         config,
         serviceLabel: 'tts',
+        validateResponse: validateLegacyTtsResponse,
       });
       this.emitEvent('tts:synthesis:complete', { request, result });
       return { success: true, data: result, metadata: { processingTime: result.processingTimeMs, service: 'tts' } };
@@ -272,6 +318,7 @@ export class AudioVideoClient {
         body: request,
         config,
         serviceLabel: 'ai-voice',
+        validateResponse: validateLegacyAiVoiceResponse,
       });
       this.emitEvent('ai-voice:process:complete', { request, result });
       return { success: true, data: result, metadata: { processingTime: result.processingTimeMs, service: 'ai-voice' } };
@@ -299,6 +346,7 @@ export class AudioVideoClient {
         body: request,
         config,
         serviceLabel: 'vision',
+        validateResponse: parseDetectionResult,
       });
       const validated = parseDetectionResult(result);
       this.emitEvent('vision:process:complete', { request, result });
@@ -327,6 +375,7 @@ export class AudioVideoClient {
         body: request,
         config,
         serviceLabel: 'multimodal',
+        validateResponse: parseMultimodalResult,
       });
       const validated = parseMultimodalResult(result);
       this.emitEvent('multimodal:process:complete', { request, result });
@@ -438,15 +487,24 @@ export class AudioVideoClient {
     }
 
     const url = `${config.endpoint}${path}`;
+    const serializedBody = body === undefined ? undefined : JSON.stringify(body);
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(config.additionalHeaders ?? {}),
     };
+    // Remove request ID defaults case-insensitively before setting one
+    // generated trace identity for this call and its allowed GET retries.
+    for (const name of Object.keys(headers)) {
+      if (name.toLowerCase() === 'x-request-id') delete headers[name];
+    }
+    headers['X-Request-ID'] = crypto.randomUUID();
     if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
     if (config.tenantId) headers['X-Tenant-Id'] = config.tenantId;
 
     let lastError: Error = new Error('No attempts made');
-    const maxAttempts = config.retries + 1;
+    // Only GET is a no-effect read in this legacy client. The modality POST
+    // routes have no admitted idempotent replay contract.
+    const maxAttempts = method === 'GET' ? config.retries + 1 : 1;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const controller = new AbortController();
@@ -456,22 +514,35 @@ export class AudioVideoClient {
         const response = await fetch(url, {
           method,
           headers,
-          body: body !== undefined ? JSON.stringify(body) : undefined,
+          body: serializedBody,
           signal: controller.signal,
+          ...(method === 'GET' ? {} : { redirect: 'error' as const }),
         });
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          const errorText = await response.text().catch(() => '');
-          throw new Error(`HTTP ${response.status} from ${serviceLabel}: ${errorText}`);
+          if (method !== 'GET' && response.status >= 500) {
+            throw new LegacyOperationOutcomeUnknownError(headers['X-Request-ID']!);
+          }
+          throw new Error(`HTTP ${response.status} from ${serviceLabel}`);
         }
 
-        const result = await response.json() as T;
+        let result: T;
+        try {
+          const responseBody: unknown = await response.json();
+          result = opts.validateResponse ? opts.validateResponse(responseBody) : responseBody as T;
+        } catch {
+          if (method !== 'GET') throw new LegacyOperationOutcomeUnknownError(headers['X-Request-ID']!);
+          throw new Error(`Invalid JSON response from ${serviceLabel}`);
+        }
         cb.recordSuccess();
         return result;
       } catch (err) {
         clearTimeout(timeoutId);
-        lastError = err instanceof Error ? err : new Error(String(err));
+        lastError = method !== 'GET' && !(err instanceof LegacyOperationOutcomeUnknownError)
+          && !(err instanceof Error && /^HTTP (?:400|401|403)\b/u.test(err.message))
+          ? new LegacyOperationOutcomeUnknownError(headers['X-Request-ID']!)
+          : err instanceof Error ? err : new Error(String(err));
         if (config.enableLogging) {
           logger.warn(`[${serviceLabel}] attempt ${attempt + 1}/${maxAttempts} failed:`, lastError.message);
         }
@@ -489,6 +560,16 @@ export class AudioVideoClient {
   }
 
   private toError(error: unknown, code: string, service: ServiceType): AudioVideoError {
+    if (error instanceof LegacyOperationOutcomeUnknownError) {
+      return {
+        code: 'OUTCOME_UNKNOWN',
+        message: error.message,
+        service,
+        details: { requestId: error.requestId },
+        retryable: false,
+        timestamp: new Date(),
+      };
+    }
     const normalizedError = error instanceof Error ? error : new Error(String(error));
     const statusCode = this.extractStatusCode(normalizedError);
     return {
