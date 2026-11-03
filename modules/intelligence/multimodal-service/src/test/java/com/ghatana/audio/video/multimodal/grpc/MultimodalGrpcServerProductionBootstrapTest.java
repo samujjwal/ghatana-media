@@ -159,6 +159,20 @@ class MultimodalGrpcServerProductionBootstrapTest {
     }
 
     @Test
+    void validButMismatchedSourceDigestDeniedBeforeRuntimeResolution() throws Exception {
+        var port = new BootstrapPort();
+        startServer(port);
+
+        assertThatThrownBy(() -> stub().processMultimodal(
+                        validRequest(sourceVersionFor(new byte[] {0x03, 0x04}))))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(error -> assertThat(((StatusRuntimeException) error).getStatus().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED));
+        assertThat(port.resolutions.get()).isZero();
+        assertThat(port.submissions.get()).isZero();
+    }
+
+    @Test
     void unauthenticatedCallerIsRejectedBeforeAuthorization() throws Exception {
         var port = new BootstrapPort();
         port.decision = new MediaSourceAuthorizationContracts.Decision(

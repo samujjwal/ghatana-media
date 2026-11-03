@@ -296,7 +296,7 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
-    void nonceReplayIsRejectedAndTimestampMustBeCurrent() {
+    void nonceReplayIsRejectedAndTimestampMustBeCurrent() throws Exception {
         var guard = new MediaOciBrokerPolicy.NonceReplayGuard();
         long now = System.currentTimeMillis();
         assertThat(guard.admit("nonce-a-16-bytes-long", now, now)).isTrue();
@@ -305,6 +305,27 @@ class MediaOciBrokerPolicyTest {
         assertThat(guard.admit("nonce-c-16-bytes-long",
                 now + MediaOciBrokerPolicy.MAX_REQUEST_SKEW_MS + 1, now)).isFalse();
         assertThat(guard.admit("short", now, now)).isFalse();
+    }
+
+    @Test
+    void nonceWindowFailsClosedAtCapacityAndReleasesOnlyAfterTimestampExpiry() throws Exception {
+        var guard = new MediaOciBrokerPolicy.NonceReplayGuard();
+        long now = System.currentTimeMillis();
+        String firstNonce = "nonce-replay-window-0";
+        for (int i = 0; i < MediaOciBrokerPolicy.MAX_NONCE_CACHE; i++) {
+            String nonce = "nonce-replay-window-" + i;
+            if (!guard.admit(nonce, now, now)) throw new AssertionError("valid unique nonce was not admitted");
+        }
+
+        assertThat(guard.admit("nonce-replay-window-extra", now, now))
+                .as("capacity must fail closed rather than evict a live nonce")
+                .isFalse();
+        assertThat(guard.admit(firstNonce, now, now)).as("oldest nonce remains a replay").isFalse();
+
+        long expiredNow = now + MediaOciBrokerPolicy.MAX_REQUEST_SKEW_MS + 1;
+        assertThat(guard.admit("nonce-replay-window-after-expiry", expiredNow, expiredNow))
+                .as("expired entries free bounded capacity")
+                .isTrue();
     }
 
     @Test

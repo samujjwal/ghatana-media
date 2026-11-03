@@ -7,10 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
@@ -21,7 +23,7 @@ import java.util.Set;
  * a fixed codec shape (no URLs, escapes, or dangerous ffmpeg options), the
  * source must be an owned regular file inside the source root whose bytes match
  * the claimed digest, and each request carries a fresh timestamp and a nonce
- * that has never been seen before.
+ * that has never been seen in its still-valid acceptance window.
  */
 final class MediaOciBrokerPolicy {
 
@@ -134,19 +136,59 @@ final class MediaOciBrokerPolicy {
         }
     }
 
-    /** Bounded replay window: each nonce is valid at most once inside a timestamp skew. */
+    /** Bounded replay window: fail closed at capacity instead of forgetting a live nonce. */
     static final class NonceReplayGuard {
-        private final Map<String, Boolean> seen = new LinkedHashMap<>() {
-            @Override protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
-                return size() > MAX_NONCE_CACHE;
-            }
-        };
+        private final Map<String, Long> seen = new LinkedHashMap<>();
+        private final Set<String> active = new HashSet<>();
+        private final PriorityQueue<NonceEntry> expiryQueue = new PriorityQueue<>(
+                java.util.Comparator.comparingLong(NonceEntry::expiresAtMs));
 
-        synchronized boolean admit(String nonce, long timestampMs, long now) {
-            if (Math.abs(now - timestampMs) > MAX_REQUEST_SKEW_MS) return false;
-            return nonce != null && nonce.length() >= 16 && nonce.length() <= 128
-                    && seen.putIfAbsent(nonce, Boolean.TRUE) == null;
+        private final MediaOciBrokerNonceJournal journal;
+        private long clockHighWaterMs;
+
+        NonceReplayGuard() {
+            this(null);
         }
+
+        NonceReplayGuard(MediaOciBrokerNonceJournal journal) {
+            this.journal = journal;
+        }
+
+        synchronized boolean admit(String nonce, long timestampMs, long now) throws java.io.IOException {
+            if (nonce == null || nonce.length() < 16 || nonce.length() > 128
+                    || timestampMs < 0 || now < 0) return false;
+            long skew = now >= timestampMs ? now - timestampMs : timestampMs - now;
+            if (skew > MAX_REQUEST_SKEW_MS) return false;
+            if (journal != null) return journal.reserve(nonce, timestampMs, now);
+            if (now < clockHighWaterMs) return false;
+            clockHighWaterMs = now;
+            if (seen.containsKey(nonce)) return false;
+            expireActive(now);
+            if (active.size() >= MAX_NONCE_CACHE) return false;
+            seen.put(nonce, timestampMs);
+            active.add(nonce);
+            expiryQueue.add(new NonceEntry(nonce, timestampMs, expiry(timestampMs)));
+            return true;
+        }
+
+        private void expireActive(long now) {
+            while (!expiryQueue.isEmpty() && isExpired(expiryQueue.peek().timestampMs(), now)) {
+                NonceEntry expired = expiryQueue.remove();
+                active.remove(expired.nonce());
+                seen.remove(expired.nonce());
+            }
+        }
+
+        private static boolean isExpired(long timestampMs, long now) {
+            return now >= timestampMs && now - timestampMs > MAX_REQUEST_SKEW_MS;
+        }
+
+        private static long expiry(long timestampMs) {
+            return timestampMs > Long.MAX_VALUE - MAX_REQUEST_SKEW_MS
+                    ? Long.MAX_VALUE : timestampMs + MAX_REQUEST_SKEW_MS;
+        }
+
+        private record NonceEntry(String nonce, long timestampMs, long expiresAtMs) { }
     }
 
     /** The caller-described worker must be exactly one server-approved shape. */
@@ -347,9 +389,11 @@ final class MediaOciBrokerPolicy {
 
     /** Credential material must never be group/other readable. */
     static boolean ownerOnlyFile(Path file) throws IOException {
+        if (file == null || Files.isSymbolicLink(file)
+                || !Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS)) return false;
         try {
             Set<java.nio.file.attribute.PosixFilePermission> perms =
-                    Files.getPosixFilePermissions(file);
+                    Files.getPosixFilePermissions(file, LinkOption.NOFOLLOW_LINKS);
             return perms.equals(PosixFilePermissions.fromString("rw-------"));
         } catch (UnsupportedOperationException unsupported) {
             return false;

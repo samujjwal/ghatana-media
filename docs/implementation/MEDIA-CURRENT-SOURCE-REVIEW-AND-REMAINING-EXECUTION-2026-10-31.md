@@ -3816,3 +3816,19 @@ Updated three stale literal assertions in `tests/media-wave2-r10-owner-resolutio
 ### 43.81 November 3 AT-01 descriptor identity parity
 
 Added `AudioVideoDescriptorIdentityAt01Test` to compare the four locally supported Agent Tool IDs across the factory, capability inventory, and each individual YAML descriptor. It also confirms `datacloud.media.artifacts` remains `NOT_ADMITTED` with no handler or descriptor path and is absent from the factory. The focused `./gradlew :services:media:adapters:agent-tools-media:test --tests com.ghatana.audio.video.tools.AudioVideoDescriptorIdentityAt01Test` passed **2/2**. This is source-free descriptor consistency only; YAML identity and local support do not establish Tools/Action Plane registry permission, principal authority, provider eligibility, or whole AT-01 acceptance.
+
+### 43.82 November 3 W2-R01 source-digest mismatch denial
+
+Added `validButMismatchedSourceDigestDeniedBeforeRuntimeResolution` to the standalone Multimodal gRPC bootstrap tests. A well-formed but incorrect SHA-256 receives `PERMISSION_DENIED` before source authorization resolution or runtime submission. The focused Multimodal gRPC classes passed **81/81**, and the selected launcher admission/restart classes passed **12/12**. These are source-free negative and restart checks; no authorized provider/rights positive effect ran, so MM acceptance remains unchanged.
+
+### 43.83 November 3 W2-R07 durable broker nonce replay window
+
+Replaced the daemon's process-local-only replay set with an HMAC-protected journal under the broker-private token directory. The broker now requires a persistent broker-owned 0700 directory, a broker-owned 0600 token, one journal writer, no-follow state-file opens, forced append/atomic-compaction directory sync, a persisted wall-clock high-water mark, and no eviction of still-valid nonce digests. Fresh requests fail closed at the 65,536-live-entry cap; time rollback requires clock correction and broker restart. A partial final append is truncated only after complete records pass integrity checks. The focused Vision broker selectors passed **42/42** (policy 21, runner 7, Whisper protocol 6, restart 1, journal 7), covering live-capacity rejection, compaction/restart replay, tamper/token mismatch, lock ownership, clock rollback and torn-tail recovery. `modules/vision/vision-service/README.md` records the persistent-state and rotation requirements. This was a source-free macOS unit run; no performance benchmark, live OCI/cgroup/native codec run, or source-owner/version binding was established. W2-R07 remains unaccepted pending its actual host, codec and product-source acceptance evidence.
+
+### 43.84 November 3 W2-R06 TTS denial review
+
+No code change was warranted after reviewing the existing TTS-05 tests: denied or revoked requests fail before engine access, streaming rechecks revocation before buffered output disclosure, and clone requests return no result without engine access. Wrong-principal/tenant/purpose policy still belongs to the missing authoritative resolver. No unchanged tests were rerun; no provider effect or TTS acceptance was claimed.
+
+### 43.85 November 3 FLEURS card confirmation and artifact disposition
+
+Opened the current [Hugging Face `google/fleurs` card](https://huggingface.co/datasets/google/fleurs), which labels the dataset CC-BY-4.0 and identifies its ASR audio/text modality. That license label still does not supply the source-authorized exact en/hi/ne subset record for privacy, purpose and retention required by §43.78, so real inference remains `NOT_ADMITTED`. A filename/size-only inventory found the ignored pilot directory contains only its 19,020-byte metadata manifest; the referenced 30 WAVs are absent. The manifest retains redacted-transcript pilot provenance and no audio bytes. I chose to keep that existing audit manifest, with no further extraction or use; no WAV deletion was needed, and no audio was opened or inferred in this pass.

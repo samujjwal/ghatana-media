@@ -93,7 +93,9 @@ public final class MediaOciBrokerDaemon {
         Path tokenPath = Path.of(tokenFile);
         // The credential file must be owner-only; group/other readers make the HMAC
         // proof forgeable, so the broker refuses to start.
-        if (!MediaOciBrokerPolicy.ownerOnlyFile(tokenPath)) {
+        if (!MediaOciBrokerPolicy.ownerOnlyFile(tokenPath)
+                || Files.isSymbolicLink(tokenPath)
+                || !Files.isRegularFile(tokenPath, java.nio.file.LinkOption.NOFOLLOW_LINKS)) {
             System.err.println("Broker token file must have 0600 owner-only permissions");
             System.exit(2);
         }
@@ -103,6 +105,10 @@ public final class MediaOciBrokerDaemon {
             System.exit(2);
         }
         String brokerOsUser = currentOsUserName();
+        if (!Files.getOwner(tokenPath, java.nio.file.LinkOption.NOFOLLOW_LINKS).getName().equals(brokerOsUser)) {
+            System.err.println("Broker token file must be owned by the broker OS identity");
+            System.exit(2);
+        }
         if (!distinctOsUsers(brokerOsUser, allowedPeerUser)) {
             System.err.println("Broker OS identity must differ from the allowed Media peer identity");
             System.exit(2);
@@ -137,6 +143,12 @@ public final class MediaOciBrokerDaemon {
             System.err.println("Broker OS identity must differ from the allowed Media peer identity");
             System.exit(2);
         }
+        Path nonceStateRoot = MediaOciBrokerNonceJournal.validateStateDirectory(
+                tokenPath.toAbsolutePath().getParent(), brokerOsUser, allowedPeerUser,
+                sourceReal, outputReal, stageReal);
+        MediaOciBrokerNonceJournal nonceJournal = MediaOciBrokerNonceJournal.open(
+                nonceStateRoot, token, brokerOsUser, allowedPeerUser,
+                sourceReal, outputReal, stageReal);
         MediaOciBrokerPolicy.Policy policy = new MediaOciBrokerPolicy.Policy(
                 java.util.Set.copyOf(images), uid, gid,
                 sourceReal, outputReal, stageReal,
@@ -156,7 +168,8 @@ public final class MediaOciBrokerDaemon {
                 System.err.println("Whisper worker not admitted: orphan cleanup or journal recovery unavailable");
             }
         }
-        MediaOciBrokerPolicy.NonceReplayGuard nonces = new MediaOciBrokerPolicy.NonceReplayGuard();
+        MediaOciBrokerPolicy.NonceReplayGuard nonces =
+                new MediaOciBrokerPolicy.NonceReplayGuard(nonceJournal);
         Path socket = Path.of(socketPath);
         Files.deleteIfExists(socket);
         ThreadPoolExecutor requests = new ThreadPoolExecutor(8, 8, 0, TimeUnit.MILLISECONDS,
@@ -167,6 +180,7 @@ public final class MediaOciBrokerDaemon {
                 }, new ThreadPoolExecutor.AbortPolicy());
         WhisperOciWorkerSupervisor finalWhisperSupervisor = whisperSupervisor;
         MediaOciBrokerWhisperJournal finalWhisperJournal = whisperJournal;
+        MediaOciBrokerNonceJournal finalNonceJournal = nonceJournal;
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             requests.shutdown();
             if (finalWhisperSupervisor != null) {
@@ -184,6 +198,8 @@ public final class MediaOciBrokerDaemon {
             if (finalWhisperJournal != null) {
                 try { finalWhisperJournal.close(); } catch (IOException ignored) { }
             }
+            try { finalNonceJournal.close(); }
+            catch (IOException ignored) { System.err.println("Broker nonce replay journal close failed"); }
         }, "media-oci-broker-shutdown"));
         try (ServerSocketChannel server = ServerSocketChannel.open(
                 java.net.StandardProtocolFamily.UNIX)) {
@@ -256,7 +272,7 @@ public final class MediaOciBrokerDaemon {
                         .getBytes(StandardCharsets.UTF_8))) {
             writeResult(client, -1, "unauthenticated"); return;
         }
-        if (!nonces.admit(nonce, issuedAt, System.currentTimeMillis())) {
+        if (!nonces.admit(nonce, issuedAt, wallClockMillis.getAsLong())) {
             writeResult(client, -1, "unauthenticated"); return;
         }
         String operation = field(payload, "op");
