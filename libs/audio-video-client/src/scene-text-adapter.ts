@@ -65,7 +65,11 @@ export interface SceneTextParseInput {
   readonly signal?: AbortSignal;
 }
 
-/** Structural surface implemented by @ghatana/document-intelligence-client. */
+/**
+ * Structural surface implemented by @ghatana/document-intelligence-client.
+ * The published package's typed rejection taxonomy is not present in this
+ * repository, so unclassified parse rejections remain effect-ambiguous.
+ */
 export interface DocumentIntelligenceV1Client {
   readonly lastProtocolVersion?: string;
   readonly lastWorkerCapabilityVersion?: string;
@@ -130,6 +134,7 @@ export type SceneTextAdapterErrorCode =
   | "RESULT_GEOMETRY_INVALID"
   | "RESULT_CONFIDENCE_MISSING"
   | "RESULT_SHAPE_UNSUPPORTED"
+  | "OUTCOME_UNKNOWN"
   | "REQUEST_ABORTED";
 
 export class SceneTextAdapterError extends Error {
@@ -283,16 +288,24 @@ export class DocumentIntelligenceSceneTextAdapter {
     }
     abortIfRequested(signal);
 
-    const parsed = await this.client.parse({
-      operationId,
-      providerRef: this.policy.providerRef,
-      mediaType: source.mediaType,
-      ...(source.languageHint === undefined ? {} : { languageHint: source.languageHint }),
-      timeoutMs: this.policy.timeoutMs,
-      limits: this.policy.workerLimits,
-      bytes: new Uint8Array(source.bytes),
-      signal,
-    });
+    let parsed: SceneTextWireDocument;
+    try {
+      parsed = await this.client.parse({
+        operationId,
+        providerRef: this.policy.providerRef,
+        mediaType: source.mediaType,
+        ...(source.languageHint === undefined ? {} : { languageHint: source.languageHint }),
+        timeoutMs: this.policy.timeoutMs,
+        limits: this.policy.workerLimits,
+        bytes: new Uint8Array(source.bytes),
+        signal,
+      });
+    } catch {
+      // This TS seam has no published typed rejection taxonomy. An
+      // unclassified rejection cannot establish whether the DI worker
+      // accepted or completed the operation; do not imply safe retry/no effect.
+      throw new SceneTextAdapterError("OUTCOME_UNKNOWN");
+    }
     if (parsed === null || typeof parsed !== "object" || parsed.providerProvenance === null
       || typeof parsed.providerProvenance !== "object") {
       throw new SceneTextAdapterError("RESPONSE_IDENTITY_MISMATCH");

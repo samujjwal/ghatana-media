@@ -32,7 +32,7 @@ Intelligence responsibilities; Media retains scene and temporal meaning.
 | Video frame timestamp, range, track, scene identity | No timestamp or temporal association in the parsed-document response | Remains Media-owned. A caller must carry frame/time identity outside the generic parse result and perform temporal association itself. |
 | `OcrResult.modelRef`, `modelVersion` | `providerProvenance.modelRef`, `modelVersion` may be optional | A successful Media result requires model identity; the adapter must reject or otherwise resolve absent identity under an approved policy. Provider identity alone is insufficient. |
 | Media cancellation via operation/idempotency | `DELETE /v1/operations/{operationId}` with a 32-character generation token | Not directly interchangeable. The adapter would need to retain the exact generation token; an idempotency key is not a substitute. Preserve worker generation fencing and late-result behavior. |
-| Media failure codes | Sanitized worker error `{code, retryable, providerRef?}` | No complete error taxonomy mapping is established. Preserve sanitized code/retryability and add a reviewed mapping before translating to Media terminal outcomes. |
+| Media failure codes | Sanitized worker error `{code, retryable, providerRef?}` | No complete error taxonomy mapping is established. The Media TS adapter maps an unclassified parse rejection to `RECOGNIZER_OUTCOME_UNKNOWN`; the published TS client's typed rejection contract is absent from this workspace. Preserve explicit typed no-effect codes and sanitized retryability once that contract is available; never infer no effect from an untyped rejection. |
 
 `textSpan` is extraction evidence, not a parse-line range. When present it is a
 zero-based, end-exclusive UTF-16 code-unit interval into the referenced Shared
@@ -72,6 +72,16 @@ those Media fields. Before enabling this adapter in a deployed consumer, obtain
 owner-approved mappings and fixtures for those gaps, then qualify the immutable
 public artifact and consumer under MDI-001 without changing accepted consumer
 contracts or activation state.
+
+**Parse rejection and late cancellation:** Media preserves its own source and
+provider-admission failures before `parse` is invoked. After invocation, a
+generic TypeScript client rejection or cancellation racing a successful result
+is returned as `RECOGNIZER_OUTCOME_UNKNOWN` and no text is exposed. This is a
+conservative fallback because the installed TypeScript client's typed
+no-effect/error contract is unavailable here; it is not evidence that every
+typed provider rejection should map to UNKNOWN. Once the public error contract
+is available, preserve its explicit no-effect and retryability distinctions
+through a reviewed mapping before runtime qualification.
 
 ## Source basis
 

@@ -177,6 +177,26 @@ describe('DocumentIntelligenceSceneTextAdapter', () => {
     expect(wrongModelClient.parse).not.toHaveBeenCalled();
   });
 
+  it('maps parse failures to OUTCOME_UNKNOWN without exposing provider details', async () => {
+    const sensitiveDetails = 'token=secret-123 customer@example.com';
+    const di = client();
+    di.parse = vi.fn(async () => {
+      throw new Error(`provider failure: ${sensitiveDetails}`);
+    });
+    const adapter = new DocumentIntelligenceSceneTextAdapter(di, policy);
+
+    let rejection: unknown;
+    try {
+      await adapter.recognizeFrame('op-scene-text', frame);
+    } catch (error) {
+      rejection = error;
+    }
+    expect(rejection).toBeInstanceOf(SceneTextAdapterError);
+    expect(rejection).toMatchObject({ code: 'OUTCOME_UNKNOWN' });
+    expect((rejection as Error).message).not.toContain(sensitiveDetails);
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
   it('rejects catalog model identity or version before parse', async () => {
     for (const candidate of [
       { ...catalog().providers[0], modelRef: undefined },

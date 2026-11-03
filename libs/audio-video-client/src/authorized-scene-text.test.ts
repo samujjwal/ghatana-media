@@ -229,7 +229,7 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     expect(di.parse).not.toHaveBeenCalled();
   });
 
-  it('late cancellation discards a DI result instead of returning text', async () => {
+  it('late cancellation discards DI text and reports unknown outcome after dispatch', async () => {
     const controller = new AbortController();
     const di = diClient();
     di.parse.mockImplementationOnce(async () => {
@@ -238,7 +238,19 @@ describe('Media source admission through sole DI v1 OCR provider (fixture only)'
     });
     await expect(recognizeAuthorizedMediaSceneText(
       authorized(), di, policy, 'op-1', frame, await admission(), controller.signal))
-      .rejects.toMatchObject({ code: 'SOURCE_UNAVAILABLE' });
+      .rejects.toMatchObject({ code: 'RECOGNIZER_OUTCOME_UNKNOWN' });
+    expect(di.parse).toHaveBeenCalledTimes(1);
+  });
+
+  it('maps parse rejection to a sanitized unknown outcome because dispatch finality is unavailable', async () => {
+    const di = diClient();
+    di.parse.mockRejectedValueOnce(new Error('provider timed out after dispatch; sensitive detail'));
+    await expect(recognizeAuthorizedMediaSceneText(
+      authorized(), di, policy, 'op-1', frame, await admission()))
+      .rejects.toMatchObject({
+        code: 'RECOGNIZER_OUTCOME_UNKNOWN',
+        message: 'Media scene-text operation rejected: RECOGNIZER_OUTCOME_UNKNOWN',
+      });
     expect(di.parse).toHaveBeenCalledTimes(1);
   });
 

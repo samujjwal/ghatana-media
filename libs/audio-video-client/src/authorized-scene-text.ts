@@ -10,6 +10,7 @@
  */
 import {
   DocumentIntelligenceSceneTextAdapter,
+  SceneTextAdapterError,
   type DocumentIntelligenceV1Client,
   type SceneTextAdapterPolicy,
   type SceneTextObservation,
@@ -40,7 +41,8 @@ export interface MediaSceneTextSourceAuthority {
 
 export type MediaSceneTextAdmissionCode =
   | 'INVALID_SOURCE' | 'SOURCE_DIGEST_MISMATCH' | 'SOURCE_VERSION_MISMATCH'
-  | 'SOURCE_DENIED' | 'SOURCE_NOT_ADMITTED' | 'SOURCE_UNAVAILABLE' | 'RECOGNIZER_RESULT_INVALID';
+  | 'SOURCE_DENIED' | 'SOURCE_NOT_ADMITTED' | 'SOURCE_UNAVAILABLE'
+  | 'RECOGNIZER_OUTCOME_UNKNOWN' | 'RECOGNIZER_RESULT_INVALID';
 
 export class MediaSceneTextAdmissionError extends Error {
   constructor(public readonly code: MediaSceneTextAdmissionCode) {
@@ -136,8 +138,22 @@ export async function recognizeAuthorizedMediaSceneText(
   // DI's provider registry owns OCR engine selection. There is no alternate
   // Media-level recognizer callback or parallel Media OCR execution path.
   const di = new DocumentIntelligenceSceneTextAdapter(diClient, diPolicy);
-  const results = await di.recognizeFrame(operationId, frozenFrame, signal);
-  if (signal?.aborted) reject('SOURCE_UNAVAILABLE');
+  let results: readonly SceneTextObservation[];
+  try {
+    results = await di.recognizeFrame(operationId, frozenFrame, signal);
+  } catch (error) {
+    if (error instanceof SceneTextAdapterError && error.code === 'OUTCOME_UNKNOWN') {
+      // The installed client's typed rejection contract is not available at
+      // this seam. Once parse is invoked, an unclassified rejection does not
+      // say whether DI dispatched work. Do not expose provider details or
+      // imply no effect.
+      reject('RECOGNIZER_OUTCOME_UNKNOWN');
+    }
+    throw error;
+  }
+  // Cancellation after dispatch also cannot establish that the provider did
+  // no work. Discard any returned text and require reconciliation before retry.
+  if (signal?.aborted) reject('RECOGNIZER_OUTCOME_UNKNOWN');
   if (!Array.isArray(results) || results.length > 5000
       || !results.every(row=>validObservation(row, frozenFrame))) {
     reject('RECOGNIZER_RESULT_INVALID');
