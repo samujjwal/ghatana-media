@@ -4109,3 +4109,28 @@ Ran `pnpm --filter @audio-video/client test:package` after the mandatory-auth/ra
 ### 43.139 November 3 CT-01 observed HTTP-route denominator
 
 Added `MediaHttpRouteInventoryCountTest` to assert that both the OpenAPI path/method inventory and runtime route manifest retain the observed 30-route denominator. The existing `MediaOpenApiContractConsumptionTest` already verifies bidirectional method/path/operation/route-ID parity, and `MediaGrpcRegistryDescriptorParityTest` already checks 44 registry rows against descriptor names, request/response types, streaming and proposal status. The new test was forced to execute with `./gradlew :services:media:modules:integration-tests:test --tests 'com.ghatana.audio.video.integration.MediaHttpRouteInventoryCountTest' --rerun-tasks --no-daemon --no-parallel --max-workers=2 --console=plain`; it passed **1/1**. This adds only an inventory denominator guard. Field-level protobuf-to-operation mapping and external owner review remain open; no service was called and no contract or admission status changed.
+
+
+### 43.140 November 3 CA-02 source-fingerprint cache partition
+
+Added `changedSourceFingerprintDoesNotReuseProtectedCacheEntry` to `AudioVideoCacheKeyRedactionTest`. It holds tenant, principal, rights, purpose, classification, artifact, artifact revision and transcript revision constant, changes only the source fingerprint, then verifies both a distinct key and a second loader invocation through a map-backed cache port. The focused Gradle selector passed **1/1**; independent Luna review confirmed the test isolates the source-fingerprint dimension. This does not establish rights/consent revalidation, live Redis restart behavior, or whole CA-02 acceptance.
+
+
+### 43.141 November 3 DI error-shape fallback in packed Media client
+
+Extended the isolated packed-client consumer test with an admitted structural DI fixture whose post-dispatch `parse` promise rejects with arbitrary error-shaped fields and sensitive detail. The test verifies the Media adapter returns only its fixed `OUTCOME_UNKNOWN` message and does not expose those fields. The error code is explicitly fixture-only; no DI error taxonomy was introduced. `pnpm --filter @audio-video/client test:package:consumer` passed against the packed consumer. The published `@ghatana/document-intelligence-client`, its typed error contract, and DI-owner-installed consumer proof are still absent, so this only confirms Media's conservative fallback path.
+
+
+### 43.142 November 3 JC-03 bounded CLI process cleanup
+
+`WhisperOciWorkerSupervisor.ProcessBuilderCommandRunner` now attempts bounded termination of the trusted CLI wrapper and observed descendants on timeout/interruption, uses one two-second cleanup deadline for process cleanup and stream joins, exposes `cleanupConfirmed`, and fails closed when descendant discovery overflows or errors. `WhisperOciWorkerSupervisor` rejects unconfirmed command cleanup; best-effort container kill followed by successful `rm --force` is sufficient cleanup evidence and no longer holds the single-worker permit if the container was already stopped. Four regressions cover timeout, a termination-handler fork, interruption/status restoration, discovery overflow, and a failed kill followed by successful removal/next invocation. The focused process-tree and supervisor selectors passed **4/4** and **18/18**; independent Luna review found no remaining material defect. This is trusted CLI process handling only: no OCI host, native-model, provider receipt, durable result reconciliation or installed consumer was qualified, and ambiguous post-dispatch outcomes remain `UNKNOWN_OUTCOME`.
+
+
+### 43.143 November 3 IP-03 staged executor dispatch
+
+Replaced direct submission of every admitted JPA operation with an internal bounded staging queue. It retains the **136-operation** admission ceiling and caller/service executor ownership, while dispatching at most the existing **8-operation** database concurrency limit to any injected executor; queued accepted work drains on close, and caller-owned executors are not shut down. The cached-pool burst regression holds the first eight database calls, accepts 136 operations, rejects operation 137, and verifies largest worker count and active database calls never exceed eight while all accepted calls reach success. Focused persistence operation and lifecycle selectors passed **11 tests**; independent Luna review found no material issue in queue/close/rejection semantics. Docker-backed database crash and deployed-writer evidence remain separate.
+
+
+### 43.144 November 3 remaining-only queue no-change dispositions
+
+Read-only checks found no source-bound change to make for IP-06, IP-01, JC-01, TY-01, or RS-02 in this pulse. IP-06's existing child-JVM and S3/PostgreSQL crash fixtures already cover the local process/reopen oracles; deployed Flyway history, historical writer identity, fencing and authorized cutover remain external. IP-01's schema-lineage crosswalk records `appliedRange: UNKNOWN_NOT_READ`; reconciling the entity/DDL discrepancy requires actual applied-history and consumer evidence. JC-01's shared TLS profile refuses insecure staging/production setup before bind, with local profile tests; credential enrollment/real host qualification remain external. TY-01's TS tests preserve all nine states and unknown legacy observations, while Java/OpenAPI state mappings lack owner-approved equivalence. RS-02 already bounds decoding and has malformed-input/mutation tests; broad codec fuzzing and measured peak RSS were not run. No repeated tests, schema changes, mTLS defaults or authority/status changes were made.
