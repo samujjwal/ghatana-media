@@ -67,6 +67,32 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("stale lease cannot drain a held frame after its gap closes")
+    void staleLeaseCannotDrainPendingFrame() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
+                .isEqualTo(FrameVerdict.HELD);
+        assertThat(session.submitFrame("worker-a", 1L, frame(1, false)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
+
+        session.claim("worker-b", 2L);
+        assertThatThrownBy(() -> session.takeDelivered("worker-a", 1L))
+                .isInstanceOf(StaleLeaseException.class)
+                .hasMessageContaining("frame delivery");
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.nextAck("worker-b", 2L)).isEqualTo(1);
+
+        assertThat(session.takeDelivered("worker-b", 2L).sequenceNumber()).isEqualTo(2);
+        assertThat(session.nextAck("worker-b", 2L)).isEqualTo(2);
+        assertThat(session.pendingCount()).isZero();
+    }
+
+    @Test
     @DisplayName("a claim replayed at an equal-or-older token is stale, never a takeover")
     void claimMonotonicFencing() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
