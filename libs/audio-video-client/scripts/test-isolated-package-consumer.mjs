@@ -185,6 +185,39 @@ try {
     }), (error) => error instanceof SceneTextAdapterError && error.code === 'PROVIDER_NOT_ADMITTED');
     assert.equal(parseCalled, false, 'non-admitted DI provider must not dispatch parse');
 
+    // The published DI client error vocabulary is not available here. Even an
+    // error-shaped rejection must therefore stay effect-ambiguous after parse
+    // dispatch, with no provider detail crossing the installed Media seam.
+    const parseFailure = Object.assign(new Error('sensitive provider timeout detail'), {
+      code: 'ARBITRARY_FIXTURE_CODE', retryable: true, providerRef: 'fixture-provider',
+    });
+    const rejectingDiAdapter = new DocumentIntelligenceSceneTextAdapter({
+      lastProtocolVersion: DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
+      lastWorkerCapabilityVersion: DOCUMENT_INTELLIGENCE_WORKER_V1,
+      providers: async () => ({
+        protocolVersion: DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
+        workerCapabilityVersion: DOCUMENT_INTELLIGENCE_WORKER_V1,
+        providers: [{
+          providerRef: 'fixture-provider', providerVersion: '1',
+          modelRef: 'fixture-model', modelVersion: '1',
+          mediaTypes: ['image/png'], supportedLanguages: ['en'],
+          promotionStatus: 'ACCEPTED', loaded: true, ready: true,
+        }],
+      }),
+      parse: async () => { throw parseFailure; },
+    }, {
+      providerRef: 'fixture-provider', providerVersion: '1',
+      modelRef: 'fixture-model', modelVersion: '1',
+      acceptedMediaTypes: ['image/png'], acceptedLanguages: ['en'], timeoutMs: 1000,
+      workerLimits: { maxPages: 1 },
+    });
+    await assert.rejects(rejectingDiAdapter.recognizeFrame('fixture-operation', {
+      sourceArtifactId: 'fixture-source', sourceVersion: 'v1', frameId: 'frame-1',
+      timestampUs: 0, mediaType: 'image/png', languageHint: 'en', bytes: new Uint8Array([1]),
+    }), (error) => error instanceof SceneTextAdapterError && error.code === 'OUTCOME_UNKNOWN'
+      && error.message === 'Scene-text adapter rejected the operation: OUTCOME_UNKNOWN'
+      && !error.message.includes('sensitive provider timeout detail'));
+
     // Synthetic read fixture: exercise the installed, source-free package runtime
     // through the existing canonical GET and its injected fetch implementation.
     const timestamp = '2026-10-30T12:00:00.000Z';
