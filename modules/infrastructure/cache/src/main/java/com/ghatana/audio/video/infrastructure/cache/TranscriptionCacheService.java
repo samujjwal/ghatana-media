@@ -40,6 +40,10 @@ public class TranscriptionCacheService {
         // Tenant and entity identity do not prove that consent, retention, source
         // revision, or transcript revision are still current. The cache contract
         // has no trusted authority for those facts, so a hit is not safe to expose.
+        // Retire any legacy snapshot under this exact key as well. This also
+        // evicts malformed/obsolete serialized values without parsing or
+        // exposing bytes that have no current source authorization.
+        invalidateStaleSnapshot(buildKey(tenantId, transcriptionId.toString()));
         LOG.debug("Transcription cache hit cannot be revalidated; treating as a miss");
         return AsyncOperation.success(Optional.empty());
     }

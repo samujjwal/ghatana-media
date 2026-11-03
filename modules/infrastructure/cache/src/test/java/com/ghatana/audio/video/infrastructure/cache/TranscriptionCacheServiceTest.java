@@ -52,6 +52,46 @@ class TranscriptionCacheServiceTest {
     }
 
     @Test
+    void directMissInvalidatesLegacySerializedValueWithoutParsingIt() {
+        UUID transcriptionId = UUID.randomUUID();
+        String scopedKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService servicePort = mock(DistributedCacheService.class);
+        when(servicePort.get(scopedKey))
+                .thenReturn(AsyncOperation.success(Optional.of("{invalid-json")));
+        when(servicePort.invalidateAsync(scopedKey)).thenReturn(AsyncOperation.success(null));
+        TranscriptionCacheService service = new TranscriptionCacheService(servicePort, objectMapper);
+
+        Optional<TranscriptionEntity> result = await(service.getTranscription("tenant-a", transcriptionId));
+
+        assertThat(result).isEmpty();
+        verify(servicePort).invalidateAsync(scopedKey);
+        verify(servicePort, never()).get(any());
+        verify(servicePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void directMissRemainsEmptyWhenLegacySnapshotInvalidationFails() {
+        UUID asynchronousFailureId = UUID.randomUUID();
+        UUID synchronousFailureId = UUID.randomUUID();
+        String asynchronousKey = key("tenant-a", asynchronousFailureId.toString());
+        String synchronousKey = key("tenant-a", synchronousFailureId.toString());
+        DistributedCacheService servicePort = mock(DistributedCacheService.class);
+        when(servicePort.invalidateAsync(asynchronousKey))
+                .thenReturn(AsyncOperation.failure(new IllegalStateException("redis unavailable")));
+        when(servicePort.invalidateAsync(synchronousKey))
+                .thenThrow(new IllegalStateException("redis dispatch failed"));
+        TranscriptionCacheService service = new TranscriptionCacheService(servicePort, objectMapper);
+
+        assertThat(await(service.getTranscription("tenant-a", asynchronousFailureId))).isEmpty();
+        assertThat(await(service.getTranscription("tenant-a", synchronousFailureId))).isEmpty();
+
+        verify(servicePort).invalidateAsync(asynchronousKey);
+        verify(servicePort).invalidateAsync(synchronousKey);
+        verify(servicePort, never()).get(any());
+        verify(servicePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
     void v2KeyTreatsLegacyEntryAsMiss() throws Exception {
         UUID id = UUID.randomUUID();
         String legacyKey = "transcription:tenant-a:" + id;
