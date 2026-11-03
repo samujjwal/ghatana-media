@@ -28,6 +28,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.HashMap;
@@ -59,7 +61,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  *       {@code MediaUploadCrashRecoveryIT} (provider suite).</li>
  *   <li>V05 durable worker fencing/crash matrix: covered by
  *       {@code MediaDurableWorkerCrashIT} (provider suite).</li>
- *   <li>V06/V07 local transform → completed job → logicalStatus read: covered.</li>
+ *   <li>V06 local transform → terminal job → logicalStatus and exact outbox read: covered.
+ *       The H2 local profile currently preserves finality as OUTCOME_UNKNOWN.</li>
  *   <li>V08 outbox commit/ACK kill points: covered by provider outbox tests;
  *       asserted here at DB level that terminal state committed with outbox rows.</li>
  *   <li>V09 cross-tenant artifact isolation + forged principal header scrub: covered.
@@ -87,10 +90,11 @@ class MediaLauncherEndToEndIT {
     private MediaRuntime runtime;
     private AutoCloseable installed;
     private String bucket;
+    private String jdbcUrl;
     private final HttpClient client = HttpClient.newHttpClient();
 
     private void startStack() throws Exception {
-        String jdbcUrl = "jdbc:h2:mem:media_launcher_e2e_" + UUID.randomUUID().toString().replace("-", "")
+        jdbcUrl = "jdbc:h2:mem:media_launcher_e2e_" + UUID.randomUUID().toString().replace("-", "")
                 + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1";
         bucket = "media-launcher-e2e-" + UUID.randomUUID().toString().replace("-", "");
         try (S3Client s3 = s3()) {
@@ -271,7 +275,7 @@ class MediaLauncherEndToEndIT {
     }
 
     @Test
-    void v06_localTransformCompletesAndReadProjectsLogicalStatus() throws Exception {
+    void v06_localTransformUnknownFinalityAndOutboxAreReadFromDurableState() throws Exception {
         startStack();
         byte[] payload = wav("v06-payload".getBytes(StandardCharsets.UTF_8));
         JsonNode artifact = uploadArtifact("tenant-v06", payload, "v06-upload-key");
@@ -297,12 +301,37 @@ class MediaLauncherEndToEndIT {
             assertThat(read.statusCode()).isEqualTo(200);
             job = MAPPER.readTree(read.body());
             String status = job.get("status").asText();
-            if ("COMPLETED".equals(status) || "FAILED".equals(status)) break;
+            if ("COMPLETED".equals(status) || "FAILED".equals(status)
+                    || "OUTCOME_UNKNOWN".equals(status)) break;
             Thread.sleep(250);
         }
         assertThat(job).isNotNull();
-        assertThat(job.get("status").asText()).as("final job: %s", job).isEqualTo("COMPLETED");
-        assertThat(job.get("logicalStatus").asText()).isEqualTo("COMPLETED");
+        assertThat(job.get("status").asText()).as("final job: %s", job).isEqualTo("OUTCOME_UNKNOWN");
+        assertThat(job.get("failureCode").asText()).isEqualTo("PROCESSING_FINALIZATION_OUTCOME_UNKNOWN");
+        assertThat(job.get("logicalStatus").asText()).isEqualTo("OUTCOME_UNKNOWN");
+        assertThat(lifecycleOutboxCount("tenant-v06", jobId, job.get("version").asLong(),
+                "MEDIA_JOB_OUTCOME_UNKNOWN"))
+                .as("unknown terminal job state and durable lifecycle outbox event commit together")
+                .isEqualTo(1);
+    }
+
+    private long lifecycleOutboxCount(String tenantId, String jobId, long version, String eventType)
+            throws SQLException {
+        try (var connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             var statement = connection.prepareStatement("""
+                     SELECT COUNT(*) FROM media_processing_lifecycle_outbox
+                      WHERE tenant_id=? AND aggregate_type='job' AND aggregate_id=?
+                        AND aggregate_version=? AND event_type=?
+                     """)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            statement.setLong(3, version);
+            statement.setString(4, eventType);
+            try (var rows = statement.executeQuery()) {
+                if (!rows.next()) throw new SQLException("Lifecycle outbox count query returned no row");
+                return rows.getLong(1);
+            }
+        }
     }
 
     @Test
