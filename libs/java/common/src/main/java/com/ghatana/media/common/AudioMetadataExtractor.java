@@ -24,7 +24,7 @@ public final class AudioMetadataExtractor {
             throw new ValidationError("Audio bit depth must use complete bytes");
         }
         long bytesPerFrame = (long) audio.channels() * bytesPerSample;
-        long dataLength = audio.data().length;
+        long dataLength = audio.dataLength();
         if (bytesPerFrame <= 0 || dataLength % bytesPerFrame != 0) {
             throw new ValidationError("Audio data must contain complete sample frames");
         }

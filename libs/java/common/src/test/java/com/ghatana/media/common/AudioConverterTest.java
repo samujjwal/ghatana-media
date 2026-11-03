@@ -133,6 +133,21 @@ class AudioConverterTest {
     }
 
     @Test
+    @DisplayName("Audio metadata rejects a payload ending inside a channel frame")
+    void rejectsAudioDataWithPartialFrame() {
+        AudioData partialFrame = AudioData.builder()
+                .data(new byte[] {1, 2, 3})
+                .sampleRate(16000)
+                .channels(2)
+                .bitsPerSample(16)
+                .build();
+
+        assertThatThrownBy(() -> AudioMetadataExtractor.fromAudioData(partialFrame))
+                .isInstanceOf(ValidationError.class)
+                .hasMessageContaining("complete sample frames");
+    }
+
+    @Test
     @DisplayName("WAV metadata parser rejects unsigned lengths outside the RIFF buffer")
     void wavParserRejectsUnsignedChunkAndContainerOverflow() {
         byte[] oversizedRiff = createWavBytes(16000, 1, 16, 4);

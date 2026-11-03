@@ -46,6 +46,11 @@ public record AudioData(
         return data.clone();
     }
 
+    /** Return the payload size without materializing a defensive copy. */
+    int dataLength() {
+        return data.length;
+    }
+
     public CanonicalAudioFormat canonicalFormat() {
         return new CanonicalAudioFormat(sampleRate, channels, bitsPerSample, format);
     }

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -116,6 +117,73 @@ class AudioStreamSessionFrameTest {
                 .hasMessageContaining("sequence");
         assertThatThrownBy(() -> session.encodeFrame(1, 0L, null))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void deterministicFrameCorpusClassifiesValidAndMalformedBoundaries() {
+        Random random = new Random(0x41532d3032L);
+        byte[] payload = new byte[]{1, 2, 3, 4};
+        byte[] valid = session.encodeFrame(17, 1234L, payload);
+        assertValidFrame(valid, 17, 1234L, payload);
+
+        // Exercise every bit of a negative length field. With four payload
+        // bytes available, each mutation remains either negative or above the
+        // available payload size and is therefore guaranteed malformed.
+        byte[] invalidLengthFrame = header(17, 1234L, -1);
+        invalidLengthFrame = Arrays.copyOf(invalidLengthFrame,
+                AudioStreamSession.FRAME_HEADER_BYTES + payload.length);
+        for (int offset = Integer.BYTES + Long.BYTES;
+                offset < AudioStreamSession.FRAME_HEADER_BYTES; offset++) {
+            for (int bit = 0; bit < Byte.SIZE; bit++) {
+                byte[] mutated = invalidLengthFrame.clone();
+                mutated[offset] ^= (byte) (1 << bit);
+                assertInvalidFrame(mutated);
+            }
+        }
+
+        assertInvalidFrame(header(-1, 1234L, 0));
+        assertInvalidFrame(header(Integer.MAX_VALUE, 1234L, 0));
+        assertInvalidFrame(header(17, 1234L, Integer.MIN_VALUE));
+        assertInvalidFrame(header(17, 1234L, -1));
+        assertInvalidFrame(header(17, 1234L,
+                AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1));
+        assertInvalidFrame(header(17, 1234L, Integer.MAX_VALUE));
+
+        // The two exact-size forms are valid; adjacent declared lengths are
+        // guaranteed invalid because the actual payload byte count differs.
+        assertValidFrame(header(17, 1234L, 0), 17, 1234L, new byte[0]);
+        assertInvalidFrame(header(17, 1234L, 1));
+        assertInvalidFrame(header(17, 1234L, 4));
+        assertInvalidFrame(Arrays.copyOf(header(17, 1234L, 3),
+                AudioStreamSession.FRAME_HEADER_BYTES + 4));
+        byte[] exactFour = header(17, 1234L, 4);
+        byte[] withFourPayload = Arrays.copyOf(exactFour,
+                AudioStreamSession.FRAME_HEADER_BYTES + 4);
+        System.arraycopy(payload, 0, withFourPayload,
+                AudioStreamSession.FRAME_HEADER_BYTES, payload.length);
+        assertValidFrame(withFourPayload, 17, 1234L, payload);
+        assertInvalidFrame(Arrays.copyOf(withFourPayload, withFourPayload.length + 1));
+
+        // Random inputs stay strictly shorter than the fixed 16-byte header,
+        // so every case has an unambiguous invalid outcome.
+        for (int i = 0; i < 256; i++) {
+            byte[] candidate = new byte[random.nextInt(AudioStreamSession.FRAME_HEADER_BYTES)];
+            random.nextBytes(candidate);
+            assertInvalidFrame(candidate);
+        }
+    }
+
+    private void assertValidFrame(byte[] candidate, int sequence, long timestamp, byte[] payload) {
+        var decoded = session.decodeFrame(candidate);
+        assertThat(decoded.sequenceNumber()).isEqualTo(sequence);
+        assertThat(decoded.timestampMillis()).isEqualTo(timestamp);
+        assertThat(decoded.payload()).containsExactly(payload);
+    }
+
+    private void assertInvalidFrame(byte[] candidate) {
+        assertThatThrownBy(() -> session.decodeFrame(candidate))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessageNotContaining("\n");
     }
 
     @Test
