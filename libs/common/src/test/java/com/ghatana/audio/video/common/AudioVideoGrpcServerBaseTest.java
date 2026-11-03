@@ -219,6 +219,33 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void productionLikeProfileWithoutTlsFailsBeforeGrpcPortCanBind() throws Exception {
+        for (String profile : new String[] {"staging", "production"}) {
+            int port = findAvailablePort();
+
+            assertThatThrownBy(() -> {
+                TestServer server = new TestServer(port, new CloseableNoOpService(),
+                        GrpcTransportSecurityPolicy.resolve(
+                                java.util.Map.of("STT_ENVIRONMENT", profile), "STT"));
+                try {
+                    server.start();
+                } finally {
+                    server.close();
+                }
+            }).as("%s profile without TLS material", profile)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("requires TLS");
+
+            assertThatThrownBy(() -> {
+                try (Socket socket = new Socket()) {
+                    socket.connect(new InetSocketAddress("127.0.0.1", port), 500);
+                }
+            }).as("%s profile must not leave a hidden gRPC listener", profile)
+                    .isInstanceOf(IOException.class);
+        }
+    }
+
+    @Test
     void mismatchedTlsIdentityIsRejectedBeforeAnyListenerCanBind() throws Exception {
         Path certificate = tlsFixture("rotation-a-cert.pem");
         Path mismatchedKey = tlsFixture("rotation-b-key.pem");
