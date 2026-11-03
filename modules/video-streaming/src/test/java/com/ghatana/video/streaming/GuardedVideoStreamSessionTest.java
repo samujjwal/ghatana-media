@@ -154,10 +154,61 @@ class GuardedVideoStreamSessionTest {
 
         live.set(ConsentDecision.DENIED);
         AtomicInteger egressEffects = new AtomicInteger();
-        assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
+        VideoStreamSession.DecodedFrame invalidPayload = new VideoStreamSession.DecodedFrame(
+                0, true, 0L, null);
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, invalidPayload,
                 f -> egressEffects.incrementAndGet()))
-                .isInstanceOf(ConsentDeniedException.class);
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("provider egress");
         assertThat(egressEffects.get()).isZero();
+    }
+
+    @Test
+    @DisplayName("consent is reauthorized after open before any frame state changes")
+    void postOpenConsentBlocksFrameSubmission() {
+        for (ConsentDecision decision : new ConsentDecision[]{
+                ConsentDecision.DENIED,
+                ConsentDecision.EXPIRED,
+                ConsentDecision.NOT_ADMITTED}) {
+            AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
+            AtomicReference<GuardedVideoStreamSession.ConsentContext> lastContext = new AtomicReference<>();
+            GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                    identity("t1"), context -> {
+                        lastContext.set(context);
+                        return live.get();
+                    }, "worker-a");
+            session.claim("worker-b", 2L);
+            live.set(decision);
+
+            assertThatThrownBy(() -> session.submitFrame("worker-b", 2L, frame(0, true)))
+                    .isInstanceOf(ConsentDeniedException.class)
+                    .hasMessageContaining(decision.name());
+            assertThat(lastContext.get()).isEqualTo(new GuardedVideoStreamSession.ConsentContext(
+                    "t1", "principal-1", "purpose-1", 2L));
+            assertThat(session.nextAck("worker-b", 2L)).isEqualTo(-1);
+            assertThat(session.pendingCount()).isZero();
+        }
+    }
+
+    @Test
+    @DisplayName("revoked consent prevents draining an already-held frame")
+    void revokedConsentPreservesHeldFrameDuringDrain() {
+        AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), context -> live.get(), "worker-a");
+        session.submitFrame("worker-a", 1L, frame(0, true));
+        assertThat(session.submitFrame("worker-a", 1L, frame(2, false)))
+                .isEqualTo(FrameVerdict.HELD);
+        session.submitFrame("worker-a", 1L, frame(1, false));
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
+
+        live.set(ConsentDecision.DENIED);
+        assertThatThrownBy(() -> session.takeDelivered("worker-a", 1L))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("frame delivery");
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(1);
     }
 
     @Test
@@ -318,16 +369,49 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
-    @DisplayName("denied tenant consent source fails closed on first egress")
+    @DisplayName("denied resume preserves detached state and candidates; resumed egress rechecks consent")
+    void deniedResumePreservesStateAndEgressRechecksConsent() {
+        SessionIdentity durable = identity("t1");
+        AtomicReference<ConsentDecision> live = new AtomicReference<>(ConsentDecision.ADMITTED);
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                durable, context -> live.get(), "worker-a");
+        VideoStreamSession.DecodedFrame admitted = frame(0, true);
+        session.submitFrame("worker-a", 1L, admitted);
+        session.detach("worker-a", 1L);
+        live.set(ConsentDecision.NOT_ADMITTED);
+
+        assertThatThrownBy(() -> session.resume("worker-a", 1L, durable, 0, 0, 0L))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("resume");
+        assertThat(session.detached()).isTrue();
+        assertThat(session.nextAck("worker-a", 1L)).isZero();
+
+        live.set(ConsentDecision.ADMITTED);
+        session.resume("worker-a", 1L, durable, 0, 0, 0L);
+        assertThat(session.detached()).isFalse();
+        live.set(ConsentDecision.EXPIRED);
+        AtomicInteger effects = new AtomicInteger();
+        assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
+                f -> effects.incrementAndGet()))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("provider egress");
+        assertThat(effects.get()).isZero();
+
+        live.set(ConsentDecision.ADMITTED);
+        session.egress("worker-a", 1L, admitted, f -> effects.incrementAndGet());
+        assertThat(effects.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("unavailable consent source fails closed before frame admission")
     void consentUnavailableFailsClosed() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
                 identity("t1"), GuardedVideoStreamSession.ConsentSource.unavailable(), "worker-a");
-        session.submitFrame("worker-a", 1L, frame(0, true));
-        AtomicInteger egressEffects = new AtomicInteger();
-        assertThatThrownBy(() -> session.egress("worker-a", 1L, frame(0, true),
-                f -> egressEffects.incrementAndGet()))
-                .isInstanceOf(ConsentDeniedException.class);
-        assertThat(egressEffects.get()).isZero();
+        assertThatThrownBy(() -> session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("NOT_ADMITTED");
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(-1);
+        assertThat(session.pendingCount()).isZero();
     }
 
     @Test

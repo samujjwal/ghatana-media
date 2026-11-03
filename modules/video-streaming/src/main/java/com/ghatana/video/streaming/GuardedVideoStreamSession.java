@@ -175,6 +175,7 @@ public final class GuardedVideoStreamSession {
             String workerId, long presentedToken, VideoStreamSession.DecodedFrame frame) {
         requireLease(workerId, presentedToken, "frame submit");
         requireAttached("frame submit");
+        requireLiveConsent("frame submit");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
         // Do not advance the ACK cursor when a decodable frame could not be
         // retained for its later provider-egress check. Duplicates remain
@@ -213,6 +214,7 @@ public final class GuardedVideoStreamSession {
             String workerId, long presentedToken) {
         requireLease(workerId, presentedToken, "frame delivery");
         requireAttached("frame delivery");
+        requireLiveConsent("frame delivery");
         VideoStreamSession.DecodedFrame pending = reconciler.peekDelivered();
         if (pending != null && reconciler.deliveryOf(pending).decodable()
                 && egressCandidates.size() >= MAX_EGRESS_CANDIDATES) {
@@ -256,13 +258,8 @@ public final class GuardedVideoStreamSession {
         Objects.requireNonNull(sink, "sink");
         requireLease(workerId, presentedToken, "provider egress");
         requireAttached("provider egress");
+        requireLiveConsent("provider egress");
         VideoStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
-        ConsentDecision decision = consent.authorize(new ConsentContext(
-                identity.tenantId(), identity.principalId(),
-                identity.purposeRef(), claimToken));
-        if (decision != ConsentDecision.ADMITTED) {
-            throw new ConsentDeniedException("provider egress", decision);
-        }
         byte[] admittedDigest = egressCandidates.get(snapshot.sequenceNumber());
         if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
             throw new IllegalArgumentException(
@@ -298,6 +295,7 @@ public final class GuardedVideoStreamSession {
             throw new IllegalArgumentException(
                     "resume ACK must match the in-memory ACK while delivered frames await egress");
         }
+        requireLiveConsent("resume");
         reconciler = VideoFrameReconciler.resume(
                 identity, durableIdentity,
                 lastAckedSequence, lastKeyFrameSequence, lastDeliveredPts);
@@ -363,6 +361,15 @@ public final class GuardedVideoStreamSession {
     private void requireNotCancelled(String transition) {
         if (cancelled) {
             throw new IllegalStateException("video stream " + transition + " is forbidden after cancellation");
+        }
+    }
+
+    private void requireLiveConsent(String transition) {
+        ConsentDecision decision = consent.authorize(new ConsentContext(
+                identity.tenantId(), identity.principalId(),
+                identity.purposeRef(), claimToken));
+        if (decision != ConsentDecision.ADMITTED) {
+            throw new ConsentDeniedException(transition, decision);
         }
     }
 
