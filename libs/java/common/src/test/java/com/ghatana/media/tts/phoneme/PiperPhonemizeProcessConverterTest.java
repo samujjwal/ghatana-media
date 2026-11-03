@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,35 +42,100 @@ class PiperPhonemizeProcessConverterTest {
     }
 
     @Test
-    void requiresExactBinaryDigestPinBeforeAcceptingCanonicalPhonemizer() throws Exception {
-        Path executable = executableWithScript("printf '%s\\n' '{\"phonemes\":[\"h\",\"i\"]}'");
-        String digest = HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(executable)));
+    void requiresExactPinsForBinaryLibraryAndEspeakTrees() throws Exception {
+        Fixture fixture = fixture("printf '%s\\n' '{\"phonemes\":[\"h\",\"i\"]}'");
+        Pins pins = pins(fixture);
 
-        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, null)).isEmpty();
-        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, " ")).isEmpty();
-        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, "0".repeat(64))).isEmpty();
-        assertThat(PiperPhonemizeProcessConverter.tryCreate(executable, digest)).isPresent();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, null,
+                pins.library, pins.data)).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, pins.binary,
+                null, pins.data)).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, pins.binary,
+                pins.library, null)).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, pins.binary,
+                " ", pins.data)).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, pins.binary,
+                pins.library, "0".repeat(64))).isEmpty();
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable, pins.binary,
+                pins.library, pins.data)).isPresent();
+    }
+
+    @Test
+    void rejectsSymlinksInsidePinnedTreesAndAncestors() throws Exception {
+        Fixture fixture = fixture("printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        Pins pins = pins(fixture);
+        Path outside = Files.writeString(tempDir.resolve("outside"), "unsafe");
+        Files.createSymbolicLink(fixture.library.resolve("link"), outside);
+        assertThatThrownBy(() -> PiperPhonemizeProcessConverter.digestTree(fixture.library))
+                .isInstanceOf(IOException.class);
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(fixture.executable,
+                pins.binary, pins.library, pins.data)).isEmpty();
+
+        Fixture escaped = fixture("printf '%s\\n' '{\"phonemes\":[\"h\"]}'");
+        Pins escapedPins = pins(escaped);
+        Path bundle = escaped.executable.getParent().getParent();
+        Path originalShare = escaped.data.getParent();
+        Files.delete(escaped.data.resolve("en-us/dict"));
+        Files.delete(escaped.data.resolve("en-us"));
+        Files.delete(escaped.data);
+        Files.delete(originalShare);
+        Path externalShare = Files.createDirectories(tempDir.resolve("external/share"));
+        Files.createDirectories(externalShare.resolve("espeak-ng-data"));
+        Files.createSymbolicLink(bundle.resolve("share"), externalShare);
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(escaped.executable,
+                escapedPins.binary, escapedPins.library, escapedPins.data)).isEmpty();
+    }
+
+    @Test
+    void rejectsAssetMutationBeforeConverterConstruction() throws Exception {
+        Fixture fixture = fixture("printf '%s\\n' '{\"phonemes\":[\"h\",\"i\"]}'");
+        Pins pins = pins(fixture);
+        Files.writeString(fixture.library.resolve("libfixture.dylib"), "changed after pin");
+
+        assertThat(PiperPhonemizeProcessConverter.tryCreate(
+                fixture.executable, pins.binary, pins.library, pins.data)).isEmpty();
+    }
+
+    @Test
+    void selectsNativeLoaderVariableAndPathSeparatorForEachOsFamily() {
+        assertThat(PiperPhonemizeProcessConverter.libraryPathEnvironmentKey("Linux")).isEqualTo("LD_LIBRARY_PATH");
+        assertThat(PiperPhonemizeProcessConverter.libraryPathEnvironmentKey("Mac OS X")).isEqualTo("DYLD_LIBRARY_PATH");
+        assertThat(PiperPhonemizeProcessConverter.libraryPathEnvironmentKey("Windows 11")).isEqualTo("PATH");
+        assertThat(PiperPhonemizeProcessConverter.libraryPathSeparator()).isEqualTo(File.pathSeparator);
     }
 
     private TextToPhonemeConverter converterWithScript(String body) throws Exception {
-        Path executable = executableWithScript(body);
-        String digest = HexFormat.of().formatHex(
-                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(executable)));
-        return PiperPhonemizeProcessConverter.tryCreate(executable, digest)
+        Fixture fixture = fixture(body);
+        Pins pins = pins(fixture);
+        return PiperPhonemizeProcessConverter.tryCreate(
+                        fixture.executable, pins.binary, pins.library, pins.data)
                 .orElseThrow(() -> new IOException("test phonemizer fixture was not accepted"));
     }
 
-    private Path executableWithScript(String body) throws IOException {
-        Path root = Files.createDirectories(tempDir.resolve("piper"));
+    private Fixture fixture(String body) throws IOException {
+        Path root = Files.createTempDirectory(tempDir, "piper-");
         Path bin = Files.createDirectories(root.resolve("bin"));
-        Files.createDirectories(root.resolve("share/espeak-ng-data"));
+        Path library = Files.createDirectories(root.resolve("lib"));
+        Path data = Files.createDirectories(root.resolve("share/espeak-ng-data"));
+        Files.writeString(library.resolve("libfixture.dylib"), "fixture library");
+        Files.createDirectories(data.resolve("en-us"));
+        Files.writeString(data.resolve("en-us").resolve("dict"), "fixture data");
         Path executable = bin.resolve("piper_phonemize");
         Files.writeString(executable, "#!/bin/sh\n" + body + "\n");
         Files.setPosixFilePermissions(executable, Set.of(
                 PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE,
                 PosixFilePermission.OWNER_EXECUTE));
-        return executable;
+        return new Fixture(executable, library, data);
     }
+
+    private Pins pins(Fixture fixture) throws Exception {
+        String binary = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(fixture.executable)));
+        return new Pins(binary, PiperPhonemizeProcessConverter.digestTree(fixture.library),
+                PiperPhonemizeProcessConverter.digestTree(fixture.data));
+    }
+
+    private record Fixture(Path executable, Path library, Path data) { }
+    private record Pins(String binary, String library, String data) { }
 }

@@ -26,7 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * sidecar, and canonical espeak-ng phonemization via the pinned
  * piper_phonemize binary. Proves real decodable 22,050 Hz PCM, exact phoneme
  * symbol coverage against the sidecar map, and engine honesty — not voice
- * likeness consent or production voice admission.
+ * likeness consent or production voice admission. The opt-in configuration
+ * also pins the binary, bundled libraries, and espeak-ng data tree.
  */
 class PiperOnnxEngineRealSynthesisTest {
 
@@ -105,9 +106,18 @@ class PiperOnnxEngineRealSynthesisTest {
         Assumptions.assumeTrue(configured != null && !configured.isBlank(),
                 "set " + PiperPhonemizeProcessConverter.PHONEMIZE_ENV
                         + " to the pinned piper_phonemize binary");
+        requirePin(PiperPhonemizeProcessConverter.PHONEMIZE_SHA_ENV, "binary SHA-256");
+        requirePin(PiperPhonemizeProcessConverter.PHONEMIZE_LIB_SHA_ENV, "bundled library-tree SHA-256");
+        requirePin(PiperPhonemizeProcessConverter.ESPEAK_DATA_SHA_ENV, "espeak-ng data-tree SHA-256");
         Path binary = Path.of(configured).toRealPath();
         assertThat(sha256(binary)).isEqualTo(PHONEMIZE_SHA256);
         return PiperPhonemizeProcessConverter.tryCreate(binary);
+    }
+
+    private static void requirePin(String variable, String description) {
+        String configured = System.getenv(variable);
+        Assumptions.assumeTrue(configured != null && configured.matches("(?i)[0-9a-f]{64}"),
+                "set " + variable + " to the pinned " + description);
     }
 
     private static Path pinnedModel() throws Exception {

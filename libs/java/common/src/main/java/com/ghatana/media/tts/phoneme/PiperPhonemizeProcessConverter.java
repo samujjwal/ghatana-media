@@ -1,12 +1,14 @@
 package com.ghatana.media.tts.phoneme;
 
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +30,27 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     public static final String PHONEMIZE_ENV = "GHATANA_MEDIA_PIPER_PHONEMIZE";
     /** Required SHA-256 pin for the OS-specific binary. */
     public static final String PHONEMIZE_SHA_ENV = "GHATANA_MEDIA_PIPER_PHONEMIZE_SHA256";
+    /** Required SHA-256 tree pin for the bundled dynamic-library directory. */
+    public static final String PHONEMIZE_LIB_SHA_ENV = "GHATANA_MEDIA_PIPER_LIB_SHA256";
+    /** Required SHA-256 tree pin for adjacent {@code share/espeak-ng-data}. */
+    public static final String ESPEAK_DATA_SHA_ENV = "GHATANA_MEDIA_ESPEAK_DATA_SHA256";
 
     private static final int MAX_TEXT_CHARS = 4_096;
     private static final int MAX_OUTPUT_BYTES = 64 * 1024;
+    private static final int MAX_TREE_ENTRIES = 100_000;
+    private static final long MAX_TREE_BYTES = 1024L * 1024 * 1024;
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
     private static final int QUALITY_TIER = 10;
 
     private final Path binary;
+    private final Path libraryDir;
     private final Path espeakData;
     private final String language;
 
-    private PiperPhonemizeProcessConverter(Path binary, Path espeakData, String language) {
+    private PiperPhonemizeProcessConverter(
+            Path binary, Path libraryDir, Path espeakData, String language) {
         this.binary = binary;
+        this.libraryDir = libraryDir;
         this.espeakData = espeakData;
         this.language = language;
     }
@@ -56,19 +67,32 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
     }
 
     public static Optional<TextToPhonemeConverter> tryCreate(Path binaryPath) {
-        return tryCreate(binaryPath, System.getenv(PHONEMIZE_SHA_ENV));
+        return tryCreate(binaryPath, System.getenv(PHONEMIZE_SHA_ENV),
+                System.getenv(PHONEMIZE_LIB_SHA_ENV), System.getenv(ESPEAK_DATA_SHA_ENV));
     }
 
-    static Optional<TextToPhonemeConverter> tryCreate(Path binaryPath, String expectedSha256) {
+    static Optional<TextToPhonemeConverter> tryCreate(
+            Path binaryPath, String expectedBinarySha256,
+            String expectedLibrarySha256, String expectedEspeakDataSha256) {
         try {
             Path binary = binaryPath.toRealPath();
-            Path dataDir = binary.getParent().getParent().resolve("share/espeak-ng-data");
-            if (!Files.isRegularFile(binary) || !Files.isExecutable(binary) || !Files.isDirectory(dataDir)
-                    || expectedSha256 == null || expectedSha256.isBlank()
-                    || !digestMatches(binary, expectedSha256)) {
+            Path bundle = binary.getParent().getParent().toRealPath();
+            Path libraryDir = bundle.resolve("lib");
+            Path dataDir = bundle.resolve("share/espeak-ng-data");
+            String binaryPin = normalizePin(expectedBinarySha256);
+            String libraryPin = normalizePin(expectedLibrarySha256);
+            String dataPin = normalizePin(expectedEspeakDataSha256);
+            if (!Files.isRegularFile(binary, LinkOption.NOFOLLOW_LINKS) || !Files.isExecutable(binary)
+                    || !isContainedNonSymlinkDirectory(bundle, libraryDir)
+                    || !isContainedNonSymlinkDirectory(bundle, dataDir)
+                    || binaryPin == null || libraryPin == null || dataPin == null
+                    || !digestMatches(binary, binaryPin)
+                    || !digestTree(libraryDir).equals(libraryPin)
+                    || !digestTree(dataDir).equals(dataPin)) {
                 return Optional.empty();
             }
-            return Optional.of(new PiperPhonemizeProcessConverter(binary, dataDir.toRealPath(), "en-us"));
+            return Optional.of(new PiperPhonemizeProcessConverter(
+                    binary, libraryDir.toRealPath(), dataDir.toRealPath(), "en-us"));
         } catch (IOException | RuntimeException failure) {
             return Optional.empty();
         }
@@ -89,11 +113,10 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
             ProcessBuilder builder = new ProcessBuilder(command)
                     .redirectError(errorLog.toFile());
             // The vendored binary loads its bundled dylibs from ../lib.
-            String dyldKey = System.getProperty("os.name", "").toLowerCase().contains("win")
-                    ? "PATH" : "DYLD_LIBRARY_PATH";
-            builder.environment().merge(dyldKey,
-                    binary.getParent().getParent().resolve("lib").toString(),
-                    (a, b) -> a.isBlank() ? b : a + ":" + b);
+            String libraryPathKey = libraryPathEnvironmentKey(System.getProperty("os.name", ""));
+            builder.environment().merge(libraryPathKey, libraryDir.toString(),
+                    (existing, bundled) -> existing.isBlank()
+                            ? bundled : bundled + libraryPathSeparator() + existing);
             process = builder.start();
         } catch (IOException failure) {
             if (errorLog != null) {
@@ -187,6 +210,104 @@ public final class PiperPhonemizeProcessConverter implements TextToPhonemeConver
         } catch (java.security.NoSuchAlgorithmException impossible) {
             throw new IllegalStateException(impossible);
         }
+    }
+
+    private static boolean isContainedNonSymlinkDirectory(Path bundle, Path candidate) throws IOException {
+        Path canonicalBundle = bundle.toRealPath();
+        Path canonicalCandidate = candidate.toRealPath();
+        if (!canonicalCandidate.startsWith(canonicalBundle)
+                || !Files.isDirectory(candidate, LinkOption.NOFOLLOW_LINKS)) return false;
+        Path current = canonicalBundle;
+        for (Path component : canonicalBundle.relativize(candidate)) {
+            current = current.resolve(component);
+            if (Files.isSymbolicLink(current)) return false;
+        }
+        return true;
+    }
+
+    static String libraryPathEnvironmentKey(String osName) {
+        String normalized = osName.toLowerCase(java.util.Locale.ROOT);
+        if (normalized.contains("win")) return "PATH";
+        if (normalized.contains("mac") || normalized.contains("darwin")) return "DYLD_LIBRARY_PATH";
+        return "LD_LIBRARY_PATH";
+    }
+
+    static String libraryPathSeparator() {
+        return File.pathSeparator;
+    }
+
+    /**
+     * Deterministic SHA-256 tree format: entries (including directories) are sorted by
+     * slash-separated UTF-8 relative path. Each entry contributes a one-byte type
+     * ({@code D}/{@code F}), a four-byte big-endian path length, path bytes, then for
+     * files an eight-byte big-endian size followed by the raw file bytes. Symlinks,
+     * special files, and a non-directory root are rejected. Trees are bounded to
+     * 100,000 entries and 1 GiB total file bytes. Empty trees have the SHA-256 of
+     * the empty stream. Pins are lowercase or uppercase 64-digit hex. Verification
+     * happens once when the converter is constructed; callers must keep the pinned
+     * bundle immutable for the converter lifetime. The OS loader can still race a
+     * later asset replacement after construction (TOCTOU).
+     */
+    static String digestTree(Path root) throws IOException {
+        if (!Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IOException("Pinned asset tree root is not a directory");
+        }
+        Path normalizedRoot = root.toAbsolutePath().normalize();
+        List<Path> entries;
+        try (var walk = Files.walk(normalizedRoot)) {
+            entries = new ArrayList<>(walk.filter(path -> !path.equals(normalizedRoot))
+                    .limit(MAX_TREE_ENTRIES + 1L).toList());
+        }
+        if (entries.size() > MAX_TREE_ENTRIES) throw new IOException("Pinned asset tree has too many entries");
+        entries.sort(java.util.Comparator.comparing(path ->
+                normalizedRoot.relativize(path).toString().replace(path.getFileSystem().getSeparator(), "/")));
+        try {
+            var digest = java.security.MessageDigest.getInstance("SHA-256");
+            long totalBytes = 0;
+            for (Path entry : entries) {
+                BasicFileAttributes attributes = Files.readAttributes(
+                        entry, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                byte type;
+                if (attributes.isDirectory()) type = (byte) 'D';
+                else if (attributes.isRegularFile()) type = (byte) 'F';
+                else throw new IOException("Unsafe entry in pinned asset tree: " + entry);
+                byte[] name = normalizedRoot.relativize(entry).toString()
+                        .replace(entry.getFileSystem().getSeparator(), "/").getBytes(StandardCharsets.UTF_8);
+                digest.update(type);
+                digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(name.length).array());
+                digest.update(name);
+                if (type == 'F') {
+                    if (attributes.size() > MAX_TREE_BYTES - totalBytes) {
+                        throw new IOException("Pinned asset tree exceeds byte limit");
+                    }
+                    totalBytes += attributes.size();
+                    digest.update(ByteBuffer.allocate(Long.BYTES).putLong(attributes.size()).array());
+                    try (var input = Files.newInputStream(entry)) {
+                        byte[] buffer = new byte[64 * 1024];
+                        int read;
+                        long fileBytesRead = 0;
+                        while ((read = input.read(buffer)) >= 0) {
+                            fileBytesRead += read;
+                            if (fileBytesRead > attributes.size()) {
+                                throw new IOException("Pinned asset changed while being hashed");
+                            }
+                            digest.update(buffer, 0, read);
+                        }
+                        if (fileBytesRead != attributes.size()) {
+                            throw new IOException("Pinned asset changed while being hashed");
+                        }
+                    }
+                }
+            }
+            return java.util.HexFormat.of().formatHex(digest.digest());
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+    private static String normalizePin(String value) {
+        if (value == null || !value.trim().matches("(?i)[0-9a-f]{64}")) return null;
+        return value.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
     /** Kills the worker and any descendants it spawned so nothing outlives the budget. */
