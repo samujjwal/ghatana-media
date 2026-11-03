@@ -151,6 +151,55 @@ class PersistenceIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("combined save rolls back audio when transcription persistence fails at the database")
+    void postgresCombinedSaveRollsBackAudioWhenTranscriptionConstraintFails() {
+        String tenantId = "constraint-rollback-" + UUID.randomUUID();
+        AudioFileEntity audio = createAudioFile(tenantId, "constraint-rollback.wav");
+        UUID originalAudioId = UUID.randomUUID();
+        TranscriptionEntity invalidTranscription = new TranscriptionEntity(
+                UUID.randomUUID(), tenantId, originalAudioId, UUID.randomUUID(), "valid text", "english-too-long");
+        var executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+        var service = new AudioFileService(audioFileRepository, eventloop(), executor);
+        try {
+            assertThatThrownBy(() -> runPromise(() ->
+                    service.saveWithTranscription(tenantId, audio, invalidTranscription)))
+                    .isInstanceOf(RuntimeException.class)
+                    .satisfies(failure -> {
+                        boolean postgresVarcharViolation = false;
+                        StringBuilder causeMessages = new StringBuilder();
+                        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+                            if (causeMessages.length() > 0) causeMessages.append(" -> ");
+                            causeMessages.append(cause.getClass().getSimpleName())
+                                    .append(": ").append(cause.getMessage());
+                            if (cause.getMessage() != null
+                                    && cause.getMessage().contains("value too long for type character varying")) {
+                                postgresVarcharViolation = true;
+                                break;
+                            }
+                        }
+                        assertThat(postgresVarcharViolation)
+                                .as("the second row must fail at PostgreSQL's language length constraint; cause chain: %s",
+                                        causeMessages)
+                                .isTrue();
+                    });
+
+            assertThat(invalidTranscription.getAudioFileId())
+                    .as("failed combined save restores the caller's source-audio identity")
+                    .isEqualTo(originalAudioId);
+            entityManager.clear();
+            assertThat(audioFileRepository.findById(tenantId, audio.getId()))
+                    .as("audio row is rolled back when the paired transcription violates its database constraint")
+                    .isEmpty();
+            assertThat(transcriptionRepository.findById(tenantId, invalidTranscription.getId()))
+                    .as("invalid transcription row is not committed")
+                    .isEmpty();
+        } finally {
+            service.close();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
     @DisplayName("PostgreSQL records remain readable after closing and reopening the persistence factory")
     void postgresReadbackSurvivesEntityManagerFactoryRestart() throws Throwable {
         String databaseName = "media_restart_" + UUID.randomUUID().toString().replace("-", "");
