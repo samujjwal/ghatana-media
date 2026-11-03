@@ -58,12 +58,13 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             try {
                 validateSourceJobConsent(connection, draft);
                 TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
+                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+                    throw new TranscriptPrincipalConflictException();
+                }
+                validateSourceLineageHistory(connection, draft);
                 if (latest != null && sameDraft(latest.draft(), draft)) {
                     connection.commit();
                     return latest;
-                }
-                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
-                    throw new TranscriptPrincipalConflictException();
                 }
                 int actualLatestRevision = latest == null ? 0 : latest.revision();
                 if (expectedLatestRevision != actualLatestRevision) {
@@ -131,6 +132,10 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 }
                 String admissionStatus = productionAdmission ? "ADMITTED" : "CANDIDATE";
                 TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
+                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+                    throw new TranscriptPrincipalConflictException();
+                }
+                validateSourceLineageHistory(connection, draft);
                 if (latest != null && sameDraft(latest.draft(), draft)) {
                     AttemptBinding existing = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
                     if (binding.equals(existing)) {
@@ -138,9 +143,6 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                         return latest;
                     }
                     throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
-                }
-                if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
-                    throw new TranscriptPrincipalConflictException();
                 }
                 int actualLatestRevision = latest == null ? 0 : latest.revision();
                 if (expectedLatestRevision != actualLatestRevision) {
@@ -224,13 +226,14 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
         if (state.productionEligible()) verifyProductionSourceRights(connection, draft);
         String admissionStatus = state.productionEligible() ? "ADMITTED" : "CANDIDATE";
         TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), true);
+        if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
+            throw new TranscriptPrincipalConflictException();
+        }
+        validateSourceLineageHistory(connection, draft);
         if (latest != null && sameDraft(latest.draft(), draft)) {
             AttemptBinding existing = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
             if (binding.equals(existing)) return latest;
             throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
-        }
-        if (latest != null && !latest.draft().principalId().equals(draft.principalId())) {
-            throw new TranscriptPrincipalConflictException();
         }
         int actualLatestRevision = latest == null ? 0 : latest.revision();
         if (expectedLatestRevision != actualLatestRevision) {
@@ -573,6 +576,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             TranscriptRevision latest = latest(connection, draft.tenantId(), draft.transcriptId(), false);
             if (latest == null) throw dbFailure("resolve concurrent transcript attempt append", insertFailure);
             if (!latest.draft().principalId().equals(draft.principalId())) throw new TranscriptPrincipalConflictException();
+            validateSourceLineageHistory(connection, draft);
             if (sameDraft(latest.draft(), draft)) {
                 try {
                     AttemptBinding actual = binding(connection, draft.tenantId(), draft.transcriptId(), latest.revision());
@@ -841,6 +845,7 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
             if (!latest.draft().principalId().equals(draft.principalId())) {
                 throw new TranscriptPrincipalConflictException();
             }
+            validateSourceLineageHistory(connection, draft);
             if (sameDraft(latest.draft(), draft)) return latest;
             throw new TranscriptRevisionConflictException(expectedLatestRevision, latest.revision());
         } catch (SQLException readFailure) {
@@ -890,6 +895,46 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
 
     private static boolean sameDraft(TranscriptDraft a, TranscriptDraft b) {
         return a.equals(b);
+    }
+
+    /** A transcript ID remains bound to one exact source artifact version across all revisions. */
+    private static void validateSourceLineageHistory(Connection connection, TranscriptDraft candidate)
+            throws SQLException {
+        String sourceArtifactId = null;
+        String sourceVersion = null;
+        String sourceSha256 = null;
+        try (PreparedStatement select = connection.prepareStatement("""
+                SELECT source_artifact_id,source_artifact_version,source_sha256
+                FROM media_transcript_revisions
+                WHERE tenant_id=? AND transcript_id=?
+                ORDER BY revision
+                """)) {
+            select.setString(1, candidate.tenantId());
+            select.setString(2, candidate.transcriptId());
+            try (ResultSet rows = select.executeQuery()) {
+                while (rows.next()) {
+                    String rowArtifactId = rows.getString(1);
+                    String rowVersion = rows.getString(2);
+                    String rowSha256 = rows.getString(3);
+                    if (sourceArtifactId == null) {
+                        sourceArtifactId = rowArtifactId;
+                        sourceVersion = rowVersion;
+                        sourceSha256 = rowSha256;
+                    } else if (!sourceArtifactId.equals(rowArtifactId)
+                            || !sourceVersion.equals(rowVersion)
+                            || !sourceSha256.equals(rowSha256)) {
+                        throw new IllegalStateException(
+                                "Transcript source history is divergent for an existing transcript ID");
+                    }
+                }
+            }
+        }
+        if (sourceArtifactId != null && (!sourceArtifactId.equals(candidate.sourceArtifactId())
+                || !sourceVersion.equals(candidate.sourceVersion())
+                || !sourceSha256.equals(candidate.sourceSha256()))) {
+            throw new IllegalArgumentException(
+                    "Transcript source lineage is immutable for an existing transcript ID");
+        }
     }
 
     private static void requireNonBlank(String value, String name) {

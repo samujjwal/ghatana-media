@@ -351,6 +351,165 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void correctionCannotRebindTranscriptIdToDifferentSourceArtifactVersion() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String originalDigest = "1".repeat(64);
+            String changedDigest = "2".repeat(64);
+            seed(state, "tenant-lineage", "principal-a", "source-original", "job-original",
+                    "consent-original", originalDigest, false);
+            seed(state, "tenant-lineage", "principal-a", "source-changed", "job-changed",
+                    "consent-changed", changedDigest, false);
+
+            TranscriptDraft original = draft("tenant-lineage", "principal-a", "transcript-lineage",
+                    "source-original", "job-original", "consent-original", originalDigest, "original words");
+            store.append(original, 0);
+
+            TranscriptDraft rebound = draft("tenant-lineage", "principal-a", "transcript-lineage",
+                    "source-changed", "job-changed", "consent-changed", changedDigest, "corrected words");
+            assertThatThrownBy(() -> store.append(rebound, 1))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("source lineage is immutable");
+
+            assertThat(store.revisions("tenant-lineage", "principal-a", "transcript-lineage"))
+                    .extracting(revision -> revision.draft().sourceArtifactId())
+                    .containsExactly("source-original");
+            assertThat(store.revisions("tenant-lineage", "principal-a", "transcript-lineage"))
+                    .extracting(revision -> revision.draft().sourceSha256())
+                    .containsExactly(originalDigest);
+        }
+    }
+
+    @Test
+    void divergentLegacySourceHistoryFailsClosedEvenWhenCandidateMatchesLatest() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String sourceADigest = "3".repeat(64);
+            String sourceBDigest = "4".repeat(64);
+            seed(state, "tenant-legacy-lineage", "principal-a", "source-a", "job-a", "consent-a",
+                    sourceADigest, false);
+            seed(state, "tenant-legacy-lineage", "principal-a", "source-b", "job-b", "consent-b",
+                    sourceBDigest, false);
+
+            TranscriptDraft revisionOne = draft("tenant-legacy-lineage", "principal-a", "transcript-legacy-lineage",
+                    "source-a", "job-a", "consent-a", sourceADigest, "legacy revision one");
+            store.append(revisionOne, 0);
+            seedLegacyDivergentRevision(state, "tenant-legacy-lineage", "transcript-legacy-lineage",
+                    "source-b", sourceBDigest, "legacy revision two");
+
+            TranscriptDraft candidateMatchingLatest = draft("tenant-legacy-lineage", "principal-a",
+                    "transcript-legacy-lineage", "source-b", "job-b", "consent-b", sourceBDigest,
+                    "candidate matching latest");
+            assertThatThrownBy(() -> store.append(candidateMatchingLatest, 2))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("source history is divergent");
+
+            assertThat(store.revisions("tenant-legacy-lineage", "principal-a", "transcript-legacy-lineage"))
+                    .extracting(revision -> revision.revision())
+                    .containsExactly(1, 2);
+            assertThat(store.revisions("tenant-legacy-lineage", "principal-a", "transcript-legacy-lineage"))
+                    .extracting(revision -> revision.draft().sourceArtifactId())
+                    .containsExactly("source-a", "source-b");
+        }
+    }
+
+    @Test
+    void divergentLegacyHistoryBlocksSuccessfulAttemptAppendPathsWithoutRevisionOrOutbox() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String sourceADigest = "5".repeat(64);
+            String sourceBDigest = "6".repeat(64);
+            String fingerprint = "7".repeat(64);
+            String transcriptVersionRef = "urn:media:transcript-version:legacy-drift-v2";
+            String transcriptId = "transcript-legacy-attempt-drift";
+            seed(state, "tenant-legacy-attempt", "principal-a", "source-a", "job-a", "consent-a",
+                    sourceADigest, false);
+            seed(state, "tenant-legacy-attempt", "principal-a", "source-b", "job-b", "consent-b",
+                    sourceBDigest, false);
+            store.append(draft("tenant-legacy-attempt", "principal-a", transcriptId,
+                    "source-a", "job-a", "consent-a", sourceADigest, "legacy revision one"), 0);
+            seedLegacyDivergentRevision(state, "tenant-legacy-attempt", transcriptId,
+                    "source-b", sourceBDigest, "legacy revision two");
+
+            String providerText = "provider result matching source b";
+            seedSuccessfulAttempt(state, "tenant-legacy-attempt", "principal-a", "source-b", "job-b",
+                    sourceBDigest, fingerprint, 1, 73, transcriptVersionRef, providerText,
+                    "provider-op-legacy-drift", "provider-receipt-legacy-drift");
+            TranscriptDraft candidate = draft("tenant-legacy-attempt", "principal-a", transcriptId,
+                    "source-b", "job-b", "consent-b", sourceBDigest, providerText);
+            int outboxBefore = transcriptOutboxCount(state, "tenant-legacy-attempt", transcriptId);
+            assertThat(outboxBefore).isZero();
+
+            assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(candidate, 2, 1, 73,
+                    fingerprint, transcriptVersionRef))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("source history is divergent");
+            assertThat(store.revisions("tenant-legacy-attempt", "principal-a", transcriptId))
+                    .extracting(revision -> revision.revision())
+                    .containsExactly(1, 2);
+            assertThat(transcriptOutboxCount(state, "tenant-legacy-attempt", transcriptId)).isEqualTo(outboxBefore);
+
+            try (Connection connection = state.connection()) {
+                connection.setAutoCommit(false);
+                assertThatThrownBy(() -> store.appendFromSuccessfulAttemptInTransaction(connection, candidate, 2,
+                        1, 73, fingerprint, transcriptVersionRef))
+                        .isInstanceOf(IllegalStateException.class)
+                        .hasMessageContaining("source history is divergent");
+                connection.rollback();
+            }
+            assertThat(store.revisions("tenant-legacy-attempt", "principal-a", transcriptId))
+                    .extracting(revision -> revision.revision())
+                    .containsExactly(1, 2);
+            assertThat(transcriptOutboxCount(state, "tenant-legacy-attempt", transcriptId)).isEqualTo(outboxBefore);
+        }
+    }
+
+    private static void seedLegacyDivergentRevision(MediaAwsPostgresqlRuntimeState state,
+            String tenantId, String transcriptId, String sourceArtifactId, String sourceSha256, String text)
+            throws Exception {
+        try (Connection connection = state.connection();
+             PreparedStatement insert = connection.prepareStatement("""
+                     INSERT INTO media_transcript_revisions
+                       (tenant_id,transcript_id,revision,principal_id,source_artifact_id,
+                        source_artifact_version,source_sha256,job_id,profile_id,provider_id,model_id,
+                        language,timebase,transcript_text,consent_decision_id,purpose_ref,processing_purpose,
+                        rights_decision_id,policy_version,admission_status,created_at,timing_availability,segments_json)
+                     SELECT tenant_id,transcript_id,2,principal_id,?,?,?,job_id,profile_id,provider_id,model_id,
+                            language,timebase,?,consent_decision_id,purpose_ref,processing_purpose,
+                            rights_decision_id,policy_version,admission_status,created_at+1,
+                            timing_availability,segments_json
+                     FROM media_transcript_revisions
+                     WHERE tenant_id=? AND transcript_id=? AND revision=1
+                     """)) {
+            insert.setString(1, sourceArtifactId);
+            insert.setString(2, "sha256:" + sourceSha256);
+            insert.setString(3, sourceSha256);
+            insert.setString(4, text);
+            insert.setString(5, tenantId);
+            insert.setString(6, transcriptId);
+            assertThat(insert.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static int transcriptOutboxCount(MediaAwsPostgresqlRuntimeState state, String tenantId,
+            String transcriptId) throws Exception {
+        try (Connection connection = state.connection(); PreparedStatement query = connection.prepareStatement("""
+                SELECT count(*) FROM media_processing_lifecycle_outbox
+                WHERE tenant_id=? AND aggregate_type='transcript' AND aggregate_id=?
+                """)) {
+            query.setString(1, tenantId);
+            query.setString(2, transcriptId);
+            try (var row = query.executeQuery()) {
+                if (!row.next()) throw new IllegalStateException("outbox count query returned no row");
+                return row.getInt(1);
+            }
+        }
+    }
+
+    @Test
     void candidateAppendEnforcesThePdpTranscriptTextCodePointLimit() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
