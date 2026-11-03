@@ -721,17 +721,19 @@ test("retired unsafe retry remains in historical finding census only while sourc
   assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 2);
 });
 
-test("live source finding census dispositionally closes only the fail-closed Agent Tool gap", () => {
+test("live source finding census preserves the stale no-dispatch SDK route gap", () => {
   const result = analyzeContractParity(collectLiveInput());
-  // The historical source census remains 47 findings: one Agent Tool finding
-  // now has explicit NOT_ADMITTED boundary dispositions; PDP-1 owner acceptance
-  // remains open. New typed contract gaps cannot rewrite that census.
-  assert.equal(result.historicalObservedFindingCount, 46);
+  // The multimodal SDK method now fails before dispatch, while its pinned
+  // route observation remains pending MPSEM-0023-C002 material review.
+  // Preserve that exact unresolved source gap; do not mutate its owner record.
+  assert.equal(result.historicalObservedFindingCount, 45);
   assert.equal(result.observedFindingCount, 46);
-  assert.equal(result.reconciledFindings.length, 46);
-  assert.equal(result.gaps.length, 0);
-  assert.equal(result.historicalFindingCount, 51);
-  assert.equal(result.historicalDispositionedCount, 51);
+  assert.equal(result.reconciledFindings.length, 45);
+  assert.deepEqual(result.gaps, [
+    "stale SDK route disposition has no matching current divergence: libs/audio-video-client/src/operations.ts POST /api/v1/media/multimodal-analyses",
+  ]);
+  assert.equal(result.historicalFindingCount, 50);
+  assert.equal(result.historicalDispositionedCount, 50);
   assert.equal(result.historicalUnresolvedCount, 0);
   assert.equal(result.typedContractGaps.length, 0);
   assert.equal(result.retiredFindings.length, 5);
@@ -742,17 +744,20 @@ test("live source finding census dispositionally closes only the fail-closed Age
 test("definition-only mode defers the pinned proposal inventory while retaining its diagnostics", () => {
   const result = analyzeContractParity(collectLiveInput(), { mode: "definition-only" });
   assert.equal(result.mode, "definition-only");
-  assert.equal(result.passed, true);
+  assert.equal(result.passed, false, "a stale route observation remains an explicit source gap");
   assert.equal(result.operationAcceptance.recordCount, 14);
   assert.equal(result.operationAcceptance.unresolvedIds.length, 0, "all 14 operation records carry complete semantics and covered actionRefs");
   assert.equal(result.gaps.some((gap) => gap.startsWith("semantic binding unresolved:")), false);
   assert.equal(result.gaps.some((gap) => gap.startsWith("semantic binding review stale:")), false);
+  assert.deepEqual(result.gaps, [
+    "stale SDK route disposition has no matching current divergence: libs/audio-video-client/src/operations.ts POST /api/v1/media/multimodal-analyses",
+  ]);
   assert.deepEqual(result.deferredFindings.map(({ id, status }) => [id, status]), [
     ["agent-tool-runtime-and-shared-admission", "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"],
   ]);
   assert.equal(result.semanticStatus, "REVIEW_REQUIRED", "authored records still require owner review; mode promotes nothing");
-  assert.equal(result.historicalUnresolvedCount, 1, "only the fail-closed Agent Tool gap remains unresolved in the source census");
-  assert.equal(result.observedFindingCount, 46, "the resolved semantic binding leaves 46 observed findings in the census");
+  assert.equal(result.historicalUnresolvedCount, 1, "the current stale route and deferred Agent Tool gap remain explicit");
+  assert.equal(result.observedFindingCount, 46, "the current observation and unresolved route remain in the census");
 });
 
 test("operation semantic denominator excludes owner rules and requires detailed exact coverage for each family summary", () => {

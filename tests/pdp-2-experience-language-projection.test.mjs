@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
@@ -161,9 +161,14 @@ test('PDP-3 search and inspection source records project to the public schema sh
 });
 
 test('residual report keeps mapped PDP-2/PDP-3 fields distinct from pending owner review', () => {
-  const report = JSON.parse(execFileSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
+  const result = spawnSync('node', ['scripts/report-media-definition-residuals.mjs', '--json'], {
     encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-  }));
+  });
+  assert.equal(result.error, undefined);
+  assert.equal(result.stderr, '');
+  const report = JSON.parse(result.stdout);
+  assert.equal(result.status, report.diagnostics.length > 0 ? 1 : 0,
+    'the diagnostic report exit status reflects unresolved source findings');
   const pdp2 = report.projections.find(({ phase }) => phase === 'PDP-2');
   const pdp3 = report.projections.find(({ phase }) => phase === 'PDP-3');
   assert.equal(pdp2.unresolvedFieldCount, 0);
