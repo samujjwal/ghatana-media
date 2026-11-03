@@ -59,6 +59,8 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(ledger.outputs()).isNotNull();
         assertThat(ledger.outputs().resultId()).isEqualTo("artifact-output-789");
         assertThat(ledger.attributes().get("provider")).isEqualTo("aws-mediaconvert");
+        assertThat(ledger.traceId()).isEqualTo("trace-id");
+        assertThat(ledger.correlationId()).isEqualTo("corr-id");
     }
 
     @Test
