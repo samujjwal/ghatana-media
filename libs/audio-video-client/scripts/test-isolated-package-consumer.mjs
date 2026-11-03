@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { access, cp, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -61,6 +61,32 @@ function assertSourceFreePackage(packResult, packageName) {
   }
 }
 
+async function assertNoSensitiveLiterals(root, packageName) {
+  const scan = async (directory) => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const files = [];
+    for (const entry of entries) {
+      const filePath = path.join(directory, entry.name);
+      if (entry.isDirectory()) files.push(...await scan(filePath));
+      else files.push(filePath);
+    }
+    return files;
+  };
+
+  const leaks = [];
+  for (const filePath of await scan(root)) {
+    if (path.basename(filePath) === 'package.json') continue;
+    const contents = await readFile(filePath, 'utf8');
+    if (/Bearer\s+[A-Za-z0-9_-]{16,}/u.test(contents)
+      || /-----BEGIN [A-Z ]+PRIVATE KEY-----/u.test(contents)
+      || /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu.test(contents)
+      || /\b(?:\+?1[-. ]?)?(?:\(\d{3}\)|\d{3})[-. ]\d{3}[-. ]\d{4}\b/u.test(contents)) {
+      leaks.push(path.relative(root, filePath));
+    }
+  }
+  assert.deepEqual(leaks, [], `${packageName} packed output must not contain credentials or PII-like literals`);
+}
+
 try {
   const sourceClient = JSON.parse(await readFile(path.join(packageRoot, 'package.json'), 'utf8'));
   const sourceTypes = JSON.parse(await readFile(path.join(typesRoot, 'package.json'), 'utf8'));
@@ -81,6 +107,7 @@ try {
     scripts: undefined,
   }, tempRoot);
   assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(typePackRoot)))[0], sourceTypes.name);
+  await assertNoSensitiveLiterals(typePackRoot, sourceTypes.name);
 
   await copyTree(path.join(packageRoot, 'dist'), path.join(clientPackRoot, 'dist'));
   await copyTree(path.join(packageRoot, 'dist-cjs'), path.join(clientPackRoot, 'dist-cjs'));
@@ -91,6 +118,7 @@ try {
     scripts: undefined,
   }, tempRoot);
   assertSourceFreePackage(JSON.parse(run('npm', ['pack', '--json', '--dry-run'], npmOptions(clientPackRoot)))[0], sourceClient.name);
+  await assertNoSensitiveLiterals(clientPackRoot, sourceClient.name);
 
   const consumerManifest = {
     name: 'audio-video-client-isolated-consumer',
@@ -300,7 +328,37 @@ try {
   assert.equal((untrustedResult.stdout + untrustedResult.stderr).includes(token), false,
     'installed CLI must not expose the credential while rejecting an endpoint');
 
-  console.log(`Installed ESM/CJS/types consumers, injected-fetch job-read and wrong-scope fixtures, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
+  const ipv6Loopback = [...args];
+  ipv6Loopback[3] = 'http://[::1]:1';
+  const ipv6LoopbackResult = spawnSync(process.execPath, [cli, ...ipv6Loopback], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: token },
+  });
+  assert.equal(ipv6LoopbackResult.status, 1, 'installed CLI must admit IPv6 loopback HTTP for local testing');
+  assert.equal(JSON.parse(ipv6LoopbackResult.stderr.trim()).code, 'OBSERVATION_UNAVAILABLE');
+
+  for (const endpoint of [
+    'https://user:password@media.example.test',
+    'https://media.example.test?access_token=do-not-forward',
+    'https://media.example.test#fragment',
+    'https://media.example.test/%2F..%2Fprivate',
+  ]) {
+    const endpointArgs = [...args];
+    endpointArgs[3] = endpoint;
+    const rejected = spawnSync(process.execPath, [cli, ...endpointArgs], {
+      cwd: consumerRoot,
+      encoding: 'utf8',
+      env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: token },
+    });
+    assert.equal(rejected.status, 2, `installed CLI must reject untrusted endpoint ${endpoint}`);
+    assert.equal(JSON.parse(rejected.stderr.trim()).code, 'INVALID_ENDPOINT');
+    assert.equal(rejected.stdout, '');
+    assert.equal((rejected.stdout + rejected.stderr).includes(token), false,
+      'installed CLI must not expose credentials during endpoint validation');
+  }
+
+  console.log(`Installed ESM/CJS/types consumers, injected-fetch job-read and wrong-scope fixtures, packed-output credential/PII scan, and trusted URL/credential CLI admission checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }
