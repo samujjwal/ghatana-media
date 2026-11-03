@@ -4,12 +4,13 @@
   "canonical": {
     "owner": "providers/aws-postgresql",
     "flywayLocations": ["db/media-runtime"],
-    "appliedRange": "V009..V027",
+    "sourceMigrationRange": "V001..V029",
+    "appliedRange": "UNKNOWN_NOT_READ",
     "schemaStyle": "unqualified media_* tables in the canonical datasource",
-    "semantics": "immutable artifact/job/attempt/outbox/transcript revision history with fencing, CAS and provenance; single authoritative writer",
-    "tablesObserved": [
+    "semantics": "Checked-in source declares immutable artifact/job/attempt/outbox/transcript revision history with fencing, CAS and provenance; deployed active writer and cutover are UNKNOWN_NOT_READ",
+    "tablesDeclaredInSource": [
       "media_transcript_revisions",
-      "media_* artifact/job/attempt/outbox/lease tables introduced by V009..V027"
+      "media_* artifact/job/attempt/outbox/lease tables declared across checked-in migrations V001..V029"
     ]
   },
   "legacyJpa": {
