@@ -797,6 +797,29 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
+    @DisplayName("Oversized provider job identifiers are rejected before fingerprinting")
+    void testOversizedProviderJobIdentifierIsBounded() {
+        long now = System.currentTimeMillis();
+        String privateProviderId = "provider-private-" + "x".repeat(10_000);
+
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
+                "job-provider-ref", "source-artifact", "provider", privateProviderId,
+                "PROCESSING", Map.of(
+                        "duration", "120",
+                        "words_processed", "5000",
+                        "biometric_confidence", "0.998",
+                        "private_metric", "subject@example.invalid"),
+                now, now, "trace", "correlation");
+
+        assertThat(ledger.attributes()).containsEntry("providerJobIdRef", "redacted:oversized");
+        assertThat(ledger.inputs().headers()).containsEntry("providerJobIdRef", "redacted:oversized");
+        assertThat(ledger.outputs()).isNull();
+        assertThat(ledger.toString()).doesNotContain(privateProviderId,
+                "biometric_confidence", "private_metric", "subject@example.invalid");
+        assertThat(ledger.toString().length()).isLessThanOrEqualTo(4_096);
+    }
+
+    @Test
     @DisplayName("Measures bounded seeded 10k adapter projections and keeps sensitive values out of ledger output")
     void testSeededTenThousandRecordProjectionMeasurement() {
         final int recordCount = 10_000;

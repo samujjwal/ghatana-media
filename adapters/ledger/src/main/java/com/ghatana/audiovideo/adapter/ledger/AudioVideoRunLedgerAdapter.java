@@ -143,7 +143,7 @@ public final class AudioVideoRunLedgerAdapter {
         if (providerJobId != null && !providerJobId.isBlank()) {
             // Provider job identifiers may embed tenant or account material —
             // keep only a bounded deterministic fingerprint for correlation.
-            attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
+            attributes.put("providerJobIdRef", providerJobIdReference(providerJobId));
         }
         if (outputArtifactId != null) {
             attributes.put("outputArtifactId", safeLedgerReference(outputArtifactId));
@@ -480,7 +480,7 @@ public final class AudioVideoRunLedgerAdapter {
             Map.of("mediaArtifactId", ledgerMediaArtifactId),
             null,
             Map.of("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"),
-                   "providerJobIdRef", ledgerFingerprint(providerJobId)),
+                   "providerJobIdRef", providerJobIdReference(providerJobId)),
             "system",
             createdAtMs
         );
@@ -520,7 +520,7 @@ public final class AudioVideoRunLedgerAdapter {
 
         Map<String, String> attributes = new HashMap<>();
         attributes.put("provider", Objects.requireNonNullElse(safeProviderName(providerName), "UNKNOWN"));
-        attributes.put("providerJobIdRef", ledgerFingerprint(providerJobId));
+        attributes.put("providerJobIdRef", providerJobIdReference(providerJobId));
         attributes.put("mediaArtifactId", ledgerMediaArtifactId);
         attributes.put("mediaType", providerMetadata != null
             ? safeMetadataToken(providerMetadata.get("mediaType"), "UNKNOWN") : "UNKNOWN");
@@ -677,10 +677,11 @@ public final class AudioVideoRunLedgerAdapter {
         // These are bounded operational counters. Provider-defined metric names
         // may contain tenant data, biometric scores, or opaque identifiers.
         Set<String> allowedMetrics = Set.of("duration", "durationMs", "words_processed", "frame_count");
-        metadata.forEach((key, value) -> {
-            if (key == null || !allowedMetrics.contains(key) || value == null
+        for (String key : allowedMetrics) {
+            String value = metadata.get(key);
+            if (value == null || value.length() > MAX_LEDGER_VALUE_CHARS
                     || !value.matches("(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,3})?")) {
-                return;
+                continue;
             }
             try {
                 double parsed = Double.parseDouble(value);
@@ -692,10 +693,16 @@ public final class AudioVideoRunLedgerAdapter {
                     }
                 }
             } catch (NumberFormatException ignored) {
-                // Provider metadata remains in attributes; only numeric values are metrics.
+                // Ignore malformed numeric provider metadata.
             }
-        });
+        }
         return Map.copyOf(metrics);
+    }
+
+    /** Bound provider-controlled input before hashing it for a ledger reference. */
+    private static String providerJobIdReference(String providerJobId) {
+        return providerJobId.length() > MAX_LEDGER_VALUE_CHARS
+                ? "redacted:oversized" : ledgerFingerprint(providerJobId);
     }
 
     private static String safeProviderName(String providerName) {
