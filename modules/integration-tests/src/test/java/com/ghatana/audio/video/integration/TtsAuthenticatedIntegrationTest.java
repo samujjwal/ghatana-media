@@ -187,8 +187,8 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
         assertThat(exception.getStatus().getDescription()).contains("Missing tenant claim");
 
-        // Verify persistence was never called
-        verify(audioFileService, never()).save(anyString(), any(AudioFileEntity.class));
+        // Missing tenant identity must stop before persistence or provider work.
+        verifyNoInteractions(audioFileService, ttsEngine);
     }
 
     @Test
