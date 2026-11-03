@@ -67,6 +67,39 @@ test('removes a failed run directory and preserves the callback error', { skip: 
   }
 });
 
+test('removes an owned run after callback permission changes', { skip: hostSkip }, async () => {
+  const root = await privateRoot();
+  try {
+    await withEphemeralCommonVoiceRun(root, async (runDirectory) => {
+      await writeFile(join(runDirectory, 'synthetic.bin'), 'fixture');
+      await chmod(runDirectory, 0o500);
+    });
+    assert.deepEqual(await readdir(root), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('refuses to clean a run path replaced by a symlink to an external directory', { skip: hostSkip }, async () => {
+  const root = await privateRoot();
+  const targetRoot = await privateRoot();
+  try {
+    const targetFile = join(targetRoot, 'keep.bin');
+    await writeFile(targetFile, 'outside');
+    let runPath;
+    await assert.rejects(withEphemeralCommonVoiceRun(root, async (runDirectory) => {
+      runPath = runDirectory;
+      await rm(runDirectory, { recursive: true });
+      await symlink(targetRoot, runDirectory, 'dir');
+    }), /run directory ownership or type changed/);
+    assert.equal((await lstat(runPath)).isSymbolicLink(), true);
+    assert.equal(await readFile(targetFile, 'utf8'), 'outside');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(targetRoot, { recursive: true, force: true });
+  }
+});
+
 test('24-hour-old and expired valid runs are removed while fresh, future, and unmarked paths remain', { skip: hostSkip }, async () => {
   const root = await privateRoot();
   const now = new Date('2026-11-03T12:00:00.000Z');

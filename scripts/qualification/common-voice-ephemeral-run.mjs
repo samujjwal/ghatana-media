@@ -8,7 +8,7 @@ import {
   rm,
 } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const MARKER_NAME = '.media-common-voice-run.json';
@@ -82,12 +82,13 @@ async function readMarker(runDirectory, expectedUid) {
 
 async function removeOwnedRun(root, runDirectory, expectedUid) {
   const absolute = resolve(runDirectory);
-  assert(absolute.startsWith(`${root}/`), 'refusing to remove a path outside the configured root');
+  assert(dirname(absolute) === root, 'refusing to remove a path outside the configured root');
   const stat = await lstat(absolute);
-  assert(stat.isDirectory() && !stat.isSymbolicLink() && stat.uid === expectedUid && isMode(stat, 0o700),
-    'run directory ownership or permissions changed; refusing cleanup');
+  assert(stat.isDirectory() && !stat.isSymbolicLink() && stat.uid === expectedUid,
+    'run directory ownership or type changed; refusing cleanup');
   const canonical = await realpath(absolute);
   assert(canonical === absolute, 'run directory path changed through a symlink');
+  await chmod(absolute, 0o700);
   // fs.rm unlinks nested symlinks instead of following their targets.
   await rm(absolute, { recursive: true, force: false, maxRetries: 0 });
 }
