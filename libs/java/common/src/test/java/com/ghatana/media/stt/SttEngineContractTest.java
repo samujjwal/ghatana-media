@@ -84,6 +84,18 @@ class SttEngineContractTest {
     }
 
     @Test
+    void transcriptionOptionsEnforceDocumentedTimeoutAndAlternativeBounds() {
+        assertThat(TranscriptionOptions.builder().maxAlternatives(0).build().maxAlternatives()).isEqualTo(1);
+        assertThat(TranscriptionOptions.builder().timeout(null).build().timeout()).isNull();
+        assertThatThrownBy(() -> TranscriptionOptions.builder().timeout(Duration.ZERO).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("timeout must be positive");
+        assertThatThrownBy(() -> TranscriptionOptions.builder().timeout(Duration.ofSeconds(-1)).build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("timeout must be positive");
+    }
+
+    @Test
     void governedEngineAllowsUnavailableButRejectsNonFiniteAvailableConfidence() {
         SttConfig config = SttConfig.builder().modelId("confidence-model").build();
         GovernedSttEngine governed = new GovernedSttEngine(engine, config);

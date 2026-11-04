@@ -60,6 +60,15 @@ public record TranscriptionOptions(
      */
     Duration timeout
 ) {
+    public TranscriptionOptions {
+        // Preserve the documented legacy behavior for callers that pass zero or a
+        // negative alternative count, while rejecting unusable explicit deadlines.
+        maxAlternatives = Math.max(1, maxAlternatives);
+        if (timeout != null && (timeout.isZero() || timeout.isNegative())) {
+            throw new IllegalArgumentException("timeout must be positive when specified");
+        }
+    }
+
     public static TranscriptionOptions defaults() {
         return new TranscriptionOptions(Locale.getDefault(), true, false, 1, false, null, Duration.ofSeconds(30));
     }
