@@ -17,15 +17,6 @@
       "@audio-video/types/production": ["../audio-video-types/dist/production.d.ts"]
     }
   },
-  "include": [
-    "src/index.ts",
-    "src/operations.ts",
-    "src/canonical-routes.ts",
-    "src/canonical-operations.ts",
-    "src/http-core.ts",
-    "src/capture-adapters.ts",
-    "src/recorder-orchestrator.ts",
-    "src/production-plan.ts"
-  ],
-  "exclude": ["node_modules", "dist", "dist-cjs"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/cli.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "node_modules", "dist", "dist-cjs"]
 }
