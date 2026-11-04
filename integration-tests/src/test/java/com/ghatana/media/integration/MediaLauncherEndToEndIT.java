@@ -52,7 +52,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * database is created for each test. This exercises the real PostgreSQL engine
  * for the composed durable stores and direct outbox readback. The V06 terminal
  * result comes from the synthetic {@code local-diagnostic} fixture and provides
- * no rights, consent, or model-quality evidence.
+ * no rights, consent, model-quality, or hard-kill process-restart evidence.
  *
  * <p>V-scenario coverage notes:
  * <ul>
@@ -63,7 +63,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  *   <li>V05 durable worker fencing/crash matrix: covered by
  *       {@code MediaDurableWorkerCrashIT} (provider suite).</li>
  *   <li>V06 local diagnostic fixture → COMPLETED job → logicalStatus and exact outbox
- *       read: covered against PostgreSQL. This does not prove an external provider effect.</li>
+ *       read survive an in-process runtime/HTTP restart against PostgreSQL. This does not
+ *       prove an external provider effect or hard-kill process recovery.</li>
  *   <li>V08 outbox commit/ACK kill points: covered by provider outbox tests;
  *       asserted here at DB level that terminal state committed with outbox rows.</li>
  *   <li>V09 cross-tenant artifact isolation + forged principal header scrub: covered.
@@ -97,6 +98,7 @@ class MediaLauncherEndToEndIT {
     private String bucket;
     private String jdbcUrl;
     private String databaseName;
+    private Map<String, String> environment;
     private final HttpClient client = HttpClient.newHttpClient();
 
     private void startStack() throws Exception {
@@ -112,7 +114,7 @@ class MediaLauncherEndToEndIT {
         try (S3Client s3 = s3()) {
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
         }
-        Map<String, String> environment = new HashMap<>();
+        environment = new HashMap<>();
         environment.put("MEDIA_RUNTIME_ENABLED", "true");
         environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
         environment.put("MEDIA_PROFILE", "local");
@@ -133,6 +135,10 @@ class MediaLauncherEndToEndIT {
         environment.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_E2E_SECRET");
         environment.put("MEDIA_E2E_ACCESS", LOCALSTACK.getAccessKey());
         environment.put("MEDIA_E2E_SECRET", LOCALSTACK.getSecretKey());
+        startRuntimeAndServer();
+    }
+
+    private void startRuntimeAndServer() throws Exception {
         // Install shared provider state BEFORE compose so the ServiceLoader-discovered
         // durable stores bind to it.
         installed = TestAwsStateInstall.install(environment);
@@ -142,6 +148,22 @@ class MediaLauncherEndToEndIT {
         server.createContext("/", new MediaSecurityFilter(
                 new MediaHttpHandler(runtime, null), "local"));
         server.start();
+    }
+
+    private void restartRuntimeAndHttp() throws Exception {
+        if (server != null) {
+            server.stop(0);
+            server = null;
+        }
+        if (runtime != null) {
+            runtime.close();
+            runtime = null;
+        }
+        if (installed != null) {
+            installed.close();
+            installed = null;
+        }
+        startRuntimeAndServer();
     }
 
     @AfterEach
@@ -336,7 +358,7 @@ class MediaLauncherEndToEndIT {
     }
 
     @Test
-    void v06LocalDiagnosticCompletesAndOutboxPayloadAreReadFromDurableState() throws Exception {
+    void v06LocalDiagnosticCompletionAndOutboxSurviveRuntimeRestart() throws Exception {
         startStack();
         byte[] payload = wav("v06-payload".getBytes(StandardCharsets.UTF_8));
         JsonNode artifact = uploadArtifact("tenant-v06", payload, "v06-upload-key");
@@ -399,6 +421,24 @@ class MediaLauncherEndToEndIT {
         assertThat(attributes.path("status").asString()).isEqualTo("COMPLETED");
         assertThat(attributes.path("failureCode").asString()).isEmpty();
         assertThat(attributes.path("priorVersion").asLong()).isEqualTo(version - 1);
+
+        // Recompose the real runtime and HTTP boundary over the same database and
+        // bucket. This orderly restart is not a hard-kill or process-recovery proof.
+        String databaseUrl = jdbcUrl;
+        String objectBucket = bucket;
+        String completedJobJson = job.toString();
+        restartRuntimeAndHttp();
+        assertThat(jdbcUrl).isEqualTo(databaseUrl);
+        assertThat(bucket).isEqualTo(objectBucket);
+
+        HttpResponse<String> restartedRead = send(request("GET", "tenant-v06", "/api/v1/jobs/" + jobId));
+        assertThat(restartedRead.statusCode()).as("restarted job read: %s", restartedRead.body()).isEqualTo(200);
+        JsonNode restartedJob = MAPPER.readTree(restartedRead.body());
+        assertThat(restartedJob.toString()).isEqualTo(completedJobJson);
+
+        LifecycleOutboxEvent restartedOutbox = lifecycleOutboxEvent(
+                "tenant-v06", jobId, version, "media.job.completed");
+        assertThat(restartedOutbox).isEqualTo(outbox);
     }
 
     private LifecycleOutboxEvent lifecycleOutboxEvent(
