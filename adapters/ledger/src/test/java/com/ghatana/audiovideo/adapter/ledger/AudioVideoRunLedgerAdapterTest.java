@@ -196,12 +196,12 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(cancelled.state().name()).isEqualTo(golden.getProperty("cancelledLedgerState"));
         assertThat(cancelled.outcome().name()).isEqualTo(golden.getProperty("cancelledOutcome"));
 
-        // The public shape has no fields for these source-bound immutable values.
-        // In particular, its attemptNumber=1 and initiatedBy="system" are adapter
-        // defaults, not recovered source facts. Do not promote them to authority.
+        // This legacy fixture does not supply these source-bound immutable
+        // values. Its attemptNumber=1 and initiatedBy="system" remain adapter
+        // defaults, not recovered source facts; do not promote them to authority.
         assertThat(terminal.attemptNumber()).isEqualTo(1);
         assertThat(terminal.inputs().initiatedBy()).isEqualTo("system");
-        for (String absent : golden.getProperty("unrepresented").split(",")) {
+        for (String absent : golden.getProperty("notSupplied").split(",")) {
             assertThat(terminal.attributes()).doesNotContainKey(absent);
             assertThat(terminal.inputs().parameters()).doesNotContainKey(absent);
             assertThat(terminal.inputs().headers()).doesNotContainKey(absent);
@@ -228,6 +228,99 @@ class AudioVideoRunLedgerAdapterTest {
                         .isInstanceOf(IllegalArgumentException.class);
             }
         }
+    }
+
+    @Test
+    @DisplayName("Carries validated immutable Media source facts and keeps cancellation request distinct")
+    void mediaSourceFactsUseExistingLedgerFieldsWithoutInventingFinality() {
+        long createdAt = 1_791_000_000_000L;
+        String digest = "sha256:" + "a".repeat(64);
+        String sourceVersion = "artifact-version:rev-7";
+        Map<String, String> sourceFacts = Map.of(
+                "tenantId", "tenant-ld02-1",
+                "requestId", "request-ld02-1",
+                "requestFingerprint", digest,
+                "sourceVersion", sourceVersion,
+                "sourceDigest", digest,
+                "principalId", "principal-ld02-1",
+                "rightsAuthority", "consent-authority-1",
+                "rightsRef", "rights:consent-ld02-1",
+                "cancellationState", "REQUESTED");
+
+        RunLedger requested = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-ld02-1", "AUDIO", "STT", "collection-ld02-1", "artifact-source-ld02-1",
+                sourceFacts, "RUNNING", createdAt, createdAt + 10, 2, createdAt + 20,
+                null, null, "provider", "provider-job-secret", "trace", "request-ld02-1");
+
+        assertThat(requested.runId()).isEqualTo("job-ld02-1");
+        assertThat(requested.attemptNumber()).isEqualTo(2);
+        assertThat(requested.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(requested.outcome()).isNull();
+        assertThat(requested.completedAtMs()).isZero();
+        assertThat(requested.attributes())
+                .containsEntry("tenantId", "tenant-ld02-1")
+                .containsEntry("cancellationState", "REQUESTED")
+                .containsEntry("effectFinality", "UNRESOLVED");
+        assertThat(requested.inputs().initiatedBy()).isEqualTo("system");
+        assertThat(requested.inputs().headers())
+                .containsEntry("requestId", "request-ld02-1")
+                .containsEntry("requestFingerprint", digest)
+                .containsEntry("sourceVersion", sourceVersion)
+                .containsEntry("sourceDigest", digest)
+                .containsEntry("rightsAuthority", "consent-authority-1")
+                .containsEntry("principalId", "principal-ld02-1");
+        assertThat(requested.inputs().parameters())
+                .containsEntry("rightsRef", "rights:consent-ld02-1")
+                .doesNotContainKeys("tenantId", "requestId", "principalId", "sourceDigest",
+                        "cancellationState");
+        assertThat(requested.attributes().get("providerJobIdRef"))
+                .startsWith("sha256:").doesNotContain("provider-job-secret");
+
+        RunLedger digestVersion = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-ld02-digest-version", "AUDIO", "STT", "collection-ld02-1",
+                "artifact-source-ld02-1", Map.of("sourceVersion", digest), "RUNNING",
+                createdAt, createdAt + 10, 1, createdAt + 20, null, null,
+                "provider", null, "trace", "request-ld02-digest-version");
+        assertThat(digestVersion.inputs().headers()).containsEntry("sourceVersion", digest);
+
+        RunLedger confirmed = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-ld02-1", "AUDIO", "STT", "collection-ld02-1", "artifact-source-ld02-1",
+                Map.of("tenantId", "tenant-ld02-1", "cancellationState", "CONFIRMED"),
+                "CANCELLED", createdAt, createdAt + 10, 2, createdAt + 30,
+                null, null, "provider", null, "trace", "request-ld02-1");
+        assertThat(confirmed.state()).isEqualTo(JobExecutionState.CANCELLED);
+        assertThat(confirmed.outcome()).isEqualTo(ExecutionOutcome.CANCELLED);
+        assertThat(confirmed.attributes()).containsEntry("cancellationState", "CONFIRMED");
+    }
+
+    @Test
+    @DisplayName("Rejects unsafe or malformed immutable Media source facts")
+    void malformedMediaSourceFactsAreDroppedAndCounted() {
+        long now = System.currentTimeMillis();
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-ld02-invalid", "AUDIO", "STT", "collection", "source",
+                Map.of("tenantId", "tenant@example.invalid", "sourceDigest", "not-a-digest",
+                        "sourceVersion", "https://private.invalid/source?token=secret",
+                        "principalId", "AKIAIOSFODNN7EXAMPLE", "cancellationState", "MAYBE"),
+                "RUNNING", now, 0, 1, now + 1, null, null, null, null, "trace", "correlation");
+
+        assertThat(ledger.attributes()).doesNotContainKeys("tenantId", "cancellationState");
+        assertThat(ledger.inputs().headers())
+                .doesNotContainKeys("tenantId", "sourceDigest")
+                .containsKey("sourceVersion");
+        assertThat(ledger.inputs().headers().get("sourceVersion")).startsWith("redacted:sha256:");
+        assertThat(ledger.inputs().initiatedBy()).isEqualTo("system");
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("sanitizedParamsDropped", "4");
+        assertThat(ledger.toString()).doesNotContain(
+                "tenant@example.invalid", "AKIAIOSFODNN7EXAMPLE", "not-a-digest", "MAYBE",
+                "https://private.invalid/source?token=secret");
+
+        RunLedger noncanonicalCancellation = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-ld02-cancellation-case", "AUDIO", "STT", "collection", "source",
+                Map.of("cancellationState", "requested"), "RUNNING", now, 0, 1, now + 2,
+                null, null, null, null, "trace", "correlation");
+        assertThat(noncanonicalCancellation.attributes()).doesNotContainKey("cancellationState");
     }
 
     @Test

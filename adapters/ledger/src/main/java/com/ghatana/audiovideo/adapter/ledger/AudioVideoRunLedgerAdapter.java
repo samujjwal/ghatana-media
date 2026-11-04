@@ -33,7 +33,8 @@ public final class AudioVideoRunLedgerAdapter {
      * @param processingType Type of processing (TRANSCODING, STT, TTS, VISION_ANALYSIS)
      * @param collectionId Collection that owns this media
      * @param mediaArtifactId Reference to the media artifact being processed
-     * @param inputParams Processing parameters
+     * @param inputParams Processing parameters and caller-supplied source facts; the adapter never infers
+     *                    missing authority, identity, or version metadata from provider state
      * @param jobState Current job state (SUBMITTED, TRANSCODING, PROCESSING, STORING, COMPLETED, FAILED)
      * @param createdAtMs When job was created
      * @param startedAtMs When processing began
@@ -158,14 +159,27 @@ public final class AudioVideoRunLedgerAdapter {
         String ledgerCollectionId = safeLedgerReference(collectionId);
         String ledgerMediaType = safeMetadataToken(mediaType, "UNKNOWN");
         String ledgerProcessingType = safeMetadataToken(processingType, "UNKNOWN");
-        InputSnapshot inputs = new InputSnapshot(
-            sanitizeLedgerParams(inputParams),
-            null,
-            Map.of(
+        Map<String, String> ledgerParams = new LinkedHashMap<>(sanitizeLedgerParams(inputParams));
+        Map<String, String> sourceHeaders = new LinkedHashMap<>();
+        copySourceHeader(ledgerParams, sourceHeaders, "tenantId");
+        copySourceHeader(ledgerParams, sourceHeaders, "requestId");
+        copySourceHeader(ledgerParams, sourceHeaders, "requestFingerprint");
+        copySourceHeader(ledgerParams, sourceHeaders, "sourceVersion");
+        copySourceHeader(ledgerParams, sourceHeaders, "sourceDigest");
+        copySourceHeader(ledgerParams, sourceHeaders, "principalId");
+        copySourceHeader(ledgerParams, sourceHeaders, "rightsAuthority");
+        String cancellationState = ledgerParams.remove("cancellationState");
+        Map<String, String> inputHeaders = new LinkedHashMap<>(Map.of(
                 "mediaType", ledgerMediaType,
                 "processingType", ledgerProcessingType,
-                    "mediaArtifactId", ledgerMediaArtifactId
-            ),
+                "mediaArtifactId", ledgerMediaArtifactId));
+        inputHeaders.putAll(sourceHeaders);
+        InputSnapshot inputs = new InputSnapshot(
+            Map.copyOf(ledgerParams),
+            null,
+            Map.copyOf(inputHeaders),
+            // Principal identity is retained separately; the Media SPI does
+            // not define it as the RunLedger's initiating actor.
             "system",
             createdAtMs
         );
@@ -209,6 +223,14 @@ public final class AudioVideoRunLedgerAdapter {
         attributes.put("processingType", ledgerProcessingType);
         attributes.put("collectionId", ledgerCollectionId);
         attributes.put("mediaArtifactId", ledgerMediaArtifactId);
+        if (sourceHeaders.containsKey("tenantId")) {
+            attributes.put("tenantId", sourceHeaders.get("tenantId"));
+        }
+        if (cancellationState != null) {
+            // Request and confirmation are separate recorded facts; neither
+            // changes aggregate job finality by itself.
+            attributes.put("cancellationState", cancellationState);
+        }
         // Preserve the raw observed state so a coarse projection never drops
         // uncertainty, cancellation-requested or partial-finality information.
         attributes.put("jobState", unknownState ? "UNKNOWN" : jobState);
@@ -307,7 +329,12 @@ public final class AudioVideoRunLedgerAdapter {
         "policyConstraints", "policyDecision",
         "policyDecisionId", "policyCheckpointId", "policyTimestampMs", "allowed",
         "constraints", "providerPolicyId", "providerPolicyDecision",
-        "providerPolicyEvaluatedAtMs");
+        "providerPolicyEvaluatedAtMs",
+        // Source-bound Media job/attempt facts that fit the existing Data Cloud
+        // RunLedger input and attribute fields. They are promoted to headers or
+        // attributes after typed validation below.
+        "tenantId", "requestId", "requestFingerprint", "sourceVersion", "sourceDigest",
+        "principalId", "rightsAuthority", "cancellationState");
 
     private static final Set<String> ENUM_PARAMETER_KEYS = Set.of(
         "codec", "format", "mimeType", "mediaType", "processingType", "classification",
@@ -326,6 +353,16 @@ public final class AudioVideoRunLedgerAdapter {
         java.util.regex.Pattern.compile("[A-Za-z0-9][A-Za-z0-9:._/-]{0,127}");
     private static final java.util.regex.Pattern SAFE_NUMBER =
         java.util.regex.Pattern.compile("(?:0|[1-9][0-9]{0,11})(?:\\.[0-9]{1,3})?");
+    private static final java.util.regex.Pattern SAFE_SHA256 =
+        java.util.regex.Pattern.compile("sha256:[a-f0-9]{64}");
+
+    private static void copySourceHeader(
+            Map<String, String> parameters, Map<String, String> headers, String key) {
+        String value = parameters.remove(key);
+        if (value != null) {
+            headers.put(key, value);
+        }
+    }
 
     /**
      * LD-03: the serialized ledger keeps only a typed whitelist of bounded
@@ -367,6 +404,18 @@ public final class AudioVideoRunLedgerAdapter {
                 }
                 continue;
             }
+            if (key.equals("sourceVersion")) {
+                if (value.isBlank() || value.length() > MAX_LEDGER_VALUE_CHARS) {
+                    dropped++;
+                    continue;
+                }
+                // This is the PDP source-artifact version reference, distinct
+                // from sourceDigest. Preserve a safe immutable token,
+                // fingerprint unsafe source-shaped values, and do not assume
+                // every version reference is itself a content digest.
+                clean.put(key, safeLedgerReference(value));
+                continue;
+            }
             boolean typedClassification = key.equals("classification") && isSafeClassification(value);
             if (value.length() > MAX_LEDGER_VALUE_CHARS
                     || containsSensitiveLedgerText(value) && !typedClassification
@@ -406,6 +455,15 @@ public final class AudioVideoRunLedgerAdapter {
 
     /** Validate value shape as well as key name; a whitelist alone is not a type boundary. */
     private static boolean isSafeParameterValue(String key, String value) {
+        if (Set.of("tenantId", "requestId", "principalId", "rightsAuthority").contains(key)) {
+            return SAFE_IDENTIFIER.matcher(value).matches();
+        }
+        if (Set.of("requestFingerprint", "sourceDigest").contains(key)) {
+            return SAFE_SHA256.matcher(value).matches();
+        }
+        if (key.equals("cancellationState")) {
+            return Set.of("REQUESTED", "CONFIRMED", "NOT_REQUESTED").contains(value);
+        }
         if (key.equals("classification")) {
             return isSafeClassification(value);
         }
