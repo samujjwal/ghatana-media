@@ -47,7 +47,7 @@ dependencies {
     testImplementation(libs.testcontainers.localstack)
     testImplementation(libs.testcontainers.junit.jupiter)
 
-    // H2 in PostgreSQL compatibility mode backs the durable-store E2E path
+    // H2 in PostgreSQL compatibility mode backs MediaSubjectIsolationHttpIT.
     testImplementation(libs.h2)
 
     // AWS SDK for direct S3 byte verification against LocalStack

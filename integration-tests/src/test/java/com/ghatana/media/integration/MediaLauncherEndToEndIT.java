@@ -29,10 +29,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.security.MessageDigest;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
@@ -147,16 +146,56 @@ class MediaLauncherEndToEndIT {
 
     @AfterEach
     void tearDown() throws Exception {
-        if (server != null) server.stop(0);
-        if (runtime != null) runtime.close();
-        if (installed != null) installed.close();
-        if (databaseName != null) {
-            try (var admin = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
-                    POSTGRES.getUsername(), POSTGRES.getPassword());
-                 var statement = admin.createStatement()) {
-                statement.execute("DROP DATABASE IF EXISTS " + databaseName + " WITH (FORCE)");
+        Throwable failure = null;
+        if (server != null) {
+            try {
+                server.stop(0);
+            } catch (Exception | Error stopFailure) {
+                failure = stopFailure;
             }
         }
+        if (runtime != null) {
+            try {
+                runtime.close();
+            } catch (Exception | Error closeFailure) {
+                failure = recordCleanupFailure(failure, closeFailure);
+            }
+        }
+        if (installed != null) {
+            try {
+                installed.close();
+            } catch (Exception | Error uninstallFailure) {
+                failure = recordCleanupFailure(failure, uninstallFailure);
+            }
+        }
+        if (databaseName != null) {
+            try {
+                try (var admin = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                        POSTGRES.getUsername(), POSTGRES.getPassword());
+                     var statement = admin.createStatement()) {
+                    statement.execute("DROP DATABASE IF EXISTS " + databaseName + " WITH (FORCE)");
+                }
+            } catch (Exception | Error dropFailure) {
+                failure = recordCleanupFailure(failure, dropFailure);
+            }
+        }
+        if (failure instanceof Error error) {
+            throw error;
+        }
+        if (failure instanceof Exception exception) {
+            throw exception;
+        }
+        if (failure != null) {
+            throw new RuntimeException("Media launcher integration cleanup failed", failure);
+        }
+    }
+
+    private static Throwable recordCleanupFailure(Throwable existing, Throwable next) {
+        if (existing == null) {
+            return next;
+        }
+        existing.addSuppressed(next);
+        return existing;
     }
 
     private String base() {
@@ -297,7 +336,7 @@ class MediaLauncherEndToEndIT {
     }
 
     @Test
-    void v06_localTransformUnknownFinalityAndOutboxAreReadFromDurableState() throws Exception {
+    void v06LocalDiagnosticCompletesAndOutboxPayloadAreReadFromDurableState() throws Exception {
         startStack();
         byte[] payload = wav("v06-payload".getBytes(StandardCharsets.UTF_8));
         JsonNode artifact = uploadArtifact("tenant-v06", payload, "v06-upload-key");
@@ -324,7 +363,9 @@ class MediaLauncherEndToEndIT {
             job = MAPPER.readTree(read.body());
             String status = job.get("status").asText();
             if ("COMPLETED".equals(status) || "FAILED".equals(status)
-                    || "OUTCOME_UNKNOWN".equals(status)) break;
+                    || "OUTCOME_UNKNOWN".equals(status)) {
+                break;
+            }
             Thread.sleep(250);
         }
         assertThat(job).isNotNull();
@@ -332,18 +373,40 @@ class MediaLauncherEndToEndIT {
         assertThat(job.get("status").asText()).as("final job: %s", job).isEqualTo("COMPLETED");
         assertThat(job.get("failureCode").asText()).isEmpty();
         assertThat(job.get("logicalStatus").asText()).isEqualTo("COMPLETED");
-        assertThat(lifecycleOutboxCount("tenant-v06", jobId, job.get("version").asLong(),
-                "media.job.completed"))
-                .as("local diagnostic terminal job state and matching lifecycle outbox event commit together")
-                .isEqualTo(1);
+        long version = job.get("version").asLong();
+        LifecycleOutboxEvent outbox = lifecycleOutboxEvent(
+                "tenant-v06", jobId, version, "media.job.completed");
+        assertThat(outbox.eventId()).isEqualTo("media:media.job.completed:" + jobId + ":" + version);
+
+        JsonNode eventPayload = MAPPER.readTree(outbox.payloadJson());
+        assertThat(eventPayload.size()).isEqualTo(12);
+        assertThat(eventPayload.path("eventId").asString()).isEqualTo(outbox.eventId());
+        assertThat(eventPayload.path("eventType").asString()).isEqualTo("media.job.completed");
+        assertThat(eventPayload.path("tenantId").asString()).isEqualTo("tenant-v06");
+        assertThat(eventPayload.path("principalId").asString()).isEqualTo(LOCAL_PRINCIPAL);
+        assertThat(eventPayload.path("correlationId").asString()).isEqualTo("corr-v06");
+        assertThat(eventPayload.path("causationId").asString()).isEqualTo("req-v06");
+        assertThat(eventPayload.path("aggregateType").asString()).isEqualTo("job");
+        assertThat(eventPayload.path("aggregateId").asString()).isEqualTo(jobId);
+        assertThat(eventPayload.path("aggregateVersion").asLong()).isEqualTo(version);
+        assertThat(eventPayload.path("classification").asString()).isEqualTo("INTERNAL");
+        assertThat(java.time.Instant.parse(eventPayload.path("occurredAt").asString())).isNotNull();
+        JsonNode attributes = eventPayload.path("attributes");
+        assertThat(attributes.size()).isEqualTo(6);
+        assertThat(attributes.path("artifactId").asString()).isEqualTo(artifact.get("artifactId").asString());
+        assertThat(attributes.path("jobType").asString()).isEqualTo("TRANSCODE");
+        assertThat(attributes.path("providerId").asString()).isEqualTo("local-diagnostic");
+        assertThat(attributes.path("status").asString()).isEqualTo("COMPLETED");
+        assertThat(attributes.path("failureCode").asString()).isEmpty();
+        assertThat(attributes.path("priorVersion").asLong()).isEqualTo(version - 1);
     }
 
-    private long lifecycleOutboxCount(String tenantId, String jobId, long version, String eventType)
-            throws SQLException {
+    private LifecycleOutboxEvent lifecycleOutboxEvent(
+            String tenantId, String jobId, long version, String eventType) throws Exception {
         try (var connection = DriverManager.getConnection(jdbcUrl,
                 POSTGRES.getUsername(), POSTGRES.getPassword());
              var statement = connection.prepareStatement("""
-                     SELECT COUNT(*) FROM media_processing_lifecycle_outbox
+                     SELECT event_id, payload_json FROM media_processing_lifecycle_outbox
                       WHERE tenant_id=? AND aggregate_type='job' AND aggregate_id=?
                         AND aggregate_version=? AND event_type=?
                      """)) {
@@ -352,11 +415,20 @@ class MediaLauncherEndToEndIT {
             statement.setLong(3, version);
             statement.setString(4, eventType);
             try (var rows = statement.executeQuery()) {
-                if (!rows.next()) throw new SQLException("Lifecycle outbox count query returned no row");
-                return rows.getLong(1);
+                if (!rows.next()) {
+                    throw new SQLException("Lifecycle outbox query returned no row");
+                }
+                LifecycleOutboxEvent event = new LifecycleOutboxEvent(
+                        rows.getString("event_id"), rows.getString("payload_json"));
+                if (rows.next()) {
+                    throw new SQLException("Lifecycle outbox query returned duplicate rows");
+                }
+                return event;
             }
         }
     }
+
+    private record LifecycleOutboxEvent(String eventId, String payloadJson) { }
 
     @Test
     void v09_crossTenantReadsNotFoundAndForgedPrincipalScrubbed() throws Exception {
