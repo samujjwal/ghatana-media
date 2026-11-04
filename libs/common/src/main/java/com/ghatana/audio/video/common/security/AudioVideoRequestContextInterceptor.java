@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Production-grade gRPC server interceptor for audio-video services.
@@ -113,7 +114,7 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
                 && !jwtTenant.equals(requestedTenant)))) {
             LOG.warn("Rejected cross-tenant request on {}", fullMethod);
             auditSink.emit(new AuditRecord(
-                effectiveTenant, principal(verifiedIdentity), "", fullMethod,
+                effectiveTenant, principal(verifiedIdentity), verifiedRoles(verifiedIdentity), fullMethod,
                 Outcome.DENIED_CROSS_TENANT,
                 "JWT tenant does not match supplied tenant scope"));
             call.close(Status.PERMISSION_DENIED.withDescription("Cross-tenant access denied"), new Metadata());
@@ -158,6 +159,10 @@ public final class AudioVideoRequestContextInterceptor implements ServerIntercep
 
     private static String principal(JwtServerInterceptor.VerifiedIdentity identity) {
         return identity == null || identity.subject() == null ? "" : identity.subject();
+    }
+
+    private static String verifiedRoles(JwtServerInterceptor.VerifiedIdentity identity) {
+        return identity == null ? "" : identity.roles().stream().sorted().collect(Collectors.joining(","));
     }
 
 }

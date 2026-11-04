@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +46,12 @@ class AudioVideoSecurityLogRedactionTest {
         String subject = "subject-secret-marker";
         String tenant = "tenant-secret-marker";
         ConfigurableJWTProcessor<SecurityContext> processor = mock(ConfigurableJWTProcessor.class);
-        when(processor.process(any(SignedJWT.class), eq(null))).thenReturn(null);
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .subject(subject)
+                .claim("tenantId", tenant)
+                .expirationTime(Date.from(Instant.now().plusSeconds(60)))
+                .build();
+        when(processor.process(any(SignedJWT.class), eq(null))).thenReturn(claims);
         JwtServerInterceptor interceptor = new JwtServerInterceptor(processor, new JwtServerInterceptor.TokenValidator() {
             @Override public boolean isEnabled() { return false; }
             @Override public com.ghatana.audio.video.common.platform.AuthGatewayClient.ValidationResult
@@ -56,7 +62,11 @@ class AudioVideoSecurityLogRedactionTest {
         ServerCall<Object, Object> call = mockCall(METHOD);
         @SuppressWarnings("unchecked")
         ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
-        when(handler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
+        AtomicReference<JwtServerInterceptor.VerifiedIdentity> propagatedIdentity = new AtomicReference<>();
+        when(handler.startCall(any(), any())).thenAnswer(invocation -> {
+            propagatedIdentity.set(JwtServerInterceptor.verifiedIdentity());
+            return mock(ServerCall.Listener.class);
+        });
         Metadata headers = new Metadata();
         headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER),
                 "Bearer " + signedToken(subject, tenant));
@@ -66,6 +76,8 @@ class AudioVideoSecurityLogRedactionTest {
 
             String output = logs.output();
             assertThat(output).contains("Authenticated request").doesNotContain(subject, tenant);
+            assertThat(propagatedIdentity.get()).isEqualTo(
+                    new JwtServerInterceptor.VerifiedIdentity(subject, tenant));
         }
     }
 
@@ -74,7 +86,9 @@ class AudioVideoSecurityLogRedactionTest {
         String principal = "principal-secret-marker";
         String jwtTenant = "jwt-tenant-secret-marker";
         String metadataTenant = "header-tenant-secret-marker";
-        String roles = "role-secret-marker";
+        String roleA = "verified-role-a-secret-marker";
+        String roleZ = "verified-role-z-secret-marker";
+        String untrustedRoles = "header-role-secret-marker";
         ArrayBlockingQueue<AuditRecord> auditRecords = new ArrayBlockingQueue<>(1);
         AudioVideoRequestContextInterceptor interceptor = new AudioVideoRequestContextInterceptor(
                 AuditEventSink.withConsumer(auditRecords::offer));
@@ -82,10 +96,12 @@ class AudioVideoSecurityLogRedactionTest {
         @SuppressWarnings("unchecked")
         ServerCallHandler<Object, Object> handler = mock(ServerCallHandler.class);
         Metadata headers = new Metadata();
-        headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), roles);
+        headers.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), untrustedRoles);
         Context context = Context.current()
                 .withValue(JwtServerInterceptor.CTX_SUBJECT, principal)
                 .withValue(JwtServerInterceptor.CTX_TENANT, jwtTenant)
+                .withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
+                        new JwtServerInterceptor.VerifiedIdentity(principal, jwtTenant, Set.of(roleZ, roleA)))
                 .withValue(TenantGrpcInterceptor.TENANT_ID_CTX_KEY, metadataTenant);
 
         try (LogCapture logs = capture(AudioVideoRequestContextInterceptor.class)) {
@@ -93,12 +109,12 @@ class AudioVideoSecurityLogRedactionTest {
 
             String output = logs.output();
             assertThat(output).contains("Rejected cross-tenant request").doesNotContain(
-                    principal, jwtTenant, metadataTenant, roles);
+                    principal, jwtTenant, metadataTenant, roleA, roleZ, untrustedRoles);
             AuditRecord record = auditRecords.poll(2, TimeUnit.SECONDS);
             assertThat(record).isNotNull();
             assertThat(record.tenantId()).isEqualTo(jwtTenant);
             assertThat(record.principal()).isEqualTo(principal);
-            assertThat(record.roles()).isEqualTo(roles);
+            assertThat(record.roles()).isEqualTo(roleA + "," + roleZ).doesNotContain(untrustedRoles);
         }
     }
 
