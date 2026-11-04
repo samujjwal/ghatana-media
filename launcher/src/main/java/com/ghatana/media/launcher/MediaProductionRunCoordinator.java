@@ -1,29 +1,24 @@
 package com.ghatana.media.launcher;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 /**
- * H-07: coordinate a compiled production plan into qualified outputs with
- * sealed provenance.
+ * H-07: source-only production coordinator candidate with fail-closed
+ * admission behavior.
  *
- * <p>Every produced output carries its origin class
- * (REAL_CAPTURE / DECLARATIVE_ANIMATION / MODEL_SIMULATION), immutable
- * source/version plus the plan fingerprint, a verifiable SHA-256 checksum
- * and effective rights — provenance is sealed at production and cannot be
- * relabeled afterward.
+ * <p>{@link ProducedOutput} defines the immutable metadata shape expected of
+ * a future qualified output. Constructing that value does not verify artifact
+ * bytes, rights, provider qualification, or production admission.
  *
- * <p>A run is fenced to a single attempt: a crash or UNKNOWN dispatch does
- * not produce a duplicate external effect — the coordinator records the
- * step outcome and a replay reads the ledger, never re-executes.
+ * <p>This source-only candidate has no bound rights resolver or canonical
+ * job/attempt ledger wired into it. It therefore refuses production steps
+ * as NOT_ADMITTED. The ledger and executor interfaces describe the required
+ * integration seam; a fixture implementation cannot authorize effects.
  *
  * @doc.type class
- * @doc.purpose Sealed-provenance production run coordinator
+ * @doc.purpose Fail-closed production run coordinator candidate
  * @doc.layer product
  * @doc.pattern Coordinator
  */
@@ -135,6 +130,9 @@ public final class MediaProductionRunCoordinator {
                 if (!stepId.equals(step.stepId())) {
                     throw new IllegalArgumentException("record step identity mismatch");
                 }
+                if (step.manualGate() != (outcome == StepOutcome.SKIPPED_MANUAL_GATE)) {
+                    throw new IllegalArgumentException("manual-gate steps must remain skipped and non-manual steps cannot be skipped");
+                }
                 if (output != null && (!output.stepId().equals(step.stepId())
                         || output.originClass() != step.originClass()
                         || !output.sourceRevisionRef().equals(step.sourceRevisionRef())
@@ -187,18 +185,15 @@ public final class MediaProductionRunCoordinator {
             String detail) {
     }
 
-    private final StepLedger ledger;
-
     public MediaProductionRunCoordinator(StepLedger ledger) {
-        this.ledger = Objects.requireNonNull(ledger, "ledger");
+        Objects.requireNonNull(ledger, "ledger");
     }
 
     /**
-     * Executes one step of a run. Manual gates never auto-execute — they are
-     * recorded SKIPPED and return immediately. An ambiguous dispatch records
-     * OUTCOME_UNKNOWN; a replay of either terminal or UNKNOWN outcome returns
-     * the record. At-most-once dispatch depends on the ledger implementing the
-     * durable atomic claim contract; the default implementation refuses execution.
+     * Fails closed until source-bound rights and the canonical process-fenced
+     * job/attempt ledger are integrated. Manual gates are effect-free and
+     * always remain skipped. The source-only in-memory fixtures in this module
+     * are not admission evidence.
      */
     public StepResult executeStep(
             String runId,
@@ -210,105 +205,12 @@ public final class MediaProductionRunCoordinator {
         Objects.requireNonNull(step, "step");
         Objects.requireNonNull(executor, "executor");
 
-        Optional<StepRecord> prior = ledger.find(runId, step.stepId());
-        if (prior.isPresent()) {
-            StepRecord recorded = prior.get();
-            if (!recorded.isBound()) {
-                throw new StepConflictException("legacy step record is unbound; refusing replay");
-            }
-            if (!recorded.planFingerprint().equals(planFingerprint) || !recorded.step().equals(step)) {
-                throw new StepConflictException("run/step identity was already bound to different plan inputs");
-            }
-            return new StepResult(recorded.stepId(), recorded.outcome(),
-                    Optional.ofNullable(recorded.output()),
-                    "recorded " + recorded.outcome());
-        }
-
-        StepRecord firstRecord = new StepRecord(step.stepId(), planFingerprint, step,
-                step.manualGate() ? StepOutcome.SKIPPED_MANUAL_GATE : StepOutcome.OUTCOME_UNKNOWN, null);
-        ClaimResult claim = ledger.claim(runId, firstRecord);
-        if (claim != ClaimResult.CLAIMED && claim != ClaimResult.ALREADY_CLAIMED) {
-            return new StepResult(step.stepId(), StepOutcome.NOT_ADMITTED,
-                    Optional.empty(), "durable pre-effect claim unavailable");
-        }
-        if (claim == ClaimResult.ALREADY_CLAIMED) {
-            Optional<StepRecord> raced = ledger.find(runId, step.stepId());
-            if (raced.isEmpty()) {
-                return new StepResult(step.stepId(), StepOutcome.NOT_ADMITTED,
-                        Optional.empty(), "durable claim exists without readable fence");
-            }
-            StepRecord recorded = raced.get();
-            if (!recorded.isBound() || !recorded.planFingerprint().equals(planFingerprint)
-                    || !recorded.step().equals(step)) {
-                throw new StepConflictException("run/step identity was already bound to different plan inputs");
-            }
-            return new StepResult(recorded.stepId(), recorded.outcome(),
-                    Optional.ofNullable(recorded.output()), "recorded " + recorded.outcome());
-        }
-
-        // A CLAIMED response is only useful if the exact pre-effect fence is
-        // durably readable under this run/step key. Do not trust an adapter
-        // that acknowledges a claim without persisting its plan/source/rights
-        // binding: dispatching in that case could permit a duplicate effect.
-        Optional<StepRecord> persistedClaim = ledger.find(runId, step.stepId());
-        if (persistedClaim.isEmpty() || !persistedClaim.get().equals(firstRecord)) {
-            return new StepResult(step.stepId(), StepOutcome.NOT_ADMITTED,
-                    Optional.empty(), "durable pre-effect claim could not be verified");
-        }
-
         if (step.manualGate()) {
             return new StepResult(step.stepId(), StepOutcome.SKIPPED_MANUAL_GATE,
                     Optional.empty(), "manual gate not auto-executed");
         }
-
-        byte[] bytes;
-        try {
-            bytes = executor.execute(step.stepId(), step);
-        } catch (StepAmbiguousException ambiguous) {
-            // The effect may exist downstream — UNKNOWN is recorded; a replay
-            // reads it and never re-executes.
-            return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
-                    Optional.empty(), "ambiguous effect; outcome requires reconciliation");
-        } catch (RuntimeException failure) {
-            return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
-                    Optional.empty(), "post-dispatch failure; outcome requires reconciliation");
-        }
-
-        if (bytes == null || bytes.length == 0) {
-            return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
-                    Optional.empty(), "executor returned no verifiable bytes after dispatch");
-        }
-
-        try {
-            ProducedOutput output = new ProducedOutput(
-                    step.stepId(), step.originClass(), step.sourceRevisionRef(),
-                    planFingerprint, sha256(bytes), step.effectiveRightsRef(), bytes.length);
-            StepRecord producedRecord = new StepRecord(
-                    step.stepId(), planFingerprint, step, StepOutcome.PRODUCED, output);
-            ledger.record(runId, producedRecord);
-            // A void write acknowledgment is not proof that the canonical
-            // result was durably recorded. Keep the pre-effect UNKNOWN fence
-            // as the externally visible result unless exact readback confirms
-            // the produced record.
-            if (ledger.find(runId, step.stepId()).filter(producedRecord::equals).isEmpty()) {
-                return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
-                        Optional.empty(), "post-dispatch persistence could not be verified; outcome requires reconciliation");
-            }
-            return new StepResult(step.stepId(), StepOutcome.PRODUCED,
-                    Optional.of(output), "produced");
-        } catch (RuntimeException persistenceFailure) {
-            return new StepResult(step.stepId(), StepOutcome.OUTCOME_UNKNOWN,
-                    Optional.empty(), "post-dispatch persistence failure; outcome requires reconciliation");
-        }
-    }
-
-    private static String sha256(byte[] bytes) {
-        try {
-            return HexFormat.of().formatHex(
-                    MessageDigest.getInstance("SHA-256").digest(bytes));
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 unavailable", e);
-        }
+        return new StepResult(step.stepId(), StepOutcome.NOT_ADMITTED,
+                Optional.empty(), "source-bound rights and canonical process-fenced production authority unavailable");
     }
 
     private static void requireIdentity(String value, String field) {
