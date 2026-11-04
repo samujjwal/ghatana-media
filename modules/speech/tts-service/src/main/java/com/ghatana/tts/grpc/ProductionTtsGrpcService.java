@@ -810,12 +810,13 @@ public final class ProductionTtsGrpcService extends TtsGrpcService implements Au
             String requestedVoiceId, java.util.Locale requestedLanguage) {
         if (admittedVoiceId == null || admittedVoiceId.isBlank()
                 || admittedLanguage == null || admittedLanguage.isBlank()) return false;
+        // The admitted locale is an exact request binding, not a fallback for an omitted
+        // language. Callers must state the locale whose voice/rights profile they intend to use.
+        if (requestedLanguage == null) return false;
         String selectedVoice = requestedVoiceId == null || requestedVoiceId.isBlank()
                 ? admittedVoiceId : requestedVoiceId;
         if (!admittedVoiceId.equals(selectedVoice)) return false;
-        String selectedLanguage = requestedLanguage == null
-                ? admittedLanguage
-                : requestedLanguage.toLanguageTag();
+        String selectedLanguage = requestedLanguage.toLanguageTag();
         return normalizeLanguage(admittedLanguage).equals(normalizeLanguage(selectedLanguage));
     }
 

@@ -56,6 +56,10 @@ class ProductionTtsGrpcServiceConfigTest {
                     .as("exact configured locale %s is eligible for its own profile", profile.getKey())
                     .isTrue();
             assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
+                    profile.getValue(), profile.getKey(), profile.getValue(), null))
+                    .as("missing locale cannot silently fall back to %s", profile.getKey())
+                    .isFalse();
+            assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
                     profile.getValue(), profile.getKey(), profile.getValue(),
                     java.util.Locale.forLanguageTag(switch (profile.getKey()) {
                         case "en-US" -> "hi-IN";
@@ -102,6 +106,8 @@ class ProductionTtsGrpcServiceConfigTest {
             Map<String, String> environment = localProfile(model, digest);
             var profile = ProductionTtsGrpcService.resolveProviderProfile(environment);
             assertThat(profile.modelId()).isEqualTo("fixture-model");
+            assertThat(profile.language()).isEqualTo("en-US");
+            // A syntactically declared locale/profile is not evidence of provider quality or rights.
             assertThat(profile.status()).isEqualTo("NOT_ADMITTED");
             assertThat(profile.reason()).contains("source-authoritative", "resolver");
             assertThatThrownBy(() -> ProductionTtsGrpcService.createConfig(environment))
@@ -134,6 +140,19 @@ class ProductionTtsGrpcServiceConfigTest {
                     .digest(Files.readAllBytes(model)));
             String sidecarDigest = fixtureSidecarDigest(model);
             Map<String, String> environment = localProfile(model, digest);
+            AtomicInteger authorizationCalls = new AtomicInteger();
+            TtsRequestAuthorization countingAuthorization = new TtsRequestAuthorization() {
+                @Override
+                public Decision authorize(Request request) {
+                    authorizationCalls.incrementAndGet();
+                    return Decision.ADMITTED;
+                }
+
+                @Override
+                public boolean isReady() {
+                    return true;
+                }
+            };
             TtsProviderAdmission localFixtureResolver = candidate -> {
                 assertThat(candidate.modelDigest()).isEqualTo(digest);
                 assertThat(candidate.voiceSidecarDigest()).isEqualTo(sidecarDigest);
@@ -144,7 +163,7 @@ class ProductionTtsGrpcServiceConfigTest {
             };
             ProductionTtsGrpcService service = new ProductionTtsGrpcService(
                     environment, new SimpleMeterRegistry(), localFixtureResolver,
-                    readyFixtureAuthorization(), config -> {
+                    countingAuthorization, config -> {
                         configured.set(config);
                         return library;
                     });
@@ -155,7 +174,10 @@ class ProductionTtsGrpcServiceConfigTest {
 
                 RecordingObserver<SynthesizeResponse> synthesis = new RecordingObserver<>();
                 service.synthesize(SynthesizeRequest.newBuilder().setText("fixture request").build(), synthesis);
-                assertThat(Status.fromThrowable(synthesis.error.get()).getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
+                assertThat(Status.fromThrowable(synthesis.error.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                assertThat(Status.fromThrowable(synthesis.error.get()).getDescription())
+                        .contains("language=unspecified");
+                assertThat(authorizationCalls).hasValue(0);
                 assertThat(synthesis.value.get()).isNull();
                 org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).synthesize(
                         org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
