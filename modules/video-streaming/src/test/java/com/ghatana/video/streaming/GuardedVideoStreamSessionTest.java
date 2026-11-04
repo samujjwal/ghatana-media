@@ -304,8 +304,13 @@ class GuardedVideoStreamSessionTest {
     void sinkFailureDoesNotPermitBlindEgressRetry() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
                 identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
-        VideoStreamSession.DecodedFrame admitted = frame(0, true);
-        session.submitFrame("worker-a", 1L, admitted);
+        VideoStreamSession.DecodedFrame admitted = frame(7, true);
+        for (int sequence = 0; sequence < admitted.sequenceNumber(); sequence++) {
+            assertThat(session.submitFrame("worker-a", 1L, frame(sequence, sequence == 0)))
+                    .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        }
+        assertThat(session.submitFrame("worker-a", 1L, admitted))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
         AtomicInteger attempts = new AtomicInteger();
 
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, f -> {
@@ -316,7 +321,7 @@ class GuardedVideoStreamSessionTest {
                 .satisfies(error -> {
                     ProviderOutcomeUnknownException unknown =
                             (ProviderOutcomeUnknownException) error;
-                    assertThat(unknown.sequenceNumber()).isZero();
+                    assertThat(unknown.sequenceNumber()).isEqualTo(7);
                     assertThat(unknown.getCause()).isNull();
                     assertThat(unknown.getMessage()).doesNotContain("provider-token");
                 });
