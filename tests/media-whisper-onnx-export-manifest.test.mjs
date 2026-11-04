@@ -159,6 +159,25 @@ test('local verification rejects a group/world-writable checkpoint parent direct
   } finally { rmSync(fixture.root, { recursive: true, force: true }); }
 });
 
+test('local verification rejects group/world-writable checkpoint and exported files', (context) => {
+  if (process.platform === 'win32') { context.skip('POSIX file permission bits are unavailable'); return; }
+  const checkpoint = localFixture();
+  try {
+    chmodSync(checkpoint.checkpointFile, 0o666);
+    assert.throws(() => verifyWhisperExportArtifacts(checkpoint.value, {
+      catalog: checkpoint.sourceCatalog, checkpointFile: checkpoint.checkpointFile, artifactRoot: checkpoint.artifactRoot,
+    }), /UNSAFE_ARTIFACT_FILE/);
+  } finally { rmSync(checkpoint.root, { recursive: true, force: true }); }
+
+  const output = localFixture();
+  try {
+    chmodSync(join(output.artifactRoot, 'run-a', 'encoder.onnx'), 0o666);
+    assert.throws(() => verifyWhisperExportArtifacts(output.value, {
+      catalog: output.sourceCatalog, checkpointFile: output.checkpointFile, artifactRoot: output.artifactRoot,
+    }), /UNSAFE_ARTIFACT_FILE/);
+  } finally { rmSync(output.root, { recursive: true, force: true }); }
+});
+
 test('declared output total cap is rejected before opening a missing checkpoint', () => {
   const fixture = localFixture();
   try {

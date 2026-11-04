@@ -156,7 +156,7 @@ export function checkWhisperExportManifest(manifest, { catalog } = {}) {
 }
 
 function statSignature(stat) {
-  return [stat.dev, stat.ino, stat.size, stat.mtimeNs, stat.ctimeNs].join(':');
+  return [stat.dev, stat.ino, stat.uid, stat.mode, stat.size, stat.mtimeNs, stat.ctimeNs].join(':');
 }
 
 function checkLocalDirectory(path, code, expectedCanonical) {
@@ -175,6 +175,10 @@ function ownerControlled(stat) {
   return (mode & 0o022) === 0 && (currentUid === undefined || stat.uid === currentUid);
 }
 
+function safeArtifactFile(stat) {
+  return stat.isFile() && ownerControlled(stat);
+}
+
 function safeOpenFlags() {
   if (typeof constants.O_NOFOLLOW !== 'number' || typeof constants.O_NONBLOCK !== 'number') fail('SAFE_OPEN_FLAGS_UNAVAILABLE');
   return constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK
@@ -187,14 +191,14 @@ function hashBoundedRegularFile(path, maxBytes, sizeMismatchCode, digestMismatch
   try {
     let pathStat;
     try { pathStat = lstatSync(path, { bigint: true }); } catch { fail('ARTIFACT_FILE_UNAVAILABLE'); }
-    if (!pathStat.isFile() || pathStat.isSymbolicLink()) fail('UNSAFE_ARTIFACT_FILE');
+    if (!safeArtifactFile(pathStat) || pathStat.isSymbolicLink()) fail('UNSAFE_ARTIFACT_FILE');
     try { fd = openSync(path, flags); }
     catch (error) {
       if (error?.code === 'ELOOP') fail('UNSAFE_ARTIFACT_FILE');
       fail('ARTIFACT_FILE_UNAVAILABLE');
     }
     const before = fstatSync(fd, { bigint: true });
-    if (!before.isFile()) fail('UNSAFE_ARTIFACT_FILE');
+    if (!safeArtifactFile(before)) fail('UNSAFE_ARTIFACT_FILE');
     if (before.size > BigInt(maxBytes)) fail('ARTIFACT_SIZE_LIMIT_EXCEEDED');
     if (expectedSize !== undefined && before.size !== BigInt(expectedSize)) fail(sizeMismatchCode);
     const hash = createHash('sha256');

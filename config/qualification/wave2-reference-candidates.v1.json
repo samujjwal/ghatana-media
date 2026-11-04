@@ -35,7 +35,7 @@
       "upstreamUrl": "https://openaipublic.azureedge.net/main/whisper/models/65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9/tiny.pt",
       "authorityUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/whisper/__init__.py",
       "licenseEvidenceUrl": "https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/LICENSE",
-      "licenseObservation": "Pinned OpenAI source repository declares MIT; independent model-rights disposition remains outstanding.",
+      "licenseObservation": "At the pinned OpenAI source commit, the README expressly states that the code and model weights are MIT-licensed, and the pinned model map binds tiny.pt to the official Azure URL and this SHA-256. The separate Hugging Face openai/whisper-tiny repository currently labels its hosted files Apache-2.0; no binary identity or provenance link to the pinned Azure checkpoint is established. Independent rights review and verification of the local checkpoint bytes remain outstanding.",
       "sourceType": "PYTORCH_CHECKPOINT_NOT_ONNX",
       "artifactSha256": "65147644a518d12f04e32d6f3b26facc3f8dd46e5390956a9424a650c0ce22b9",
       "maxBytes": 100000000,
