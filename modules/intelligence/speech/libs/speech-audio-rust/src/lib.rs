@@ -408,6 +408,9 @@ pub fn load_audio_buffer_bounded<P: AsRef<Path>>(
     Ok(AudioBuffer::new(decoded.samples, decoded.config))
 }
 
+/// Returns one max-absolute-amplitude peak per proportional time bucket.
+/// Buckets with no source frames return zero; this is a compact envelope, not
+/// a normalized waveform or a perceptual loudness measurement.
 pub fn extract_waveform<P: AsRef<Path>>(path: P, buckets: usize) -> Result<Vec<f32>> {
     if buckets == 0 {
         return Err(SpeechAudioError::InvalidInput(
@@ -492,6 +495,11 @@ pub fn slice_audio_buffer(
         return Err(SpeechAudioError::InvalidInput(
             "slice input must have a positive sample rate and complete interleaved frames"
                 .to_string(),
+        ));
+    }
+    if buffer.samples.iter().any(|sample| !sample.is_finite()) {
+        return Err(SpeechAudioError::InvalidInput(
+            "slice input must not contain non-finite samples".to_string(),
         ));
     }
     let frames = buffer.frame_count();
@@ -2417,6 +2425,22 @@ mod tests {
             slice_audio_buffer(&zero_channels, 0.0, 1.0),
             Err(SpeechAudioError::InvalidInput(_))
         ));
+    }
+
+    #[test]
+    fn slice_audio_buffer_rejects_non_finite_samples() {
+        let config = AudioConfig {
+            sample_rate: 2,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        for sample in [f32::NAN, f32::INFINITY, f32::NEG_INFINITY] {
+            let buffer = AudioBuffer::new(vec![0.25, sample], config);
+            assert!(matches!(
+                slice_audio_buffer(&buffer, 0.0, 0.5),
+                Err(SpeechAudioError::InvalidInput(_))
+            ));
+        }
     }
 
     #[test]
