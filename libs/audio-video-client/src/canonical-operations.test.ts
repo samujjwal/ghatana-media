@@ -231,8 +231,11 @@ describe("MediaCanonicalClient job operations", () => {
   it("bounds a stalled acknowledgement body and preserves OUTCOME_UNKNOWN", async () => {
     vi.useFakeTimers();
     let fetchStarted = false;
+    let releaseFetchStarted!: () => void;
+    const fetchStartedSignal = new Promise<void>((resolve) => { releaseFetchStarted = resolve; });
     const fetchImpl = (async () => {
       fetchStarted = true;
+      releaseFetchStarted();
       return {
         ok: true,
         status: 202,
@@ -256,9 +259,8 @@ describe("MediaCanonicalClient job operations", () => {
         () => undefined,
         (error: unknown) => error,
       );
-      // First flush the asynchronous credential/header/fetch chain without firing
-      // the request timer. Then advance the timer only after dispatch is observable.
-      await vi.advanceTimersByTimeAsync(0);
+      // Do not advance the request timer until the fetch boundary is observable.
+      await fetchStartedSignal;
       expect(fetchStarted).toBe(true);
       await vi.advanceTimersByTimeAsync(10);
       const failure = await result;
