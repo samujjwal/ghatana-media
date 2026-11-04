@@ -50,6 +50,12 @@ class MediaRuntimePortProbeTest {
             var inputs = new MediaProductionSpecCompiler.CompilationInputs(
                     "production-spec/source-rev-7", "production-spec-schema/rev-1",
                     MediaProductionSpecCompiler.PRODUCTION_SPEC_SCHEMA_VERSION, "production-compiler-contract/v3");
+            byte[] canonicalProductionSpecSchema;
+            try (var schemaStream = MediaRuntimePortProbeTest.class.getResourceAsStream(
+                    "/contracts/media-production-spec-v1.schema.json")) {
+                assertThat(schemaStream).as("canonical PDP-1 production-spec schema").isNotNull();
+                canonicalProductionSpecSchema = schemaStream.readAllBytes();
+            }
             var sourceBoundPlan = runtime.compileProductionSpec(spec, inputs, "revision-7", null);
             assertThat(sourceBoundPlan.inputProvenance()).isEqualTo(inputs);
             assertThat(sourceBoundPlan.planFingerprint()).isNotEqualTo(plan.planFingerprint());
@@ -62,7 +68,7 @@ class MediaRuntimePortProbeTest {
                              "sceneRefs":["scene-a/v3"],"timelineRef":"timeline/v2",
                              "rightsRef":"rights/v1","outputProfileRefs":["profile/v4"]}
                             """.getBytes(StandardCharsets.UTF_8),
-                    inputs.productionSpecSchemaRef(), "{\"type\":\"object\"}".getBytes(StandardCharsets.UTF_8),
+                    inputs.productionSpecSchemaRef(), canonicalProductionSpecSchema,
                     inputs.compilerContractRef(), "opaque compiler contract".getBytes(StandardCharsets.UTF_8));
             var resolvedPlan = runtime.compileProductionSpec(spec, inputs, "revision-7", null,
                     ref -> resolved(ref, content.get(ref)));
