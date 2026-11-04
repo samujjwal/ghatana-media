@@ -68,6 +68,12 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
                 throw new TenantScopeException(
                     "Transcription principal and source audio ownership cannot be changed");
             }
+            if (persisted != null && (!entity.hasUnmodifiedVersion()
+                    || !Objects.equals(entity.getVersion(), persisted.version()))) {
+                restoreManagedEntityIfPresent(entity, persistedTenant);
+                throw new jakarta.persistence.OptimisticLockException(
+                    "Transcription revision does not match the persisted revision");
+            }
             // The legacy JPA row has no canonical source-version or successful-attempt binding.
             // Keep it from claiming provider-owned transcript finality.
             if (claimsSuccessfulTranscriptFinality(entity.getStatus())) {
@@ -134,7 +140,7 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
     }
 
     private record PersistedTranscription(String tenantId, UUID audioFileId, UUID userId,
-                                          TranscriptionEntity.TranscriptionStatus status) { }
+                                          TranscriptionEntity.TranscriptionStatus status, Long version) { }
 
     private static boolean claimsSuccessfulTranscriptFinality(TranscriptionEntity.TranscriptionStatus status) {
         return status == TranscriptionEntity.TranscriptionStatus.COMPLETED
@@ -144,14 +150,14 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
     private PersistedTranscription readPersistedForUpdate(UUID id) {
         try {
             Object[] row = (Object[]) entityManager.createNativeQuery(
-                    "SELECT tenant_id, audio_file_id, user_id, status "
+                    "SELECT tenant_id, audio_file_id, user_id, status, version "
                         + "FROM audio_video.transcriptions WHERE id = :id FOR UPDATE")
                 .setParameter("id", id)
                 .setFlushMode(FlushModeType.COMMIT)
                 .getSingleResult();
             return new PersistedTranscription((String) row[0], readUuidColumn(row[1], "audio_file_id"),
                 readUuidColumn(row[2], "user_id"),
-                TranscriptionEntity.TranscriptionStatus.valueOf((String) row[3]));
+                TranscriptionEntity.TranscriptionStatus.valueOf((String) row[3]), ((Number) row[4]).longValue());
         } catch (jakarta.persistence.NoResultException missing) {
             return null;
         }

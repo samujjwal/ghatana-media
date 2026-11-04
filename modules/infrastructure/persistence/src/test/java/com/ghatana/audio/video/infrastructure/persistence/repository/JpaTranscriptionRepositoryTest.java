@@ -303,13 +303,41 @@ class JpaTranscriptionRepositoryTest {
 
         stale.setText("stale transcript overwrite");
         assertThatThrownBy(() -> repository.save(tenantId, stale))
-            .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+            .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
 
         entityManager.clear();
         assertThat(repository.findById(tenantId, original.getId()))
             .get()
             .satisfies(actual -> {
                 assertThat(actual.getTenantId()).isEqualTo(tenantId);
+                assertThat(actual.getText()).isEqualTo("current transcript revision");
+            });
+    }
+
+    @Test
+    @DisplayName("A stale transcription cannot bypass CAS by copying the current revision")
+    void staleTranscriptionCannotForgeCurrentRevision() {
+        String tenantId = "tenant-forged-version";
+        TranscriptionEntity original = createTestTranscription(tenantId);
+        original.setText("revision-zero transcript");
+        repository.save(tenantId, original);
+        entityManager.clear();
+
+        TranscriptionEntity stale = repository.findById(tenantId, original.getId()).orElseThrow();
+        entityManager.detach(stale);
+        TranscriptionEntity current = repository.findById(tenantId, original.getId()).orElseThrow();
+        current.setText("current transcript revision");
+        TranscriptionEntity savedCurrent = repository.save(tenantId, current);
+
+        stale.setVersion(savedCurrent.getVersion());
+        stale.setText("forged stale transcript overwrite");
+        assertThatThrownBy(() -> repository.save(tenantId, stale))
+            .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
+
+        entityManager.clear();
+        assertThat(repository.findById(tenantId, original.getId())).get()
+            .satisfies(actual -> {
+                assertThat(actual.getVersion()).isEqualTo(savedCurrent.getVersion());
                 assertThat(actual.getText()).isEqualTo("current transcript revision");
             });
     }

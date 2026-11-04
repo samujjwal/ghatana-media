@@ -1092,10 +1092,30 @@ class PersistenceIntegrationTest extends EventloopTestBase {
         assertThat(savedAudio.getVersion()).isGreaterThan(staleAudio.getVersion());
         staleAudio.setFileName("stale-audio-overwrite.wav");
         assertThatThrownBy(() -> audioFileRepository.save(tenantId, staleAudio))
-                .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+                .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
+        staleAudio.setVersion(savedAudio.getVersion());
+        staleAudio.setFileName("forged-stale-audio-overwrite.wav");
+        assertThatThrownBy(() -> audioFileRepository.save(tenantId, staleAudio))
+                .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
         entityManager.clear();
         assertThat(audioFileRepository.findById(tenantId, audio.getId()).orElseThrow().getFileName())
                 .isEqualTo("current-audio-revision.wav");
+
+        AudioFileEntity managedStaleAudio = audioFileRepository.findById(tenantId, audio.getId()).orElseThrow();
+        try (EntityManager competingEntityManager = emf.createEntityManager()) {
+            JpaAudioFileRepository competingRepository = new JpaAudioFileRepository(competingEntityManager);
+            AudioFileEntity latestAudio = competingRepository.findById(tenantId, audio.getId()).orElseThrow();
+            latestAudio.setFileName("latest-audio-revision.wav");
+            AudioFileEntity savedLatestAudio = competingRepository.save(tenantId, latestAudio);
+
+            managedStaleAudio.setVersion(savedLatestAudio.getVersion());
+            managedStaleAudio.setFileName("forged-managed-audio-overwrite.wav");
+            assertThatThrownBy(() -> audioFileRepository.save(tenantId, managedStaleAudio))
+                    .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
+        }
+        entityManager.clear();
+        assertThat(audioFileRepository.findById(tenantId, audio.getId()).orElseThrow().getFileName())
+                .isEqualTo("latest-audio-revision.wav");
 
         TranscriptionEntity transcript = createTranscription(tenantId, "revision-zero transcript");
         transcriptionRepository.save(tenantId, transcript);
@@ -1111,10 +1131,32 @@ class PersistenceIntegrationTest extends EventloopTestBase {
         assertThat(savedTranscript.getVersion()).isGreaterThan(staleTranscript.getVersion());
         staleTranscript.setText("stale transcript overwrite");
         assertThatThrownBy(() -> transcriptionRepository.save(tenantId, staleTranscript))
-                .hasRootCauseInstanceOf(org.hibernate.StaleStateException.class);
+                .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
+        staleTranscript.setVersion(savedTranscript.getVersion());
+        staleTranscript.setText("forged stale transcript overwrite");
+        assertThatThrownBy(() -> transcriptionRepository.save(tenantId, staleTranscript))
+                .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
         entityManager.clear();
         assertThat(transcriptionRepository.findById(tenantId, transcript.getId()).orElseThrow().getText())
                 .isEqualTo("current transcript revision");
+
+        TranscriptionEntity managedStaleTranscript = transcriptionRepository.findById(tenantId, transcript.getId())
+                .orElseThrow();
+        try (EntityManager competingEntityManager = emf.createEntityManager()) {
+            JpaTranscriptionRepository competingRepository = new JpaTranscriptionRepository(competingEntityManager);
+            TranscriptionEntity latestTranscript = competingRepository.findById(tenantId, transcript.getId())
+                    .orElseThrow();
+            latestTranscript.setText("latest transcript revision");
+            TranscriptionEntity savedLatestTranscript = competingRepository.save(tenantId, latestTranscript);
+
+            managedStaleTranscript.setVersion(savedLatestTranscript.getVersion());
+            managedStaleTranscript.setText("forged managed transcript overwrite");
+            assertThatThrownBy(() -> transcriptionRepository.save(tenantId, managedStaleTranscript))
+                    .hasRootCauseInstanceOf(jakarta.persistence.OptimisticLockException.class);
+        }
+        entityManager.clear();
+        assertThat(transcriptionRepository.findById(tenantId, transcript.getId()).orElseThrow().getText())
+                .isEqualTo("latest transcript revision");
     }
 
     @Test

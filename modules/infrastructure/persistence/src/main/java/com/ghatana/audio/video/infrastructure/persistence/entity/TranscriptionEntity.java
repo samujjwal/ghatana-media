@@ -96,6 +96,9 @@ public class TranscriptionEntity implements Serializable {
     @Column(name = "version")
     private Long version;
 
+    @jakarta.persistence.Transient
+    private Long loadedVersion;
+
     @Column(name = "deleted", nullable = false)
     private boolean deleted = false;
 
@@ -187,6 +190,14 @@ public class TranscriptionEntity implements Serializable {
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
     public Long getVersion() { return version; }
     public void setVersion(Long version) { this.version = version; }
+
+    @jakarta.persistence.PostLoad
+    @jakarta.persistence.PostPersist
+    @jakarta.persistence.PostUpdate
+    private void rememberLoadedVersion() { loadedVersion = version; }
+
+    /** Returns whether callers have left the persistence-owned revision unchanged since load. */
+    public boolean hasUnmodifiedVersion() { return java.util.Objects.equals(version, loadedVersion); }
 
     public boolean isDeleted() { return deleted; }
     public void setDeleted(boolean deleted) { this.deleted = deleted; }

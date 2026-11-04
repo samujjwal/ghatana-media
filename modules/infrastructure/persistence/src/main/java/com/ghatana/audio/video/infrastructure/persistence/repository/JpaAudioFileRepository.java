@@ -66,6 +66,12 @@ public class JpaAudioFileRepository implements AudioFileRepository {
                 restoreManagedEntityIfPresent(entity, persisted);
                 throw new TenantScopeException("AudioFile principal ownership cannot be changed");
             }
+            if (persisted != null && (!entity.hasUnmodifiedVersion()
+                    || !Objects.equals(entity.getVersion(), persisted.version()))) {
+                restoreManagedEntityIfPresent(entity, persisted);
+                throw new jakarta.persistence.OptimisticLockException(
+                    "AudioFile revision does not match the persisted revision");
+            }
 
             AudioFileEntity saved;
             if (entity.getId() == null || persistedTenant == null) {
@@ -115,16 +121,17 @@ public class JpaAudioFileRepository implements AudioFileRepository {
         }
     }
 
-    private record PersistedAudioFile(String tenantId, UUID userId) { }
+    private record PersistedAudioFile(String tenantId, UUID userId, Long version) { }
 
     private PersistedAudioFile readPersistedForUpdate(UUID id) {
         try {
             Object[] row = (Object[]) entityManager.createNativeQuery(
-                    "SELECT tenant_id, user_id FROM audio_video.audio_files WHERE id = :id FOR UPDATE")
+                    "SELECT tenant_id, user_id, version FROM audio_video.audio_files WHERE id = :id FOR UPDATE")
                 .setParameter("id", id)
                 .setFlushMode(FlushModeType.COMMIT)
                 .getSingleResult();
-            return new PersistedAudioFile((String) row[0], readUuidColumn(row[1], "user_id"));
+            return new PersistedAudioFile((String) row[0], readUuidColumn(row[1], "user_id"),
+                ((Number) row[2]).longValue());
         } catch (jakarta.persistence.NoResultException missing) {
             return null;
         }
