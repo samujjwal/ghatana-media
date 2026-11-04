@@ -1,5 +1,6 @@
 package com.ghatana.video.streaming;
 
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -85,6 +86,37 @@ public final class VideoFrameTimebase {
 
         public static SourceTimestamp unknown(String reason) {
             return new SourceTimestamp(Status.UNKNOWN, null, null, null, null, reason);
+        }
+
+        /**
+         * Re-expresses this timestamp in another seconds-per-tick rational for the same
+         * source clock. Conversion is exact-only: callers must retain the original rational
+         * value or provide an explicit mapping when the target tick rate cannot represent it.
+         *
+         * @throws IllegalStateException if this timestamp is unknown
+         * @throws ArithmeticException if the target tick is fractional or does not fit a long
+         */
+        public SourceTimestamp rescaleExactly(long targetTimebaseNumerator,
+                long targetTimebaseDenominator) {
+            if (status != Status.KNOWN) {
+                throw new IllegalStateException("unknown source timestamp cannot be rescaled");
+            }
+            if (targetTimebaseNumerator <= 0 || targetTimebaseDenominator <= 0) {
+                throw new IllegalArgumentException("target timebase must be a positive rational");
+            }
+            // source seconds = ticks * sourceNumerator / sourceDenominator.
+            // target ticks = source seconds * targetDenominator / targetNumerator.
+            BigInteger dividend = BigInteger.valueOf(ticks)
+                    .multiply(BigInteger.valueOf(timebaseNumerator))
+                    .multiply(BigInteger.valueOf(targetTimebaseDenominator));
+            BigInteger divisor = BigInteger.valueOf(timebaseDenominator)
+                    .multiply(BigInteger.valueOf(targetTimebaseNumerator));
+            BigInteger[] quotientAndRemainder = dividend.divideAndRemainder(divisor);
+            if (quotientAndRemainder[1].signum() != 0) {
+                throw new ArithmeticException("target timebase cannot exactly represent source timestamp");
+            }
+            return known(quotientAndRemainder[0].longValueExact(),
+                    targetTimebaseNumerator, targetTimebaseDenominator, clockId);
         }
     }
 

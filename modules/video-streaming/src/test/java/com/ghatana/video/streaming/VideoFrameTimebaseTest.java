@@ -202,6 +202,69 @@ class VideoFrameTimebaseTest {
     }
 
     @Test
+    void exactRescalingPreservesVfrCapturePresentationAndSceneCutBoundaries() {
+        var sourceClockFrame0 = VideoFrameTimebase.SourceTimestamp.known(
+                0, 1_001, 30_000, "source-clock-A");
+        var sourceClockFrame1 = VideoFrameTimebase.SourceTimestamp.known(
+                1, 1_001, 30_000, "source-clock-A");
+        var sourceClockFrame2 = VideoFrameTimebase.SourceTimestamp.known(
+                3, 1_001, 30_000, "source-clock-A");
+
+        var frame0 = sourceClockFrame0.rescaleExactly(1, 90_000);
+        var frame1 = sourceClockFrame1.rescaleExactly(1, 90_000);
+        var frame2 = sourceClockFrame2.rescaleExactly(1, 90_000);
+
+        assertThat(List.of(frame0.ticks(), frame1.ticks(), frame2.ticks()))
+                .containsExactly(0L, 3_003L, 9_009L);
+        assertThat(frame1.ticks() - frame0.ticks()).isNotEqualTo(frame2.ticks() - frame1.ticks());
+        assertThat(frame1.clockId()).isEqualTo("source-clock-A");
+
+        var beforeCut = VideoFrameTimebase.bind(
+                "camera-A", wireFrame(10, false, 1_700_000_000_010L), 8,
+                VideoFrameTimebase.SourceTimestamp.known(100, 1, 30, "capture-clock-A"),
+                frame2,
+                "segment-4", "h264", "config-a",
+                VideoFrameTimebase.PresentationMapping.unknown("NO_QUALIFIED_PRESENTATION_MAP"));
+        var sceneCut = VideoFrameTimebase.bind(
+                "camera-A", wireFrame(11, true, 1_700_000_000_011L), 11,
+                VideoFrameTimebase.SourceTimestamp.known(103, 1, 30, "capture-clock-A"),
+                VideoFrameTimebase.SourceTimestamp.known(0, 1, 90_000, "source-clock-B"),
+                "segment-5", "hevc", "config-b",
+                VideoFrameTimebase.PresentationMapping.unknown("NO_QUALIFIED_PRESENTATION_MAP"));
+
+        assertThat(beforeCut.presentationPts()).isEqualTo(frame2);
+        assertThat(beforeCut.capturePts().clockId()).isEqualTo("capture-clock-A");
+        assertThat(beforeCut.presentationPts().clockId()).isEqualTo("source-clock-A");
+        assertThat(sceneCut.keyFrameSequence()).isEqualTo(11);
+        assertThat(sceneCut.presentationPts().ticks()).isZero();
+        assertThat(sceneCut.presentationPts().clockId()).isEqualTo("source-clock-B");
+        assertThat(sceneCut.discontinuityId()).isNotEqualTo(beforeCut.discontinuityId());
+        assertThat(sceneCut.codecConfigurationId()).isNotEqualTo(beforeCut.codecConfigurationId());
+        assertThat(sceneCut.presentationMapping().status()).isEqualTo(VideoFrameTimebase.Status.UNKNOWN);
+    }
+
+    @Test
+    void exactRescalingRejectsFractionalUnknownAndOverflowWithoutUsingWireTime() {
+        var fractional = VideoFrameTimebase.SourceTimestamp.known(1, 1, 90_000, "source-clock-A");
+        assertThatThrownBy(() -> fractional.rescaleExactly(1, 24))
+                .isInstanceOf(ArithmeticException.class)
+                .hasMessageContaining("cannot exactly represent");
+
+        var negative = VideoFrameTimebase.SourceTimestamp.known(-3_003, 1, 90_000, "source-clock-A")
+                .rescaleExactly(1_001, 30_000);
+        assertThat(negative.ticks()).isEqualTo(-1L);
+        assertThat(negative.clockId()).isEqualTo("source-clock-A");
+
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.unknown("PTS_MISSING")
+                .rescaleExactly(1, 90_000))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("unknown source timestamp");
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.known(
+                Long.MAX_VALUE, Long.MAX_VALUE, 1, "source-clock-A").rescaleExactly(1, 1))
+                .isInstanceOf(ArithmeticException.class);
+    }
+
+    @Test
     void unknownPresentationMappingRequiresANonblankReason() {
         assertThatThrownBy(() -> VideoFrameTimebase.PresentationMapping.unknown(" "))
                 .isInstanceOf(IllegalArgumentException.class)
