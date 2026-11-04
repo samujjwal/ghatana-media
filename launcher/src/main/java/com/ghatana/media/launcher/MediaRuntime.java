@@ -1931,16 +1931,28 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         providerId, failure.getClass().getSimpleName());
                 continue;
             }
+            String providerId = safeText(provider::providerId, "unknown");
+            String providerVersion = safeText(provider::providerVersion, "unknown");
             if (profiles == null || profiles.isEmpty()) {
-                String providerId = safeText(provider::providerId, "unknown");
                 if (!providerId.equals("unknown")) {
                     workflowMetrics.markProviderProfileObservationUnknown(providerId);
                 }
                 log.warn("Media provider profile poll returned no snapshot provider={}", providerId);
                 continue;
             }
+            boolean profileIdentityMismatch = profiles.stream().anyMatch(profile -> profile == null
+                    || !providerId.equals(profile.providerId())
+                    || !providerVersion.equals(profile.providerVersion()));
+            if (profileIdentityMismatch) {
+                if (!providerId.equals("unknown")) {
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                }
+                log.warn("Media provider profile poll returned a mismatched identity provider={}",
+                        providerId);
+                continue;
+            }
             for (MediaModalityContracts.CapabilityProfile profile : profiles) {
-                if (profile == null || profile.modelVersions().isEmpty()) continue;
+                if (profile.modelVersions().isEmpty()) continue;
                 MediaWorkflowMetrics.Modality modality = switch (profile.modality()) {
                     case SPEECH_TO_TEXT -> MediaWorkflowMetrics.Modality.STT;
                     case TEXT_TO_SPEECH -> MediaWorkflowMetrics.Modality.TTS;

@@ -177,6 +177,32 @@ class MediaRuntimeProviderQualityMetricsTest {
         }
     }
 
+    @Test
+    void mismatchedProviderProfileIdentityIsNotExportedAsQualityEvidence() throws Exception {
+        var provider = new QualityProvider(Instant.now());
+        provider.profileProviderId = "foreign-provider";
+        provider.profileProviderVersion = "foreign-version";
+        Instant measuredAt = provider.checkedAt.minusSeconds(15);
+        provider.source = new MediaModalityContracts.ProviderQualityObservation(
+                "foreign-provider", "foreign-version", JobType.SPEECH_TO_TEXT, "model-r1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt, "a".repeat(64));
+        provider.rows = List.of(new MediaModalityContracts.ProviderQualityObservation(
+                "foreign-provider", "foreign-version", JobType.SPEECH_TO_TEXT, "model-r1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt, "a".repeat(64), "eng",
+                MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY));
+
+        try (var runtime = runtime(provider)) {
+            String scrape = runtime.prometheusMetrics();
+            assertThat(scrape).doesNotContain(
+                    "media_provider_profile_readiness{",
+                    "media_provider_quality_observation_timestamp_seconds{",
+                    "media_provider_quality_measured_value{",
+                    "provider_id=\"foreign-provider\"");
+        }
+    }
+
     private static MediaModalityContracts.ProviderQualityObservation qualityRow(
             String locale, MediaModalityContracts.ProviderQualityObservation.Metric metric,
             double value, Instant measuredAt,
@@ -260,6 +286,8 @@ class MediaRuntimeProviderQualityMetricsTest {
         private volatile List<MediaModalityContracts.ProviderQualityObservation> rows = List.of();
         private volatile boolean failProfiles;
         private volatile boolean returnEmptyProfiles;
+        private volatile String profileProviderId = "quality-test";
+        private volatile String profileProviderVersion = "quality-test-v1";
 
         private QualityProvider(Instant checkedAt) { this.checkedAt = checkedAt; }
 
@@ -277,12 +305,12 @@ class MediaRuntimeProviderQualityMetricsTest {
             if (failProfiles) throw new IllegalStateException("source profile poll unavailable");
             if (returnEmptyProfiles) return List.of();
             var health = new MediaModalityContracts.ProviderHealth(
-                    providerId(), providerVersion(),
+                    profileProviderId, profileProviderVersion,
                     MediaModalityContracts.ProviderHealthStatus.HEALTHY,
                     MediaModalityContracts.DegradationPolicy.LOCAL_DIAGNOSTIC_ONLY,
                     "observed test-only readiness", checkedAt);
             return List.of(new MediaModalityContracts.CapabilityProfile(
-                    providerId(), providerVersion(), JobType.SPEECH_TO_TEXT,
+                    profileProviderId, profileProviderVersion, JobType.SPEECH_TO_TEXT,
                     Set.of("pcm_s16le"), Set.of("wav"), Set.of(16_000), 0, 0,
                     Set.of("model-r1"), Set.of("local"), ProcessingBoundary.LOCAL,
                     false, false, false, health,
