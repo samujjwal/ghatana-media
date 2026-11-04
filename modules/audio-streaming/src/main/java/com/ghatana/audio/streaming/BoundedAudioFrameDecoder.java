@@ -80,6 +80,25 @@ public final class BoundedAudioFrameDecoder {
 
     /** The outcome of a bounded decode. */
     public record Result(DecodeVerdict verdict, DecodedSourceFrame frame, String reason) {
+        public Result {
+            Objects.requireNonNull(verdict, "verdict");
+            if (verdict == DecodeVerdict.DECODED) {
+                if (frame == null) {
+                    throw new IllegalArgumentException("decoded result requires a frame");
+                }
+                if (reason != null && !reason.isEmpty()) {
+                    throw new IllegalArgumentException("decoded result cannot carry a failure reason");
+                }
+            } else {
+                if (frame != null) {
+                    throw new IllegalArgumentException("non-decoded result cannot carry a frame");
+                }
+                if (reason == null || reason.isBlank()) {
+                    throw new IllegalArgumentException("non-decoded result requires a nonblank reason");
+                }
+            }
+        }
+
         static Result ok(DecodedSourceFrame f) { return new Result(DecodeVerdict.DECODED, f, null); }
         static Result fail(DecodeVerdict v, String r) { return new Result(v, null, r); }
     }

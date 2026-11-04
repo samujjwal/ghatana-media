@@ -92,6 +92,7 @@
     "check:wave2-reference-sources": "node scripts/qualification/verify-wave2-evidence.mjs",
     "test:wave2-reference-staging": "node --test tests/media-wave2-reference-staging.test.mjs",
     "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs",
+    "test:whisper-onnx-export-manifest": "node --test tests/media-whisper-onnx-export-manifest.test.mjs",
     "check:common-voice-v27-profile": "node scripts/qualification/check-common-voice-v27-profile.mjs",
     "test:common-voice-v27-profile": "node --test tests/media-common-voice-v27-profile.test.mjs",
     "prepare:common-voice-v27-pilot-manifest": "node scripts/qualification/common-voice-pilot-manifest.mjs",

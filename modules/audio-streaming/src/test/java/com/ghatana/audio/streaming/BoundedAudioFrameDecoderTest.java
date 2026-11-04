@@ -25,6 +25,45 @@ class BoundedAudioFrameDecoderTest {
     }
 
     @Test
+    @DisplayName("public result values preserve the decoded and non-decoded outcome shapes")
+    void resultEnforcesOutcomeShape() {
+        var frame = new BoundedAudioFrameDecoder.DecodedSourceFrame(
+                Codec.PCM_S16LE, new byte[] {1, 2},
+                new BoundedAudioFrameDecoder.SamplePosition(0, 48_000), false);
+
+        assertThat(new BoundedAudioFrameDecoder.Result(DecodeVerdict.DECODED, frame, null).frame())
+                .isEqualTo(frame);
+        assertThat(new BoundedAudioFrameDecoder.Result(DecodeVerdict.DECODED, frame, "").frame())
+                .isEqualTo(frame);
+        assertThat(new BoundedAudioFrameDecoder.Result(
+                DecodeVerdict.UNAVAILABLE, null, "codec unavailable").reason())
+                .isEqualTo("codec unavailable");
+
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(null, null, "reason"))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("verdict");
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(DecodeVerdict.DECODED, null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("requires a frame");
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(
+                DecodeVerdict.DECODED, frame, "not decoded"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("failure reason");
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(
+                DecodeVerdict.UNAVAILABLE, frame, "codec unavailable"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("cannot carry a frame");
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(
+                DecodeVerdict.UNAVAILABLE, null, "  "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("nonblank reason");
+        assertThatThrownBy(() -> new BoundedAudioFrameDecoder.Result(
+                DecodeVerdict.UNAVAILABLE, null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("nonblank reason");
+    }
+
+    @Test
     @DisplayName("PCM decodes whole 16-bit samples under its declared timebase")
     void pcmDecodesWithinTimebase() {
         BoundedAudioFrameDecoder dec = BoundedAudioFrameDecoder.declare(

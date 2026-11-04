@@ -230,6 +230,25 @@ class DocumentIntelligenceHttpClientTest {
     }
 
     @Test
+    void parsePreservesTypedWorkerCodeAndRetryability() {
+        parseBody = errorEnvelope("operation-1", "PROVIDER_FAILED", true);
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(Kind.WORKER_ERROR);
+                    assertThat(failure.workerCode()).contains("PROVIDER_FAILED");
+                    assertThat(failure.retryable()).isTrue();
+                });
+
+        parseBody = errorEnvelope("operation-1", "PROVIDER_FAILED", false);
+        assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))
+                .isInstanceOfSatisfying(DocumentIntelligenceException.class, failure -> {
+                    assertThat(failure.kind()).isEqualTo(Kind.WORKER_ERROR);
+                    assertThat(failure.workerCode()).contains("PROVIDER_FAILED");
+                    assertThat(failure.retryable()).isFalse();
+                });
+    }
+
+    @Test
     void duplicateOperationErrorIsReportedAsUnknownOutcome() {
         parseBody = errorEnvelope("operation-1", "DUPLICATE_OPERATION");
         assertThatThrownBy(() -> client().parse(parseRequest(), Cancellation.none()))

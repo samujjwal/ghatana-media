@@ -10,11 +10,15 @@ class CanonicalStreamFramePortTest {
     void missingCanonicalAdapterFailsClosedWithoutAnAcknowledgement() {
         CanonicalStreamFramePort port = CanonicalStreamFramePort.notAdmitted(
                 "purpose-bound canonical stream session is unavailable");
+        AudioStreamSession helper = new AudioStreamSession();
+        AudioStreamSession.DecodedFrame decodedHelperFrame = helper.decodeFrame(
+                helper.encodeFrame(0, 10L, new byte[] {1}));
 
+        // A valid local helper frame is not evidence that a canonical stream
+        // session exists; only the runtime-owned port can supply that binding.
         assertThat(port.currentBinding("tenant-1", "stream-1", "principal-1"))
                 .isEmpty();
-        assertThat(port.offer(
-                        binding(), new AudioStreamSession.DecodedFrame(0, 0L, new byte[] {1})))
+        assertThat(port.offer(binding(), decodedHelperFrame))
                 .isEqualTo(CanonicalStreamFramePort.Result.notAdmitted(
                         "purpose-bound canonical stream session is unavailable"));
     }
