@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -48,10 +49,11 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * {@link MediaHttpHandler} on a bound HTTP port. Requests go over
  * {@link HttpClient}; nothing is mocked.
  *
- * <p>LocalStack supplies the S3-compatible object store. PostgreSQL semantics are
- * exercised on H2 in PostgreSQL compatibility mode — the same compromise the
- * provider suite already records; it validates the real SQL surface, not a
- * vendor-specific engine.
+ * <p>LocalStack supplies the S3-compatible object store and a fresh PostgreSQL
+ * database is created for each test. This exercises the real PostgreSQL engine
+ * for the composed durable stores and direct outbox readback. The V06 terminal
+ * result comes from the synthetic {@code local-diagnostic} fixture and provides
+ * no rights, consent, or model-quality evidence.
  *
  * <p>V-scenario coverage notes:
  * <ul>
@@ -61,8 +63,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  *       {@code MediaUploadCrashRecoveryIT} (provider suite).</li>
  *   <li>V05 durable worker fencing/crash matrix: covered by
  *       {@code MediaDurableWorkerCrashIT} (provider suite).</li>
- *   <li>V06 local transform → terminal job → logicalStatus and exact outbox read: covered.
- *       The H2 local profile currently preserves finality as OUTCOME_UNKNOWN.</li>
+ *   <li>V06 local diagnostic fixture → COMPLETED job → logicalStatus and exact outbox
+ *       read: covered against PostgreSQL. This does not prove an external provider effect.</li>
  *   <li>V08 outbox commit/ACK kill points: covered by provider outbox tests;
  *       asserted here at DB level that terminal state committed with outbox rows.</li>
  *   <li>V09 cross-tenant artifact isolation + forged principal header scrub: covered.
@@ -83,6 +85,10 @@ class MediaLauncherEndToEndIT {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Container
+    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
+            DockerImageName.parse("postgres:16-alpine"));
+
+    @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
@@ -91,11 +97,18 @@ class MediaLauncherEndToEndIT {
     private AutoCloseable installed;
     private String bucket;
     private String jdbcUrl;
+    private String databaseName;
     private final HttpClient client = HttpClient.newHttpClient();
 
     private void startStack() throws Exception {
-        jdbcUrl = "jdbc:h2:mem:media_launcher_e2e_" + UUID.randomUUID().toString().replace("-", "")
-                + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1";
+        databaseName = "media_launcher_e2e_" + UUID.randomUUID().toString().replace("-", "");
+        try (var admin = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = admin.createStatement()) {
+            statement.execute("CREATE DATABASE " + databaseName);
+        }
+        jdbcUrl = "jdbc:postgresql://" + POSTGRES.getHost() + ":"
+                + POSTGRES.getMappedPort(PostgreSQLContainer.POSTGRESQL_PORT) + "/" + databaseName;
         bucket = "media-launcher-e2e-" + UUID.randomUUID().toString().replace("-", "");
         try (S3Client s3 = s3()) {
             s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
@@ -107,8 +120,10 @@ class MediaLauncherEndToEndIT {
         environment.put("MEDIA_LOCAL_PROVIDER_ENABLED", "true");
         environment.put("MEDIA_JOB_TIMEOUT_MS", "60000");
         environment.put("MEDIA_POSTGRES_JDBC_URL", jdbcUrl);
-        environment.put("MEDIA_POSTGRES_USER", "sa");
-        environment.put("MEDIA_POSTGRES_DRIVER", "org.h2.Driver");
+        environment.put("MEDIA_POSTGRES_USER", POSTGRES.getUsername());
+        environment.put("MEDIA_POSTGRES_PASSWORD_REFERENCE", "secret:env:MEDIA_LAUNCHER_E2E_DB_PASSWORD");
+        environment.put("MEDIA_LAUNCHER_E2E_DB_PASSWORD", POSTGRES.getPassword());
+        environment.put("MEDIA_POSTGRES_DRIVER", "org.postgresql.Driver");
         environment.put("MEDIA_POSTGRES_POOL_SIZE", "8");
         environment.put("MEDIA_S3_BUCKET", bucket);
         environment.put("MEDIA_S3_ENDPOINT", LOCALSTACK.getEndpointOverride(S3).toString());
@@ -135,6 +150,13 @@ class MediaLauncherEndToEndIT {
         if (server != null) server.stop(0);
         if (runtime != null) runtime.close();
         if (installed != null) installed.close();
+        if (databaseName != null) {
+            try (var admin = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                    POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var statement = admin.createStatement()) {
+                statement.execute("DROP DATABASE IF EXISTS " + databaseName + " WITH (FORCE)");
+            }
+        }
     }
 
     private String base() {
@@ -306,18 +328,20 @@ class MediaLauncherEndToEndIT {
             Thread.sleep(250);
         }
         assertThat(job).isNotNull();
-        assertThat(job.get("status").asText()).as("final job: %s", job).isEqualTo("OUTCOME_UNKNOWN");
-        assertThat(job.get("failureCode").asText()).isEqualTo("PROCESSING_FINALIZATION_OUTCOME_UNKNOWN");
-        assertThat(job.get("logicalStatus").asText()).isEqualTo("OUTCOME_UNKNOWN");
+        assertThat(job.get("providerId").asText()).isEqualTo("local-diagnostic");
+        assertThat(job.get("status").asText()).as("final job: %s", job).isEqualTo("COMPLETED");
+        assertThat(job.get("failureCode").asText()).isEmpty();
+        assertThat(job.get("logicalStatus").asText()).isEqualTo("COMPLETED");
         assertThat(lifecycleOutboxCount("tenant-v06", jobId, job.get("version").asLong(),
-                "MEDIA_JOB_OUTCOME_UNKNOWN"))
-                .as("unknown terminal job state and durable lifecycle outbox event commit together")
+                "media.job.completed"))
+                .as("local diagnostic terminal job state and matching lifecycle outbox event commit together")
                 .isEqualTo(1);
     }
 
     private long lifecycleOutboxCount(String tenantId, String jobId, long version, String eventType)
             throws SQLException {
-        try (var connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+        try (var connection = DriverManager.getConnection(jdbcUrl,
+                POSTGRES.getUsername(), POSTGRES.getPassword());
              var statement = connection.prepareStatement("""
                      SELECT COUNT(*) FROM media_processing_lifecycle_outbox
                       WHERE tenant_id=? AND aggregate_type='job' AND aggregate_id=?
