@@ -74,6 +74,13 @@ public final class SpeechToTextToolHandler implements ToolHandler {
             String errorCode = validationErrorCode(e);
             log.warn("STT input rejected: {}", errorCode);
             Instant end = Instant.now();
+            if ("TOOL_INPUT_SCHEMA_VIOLATION".equals(errorCode)) {
+                return Promise.of(ToolExecutionResult.failed(
+                        envelope.invocationId(),
+                        new ToolExecutionFailure(ToolExecutionFailure.Kind.VALIDATION,
+                                ToolExecutionFailure.Stage.EXECUTION, errorCode, false, end),
+                        envelope.invocationId(), end, Duration.between(start, end)));
+            }
             return Promise.of(ToolExecutionResult.failed(
                     envelope.invocationId(),
                     "STT processing error: " + errorCode,

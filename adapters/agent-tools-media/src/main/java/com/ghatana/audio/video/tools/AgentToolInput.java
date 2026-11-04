@@ -285,24 +285,25 @@ final class AgentToolInput {
 
     /** Counts UTF-8 JSON payload bytes without first allocating a serialized copy. */
     private static boolean withinUtf8ByteBounds(Object root, int maxBytes) {
-        ArrayDeque<Object> pending = new ArrayDeque<>();
+        record Node(Object value) { }
+        ArrayDeque<Node> pending = new ArrayDeque<>();
         IdentityHashMap<Object, Boolean> containers = new IdentityHashMap<>();
-        pending.push(root);
+        pending.push(new Node(root));
         long bytes = 2; // Root delimiters, conservatively covering object or array inputs.
         while (!pending.isEmpty()) {
-            Object value = pending.pop();
+            Object value = pending.pop().value();
             if (value instanceof Map<?, ?> map) {
                 if (containers.put(map, Boolean.TRUE) != null) return false;
                 bytes += 2L + (2L * map.size()); // braces, commas, and colons, conservatively
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
                     if (!(entry.getKey() instanceof String key)) return false;
                     bytes += utf8JsonStringBytes(key);
-                    pending.push(entry.getValue());
+                    pending.push(new Node(entry.getValue()));
                 }
             } else if (value instanceof java.util.List<?> values) {
                 if (containers.put(values, Boolean.TRUE) != null) return false;
                 bytes += 2L + values.size(); // brackets and commas
-                for (Object child : values) pending.push(child);
+                for (Object child : values) pending.push(new Node(child));
             } else if (value instanceof String text) {
                 bytes += utf8JsonStringBytes(text);
             } else if (value instanceof Number number) {

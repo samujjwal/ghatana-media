@@ -210,6 +210,49 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("counts explicit JSON null values and rejects them by schema before dispatch")
+    void handlesNullValuesInBoundedInputTraversal() {
+        Map<String, Object> nullableInput = new LinkedHashMap<>();
+        nullableInput.put("optional", null);
+        ToolExecutionEnvelope nullableEnvelope = envelope("av.speech-to-text", nullableInput);
+        Map<String, Object> nullableSchema = Map.of(
+                "type", "object",
+                "properties", Map.of("optional", Map.of("type", "null")),
+                "additionalProperties", false);
+
+        assertThat(AgentToolInput.checked(nullableEnvelope,
+                contractFor(nullableEnvelope, nullableSchema, Map.of()),
+                SpeechToTextToolHandler.TOOL_ID, Set.of("optional")))
+                .containsKey("optional")
+                .containsEntry("optional", null);
+
+        Map<String, Object> invalidInput = new LinkedHashMap<>();
+        invalidInput.put("languageCode", null);
+        ToolExecutionEnvelope invalidEnvelope = envelope("av.speech-to-text", invalidInput);
+        Map<String, Object> nonNullableSchema = Map.of(
+                "type", "object",
+                "properties", Map.of("languageCode", Map.of("type", "string")),
+                "additionalProperties", false);
+        ToolContract nonNullableContract = contractFor(invalidEnvelope, nonNullableSchema, Map.of());
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        com.ghatana.toolruntime.ToolHandler delegate = (delegateEnvelope, ignoredContract) -> {
+            effects.incrementAndGet();
+            return Promise.of(ToolExecutionResult.succeeded(delegateEnvelope.invocationId(), Map.of(), Map.of(),
+                    delegateEnvelope.invocationId(), Instant.now(), Duration.ZERO));
+        };
+
+        ToolExecutionResult rejected = await(
+                new SpeechToTextToolHandler(delegate).handle(invalidEnvelope, nonNullableContract));
+        assertThat(rejected.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(rejected.failure().kind())
+                .isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.VALIDATION);
+        assertThat(rejected.failure().stage())
+                .isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.EXECUTION);
+        assertThat(rejected.failure().code()).isEqualTo("TOOL_INPUT_SCHEMA_VIOLATION");
+        assertThat(effects).hasValue(0);
+    }
+
+    @Test
     @DisplayName("rejects remote schema references without a fetch or tool dispatch")
     void rejectsRemoteInputSchemaReferences() {
         ToolExecutionEnvelope env = envelope("av.speech-to-text", Map.of("languageCode", "en-US"));
