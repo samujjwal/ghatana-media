@@ -5,6 +5,7 @@ import { mkdtemp, mkdir, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createMediaOperationClient } from './operations.js';
 
 const bin = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const token = 'test-secret-do-not-print';
@@ -155,6 +156,45 @@ describe('ghatanamedia-api artifact inspect executable', () => {
       expect(JSON.parse(result.stderr).code).toBe('INVALID_MEDIA_RESPONSE');
       expect(result.stderr).not.toContain('rightsCleared');
       expect(result.stdout).toBe('');
+    });
+  });
+
+  it('keeps the CLI and SDK fail-closed on the same malformed artifact response', async () => {
+    let requests = 0;
+    await withServer((request, response) => {
+      requests++;
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/api/v1/artifacts/artifact-a');
+      expect(request.headers['x-tenant-id']).toBe('tenant-a');
+      expect(request.headers['x-principal-id']).toBe('principal-a');
+      expect(request.headers.authorization).toBe(`Bearer ${token}`);
+      response.writeHead(200, { 'content-type': 'application/json' })
+        .end(JSON.stringify({ ...artifact, sizeBytes: '42' }));
+    }, async endpoint => {
+      const sdk = createMediaOperationClient({
+        baseUrl: endpoint,
+        tenantId: 'tenant-a',
+        defaultHeaders: { 'X-Principal-Id': 'principal-a' },
+        getAccessToken: () => token,
+      });
+      const sdkFailure = await sdk.getArtifact('artifact-a').then(
+        () => { throw new Error('unreachable'); },
+        (error: unknown) => error,
+      );
+      expect(sdkFailure).toBeInstanceOf(TypeError);
+      expect((sdkFailure as Error).message)
+        .toBe('Canonical Media artifact sizeBytes must be a positive safe integer.');
+      expect((sdkFailure as Error).message).not.toContain(token);
+
+      const cliResult = await invoke(command(endpoint));
+      expect(cliResult.status).toBe(1);
+      expect(cliResult.stdout).toBe('');
+      expect(JSON.parse(cliResult.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.artifact.inspect',
+        code: 'INVALID_MEDIA_RESPONSE',
+      });
+      expect(cliResult.stderr).not.toContain(token);
+      expect(requests).toBe(2);
     });
   });
 
