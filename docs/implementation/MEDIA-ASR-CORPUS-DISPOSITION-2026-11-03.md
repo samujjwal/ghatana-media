@@ -11,6 +11,12 @@
 - Production readiness still needs a separately approved, consented app-domain evaluation set with independently reviewed references, held-out participants, representative app conditions, pre-registered quality limits, and measurements on the intended host. Common Voice is benchmark evidence; it does not replace app-domain evidence.
 - Synthetic fixtures remain available for deterministic code-path, safety, and robustness tests. They do not establish real model quality.
 
+### Selected model/export provenance gate (Q03)
+
+The existing multilingual Whisper tiny candidate remains `REVIEW_ONLY`; the Common Voice path has not replaced or promoted it. A pinned OpenAI Whisper source README states that its code and model weights are MIT licensed, while the official `openai/whisper-tiny` Hugging Face card displays `apache-2.0`. Treat this as an unresolved license-record discrepancy for the exact checkpoint, not as permission to infer which record governs the local/exported artifact. The pinned ONNX Community export revision `ff4177021cc41f7db950912b73ea4fdf7d01d8e7` identifies `openai/whisper-tiny` as its base and describes ONNX weights for Transformers.js, but its visible README does not identify the source checkpoint digest, converter/version/command, reproducible lineage, or export-specific license. See the [pinned OpenAI README](https://github.com/openai/whisper/blob/86098128c0b4f24f0e2aa2994de830614b474227/README.md), [official OpenAI HF card](https://huggingface.co/openai/whisper-tiny), [pinned ONNX export README](https://huggingface.co/onnx-community/whisper-tiny/blob/ff4177021cc41f7db950912b73ea4fdf7d01d8e7/README.md), and [export discussion](https://huggingface.co/onnx-community/whisper-tiny/discussions/1).
+
+This public-source review does not resolve model-weight or export rights. Keep real inference `NOT_ADMITTED` until the exact checkpoint/export rights and lineage are authoritatively dispositioned, the independent references are reviewed, and the execution host is qualified. No model artifact was downloaded or opened during this review.
+
 ## FLEURS disposition
 
 FLEURS adds a useful standardized multilingual benchmark, but it is not needed to advance this phase's English/Nepali evaluation path. Its public CC-BY-4.0 label does not itself provide the exact source-backed privacy, permitted-purpose, retention, split, and speaker-cluster evidence previously sought for the proposed subset. Deferring it avoids an unnecessary authorization/download workstream while the alternative route is prepared.
