@@ -27,15 +27,25 @@ adapter, STT/TTS engine, or streaming session/frame API is exported here.
 
 ## Build and platform evidence
 
-On 2026-11-03, the locked crate passed `cargo fmt --check`,
-`cargo test --locked --offline` (55 unit tests; 0 doc tests), and
-`cargo clippy --locked --offline --all-targets -- -D warnings` with Rust 1.94.0
+On 2026-11-03, the crate passed `cargo fmt --check`,
+`cargo test --offline` (57 unit tests; 0 doc tests), and
+`cargo clippy --offline --all-targets -- -D warnings` with Rust 1.94.0
 on `aarch64-apple-darwin`. Offline mode confirms this run used the dependencies
 already available locally; it does not establish builds for other target
 triples. There is no Java consumer in `modules/`, so no Java consumer vector or
 supported Java/FFI platform is claimed. The repository has no Cargo config
 setting a shared target directory or artifact cleanup policy; this check left
 the normal `target/` artifacts in place.
+
+The deterministic RS-07 harness is `examples/rs07-benchmark.rs`. Run it with
+`cargo run --offline --example rs07-benchmark`. On this host, 15 measured runs
+after two warmups reported resample p50/p95 0.229384/0.243778 seconds (5-second
+48 kHz mono input to 16 kHz; RTF 0.045877) and decode p50/p95
+0.009406/0.009657 seconds (10-second generated PCM16 WAV; RTF 0.000941).
+Output checksums were stable across runs. Process CPU was 4.299717 seconds and
+peak RSS was 4,947,968 bytes for the whole harness process, including setup;
+these are diagnostic host-specific observations, not thresholds or portable
+qualification.
 
 ## Capability disposition
 
