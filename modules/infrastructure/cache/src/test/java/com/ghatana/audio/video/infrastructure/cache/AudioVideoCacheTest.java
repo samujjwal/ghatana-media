@@ -406,6 +406,23 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("synchronous cache dispatch failure falls back to the source without caching")
+    void synchronousCacheReadDispatchFailureFallsBackToSource() {
+        AudioVideoCache<String, String> cache = new AudioVideoCache<>(cachePort, "transcription");
+        when(cachePort.get("sync-read-fails")).thenThrow(new IllegalStateException("cache dispatch failed"));
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        String result = await(cache.getOrLoad("sync-read-fails", ignored -> {
+            sourceLoads.incrementAndGet();
+            return AsyncOperation.success("authoritative-source-value");
+        }));
+
+        assertThat(result).isEqualTo("authoritative-source-value");
+        assertThat(sourceLoads).hasValue(1);
+        verify(cachePort, times(0)).put(anyString(), anyString(), any(Duration.class));
+    }
+
+    @Test
     @DisplayName("pending cache write keeps same-key calls coalesced until timeout releases reservation")
     void pendingCacheWriteKeepsSameKeyCoalescedUntilTimeoutThenReleasesReservation() throws Exception {
         AudioVideoCache<String, String> cache = new AudioVideoCache<>(
