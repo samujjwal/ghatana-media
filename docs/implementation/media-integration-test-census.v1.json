@@ -23,7 +23,7 @@
     },
     "SYNTHETIC_LOCAL_FIXTURE": {
       "meaning": "explicitly runnable in-process synthetic workload; local fixture only, never real transport, codec, provider, host-capacity, or quality evidence",
-      "files": ["PerformanceIntegrationTest.java"]
+      "files": ["PerformanceIntegrationTest.java", "GuardedMixedStreamWorkloadIT.java"]
     },
     "LOCAL_PROCESS_FIXTURE": {
       "meaning": "bounded local child-process cleanup test; no Docker image or external service is required",
@@ -64,13 +64,19 @@
     {
       "id": "synthetic-stream-workload",
       "tier": "LOCAL_FIXTURE",
-      "selectors": ["com.ghatana.audio.video.integration.PerformanceIntegrationTest"],
-      "sources": ["integration-tests/src/test/java/com/ghatana/audio/video/integration/PerformanceIntegrationTest.java"],
-      "resources": ["JUnit Jupiter", "in-process bounded queues", "generated test bytes"],
+      "selectors": [
+        "com.ghatana.audio.video.integration.PerformanceIntegrationTest",
+        "com.ghatana.audio.video.integration.GuardedMixedStreamWorkloadIT"
+      ],
+      "sources": [
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/PerformanceIntegrationTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/GuardedMixedStreamWorkloadIT.java"
+      ],
+      "resources": ["JUnit Jupiter", "in-process bounded queues", "guarded audio/video stream sessions", "generated test bytes"],
       "prerequisites": ["JDK/Gradle runtime; no Docker or external service is required"],
-      "assets": "Generated synthetic frame bytes and test-owned dispatcher; no codec or licensed media assets are bundled.",
-      "safety": "Uses only synthetic tenant indexes, bounded queues, and local worker threads; every result reports codec qualification as UNVERIFIED.",
-      "evidenceLimit": "Measures the synthetic in-process dispatcher only; not a real audio/video transport, codec, provider, host-capacity, or model-quality result."
+      "assets": "Generated synthetic frame bytes and test-owned bounded dispatcher, consent sources, and sinks; no codec or licensed media assets are bundled.",
+      "safety": "Uses synthetic tenant identities, generated payload bytes, test-owned admitted-consent sources and in-memory sinks with bounded local worker threads; every codec remains UNVERIFIED.",
+      "evidenceLimit": "Exercises guarded session state machines and the test-owned dispatcher only; per-session payload integrity does not prove cross-tenant isolation. It is not rights/consent qualification, real transport, codecs, providers, host CPU/RSS/capacity, or model quality."
     },
     {
       "id": "synthetic-frame-timebase",

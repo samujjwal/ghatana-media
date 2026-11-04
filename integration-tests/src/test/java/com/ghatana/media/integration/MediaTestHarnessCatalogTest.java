@@ -122,15 +122,16 @@ class MediaTestHarnessCatalogTest {
         }
 
         String performanceFixture = "com.ghatana.audio.video.integration.PerformanceIntegrationTest";
+        String guardedMixedFixture = "com.ghatana.audio.video.integration.GuardedMixedStreamWorkloadIT";
         var syntheticFixtures = catalog.path("classification").path("SYNTHETIC_LOCAL_FIXTURE").path("files");
         assertThat(syntheticFixtures.isArray()).isTrue();
-        assertThat(syntheticFixtures.size()).isEqualTo(1);
-        assertThat(syntheticFixtures.get(0).asString()).isEqualTo("PerformanceIntegrationTest.java");
+        assertThat(syntheticFixtures).extracting(var -> var.asString())
+                .containsExactlyInAnyOrder("PerformanceIntegrationTest.java", "GuardedMixedStreamWorkloadIT.java");
         var syntheticProfile = profiles.stream()
                 .filter(profile -> profile.id().equals("synthetic-stream-workload")).findFirst().orElseThrow();
-        assertThat(syntheticProfile.selectors()).containsExactly(performanceFixture);
-        assertThat(syntheticProfile.evidenceLimit()).contains("not a real audio/video transport");
-        assertThat(runnableSelectors).contains(performanceFixture);
+        assertThat(syntheticProfile.selectors()).containsExactly(performanceFixture, guardedMixedFixture);
+        assertThat(syntheticProfile.evidenceLimit()).contains("not rights/consent qualification");
+        assertThat(runnableSelectors).contains(performanceFixture, guardedMixedFixture);
 
         String processFixture = "com.ghatana.audio.video.integration.AudioVideoContainerProcessTest";
         var localProcessFixtures = catalog.path("classification").path("LOCAL_PROCESS_FIXTURE").path("files");
