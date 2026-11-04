@@ -4541,6 +4541,17 @@ For W2-R07, commit `48e2f7bb` adds canonical source-root containment at daemon d
 The original Wave 2 ledger and all R8/W3/H acceptance statuses remain unchanged; local negative and contract tests do not satisfy whole-row positive rights/model/host evidence.
 
 
+### 43.215 November 3 Vision receipt binding, transcript timing matrix, and locale metric export
+
+For W2-R02, commit `ac9ebb58` validates the typed Vision request against the artifact and attempt before source reading, then requires the reader receipt's immutable version, SHA-256, and copied byte count to match both the artifact and the staged bytes before invoking the detector. Focused `CanonicalVisionMediaProcessingProviderTest` passed **11/11**, including stale source version and cross-tenant attempt rejection before reading, and read failure, empty source, mismatched receipt, or altered staged bytes with no detector call. An independent read-only review found no defect in this changed ordering; the adapter still trusts the canonical runtime-created attempt number, fencing token, fingerprint, and job identity and does not independently establish rights. The fixture detector remains explicitly not production eligible; no model, quality, durable restart, or real provider effect is qualified.
+
+For W2-R04, commit `c7f83d6f` adds PostgreSQL attempt-binding coverage for a nonempty `SOURCE_TICKS` span plus provider-unqualified and `NOT_SUPPLIED` spans, exact retry, revoked consent, duplicate segment identities, mismatched source clocks/tick bounds, and store/runtime-state recreation. The exact focused selector passed **1/1** with zero skips/failures. Its restart check is store/runtime-state recreation inside one test process; the separate child-process crash path still lacks a nonempty `SOURCE_TICKS` segment. A follow-up is checking whether the existing crash worker can cover that without changing contracts. STT-06/08/09 and the original acceptance statuses remain open.
+
+For W2-R09, commit `e6447855` allows bounded per-locale quality observations for the two active Common Voice labels (`en` and `ne-np`) while preserving existing three-letter locale tags. Metric and MediaRuntime scrape selectors passed **15/15** and **7/7**. They use synthetic aggregate evidence and only confirm `REFERENCE_ONLY` telemetry plumbing; there is no source-reference review, inference, or model-quality claim. Hindi remains deferred.
+
+The previously noted ignored path `build/reports/media-fleurs-pilot-70bb2e84` is absent in the current checkout; the targeted WAV cleanup therefore found no files to delete. No corpus audio was opened or used. These local implementation/test results leave all original R8, Wave 2, Wave 3, H-outcome, and lifecycle acceptance records unchanged.
+
+
 ### 43.214 November 3 Common Voice evidence parser and MM persistence readback
 
 For the current Common Voice v27 reference-only report path, commit `d55dfcab` enables strict duplicate-key detection in the bounded JSON reader and rejects repeated `status` and `clipCount` fields instead of accepting parser last-value behavior. `CommonVoicePilotQualityEvidenceTest` passed **13/13**. The reader remains `REFERENCE_ONLY`; the test uses synthetic in-memory evidence only. No corpus rows, private manifest, audio, or model artifacts were opened. The quality-evidence parser and existing per-locale WER/CER metrics do not establish that source references match audio or authorize inference.
