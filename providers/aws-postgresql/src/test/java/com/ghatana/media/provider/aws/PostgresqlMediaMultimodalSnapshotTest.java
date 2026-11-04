@@ -83,6 +83,36 @@ class PostgresqlMediaMultimodalSnapshotTest {
     }
 
     @Test
+    void jobReadbackKeepsCanonicalRequestFingerprintDistinctFromSubmissionDigest() throws Exception {
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
+                     integrationEnvironment(bucket()));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String runId = runId();
+            String tenant = "tenant-" + runId;
+            String requestFingerprint = "sha256:" + "a".repeat(64);
+            String submissionDigest = "b".repeat(64);
+            ProcessingJob job = new ProcessingJob(
+                    "job-vis-" + runId, "request-vis-" + runId, tenant,
+                    "principal-a", "artifact-a", JobType.VISION, "provider-a",
+                    JobStatus.ACCEPTED, Instant.now(), null, null, Map.of(), "", 1,
+                    "sha256:" + "c".repeat(64), requestFingerprint);
+
+            store.create(job, submissionDigest);
+
+            assertThat(store.find(tenant, job.jobId()).orElseThrow().requestFingerprint())
+                    .isEqualTo(requestFingerprint);
+            assertThat(store.findByRequest(tenant, job.requestId()).orElseThrow().requestFingerprint())
+                    .isEqualTo(requestFingerprint);
+            assertThat(store.list(tenant, 10)).filteredOn(value -> value.jobId().equals(job.jobId()))
+                    .singleElement().extracting(ProcessingJob::requestFingerprint)
+                    .isEqualTo(requestFingerprint);
+            assertThat(store.recoverableAfter(10, null)).filteredOn(value -> value.jobId().equals(job.jobId()))
+                    .singleElement().extracting(ProcessingJob::requestFingerprint)
+                    .isEqualTo(requestFingerprint);
+        }
+    }
+
+    @Test
     void replayedRequestIdentityWithADifferentSpecConflicts() throws Exception {
         try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(
                      integrationEnvironment(bucket()));

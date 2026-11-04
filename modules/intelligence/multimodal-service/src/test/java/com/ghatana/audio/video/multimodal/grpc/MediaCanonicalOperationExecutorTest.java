@@ -732,6 +732,100 @@ class MediaCanonicalOperationExecutorTest {
     }
 
     @Test
+    void completedInlineUploadReplayReadsBackSameArtifactWithoutAppendingChunks() throws Exception {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        AtomicInteger beginCalls = new AtomicInteger();
+        AtomicInteger appendCalls = new AtomicInteger();
+        AtomicInteger completeCalls = new AtomicInteger();
+        var port = new FixturePort() {
+            @Override public UploadSession beginUpload(
+                    UploadRequest request, String idempotencyKey, AuthenticatedPrincipal authenticated) {
+                UploadSession open = super.beginUpload(request, idempotencyKey, authenticated);
+                if (beginCalls.getAndIncrement() == 0) return open;
+                return new UploadSession(open.uploadId(), open.tenantId(), open.principalId(),
+                        open.fileName(), open.contentType(), open.expectedSizeBytes(), open.expectedSha256(),
+                        open.classification(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
+                        1, com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.COMPLETED,
+                        open.metadata());
+            }
+
+            @Override public UploadSession appendUploadChunk(
+                    AuthenticatedPrincipal authenticated, String uploadId, int chunkIndex, byte[] bytes) {
+                appendCalls.incrementAndGet();
+                return super.appendUploadChunk(authenticated, uploadId, chunkIndex, bytes);
+            }
+
+            @Override public MediaArtifact completeUpload(
+                    AuthenticatedPrincipal authenticated, String uploadId) {
+                completeCalls.incrementAndGet();
+                return super.completeUpload(authenticated, uploadId);
+            }
+        }.withSource(Map.of()).thenStatuses(JobStatus.COMPLETED, JobStatus.COMPLETED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = inlineOperation(payload);
+
+        executor.execute(binding(), "op", operation, AUTH);
+        executor.execute(binding(), "op", operation, AUTH);
+
+        assertThat(beginCalls).hasValue(2);
+        assertThat(appendCalls).hasValue(1);
+        assertThat(completeCalls).hasValue(2);
+        assertThat(port.submitted).hasSize(2);
+        MultimodalOperationSpec first = MultimodalOperationSpec.from(port.submitted.getFirst());
+        MultimodalOperationSpec replay = MultimodalOperationSpec.from(port.submitted.getLast());
+        assertThat(replay.child("stt").artifactId()).isEqualTo(first.child("stt").artifactId());
+        assertThat(replay.child("stt").artifactSha256()).isEqualTo(first.child("stt").artifactSha256());
+    }
+
+    @Test
+    void finalizingInlineUploadReplayRemainsUnknownWithoutAppendingChunks() throws Exception {
+        byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        AtomicInteger beginCalls = new AtomicInteger();
+        AtomicInteger appendCalls = new AtomicInteger();
+        AtomicInteger completeCalls = new AtomicInteger();
+        var port = new FixturePort() {
+            @Override public UploadSession beginUpload(
+                    UploadRequest request, String idempotencyKey, AuthenticatedPrincipal authenticated) {
+                UploadSession open = super.beginUpload(request, idempotencyKey, authenticated);
+                if (beginCalls.getAndIncrement() == 0) return open;
+                return new UploadSession(open.uploadId(), open.tenantId(), open.principalId(),
+                        open.fileName(), open.contentType(), open.expectedSizeBytes(), open.expectedSha256(),
+                        open.classification(), open.createdAt(), open.expiresAt(), open.expectedSizeBytes(),
+                        1,
+                        com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.FINALIZING,
+                        open.metadata());
+            }
+
+            @Override public UploadSession appendUploadChunk(
+                    AuthenticatedPrincipal authenticated, String uploadId, int chunkIndex, byte[] bytes) {
+                appendCalls.incrementAndGet();
+                return super.appendUploadChunk(authenticated, uploadId, chunkIndex, bytes);
+            }
+
+            @Override public MediaArtifact completeUpload(
+                    AuthenticatedPrincipal authenticated, String uploadId) {
+                if (completeCalls.incrementAndGet() > 1) {
+                    throw new IllegalStateException("finalization lease is still fresh");
+                }
+                return super.completeUpload(authenticated, uploadId);
+            }
+        }.withSource(Map.of()).thenStatuses(JobStatus.COMPLETED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        CanonicalOperation<CanonicalOperationOutcome> operation = inlineOperation(payload);
+
+        executor.execute(binding(), "op", operation, AUTH);
+
+        assertThatThrownBy(() -> executor.execute(binding(), "op", operation, AUTH))
+                .isInstanceOf(CanonicalOperationUnknownException.class)
+                .satisfies(failure -> assertThat(
+                        ((CanonicalOperationUnknownException) failure).jobId()).isNull());
+        assertThat(beginCalls).hasValue(2);
+        assertThat(appendCalls).hasValue(1);
+        assertThat(completeCalls).hasValue(2);
+        assertThat(port.submitted).hasSize(1);
+    }
+
+    @Test
     void ambiguousInlineUploadFailureIsUnknownAndMustNotBeBlindlyRetried() {
         byte[] payload = "pcm-fixture".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         var port = new FixturePort().withSource(Map.of());
@@ -994,7 +1088,11 @@ class MediaCanonicalOperationExecutorTest {
 
         @Override public MediaArtifact completeUpload(
                 AuthenticatedPrincipal authenticated, String uploadId) {
-            return artifact("uploaded-art", uploads.peek().expectedSha256(), Map.of());
+            UploadRequest request = uploads.peek();
+            return new MediaArtifact(request.tenantId(), request.principalId(), "uploaded-art",
+                    request.fileName(), request.contentType(), request.expectedSizeBytes(),
+                    request.expectedSha256(), "ref", request.classification(), Instant.now(),
+                    Instant.now().plusSeconds(3_600), request.metadata());
         }
     }
 }

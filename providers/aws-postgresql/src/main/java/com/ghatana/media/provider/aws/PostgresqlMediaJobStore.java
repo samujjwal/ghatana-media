@@ -255,8 +255,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,completed_at,"
-                             + "result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(submission_digest,''),request_fingerprint) AS job_fingerprint "
-                + "FROM media_processing_jobs "
+                             + "result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(request_fingerprint,''),submission_digest) AS job_fingerprint "
+                             + "FROM media_processing_jobs "
                              + "WHERE tenant_id=? AND job_id=?")) {
             statement.setString(1, tenantId);
             statement.setString(2, jobId);
@@ -316,7 +316,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,"
-                             + "completed_at,result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(submission_digest,''),request_fingerprint) AS job_fingerprint "
+                             + "completed_at,result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(request_fingerprint,''),submission_digest) AS job_fingerprint "
                 + "FROM media_processing_jobs "
                              + "WHERE tenant_id=? ORDER BY created_at DESC,job_id LIMIT ?")) {
             statement.setString(1, tenantId);
@@ -441,7 +441,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
              PreparedStatement statement = connection.prepareStatement(
                      "SELECT tenant_id,job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,"
                              + "created_at,started_at,completed_at,result_json,failure_code,version,expected_artifact_version,"
-                             + "COALESCE(NULLIF(submission_digest,''),request_fingerprint) AS job_fingerprint "
+                             + "COALESCE(NULLIF(request_fingerprint,''),submission_digest) AS job_fingerprint "
                              + "FROM media_processing_jobs WHERE status IN ('ACCEPTED','RUNNING') "
                              + "AND (lease_expires_at IS NULL OR lease_expires_at<=?) "
                              + after + "ORDER BY created_at,tenant_id,job_id LIMIT ?")) {
@@ -1533,7 +1533,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     private ProcessingJob byRequest(Connection connection, String tenantId, String requestId, boolean lock)
             throws SQLException {
         String sql = "SELECT job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,"
-                + "completed_at,result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(submission_digest,''),request_fingerprint) AS job_fingerprint "
+                + "completed_at,result_json,failure_code,version,expected_artifact_version,COALESCE(NULLIF(request_fingerprint,''),submission_digest) AS job_fingerprint "
                 + "FROM media_processing_jobs "
                 + "WHERE tenant_id=? AND request_id=?" + (lock ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(sql)) {

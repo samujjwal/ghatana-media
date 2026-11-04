@@ -18,6 +18,8 @@ description = "Audio-Video end-to-end integration tests (STT, TTS, multi-service
 dependencies {
     // Runtime helpers shared across audio-video Java modules
     testImplementation(project(":services:media:libs:java:common"))
+    // MultimodalGrpcServer extends the shared gRPC server base used by this test.
+    testImplementation(project(":services:media:libs:common"))
     testImplementation(project(":services:media:modules:speech:stt-service"))
     testImplementation(project(":services:media:modules:audio-streaming"))
     testImplementation(project(":services:media:modules:video-streaming"))

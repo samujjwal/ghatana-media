@@ -68,6 +68,110 @@ class MediaMultimodalParentChildRestartPostgresIT {
             DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
 
     @Test
+    void lostGrpcAcknowledgementRetriesSameParentKeyAndReadsBackCommittedOutcome() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-mm-lost-ack-" + runId;
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        var installed = TestAwsStateInstall.install(environment(bucket));
+        var effects = new AtomicInteger();
+        String previousJwtSecret = System.getProperty("AV_JWT_SECRET");
+        String jwtSecret = "media-mm-lost-ack-test-secret-" + runId;
+        System.setProperty("AV_JWT_SECRET", jwtSecret);
+        String tenant = "tenant-" + runId;
+        String principal = UUID.randomUUID().toString();
+        String requestId = "request-lost-ack-" + runId;
+        byte[] image = ("source-image-" + runId).getBytes(StandardCharsets.UTF_8);
+        var root = Files.createTempDirectory("media-mm-lost-ack-");
+        try (MediaRuntime runtime = runtimeWithProviders(root, List.of(
+                new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider(),
+                visionProvider(effects)))) {
+            MediaArtifact source = uploadBytes(runtime, tenant, principal,
+                    "source-" + runId, image, "image/png");
+            var binding = com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding.newBuilder()
+                    .setOperationVersion(1)
+                    .setCapabilityRef("media.multimodal.observe.source-grounded")
+                    .setOperationRef("media.operation.capability.media-multimodal-observe-source-grounded")
+                    .setRequestId(requestId)
+                    .setSourceArtifactId(source.artifactId())
+                    .setSourceVersionId(source.version().value())
+                    .setPurpose("observe")
+                    .build();
+            var request = com.ghatana.audio.video.multimodal.grpc.proto.MultimodalRequest.newBuilder()
+                    .setImageData(com.google.protobuf.ByteString.copyFrom(image))
+                    .setOperationBinding(binding)
+                    .build();
+
+            try (var server = new com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServer(
+                    0, com.ghatana.audio.video.common.AudioVideoGrpcServerBase.TransportSecurity.plaintext(), runtime)) {
+                server.start();
+                var channel = io.grpc.ManagedChannelBuilder.forAddress("127.0.0.1", server.getPort())
+                        .usePlaintext().build();
+                try {
+                    var droppedResponses = new AtomicInteger();
+                    var headers = new io.grpc.Metadata();
+                    headers.put(io.grpc.Metadata.Key.of(
+                            "authorization", io.grpc.Metadata.ASCII_STRING_MARSHALLER),
+                            "Bearer " + signedJwt(jwtSecret, tenant, principal));
+                    io.grpc.Channel lossyChannel = io.grpc.ClientInterceptors.intercept(channel,
+                            io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(headers),
+                            dropFirstGrpcResponse(droppedResponses));
+
+                    io.grpc.StatusRuntimeException firstFailure;
+                    try {
+                        com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc
+                                .newBlockingStub(lossyChannel).processMultimodal(request);
+                        throw new AssertionError("lossy client unexpectedly received the first response");
+                    } catch (io.grpc.StatusRuntimeException failure) {
+                        firstFailure = failure;
+                    }
+                    assertThat(firstFailure.getStatus().getCode())
+                            .as("first call failure: %s", firstFailure.getStatus().getDescription())
+                            .isEqualTo(io.grpc.Status.Code.UNAVAILABLE);
+                    assertThat(droppedResponses).hasValue(1);
+
+                    ProcessingJob committed;
+                    String committedParentReceipt;
+                    try (PostgresqlMediaJobStore readback = new PostgresqlMediaJobStore()) {
+                        committed = readback.findByRequest(tenant, requestId).orElseThrow();
+                        assertThat(committed.status()).isEqualTo(JobStatus.COMPLETED);
+                        var committedAttempt = readback.findProcessingAttempt(tenant, committed.jobId(), 1)
+                                .orElseThrow();
+                        assertThat(committedAttempt.finality())
+                                .isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality.SUCCEEDED);
+                        committedParentReceipt = committedAttempt.providerReceiptId();
+                        assertThat(committedParentReceipt).isNotBlank();
+                        assertThat(readback.findByRequest(tenant, requestId + ":vision")
+                                .orElseThrow().status()).isEqualTo(JobStatus.COMPLETED);
+                    }
+                    assertThat(effects).hasValue(1);
+
+                    var replay = com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc
+                            .newBlockingStub(lossyChannel).processMultimodal(request);
+                    assertThat(replay.hasVisualAnalysis()).isTrue();
+                    assertThat(effects).hasValue(1);
+                    try (PostgresqlMediaJobStore readback = new PostgresqlMediaJobStore()) {
+                        ProcessingJob recovered = readback.findByRequest(tenant, requestId).orElseThrow();
+                        assertThat(recovered.jobId()).isEqualTo(committed.jobId());
+                        assertThat(recovered.status()).isEqualTo(JobStatus.COMPLETED);
+                        assertThat(recovered.result()).isEqualTo(committed.result());
+                        assertThat(readback.findProcessingAttempt(tenant, committed.jobId(), 1)
+                                .orElseThrow().providerReceiptId()).isEqualTo(committedParentReceipt);
+                        assertThat(readback.findProcessingAttempt(tenant, committed.jobId(), 2)).isEmpty();
+                    }
+                } finally {
+                    channel.shutdownNow();
+                }
+            }
+        } finally {
+            if (previousJwtSecret == null) System.clearProperty("AV_JWT_SECRET");
+            else System.setProperty("AV_JWT_SECRET", previousJwtSecret);
+            installed.close();
+        }
+    }
+
+    @Test
     void unknownParentAndDurableChildrenSurviveRuntimeReconstructionWithoutRedispatch() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-mm-restart-" + runId;
@@ -423,12 +527,76 @@ class MediaMultimodalParentChildRestartPostgresIT {
     private static MediaArtifact upload(
             MediaRuntime runtime, String tenant, String principal, String name) throws Exception {
         byte[] bytes = name.getBytes(StandardCharsets.UTF_8);
+        return uploadBytes(runtime, tenant, principal, name, bytes, "application/octet-stream");
+    }
+
+    private static MediaArtifact uploadBytes(
+            MediaRuntime runtime, String tenant, String principal, String name,
+            byte[] bytes, String contentType) throws Exception {
         String sha = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         var session = runtime.beginUpload(new UploadRequest(tenant, principal, name + ".bin",
-                "application/octet-stream", bytes.length, sha, "CONFIDENTIAL",
+                contentType, bytes.length, sha, "CONFIDENTIAL",
                 Duration.ofHours(1), sourceClockMetadata()), "upload-" + name);
         runtime.appendChunk(tenant, principal, session.uploadId(), 0, bytes);
         return runtime.completeUpload(tenant, principal, session.uploadId());
+    }
+
+    private static io.grpc.ClientInterceptor dropFirstGrpcResponse(AtomicInteger droppedResponses) {
+        return new io.grpc.ClientInterceptor() {
+            @Override
+            public <ReqT, RespT> io.grpc.ClientCall<ReqT, RespT> interceptCall(
+                    io.grpc.MethodDescriptor<ReqT, RespT> method,
+                    io.grpc.CallOptions callOptions,
+                    io.grpc.Channel next) {
+                return new io.grpc.ForwardingClientCall.SimpleForwardingClientCall<>(
+                        next.newCall(method, callOptions)) {
+                    @Override
+                    public void start(io.grpc.ClientCall.Listener<RespT> responseListener,
+                                      io.grpc.Metadata headers) {
+                        var droppedForCall = new java.util.concurrent.atomic.AtomicBoolean();
+                        super.start(new io.grpc.ForwardingClientCallListener
+                                .SimpleForwardingClientCallListener<>(responseListener) {
+                            @Override
+                            public void onMessage(RespT message) {
+                                if (droppedResponses.compareAndSet(0, 1)) {
+                                    droppedForCall.set(true);
+                                    return;
+                                }
+                                super.onMessage(message);
+                            }
+
+                            @Override
+                            public void onClose(io.grpc.Status status, io.grpc.Metadata trailers) {
+                                if (droppedForCall.get()) {
+                                    super.onClose(io.grpc.Status.UNAVAILABLE
+                                            .withDescription("test client lost the committed response"), trailers);
+                                    return;
+                                }
+                                super.onClose(status, trailers);
+                            }
+                        }, headers);
+                    }
+                };
+            }
+        };
+    }
+
+    private static String signedJwt(String secret, String tenant, String subject) throws Exception {
+        String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        String payload = base64Url("{\"sub\":\"" + subject + "\",\"tenantId\":\"" + tenant
+                + "\",\"roles\":[\"av:user\"],\"exp\":"
+                + (System.currentTimeMillis() / 1000 + 600) + "}");
+        String content = header + "." + payload;
+        var hmac = javax.crypto.Mac.getInstance("HmacSHA256");
+        hmac.init(new javax.crypto.spec.SecretKeySpec(
+                secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return content + "." + java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(hmac.doFinal(content.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static String base64Url(String value) {
+        return java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
     private static Map<String, Object> sourceClockMetadata() {

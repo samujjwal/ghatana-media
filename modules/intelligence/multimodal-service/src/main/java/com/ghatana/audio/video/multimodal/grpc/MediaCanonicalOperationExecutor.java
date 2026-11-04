@@ -291,6 +291,26 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
         UploadSession session = portCall(budget, PortCallKind.EFFECT, null,
                 uploadAttempt.started.get(), () -> uploadAttempt.started.set(true),
                 () -> port.beginUpload(uploadRequest, idempotencyKey, authenticated));
+        verifyUploadSessionBinding(uploadRequest, session);
+        if (session.status() == com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.COMPLETED
+                || session.status() == com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.FINALIZING) {
+            if (session.bytesReceived() != uploadRequest.expectedSizeBytes()) {
+                throw new IllegalStateException("Finalized inline upload has an incomplete byte count");
+            }
+            String completedUploadId = session.uploadId();
+            // COMPLETED returns the existing exact artifact. FINALIZING is also
+            // reconciled through the store's finalization path: local stores can finish
+            // its durable manifest immediately, while PostgreSQL/S3 only reclaim a
+            // stale finalization lease and otherwise fail closed as UNKNOWN.
+            MediaArtifact artifact = portCall(budget, PortCallKind.EFFECT, null,
+                    uploadAttempt.started.get(), null,
+                    () -> port.completeUpload(authenticated, completedUploadId));
+            verifyCompletedUploadArtifact(uploadRequest, artifact);
+            return artifact;
+        }
+        if (session.status() != com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus.OPEN) {
+            throw new IllegalStateException("Inline upload replay is not in an open or completed state");
+        }
         int chunks = Math.max(1, (bytes.length + UPLOAD_CHUNK_BYTES - 1) / UPLOAD_CHUNK_BYTES);
         for (int index = 0; index < chunks; index++) {
             int offset = index * UPLOAD_CHUNK_BYTES;
@@ -303,9 +323,36 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                     () -> port.appendUploadChunk(authenticated, priorSession.uploadId(), chunkIndex, chunk));
         }
         UploadSession completedSession = session;
-        return portCall(budget, PortCallKind.EFFECT, null, uploadAttempt.started.get(),
+        MediaArtifact artifact = portCall(budget, PortCallKind.EFFECT, null, uploadAttempt.started.get(),
                 () -> uploadAttempt.started.set(true),
                 () -> port.completeUpload(authenticated, completedSession.uploadId()));
+        verifyCompletedUploadArtifact(uploadRequest, artifact);
+        return artifact;
+    }
+
+    private static void verifyUploadSessionBinding(UploadRequest request, UploadSession session) {
+        if (!session.tenantId().equals(request.tenantId())
+                || !session.principalId().equals(request.principalId())
+                || !session.fileName().equals(request.fileName())
+                || !session.contentType().equals(request.contentType())
+                || session.expectedSizeBytes() != request.expectedSizeBytes()
+                || !session.expectedSha256().equals(request.expectedSha256())
+                || !session.classification().equals(request.classification())
+                || !session.metadata().equals(request.metadata())) {
+            throw new IllegalStateException("Inline upload session does not match its requested source binding");
+        }
+    }
+
+    private static void verifyCompletedUploadArtifact(UploadRequest request, MediaArtifact artifact) {
+        if (!artifact.tenantId().equals(request.tenantId())
+                || !artifact.principalId().equals(request.principalId())
+                || !artifact.contentType().equals(request.contentType())
+                || artifact.sizeBytes() != request.expectedSizeBytes()
+                || !artifact.sha256().equals(request.expectedSha256())
+                || !artifact.classification().equals(request.classification())
+                || !artifact.purpose().equals(String.valueOf(request.metadata().get("purpose")))) {
+            throw new IllegalStateException("Completed inline artifact does not match its requested source binding");
+        }
     }
 
     private static final class InlineUploadAttempt {
