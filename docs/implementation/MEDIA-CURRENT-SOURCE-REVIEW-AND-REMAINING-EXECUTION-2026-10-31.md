@@ -4650,7 +4650,7 @@ TY-04 now has schema parsers for all **11** PDP-1 `typedProductionValueDescripto
 
 ### 43.233 November 4 RS-03 anti-alias and rational drift selectors
 
-The source already used a bounded direct Blackman-windowed sinc resampler with exact integer rational source positions; no algorithm replacement or dependency was needed. Added rate-specific out-of-band tone attenuation checks at **1 kHz**, **8 kHz**, **44.1 kHz**, and **48 kHz** source rates, plus an exact rational expected-frame count to the long-duration drift selector. The locked offline `speech-audio-rust` crate suite passed **59/59** and `cargo fmt --check` passed. The kernel remains direct convolution (up to 49 taps/output frame by default); these deterministic synthetic vectors do not qualify arbitrary speech fidelity or host performance. No RS-03/RS-07 status was promoted.
+The source already used a bounded direct Blackman-windowed sinc resampler with exact integer rational source positions; no algorithm replacement or dependency was needed. Added rate-specific out-of-band tone attenuation checks at **1 kHz**, **8 kHz**, **44.1 kHz**, and **48 kHz** source rates, plus an exact rational expected-frame count to the long-duration drift selector. The locked offline `speech-audio-rust` crate suite passed **59/59**; `cargo fmt --check` and `cargo clippy --locked --offline -p speech-audio-rust --all-targets -- -D warnings` passed. The kernel remains direct convolution (up to 49 taps/output frame by default); these deterministic synthetic vectors do not qualify arbitrary speech fidelity or host performance. No RS-03/RS-07 status was promoted.
 
 ### 43.234 November 4 CT-01 and IP-01 source-boundary confirmation
 
