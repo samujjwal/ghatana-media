@@ -137,11 +137,16 @@ public final class MediaFormatValidator {
         int version = (second >>> 3) & 0x03;
         int layer = (second >>> 1) & 0x03;
         int third = data[offset + 2] & 0xFF;
+        int fourth = data[offset + 3] & 0xFF;
         int bitrateIndex = (third >>> 4) & 0x0F;
         int sampleRateIndex = (third >>> 2) & 0x03;
+        int emphasis = fourth & 0x03;
         return version != 0x01 && layer != 0
                 && bitrateIndex != 0 && bitrateIndex != 0x0F
-                && sampleRateIndex != 0x03;
+                && sampleRateIndex != 0x03
+                // MPEG audio reserves emphasis value 2; it is not a valid
+                // frame-header value and must not be accepted as a codec hit.
+                && emphasis != 0x02;
     }
 
     /**
