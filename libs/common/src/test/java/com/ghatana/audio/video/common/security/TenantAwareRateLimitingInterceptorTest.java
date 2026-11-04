@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.common.security;
 
+import com.ghatana.audio.video.common.resilience.RpcDeadlineServerInterceptor;
 import com.ghatana.audio.video.common.resilience.TenantAwareRateLimitingInterceptor;
 import io.grpc.Context;
 import io.grpc.Metadata;
@@ -14,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -395,6 +397,37 @@ class TenantAwareRateLimitingInterceptorTest {
 
         interceptAs(interceptor, createServerCall("av.STT/Transcribe"), headers, next, "tenant");
         verify(next, times(2)).startCall(any(), eq(headers));
+    }
+
+    @Test
+    @DisplayName("Server deadline cancellation releases tenant and global concurrency permits")
+    void shouldReleasePermitsWhenOuterServerDeadlineClosesCall() throws Exception {
+        TenantAwareRateLimitingInterceptor interceptor =
+                new TenantAwareRateLimitingInterceptor(1_000.0, Map.of(), 1, 1);
+        RpcDeadlineServerInterceptor deadline =
+                new RpcDeadlineServerInterceptor(Duration.ofMillis(40), Map.of());
+        Metadata headers = new Metadata();
+        ServerCallHandler<String, String> next = mock(ServerCallHandler.class);
+        when(next.startCall(any(), any())).thenReturn(new ServerCall.Listener<>() {});
+
+        ServerCall<String, String> firstCall = createServerCall("av.STT/Transcribe");
+        deadline.interceptCall(firstCall, headers, (boundedCall, callHeaders) -> {
+            AtomicReference<ServerCall.Listener<String>> listener = new AtomicReference<>();
+            Context.current().withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
+                    new JwtServerInterceptor.VerifiedIdentity("user", "tenant-one"))
+                    .run(() -> listener.set(interceptor.interceptCall(boundedCall, callHeaders, next)));
+            return listener.get();
+        });
+
+        verify(firstCall, timeout(500)).close(
+                argThat(status -> status.getCode() == Status.Code.UNKNOWN), any());
+
+        ServerCall<String, String> secondCall = createServerCall("av.STT/Transcribe");
+        interceptAs(interceptor, secondCall, headers, next, "tenant-two");
+
+        verify(next, times(2)).startCall(any(), eq(headers));
+        verify(secondCall, never()).close(
+                argThat(status -> status.getCode() == Status.Code.RESOURCE_EXHAUSTED), any());
     }
 
     // ── helpers ────────────────────────────────────────────────────────────

@@ -188,12 +188,23 @@ public class TenantAwareRateLimitingInterceptor implements ServerInterceptor {
         }
 
         AtomicBoolean permitReleased = new AtomicBoolean();
+        io.grpc.Context requestContext = io.grpc.Context.current();
+        java.util.concurrent.atomic.AtomicReference<io.grpc.Context.CancellationListener> contextListener =
+                new java.util.concurrent.atomic.AtomicReference<>();
         Runnable releasePermit = () -> {
             if (permitReleased.compareAndSet(false, true)) {
+                io.grpc.Context.CancellationListener listener = contextListener.get();
+                if (listener != null) requestContext.removeListener(listener);
                 if (tenantPermitAcquired) releaseTenant(tenantId);
                 concurrencySemaphore.release();
             }
         };
+        io.grpc.Context.CancellationListener cancellationListener = ignored -> releasePermit.run();
+        contextListener.set(cancellationListener);
+        // A server-owned deadline closes the outer transport call directly; that close does
+        // not necessarily pass through this inner wrappedCall. Release permits from the RPC
+        // context terminal signal as well as from call close and client onCancel.
+        requestContext.addListener(cancellationListener, Runnable::run);
         ServerCall<ReqT, RespT> wrappedCall = new io.grpc.ForwardingServerCall.SimpleForwardingServerCall<>(call) {
             @Override
             public void close(Status status, Metadata trailers) {
