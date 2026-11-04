@@ -25,6 +25,9 @@ public record MediaClockMapping(long scaleNumerator, long scaleDenominator, long
         if (!source.hasClockIdentity()) {
             return MediaClockTimestamp.unknown("SOURCE_CLOCK_ID_UNAVAILABLE");
         }
+        if (previousSource != null && !previousSource.isKnown()) {
+            return MediaClockTimestamp.unknown("PREVIOUS_SOURCE_TIMESTAMP_UNAVAILABLE");
+        }
         if (previousSource != null && previousSource.isKnown()) {
             if (previousSource.domain() != source.domain()
                     || !previousSource.hasClockIdentity()

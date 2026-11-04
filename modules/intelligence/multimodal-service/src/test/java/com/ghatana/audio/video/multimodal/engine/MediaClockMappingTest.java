@@ -182,6 +182,24 @@ class MediaClockMappingTest {
     }
 
     @Test
+    void unknownPreviousPtsIsNotTreatedAsAnAbsentPredecessor() {
+        MediaClockMapping mapping = new MediaClockMapping(1, 1, 0, 0);
+        MediaClockTimestamp current = MediaClockTimestamp.fromSource(
+                SourceMediaTimestamp.fromPts("3003", "1/90000"), "video-a");
+        MediaClockTimestamp unknownPrevious = MediaClockTimestamp.unknown("NO_PREVIOUS_SOURCE_PTS");
+
+        MediaClockTimestamp withoutPredecessor = mapping.map(current, null);
+        MediaClockTimestamp withUnknownPredecessor = mapping.map(current, unknownPrevious);
+
+        assertThat(withoutPredecessor.isKnown()).isTrue();
+        assertThat(withoutPredecessor.toMilliseconds()).isEqualTo(33L);
+        assertThat(withUnknownPredecessor.status()).isEqualTo(MediaClockTimestamp.Status.UNKNOWN);
+        assertThat(withUnknownPredecessor.toMilliseconds()).isNull();
+        assertThat(withUnknownPredecessor.unknownReason())
+                .isEqualTo("PREVIOUS_SOURCE_TIMESTAMP_UNAVAILABLE");
+    }
+
+    @Test
     void unscopedSourcePtsIsPreservedButCannotBeComparedOrMapped() {
         MediaClockTimestamp unscoped = MediaClockTimestamp.fromSource(
                 SourceMediaTimestamp.fromPts("3003", "1/90000"));
