@@ -271,6 +271,15 @@ class PostgresqlMediaMultimodalSnapshotTest {
                     assertThat(readback.status()).isEqualTo(JobStatus.COMPLETED);
                     assertThat(MediaJobRequestFingerprint.canonicalJson(readback.result()))
                             .isEqualTo(MediaJobRequestFingerprint.canonicalJson(fusedResult));
+                    // Model a client retry after parent CAS commit and response loss.
+                    // A fresh store handle must resolve the durable request key to the
+                    // exact terminal parent without creating a new attempt.
+                    ProcessingJob retryAfterLostAck = restarted.create(
+                            parent, parent.requestFingerprint(), null, snapshot(spec));
+                    assertThat(retryAfterLostAck.jobId()).isEqualTo(readback.jobId());
+                    assertThat(retryAfterLostAck.status()).isEqualTo(JobStatus.COMPLETED);
+                    assertThat(MediaJobRequestFingerprint.canonicalJson(retryAfterLostAck.result()))
+                            .isEqualTo(MediaJobRequestFingerprint.canonicalJson(readback.result()));
                     assertThat(restarted.findMultimodalOperationSnapshot(parent.tenantId(), parent.jobId())
                             .orElseThrow().operationSpec()).isEqualTo(spec);
                     var attempt = restarted.findProcessingAttempt(parent.tenantId(), parent.jobId(), 1).orElseThrow();
