@@ -9,6 +9,10 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
@@ -23,8 +27,12 @@ import java.util.function.Function;
 public class TranscriptionCacheService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscriptionCacheService.class);
+    private static final int MAX_PENDING_INVALIDATIONS = 1_024;
 
     private final AudioVideoCache<String, String> cache;
+    /** Same-key invalidations join; the registry is bounded and released on completion. */
+    private final ConcurrentMap<String, CompletableFuture<Void>> pendingInvalidations = new ConcurrentHashMap<>();
+    private final AtomicInteger pendingInvalidationReservations = new AtomicInteger();
 
     public TranscriptionCacheService(
             com.ghatana.cache.DistributedCachePort<String, String> cachePort,
@@ -130,7 +138,7 @@ public class TranscriptionCacheService {
 
     private void invalidateStaleSnapshot(String key) {
         try {
-            cache.invalidate(key).whenComplete((ignored, invalidationFailure) -> {
+            invalidateSnapshot(key).whenComplete((ignored, invalidationFailure) -> {
                 if (invalidationFailure != null) {
                     LOG.debug("Stale transcription cache invalidation failed; source result remains authoritative: causeType={}",
                             invalidationFailure.getClass().getSimpleName());
@@ -145,7 +153,7 @@ public class TranscriptionCacheService {
     /** Best-effort cleanup never delays or changes the authoritative source denial. */
     private AsyncOperation<TranscriptionEntity> invalidateAfterSourceDenial(String key) {
         try {
-            cache.invalidate(key).whenComplete((ignored, invalidationFailure) -> {
+            invalidateSnapshot(key).whenComplete((ignored, invalidationFailure) -> {
                 if (invalidationFailure != null) {
                     LOG.debug("Stale transcription cache invalidation failed; source denial remains authoritative: causeType={}",
                             invalidationFailure.getClass().getSimpleName());
@@ -159,13 +167,60 @@ public class TranscriptionCacheService {
     }
 
     /**
+     * Runs at most one invalidation per exact key and lets callers join it.
+     * A source read may start cleanup immediately before an explicit delete;
+     * joining avoids reporting a spurious mutation conflict for that race.
+     */
+    private AsyncOperation<Void> invalidateSnapshot(String key) {
+        CompletableFuture<Void> existing = pendingInvalidations.get(key);
+        if (existing != null) return AsyncOperation.from(existing);
+        if (!reserveInvalidationSlot()) {
+            existing = pendingInvalidations.get(key);
+            if (existing != null) return AsyncOperation.from(existing);
+            return AsyncOperation.failure(new IllegalStateException(
+                    "Transcription cache invalidation coordination capacity reached"));
+        }
+
+        CompletableFuture<Void> candidate = new CompletableFuture<>();
+        existing = pendingInvalidations.putIfAbsent(key, candidate);
+        if (existing != null) {
+            pendingInvalidationReservations.decrementAndGet();
+            return AsyncOperation.from(existing);
+        }
+
+        try {
+            AsyncOperation<Void> operation = Objects.requireNonNull(
+                    cache.invalidate(key), "cache invalidation returned null operation");
+            operation.whenComplete((ignored, failure) -> {
+                pendingInvalidations.remove(key, candidate);
+                pendingInvalidationReservations.decrementAndGet();
+                if (failure == null) candidate.complete(null);
+                else candidate.completeExceptionally(failure);
+            });
+        } catch (RuntimeException failure) {
+            pendingInvalidations.remove(key, candidate);
+            pendingInvalidationReservations.decrementAndGet();
+            candidate.completeExceptionally(failure);
+        }
+        return AsyncOperation.from(candidate);
+    }
+
+    private boolean reserveInvalidationSlot() {
+        while (true) {
+            int current = pendingInvalidationReservations.get();
+            if (current >= MAX_PENDING_INVALIDATIONS) return false;
+            if (pendingInvalidationReservations.compareAndSet(current, current + 1)) return true;
+        }
+    }
+
+    /**
      * Invalidate cached transcription.
      */
     public AsyncOperation<Void> invalidateTranscription(String tenantId, UUID transcriptionId) {
         if (!hasTenantId(tenantId)) return AsyncOperation.failure(invalidTenantId());
         if (transcriptionId == null) return AsyncOperation.failure(requiredIdentifier("transcriptionId"));
         String key = buildKey(tenantId, transcriptionId.toString());
-        return cache.invalidate(key).thenRun(__ ->
+        return invalidateSnapshot(key).thenRun(__ ->
             LOG.debug("Invalidated transcription cache: scopeRef={}",
                     scopeReference(tenantId, transcriptionId.toString())));
     }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -67,6 +68,25 @@ class TranscriptionCacheServiceTest {
         verify(servicePort).invalidateAsync(scopedKey);
         verify(servicePort, never()).get(any());
         verify(servicePort, never()).put(any(), any(), any(Duration.class));
+    }
+
+    @Test
+    void explicitInvalidationJoinsInFlightBestEffortCleanup() {
+        UUID transcriptionId = UUID.randomUUID();
+        String scopedKey = key("tenant-a", transcriptionId.toString());
+        DistributedCacheService servicePort = mock(DistributedCacheService.class);
+        CompletableFuture<Void> invalidation = new CompletableFuture<>();
+        when(servicePort.invalidateAsync(scopedKey)).thenReturn(AsyncOperation.from(invalidation));
+        TranscriptionCacheService service = new TranscriptionCacheService(servicePort, objectMapper);
+
+        assertThat(await(service.getTranscription("tenant-a", transcriptionId))).isEmpty();
+        AsyncOperation<Void> explicitInvalidation = service.invalidateTranscription("tenant-a", transcriptionId);
+
+        verify(servicePort).invalidateAsync(scopedKey);
+        assertThat(invalidation).isNotCompleted();
+        invalidation.complete(null);
+        await(explicitInvalidation);
+        verify(servicePort).invalidateAsync(scopedKey);
     }
 
     @Test
