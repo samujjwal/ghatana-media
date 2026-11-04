@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +73,7 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
     private ManagedChannel channel;
     private STTServiceGrpc.STTServiceBlockingStub blockingStub;
     private PersistentSttGrpcService grpcService;
+    private final AtomicReference<Context> verifiedRequestContext = new AtomicReference<>();
 
     @BeforeEach
     void setUp() throws Exception {
@@ -91,7 +93,15 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
         // Create and start gRPC server with JWT interceptor
         String serverName = InProcessServerBuilder.generateName();
         grpcService = new PersistentSttGrpcService(
-            library, audioFileService, transcriptionService, meterRegistry);
+            library, audioFileService, transcriptionService, meterRegistry) {
+                @Override
+                public void transcribe(TranscribeRequest request, StreamObserver<TranscribeResponse> observer) {
+                    if (JwtServerInterceptor.verifiedIdentity() != null) {
+                        verifiedRequestContext.set(Context.current());
+                    }
+                    super.transcribe(request, observer);
+                }
+            };
 
         server = InProcessServerBuilder
             .forName(serverName)
@@ -229,6 +239,37 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
             .isEqualTo(exception.getStatus().getCode());
         assertThat(((io.grpc.StatusRuntimeException) direct.error).getStatus().getDescription())
             .isEqualTo(exception.getStatus().getDescription());
+
+        verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
+    }
+
+    @Test
+    @DisplayName("GIVEN authenticated oversized audio WHEN sent over gRPC or directly THEN the same input error occurs without effects")
+    void oversizedAudio_hasSameDirectAndTransportErrorWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+            .setAudioData(com.google.protobuf.ByteString.copyFrom(new byte[4 * 1024 * 1024 + 1]))
+            .setSampleRate(16000)
+            .setLanguage("en")
+            .build();
+
+        io.grpc.StatusRuntimeException transportError = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).transcribe(request));
+
+        assertThat(verifiedRequestContext.get()).isNotNull();
+        CapturingObserver<TranscribeResponse> direct = new CapturingObserver<>();
+        verifiedRequestContext.get().run(() -> grpcService.transcribe(request, direct));
+
+        assertThat(transportError.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.RESOURCE_EXHAUSTED);
+        assertThat(transportError.getStatus().getDescription())
+            .isEqualTo("Invalid or unsupported audio input");
+        assertThat(direct.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+        io.grpc.StatusRuntimeException directError = (io.grpc.StatusRuntimeException) direct.error;
+        assertThat(directError.getStatus().getCode()).isEqualTo(transportError.getStatus().getCode());
+        assertThat(directError.getStatus().getDescription()).isEqualTo(transportError.getStatus().getDescription());
 
         verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
     }
