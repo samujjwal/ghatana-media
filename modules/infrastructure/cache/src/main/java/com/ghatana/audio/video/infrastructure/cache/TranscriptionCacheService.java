@@ -121,6 +121,11 @@ public class TranscriptionCacheService {
                 return invalidateAfterSourceDenial(key);
             }
             if (!matchesIdentity(source.get(), tenantId, transcriptionId)) {
+                // A source identity violation cannot authorize a read. Retire any
+                // legacy snapshot under the requested identity as a best-effort
+                // defense against a later stale read, while keeping the mismatch
+                // failure authoritative and avoiding tenant-wide invalidation.
+                invalidateStaleSnapshot(key);
                 return AsyncOperation.failure(identityMismatch());
             }
             if (source.get().isDeleted()) {

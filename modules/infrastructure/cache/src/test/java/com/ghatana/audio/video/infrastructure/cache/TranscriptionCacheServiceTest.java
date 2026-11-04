@@ -282,7 +282,9 @@ class TranscriptionCacheServiceTest {
     @Test
     void wrongIdentitySourceResultFailsWithSanitizedError() throws Exception {
         UUID transcriptionId = UUID.randomUUID();
+        String requestedKey = key("tenant-a", transcriptionId.toString());
         DistributedCacheService scopedPort = mock(DistributedCacheService.class);
+        when(scopedPort.invalidateAsync(requestedKey)).thenReturn(AsyncOperation.success(null));
         TranscriptionCacheService scopedService = new TranscriptionCacheService(scopedPort, objectMapper);
 
         for (TranscriptionEntity mismatched : new TranscriptionEntity[] {
@@ -293,7 +295,10 @@ class TranscriptionCacheServiceTest {
                     .hasRootCauseInstanceOf(IllegalStateException.class)
                     .hasRootCauseMessage("Transcription identity does not match requested scope");
         }
-        verifyNoInteractions(scopedPort);
+        verify(scopedPort, org.mockito.Mockito.times(2)).invalidateAsync(requestedKey);
+        verify(scopedPort, never()).get(any());
+        verify(scopedPort, never()).put(any(), any(), any(Duration.class));
+        verify(scopedPort, never()).invalidateAsync(key("tenant-b", transcriptionId.toString()));
     }
 
     @Test
