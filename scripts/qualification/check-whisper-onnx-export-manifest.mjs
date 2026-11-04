@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 /**
- * Offline metadata-only provenance check for a future Whisper ONNX export.
- * It never downloads, deserializes, or executes a checkpoint, converter, or model.
- * It never opens or hashes caller-supplied export artifacts and is not rights
- * approval, model parity, quality qualification, or provider admission.
+ * Offline provenance checks for a future Whisper ONNX export.
+ * The default mode is metadata-only. Explicit --verify-artifacts mode hashes
+ * bounded, already-present local files; neither mode downloads, deserializes,
+ * executes, or infers with a checkpoint, converter, or model. Hashing is not
+ * rights approval, model parity, quality qualification, or provider admission.
+ * Local artifact verification assumes cooperative inputs in checkpoint-parent,
+ * artifact-root, and run directories owned by this user and not group/world
+ * writable; ancestor and same-user concurrent path races are not race-proof.
  */
 import { constants } from 'node:fs';
-import { closeSync, fstatSync, openSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { closeSync, fstatSync, lstatSync, openSync, readFileSync, readSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -15,6 +20,10 @@ const catalogPath = join(root, 'config/qualification/wave2-reference-candidates.
 export const MANIFEST_SCHEMA = 'ghatana.media.whisper-onnx-export-manifest.v1';
 const SHA256 = /^[a-f0-9]{64}$/u;
 const EXPECTED_ID = 'stt-whisper-tiny-multilingual';
+// Total cap includes both runs' encoder and decoder files. Hashing uses fixed-size
+// chunks, so this is a read ceiling rather than an allocation size.
+export const MAX_TOTAL_OUTPUT_BYTES = 1_073_741_824;
+const HASH_CHUNK_BYTES = 1024 * 1024;
 
 function fail(code) { const error = new Error(code); error.code = code; throw error; }
 function text(value, max = 2048) {
@@ -146,12 +155,149 @@ export function checkWhisperExportManifest(manifest, { catalog } = {}) {
   };
 }
 
-function parseJson(path) {
-  if (typeof constants.O_NOFOLLOW !== 'number') fail('NOFOLLOW_OPEN_UNAVAILABLE');
+function statSignature(stat) {
+  return [stat.dev, stat.ino, stat.size, stat.mtimeNs, stat.ctimeNs].join(':');
+}
+
+function checkLocalDirectory(path, code, expectedCanonical) {
+  let stat;
+  try { stat = lstatSync(path, { bigint: true }); } catch { fail(code); }
+  if (!stat.isDirectory() || stat.isSymbolicLink() || !ownerControlled(stat)) fail(code);
+  let canonical;
+  try { canonical = realpathSync(path); } catch { fail(code); }
+  if (expectedCanonical !== undefined && canonical !== expectedCanonical) fail(code);
+  return canonical;
+}
+
+function ownerControlled(stat) {
+  const mode = Number(stat.mode);
+  const currentUid = typeof process.getuid === 'function' ? BigInt(process.getuid()) : undefined;
+  return (mode & 0o022) === 0 && (currentUid === undefined || stat.uid === currentUid);
+}
+
+function safeOpenFlags() {
+  if (typeof constants.O_NOFOLLOW !== 'number' || typeof constants.O_NONBLOCK !== 'number') fail('SAFE_OPEN_FLAGS_UNAVAILABLE');
+  return constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK
+    | (typeof constants.O_NOCTTY === 'number' ? constants.O_NOCTTY : 0);
+}
+
+function hashBoundedRegularFile(path, maxBytes, sizeMismatchCode, digestMismatchCode, expectedSize, expectedDigest) {
+  const flags = safeOpenFlags();
   let fd;
   try {
+    let pathStat;
+    try { pathStat = lstatSync(path, { bigint: true }); } catch { fail('ARTIFACT_FILE_UNAVAILABLE'); }
+    if (!pathStat.isFile() || pathStat.isSymbolicLink()) fail('UNSAFE_ARTIFACT_FILE');
+    try { fd = openSync(path, flags); }
+    catch (error) {
+      if (error?.code === 'ELOOP') fail('UNSAFE_ARTIFACT_FILE');
+      fail('ARTIFACT_FILE_UNAVAILABLE');
+    }
+    const before = fstatSync(fd, { bigint: true });
+    if (!before.isFile()) fail('UNSAFE_ARTIFACT_FILE');
+    if (before.size > BigInt(maxBytes)) fail('ARTIFACT_SIZE_LIMIT_EXCEEDED');
+    if (expectedSize !== undefined && before.size !== BigInt(expectedSize)) fail(sizeMismatchCode);
+    const hash = createHash('sha256');
+    const chunk = Buffer.allocUnsafe(HASH_CHUNK_BYTES);
+    let total = 0n;
+    while (total < before.size) {
+      const wanted = Number(before.size - total > BigInt(chunk.length) ? BigInt(chunk.length) : before.size - total);
+      const count = readSync(fd, chunk, 0, wanted, Number(total));
+      if (count === 0) fail('ARTIFACT_CHANGED_DURING_READ');
+      hash.update(chunk.subarray(0, count));
+      total += BigInt(count);
+    }
+    const after = fstatSync(fd, { bigint: true });
+    if (statSignature(before) !== statSignature(after) || total !== after.size) fail('ARTIFACT_CHANGED_DURING_READ');
+    const sha256 = hash.digest('hex');
+    if (expectedDigest !== undefined && sha256 !== expectedDigest) fail(digestMismatchCode);
+    return { sizeBytes: Number(total), sha256 };
+  } finally {
+    if (fd !== undefined) closeSync(fd);
+  }
+}
+
+/** Hash only explicitly supplied local files, using bounded streaming reads. */
+export function verifyWhisperExportArtifacts(manifest, { catalog, checkpointFile, artifactRoot } = {}) {
+  const metadata = checkWhisperExportManifest(manifest, { catalog });
+  if (typeof checkpointFile !== 'string' || !checkpointFile || typeof artifactRoot !== 'string' || !artifactRoot) {
+    fail('INVALID_ARTIFACT_VERIFICATION_ARGUMENTS');
+  }
+  let declaredTotal = 0;
+  for (const run of manifest.runs) {
+    for (const artifact of run.artifacts) {
+      if (artifact.sizeBytes > MAX_TOTAL_OUTPUT_BYTES - declaredTotal) fail('TOTAL_OUTPUT_SIZE_LIMIT_EXCEEDED');
+      declaredTotal += artifact.sizeBytes;
+    }
+  }
+  const candidate = catalog.candidates.find(item => item.id === EXPECTED_ID);
+  const canonicalCheckpoint = resolve(checkpointFile);
+  checkLocalDirectory(dirname(canonicalCheckpoint), 'UNSAFE_CHECKPOINT_DIRECTORY');
+  const checkpoint = hashBoundedRegularFile(canonicalCheckpoint, candidate.maxBytes,
+    'CHECKPOINT_SIZE_MISMATCH', 'CHECKPOINT_DIGEST_MISMATCH', undefined, candidate.artifactSha256);
+
+  const canonicalRoot = checkLocalDirectory(resolve(artifactRoot), 'UNSAFE_ARTIFACT_ROOT');
+  const outputFiles = [];
+  const runProvenance = [];
+  for (const run of manifest.runs) {
+    const runDirectory = join(canonicalRoot, run.id);
+    checkLocalDirectory(runDirectory, 'UNSAFE_ARTIFACT_DIRECTORY', runDirectory);
+    const actualArtifacts = [];
+    for (const artifact of run.artifacts) {
+      if (isAbsolute(artifact.path) || artifact.path.split(/[\\/]/u).includes('..')) fail('NONCANONICAL_EXPORT_ARTIFACT_PATH');
+      const artifactPath = resolve(canonicalRoot, artifact.path);
+      const relativePath = relative(canonicalRoot, artifactPath);
+      if (!relativePath || relativePath.startsWith(`..${sep}`) || relativePath === '..') fail('NONCANONICAL_EXPORT_ARTIFACT_PATH');
+      const actual = hashBoundedRegularFile(artifactPath, MAX_TOTAL_OUTPUT_BYTES,
+        'EXPORTED_ARTIFACT_SIZE_MISMATCH', 'EXPORTED_ARTIFACT_DIGEST_MISMATCH', artifact.sizeBytes, artifact.sha256);
+      outputFiles.push(actual);
+      actualArtifacts.push({ role: artifact.role, sha256: actual.sha256, sizeBytes: actual.sizeBytes });
+      // Recheck directory identity after opening/reading each child to catch path replacement.
+      checkLocalDirectory(runDirectory, 'ARTIFACT_DIRECTORY_CHANGED_DURING_READ', runDirectory);
+    }
+    runProvenance.push({
+      id: run.id,
+      converter: run.converter,
+      environment: run.environment,
+      artifacts: actualArtifacts,
+    });
+  }
+  const totalOutputBytes = outputFiles.reduce((sum, item) => sum + item.sizeBytes, 0);
+  if (totalOutputBytes !== declaredTotal) fail('EXPORTED_ARTIFACT_SIZE_MISMATCH');
+  return {
+    ...metadata,
+    verificationMode: 'LOCAL_BOUNDED_ARTIFACT_HASHES',
+    artifactBytesInspected: true,
+    status: 'REVIEW_ONLY',
+    checkpointVerified: true,
+    checkpointSizeBytes: checkpoint.sizeBytes,
+    provenance: {
+      sourceCheckpoint: { sha256: checkpoint.sha256, sizeBytes: checkpoint.sizeBytes },
+      frontend: {
+        tokenizerSha256: manifest.frontend.tokenizerSha256,
+        melFiltersSha256: manifest.frontend.melFiltersSha256,
+      },
+      exportConfig: manifest.exportConfig,
+      runs: runProvenance,
+    },
+    outputArtifactCount: outputFiles.length,
+    totalOutputBytes,
+    totalOutputByteCap: MAX_TOTAL_OUTPUT_BYTES,
+    rightsApproved: false,
+    parityQualified: false,
+    inferenceAdmitted: false,
+  };
+}
+
+function parseJson(path) {
+  const flags = safeOpenFlags();
+  let fd;
+  try {
+    let pathStat;
+    try { pathStat = lstatSync(path); } catch { fail('UNSAFE_OR_OVERSIZED_JSON'); }
+    if (!pathStat.isFile() || pathStat.isSymbolicLink()) fail('UNSAFE_OR_OVERSIZED_JSON');
     try {
-      fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+      fd = openSync(path, flags);
     } catch (error) {
       if (error?.code === 'ELOOP') fail('UNSAFE_OR_OVERSIZED_JSON');
       throw error;
@@ -171,11 +317,22 @@ function parseJson(path) {
 }
 async function main() {
   const args = process.argv.slice(2);
-  if (args.includes('--artifact-root')) fail('ARTIFACT_ROOT_UNSUPPORTED_DECLARATION_ONLY_CHECKER');
-  if (args.length !== 2 || args[0] !== '--manifest' || !args[1]) fail('INVALID_CHECKER_ARGUMENTS');
-  const manifest = parseJson(resolve(args[1]));
+  const verify = args.includes('--verify-artifacts');
+  let manifestPath;
+  let checkpointFile;
+  let artifactRoot;
+  if (!verify && args.length === 2 && args[0] === '--manifest' && args[1]) {
+    manifestPath = args[1];
+  } else if (verify && args.length === 7 && args[0] === '--verify-artifacts'
+      && args[1] === '--manifest' && args[2] && args[3] === '--checkpoint-file' && args[4]
+      && args[5] === '--artifact-root' && args[6]) {
+    manifestPath = args[2]; checkpointFile = args[4]; artifactRoot = args[6];
+  } else fail('INVALID_CHECKER_ARGUMENTS');
+  const manifest = parseJson(resolve(manifestPath));
   const catalog = parseJson(catalogPath);
-  const result = checkWhisperExportManifest(manifest, { catalog });
+  const result = verify
+    ? verifyWhisperExportArtifacts(manifest, { catalog, checkpointFile, artifactRoot })
+    : checkWhisperExportManifest(manifest, { catalog });
   console.log(JSON.stringify(result, null, 2));
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

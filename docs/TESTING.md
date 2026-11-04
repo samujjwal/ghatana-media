@@ -92,6 +92,38 @@ register their keys. A private signed packet that passes this tool still
 requires independent legal/runtime/quality decisions. Neither no-key
 negative tests nor candidate-source checks close a Wave 2 task.
 
+### Whisper checkpoint/export byte provenance
+
+The metadata-only declaration check reads no model artifact:
+
+```bash
+node scripts/qualification/check-whisper-onnx-export-manifest.mjs \
+  --manifest "$WHISPER_EXPORT_MANIFEST"
+```
+
+When an exact checkpoint/export route has been independently rights-reviewed
+and the files already exist locally, opt into bounded byte hashing:
+
+```bash
+node scripts/qualification/check-whisper-onnx-export-manifest.mjs \
+  --verify-artifacts \
+  --manifest "$WHISPER_EXPORT_MANIFEST" \
+  --checkpoint-file "$WHISPER_CHECKPOINT_FILE" \
+  --artifact-root "$WHISPER_EXPORT_ROOT"
+```
+
+This mode does not download, deserialize, convert, or run a model. It hashes
+the checkpoint against the pinned candidate digest (capped by the candidate's
+100,000,000-byte maximum) and the four declared encoder/decoder files (1 GiB
+combined read cap), using bounded streaming reads. The checkpoint parent,
+artifact root, and run directories must belong to the current user and must not
+be group/world writable. Symlinks and special files are rejected; the tool
+assumes cooperative same-user inputs and does not claim race-proof isolation.
+The path-free JSON output carries the verified digests/sizes and declared
+converter/environment/export/frontend pins. It proves byte matches only;
+rights, export license, reproducibility, model parity, reference quality,
+host qualification, and inference admission remain independent.
+
 ## Remaining backend physical surfaces — additive Wave 3 source check
 
 **Updated pushed-source test direction (October 30, 2026; corpus selection amended November 3):** The 18 formerly missing commit prefixes are reachable at `main@f70e9b04`. Do not repeat source implementation. The [terminal source/qualification plan](implementation/MEDIA-BACKEND-TERMINAL-QUALIFICATION-2026-10-30.md) and `pnpm test:backend-terminal-qualification` guard every original R8 task and the 17 new owner qualification work packages. The source-controlled qualification readback reports host OCI stub 4/4, broker 3/3, real FFmpeg 3/3, PNG 4/4, local Alertmanager fire/resolve, and GH-90000 nine Compose **development-image** tests PASS. AS-07/VS-07 in-process string-byte microbenchmarks do not qualify real transport or c1/c16/c64. Required WebRTC/adaptive HTTP/HLS/DASH/lease renew, lawful English/Nepali ASR gold through the active Common Voice alternative or approved app-domain data, genuine licensed models/voice, Ghatana #252/#254 API installed consumers, real quality+capacity, 32 disabled AEP tests and H-08 live product-host film still need actual owner/result evidence. FLEURS is deferred and nonblocking; its historical results and original R8/R10 statuses are unchanged. Hindi is deferred. Wave 2 original 22/30/6 remains unchanged; no PDP/gtool release/production claim. See the [current corpus disposition](implementation/MEDIA-ASR-CORPUS-DISPOSITION-2026-11-03.md).
