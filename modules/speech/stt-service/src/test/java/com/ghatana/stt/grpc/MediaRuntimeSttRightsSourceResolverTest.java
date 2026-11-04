@@ -127,6 +127,36 @@ class MediaRuntimeSttRightsSourceResolverTest {
     }
 
     @Test
+    void missingSourceRightsRecordStopsBeforePolicyAndProviderDispatch() {
+        PolicyEngine policyEngine = mock(PolicyEngine.class);
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        var rightsResolver = new MediaRuntimeSttRightsSourceResolver(administration, NOW);
+        var authorization = new SharedPolicySttRequestAuthorization(
+                policyEngine, rightsResolver, java.time.Duration.ofSeconds(1));
+
+        try (SttGrpcService service = new SttGrpcService(
+                library, new SimpleMeterRegistry(), authorization)) {
+            CapturingObserver observer = new CapturingObserver();
+            Context previous = VerifiedJwtContext.create(IDENTITY.tenantId(), IDENTITY.subject()).attach();
+            try {
+                service.transcribe(TranscribeRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                        .setSampleRate(16_000)
+                        .setArtifactId(ARTIFACT)
+                        .build(), observer);
+            } finally {
+                Context.current().detach(previous);
+            }
+
+            assertThat(observer.error).isNotNull();
+            assertThat(io.grpc.Status.fromThrowable(observer.error).getCode())
+                    .isEqualTo(io.grpc.Status.Code.PERMISSION_DENIED);
+            assertThat(observer.value).isNull();
+            verifyNoInteractions(policyEngine, library);
+        }
+    }
+
+    @Test
     void revokedRecordIsReportedRevoked() throws Exception {
         administration.add(record(NOW.instant().plusSeconds(600), NOW.instant()));
         assertThat(await(resolver.resolve(request(IDENTITY))).status())
