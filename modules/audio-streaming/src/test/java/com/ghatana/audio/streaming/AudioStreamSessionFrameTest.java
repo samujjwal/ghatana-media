@@ -60,6 +60,44 @@ class AudioStreamSessionFrameTest {
     }
 
     @Test
+    void typedDecodeResultClassifiesMalformedFramesWithBoundedErrors() {
+        assertThat(session.decodeFrameResult(null).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.NULL_FRAME);
+        assertThat(session.decodeFrameResult(new byte[AudioStreamSession.FRAME_HEADER_BYTES - 1]).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.FRAME_TOO_SHORT);
+        assertThat(session.decodeFrameResult(header(-1, 0L, 0)).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.INVALID_SEQUENCE);
+        assertThat(session.decodeFrameResult(header(Integer.MAX_VALUE, 0L, 0)).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.INVALID_SEQUENCE);
+        assertThat(session.decodeFrameResult(header(1, 0L, Integer.MIN_VALUE)).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.INVALID_LENGTH);
+        assertThat(session.decodeFrameResult(header(1, 0L,
+                AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1)).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.INVALID_LENGTH);
+        assertThat(session.decodeFrameResult(header(1, 0L, 1)).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.SHORT_PAYLOAD);
+
+        byte[] withTrailing = Arrays.copyOf(session.encodeFrame(1, 0L, new byte[0]),
+                AudioStreamSession.FRAME_HEADER_BYTES + 1);
+        assertThat(session.decodeFrameResult(withTrailing).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.TRAILING_BYTES);
+
+        byte[] oversizedWireFrame = Arrays.copyOf(header(1, 0L, 0),
+                AudioStreamSession.FRAME_HEADER_BYTES + AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1);
+        assertThat(session.decodeFrameResult(oversizedWireFrame).error())
+                .isEqualTo(AudioStreamSession.FrameDecodeError.FRAME_TOO_LARGE);
+
+        var valid = session.decodeFrameResult(session.encodeFrame(9, 123L, new byte[]{4, 5}));
+        assertThat(valid.decoded()).isTrue();
+        assertThat(valid.error()).isNull();
+        assertThat(valid.frame().sequenceNumber()).isEqualTo(9);
+        assertThat(valid.frame().payload()).containsExactly(4, 5);
+        assertThatThrownBy(() -> new AudioStreamSession.FrameDecodeResult(null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one outcome");
+    }
+
+    @Test
     void malformedFramesFailBeforeAnyPayloadAllocation() {
         byte[] payload = new byte[]{1, 2, 3, 4};
         byte[] valid = session.encodeFrame(3, 42L, payload);

@@ -20,6 +20,40 @@ public final class AudioStreamSession {
     /** Reserve {@link Integer#MAX_VALUE} so cursor advancement never wraps into a negative value. */
     static final int MAX_FRAME_SEQUENCE_NUMBER = Integer.MAX_VALUE - 1;
 
+    /** Bounded decoder outcomes; values never contain input bytes or caller data. */
+    public enum FrameDecodeError {
+        NULL_FRAME("audio frame is required"),
+        FRAME_TOO_SHORT("audio frame is shorter than its header"),
+        FRAME_TOO_LARGE("audio frame exceeds the bounded wire size"),
+        INVALID_SEQUENCE("audio frame sequence is outside the supported range"),
+        INVALID_LENGTH("audio frame payload length is invalid"),
+        SHORT_PAYLOAD("audio frame payload is truncated"),
+        TRAILING_BYTES("audio frame contains trailing bytes");
+
+        private final String description;
+
+        FrameDecodeError(String description) {
+            this.description = description;
+        }
+
+        public String description() {
+            return description;
+        }
+    }
+
+    /** Exactly one of frame or error is present. Error details are fixed and bounded. */
+    public record FrameDecodeResult(DecodedFrame frame, FrameDecodeError error) {
+        public FrameDecodeResult {
+            if ((frame == null) == (error == null)) {
+                throw new IllegalArgumentException("frame decode result requires exactly one outcome");
+            }
+        }
+
+        public boolean decoded() {
+            return frame != null;
+        }
+    }
+
     /**
      * Encodes one frame using a stable wire format:
      * [sequenceNumber:int][timestampMillis:long][payloadLength:int][payload:bytes].
@@ -47,23 +81,46 @@ public final class AudioStreamSession {
      * unbounded allocation or an implicit partial accept.
      */
     public DecodedFrame decodeFrame(byte[] encodedFrame) {
-        if (encodedFrame == null || encodedFrame.length < FRAME_HEADER_BYTES
-                || encodedFrame.length > FRAME_HEADER_BYTES + MAX_FRAME_PAYLOAD_BYTES) {
-            throw new IllegalArgumentException("audio frame is outside the bounded wire size");
+        FrameDecodeResult result = decodeFrameResult(encodedFrame);
+        if (result.error() != null) {
+            throw new IllegalArgumentException(result.error().description());
+        }
+        return result.frame();
+    }
+
+    /**
+     * Decodes one untrusted wire frame without allocating from its declared length.
+     * All malformed outcomes are represented by a fixed enum and bounded message.
+     */
+    public FrameDecodeResult decodeFrameResult(byte[] encodedFrame) {
+        if (encodedFrame == null) {
+            return new FrameDecodeResult(null, FrameDecodeError.NULL_FRAME);
+        }
+        if (encodedFrame.length < FRAME_HEADER_BYTES) {
+            return new FrameDecodeResult(null, FrameDecodeError.FRAME_TOO_SHORT);
+        }
+        if (encodedFrame.length > FRAME_HEADER_BYTES + MAX_FRAME_PAYLOAD_BYTES) {
+            return new FrameDecodeResult(null, FrameDecodeError.FRAME_TOO_LARGE);
         }
         ByteBuffer buffer = ByteBuffer.wrap(encodedFrame);
         int sequence = buffer.getInt();
         if (sequence < 0 || sequence > MAX_FRAME_SEQUENCE_NUMBER) {
-            throw new IllegalArgumentException("audio frame sequence is outside the supported range");
+            return new FrameDecodeResult(null, FrameDecodeError.INVALID_SEQUENCE);
         }
         long timestamp = buffer.getLong();
         int length = buffer.getInt();
-        if (length < 0 || length > MAX_FRAME_PAYLOAD_BYTES || buffer.remaining() != length) {
-            throw new IllegalArgumentException("audio frame payload length is invalid");
+        if (length < 0 || length > MAX_FRAME_PAYLOAD_BYTES) {
+            return new FrameDecodeResult(null, FrameDecodeError.INVALID_LENGTH);
+        }
+        if (buffer.remaining() < length) {
+            return new FrameDecodeResult(null, FrameDecodeError.SHORT_PAYLOAD);
+        }
+        if (buffer.remaining() > length) {
+            return new FrameDecodeResult(null, FrameDecodeError.TRAILING_BYTES);
         }
         byte[] payload = new byte[length];
         buffer.get(payload);
-        return new DecodedFrame(sequence, timestamp, payload);
+        return new FrameDecodeResult(new DecodedFrame(sequence, timestamp, payload), null);
     }
 
     public double framesPerSecond(int frameCount, long elapsedMillis) {
