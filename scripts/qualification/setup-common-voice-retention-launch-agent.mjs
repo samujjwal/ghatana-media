@@ -24,11 +24,12 @@ function assert(condition, message) {
 }
 
 function parseMode(args) {
-  if (args.length === 0) return 'print';
-  if (args.length !== 1 || !['--print', '--install', '--uninstall'].includes(args[0])) {
+  const parsedArgs = args[0] === '--' ? args.slice(1) : args;
+  if (parsedArgs.length === 0) return 'print';
+  if (parsedArgs.length !== 1 || !['--print', '--install', '--uninstall'].includes(parsedArgs[0])) {
     throw new Error('use exactly one of --print, --install, or --uninstall');
   }
-  return args[0].slice(2);
+  return parsedArgs[0].slice(2);
 }
 
 function xmlEscape(value) {

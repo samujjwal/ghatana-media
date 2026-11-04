@@ -5,7 +5,7 @@
   "decisionScope": "ALTERNATIVE_ASR_EVALUATION_REPORT_ONLY",
   "doesNotSupersede": [
     "config/qualification/fleurs-asr-evaluation.v1.json",
-    "FLEURS-specific Wave 2/R10 acceptance criteria"
+    "historical FLEURS-specific Wave 2/R10 observations or acceptance records; FLEURS is deferred from the current phase, and no original task is accepted by this alternative profile"
   ],
   "dataset": {
     "name": "Mozilla Common Voice Scripted Speech 27.0",
@@ -60,18 +60,18 @@
     "authorityAndAcceptanceEvidenceStatus": "OWNER_CONFIRMED; NOT_INDEPENDENTLY_VERIFIED",
     "archivePresence": {
       "en": {
-        "status": "PRESENT_STAT_OBSERVED_TAR_MEMBER_PATHS_OBSERVED",
+        "status": "PRESENT_FULL_ARCHIVE_STREAMED_AND_PILOT_PREPARED",
         "basename": "1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz",
         "sizeBytes": 94956262763,
-        "integrity": "ENGLISH_TEST_ROW_COUNT_UNVERIFIED; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED",
-        "testTsvMember": "OBSERVED_IN_LOCAL_ARCHIVE",
-        "testRowsObservedLocally": null
+        "integrity": "FULL_LOCAL_COMPRESSED_ARCHIVE_SHA256_RECORDED_PRIVATELY; TEST_ROWS_VERIFIED; 24_PILOT_MP3_HASHES_RETAINED_PRIVATELY; AUDIO_NOT_EXTRACTED_OR_DECODED",
+        "testTsvMember": "OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES",
+        "testRowsObservedLocally": 16403
       },
       "ne-NP": {
-        "status": "PRESENT_STAT_OBSERVED_TEST_TSV_READ",
+        "status": "PRESENT_FULL_ARCHIVE_STREAMED_AND_PILOT_PREPARED",
         "basename": "1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz",
         "sizeBytes": 42519359,
-        "integrity": "TEST_TSV_METADATA_READ; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED",
+        "integrity": "FULL_LOCAL_COMPRESSED_ARCHIVE_SHA256_RECORDED_PRIVATELY; TEST_ROWS_VERIFIED; 24_PILOT_MP3_HASHES_RETAINED_PRIVATELY; AUDIO_NOT_EXTRACTED_OR_DECODED",
         "testTsvMember": "OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES",
         "testRowsObservedLocally": 302
       }
@@ -83,8 +83,8 @@
     "publicTextSampleSentenceCount": 5,
     "sampleAvailability": "NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT",
     "sampleApiDocumentationUrl": "https://mozilladatacollective.com/api-reference/docs",
-    "sampleVerificationNote": "The English archive is present locally; its top-level test.tsv member path was observed. A metadata-only row-count attempt did not return within the bounded tool window, so the local row count remains unverified. No audio was extracted or decoded. The full archive has not been hashed. MDC access and terms are complete per owner confirmation; a separate non-secret access record is not attached here. The public card's five text sentences are not an audio sample. A new sample request is not needed.",
-    "allowedNextAction": "Use the existing local archive to prepare a restricted manifest from only the official test split. Do not admit real inference until the exact local model artifacts, rights/export provenance, and digest are reviewed.",
+    "sampleVerificationNote": "The local English archive was fully streamed and validated; all 16,403 official test rows were observed without emitting row values. A deterministic 24-clip official-test pilot manifest and selected audio hashes were retained only in the owner-only metadata root under the 90-day policy. The compressed archive hash is a local observation, not a publisher hash. No audio was extracted or decoded. MDC access and terms are complete per owner confirmation; a separate non-secret acceptance record is not attached here. The public card's five text sentences are not an audio sample. A new sample request is not needed.",
+    "allowedNextAction": "Review exact local model artifacts and weight/export provenance, independently review the pilot references, and qualify the execution host. Do not admit real inference until those gates are resolved.",
     "fullArchiveDownloadAuthorization": "OWNER_CONFIRMED_ALREADY_ACQUIRED; NO_NEW_DOWNLOAD"
   },
   "selection": {
@@ -92,7 +92,13 @@
     "activeLocales": ["en", "ne-NP"],
     "deferredLocales": ["hi"],
     "sourceSplitEvidence": "MDC v27 dataset cards list official train/dev/test split counts.",
-    "clipManifestStatus": "NOT_CREATED_LOCAL_TEST_METADATA_READY_NO_CLIPS_SELECTED",
+    "pilotProfile": {
+      "clipsPerLocale": 24,
+      "purpose": "PILOT_ONLY_NOT_GENERAL_QUALITY_OR_ACCEPTANCE",
+      "ranking": "Select 24 lowest SHA-256 ranks of UTF-8(sourceRevision + NUL + locale + NUL + clipId), breaking ties by clipId; transcript-independent.",
+      "speakerDisjointEvidence": "NOT_ESTABLISHED"
+    },
+    "clipManifestStatus": "PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL",
     "clipManifest": [],
     "requiredManifestFields": [
       "locale",
@@ -150,7 +156,7 @@
   "reporting": {
     "corpusLabel": "Common Voice Scripted Speech 27.0",
     "allowedClaim": "Common Voice v27 result only, with exact locale, official split, dataset ID, selected clip manifest digest, model digest, and host recorded.",
-    "notAnAcceptanceClaim": "This alternative profile does not satisfy a FLEURS-specific criterion or establish speaker-disjoint, independent-gold, model-license, or production-quality acceptance.",
+    "notAnAcceptanceClaim": "FLEURS is deferred and is not a current-phase prerequisite. This metadata-only alternative profile does not itself accept G07 or any original Wave 2 task, establish speaker-disjoint or independent-gold quality, resolve model rights, or qualify production quality.",
     "metrics": ["WER", "CER"],
     "thresholds": "NOT_SET_FOR_THIS_ALTERNATIVE_PROFILE"
   }

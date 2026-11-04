@@ -94,6 +94,8 @@
     "prepare:wave2-reference": "node scripts/qualification/prepare-wave2-reference-assets.mjs",
     "check:common-voice-v27-profile": "node scripts/qualification/check-common-voice-v27-profile.mjs",
     "test:common-voice-v27-profile": "node --test tests/media-common-voice-v27-profile.test.mjs",
+    "prepare:common-voice-v27-pilot-manifest": "node scripts/qualification/common-voice-pilot-manifest.mjs",
+    "test:common-voice-pilot-manifest": "node --test tests/media-common-voice-pilot-manifest.test.mjs",
     "test:common-voice-ephemeral-run": "node --test tests/media-common-voice-ephemeral-run.test.mjs",
     "cleanup:common-voice-retention": "node scripts/qualification/cleanup-common-voice-retention.mjs",
     "setup:common-voice-retention-launch-agent": "node scripts/qualification/setup-common-voice-retention-launch-agent.mjs",

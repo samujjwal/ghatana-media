@@ -1,5 +1,7 @@
 # Media Wave 2 — owner implementation directive (R7)
 
+> **CURRENT CORPUS DISPOSITION (2026-11-03):** The previously selected FLEURS candidate is deferred and nonblocking for the current phase. Common Voice v27 English/Nepali is the active alternative benchmark candidate; the owner confirms MDC access/terms and local archives are handled, and a restricted 24-per-locale pilot manifest is prepared privately. Model/export-rights and independent reference/host evidence remain open; Hindi is deferred. This later work-selection decision does not erase the historical candidate decision or change any R8/R10 status. See [the current corpus disposition](MEDIA-ASR-CORPUS-DISPOSITION-2026-11-03.md).
+
 **Engineering authority:** delegated product owner/architect, October 27, 2026.
 **Primary authority:** [canonical Wave 2 plan](MEDIA-BACKEND-MODALITY-WAVE2-EXECUTION.md) owns the 58 exact task IDs, their original acceptance and current statuses. This directive approves *engineering choices and next implementation actions*, not third-party copyright/voice/biometric permissions, customer consent, production or release eligibility, a migration cutover, or Lifecycle/gtool/PDP closure. It does not replace a legal/source owner's proof.
 

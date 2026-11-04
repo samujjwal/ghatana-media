@@ -11,7 +11,7 @@ import {
   unlink,
 } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 const MARKER_NAME = '.media-common-voice-run.json';
@@ -160,6 +160,78 @@ function validateAggregate(aggregate, manifest) {
     assert(typeof aggregate[metric] === 'number' && Number.isFinite(aggregate[metric])
       && aggregate[metric] >= 0, `${metric} must be a finite nonnegative aggregate`);
   }
+}
+
+const PILOT_ARCHIVE_PINS = Object.freeze({
+  en: Object.freeze({ basename: '1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz', sizeBytes: 94956262763 }),
+  'ne-NP': Object.freeze({ basename: '1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz', sizeBytes: 42519359 }),
+});
+const PILOT_LOCALE_FIELDS = Object.freeze([
+  'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'pilotSizePerLocale',
+  'clipManifestDigest', 'clipManifest', 'archive',
+]);
+
+function validateCommonVoicePilotManifest(pilot) {
+  exactKeys(pilot, ['schemaVersion', 'corpus', 'sourceRevision', 'sourceSplit', 'selection', 'locales', 'realInferenceAdmitted'],
+    'pilot manifest contains unexpected fields');
+  assert(pilot.schemaVersion === '1.0.0'
+    && pilot.corpus === 'Mozilla Common Voice Scripted Speech 27.0'
+    && pilot.sourceRevision === COMMON_VOICE_V27_REVISION
+    && pilot.sourceSplit === 'test'
+    && pilot.selection === 'sha256-rank-24-per-locale'
+    && pilot.realInferenceAdmitted === false
+    && Array.isArray(pilot.locales) && pilot.locales.length === 2,
+  'pilot manifest identity or admission state is invalid');
+  const seenLocales = new Set();
+  const forbidden = new Set(['clientid', 'speakerid', 'sentence', 'sentenceid', 'sentencedomain', 'transcript', 'prediction', 'age', 'gender', 'accents', 'variant']);
+  const inspect = (value) => {
+    if (Array.isArray(value)) return value.forEach(inspect);
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      assert(!forbidden.has(key.toLowerCase().replace(/[^a-z0-9]/gu, '')),
+        'pilot manifest contains a forbidden source field');
+      inspect(child);
+    }
+  };
+  inspect(pilot);
+  for (const locale of pilot.locales) {
+    exactKeys(locale, PILOT_LOCALE_FIELDS, 'pilot locale record has unexpected fields');
+    assert(['en', 'ne-NP'].includes(locale.locale) && !seenLocales.has(locale.locale),
+      'pilot manifest has an unsupported or duplicate locale');
+    seenLocales.add(locale.locale);
+    assert(locale.sourceDatasetId === COMMON_VOICE_V27_DATASET_IDS[locale.locale]
+      && locale.sourceRevision === COMMON_VOICE_V27_REVISION && locale.sourceSplit === 'test'
+      && locale.pilotSizePerLocale === 24 && Array.isArray(locale.clipManifest)
+      && locale.clipManifest.length === 24
+      && /^[0-9a-f]{64}$/u.test(locale.clipManifestDigest),
+    'pilot manifest locale scope is invalid');
+    exactKeys(locale.archive, ['basename', 'localPath', 'sourceSizeBytes', 'localFileSizeBytes', 'localArchiveSha256', 'observationType'],
+      'pilot archive observation has unexpected fields');
+    assert(locale.archive.basename === PILOT_ARCHIVE_PINS[locale.locale].basename
+      && typeof locale.archive.localPath === 'string' && locale.archive.localPath.length <= 4096
+      && !/[\u0000-\u001f\u007f]/u.test(locale.archive.localPath)
+      && isAbsolute(locale.archive.localPath) && resolve(locale.archive.localPath) === locale.archive.localPath
+      && basename(locale.archive.localPath) === locale.archive.basename
+      && locale.archive.sourceSizeBytes === PILOT_ARCHIVE_PINS[locale.locale].sizeBytes
+      && locale.archive.localFileSizeBytes === PILOT_ARCHIVE_PINS[locale.locale].sizeBytes
+      && locale.archive.observationType === 'LOCAL_COMPRESSED_ARCHIVE_SHA256_NOT_PUBLISHER_HASH'
+      && /^[0-9a-f]{64}$/u.test(locale.archive.localArchiveSha256),
+    'pilot archive observation does not match the pinned local source');
+    const ids = new Set();
+    const hashes = new Set();
+    for (const record of locale.clipManifest) {
+      validateClipRecord(record, locale);
+      const prefix = locale.locale === 'en' ? 'common_voice_en_' : 'common_voice_ne-NP_';
+      assert(new RegExp(`^${prefix}\\d+\\.mp3$`, 'u').test(record.clipId), 'pilot clip ID is unsafe for this locale');
+      assert(!ids.has(record.clipId) && !hashes.has(record.audioSha256),
+        'pilot manifest has duplicate clip IDs or audio hashes');
+      ids.add(record.clipId);
+      hashes.add(record.audioSha256);
+    }
+    assert(locale.clipManifestDigest === deterministicClipManifestDigest(locale.clipManifest),
+      'pilot manifest digest does not match canonical clip rows');
+  }
+  assert(seenLocales.has('en') && seenLocales.has('ne-NP'), 'pilot manifest must contain exactly en and ne-NP');
 }
 
 function canonicalJson(value) {
@@ -465,6 +537,44 @@ export async function retainCommonVoiceRunMetadata(
   return Object.freeze({ runId, createdAt: createdAt.toISOString(), directory: runDirectory });
 }
 
+/** Retains a metadata-only pilot manifest under the same owner-only 90-day policy. */
+export async function retainCommonVoicePilotMetadata(
+  metadataRootPath,
+  ephemeralAudioRootPath,
+  pilotManifest,
+  { now = () => new Date() } = {},
+) {
+  const ownerUid = currentUid();
+  const metadataRoot = await requireSeparatePrivateRoots(metadataRootPath, ephemeralAudioRootPath, ownerUid);
+  const createdAt = now();
+  assert(createdAt instanceof Date && Number.isFinite(createdAt.getTime()), 'pilot retention clock must return a valid Date');
+  const snapshot = JSON.parse(canonicalJson(pilotManifest));
+  validateCommonVoicePilotManifest(snapshot);
+  const runId = randomUUID();
+  const runDirectory = join(metadataRoot, `${METADATA_PREFIX}${runId}`);
+  const marker = { kind: METADATA_MARKER_KIND, schemaVersion: METADATA_SCHEMA_VERSION, runId, createdAt: createdAt.toISOString() };
+  assert(Buffer.byteLength(canonicalJson(snapshot), 'utf8') + Buffer.byteLength(canonicalJson(marker), 'utf8')
+    <= MAX_METADATA_RUN_BYTES, 'pilot metadata exceeds the permitted total size');
+  await mkdir(runDirectory, { mode: 0o700 });
+  try {
+    await chmod(runDirectory, 0o700);
+    const stat = await lstat(runDirectory);
+    assert(stat.isDirectory() && !stat.isSymbolicLink() && stat.uid === ownerUid && isMode(stat, 0o700),
+      'created pilot metadata directory is unsafe');
+    await writeAtomicOwnerOnlyJson(runDirectory, 'pilot-manifest.json', snapshot, 1024 * 1024);
+    await writeAtomicOwnerOnlyJson(runDirectory, METADATA_MARKER_NAME, marker, MAX_MARKER_BYTES);
+  } catch (failure) {
+    try {
+      await removeOwnedRun(metadataRoot, runDirectory, ownerUid);
+    } catch (cleanupFailure) {
+      throw new AggregateError([failure, cleanupFailure],
+        'pilot metadata write failed and its owner-only directory could not be removed');
+    }
+    throw failure;
+  }
+  return Object.freeze({ runId, createdAt: createdAt.toISOString(), directory: runDirectory });
+}
+
 /**
  * Removes only valid helper-owned v27 metadata after the exact 90-day retention
  * period. This enforces persistence duration only; it grants no access and
@@ -482,7 +592,8 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
   assert(Number.isFinite(nowMs), 'metadata cleanup clock must be finite');
   let removed = 0;
   let retained = 0;
-  const expectedEntries = [METADATA_MARKER_NAME, 'aggregate.json', 'run-manifest.json'].sort();
+  const runEntriesExpected = [METADATA_MARKER_NAME, 'aggregate.json', 'run-manifest.json'].sort();
+  const pilotEntriesExpected = [METADATA_MARKER_NAME, 'pilot-manifest.json'].sort();
   const directory = await opendir(metadataRoot);
   for await (const entry of directory) {
     if (!entry.name.startsWith(METADATA_PREFIX)) {
@@ -511,7 +622,9 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
         'metadata run contains an unsafe file');
         totalBytes += childStat.size;
       }
-      assert(runEntries.sort().join(',') === expectedEntries.join(','),
+      const sortedRunEntries = runEntries.sort();
+      const isPilotManifest = sortedRunEntries.join(',') === pilotEntriesExpected.join(',');
+      assert(isPilotManifest || sortedRunEntries.join(',') === runEntriesExpected.join(','),
         'metadata run has missing or unrecognized files');
       assert(totalBytes <= MAX_METADATA_RUN_BYTES,
         'metadata run exceeds the permitted total size');
@@ -528,11 +641,16 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
         && new Date(marker.createdAt).toISOString() === marker.createdAt,
       'metadata marker timestamp is invalid');
 
-      const manifest = await readBoundedOwnerOnlyJson(
-        runDirectory, 'run-manifest.json', ownerUid);
-      const aggregate = await readBoundedOwnerOnlyJson(runDirectory, 'aggregate.json', ownerUid);
-      validateRunManifest(manifest);
-      validateAggregate(aggregate, manifest);
+      if (isPilotManifest) {
+        const pilot = await readBoundedOwnerOnlyJson(runDirectory, 'pilot-manifest.json', ownerUid, 1024 * 1024);
+        validateCommonVoicePilotManifest(pilot);
+      } else {
+        const manifest = await readBoundedOwnerOnlyJson(
+          runDirectory, 'run-manifest.json', ownerUid);
+        const aggregate = await readBoundedOwnerOnlyJson(runDirectory, 'aggregate.json', ownerUid);
+        validateRunManifest(manifest);
+        validateAggregate(aggregate, manifest);
+      }
       const age = nowMs - Date.parse(marker.createdAt);
       if (age < METADATA_RETENTION_MS || age < 0) {
         retained += 1;

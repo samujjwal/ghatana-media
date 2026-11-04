@@ -94,7 +94,7 @@ negative tests nor candidate-source checks close a Wave 2 task.
 
 ## Remaining backend physical surfaces — additive Wave 3 source check
 
-**Updated pushed-source test direction (October 30, 2026):** The 18 formerly missing commit prefixes are reachable at `main@f70e9b04`. Do not repeat source implementation. The [terminal source/qualification plan](implementation/MEDIA-BACKEND-TERMINAL-QUALIFICATION-2026-10-30.md) and `pnpm test:backend-terminal-qualification` guard every original R8 task and the 17 new owner qualification work packages. The source-controlled qualification readback reports host OCI stub 4/4, broker 3/3, real FFmpeg 3/3, PNG 4/4, local Alertmanager fire/resolve, and GH-90000 nine Compose **development-image** tests PASS. AS-07/VS-07 in-process string-byte microbenchmarks do not qualify real transport or c1/c16/c64. Required WebRTC/adaptive HTTP/HLS/DASH/lease renew, lawful FLEURS+gold/rights, genuine licensed models/voice, Ghatana #252/#254 API installed consumers, real quality+capacity, 32 disabled AEP tests and H-08 live product-host film still need actual owner/result evidence. Wave 2 original 22/30/6 remains unchanged; no PDP/gtool release/production claim.
+**Updated pushed-source test direction (October 30, 2026; corpus selection amended November 3):** The 18 formerly missing commit prefixes are reachable at `main@f70e9b04`. Do not repeat source implementation. The [terminal source/qualification plan](implementation/MEDIA-BACKEND-TERMINAL-QUALIFICATION-2026-10-30.md) and `pnpm test:backend-terminal-qualification` guard every original R8 task and the 17 new owner qualification work packages. The source-controlled qualification readback reports host OCI stub 4/4, broker 3/3, real FFmpeg 3/3, PNG 4/4, local Alertmanager fire/resolve, and GH-90000 nine Compose **development-image** tests PASS. AS-07/VS-07 in-process string-byte microbenchmarks do not qualify real transport or c1/c16/c64. Required WebRTC/adaptive HTTP/HLS/DASH/lease renew, lawful English/Nepali ASR gold through the active Common Voice alternative or approved app-domain data, genuine licensed models/voice, Ghatana #252/#254 API installed consumers, real quality+capacity, 32 disabled AEP tests and H-08 live product-host film still need actual owner/result evidence. FLEURS is deferred and nonblocking; its historical results and original R8/R10 statuses are unchanged. Hindi is deferred. Wave 2 original 22/30/6 remains unchanged; no PDP/gtool release/production claim. See the [current corpus disposition](implementation/MEDIA-ASR-CORPUS-DISPOSITION-2026-11-03.md).
 
 
 The [combined backend implementation plan](implementation/MEDIA-BACKEND-REMAINING-SURFACES-2026-10-30.md) includes exact **36 unfinished Wave 2 original R8 IDs** (30 PARTIAL + 6 OWNER_EXTERNAL; 22 previously verified preserved), **88 Wave 3 tasks across 15 remaining backend/support physical surfaces**, and **8 headless production outcome tasks**. The [read-only PDP/task coverage index](implementation/MEDIA-BACKEND-REMAINDER-SOURCE-COVERAGE.v1.json) retains source R8/R10 identity, owner, gates, prerequisites and 26 cross-wave links, while 29 physical candidates, 21 logical consumers and 602 remaining PDP capability memberships are accounted for. Run `pnpm test:backend-remaining-surfaces-plan` for its **eleven source/plan checks**. These checks validate recorded task parity/acyclicity, **not implementation readiness or a current host/model/rights proof**. Only the original active Wave 2 §10 and R8 acceptance owner may promote a Wave 2 task.
@@ -197,6 +197,36 @@ The full integration target is intentionally separate:
 It runs integration-tagged workflows and requires Docker/Testcontainers. Use
 it when durable infrastructure and external test dependencies are available,
 not as the fast local closure command.
+
+### Common Voice v27 English/Nepali pilot
+
+The checked-in profile records only aggregate preparation status. The selected
+clip IDs and hashes belong in the separate owner-only metadata root. Focused
+metadata and synthetic safety checks are:
+
+    pnpm run check:common-voice-v27-profile
+    pnpm run test:common-voice-v27-profile
+    pnpm run test:common-voice-pilot-manifest
+    pnpm run test:common-voice-ephemeral-run
+    pnpm run test:common-voice-retention-cli
+    pnpm run test:common-voice-retention-launch-agent
+
+The real manifest preparation command requires the two already-acquired pinned
+archives and separate private roots:
+
+    pnpm run prepare:common-voice-v27-pilot-manifest -- \
+      --en-archive "$HOME/Downloads/1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz" \
+      --ne-np-archive "$HOME/Downloads/1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz" \
+      --metadata-root "$HOME/Library/Application Support/Ghatana Media/Common Voice/metadata" \
+      --audio-root "$HOME/Library/Application Support/Ghatana Media/Common Voice/audio"
+
+It streams each full archive to validate its pinned test metadata and tar
+members, hashes the selected 24 test MP3s per locale without extracting or
+decoding them, and records only the aggregate result to stdout. The private
+metadata contains local archive hashes, selected clip IDs and audio hashes;
+none should be logged or checked in. This is manifest preparation only and
+does not admit real inference, establish speaker disjointness, or satisfy
+FLEURS-specific or production-quality acceptance.
 
 ## Wave 2 macOS and Linux platform matrix
 

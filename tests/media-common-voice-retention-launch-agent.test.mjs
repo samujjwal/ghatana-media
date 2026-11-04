@@ -29,7 +29,7 @@ test('default dry-run prints an escaped owner LaunchAgent without creating direc
   const home = await createHome('common-voice & <home>-');
   try {
     assert.deepEqual(await readdir(home), []);
-    const result = runSetup(home);
+    const result = runSetup(home, ['--', '--print']);
 
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stderr, '');

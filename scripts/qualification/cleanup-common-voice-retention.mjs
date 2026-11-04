@@ -9,16 +9,17 @@ import {
 } from './common-voice-ephemeral-run.mjs';
 
 function parseArgs(args) {
+  const parsedArgs = args[0] === '--' ? args.slice(1) : args;
   const roots = new Map();
-  for (let index = 0; index < args.length; index += 1) {
-    const flag = args[index];
+  for (let index = 0; index < parsedArgs.length; index += 1) {
+    const flag = parsedArgs[index];
     if (flag !== '--audio-root' && flag !== '--metadata-root') {
       throw new Error('expected --audio-root and --metadata-root');
     }
-    if (roots.has(flag) || index + 1 >= args.length) {
+    if (roots.has(flag) || index + 1 >= parsedArgs.length) {
       throw new Error('each root flag must appear once with an absolute path');
     }
-    const value = args[index + 1];
+    const value = parsedArgs[index + 1];
     if (value.startsWith('--') || !isAbsolute(value)) {
       throw new Error('each root flag must appear once with an absolute path');
     }

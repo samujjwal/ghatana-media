@@ -130,7 +130,7 @@ test('removes expired marked audio and metadata fixtures and emits counts only',
     const audioRun = await addExpiredAudioRun(audioRoot,
       new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString());
     const metadataRun = await addExpiredMetadataRun(metadataRoot, expiredAt);
-    const result = invokeCli(rootsArgs(audioRoot, metadataRoot));
+    const result = invokeCli(['--', ...rootsArgs(audioRoot, metadataRoot)]);
 
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(JSON.parse(result.stdout), {

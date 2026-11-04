@@ -33,6 +33,9 @@ const REQUIRED_MANIFEST_FIELDS = Object.freeze([
 const ALLOWED_TRANSIENT_SOURCE_FIELDS = Object.freeze([
   'locale', 'path', 'sentence_id', 'sentence',
 ]);
+const PILOT_PROFILE_FIELDS = Object.freeze([
+  'clipsPerLocale', 'purpose', 'ranking', 'speakerDisjointEvidence',
+]);
 
 function canonicalFieldName(field) {
   return field.toLowerCase().replace(/[^a-z0-9]/gu, '');
@@ -121,22 +124,22 @@ export function validateCandidateProfile(profile) {
     && profile.access.authorityAndAcceptanceEvidenceStatus
       === 'OWNER_CONFIRMED; NOT_INDEPENDENTLY_VERIFIED',
   'owner-confirmed MDC access must remain distinct from independently verified source evidence');
-  assert(profile.access.archivePresence?.en?.status === 'PRESENT_STAT_OBSERVED_TAR_MEMBER_PATHS_OBSERVED'
+  assert(profile.access.archivePresence?.en?.status === 'PRESENT_FULL_ARCHIVE_STREAMED_AND_PILOT_PREPARED'
     && profile.access.archivePresence.en.basename === '1789502799671-cv-corpus-27.0-2026-09-11-en.tar.gz'
     && profile.access.archivePresence.en.sizeBytes === 94956262763
     && profile.access.archivePresence.en.integrity
-      === 'ENGLISH_TEST_ROW_COUNT_UNVERIFIED; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED'
-    && profile.access.archivePresence.en.testTsvMember === 'OBSERVED_IN_LOCAL_ARCHIVE'
-    && profile.access.archivePresence.en.testRowsObservedLocally === null
-    && profile.access.archivePresence?.['ne-NP']?.status === 'PRESENT_STAT_OBSERVED_TEST_TSV_READ'
+      === 'FULL_LOCAL_COMPRESSED_ARCHIVE_SHA256_RECORDED_PRIVATELY; TEST_ROWS_VERIFIED; 24_PILOT_MP3_HASHES_RETAINED_PRIVATELY; AUDIO_NOT_EXTRACTED_OR_DECODED'
+    && profile.access.archivePresence.en.testTsvMember === 'OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES'
+    && profile.access.archivePresence.en.testRowsObservedLocally === 16403
+    && profile.access.archivePresence?.['ne-NP']?.status === 'PRESENT_FULL_ARCHIVE_STREAMED_AND_PILOT_PREPARED'
     && profile.access.archivePresence['ne-NP'].basename === '1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz'
     && profile.access.archivePresence['ne-NP'].sizeBytes === 42519359
     && profile.access.archivePresence['ne-NP'].integrity
-      === 'TEST_TSV_METADATA_READ; FULL_ARCHIVE_NOT_HASHED; AUDIO_NOT_EXTRACTED_OR_DECODED'
+      === 'FULL_LOCAL_COMPRESSED_ARCHIVE_SHA256_RECORDED_PRIVATELY; TEST_ROWS_VERIFIED; 24_PILOT_MP3_HASHES_RETAINED_PRIVATELY; AUDIO_NOT_EXTRACTED_OR_DECODED'
     && profile.access.archivePresence['ne-NP'].testTsvMember
       === 'OBSERVED_AND_PARSED_WITHOUT_EMITTING_ROW_VALUES'
     && profile.access.archivePresence['ne-NP'].testRowsObservedLocally === 302,
-  'archive metadata must not imply full integrity or audio use');
+  'archive metadata must match the locally streamed pilot and must not imply audio extraction or decoding');
   assert(profile.englishSubset?.sampleAvailability === 'NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT',
     'English sample status must reflect the reported archive');
   assert(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard === false,
@@ -154,12 +157,21 @@ export function validateCandidateProfile(profile) {
   assert([...selection.activeLocales].sort().join(',') === ['en', 'ne-NP'].sort().join(',')
     && [...selection.deferredLocales].join(',') === 'hi',
   'selection must include English and Nepali only with Hindi deferred');
+  assert(selection.pilotProfile !== null && typeof selection.pilotProfile === 'object'
+    && !Array.isArray(selection.pilotProfile)
+    && Object.keys(selection.pilotProfile).sort().join(',') === [...PILOT_PROFILE_FIELDS].sort().join(',')
+    && selection.pilotProfile.clipsPerLocale === 24
+    && selection.pilotProfile.purpose === 'PILOT_ONLY_NOT_GENERAL_QUALITY_OR_ACCEPTANCE'
+    && selection.pilotProfile.ranking
+      === 'Select 24 lowest SHA-256 ranks of UTF-8(sourceRevision + NUL + locale + NUL + clipId), breaking ties by clipId; transcript-independent.'
+    && selection.pilotProfile.speakerDisjointEvidence === 'NOT_ESTABLISHED',
+  'pilot selection must remain deterministic, transcript-independent, and explicitly non-qualifying');
   assert(Array.isArray(selection.clipManifest), 'clip manifest must be an array');
   assert(!hasForbiddenField(selection.clipManifest), 'clip manifest contains forbidden fields');
   for (const record of selection.clipManifest) validatePersistedClipRecord(record);
-  assert(selection.clipManifestStatus === 'NOT_CREATED_LOCAL_TEST_METADATA_READY_NO_CLIPS_SELECTED'
+  assert(selection.clipManifestStatus === 'PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL'
     && selection.clipManifest.length === 0,
-  'candidate must not claim selected clips before a restricted local manifest is created');
+  'profile must report private manifest preparation without copying clip IDs or hashes into source control');
   assert(Array.isArray(selection.requiredManifestFields)
     && selection.requiredManifestFields.length === REQUIRED_MANIFEST_FIELDS.length
     && [...selection.requiredManifestFields].sort().join(',') === [...REQUIRED_MANIFEST_FIELDS].sort().join(','),

@@ -24,6 +24,9 @@ test('pins English and Nepali Common Voice v27 and keeps Hindi deferred and the 
   assert.equal(profile.dataset.locales.ne.datasetId, 'cmu61478v00j9o107alzuue1z');
   assert.equal(profile.dataset.deferredLocales.hi.datasetId, 'cmu5vlext009to107ev1s9lk8');
   assert.equal(profile.doesNotSupersede.includes('config/qualification/fleurs-asr-evaluation.v1.json'), true);
+  assert.equal(profile.selection.clipManifestStatus,
+    'PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL');
+  assert.deepEqual(profile.selection.clipManifest, []);
 });
 
 test('does not turn owner confirmation into independently verified source authority', () => {
@@ -32,10 +35,10 @@ test('does not turn owner confirmation into independently verified source author
   assert.throws(() => validateCandidateProfile(mutated), /distinct from independently verified source evidence/);
 });
 
-test('does not let partial archive metadata assert full archive integrity', () => {
+test('rejects an archive integrity claim that differs from the local streamed observation', () => {
   const mutated = structuredClone(profile);
   mutated.access.archivePresence.en.integrity = 'VERIFIED';
-  assert.throws(() => validateCandidateProfile(mutated), /archive metadata must not imply full integrity/);
+  assert.throws(() => validateCandidateProfile(mutated), /must match the locally streamed pilot/);
 });
 
 test('requires a restricted local clip manifest before claiming selected clips', () => {
@@ -48,7 +51,26 @@ test('requires a restricted local clip manifest before claiming selected clips',
     clipId: 'clip-1',
     audioSha256: 'a'.repeat(64),
   }];
-  assert.throws(() => validateCandidateProfile(mutated), /must not claim selected clips/);
+  assert.throws(() => validateCandidateProfile(mutated), /without copying clip IDs or hashes/);
+});
+
+test('pins a deterministic 24-clip transcript-independent pilot without asserting speaker disjointness', () => {
+  validateCandidateProfile(profile);
+  assert.equal(profile.selection.pilotProfile.clipsPerLocale, 24);
+  assert.equal(profile.selection.pilotProfile.purpose, 'PILOT_ONLY_NOT_GENERAL_QUALITY_OR_ACCEPTANCE');
+  assert.equal(profile.selection.pilotProfile.speakerDisjointEvidence, 'NOT_ESTABLISHED');
+
+  const changedCount = structuredClone(profile);
+  changedCount.selection.pilotProfile.clipsPerLocale = 100;
+  assert.throws(() => validateCandidateProfile(changedCount), /deterministic, transcript-independent/u);
+
+  const changedRanking = structuredClone(profile);
+  changedRanking.selection.pilotProfile.ranking = 'sort by transcript text';
+  assert.throws(() => validateCandidateProfile(changedRanking), /deterministic, transcript-independent/u);
+
+  const claimedDisjoint = structuredClone(profile);
+  claimedDisjoint.selection.pilotProfile.speakerDisjointEvidence = 'VERIFIED';
+  assert.throws(() => validateCandidateProfile(claimedDisjoint), /deterministic, transcript-independent/u);
 });
 
 test('rejects transcript, speaker, demographic, and prediction fields from persisted clip manifests', () => {
@@ -100,7 +122,7 @@ test('requires the complete exact persisted-manifest field set and validates any
     clipId: 'clip-1',
     audioSha256: 'a'.repeat(64),
   }];
-  assert.throws(() => validateCandidateProfile(populated), /must not claim selected clips/);
+  assert.throws(() => validateCandidateProfile(populated), /without copying clip IDs or hashes/);
 
   const malformedRecord = structuredClone(profile);
   malformedRecord.selection.clipManifest = [{ clipId: 'clip-1', audioSha256: 'a'.repeat(64) }];
@@ -123,8 +145,13 @@ test('keeps the offline, no-training, deletion, and 90-day aggregate policy', ()
   assert.equal(profile.execution.perClipPredictionRetention, 'MEMORY_ONLY');
 });
 
-test('records English archive presence without implying integrity or source authority', () => {
+test('records local archive and private pilot completion without exposing IDs or hashes', () => {
   validateCandidateProfile(profile);
+  assert.equal(profile.access.archivePresence.en.testRowsObservedLocally, 16403);
+  assert.equal(profile.access.archivePresence['ne-NP'].testRowsObservedLocally, 302);
+  assert.match(profile.access.archivePresence.en.integrity, /24_PILOT_MP3_HASHES_RETAINED_PRIVATELY/u);
+  assert.equal(profile.selection.clipManifest.length, 0);
+  assert.equal(profile.execution.realInferenceAdmitted, false);
   assert.equal(profile.englishSubset.sampleAvailability, 'NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT');
   assert.equal(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard, false);
   assert.equal(profile.englishSubset.publicTextSampleSentenceCount, 5);
