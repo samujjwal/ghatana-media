@@ -114,6 +114,21 @@ class AnimationSpecCompilerTest {
     }
 
     @Test
+    void rejectsOversizedTimeDecimalsBeforeArbitraryPrecisionParsing() {
+        String oversized = "9".repeat(100_000);
+        assertThatThrownBy(() -> new StoryTime("story", "clock", "stream", "origin@v1",
+                oversized, new PositiveRational("1", "1")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("signed-int64");
+        assertThatThrownBy(() -> new PositiveRational(oversized, "1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive-int64");
+        assertThatThrownBy(() -> new PositiveRational("1", oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("positive-int64");
+    }
+
+    @Test
     void rejectsInvalidReferencesAndNullCurveEntries() {
         var valid = validSpec();
         assertThatThrownBy(() -> new AnimationSpec(

@@ -194,7 +194,10 @@ public final class AnimationSpecCompiler {
 
     private static void requireSignedInt64(String value, String field) {
         Objects.requireNonNull(value, field);
-        if (!value.matches(SIGNED_INT64)) {
+        // Bound parser work before constructing BigInteger. Canonical signed
+        // int64 text has at most 19 digits, plus an optional minus sign.
+        int digitCount = value.startsWith("-") ? value.length() - 1 : value.length();
+        if (digitCount > 19 || !value.matches(SIGNED_INT64)) {
             throw new IllegalArgumentException(field + " must be canonical signed-int64 decimal text");
         }
         BigInteger parsed = new BigInteger(value);
@@ -205,7 +208,10 @@ public final class AnimationSpecCompiler {
 
     private static void requirePositiveInt64(String value, String field) {
         Objects.requireNonNull(value, field);
-        if (!value.matches(POSITIVE_INT64) || new BigInteger(value).compareTo(MAX_INT64) > 0) {
+        // A positive int64 has at most 19 decimal digits. Reject oversized
+        // input before regex matching and arbitrary-precision conversion.
+        if (value.length() > 19 || !value.matches(POSITIVE_INT64)
+                || new BigInteger(value).compareTo(MAX_INT64) > 0) {
             throw new IllegalArgumentException(field + " must be canonical positive-int64 decimal text");
         }
     }
