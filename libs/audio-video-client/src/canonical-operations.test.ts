@@ -229,27 +229,46 @@ describe("MediaCanonicalClient job operations", () => {
   });
 
   it("bounds a stalled acknowledgement body and preserves OUTCOME_UNKNOWN", async () => {
-    const fetchImpl = (async () => ({
-      ok: true,
-      status: 202,
-      json: () => new Promise<never>(() => undefined),
-    }) as unknown as Response) as typeof fetch;
-    const client = createMediaCanonicalClient({
-      baseUrl: "https://media.example.test",
-      tenantId: "tenant-1",
-      defaultHeaders: { "X-Principal-Id": "principal-1" },
-      getAccessToken: () => "bearer-secret",
-      requestTimeoutMs: 10,
-      fetchImpl,
-    });
+    vi.useFakeTimers();
+    let fetchStarted = false;
+    const fetchImpl = (async () => {
+      fetchStarted = true;
+      return {
+        ok: true,
+        status: 202,
+        json: () => new Promise<never>(() => undefined),
+      } as unknown as Response;
+    }) as typeof fetch;
+    try {
+      const client = createMediaCanonicalClient({
+        baseUrl: "https://media.example.test",
+        tenantId: "tenant-1",
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+        getAccessToken: () => "bearer-secret",
+        requestTimeoutMs: 10,
+        fetchImpl,
+      });
 
-    const failure = await client.submitJob({
-      requestId: "req-body-timeout", correlationId: "corr-body-timeout", artifactId: "art-1",
-      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-body-timeout",
-    }).catch((error: unknown) => error);
+      const result = client.submitJob({
+        requestId: "req-body-timeout", correlationId: "corr-body-timeout", artifactId: "art-1",
+        jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-body-timeout",
+      }).then(
+        () => undefined,
+        (error: unknown) => error,
+      );
+      // First flush the asynchronous credential/header/fetch chain without firing
+      // the request timer. Then advance the timer only after dispatch is observable.
+      await vi.advanceTimersByTimeAsync(0);
+      expect(fetchStarted).toBe(true);
+      await vi.advanceTimersByTimeAsync(10);
+      const failure = await result;
 
-    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
-    expect(failure).toMatchObject({ path: "/api/v1/jobs", requestKey: "idem-body-timeout" });
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect(failure).toMatchObject({ path: "/api/v1/jobs", requestKey: "idem-body-timeout" });
+    } finally {
+      vi.clearAllTimers();
+      vi.useRealTimers();
+    }
   });
 
   it("maps a retryable 503 envelope after mutation dispatch to OUTCOME_UNKNOWN", async () => {
