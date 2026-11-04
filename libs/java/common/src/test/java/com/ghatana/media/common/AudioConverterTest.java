@@ -53,6 +53,14 @@ class AudioConverterTest {
     }
 
     @Test
+    @DisplayName("PCM16 half-step quantization is symmetric around zero")
+    void pcm16HalfStepQuantizationIsSymmetric() {
+        byte[] pcm = AudioConverter.floatSamplesToPcm16(new float[] {-0.5f, 0.5f});
+
+        assertThat(pcm).containsExactly((byte) 0x00, (byte) 0xC0, (byte) 0x00, (byte) 0x40);
+    }
+
+    @Test
     @DisplayName("Signed 24-bit PCM values are sign-extended correctly")
     void pcm24SignExtension() { 
         byte[] data = new byte[]{0x00, 0x00, (byte) 0x80, (byte) 0xFF, (byte) 0xFF, 0x7F}; 

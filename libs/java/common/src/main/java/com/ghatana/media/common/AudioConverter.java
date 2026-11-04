@@ -66,7 +66,11 @@ public final class AudioConverter {
             if (!Float.isFinite(value)) {
                 throw new IllegalArgumentException("audio sample at index " + index + " must be finite");
             }
-            int sample = Math.round(Math.max(-1.0f, Math.min(1.0f, value)) * 32767.0f);
+            float scaled = Math.max(-1.0f, Math.min(1.0f, value)) * 32767.0f;
+            // Keep tie rounding symmetric around zero. Math.round(float) rounds
+            // negative half values toward positive infinity, making e.g. -0.5
+            // quantize to -16383 while +0.5 quantizes to +16384.
+            int sample = scaled < 0.0f ? -Math.round(-scaled) : Math.round(scaled);
             sample = Math.max(-32768, Math.min(32767, sample));
             bytes[index * 2] = (byte) (sample & 0xFF);
             bytes[index * 2 + 1] = (byte) ((sample >> 8) & 0xFF);
