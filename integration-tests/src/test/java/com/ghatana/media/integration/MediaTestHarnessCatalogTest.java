@@ -64,6 +64,12 @@ class MediaTestHarnessCatalogTest {
             }
             assertThat(profile.gradleArguments()).as(profile.id())
                     .containsExactlyElementsOf(expectedGradleArguments);
+            for (String selector : profile.selectors()) {
+                String selectorSource = "integration-tests/src/test/java/"
+                        + selector.replace('.', '/') + ".java";
+                assertThat(profile.sources()).as("selector source %s for %s", selector, profile.id())
+                        .contains(selectorSource);
+            }
             for (String source : profile.sources()) {
                 assertThat(Files.isRegularFile(root.resolve(source)))
                         .as("catalog source %s for %s", source, profile.id()).isTrue();

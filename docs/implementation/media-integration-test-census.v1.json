@@ -197,6 +197,8 @@
       ],
       "sources": [
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoContainerBase.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/AudioVideoIntegrationTest.java",
+        "integration-tests/src/test/java/com/ghatana/audio/video/integration/FullWorkflowIntegrationTest.java",
         "integration-tests/src/test/java/com/ghatana/audio/video/integration/IntegrationImagesCondition.java",
         "integration-tests/docker-compose.integration.yml"
       ],
