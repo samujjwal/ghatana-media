@@ -47,13 +47,28 @@ Integration tests use Testcontainers with a PostgreSQL image.
 
 `saveWithTranscription` uses the tenant-checked transcription repository in the
 same transaction as the audio save. A failure rolls back a transaction it
-started or marks an existing transaction rollback-only. The JPA repositories
+started or marks an existing transaction rollback-only. Repository mutation
+failures follow the same rule: they roll back a transaction they started and
+mark a caller-owned active transaction rollback-only. The JPA repositories
 hold a supplied `EntityManager`; that object is not safe for concurrent access.
 Hosts must provide isolated per-operation persistence contexts or serialize
 all use of a shared context, including across both service types. Bounded
 service executors alone do not make a shared `EntityManager` thread-safe.
 The PostgreSQL integration task uses an isolated generated schema and does not
 prove production migration history or a writer cutover.
+
+### Migration and runtime boundary
+
+`src/main/resources/db/migration/V1__init_schema.sql` is legacy JPA source,
+not a second canonical Media schema or an instruction to add this module's
+migration location to the provider Flyway runner. Canonical forward migration
+ownership stays in `providers/aws-postgresql/src/main/resources/db/media-runtime/`.
+Do not apply, repair, reorder, or cut over either history based on this source
+crosswalk. The repository files describe intended source only: the actual
+endpoint/schema, `flyway_schema_history` rows and checksums, configured
+migration locations/baselines, manual DDL, and active writer identity have not
+been inspected. The checked-in V009–V018 definitions and local migration
+fixtures therefore do not establish deployed history or authorize a data move.
 
 ## Source schema and ownership crosswalk (source-only)
 

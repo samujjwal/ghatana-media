@@ -92,11 +92,20 @@ public class JpaAudioFileRepository implements AudioFileRepository {
             }
             throw e;
         } catch (Exception e) {
-            if (began && tx.isActive()) {
-                tx.rollback();
-            }
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to save AudioFile: tenantId={}", tenantId, e);
             throw new RuntimeException("Failed to save AudioFile: " + e.getMessage(), e);
+        }
+    }
+
+    private static void rollbackOrMarkRollbackOnly(jakarta.persistence.EntityTransaction tx, boolean began) {
+        if (!tx.isActive()) {
+            return;
+        }
+        if (began) {
+            tx.rollback();
+        } else {
+            tx.setRollbackOnly();
         }
     }
 
@@ -271,7 +280,7 @@ public class JpaAudioFileRepository implements AudioFileRepository {
             if (began) tx.commit();
             return false;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to soft delete AudioFile: tenantId={}, id={}", tenantId, id, e);
             throw new RuntimeException("Failed to soft delete AudioFile: " + e.getMessage(), e);
         }
@@ -301,7 +310,7 @@ public class JpaAudioFileRepository implements AudioFileRepository {
             if (began) tx.commit();
             return false;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to hard delete AudioFile: tenantId={}, id={}", tenantId, id, e);
             throw new RuntimeException("Failed to hard delete AudioFile: " + e.getMessage(), e);
         }
@@ -375,7 +384,7 @@ public class JpaAudioFileRepository implements AudioFileRepository {
             if (began) tx.commit();
             return false;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to update AudioFile status: tenantId={}, id={}, status={}", tenantId, id, status, e);
             throw new RuntimeException("Failed to update AudioFile status: " + e.getMessage(), e);
         }

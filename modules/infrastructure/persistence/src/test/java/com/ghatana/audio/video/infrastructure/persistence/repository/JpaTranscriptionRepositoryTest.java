@@ -3,6 +3,8 @@ package com.ghatana.audio.video.infrastructure.persistence.repository;
 import com.ghatana.audio.video.infrastructure.persistence.entity.TranscriptionEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
 import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +12,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,6 +76,27 @@ class JpaTranscriptionRepositoryTest {
         assertThat(saved.getId()).isEqualTo(entity.getId()); 
         assertThat(saved.getTenantId()).isEqualTo(tenantId); 
         assertThat(saved.getStatus()).isEqualTo(TranscriptionEntity.TranscriptionStatus.PENDING); 
+    }
+
+    @Test
+    @DisplayName("GIVEN a caller-owned transaction WHEN a mutation fails THEN the transaction is rollback-only")
+    void failedMutationMarksCallerOwnedTransactionRollbackOnly() {
+        EntityManager callerEntityManager = mock(EntityManager.class);
+        EntityTransaction transaction = mock(EntityTransaction.class);
+        Query query = mock(Query.class);
+        when(callerEntityManager.getTransaction()).thenReturn(transaction);
+        when(transaction.isActive()).thenReturn(true);
+        when(callerEntityManager.createNativeQuery(anyString())).thenReturn(query);
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(query.setFlushMode(jakarta.persistence.FlushModeType.COMMIT)).thenReturn(query);
+        when(query.getSingleResult()).thenThrow(new jakarta.persistence.PersistenceException("database unavailable"));
+
+        JpaTranscriptionRepository callerRepository = new JpaTranscriptionRepository(callerEntityManager);
+        assertThatThrownBy(() -> callerRepository.softDelete("tenant-a", UUID.randomUUID()))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("Failed to soft delete Transcription");
+
+        verify(transaction).setRollbackOnly();
     }
 
     @Test

@@ -104,9 +104,20 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (began && tx.isActive()) tx.rollback();
             throw e;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to save Transcription: tenantId={}", tenantId, e);
             throw new RuntimeException("Failed to save Transcription: " + e.getMessage(), e);
+        }
+    }
+
+    private static void rollbackOrMarkRollbackOnly(jakarta.persistence.EntityTransaction tx, boolean began) {
+        if (!tx.isActive()) {
+            return;
+        }
+        if (began) {
+            tx.rollback();
+        } else {
+            tx.setRollbackOnly();
         }
     }
 
@@ -317,7 +328,7 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (began) tx.commit();
             return false;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to soft delete Transcription: tenantId={}, id={}", tenantId, id, e);
             throw new RuntimeException("Failed to soft delete Transcription: " + e.getMessage(), e);
         }
@@ -347,7 +358,7 @@ public class JpaTranscriptionRepository implements TranscriptionRepository {
             if (began) tx.commit();
             return false;
         } catch (Exception e) {
-            if (began && tx.isActive()) tx.rollback();
+            rollbackOrMarkRollbackOnly(tx, began);
             LOG.error("Failed to hard delete Transcription: tenantId={}, id={}", tenantId, id, e);
             throw new RuntimeException("Failed to hard delete Transcription: " + e.getMessage(), e);
         }
