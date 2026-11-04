@@ -133,6 +133,24 @@ The [combined backend implementation plan](implementation/MEDIA-BACKEND-REMAININ
 
 For real code use targeted `./gradlew :services:media:modules:audio-streaming:test`, `...:modules:video-streaming:test`, `...:modules:infrastructure:persistence:test`, `...:modules:infrastructure:cache:test`, `...:adapters:ledger:test`, `...:adapters:data-cloud-media:test`, `...:adapters:agent-tools-media:test`, and relevant Media common/integration test selectors only after checking current `settings.gradle.kts`. Rust/TypeScript packages must be tested under their own Cargo/pnpm workspace ownership. Do not rerun Wave 2 provider/model qualification for unchanged inputs.
 
+For the selected 15-group Wave 3 cohort, run:
+
+    pnpm run test:selected-backend-suite
+
+The fixed cohort is `JC`, `MC`, `TY`, `RS`, `IP`, `CA`, `LD`, `AS`, `VS`,
+`DC`, `OC`, `AT`, `SK`, `CT`, and `IT`, in the order recorded by
+`scripts/qualification/run-selected-backend-suite.mjs`. `OC` is represented
+only by the OCR retirement and consumer-inventory guards; the retired
+`adapters/ocr-compat` module is never restored. Gradle commands run serially
+and offline with fresh tasks; Rust uses Cargo offline. TypeScript commands run
+the declared package scripts without installing dependencies. The runner
+continues after a target failure and reports only static commands and test
+counts. A skipped test produces `PARTIAL`, missing test counts or unavailable
+tools/dependencies produce `UNAVAILABLE`, and neither is a pass. A full
+`PASS` across the local cohort is Track A test evidence; it does not by itself
+complete IT-06's mixed-workload/resource acceptance, qualify real providers or
+models, or close any Wave 2, PDP, Lifecycle, deployment, or release gate.
+
 The nine GH-90000 image-dependent compose tests remain explicitly skipped until pinned service images exist; a skip is not a pass. Warn-only Checkstyle, Shared NO-SOURCE public-API verifier bug, gtool/PDP Track B, private-provider rights and legacy operational cutover are separate from nonblocking Media engineering. Do not start a second production DB, queue worker or outbox publisher while old runtime may still be active.
 
 ## Scope and intent

@@ -106,6 +106,8 @@
     "test:common-voice-retention-launch-agent": "node --test tests/media-common-voice-retention-launch-agent.test.mjs",
     "check:backend-remaining-surfaces-plan": "node --test tests/media-backend-remaining-surfaces-plan.test.mjs",
     "test:backend-remaining-surfaces-plan": "node --test tests/media-backend-remaining-surfaces-plan.test.mjs",
+    "test:selected-backend-suite": "node scripts/qualification/run-selected-backend-suite.mjs",
+    "test:selected-backend-suite-runner": "node --test tests/media-selected-backend-suite-runner.test.mjs",
     "check:monitoring-rules": "bash infra/monitoring/tests/promtool-rules.sh",
     "test:backend-terminal-qualification": "node --test tests/media-backend-terminal-qualification-plan.test.mjs",
     "test:media-core-independence": "node --test tests/media-core-independence.test.mjs",

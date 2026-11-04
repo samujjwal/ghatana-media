@@ -84,6 +84,90 @@ class MediaRuntimeRestartReconciliationTest {
     }
 
     @Test
+    void seededUnknownSpeechAttemptIsReconciledAcrossRuntimeReopenWithoutRedispatch() throws Exception {
+        var root = Files.createTempDirectory("media-stt-seeded-unknown-recovery-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        ProcessingJob running = runningSpeechJob();
+        jobs.create(running, running.requestFingerprint(), new com.ghatana.media.runtime.MediaRuntimeContracts
+                .SttSubmissionSnapshot(com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.VERSION,
+                        null, null, "", "", "", "", "", null));
+        ProcessingAttempt attempt = speechAttempt(running);
+        AtomicInteger dispatches = new AtomicInteger();
+        AtomicInteger effects = new AtomicInteger();
+        AtomicInteger statusQueries = new AtomicInteger();
+        AtomicReference<ProviderAttemptQuery> querySeen = new AtomicReference<>();
+        MediaProcessingProvider provider = new MediaProcessingProvider() {
+            @Override public String providerId() { return "speech-provider"; }
+            @Override public String providerVersion() { return "speech-v1"; }
+            @Override public Set<JobType> capabilities() { return Set.of(JobType.SPEECH_TO_TEXT); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 1; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                return CompletableFuture.failedFuture(new AssertionError("typed attempt path required"));
+            }
+            @Override public CompletableFuture<com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission>
+                    processAttempt(ProcessingContext context,
+                            com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext providerAttempt) {
+                dispatches.incrementAndGet();
+                // This direct fake-provider call is setup only; it does not exercise
+                // MediaRuntime dispatch. The seeded RUNNING job/UNKNOWN attempt below
+                // represents the recovery cut tested by runtime startup.
+                effects.incrementAndGet();
+                return CompletableFuture.completedFuture(
+                        com.ghatana.media.runtime.MediaRuntimeContracts.ProviderSubmission.unknown());
+            }
+            @Override public CompletableFuture<ProviderAttemptObservation> reconcileAttempt(
+                    ProviderAttemptQuery query) {
+                statusQueries.incrementAndGet();
+                querySeen.set(query);
+                return CompletableFuture.completedFuture(new ProviderAttemptObservation(
+                        query, AttemptFinality.SUCCEEDED, query.providerReceiptId(),
+                        Map.of("transcript", "synthetic provider result"), "e".repeat(64),
+                        java.time.Instant.now()));
+            }
+        };
+
+        var submission = provider.processAttempt(null,
+                com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptContext.from(attempt)).join();
+        assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+        assertThat(dispatches).hasValue(1);
+        assertThat(effects).hasValue(1);
+
+        // The stored RUNNING job/UNKNOWN attempt represents a pre-seeded recovery cut.
+        // It does not assert that MediaRuntime performed the dispatch or persisted a lost ACK.
+        var exactStore = attemptStore(jobs, attempt);
+        MediaRuntime first = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            ProcessingJob recovered = jobs.find(running.tenantId(), running.jobId()).orElseThrow();
+            assertThat(querySeen.get()).isEqualTo(attempt.query());
+            assertThat(statusQueries).hasValue(1);
+            assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(recovered.result()).containsEntry("providerStatus", "SUCCEEDED")
+                    .doesNotContainKey("transcript");
+        } finally {
+            first.close();
+        }
+
+        MediaRuntime reopened = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), exactStore,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            ProcessingJob readBack = reopened.job(
+                    running.tenantId(), running.principalId(), running.jobId()).orElseThrow();
+            assertThat(readBack.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+            assertThat(readBack.status()).isNotEqualTo(JobStatus.COMPLETED);
+            assertThat(readBack.result()).doesNotContainKey("transcript");
+            assertThat(dispatches).hasValue(1);
+            assertThat(effects).hasValue(1);
+            assertThat(statusQueries).hasValue(1);
+        } finally {
+            reopened.close();
+        }
+    }
+
+    @Test
     void speechRestartQueryMismatchAndTimeoutRemainUnknownWithoutDispatch() throws Exception {
         for (boolean timeout : List.of(false, true)) {
             var root = Files.createTempDirectory("media-stt-restart-ambiguous-");

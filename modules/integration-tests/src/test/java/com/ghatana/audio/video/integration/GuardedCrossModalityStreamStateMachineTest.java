@@ -101,7 +101,8 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.DETACHED);
         assertThat(audio.generation()).isZero();
         assertThat(audio.nextAck()).isZero();
-        assertThat(audio.pendingCount()).isEqualTo(1);
+        // Denied audio reconnect discards its gap-held frame; video resume denial preserves its in-memory frame.
+        assertThat(audio.pendingCount()).isZero();
         assertThat(video.detached()).isTrue();
         assertThat(video.claimToken()).isEqualTo(2L);
         assertThat(video.leaseHolder()).isEqualTo("worker-b");
@@ -136,13 +137,13 @@ class GuardedCrossModalityStreamStateMachineTest {
         assertThatThrownBy(() -> video.takeDelivered("worker-a", 1L))
                 .isInstanceOf(GuardedVideoStreamSession.StaleLeaseException.class);
 
-        // Neither denied resume nor a stale-worker replay delivered another frame
-        // or reached either provider sink.
+        // Denied audio reconnect discarded its held frame. Neither denied video
+        // resume nor stale-worker replay delivered another frame or reached a sink.
         assertThat(audioDelivered).containsExactly(0);
         assertThat(videoDelivered).containsExactly(0);
         assertThat(providerEffects).hasValue(0);
         assertThat(audio.nextAck()).isZero();
-        assertThat(audio.pendingCount()).isEqualTo(1);
+        assertThat(audio.pendingCount()).isZero();
         assertThat(audio.generation()).isZero();
         assertThat(audio.attachment()).isEqualTo(GuardedAudioStreamSession.Attachment.DETACHED);
         assertThat(video.nextAck("worker-b", 2L)).isZero();
