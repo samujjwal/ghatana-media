@@ -151,6 +151,38 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("denied reconnect retains only frames still held behind a sequence gap")
+    void deniedReconnectRetainsHeldFramesButDropsDeliveredCandidates() {
+        AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), context -> live.get());
+        AudioStreamSession.DecodedFrame delivered = frame(0);
+        AudioStreamSession.DecodedFrame held = frame(2);
+        session.submitFrame(delivered);
+        assertThat(session.submitFrame(held)).isEqualTo(Disposition.HELD);
+        session.detach();
+
+        live.set(Decision.DENIED);
+        assertThatThrownBy(() -> session.reconnect(1))
+                .isInstanceOf(ConsentDeniedException.class)
+                .hasMessageContaining("reconnect");
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.attachment()).isEqualTo(Attachment.DETACHED);
+
+        live.set(Decision.ADMITTED);
+        session.reconnect(1);
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                delivered, ignored -> { }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(session.submitFrame(frame(1))).isEqualTo(Disposition.DELIVERED);
+        AudioStreamSession.DecodedFrame released = session.takeDelivered();
+        assertThat(released.sequenceNumber()).isEqualTo(held.sequenceNumber());
+        assertThat(released.timestampMillis()).isEqualTo(held.timestampMillis());
+        assertThat(released.payload()).containsExactly(held.payload());
+    }
+
+    @Test
     @DisplayName("denied frame submit and delivery discard prior undispatched work")
     void deniedFrameTransitionsDiscardPriorWork() {
         AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);
