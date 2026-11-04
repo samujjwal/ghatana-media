@@ -378,6 +378,25 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("a delivered frame cannot be retried into a newer reconnect generation")
+    void staleGenerationFrameRetryHasNoProviderEffect() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
+                identity(), consent(Decision.ADMITTED));
+        AudioStreamSession.DecodedFrame delivered = frame(0);
+        assertThat(session.submitFrame(delivered)).isEqualTo(Disposition.DELIVERED);
+        session.detach();
+        session.reconnect(1);
+
+        AtomicInteger providerEffects = new AtomicInteger();
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                delivered, f -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("stale session generation");
+        assertThat(providerEffects.get()).isZero();
+        assertThat(session.generation()).isEqualTo(1);
+    }
+
+    @Test
     @DisplayName("unauthorized reconnect — consent revoked while detached — stays detached")
     void unauthorizedReconnect() {
         AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);

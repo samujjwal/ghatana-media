@@ -77,8 +77,8 @@ public final class GuardedAudioStreamSession {
     private final StreamFrameReconciler.SessionIdentity identity;
     private final StreamConsentGate.Source consent;
     private final StreamFrameReconciler reconciler;
-    /** Bounded digests bind provider dispatch to exact frames delivered in this process. */
-    private final LinkedHashMap<Integer, byte[]> providerCandidates = new LinkedHashMap<>();
+    /** Bounded candidates bind dispatch to exact frames and the generation that accepted them. */
+    private final LinkedHashMap<Integer, ProviderCandidate> providerCandidates = new LinkedHashMap<>();
     private Attachment attachment;
     private long generation;
 
@@ -179,10 +179,15 @@ public final class GuardedAudioStreamSession {
             throw denied;
         }
         AudioStreamSession.DecodedFrame snapshot = snapshotFrame(frame);
-        byte[] admittedDigest = providerCandidates.get(snapshot.sequenceNumber());
-        if (admittedDigest == null || !Arrays.equals(admittedDigest, frameDigest(snapshot))) {
+        ProviderCandidate candidate = providerCandidates.get(snapshot.sequenceNumber());
+        if (candidate == null || !Arrays.equals(candidate.digest(), frameDigest(snapshot))) {
             throw new IllegalArgumentException(
                     "audio frame was not delivered by this session or was already dispatched");
+        }
+        if (candidate.generation() != generation) {
+            providerCandidates.remove(snapshot.sequenceNumber());
+            throw new IllegalArgumentException(
+                    "audio frame provider retry belongs to a stale session generation");
         }
         providerCandidates.remove(snapshot.sequenceNumber());
         sink.accept(snapshot);
@@ -290,7 +295,10 @@ public final class GuardedAudioStreamSession {
     }
 
     private void rememberProviderCandidate(AudioStreamSession.DecodedFrame frame) {
-        providerCandidates.put(frame.sequenceNumber(), frameDigest(frame));
+        providerCandidates.put(frame.sequenceNumber(), new ProviderCandidate(generation, frameDigest(frame)));
+    }
+
+    private record ProviderCandidate(long generation, byte[] digest) {
     }
 
     private static AudioStreamSession.DecodedFrame snapshotFrame(
