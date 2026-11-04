@@ -338,6 +338,10 @@ public final class MediaOciBrokerDaemon {
             writeResult(client, -2, "rejected"); return;
         }
         Path sourcePath = source == null ? null : Path.of(source).toRealPath();
+        if (sourcePath != null && !sourcePath.startsWith(policy.sourceRoot())) {
+            writeResult(client, -2, "rejected");
+            return;
+        }
         Path outputPath = output == null ? null : Path.of(output).toRealPath();
         if (!WORKER_ADMISSION.tryAcquire()) {
             writeResult(client, -2, "worker capacity exhausted");
@@ -565,7 +569,9 @@ public final class MediaOciBrokerDaemon {
         Path destination = stageRoot.resolve(UUID.randomUUID() + ".media");
         try {
             long copied = 0;
-            try (InputStream input = Files.newInputStream(source);
+            try (var channel = Files.newByteChannel(source,
+                         java.util.Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS));
+                 InputStream input = java.nio.channels.Channels.newInputStream(channel);
                  var output = Files.newOutputStream(destination, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
                 Files.setPosixFilePermissions(destination, PosixFilePermissions.fromString("r--r--r--"));
                 byte[] buffer = new byte[64 * 1024];

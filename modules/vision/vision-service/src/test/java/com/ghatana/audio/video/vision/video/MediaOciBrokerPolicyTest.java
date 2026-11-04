@@ -350,6 +350,37 @@ class MediaOciBrokerPolicyTest {
     }
 
     @Test
+    void codecFrameAndOutputBudgetsRejectMalformedValuesAtTheBrokerBoundary() {
+        List<String> validFrames = List.of(
+                "-nostdin", "-v", "info", "-copyts", "-protocol_whitelist", "file",
+                "-max_alloc", "268435456", "-max_pixels", "16000000", "-threads", "2",
+                "-filter_threads", "1", "-f", "mov", "-i", "/source/input", "-threads", "2",
+                "-vf", "select='isnan(prev_selected_t)+gte(t-prev_selected_t,1/2)',showinfo,"
+                        + "scale='min(4096,iw)':'min(4096,ih)':force_original_aspect_ratio=decrease",
+                "-fps_mode", "passthrough", "-enc_time_base", "demux", "-frames:v", "10000",
+                "-q:v", "31", "/output/frame_%04d.jpg", "-n");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", validFrames))
+                .as("the declared frame-count and quality ceilings are accepted").isTrue();
+        java.util.ArrayList<String> excessiveFrames = new java.util.ArrayList<>(validFrames);
+        excessiveFrames.set(27, "10001");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", excessiveFrames))
+                .as("a codec request cannot exceed the declared frame count").isFalse();
+        java.util.ArrayList<String> excessiveQuality = new java.util.ArrayList<>(validFrames);
+        excessiveQuality.set(29, "32");
+        assertThat(MediaOciBrokerPolicy.workerArgsAllowed("ffmpeg", excessiveQuality))
+                .as("a codec request cannot exceed the declared quality range").isFalse();
+
+        assertThat(MediaOciBrokerPolicy.outputLimitAllowed("ffmpeg", List.of("/output/frame.png"),
+                MediaOciBrokerPolicy.MAX_VISION_FRAME_BYTES)).isTrue();
+        assertThat(MediaOciBrokerPolicy.outputLimitAllowed("ffmpeg", List.of("/output/frame.png"),
+                MediaOciBrokerPolicy.MAX_VISION_FRAME_BYTES + 1)).isFalse();
+        assertThat(MediaOciBrokerPolicy.outputLimitAllowed("ffmpeg", List.of("/output/audio.pcm"),
+                MediaOciBrokerPolicy.MAX_VISION_AUDIO_BYTES)).isTrue();
+        assertThat(MediaOciBrokerPolicy.outputLimitAllowed("ffmpeg", List.of("/output/audio.pcm"),
+                MediaOciBrokerPolicy.MAX_VISION_AUDIO_BYTES + 1)).isFalse();
+    }
+
+    @Test
     void nonceReplayIsRejectedAndTimestampMustBeCurrent() throws Exception {
         var guard = new MediaOciBrokerPolicy.NonceReplayGuard();
         long now = System.currentTimeMillis();

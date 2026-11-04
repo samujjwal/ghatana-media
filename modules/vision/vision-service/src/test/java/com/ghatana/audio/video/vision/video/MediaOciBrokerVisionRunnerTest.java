@@ -118,6 +118,33 @@ class MediaOciBrokerVisionRunnerTest {
     }
 
     @Test
+    void snapshotRejectsFinalComponentSymlinkBeforeContainerLaunch() throws Exception {
+        Path sourceRoot = Files.createDirectory(temp.resolve("source-identity"));
+        Path outputRoot = Files.createDirectory(temp.resolve("output-identity"));
+        Path stage = Files.createDirectory(temp.resolve("stage-identity"));
+        Files.setPosixFilePermissions(stage, PosixFilePermissions.fromString("rwx------"));
+        Path source = sourceRoot.resolve("input.media");
+        byte[] bytes = "authorized-source".getBytes();
+        Files.write(source, bytes);
+        String digest = sha(bytes);
+        List<List<String>> commands = new ArrayList<>();
+        MediaOciBrokerDaemon.WorkerCommandRunner runner = (command, timeout) -> {
+            commands.add(List.copyOf(command));
+            throw new AssertionError("an invalid source must be rejected before OCI launch");
+        };
+        var args = List.of("-nostdin", "-hide_banner", "-loglevel", "error", "-i", "/source/input",
+                "-y", "/output/frame.png");
+        Path symlink = sourceRoot.resolve("input-link.media");
+        Files.createSymbolicLink(symlink, source.getFileName());
+        assertThatThrownBy(() -> MediaOciBrokerDaemon.runWorkerWithSnapshot("docker",
+                "worker@sha256:" + "b".repeat(64), "vision-symlink", "ffmpeg", args,
+                symlink, digest, stage, outputRoot, 501, 20, Duration.ofSeconds(3), 1024, runner))
+                .isInstanceOf(IOException.class);
+        assertThat(commands).isEmpty();
+        assertThat(Files.list(stage).toList()).isEmpty();
+    }
+
+    @Test
     void outputManifestIsBoundedHashCheckedAndRejectsSymlinksOrSequenceGaps() throws Exception {
         Path output = Files.createDirectory(temp.resolve("manifest-output"));
         Files.writeString(output.resolve("frame_0001.png"), "one");
