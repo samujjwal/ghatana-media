@@ -215,11 +215,10 @@ public final class GuardedAudioStreamSession {
         try {
             requireConsent(consent, identity, reconnectGeneration, "reconnect");
         } catch (ConsentDeniedException denied) {
-            // A denied reconnect must not revive frames already delivered for
-            // provider dispatch. Keep the reconciler's out-of-order buffer,
-            // which remains held behind its sequence gap and is not provider
-            // work yet. This matches the video helper's denied-resume behavior.
-            providerCandidates.clear();
+            // Consent denial invalidates every locally retained frame, including
+            // out-of-order frames still held behind a sequence gap. A later
+            // grant may resume the session, but cannot revive pre-denial media.
+            discardUndispatchedFrames();
             throw denied;
         }
         generation = reconnectGeneration;

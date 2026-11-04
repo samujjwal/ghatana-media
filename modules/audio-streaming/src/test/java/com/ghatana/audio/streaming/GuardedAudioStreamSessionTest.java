@@ -151,9 +151,10 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
-    @DisplayName("denied reconnect retains only frames still held behind a sequence gap")
-    void deniedReconnectRetainsHeldFramesButDropsDeliveredCandidates() {
+    @DisplayName("denied reconnect discards delivered and gap-held frames without provider effects")
+    void deniedReconnectDiscardsAllUndispatchedFrames() {
         AtomicReference<Decision> live = new AtomicReference<>(Decision.ADMITTED);
+        AtomicInteger providerEffects = new AtomicInteger();
         GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(
                 identity(), context -> live.get());
         AudioStreamSession.DecodedFrame delivered = frame(0);
@@ -166,20 +167,23 @@ class GuardedAudioStreamSessionTest {
         assertThatThrownBy(() -> session.reconnect(1))
                 .isInstanceOf(ConsentDeniedException.class)
                 .hasMessageContaining("reconnect");
-        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.pendingCount()).isZero();
         assertThat(session.attachment()).isEqualTo(Attachment.DETACHED);
+        assertThat(session.generation()).isZero();
 
         live.set(Decision.ADMITTED);
         session.reconnect(1);
         assertThatThrownBy(() -> session.dispatchToProvider(
-                delivered, ignored -> { }))
+                delivered, ignored -> providerEffects.incrementAndGet()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("not delivered");
-        assertThat(session.submitFrame(frame(1))).isEqualTo(Disposition.DELIVERED);
-        AudioStreamSession.DecodedFrame released = session.takeDelivered();
-        assertThat(released.sequenceNumber()).isEqualTo(held.sequenceNumber());
-        assertThat(released.timestampMillis()).isEqualTo(held.timestampMillis());
-        assertThat(released.payload()).containsExactly(held.payload());
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                held, ignored -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered");
+        assertThat(session.takeDelivered()).isNull();
+        assertThat(session.pendingCount()).isZero();
+        assertThat(providerEffects.get()).isZero();
     }
 
     @Test
