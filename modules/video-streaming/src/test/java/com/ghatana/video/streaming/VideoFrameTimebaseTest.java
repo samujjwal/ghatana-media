@@ -69,6 +69,20 @@ class VideoFrameTimebaseTest {
     }
 
     @Test
+    void codecConfigurationChangeDoesNotImplyPtsResetOrDiscontinuity() {
+        var before = timing(8, true, 720_000, 720_000, "segment-2", "h264", "h264-config-3");
+        var after = timing(9, true, 723_003, 723_003, "segment-2", "h264", "h264-config-4");
+
+        assertThat(after.sequence()).isEqualTo(before.sequence() + 1);
+        assertThat(after.presentationPts().ticks()).isGreaterThan(before.presentationPts().ticks());
+        assertThat(after.presentationPts().timebaseDenominator())
+                .isEqualTo(before.presentationPts().timebaseDenominator());
+        assertThat(after.discontinuityId()).isEqualTo(before.discontinuityId());
+        assertThat(after.codecId()).isEqualTo(before.codecId());
+        assertThat(after.codecConfigurationId()).isNotEqualTo(before.codecConfigurationId());
+    }
+
+    @Test
     void missingSourcePtsRemainsUnknownAndInvalidKeyframeIdentityFailsClosed() {
         var frame = VideoFrameTimebase.bind(
                 "camera-A", wireFrame(7, false, 123L), null,

@@ -8,8 +8,9 @@ import java.util.Objects;
 /**
  * Resolves one consistent TLS/plaintext policy for standalone Media gRPC services.
  *
- * <p>Production, staging, and sovereign profiles require TLS. Local/test profiles may use
- * plaintext only when neither service-specific nor shared Media TLS material is configured.
+ * <p>Production, staging, and sovereign profiles require TLS. Plaintext requires an explicit
+ * local/test/development profile and is selected only when no service-specific or shared Media
+ * TLS material is configured.
  * Service-specific certificate/key configuration takes precedence over the shared Media pair,
  * but a pair can never be assembled across scopes.
  *
@@ -29,7 +30,7 @@ public final class GrpcTransportSecurityPolicy {
             String servicePrefix) {
         Objects.requireNonNull(environment, "environment");
         String prefix = canonicalPrefix(servicePrefix);
-        boolean productionLike = resolveProductionLikeProfile(environment, prefix);
+        Profiles profiles = resolveProfiles(environment, prefix);
 
         String serviceCertificateKey = prefix + "_GRPC_TLS_CERT_CHAIN_PATH";
         String servicePrivateKeyKey = prefix + "_GRPC_TLS_PRIVATE_KEY_PATH";
@@ -46,11 +47,17 @@ public final class GrpcTransportSecurityPolicy {
             pair = completePair(sharedCertificate, sharedPrivateKey,
                     SHARED_CERTIFICATE, SHARED_PRIVATE_KEY);
         } else {
-            if (productionLike) {
+            if (profiles.productionLike()) {
                 throw new IllegalStateException(
                         "Production-like " + prefix + " gRPC requires TLS certificate chain and private key; "
                                 + "configure " + serviceCertificateKey + "/" + servicePrivateKeyKey
                                 + " or " + SHARED_CERTIFICATE + "/" + SHARED_PRIVATE_KEY);
+            }
+            if (!profiles.configured()) {
+                throw new IllegalStateException(
+                        prefix + " gRPC requires an explicit environment profile before plaintext can be enabled; "
+                                + "set " + prefix + "_ENVIRONMENT, MEDIA_ENVIRONMENT, or "
+                                + "GHATANA_DEPLOYMENT_PROFILE");
             }
             return AudioVideoGrpcServerBase.TransportSecurity.plaintext();
         }
@@ -63,14 +70,16 @@ public final class GrpcTransportSecurityPolicy {
      * explicitly production-like deployment or Media profile to plaintext. Conflicting
      * profile sources therefore retain the most restrictive transport requirement.
      */
-    private static boolean resolveProductionLikeProfile(Map<String, String> environment, String prefix) {
+    private static Profiles resolveProfiles(Map<String, String> environment, String prefix) {
         boolean productionLike = false;
+        boolean configured = false;
         for (String candidate : new String[] {
                 environment.get(prefix + "_ENVIRONMENT"),
                 environment.get("MEDIA_ENVIRONMENT"),
                 environment.get("GHATANA_DEPLOYMENT_PROFILE")}) {
             String value = text(candidate);
             if (value.isBlank()) continue;
+            configured = true;
             String normalized = value.toLowerCase(Locale.ROOT);
             boolean candidateProductionLike = switch (normalized) {
                 case "production", "staging", "sovereign" -> true;
@@ -80,7 +89,7 @@ public final class GrpcTransportSecurityPolicy {
             };
             productionLike |= candidateProductionLike;
         }
-        return productionLike;
+        return new Profiles(productionLike, configured);
     }
 
     private static Pair completePair(
@@ -116,4 +125,5 @@ public final class GrpcTransportSecurityPolicy {
     }
 
     private record Pair(String certificate, String privateKey) { }
+    private record Profiles(boolean productionLike, boolean configured) { }
 }

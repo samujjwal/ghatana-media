@@ -10,12 +10,14 @@ import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,19 +35,31 @@ class MediaRuntimeSourceAuthorizationTest {
 
     @Test
     void allowedAuthorityDecisionAdmitsTheOperation() {
-        var port = new ProbePort(allowedDecision());
+        var port = new ProbePort(jobType -> allowedDecision(jobType));
         var authorization = new MediaRuntimeSourceAuthorization(port);
         assertThat(authorization.authorize(request())).isEqualTo(SourceAuthorization.Decision.ADMITTED);
-        assertThat(port.resolutions.get()).isEqualTo(1);
-        assertThat(port.lastJobType).isEqualTo(JobType.MULTIMODAL);
+        assertThat(port.resolutions.get()).isEqualTo(2);
+        assertThat(port.jobTypes).containsExactly(JobType.MULTIMODAL, JobType.SPEECH_TO_TEXT);
         assertThat(port.lastArtifactId).isEqualTo("src-artifact-1");
         assertThat(port.lastVersion.value()).isEqualTo("sha256:" + SHA_A);
         assertThat(port.lastPrincipal).isEqualTo(PRINCIPAL.toString());
     }
 
     @Test
+    void childProviderDenialPreventsAdmissionAfterParentRightsAllow() {
+        var port = new ProbePort(jobType -> jobType == JobType.MULTIMODAL
+                ? allowedDecision(jobType)
+                : decision(MediaSourceAuthorizationContracts.Status.REVOKED));
+        var authorization = new MediaRuntimeSourceAuthorization(port);
+
+        assertThat(authorization.authorize(request())).isEqualTo(SourceAuthorization.Decision.DENIED);
+        assertThat(port.jobTypes).containsExactly(JobType.MULTIMODAL, JobType.SPEECH_TO_TEXT);
+        assertThat(port.submissions.get()).isZero();
+    }
+
+    @Test
     void changedPayloadDigestIsDeniedBeforeRuntimeProbe() {
-        var port = new ProbePort(allowedDecision());
+        var port = new ProbePort(allowedDecision(JobType.MULTIMODAL));
         var authorization = new MediaRuntimeSourceAuthorization(port);
         var changed = new SourceAuthorization.AuthorizationRequest(
                 "tenant-a", PRINCIPAL, Set.of(SourceAuthorization.Modality.AUDIO),
@@ -60,7 +74,7 @@ class MediaRuntimeSourceAuthorizationTest {
 
     @Test
     void compositeModalityRequestIsNotAdmittedBySingleArtifactProbe() {
-        var port = new ProbePort(allowedDecision());
+        var port = new ProbePort(allowedDecision(JobType.MULTIMODAL));
         var authorization = new MediaRuntimeSourceAuthorization(port);
         var composite = new SourceAuthorization.AuthorizationRequest(
                 "tenant-a", PRINCIPAL, Set.of(SourceAuthorization.Modality.AUDIO, SourceAuthorization.Modality.VIDEO),
@@ -92,7 +106,7 @@ class MediaRuntimeSourceAuthorizationTest {
                 new ProbePort(decision(MediaSourceAuthorizationContracts.Status.UNAVAILABLE)));
         assertThat(unavailable.authorize(request())).isEqualTo(SourceAuthorization.Decision.NOT_ADMITTED);
 
-        var nullDecision = new MediaRuntimeSourceAuthorization(new ProbePort(null));
+        var nullDecision = new MediaRuntimeSourceAuthorization(new ProbePort(jobType -> null));
         assertThat(nullDecision.authorize(request())).isEqualTo(SourceAuthorization.Decision.NOT_ADMITTED);
 
         var throwing = new MediaRuntimeSourceAuthorization(new ProbePort(
@@ -109,7 +123,7 @@ class MediaRuntimeSourceAuthorizationTest {
 
     @Test
     void malformedSourceVersionIsDeniedWithoutTouchingTheRuntime() {
-        var port = new ProbePort(allowedDecision());
+        var port = new ProbePort(allowedDecision(JobType.MULTIMODAL));
         var authorization = new MediaRuntimeSourceAuthorization(port);
         var malformed = new SourceAuthorization.AuthorizationRequest(
                 "tenant-a", PRINCIPAL, Set.of(SourceAuthorization.Modality.AUDIO),
@@ -144,17 +158,17 @@ class MediaRuntimeSourceAuthorizationTest {
     }
 
     /** Valid ALLOWED evidence; the contract refuses ALLOWED without real evidence. */
-    private static MediaSourceAuthorizationContracts.Decision allowedDecision() {
+    private static MediaSourceAuthorizationContracts.Decision allowedDecision(JobType jobType) {
         java.time.Instant now = java.time.Instant.now();
         var version = new ArtifactVersion("sha256:" + SHA_A);
         var evidence = new MediaSourceAuthorizationContracts.Evidence(
                 "fixture-authority", "decision-1", "tenant-a", PRINCIPAL.toString(),
                 "owner-1", "src-artifact-1", version, SHA_A,
-                "multimodal", "mm-observe", "media-multimodal-delegating",
+                jobType.name(), "mm-observe", "media-multimodal-delegating",
                 "multimodal-delegating-v1",
                 com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary.LOCAL,
                 "local", com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE,
-                Set.of("multimodal"), Set.of("local"),
+                Set.of(jobType.name()), Set.of("local"),
                 Set.of(com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention.NONE),
                 "rights-1", "policy-1", "policy-v1",
                 MediaSourceAuthorizationContracts.SourceKind.ORIGINAL_NONHUMAN,
@@ -168,14 +182,19 @@ class MediaRuntimeSourceAuthorizationTest {
     static class ProbePort implements MediaProcessingRuntimePort {
         final AtomicInteger resolutions = new AtomicInteger();
         final AtomicInteger submissions = new AtomicInteger();
-        private final MediaSourceAuthorizationContracts.Decision decision;
+        private final Function<JobType, MediaSourceAuthorizationContracts.Decision> decisions;
+        final List<JobType> jobTypes = new ArrayList<>();
         String lastArtifactId;
         String lastPrincipal;
         ArtifactVersion lastVersion;
         JobType lastJobType;
 
         ProbePort(MediaSourceAuthorizationContracts.Decision decision) {
-            this.decision = decision;
+            this(jobType -> decision);
+        }
+
+        ProbePort(Function<JobType, MediaSourceAuthorizationContracts.Decision> decisions) {
+            this.decisions = decisions;
         }
 
         @Override public ProcessingJob submit(ProcessingJobRequest request) {
@@ -200,11 +219,12 @@ class MediaRuntimeSourceAuthorizationTest {
                 ArtifactVersion sourceVersion, JobType jobType, String purpose,
                 AuthenticatedPrincipal authenticated) {
             resolutions.incrementAndGet();
+            jobTypes.add(jobType);
             lastArtifactId = artifactId;
             lastPrincipal = principalId;
             lastVersion = sourceVersion;
             lastJobType = jobType;
-            return decision;
+            return decisions.apply(jobType);
         }
     }
 }

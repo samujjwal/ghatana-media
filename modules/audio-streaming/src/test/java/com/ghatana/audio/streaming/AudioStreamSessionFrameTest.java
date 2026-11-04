@@ -123,6 +123,33 @@ class AudioStreamSessionFrameTest {
     }
 
     @Test
+    void signedHeaderExtremesCannotWrapIntoValidFrames() {
+        // Integer.MAX_VALUE is reserved so incrementing a valid sequence can
+        // never wrap into the signed range. Exercise the sign and rollover
+        // boundaries from untrusted wire bytes as well as through the encoder.
+        assertValidFrame(header(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, 0L, 0),
+                AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER, 0L, new byte[0]);
+        for (int sequence : new int[]{Integer.MIN_VALUE, -1, Integer.MAX_VALUE}) {
+            assertInvalidFrame(header(sequence, 0L, 0));
+        }
+        assertThatThrownBy(() -> session.encodeFrame(Integer.MAX_VALUE, 0L, new byte[0]))
+                .isExactlyInstanceOf(IllegalArgumentException.class);
+
+        // These values include both signed extremes and lengths whose naive
+        // header-plus-payload arithmetic is prone to overflow. None may be
+        // accepted or cause the decoder to allocate from the declaration.
+        for (int declaredLength : new int[]{
+                Integer.MIN_VALUE,
+                -1,
+                AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES + 1,
+                Integer.MAX_VALUE - AudioStreamSession.FRAME_HEADER_BYTES,
+                Integer.MAX_VALUE
+        }) {
+            assertInvalidFrame(header(1, 0L, declaredLength));
+        }
+    }
+
+    @Test
     void deterministicFrameCorpusClassifiesValidAndMalformedBoundaries() {
         Random random = new Random(0x41532d3032L);
         byte[] payload = new byte[]{1, 2, 3, 4};

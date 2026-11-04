@@ -45,19 +45,29 @@ final class MediaRuntimeSourceAuthorization implements SourceAuthorization {
             // to an owned source version; deny rather than report unavailable.
             return Decision.DENIED;
         }
-        // This runtime probe only resolves one source artifact. It cannot independently
-        // authorize a composite of modality payloads or child-provider egress. Admit the
-        // narrow case where the one submitted modality is byte-identical to that artifact.
+        // This runtime probe resolves one immutable source artifact at a time. It cannot
+        // authorize a composite of independently supplied modality payloads. Admit the
+        // narrow case where the one submitted modality is byte-identical to that artifact,
+        // and require both the parent operation and its actual child provider operation
+        // to be currently authorized before the operation can fan out.
         if (request.modalities().size() != 1 || request.contentBytes() <= 0
                 || !digestEquals(request.contentSha256(), sourceVersion.value().substring("sha256:".length()))) {
             return request.modalities().size() != 1
                     ? Decision.NOT_ADMITTED : Decision.DENIED;
         }
+        JobType childJobType = childJobType(request.modalities().iterator().next());
+        if (childJobType == null) return Decision.NOT_ADMITTED;
+        Decision parent = resolve(request, sourceVersion, JobType.MULTIMODAL);
+        if (parent != Decision.ADMITTED) return parent;
+        return resolve(request, sourceVersion, childJobType);
+    }
+
+    private Decision resolve(AuthorizationRequest request, ArtifactVersion sourceVersion, JobType jobType) {
         final MediaSourceAuthorizationContracts.Decision decision;
         try {
             decision = port.resolveSourceAuthorization(
                     request.tenantId(), request.principalId().toString(), request.artifactId(),
-                    sourceVersion, JobType.MULTIMODAL, request.purpose(),
+                    sourceVersion, jobType, request.purpose(),
                     new AuthenticatedPrincipal(
                             request.tenantId(), request.principalId().toString(), Instant.now()));
         } catch (RuntimeException unavailable) {
@@ -67,14 +77,23 @@ final class MediaRuntimeSourceAuthorization implements SourceAuthorization {
             return Decision.NOT_ADMITTED;
         }
         return switch (decision.status()) {
-            case ALLOWED -> evidenceMatches(request, sourceVersion, decision.evidence())
+            case ALLOWED -> evidenceMatches(request, sourceVersion, jobType, decision.evidence())
                     ? Decision.ADMITTED : Decision.DENIED;
             case DENIED, REVOKED, STALE -> Decision.DENIED;
             case UNAVAILABLE -> Decision.NOT_ADMITTED;
         };
     }
 
+    private static JobType childJobType(SourceAuthorization.Modality modality) {
+        return switch (modality) {
+            case AUDIO -> JobType.SPEECH_TO_TEXT;
+            case IMAGE, VIDEO -> JobType.VISION;
+            case TEXT -> null;
+        };
+    }
+
     private static boolean evidenceMatches(AuthorizationRequest request, ArtifactVersion version,
+                                           JobType jobType,
                                            MediaSourceAuthorizationContracts.Evidence evidence) {
         return evidence != null
                 && evidence.tenantId().equals(request.tenantId())
@@ -82,7 +101,7 @@ final class MediaRuntimeSourceAuthorization implements SourceAuthorization {
                 && evidence.artifactId().equals(request.artifactId())
                 && evidence.sourceVersion().equals(version)
                 && digestEquals(evidence.sourceSha256(), request.contentSha256())
-                && evidence.operation().equalsIgnoreCase(JobType.MULTIMODAL.name())
+                && evidence.operation().equalsIgnoreCase(jobType.name())
                 && evidence.purpose().equals(request.purpose())
                 && evidence.currentAt(java.time.Clock.systemUTC());
     }

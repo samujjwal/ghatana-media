@@ -133,5 +133,20 @@ class MediaPdp3BusinessRecordingIT {
                 .contains("truthLabel: EXPLORER_SIMULATED")
                 .contains("status: NOT_RECORDED")
                 .contains("persistentSimulationDisclosure: EVIDENCE-ONLY OVERLAY | SIMULATED FIXTURE | NO LIVE PRODUCT OPERATIONS");
+
+        // The checked-in recording is a real capture of the static Explorer,
+        // but its narration, caption version and terminal screen are fixture
+        // content. Keep that distinction executable so the artifact cannot be
+        // mistaken for the source-derived Build recording.
+        String manifest = Files.readString(Path.of("..", "docs", "implementation", "evidence",
+                "media-pdp3-demo", "j03-explorer-simulated-2026-10-21-r2", "recording-manifest.json"));
+        assertThat(manifest)
+                .contains("\"truthLabel\": \"EXPLORER_SIMULATED\"")
+                .contains("\"buildRecordingStatus\": \"NOT_RECORDED\"")
+                .contains("\"semanticEquivalenceStatus\": \"NOT_VERIFIED\"")
+                .contains("No Build/product execution")
+                .contains("No real project, file transfer, transcription provider, external service, persisted business effect or owner receipt")
+                .contains("No quality, legal/voice-rights or privacy approval")
+                .contains("\"versionDisposition\": \"simulation fixture version only; not a product receipt\"");
     }
 }

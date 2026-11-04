@@ -182,6 +182,12 @@ public final class MediaCaptureSourceContracts {
     public static boolean mayCapture(AdapterEligibility eligibility, CaptureRequest request) {
         Objects.requireNonNull(eligibility, "eligibility");
         Objects.requireNonNull(request, "request");
-        return eligibility.check(request) == Eligibility.ADMITTED;
+        try {
+            return eligibility.check(request) == Eligibility.ADMITTED;
+        } catch (RuntimeException ignored) {
+            // A failed trusted decision cannot authorize capture. Do not expose
+            // adapter error details, which may contain source or credential data.
+            return false;
+        }
     }
 }

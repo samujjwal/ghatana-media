@@ -136,6 +136,63 @@ class JwtServerInterceptorInProcessRevocationTest {
         assertThat(validations).hasValue(PROVIDERS.size());
     }
 
+    @Test
+    void forgedIdentityAndCrossTenantMetadataCannotReachAnyProvider() throws Exception {
+        String token = signedLocalToken("verified-principal", "tenant-a", List.of("av:user"));
+
+        for (ProviderMethod provider : PROVIDERS) {
+            AtomicInteger backendEffects = new AtomicInteger();
+            AtomicInteger verifiedIdentityMatches = new AtomicInteger();
+            MethodDescriptor<StringValue, StringValue> method = method(provider);
+            var service = io.grpc.ServerServiceDefinition.builder(provider.serviceName())
+                    .addMethod(method, ServerCalls.asyncUnaryCall(
+                            (StringValue request, StreamObserver<StringValue> response) -> {
+                                backendEffects.incrementAndGet();
+                                JwtServerInterceptor.VerifiedIdentity identity =
+                                        JwtServerInterceptor.verifiedIdentity();
+                                if (identity != null && "verified-principal".equals(identity.subject())
+                                        && "tenant-a".equals(identity.tenantId())) {
+                                    verifiedIdentityMatches.incrementAndGet();
+                                }
+                                response.onNext(StringValue.of("accepted"));
+                                response.onCompleted();
+                            }))
+                    .build();
+            String serverName = InProcessServerBuilder.generateName();
+            InProcessServerBuilder serverBuilder = InProcessServerBuilder.forName(serverName)
+                    .directExecutor().addService(service);
+            GrpcInterceptorChain.build().forEach(serverBuilder::intercept);
+            Server server = serverBuilder.build().start();
+            ManagedChannel transport = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+            try {
+                Metadata forgedIdentity = bearer(token);
+                forgedIdentity.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), "tenant-a");
+                forgedIdentity.put(Metadata.Key.of("x-principal-id", Metadata.ASCII_STRING_MARSHALLER),
+                        "forged-principal");
+                forgedIdentity.put(Metadata.Key.of("x-roles", Metadata.ASCII_STRING_MARSHALLER), "av:admin");
+                assertThat(call(transport, method, forgedIdentity).getValue()).isEqualTo("accepted");
+                assertThat(backendEffects).as("valid identity must reach %s", provider.serviceName()).hasValue(1);
+                assertThat(verifiedIdentityMatches).as("backend identity must remain token-derived for %s",
+                        provider.serviceName()).hasValue(1);
+
+                Metadata crossTenant = bearer(token);
+                crossTenant.put(Metadata.Key.of("x-tenant-id", Metadata.ASCII_STRING_MARSHALLER), "tenant-b");
+                crossTenant.put(Metadata.Key.of("x-principal-id", Metadata.ASCII_STRING_MARSHALLER),
+                        "forged-principal");
+                assertThatThrownBy(() -> call(transport, method, crossTenant))
+                        .as("cross-tenant metadata %s/%s", provider.serviceName(), provider.methodName())
+                        .isInstanceOf(StatusRuntimeException.class)
+                        .extracting(failure -> ((StatusRuntimeException) failure).getStatus().getCode())
+                        .isEqualTo(Status.Code.PERMISSION_DENIED);
+                assertThat(backendEffects).as("cross-tenant request must not reach %s", provider.serviceName())
+                        .hasValue(1);
+            } finally {
+                transport.shutdownNow();
+                server.shutdownNow();
+            }
+        }
+    }
+
     private static String signedGatewayToken() throws Exception {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), new JWTClaimsSet.Builder()
                 .subject("jc02-revoked-principal")
@@ -143,6 +200,17 @@ class JwtServerInterceptorInProcessRevocationTest {
                 .expirationTime(new Date(System.currentTimeMillis() + 60_000))
                 .build());
         jwt.sign(new MACSigner(SIGNING_KEY));
+        return jwt.serialize();
+    }
+
+    private static String signedLocalToken(String subject, String tenantId, List<String> roles) throws Exception {
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), new JWTClaimsSet.Builder()
+                .subject(subject)
+                .claim("tenantId", tenantId)
+                .claim("roles", roles)
+                .expirationTime(new Date(System.currentTimeMillis() + 60_000))
+                .build());
+        jwt.sign(new MACSigner("jc02-chain-construction-test-secret-012345"));
         return jwt.serialize();
     }
 

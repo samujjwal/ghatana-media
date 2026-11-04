@@ -106,6 +106,34 @@ class PersistentSttGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("revoked source authorization precedes decoder and service access")
+    void revokedAuthorizationPrecedesDecoderAndServiceAccess() {
+        java.util.concurrent.atomic.AtomicReference<SttRequestAuthorization.Request> seen =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        PersistentSttGrpcService revoked = new PersistentSttGrpcService(persistentSttService, request -> {
+            seen.set(request);
+            return SttRequestAuthorization.Decision.REVOKED;
+        });
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        runWithTenantContext("tenant-revoked", USER_ID, () -> revoked.transcribe(
+                TranscribeRequest.newBuilder().setArtifactId("revoked-artifact")
+                        .setAudioData(ByteString.EMPTY).build(), observer));
+
+        assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_REVOKED:");
+        assertThat(observer.value).isNull();
+        assertThat(observer.completed).isFalse();
+        assertThat(seen.get()).isNotNull();
+        assertThat(seen.get().identity().tenantId()).isEqualTo("tenant-revoked");
+        assertThat(seen.get().identity().subject()).isEqualTo(USER_ID);
+        assertThat(seen.get().resourceId()).isEqualTo("revoked-artifact");
+        verifyNoInteractions(persistentSttService);
+    }
+
+    @Test
     @DisplayName("direct-service identity rejection maps to UNAUTHENTICATED")
     void identityRejectionMapsToUnauthenticated() {
         CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
@@ -485,6 +513,10 @@ class PersistentSttGrpcServiceTest {
         System.arraycopy(marker, 0, flac, 0, marker.length);
         flac[4] = (byte) 0x80; // Last metadata block, type STREAMINFO.
         flac[7] = 34; // STREAMINFO payload length.
+        flac[9] = 16; // Minimum block size.
+        flac[11] = 16; // Maximum block size.
+        ByteBuffer.wrap(flac).order(ByteOrder.BIG_ENDIAN)
+                .putLong(18, ((long) 16_000 << 44) | (15L << 36));
         return flac;
     }
 

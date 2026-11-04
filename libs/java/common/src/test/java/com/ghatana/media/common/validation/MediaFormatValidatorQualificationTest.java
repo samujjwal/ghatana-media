@@ -255,14 +255,16 @@ class MediaFormatValidatorQualificationTest {
     }
 
     @Test
-    void rejectsWebpContainerHeaderWithoutParsedDimensions() {
+    void reportsWebpAsUnqualifiedInsteadOfMisclassifyingItAsMalformed() {
         byte[] webp = new byte[12];
         putAscii(webp, 0, "RIFF");
         putAscii(webp, 8, "WEBP");
 
         var result = MediaFormatValidator.validateImage(webp, "WEBP");
         assertThat(result.valid).isFalse();
-        assertThat(result.errorMessage).contains("valid dimensions");
+        assertThat(result.errorMessage)
+                .contains("Detected WEBP header")
+                .contains("no complete decode profile is qualified");
     }
 
     @Test

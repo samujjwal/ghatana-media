@@ -154,6 +154,12 @@ class MediaGrpcRegistryDescriptorParityTest {
                 .isEqualTo("PDP-1 operation proposal is intended semantic authority only after phase acceptance");
         assertThat(requiredText(registry, "status"))
                 .contains("protocol-authority-unselected", "operation-bindings-proposal-only", "owner-review-pending");
+        assertThat(registry.path("explicitProposedLogicalOperationBindings").asInt())
+                .isEqualTo(24);
+        assertThat(registry.path("unresolvedLogicalOperationBindings").asInt())
+                .isEqualTo(19);
+        assertThat(registry.path("unresolvedRpcCount").asInt())
+                .isZero();
 
         JsonNode rows = registry.path("rpcs");
         assertThat(rows.isArray()).isTrue();
@@ -162,6 +168,25 @@ class MediaGrpcRegistryDescriptorParityTest {
                     .as("binding for %s stays explicitly pending owner review", requiredText(row, "id"))
                     .isEqualTo("pending-owner-review");
         }
+
+        JsonNode sceneText = findRpc(rows, "media.grpc.VisionService.RecognizeSceneText");
+        assertThat(sceneText).as("RecognizeSceneText remains in the observed source inventory").isNotNull();
+        Path sceneTextContractPath = REPOSITORY_ROOT.resolve(REGISTRY_RELATIVE_PATH.getParent())
+                .resolve(requiredText(sceneText, "contractFile")).normalize();
+        JsonNode sceneTextContract = YAML.readTree(Files.readString(sceneTextContractPath));
+        assertThat(requiredText(sceneTextContract, "contractStatus"))
+                .contains("proposal-only", "owner-review-pending");
+        assertThat(requiredText(sceneTextContract.path("pdp1SemanticBinding"), "bindingStatus"))
+                .contains("proposed", "owner-review-pending");
+        assertThat(requiredText(sceneTextContract.path("pdp1SemanticBinding"), "ownerReview"))
+                .isEqualTo("pending");
+    }
+
+    private static JsonNode findRpc(JsonNode rows, String id) {
+        for (JsonNode row : rows) {
+            if (id.equals(requiredText(row, "id"))) return row;
+        }
+        return null;
     }
 
     private static Map<String, Descriptors.MethodDescriptor> descriptorMethods() {

@@ -403,6 +403,14 @@ public final class MediaFormatValidator {
             return ImageValidationResult.error("Unable to detect image format - not a valid image file");
         }
 
+        // Recognition is not decode qualification. WEBP is sniffed so callers
+        // can report the actual container, but this validator has no bounded
+        // WEBP dimension parser/decoder and must not misreport it as malformed.
+        if ("WEBP".equals(detectedFormat)) {
+            return ImageValidationResult.error(
+                "Detected WEBP header, but no complete decode profile is qualified for validation");
+        }
+
         if ("PNG".equals(detectedFormat)) {
             String pngHeaderError = validatePngHeaderAndDimensions(data);
             if (pngHeaderError != null) {

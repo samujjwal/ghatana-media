@@ -33,6 +33,15 @@ class MediaCaptureSourceContractsTest {
 
     @Test
     void onlyAdmittedEligibilityPermitsCapture() {
+        assertThat(CaptureSourceKind.values()).containsExactly(
+                CaptureSourceKind.BROWSER,
+                CaptureSourceKind.DESKTOP,
+                CaptureSourceKind.MOBILE,
+                CaptureSourceKind.TERMINAL,
+                CaptureSourceKind.HTTP_API,
+                CaptureSourceKind.GRPC_API,
+                CaptureSourceKind.CAMERA,
+                CaptureSourceKind.MEDIA_FILE);
         for (CaptureSourceKind kind : CaptureSourceKind.values()) {
             assertThat(AdapterEligibility.none().check(request(kind)))
                     .isEqualTo(Eligibility.NOT_ADMITTED);
@@ -42,6 +51,9 @@ class MediaCaptureSourceContractsTest {
                     r -> Eligibility.ADMITTED, request(kind))).isTrue();
             assertThat(MediaCaptureSourceContracts.mayCapture(
                     r -> Eligibility.UNAVAILABLE, request(kind))).isFalse();
+            assertThat(MediaCaptureSourceContracts.mayCapture(r -> {
+                throw new IllegalStateException("source=private credential=private");
+            }, request(kind))).isFalse();
         }
     }
 

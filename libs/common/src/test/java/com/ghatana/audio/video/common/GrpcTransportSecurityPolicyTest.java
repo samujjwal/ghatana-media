@@ -86,13 +86,27 @@ class GrpcTransportSecurityPolicyTest {
     }
 
     @Test
-    void absentOrNullProfilesDefaultToLocal() {
-        assertThat(GrpcTransportSecurityPolicy.resolve(Map.of(), "STT").tlsEnabled()).isFalse();
+    void absentOrNullProfilesCannotSelectPlaintext() {
+        assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(), "STT"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires an explicit environment profile");
         var environment = new java.util.HashMap<String, String>();
         environment.put("STT_ENVIRONMENT", null);
         environment.put("MEDIA_ENVIRONMENT", null);
         environment.put("GHATANA_DEPLOYMENT_PROFILE", null);
-        assertThat(GrpcTransportSecurityPolicy.resolve(environment, "STT").tlsEnabled()).isFalse();
+        assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(environment, "STT"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("requires an explicit environment profile");
+    }
+
+    @Test
+    void missingProfileStillAllowsTlsButNeverFallsBackToPlaintext() {
+        var security = GrpcTransportSecurityPolicy.resolve(Map.of(
+                "STT_GRPC_TLS_CERT_CHAIN_PATH", "/run/secrets/stt-cert.pem",
+                "STT_GRPC_TLS_PRIVATE_KEY_PATH", "/run/secrets/stt-key.pem"), "STT");
+
+        assertThat(security.tlsEnabled()).isTrue();
+        assertThat(security.certificateChain().toString()).endsWith("stt-cert.pem");
     }
 
     @Test

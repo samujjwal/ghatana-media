@@ -252,6 +252,21 @@ class AudioVideoGrpcServerBaseTest {
     }
 
     @Test
+    void missingProfileCannotBindPlaintextListenerForAnyProvider() throws Exception {
+        for (String service : new String[] {"STT", "TTS", "VISION", "MULTIMODAL"}) {
+            int port = findAvailablePort();
+
+            assertThatThrownBy(() -> new TestServer(port, new CloseableNoOpService(),
+                            GrpcTransportSecurityPolicy.resolve(java.util.Map.of(), service)))
+                    .as("%s with no explicit profile or TLS material", service)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("requires an explicit environment profile");
+
+            assertPortNotBound(port, "%s with no explicit profile".formatted(service));
+        }
+    }
+
+    @Test
     void mismatchedTlsIdentityIsRejectedBeforeAnyListenerCanBind() throws Exception {
         Path certificate = tlsFixture("rotation-a-cert.pem");
         Path mismatchedKey = tlsFixture("rotation-b-key.pem");
