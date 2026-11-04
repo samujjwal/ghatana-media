@@ -4523,6 +4523,8 @@ The selected candidate register already pins the official OpenAI multilingual `t
 
 The current plan integrity selectors passed: terminal qualification **7/7**, remaining surfaces **12/12**, Wave 2 modality plan **7/7**, and R10 owner resolution **16/16**. `check:common-voice-v27-profile` reports valid profile metadata and real inference `NOT_ADMITTED`. These checks preserve the original 58/36 and 84/8 task accounting; no acceptance or phase status changed. A read-only review found the local H-05/H-06, VIS-05/VIS-07, and STT-04/STT-06 cases already covered or source/authority dependent, so they were left unchanged.
 
+Two additional source checks found no safe code change: VS-02's fixed video-frame envelope validates declared length and exact total size before allocation/copy and its focused selector passed **8/8**; codec/width/height limits cannot be added without changing the owner contract because those fields are absent from the wire envelope. SK-01/SK-02 client source/tests already preserve request identity, idempotency, abort/timeout, typed transport errors and post-dispatch `OUTCOME_UNKNOWN` without blind retries. The server job request schema has no caller fingerprint field, so no fingerprint field or reconciliation route was invented. The focused SDK test/typecheck could not start because `libs/audio-video-client/node_modules` is absent (`tsc: command not found`); no client source changed and no task acceptance was inferred.
+
 
 ### 43.211 November 3 AS-01 reconciliation and Q03/DI local guard coverage
 
