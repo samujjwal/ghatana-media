@@ -186,8 +186,11 @@ public final class SttAudioInputDecoder {
         long sampleClock = ((long) (input[18] & 0xff) << 12)
                 | ((long) (input[19] & 0xff) << 4)
                 | ((input[20] & 0xf0L) >>> 4);
-        if (minBlockSize < 16 || maxBlockSize < minBlockSize || sampleClock == 0) {
-            throw invalid("STT_AUDIO_INVALID_HEADER: FLAC STREAMINFO has invalid block-size or sample-rate fields");
+        int bitsPerSampleMinusOne = ((input[20] & 0x01) << 4) | ((input[21] & 0xf0) >>> 4);
+        if (minBlockSize < 16 || maxBlockSize < minBlockSize
+                || sampleClock == 0 || sampleClock > 655_350
+                || bitsPerSampleMinusOne < 3) {
+            throw invalid("STT_AUDIO_INVALID_HEADER: FLAC STREAMINFO has invalid block-size, sample-rate, or bit-depth fields");
         }
     }
 

@@ -190,6 +190,19 @@ class SttAudioInputDecoderTest {
     }
 
     @Test
+    void rejectsOutOfRangeFlacSampleClockAndImpossibleBitDepthAsMalformed() {
+        byte[] outOfRangeClock = validFlacStreamInfoHeader();
+        ByteBuffer.wrap(outOfRangeClock).order(ByteOrder.BIG_ENDIAN)
+                .putLong(18, (655_351L << 44) | (15L << 36));
+        assertMalformedFlac(outOfRangeClock);
+
+        byte[] impossibleBitDepth = validFlacStreamInfoHeader();
+        ByteBuffer.wrap(impossibleBitDepth).order(ByteOrder.BIG_ENDIAN)
+                .putLong(18, (16_000L << 44) | (2L << 36)); // bits-per-sample minus one = 2.
+        assertMalformedFlac(impossibleBitDepth);
+    }
+
+    @Test
     void rejectsDeclaredCompressedFormatWhenBytesDoNotSniffAsThatContainer() {
         assertThatThrownBy(() -> SttAudioInputDecoder.decode(
                 new byte[44], AudioFormat.MP3, 16_000))
