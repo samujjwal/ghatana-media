@@ -204,6 +204,7 @@ class MediaSttTranscriptCommitFenceIT {
                 assertThat(await(runtime, jobId).status()).isEqualTo(JobStatus.COMPLETED);
                 var attempt = jobStore.findProcessingAttempt("tenant-a", jobId, 1).orElseThrow();
                 assertThat(attempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+                assertThat(attempt.requestId()).isEqualTo(request.requestId());
                 assertThat(attempt.providerOperationId()).isEqualTo("op-fence-1");
                 assertThat(attempt.providerReceiptId()).isEqualTo("receipt-fence-1");
                 assertThat(providerRan).isTrue();
@@ -560,47 +561,87 @@ class MediaSttTranscriptCommitFenceIT {
     @Test
     void transcriptAndJobTerminalRollBackTogetherWhenLifecycleOutboxInsertFails() throws Exception {
         AtomicBoolean providerRan = new AtomicBoolean();
+        AtomicInteger providerCalls = new AtomicInteger();
         CountDownLatch allowProviderReturn = new CountDownLatch(1);
         Path root = Files.createTempDirectory("media-fence-atomic-rollback-");
-        AutoCloseable installed = TestAwsStateInstall.install(environment());
-        try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
-             var jobStore = new PostgresqlMediaJobStore();
-             var streamStore = new PostgresqlMediaStreamSessionStore();
-             var consentAuthority = new PostgresqlMediaConsentAuthority();
-             var authority = new PostgresqlMediaSourceAuthorizationAuthority(
-                     new FlippingPolicy(new AtomicBoolean()));
-             var transcriptStore = new PostgresqlMediaTranscriptStore();
-             var administration = new PostgresqlMediaSourceRightsAdministration();
-             var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
-                     authority, transcriptStore, List.of(fenceProvider(providerRan, allowProviderReturn)))) {
-            MediaArtifact artifact = upload(runtime, "atomic-rollback");
-            seedArtifactRow(artifact);
-            administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
-            var accepted = runtime.submit(jobRequest(artifact, "atomic-rollback"),
-                    authenticated("tenant-a", "principal-a"));
-            awaitProviderRan(providerRan);
+        try (AutoCloseable installed = TestAwsStateInstall.install(environment())) {
+            ProcessingJobRequest request;
+            String jobId;
+            try (var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(
+                         new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var administration = new PostgresqlMediaSourceRightsAdministration();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
+                         authority, transcriptStore,
+                         List.of(fenceProvider(providerRan, providerCalls, allowProviderReturn)))) {
+                MediaArtifact artifact = upload(runtime, "atomic-rollback");
+                seedArtifactRow(artifact);
+                administration.register(register(artifact), authenticated("tenant-a", "principal-a"));
+                request = jobRequest(artifact, "atomic-rollback");
+                var accepted = runtime.submit(request,
+                        authenticated("tenant-a", "principal-a"));
+                jobId = accepted.jobId();
+                awaitProviderRan(providerRan);
 
-            // Force the last operation in the finalization transaction (job lifecycle outbox
-            // insert) to violate its unique identity after transcript rows and its outbox row
-            // have been inserted in the same transaction.
-            insertJobLifecycleOutboxCollision(accepted);
-            allowProviderReturn.countDown();
-            var stored = awaitStatus(jobStore, "tenant-a", accepted.jobId(), JobStatus.OUTCOME_UNKNOWN);
-            assertThat(stored.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
-            var attempt = jobStore.findProcessingAttempt("tenant-a", accepted.jobId(), 1).orElseThrow();
-            assertThat(attempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
-            assertThat(attempt.providerOperationId()).isEqualTo("op-fence-1");
-            assertThat(attempt.providerReceiptId()).isEqualTo("receipt-fence-1");
-            assertThat(transcriptStore.revisions(
-                    "tenant-a", "principal-a", "transcript:" + accepted.jobId())).isEmpty();
-            assertThat(transcriptRevisionCount(accepted.jobId())).isZero();
-            assertThat(transcriptOutboxCount("tenant-a", accepted.jobId())).isZero();
-            assertThat(completedJobOutboxCount("tenant-a", accepted.jobId())).isEqualTo(1);
-            assertThat(outboxEventCount("media:media.job.completed:" + accepted.jobId() + ":"
-                    + (accepted.version() + 2))).isZero();
-        } finally {
-            allowProviderReturn.countDown();
-            installed.close();
+                // Force the last operation in the finalization transaction (job lifecycle outbox
+                // insert) to violate its unique identity after transcript rows and its outbox row
+                // have been inserted in the same transaction.
+                insertJobLifecycleOutboxCollision(accepted);
+                allowProviderReturn.countDown();
+                var stored = awaitStatus(jobStore, "tenant-a", accepted.jobId(), JobStatus.OUTCOME_UNKNOWN);
+                assertThat(stored.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                var attempt = jobStore.findProcessingAttempt("tenant-a", accepted.jobId(), 1).orElseThrow();
+                assertThat(attempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+                assertThat(attempt.requestId()).isEqualTo(request.requestId());
+                assertThat(attempt.providerOperationId()).isEqualTo("op-fence-1");
+                assertThat(attempt.providerReceiptId()).isEqualTo("receipt-fence-1");
+                assertThat(providerCalls).hasValue(1);
+                assertThat(transcriptStore.revisions(
+                        "tenant-a", "principal-a", "transcript:" + accepted.jobId())).isEmpty();
+                assertThat(transcriptRevisionCount(accepted.jobId())).isZero();
+                assertThat(transcriptOutboxCount("tenant-a", accepted.jobId())).isZero();
+                assertThat(completedJobOutboxCount("tenant-a", accepted.jobId())).isEqualTo(1);
+                assertThat(outboxEventCount("media:media.job.completed:" + accepted.jobId() + ":"
+                        + (accepted.version() + 2))).isZero();
+            } finally {
+                allowProviderReturn.countDown();
+            }
+
+            // Reconstruct the runtime over the same durable state. The provider has a SUCCEEDED
+            // receipt, but the lifecycle outbox collision left its job OUTCOME_UNKNOWN and the
+            // transaction produced no transcript. Replaying the exact request must preserve that
+            // result without dispatching the fixture provider again.
+            try (AutoCloseable reinstalled = TestAwsStateInstall.install(environment());
+                 var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(root);
+                 var jobStore = new PostgresqlMediaJobStore();
+                 var streamStore = new PostgresqlMediaStreamSessionStore();
+                 var consentAuthority = new PostgresqlMediaConsentAuthority();
+                 var authority = new PostgresqlMediaSourceAuthorizationAuthority(
+                         new FlippingPolicy(new AtomicBoolean()));
+                 var transcriptStore = new PostgresqlMediaTranscriptStore();
+                 var runtime = runtime(root, artifactStore, jobStore, streamStore, consentAuthority,
+                         authority, transcriptStore,
+                         List.of(fenceProviderWithCallCount(providerRan, providerCalls)))) {
+                var recovered = runtime.job("tenant-a", "principal-a", jobId).orElseThrow();
+                assertThat(recovered.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                var attempt = jobStore.findProcessingAttempt("tenant-a", jobId, 1).orElseThrow();
+                assertThat(attempt.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+                assertThat(attempt.requestId()).isEqualTo(request.requestId());
+                assertThat(attempt.providerOperationId()).isEqualTo("op-fence-1");
+                assertThat(attempt.providerReceiptId()).isEqualTo("receipt-fence-1");
+                assertThat(transcriptStore.revisions(
+                        "tenant-a", "principal-a", "transcript:" + jobId)).isEmpty();
+
+                var replay = runtime.submit(request, authenticated("tenant-a", "principal-a"));
+                assertThat(replay.jobId()).isEqualTo(jobId);
+                assertThat(replay.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
+                assertThat(providerCalls).hasValue(1);
+                assertThat(transcriptOutboxCount("tenant-a", jobId)).isZero();
+            }
         }
     }
 
