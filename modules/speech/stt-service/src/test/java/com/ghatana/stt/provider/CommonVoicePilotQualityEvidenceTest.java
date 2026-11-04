@@ -268,6 +268,15 @@ class CommonVoicePilotQualityEvidenceTest {
         assertInvalid(valid.replace("\"cer\":0.01}", "\"cer\":0.01,\"transcript\":\"private text\"}"));
     }
 
+    @Test
+    void rejectsDuplicateJsonKeysInsteadOfSilentlySelectingOneValue() throws Exception {
+        String valid = validEnvelope();
+        assertInvalid(valid.replace("\"status\":\"ACTIVE\"",
+                "\"status\":\"ACTIVE\",\"status\":\"REVOKED\""));
+        assertInvalid(valid.replace("\"clipCount\":24",
+                "\"clipCount\":24,\"clipCount\":24"));
+    }
+
     private static void assertInvalid(String json) throws Exception {
         assertThatThrownBy(() -> parse(json)).isInstanceOf(IllegalArgumentException.class);
     }
