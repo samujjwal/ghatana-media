@@ -67,6 +67,24 @@ test('rejects declared encoder or decoder digest disagreement', () => {
   assert.throws(() => checkWhisperExportManifest(candidate, { catalog }), /DECLARED_EXPORT_RUNS_DISAGREE/);
 });
 
+test('run agreement is independent of JSON object property order', () => {
+  const candidate = manifest();
+  candidate.runs[1].converter = {
+    argv: [...descriptor.argv],
+    dependencyLockSha256: descriptor.dependencyLockSha256,
+    sourceRevision: descriptor.sourceRevision,
+    version: descriptor.version,
+    name: descriptor.name,
+  };
+  candidate.runs[1].environment = {
+    dependencyLockSha256: descriptor.dependencyLockSha256,
+    platform: 'synthetic-test',
+    python: '3.x',
+  };
+  const result = checkWhisperExportManifest(candidate, { catalog });
+  assert.equal(result.declaredOutputDigestRecordsAgree, true);
+});
+
 test('rejects admission claims, unknown fields, transcript text, local paths, and secret-like arguments', () => {
   const admitted = manifest();
   admitted.admissionClaim = 'APPROVED';

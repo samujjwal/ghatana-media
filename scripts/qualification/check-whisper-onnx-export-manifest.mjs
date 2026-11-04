@@ -32,6 +32,21 @@ function safeArgument(value) {
     && !/(?:transcript|hypothesis|prediction|secret|credential|password|authorization|api[-_]?key|bearer|sk-[A-Za-z0-9]{12,}|AKIA[A-Z0-9]{16})/iu.test(value);
 }
 
+function sameDescriptor(left, right) {
+  return left.name === right.name
+    && left.version === right.version
+    && left.sourceRevision === right.sourceRevision
+    && left.dependencyLockSha256 === right.dependencyLockSha256
+    && left.argv.length === right.argv.length
+    && left.argv.every((argument, index) => argument === right.argv[index]);
+}
+
+function sameEnvironment(left, right) {
+  return left.python === right.python
+    && left.platform === right.platform
+    && left.dependencyLockSha256 === right.dependencyLockSha256;
+}
+
 function officialCandidate(catalog) {
   const candidate = catalog?.candidates?.find(item => item.id === EXPECTED_ID);
   if (!candidate || candidate.status !== 'REVIEW_ONLY'
@@ -111,8 +126,8 @@ export function checkWhisperExportManifest(manifest, { catalog } = {}) {
     outputsByRun.push({ run, outputs });
   }
   const [first, second] = outputsByRun;
-  if (JSON.stringify(first.run.converter) !== JSON.stringify(second.run.converter)
-      || JSON.stringify(first.environment) !== JSON.stringify(second.environment)
+  if (!sameDescriptor(first.run.converter, second.run.converter)
+      || !sameEnvironment(first.run.environment, second.run.environment)
       || ['encoder', 'decoder'].some(role => first.outputs.get(role) !== second.outputs.get(role))) {
     fail('DECLARED_EXPORT_RUNS_DISAGREE');
   }
