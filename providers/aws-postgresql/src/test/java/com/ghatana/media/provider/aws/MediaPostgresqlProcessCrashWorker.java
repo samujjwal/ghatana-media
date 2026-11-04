@@ -8,6 +8,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -74,13 +76,19 @@ public final class MediaPostgresqlProcessCrashWorker {
             String transcriptId = jobId.replace("job-", "transcript-");
             String transcriptVersion = "transcript-version-" + runId;
             String text = "crash-safe transcript fixture";
+            TranscriptSegment sourceTicks = new TranscriptSegment(
+                    "decoded-span", text, "PROVIDER",
+                    TranscriptSegmentTiming.sourceTicks(
+                            0, 48_000, "source-clock-ip06-" + runId, 48_000, 96_000));
             Instant observedAt = Instant.ofEpochMilli(System.currentTimeMillis());
             Map<String, Object> response = Map.of(
                     "sourceArtifactVersionRef", expected.expectedArtifactVersion(),
                     "requestFingerprint", expected.requestFingerprint(),
                     "transcriptVersionRef", transcriptVersion,
                     "glossaryDisposition", "NOT_REQUESTED",
-                    "transcriptText", text);
+                    "transcriptText", text,
+                    "segments", com.ghatana.media.runtime.MediaTranscriptContracts
+                            .segmentsToParametersValue(java.util.List.of(sourceTicks)));
             Map<String, Object> result = Map.of("semanticObservations", Map.of(
                     "requestFingerprint", expected.requestFingerprint(),
                     "glossaryApplication", Map.of("disposition", "NOT_REQUESTED"),
@@ -90,7 +98,7 @@ public final class MediaPostgresqlProcessCrashWorker {
                     expected.expectedArtifactVersion(), "c".repeat(64), jobId,
                     "profile-ip06-v1", expected.providerId(), "model-ip06-v1", "en-US", "milliseconds",
                     text, "consent-stt-" + runId, "rights-ip06-" + runId, "policy-v1",
-                    "urn:media:purpose:transcription", "transcription");
+                    "urn:media:purpose:transcription", "transcription", java.util.List.of(sourceTicks));
             ProcessingJob completed = new ProcessingJob(
                     expected.jobId(), expected.requestId(), expected.tenantId(), expected.principalId(),
                     expected.artifactId(), expected.jobType(), expected.providerId(), JobStatus.COMPLETED,

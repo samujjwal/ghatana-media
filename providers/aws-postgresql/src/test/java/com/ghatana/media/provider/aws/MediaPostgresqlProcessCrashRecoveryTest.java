@@ -10,6 +10,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptDraft;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment;
+import com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -147,6 +149,10 @@ class MediaPostgresqlProcessCrashRecoveryTest {
         String transcriptId = identity.jobId().replace("job-", "transcript-");
         String principalId = "principal-stt-" + runId;
         String transcriptVersion = "transcript-version-" + runId;
+        TranscriptSegment sourceTicks = new TranscriptSegment(
+                "decoded-span", "crash-safe transcript fixture", "PROVIDER",
+                TranscriptSegmentTiming.sourceTicks(
+                        0, 48_000, "source-clock-ip06-" + runId, 48_000, 96_000));
 
         Path beforeJdbcMarker = tempDir.resolve("stt-before-commit.jdbc.marker");
         Path beforeLog = tempDir.resolve("stt-before-commit.log");
@@ -208,6 +214,9 @@ class MediaPostgresqlProcessCrashRecoveryTest {
                     .orElseThrow();
             assertThat(revision.revision()).isEqualTo(1);
             assertThat(revision.draft().text()).isEqualTo("crash-safe transcript fixture");
+            assertThat(revision.draft().segments()).containsExactly(sourceTicks);
+            assertThat(revision.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.SOURCE_CLOCK_BOUND);
             var attempt = restarted.findProcessingAttempt(identity.tenantId(), identity.jobId(), 1).orElseThrow();
             var binding = transcripts.readAttemptBinding(identity.tenantId(), principalId, transcriptId,
                     revision.revision());
@@ -226,7 +235,8 @@ class MediaPostgresqlProcessCrashRecoveryTest {
                     "sha256:" + "c".repeat(64), "c".repeat(64), identity.jobId(),
                     "profile-ip06-v1", "provider-ip06-stt", "model-ip06-v1", "en-US", "milliseconds",
                     "crash-safe transcript fixture", "consent-stt-" + runId,
-                    "rights-ip06-" + runId, "policy-v1", "urn:media:purpose:transcription", "transcription");
+                    "rights-ip06-" + runId, "policy-v1", "urn:media:purpose:transcription", "transcription",
+                    List.of(sourceTicks));
             assertThat(transcripts.appendFromSuccessfulAttempt(replayDraft, 0, attempt.attemptNumber(),
                     attempt.fencingToken(), FINGERPRINT, transcriptVersion)).isEqualTo(revision);
             assertThat(outboxCount(identity, "media.job.completed", 3)).isEqualTo(1);
