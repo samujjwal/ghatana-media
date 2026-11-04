@@ -103,8 +103,7 @@ class TtsVoiceConsentNegativeTest {
         }, "owner-voice");
 
         var blocking = stub(OWNER_SUBJECT);
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello").setVoiceId("owner-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello", "owner-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_DENIED");
         assertThat(observed).extracting(r -> r.identity().subject()).containsExactly(OWNER_SUBJECT);
         verifyNoInteractions(guardedLibrary, engine);
@@ -119,8 +118,7 @@ class TtsVoiceConsentNegativeTest {
                 : TtsRequestAuthorization.Decision.DENIED, "tenant-owned-voice");
 
         var blocking = stub(OWNER_SUBJECT, "tenant-attacker");
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello").setVoiceId("tenant-owned-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello", "tenant-owned-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_DENIED");
         assertThat(observed).singleElement().satisfies(request -> {
             assertThat(request.identity().subject()).isEqualTo(OWNER_SUBJECT);
@@ -140,8 +138,7 @@ class TtsVoiceConsentNegativeTest {
                 : TtsRequestAuthorization.Decision.ADMITTED, "narration-only-voice");
 
         var blocking = stub(OWNER_SUBJECT);
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello").setVoiceId("narration-only-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello", "narration-only-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_DENIED");
         verifyNoInteractions(guardedLibrary, engine);
     }
@@ -156,11 +153,9 @@ class TtsVoiceConsentNegativeTest {
                 : TtsRequestAuthorization.Decision.ADMITTED, "revoked-voice");
 
         var blocking = stub(OWNER_SUBJECT);
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello").setVoiceId("revoked-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello", "revoked-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello again").setVoiceId("revoked-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello again", "revoked-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
         verifyNoInteractions(guardedLibrary, engine);
     }
@@ -175,8 +170,7 @@ class TtsVoiceConsentNegativeTest {
                 : TtsRequestAuthorization.Decision.ADMITTED, "expired-voice");
 
         var blocking = stub(OWNER_SUBJECT);
-        assertError(() -> blocking.synthesize(SynthesizeRequest.newBuilder()
-                        .setText("hello").setVoiceId("expired-voice").build()),
+        assertError(() -> blocking.synthesize(synthesisRequest("hello", "expired-voice")),
                 Status.Code.PERMISSION_DENIED, "TTS_VOICE_AUTH_REVOKED");
         verifyNoInteractions(guardedLibrary, engine);
     }
@@ -189,8 +183,7 @@ class TtsVoiceConsentNegativeTest {
         start(request -> decision.get(), "admitted-voice");
         when(engine.synthesize(eq("hello"), any())).thenReturn(validPcmOutput());
         var blocking = stub(OWNER_SUBJECT);
-        var request = SynthesizeRequest.newBuilder()
-                .setText("hello").setVoiceId("admitted-voice").build();
+        var request = synthesisRequest("hello", "admitted-voice");
 
         var first = blocking.synthesize(request);
         assertThat(first.getAudioData()).hasSize(128);
@@ -273,6 +266,15 @@ class TtsVoiceConsentNegativeTest {
                 "Bearer " + jwt(subject, tenantId));
         return TTSServiceGrpc.newBlockingStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
+    }
+
+    private static SynthesizeRequest synthesisRequest(String text, String voiceId) {
+        return SynthesizeRequest.newBuilder()
+                .setText(text)
+                .setVoiceId(voiceId)
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage("en-US").build())
+                .build();
     }
 
     private static void assertError(Runnable rpc, Status.Code code, String messagePart) {
