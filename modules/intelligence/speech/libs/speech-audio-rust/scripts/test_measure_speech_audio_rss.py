@@ -42,6 +42,18 @@ class ProbeOutputTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "output mismatch"):
             parse_child_output(output, 2, "baseline")
 
+    def test_parses_exact_hard_cap_profile_and_real_ceilings(self):
+        expected = RSS_HELPER.expected_child_output("hard-cap")
+        self.assertIn("duration_seconds=6000", expected)
+        self.assertIn("samples=96000000", expected)
+        self.assertIn("input_bytes=192000044", expected)
+        self.assertIn("max_input_bytes=536870912", expected)
+        self.assertIn("max_decoded_samples=96000000", expected)
+        output = f"{expected}\npeak_rss_bytes=450000000 measurement=process_getrusage\n"
+        self.assertEqual(parse_child_output(output, 1, "hard-cap"), 450_000_000)
+        with self.assertRaisesRegex(ValueError, "output mismatch"):
+            parse_child_output(output, 1, "high-water")
+
     def test_closed_profile_validation_rejects_unknown_name_and_invalid_bounds(self):
         with self.assertRaisesRegex(ValueError, "unknown closed probe profile"):
             RSS_HELPER.expected_child_output("samples-999999999")
@@ -121,6 +133,19 @@ class ChildCollectionTests(unittest.TestCase):
         self.assertEqual(returncode, 0)
         self.assertEqual(stderr, "")
         self.assertEqual(parse_child_output(stdout, 1, "high-water"), 123456)
+
+    def test_passes_the_closed_hard_cap_profile_to_the_child(self):
+        expected = RSS_HELPER.expected_child_output("hard-cap")
+        stdout, stderr, returncode, _ = self.run_script(
+            "import sys\n"
+            "assert sys.argv[1:] == ['--profile', 'hard-cap']\n"
+            f"print({expected!r})\n"
+            "print('peak_rss_bytes=123456 measurement=process_getrusage')",
+            profile="hard-cap",
+        )
+        self.assertEqual(returncode, 0)
+        self.assertEqual(stderr, "")
+        self.assertEqual(parse_child_output(stdout, 1, "hard-cap"), 123456)
 
     def test_kills_and_reaps_child_that_exceeds_output_bound(self):
         with self.assertRaisesRegex(RuntimeError, "output exceeded"):

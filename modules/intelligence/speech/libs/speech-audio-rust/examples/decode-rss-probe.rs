@@ -13,8 +13,10 @@ use tempfile::Builder;
 
 const SAMPLE_RATE: u32 = 16_000;
 const CHANNELS: u16 = 1;
-const GLOBAL_MAX_INPUT_BYTES: u64 = 32 * 1024 * 1024 + 44;
-const GLOBAL_MAX_DECODED_SAMPLES: usize = 16_000_000;
+const GLOBAL_MAX_INPUT_BYTES: u64 = 512 * 1024 * 1024;
+const GLOBAL_MAX_DECODED_SAMPLES: usize = 96_000_000;
+const GLOBAL_MAX_DURATION_SECONDS: u32 = 6 * 60 * 60;
+const HIGH_WATER_MAX_INPUT_BYTES: u64 = 32 * 1024 * 1024 + 44;
 
 #[derive(Clone, Copy)]
 struct Profile {
@@ -34,6 +36,12 @@ impl Profile {
     const HIGH_WATER: Self = Self {
         name: "high-water",
         duration_seconds: 1_000,
+        max_input_bytes: HIGH_WATER_MAX_INPUT_BYTES,
+        max_decoded_samples: 16_000_000,
+    };
+    const HARD_CAP: Self = Self {
+        name: "hard-cap",
+        duration_seconds: 6_000,
         max_input_bytes: GLOBAL_MAX_INPUT_BYTES,
         max_decoded_samples: GLOBAL_MAX_DECODED_SAMPLES,
     };
@@ -44,7 +52,10 @@ impl Profile {
             [] => Ok(Self::BASELINE),
             [flag, name] if flag == "--profile" && name == "baseline" => Ok(Self::BASELINE),
             [flag, name] if flag == "--profile" && name == "high-water" => Ok(Self::HIGH_WATER),
-            _ => Err("usage: decode-rss-probe [--profile baseline|high-water]".to_string()),
+            [flag, name] if flag == "--profile" && name == "hard-cap" => Ok(Self::HARD_CAP),
+            _ => {
+                Err("usage: decode-rss-probe [--profile baseline|high-water|hard-cap]".to_string())
+            }
         }
     }
 
@@ -59,7 +70,8 @@ impl Profile {
     fn validate(self) -> Result<(), String> {
         let samples = self.samples();
         let input_bytes = self.expected_wav_bytes();
-        if samples > GLOBAL_MAX_DECODED_SAMPLES
+        if self.duration_seconds > GLOBAL_MAX_DURATION_SECONDS
+            || samples > GLOBAL_MAX_DECODED_SAMPLES
             || input_bytes > GLOBAL_MAX_INPUT_BYTES
             || self.max_decoded_samples > GLOBAL_MAX_DECODED_SAMPLES
             || self.max_input_bytes > GLOBAL_MAX_INPUT_BYTES
@@ -208,7 +220,7 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::{Profile, GLOBAL_MAX_DECODED_SAMPLES};
+    use super::{Profile, GLOBAL_MAX_DECODED_SAMPLES, GLOBAL_MAX_DURATION_SECONDS};
 
     #[test]
     fn profile_selection_is_closed_and_baseline_remains_the_default() {
@@ -222,6 +234,12 @@ mod tests {
                 .unwrap();
         assert_eq!(high_water.samples(), 16_000_000);
         high_water.validate().unwrap();
+        let hard_cap =
+            Profile::parse(["--profile".to_string(), "hard-cap".to_string()].into_iter()).unwrap();
+        assert_eq!(hard_cap.duration_seconds, 6_000);
+        assert_eq!(hard_cap.samples(), 96_000_000);
+        assert_eq!(hard_cap.expected_wav_bytes(), 192_000_044);
+        hard_cap.validate().unwrap();
         assert!(
             Profile::parse(["--profile".to_string(), "arbitrary".to_string()].into_iter()).is_err()
         );
@@ -241,6 +259,16 @@ mod tests {
     fn profile_validation_rejects_caps_above_global_ceilings() {
         let mut profile = Profile::BASELINE;
         profile.max_decoded_samples = GLOBAL_MAX_DECODED_SAMPLES + 1;
+        assert!(profile
+            .validate()
+            .unwrap_err()
+            .contains("global high-water ceilings"));
+    }
+
+    #[test]
+    fn profile_validation_rejects_duration_above_global_ceiling() {
+        let mut profile = Profile::BASELINE;
+        profile.duration_seconds = GLOBAL_MAX_DURATION_SECONDS + 1;
         assert!(profile
             .validate()
             .unwrap_err()

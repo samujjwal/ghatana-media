@@ -12,8 +12,10 @@ import subprocess
 import sys
 import time
 
-GLOBAL_MAX_INPUT_BYTES = 32 * 1024 * 1024 + 44
-GLOBAL_MAX_DECODED_SAMPLES = 16_000_000
+GLOBAL_MAX_INPUT_BYTES = 512 * 1024 * 1024
+GLOBAL_MAX_DECODED_SAMPLES = 96_000_000
+GLOBAL_MAX_DURATION_SECONDS = 6 * 60 * 60
+HIGH_WATER_MAX_INPUT_BYTES = 32 * 1024 * 1024 + 44
 
 PROFILES = {
     "baseline": {
@@ -28,9 +30,17 @@ PROFILES = {
         "duration_seconds": 1_000,
         "samples": 16_000_000,
         "input_bytes": 32_000_044,
-        "max_input_bytes": GLOBAL_MAX_INPUT_BYTES,
+        "max_input_bytes": HIGH_WATER_MAX_INPUT_BYTES,
         "max_decoded_samples": 16_000_000,
         "description": "1,000 s / 16,000,000 samples (64,000,000 bytes, about 61 MiB f32 output)",
+    },
+    "hard-cap": {
+        "duration_seconds": 6_000,
+        "samples": 96_000_000,
+        "input_bytes": 192_000_044,
+        "max_input_bytes": GLOBAL_MAX_INPUT_BYTES,
+        "max_decoded_samples": GLOBAL_MAX_DECODED_SAMPLES,
+        "description": "6,000 s / 96,000,000 samples (384,000,000 bytes, about 366 MiB f32 output)",
     },
 }
 
@@ -43,6 +53,7 @@ def validate_profile(profile, values=None):
     expected_input_bytes = 44 + selected["samples"] * 2
     if (
         selected["samples"] > GLOBAL_MAX_DECODED_SAMPLES
+        or selected["duration_seconds"] > GLOBAL_MAX_DURATION_SECONDS
         or expected_input_bytes > GLOBAL_MAX_INPUT_BYTES
         or selected["max_decoded_samples"] > GLOBAL_MAX_DECODED_SAMPLES
         or selected["max_input_bytes"] > GLOBAL_MAX_INPUT_BYTES
