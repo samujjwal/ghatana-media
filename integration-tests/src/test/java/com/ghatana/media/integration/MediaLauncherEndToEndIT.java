@@ -396,6 +396,8 @@ class MediaLauncherEndToEndIT {
         assertThat(job.get("failureCode").asText()).isEmpty();
         assertThat(job.get("logicalStatus").asText()).isEqualTo("COMPLETED");
         long version = job.get("version").asLong();
+        int attemptCountBeforeRestart = processingAttemptCount("tenant-v06", jobId);
+        assertThat(attemptCountBeforeRestart).isEqualTo(1);
         LifecycleOutboxEvent outbox = lifecycleOutboxEvent(
                 "tenant-v06", jobId, version, "media.job.completed");
         assertThat(outbox.eventId()).isEqualTo("media:media.job.completed:" + jobId + ":" + version);
@@ -435,10 +437,44 @@ class MediaLauncherEndToEndIT {
         assertThat(restartedRead.statusCode()).as("restarted job read: %s", restartedRead.body()).isEqualTo(200);
         JsonNode restartedJob = MAPPER.readTree(restartedRead.body());
         assertThat(restartedJob.toString()).isEqualTo(completedJobJson);
+        assertThat(processingAttemptCount("tenant-v06", jobId)).isEqualTo(attemptCountBeforeRestart);
 
         LifecycleOutboxEvent restartedOutbox = lifecycleOutboxEvent(
                 "tenant-v06", jobId, version, "media.job.completed");
         assertThat(restartedOutbox).isEqualTo(outbox);
+
+        // Replay the exact original command after restart. The durable job and outbox
+        // remain unchanged, and no second processing-attempt row is created.
+        HttpResponse<String> replay = send(request("POST", "tenant-v06", "/api/v1/jobs")
+                .POST(HttpRequest.BodyPublishers.ofString(body)));
+        assertThat(replay.statusCode()).as("completed replay: %s", replay.body()).isEqualTo(202);
+        assertThat(MAPPER.readTree(replay.body()).path("jobId").asString()).isEqualTo(jobId);
+
+        HttpResponse<String> replayedRead = send(request("GET", "tenant-v06", "/api/v1/jobs/" + jobId));
+        assertThat(replayedRead.statusCode()).as("replayed job read: %s", replayedRead.body()).isEqualTo(200);
+        JsonNode replayedJob = MAPPER.readTree(replayedRead.body());
+        assertThat(replayedJob.toString()).isEqualTo(completedJobJson);
+        assertThat(replayedJob.path("status").asString()).isEqualTo("COMPLETED");
+        assertThat(processingAttemptCount("tenant-v06", jobId)).isEqualTo(attemptCountBeforeRestart);
+        assertThat(lifecycleOutboxEvent("tenant-v06", jobId, version, "media.job.completed"))
+                .isEqualTo(outbox);
+    }
+
+    private int processingAttemptCount(String tenantId, String jobId) throws SQLException {
+        try (var connection = DriverManager.getConnection(jdbcUrl,
+                POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement("""
+                     SELECT COUNT(*) FROM media_processing_attempts WHERE tenant_id=? AND job_id=?
+                     """)) {
+            statement.setString(1, tenantId);
+            statement.setString(2, jobId);
+            try (var rows = statement.executeQuery()) {
+                if (!rows.next()) {
+                    throw new SQLException("Processing attempt count query returned no row");
+                }
+                return rows.getInt(1);
+            }
+        }
     }
 
     private LifecycleOutboxEvent lifecycleOutboxEvent(
