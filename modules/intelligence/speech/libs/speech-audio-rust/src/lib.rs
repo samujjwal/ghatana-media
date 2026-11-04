@@ -1930,6 +1930,29 @@ mod tests {
     }
 
     #[test]
+    fn resampler_rejects_aliases_at_rs03_source_rates() {
+        // Exercise downsampling at each RS-03 source rate. Each tone lies
+        // above the target Nyquist edge while remaining below source Nyquist.
+        // The RMS bound is a deterministic kernel regression, not a general
+        // stop-band or speech-quality certification.
+        for (source_rate, target_rate, frequency_hz) in [
+            (1_000u32, 500u32, 400.0),
+            (8_000, 2_000, 1_500.0),
+            (44_100, 16_000, 12_000.0),
+            (48_000, 16_000, 20_000.0),
+        ] {
+            let frames = source_rate as usize / 2;
+            let input = sine_buffer(source_rate, 1, frames, frequency_hz);
+            let output = Resampler::new(target_rate).resample(&input).unwrap();
+            let alias_rms = rms(&output.samples);
+            assert!(
+                alias_rms < 0.02,
+                "RS-03 alias energy leaked for {source_rate}->{target_rate} Hz at {frequency_hz} Hz: {alias_rms}"
+            );
+        }
+    }
+
+    #[test]
     fn resampler_preserves_channel_isolation_and_dc() {
         // Left carries a tone, right carries DC; neither leaks across channels.
         let frames = 2_000usize;
@@ -2034,6 +2057,10 @@ mod tests {
             },
         );
         let output = Resampler::new(target_rate).resample(&input).unwrap();
+        let expected_frames = (input_frames as u128 * target_rate as u128
+            + source_rate as u128 / 2)
+            / source_rate as u128;
+        assert_eq!(output.frame_count() as u128, expected_frames);
         let peak = output
             .samples
             .iter()
