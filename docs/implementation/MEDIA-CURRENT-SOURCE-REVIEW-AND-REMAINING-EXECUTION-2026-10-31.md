@@ -4541,6 +4541,15 @@ For W2-R07, commit `48e2f7bb` adds canonical source-root containment at daemon d
 The original Wave 2 ledger and all R8/W3/H acceptance statuses remain unchanged; local negative and contract tests do not satisfy whole-row positive rights/model/host evidence.
 
 
+### 43.214 November 3 Common Voice evidence parser and MM persistence readback
+
+For the current Common Voice v27 reference-only report path, commit `d55dfcab` enables strict duplicate-key detection in the bounded JSON reader and rejects repeated `status` and `clipCount` fields instead of accepting parser last-value behavior. `CommonVoicePilotQualityEvidenceTest` passed **13/13**. The reader remains `REFERENCE_ONLY`; the test uses synthetic in-memory evidence only. No corpus rows, private manifest, audio, or model artifacts were opened. The quality-evidence parser and existing per-locale WER/CER metrics do not establish that source references match audio or authorize inference.
+
+The owner asked whether this agent can independently verify the English and Nepali references against audio. This session exposes no local audio-listening or speech-review tool, and sending the clips to an external transcription provider is outside the authorized boundary. I therefore did not open audio or claim reference verification; that gate remains outstanding for an independent reviewer with the needed language/audio review capability.
+
+For W2-R03, source inspection found existing parent/child snapshot, store-recreation, attempt-fencing and forcible-process-death tests; no new local code gap was demonstrated, so no duplicate fixture was added. The current host cannot run the Testcontainers-backed selectors because Docker access is denied at the host socket; those classes are configured to disable themselves without Docker, so an invocation here would not establish live PostgreSQL evidence. Existing prior test reports remain historical and no current Docker run is claimed. Parent-CAS/lost-gRPC-ACK and additional real provider/host crash checkpoints remain open; no Wave 2 row or acceptance status changed.
+
+
 ### 43.211 November 3 AS-01 reconciliation and Q03/DI local guard coverage
 
 AS-01 now has executable coverage for the exact 17 stream intent IDs and the existing `IMPLEMENTED`/`DELEGATED`/`NOT_ADMITTED` partition. The frame-port test also passes a valid helper-encoded frame to the unbound canonical port and confirms it remains `NOT_ADMITTED`; local framing is not a canonical stream session. The existing audio-streaming README already maps all 17 IDs to observed HTTP routes/fields and documents missing semantics and the owner/runtime boundary. Focused audio selectors passed **11/11** (`StreamIntentSupportTest` 7 and `CanonicalStreamFramePortTest` 4). WebRTC/adaptive HTTP/HLS/DASH, lease-renewal replay semantics, external effects, restart evidence, and AS-07 host performance remain open.
