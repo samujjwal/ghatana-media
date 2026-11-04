@@ -3,7 +3,9 @@
  *
  * Parsers for the PDP-1 `declarative-production-contracts.yaml` closed,
  * versioned value objects — production-spec, scene-binding, animation-spec,
- * model-execution-spec and simulation-state. Field shapes mirror the
+ * model-execution-spec, active-speaker-cut-proposal, simulation-state,
+ * validation-report, clock-alignment, public-aef-bridge and
+ * source-classification. Field shapes mirror the
  * declared `$defs` exactly: bounded identifiers, opaque versioned references,
  * canonical int64 decimal *strings* (no binary float rounding), strict
  * objects and closed enums. Every value declares
@@ -175,6 +177,10 @@ export const PositiveRationalSchema = z.object({
   numerator: PositiveInt64DecimalSchema,
   denominator: PositiveInt64DecimalSchema,
 }).strict();
+export const RationalSchema = z.object({
+  numerator: SignedInt64DecimalSchema,
+  denominator: PositiveInt64DecimalSchema,
+}).strict();
 
 const LogicalClockSchema = z.object({
   clockId: OpaqueIdSchema,
@@ -280,8 +286,30 @@ export const AnimationSpecSchema = boundedTypedValue(z.object({
 }).strict());
 export type AnimationSpec = z.infer<typeof AnimationSpecSchema>;
 
+export const ActiveSpeakerCutProposalSchema = boundedTypedValue(z.object({
+  schemaVersion: z.literal("media.declarative.value.active-speaker-cut-proposal.v1"),
+  proposalRef: VersionRefSchema,
+  timelineRef: VersionRefSchema,
+  sourceRevisionRef: VersionRefSchema,
+  proposedCuts: z.array(z.object({
+    cutRef: VersionRefSchema,
+    storyTime: StoryTimeSchema,
+    speakerTurnEvidence: z.object({
+      evidenceClass: z.literal("SPEAKER_TURN_OBSERVATION"),
+      evidenceRef: VersionRefSchema,
+    }).strict(),
+    cameraSourceEvidence: z.object({
+      evidenceClass: z.literal("CAMERA_SOURCE_OBSERVATION"),
+      evidenceRef: VersionRefSchema,
+    }).strict(),
+    uncertaintyRef: VersionRefSchema,
+  }).strict()).min(1),
+  uncertaintyRef: VersionRefSchema,
+  proposalDisposition: z.literal("REVIEWABLE_LOCAL_CANDIDATE_NO_PROJECT_COMMIT"),
+}).strict());
+export type ActiveSpeakerCutProposal = z.infer<typeof ActiveSpeakerCutProposalSchema>;
+
 export const ModelExecutionSpecSchema = boundedTypedValue(z.object({
-  schemaVersion: z.literal("media.declarative.value.model-execution-spec.v1"),
   modelFamilyRef: SimulationCapabilityLeafSchema,
   modelVersionRef: VersionRefSchema,
   familyApplicability: FamilyApplicabilitySchema,
@@ -399,3 +427,69 @@ export const MeasurementSchema = boundedTypedValue(z.object({
   provenanceRef: VersionRefSchema,
 }).strict());
 export type Measurement = z.infer<typeof MeasurementSchema>;
+
+export const ValidationReportSchema = boundedTypedValue(z.object({
+  modelFamilyRef: SimulationCapabilityLeafSchema,
+  modelVersionRef: VersionRefSchema,
+  familyApplicability: FamilyApplicabilitySchema,
+  familyQualificationRef: VersionRefSchema,
+  familyQualificationState: FamilyQualificationStateSchema,
+  solverBuildDigest: DigestSchema,
+  oracleRef: VersionRefSchema,
+  expectedSamples: NonEmptyVersionRefListSchema,
+  actualSamples: NonEmptyVersionRefListSchema,
+  toleranceSpecRef: VersionRefSchema,
+  residualStatisticsRef: VersionRefSchema,
+  verdict: z.enum(["PASS", "FAIL", "INCONCLUSIVE", "UNQUALIFIED", "NOT_EVALUATED"]),
+  applicability: z.enum(["APPLICABLE", "NOT_APPLICABLE", "ABSTAINED", "NOT_EVALUATED", "BLOCKED"]),
+  limitations: z.array(z.string().min(1).max(512).regex(/\S/)).min(1),
+  environmentRef: VersionRefSchema,
+}).strict().superRefine((report, ctx) => {
+  if (report.verdict === "PASS" && report.applicability !== "APPLICABLE") {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "PASS requires APPLICABLE applicability", path: ["applicability"] });
+  }
+  if (["NOT_EVALUATED", "BLOCKED", "ABSTAINED"].includes(report.applicability)
+      && report.verdict === "PASS") {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "non-evaluated, blocked, or abstained applicability cannot PASS", path: ["verdict"] });
+  }
+}));
+export type ValidationReport = z.infer<typeof ValidationReportSchema>;
+
+export const ClockAlignmentSchema = boundedTypedValue(z.object({
+  sourceClockId: OpaqueIdSchema,
+  destClockId: OpaqueIdSchema,
+  sourceOriginRef: VersionRefSchema,
+  destOriginRef: VersionRefSchema,
+  mappingVersionRef: VersionRefSchema,
+  rationalScale: PositiveRationalSchema,
+  rationalOffset: RationalSchema,
+  lossAndRoundingRef: VersionRefSchema,
+  uncertaintyRef: VersionRefSchema,
+}).strict());
+export type ClockAlignment = z.infer<typeof ClockAlignmentSchema>;
+
+export const PublicAefBridgeSchema = boundedTypedValue(z.object({
+  contractVersion: VersionRefSchema,
+  tutorPutorModelIrRef: VersionRefSchema,
+  tutorPutorSceneIrRef: VersionRefSchema,
+  tutorPutorExperienceIrRef: VersionRefSchema,
+  supportedCapabilityRefs: z.array(OpaqueIdSchema).refine(
+    (list) => new Set(list).size === list.length,
+    { message: "duplicate opaque identifiers" },
+  ).min(1),
+  adapterVersion: VersionRefSchema,
+  mediaProjectRevisionRef: VersionRefSchema,
+}).strict());
+export type PublicAefBridge = z.infer<typeof PublicAefBridgeSchema>;
+
+export const SourceClassificationSchema = boundedTypedValue(z.object({
+  originClass: OriginClassSchema,
+  sourceVersionRef: VersionRefSchema,
+  producingToolVersionRef: VersionRefSchema,
+  consentRightsRef: VersionRefSchema,
+  sourceClockRef: VersionRefSchema,
+  runOrCaptureReceiptRef: VersionRefSchema,
+  digest: DigestSchema,
+  traceRefOrNull: NullableVersionRefSchema,
+}).strict());
+export type SourceClassification = z.infer<typeof SourceClassificationSchema>;

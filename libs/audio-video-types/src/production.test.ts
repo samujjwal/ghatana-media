@@ -3,6 +3,8 @@ import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
   ModelExecutionSpecSchema, SimulationStateSchema, MeasurementSchema, CaptureSourceKindSchema, SignedInt64DecimalSchema,
   PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema, DigestSchema,
+  ActiveSpeakerCutProposalSchema, ValidationReportSchema, ClockAlignmentSchema,
+  PublicAefBridgeSchema, SourceClassificationSchema,
 } from './production';
 
 const ref = 'media://revision/abc123';
@@ -186,6 +188,19 @@ describe('TY-04 headless declarative parsers', () => {
       tStoryRef: { ...storyClock, timeBase: { numerator: '9223372036854775808', denominator: '90000' } },
     }).success).toBe(false);
   });
+  it('requires every declared animation-spec field and rejects unknown fields', () => {
+    const animation = {
+      schemaVersion: 'media.declarative.value.animation-spec.v1',
+      sceneGraphRef: ref, animationGraphRef: ref, operatorTreeRef: ref,
+      assetsRef: ref, propertyCurveRefs: [], tStoryRef: storyClock, renderingRef: ref,
+    };
+    for (const field of Object.keys(animation)) {
+      const missing = { ...animation } as Record<string, unknown>;
+      delete missing[field];
+      expect(AnimationSpecSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(AnimationSpecSchema.safeParse({ ...animation, extra: true }).success).toBe(false);
+  });
   it('preserves exact int64 as canonical decimal strings — never a number', () => {
     expect(SignedInt64DecimalSchema.safeParse('-9223372036854775808').success).toBe(true);
     expect(SignedInt64DecimalSchema.safeParse('9223372036854775807').success).toBe(true);
@@ -214,7 +229,6 @@ describe('TY-04 headless declarative parsers', () => {
     expect(ResourceBoundsSchema.safeParse({ ...bounds, stepLimit: 1.5 }).success).toBe(false);
   });
   const execSpec = {
-    schemaVersion: 'media.declarative.value.model-execution-spec.v1',
     modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
     familyApplicability: { applicability: 'NOT_ADMITTED', evidenceRefs: [] },
     familyQualificationRef: ref, familyQualificationState: 'UNQUALIFIED',
@@ -233,6 +247,14 @@ describe('TY-04 headless declarative parsers', () => {
   };
   it('accepts a well-formed model execution spec', () => {
     expect(ModelExecutionSpecSchema.safeParse(execSpec).success).toBe(true);
+  });
+  it('requires every declared model-execution-spec field', () => {
+    for (const field of Object.keys(execSpec)) {
+      const missing = { ...execSpec } as Record<string, unknown>;
+      delete missing[field];
+      expect(ModelExecutionSpecSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, schemaVersion: 'media.declarative.value.model-execution-spec.v1' }).success).toBe(false);
   });
   it('matches PDP-1 numeric precision pattern without inventing token semantics', () => {
     expect(ModelExecutionSpecSchema.safeParse({ ...execSpec, numericPrecision: 'decimal 128' }).success).toBe(true);
@@ -339,6 +361,11 @@ describe('TY-04 headless declarative parsers', () => {
     expect(SimulationStateSchema.safeParse({ ...state, stateVersion: 'state/\uD800' }).success).toBe(false);
     expect(SimulationStateSchema.safeParse({ ...state, unknown: 1 }).success).toBe(false);
     expect(SimulationStateSchema.safeParse({ ...state, schemaVersion: 'media.declarative.value.simulation-state.v1' }).success).toBe(false);
+    for (const field of Object.keys(state)) {
+      const missing = { ...state } as Record<string, unknown>;
+      delete missing[field];
+      expect(SimulationStateSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
   });
   it('enforces PDP-1 checkpoint RNG-state consistency', () => {
     const state = {
@@ -429,5 +456,135 @@ describe('TY-04 headless declarative parsers', () => {
       ...measurement,
       tSimSamplePoint: { ...measurement.tSimSamplePoint, ticks: -9007199254740993 },
     }).success).toBe(false);
+  });
+  it('parses active-speaker proposals as bounded reviewable candidates only', () => {
+    const proposal = {
+      schemaVersion: 'media.declarative.value.active-speaker-cut-proposal.v1',
+      proposalRef: ref, timelineRef: ref, sourceRevisionRef: ref,
+      proposedCuts: [{
+        cutRef: ref, storyTime: storyClock,
+        speakerTurnEvidence: { evidenceClass: 'SPEAKER_TURN_OBSERVATION', evidenceRef: ref },
+        cameraSourceEvidence: { evidenceClass: 'CAMERA_SOURCE_OBSERVATION', evidenceRef: ref },
+        uncertaintyRef: ref,
+      }],
+      uncertaintyRef: ref,
+      proposalDisposition: 'REVIEWABLE_LOCAL_CANDIDATE_NO_PROJECT_COMMIT',
+    };
+    expect(ActiveSpeakerCutProposalSchema.safeParse(proposal).success).toBe(true);
+    for (const field of Object.keys(proposal)) {
+      const missing = { ...proposal } as Record<string, unknown>;
+      delete missing[field];
+      expect(ActiveSpeakerCutProposalSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(ActiveSpeakerCutProposalSchema.safeParse({ ...proposal, proposedCuts: [] }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({ ...proposal, projectRevisionRef: ref }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({
+      ...proposal,
+      proposedCuts: [{ ...proposal.proposedCuts[0], speakerTurnEvidence: { evidenceClass: 'CAMERA_SOURCE_OBSERVATION', evidenceRef: ref } }],
+    }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({
+      ...proposal,
+      proposedCuts: [{ ...proposal.proposedCuts[0], speakerTurnEvidence: { evidenceClass: 'SPEAKER_TURN_OBSERVATION' } }],
+    }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({
+      ...proposal,
+      proposedCuts: [{ ...proposal.proposedCuts[0], cameraSourceEvidence: { evidenceClass: 'CAMERA_SOURCE_OBSERVATION' } }],
+    }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({
+      ...proposal,
+      proposedCuts: [{ ...proposal.proposedCuts[0], nestedUnknown: true }],
+    }).success).toBe(false);
+    expect(ActiveSpeakerCutProposalSchema.safeParse({
+      ...proposal, proposedCuts: [{ ...proposal.proposedCuts[0], storyTime: { ...storyClock, clockKind: 'simulation' } }],
+    }).success).toBe(false);
+  });
+  it('parses validation reports with source-defined verdict and applicability constraints', () => {
+    const report = {
+      modelFamilyRef: 'media.simulation.agent', modelVersionRef: ref,
+      familyApplicability: { applicability: 'UNKNOWN', evidenceRefs: [] },
+      familyQualificationRef: ref, familyQualificationState: 'UNKNOWN',
+      solverBuildDigest: { algorithmRef: ref, value: 'sha256:solver', subjectVersionRef: ref },
+      oracleRef: ref, expectedSamples: [ref], actualSamples: [ref],
+      toleranceSpecRef: ref, residualStatisticsRef: ref,
+      verdict: 'INCONCLUSIVE', applicability: 'NOT_EVALUATED',
+      limitations: ['not evaluated'], environmentRef: ref,
+    };
+    expect(ValidationReportSchema.safeParse(report).success).toBe(true);
+    for (const field of Object.keys(report)) {
+      const missing = { ...report } as Record<string, unknown>;
+      delete missing[field];
+      expect(ValidationReportSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(ValidationReportSchema.safeParse({ ...report, verdict: 'PASS', applicability: 'BLOCKED' }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({ ...report, verdict: 'PASS', applicability: 'NOT_APPLICABLE' }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({ ...report, verdict: 'PASS', applicability: 'APPLICABLE' }).success).toBe(true);
+    expect(ValidationReportSchema.safeParse({ ...report, limitations: [] }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({ ...report, expectedSamples: [] }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({
+      ...report, solverBuildDigest: { algorithmRef: ref, value: 'sha256:solver', extra: true },
+    }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({ ...report, verdict: 'UNKNOWN' }).success).toBe(false);
+    expect(ValidationReportSchema.safeParse({ ...report, extra: true }).success).toBe(false);
+  });
+  it('parses explicit clock mappings with exact signed offset and positive scale', () => {
+    const alignment = {
+      sourceClockId: 'clock-source', destClockId: 'clock-dest',
+      sourceOriginRef: ref, destOriginRef: ref, mappingVersionRef: ref,
+      rationalScale: { numerator: '2', denominator: '3' },
+      rationalOffset: { numerator: '-1', denominator: '3' },
+      lossAndRoundingRef: ref, uncertaintyRef: ref,
+    };
+    expect(ClockAlignmentSchema.safeParse(alignment).success).toBe(true);
+    for (const field of Object.keys(alignment)) {
+      const missing = { ...alignment } as Record<string, unknown>;
+      delete missing[field];
+      expect(ClockAlignmentSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, rationalScale: { numerator: '0', denominator: '3' } }).success).toBe(false);
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, rationalScale: { numerator: '2', denominator: '0' } }).success).toBe(false);
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, rationalOffset: { numerator: '9223372036854775808', denominator: '3' } }).success).toBe(false);
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, rationalOffset: { numerator: '-1', denominator: '-3' } }).success).toBe(false);
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, rationalScale: { numerator: '2' } }).success).toBe(false);
+    expect(ClockAlignmentSchema.safeParse({ ...alignment, extra: true }).success).toBe(false);
+  });
+  it('parses the versioned public AEF bridge shape without asserting external authority', () => {
+    const bridge = {
+      contractVersion: ref, tutorPutorModelIrRef: ref,
+      tutorPutorSceneIrRef: ref, tutorPutorExperienceIrRef: ref,
+      supportedCapabilityRefs: ['media.animation.vector'], adapterVersion: ref,
+      mediaProjectRevisionRef: ref,
+    };
+    expect(PublicAefBridgeSchema.safeParse(bridge).success).toBe(true);
+    for (const field of Object.keys(bridge)) {
+      const missing = { ...bridge } as Record<string, unknown>;
+      delete missing[field];
+      expect(PublicAefBridgeSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(PublicAefBridgeSchema.safeParse({ ...bridge, supportedCapabilityRefs: [] }).success).toBe(false);
+    expect(PublicAefBridgeSchema.safeParse({ ...bridge, supportedCapabilityRefs: ['media.animation.vector', 'media.animation.vector'] }).success).toBe(false);
+    expect(PublicAefBridgeSchema.safeParse({ ...bridge, supportedCapabilityRefs: ['media/animation'] }).success).toBe(false);
+    expect(PublicAefBridgeSchema.safeParse({ ...bridge, extra: true }).success).toBe(false);
+  });
+  it('parses source classification as versioned provenance references only', () => {
+    const classification = {
+      originClass: 'REAL_CAPTURE', sourceVersionRef: ref,
+      producingToolVersionRef: ref, consentRightsRef: ref, sourceClockRef: ref,
+      runOrCaptureReceiptRef: ref,
+      digest: { algorithmRef: ref, value: 'sha256:source', subjectVersionRef: ref },
+      traceRefOrNull: null,
+    };
+    expect(SourceClassificationSchema.safeParse(classification).success).toBe(true);
+    for (const field of Object.keys(classification)) {
+      const missing = { ...classification } as Record<string, unknown>;
+      delete missing[field];
+      expect(SourceClassificationSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(SourceClassificationSchema.safeParse({ ...classification, originClass: 'UNKNOWN' }).success).toBe(false);
+    expect(SourceClassificationSchema.safeParse({ ...classification, runOrCaptureReceiptRef: ' ' }).success).toBe(false);
+    expect(SourceClassificationSchema.safeParse({ ...classification, digest: { ...classification.digest, extra: true } }).success).toBe(false);
+    expect(SourceClassificationSchema.safeParse({
+      ...classification, digest: { value: 'sha256:source', subjectVersionRef: ref },
+    }).success).toBe(false);
+    expect(SourceClassificationSchema.safeParse({ ...classification, extra: true }).success).toBe(false);
   });
 });
