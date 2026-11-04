@@ -96,11 +96,47 @@ public final class AudioVideoRunLedgerAdapter {
         String traceId,
         String correlationId
     ) {
+        return fromProcessingJob(
+            jobId, mediaType, processingType, collectionId, mediaArtifactId, inputParams,
+            jobState, createdAtMs, startedAtMs, 1, observedAtMs, outputArtifactId,
+            failureReason, providerName, providerJobId, traceId, correlationId);
+    }
+
+    /**
+     * Converts an aggregate job observation with its actual attempt number.
+     *
+     * <p>Callers projecting Media's durable job/attempt SPI should pass the
+     * attempt number from that same observation. The compatibility overload
+     * above retains the historical attempt-1 default; it must not be used to
+     * order retried jobs.</p>
+     */
+    public static RunLedger fromProcessingJob(
+        String jobId,
+        String mediaType,
+        String processingType,
+        String collectionId,
+        String mediaArtifactId,
+        Map<String, String> inputParams,
+        String jobState,
+        long createdAtMs,
+        long startedAtMs,
+        int attemptNumber,
+        long observedAtMs,
+        String outputArtifactId,
+        String failureReason,
+        String providerName,
+        String providerJobId,
+        String traceId,
+        String correlationId
+    ) {
         Objects.requireNonNull(jobId, "jobId must not be null");
         Objects.requireNonNull(mediaType, "mediaType must not be null");
         Objects.requireNonNull(processingType, "processingType must not be null");
         Objects.requireNonNull(collectionId, "collectionId must not be null");
         Objects.requireNonNull(jobState, "jobState must not be null");
+        if (attemptNumber < 1) {
+            throw new IllegalArgumentException("attempt number must be positive");
+        }
 
         boolean unknownState = isUnknownProcessingJobState(jobState);
         JobExecutionState mappedState = unknownState
@@ -219,7 +255,7 @@ public final class AudioVideoRunLedgerAdapter {
             outputs,
             ledgerFailureReason,
             Optional.empty(),
-            1,  // Audio-Video jobs don't retry internally (retry handled at collection level)
+            attemptNumber, // Caller-supplied when available; compatibility overloads default to 1.
             0,
             "NONE",
             0,

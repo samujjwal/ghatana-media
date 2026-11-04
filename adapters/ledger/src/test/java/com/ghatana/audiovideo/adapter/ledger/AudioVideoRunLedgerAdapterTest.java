@@ -7,6 +7,12 @@ package com.ghatana.audiovideo.adapter.ledger;
 import com.ghatana.core.lifecycle.ExecutionOutcome;
 import com.ghatana.core.lifecycle.JobExecutionState;
 import com.ghatana.datacloud.delivery.ledger.*;
+import com.ghatana.media.runtime.MediaLifecycleProjection;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobAttempt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobAttemptStatus;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaLifecycleProjection.LogicalAttemptStatus;
 import com.ghatana.media.runtime.MediaLifecycleProjection.LogicalJobStatus;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +35,55 @@ import static org.assertj.core.api.Assertions.*;
  */
 @DisplayName("Audio-Video RunLedger Adapter Tests")
 class AudioVideoRunLedgerAdapterTest {
+
+    @Test
+    @DisplayName("Durable Media job and attempt SPI preserve retry ordering in the ledger projection")
+    void durableJobAttemptSpiCarriesAttemptNumberIntoLedgerOrdering() {
+        var writes = new java.util.concurrent.CopyOnWriteArrayList<RunLedger>();
+        RunLedgerProjection projection = new RunLedgerProjection(writes::add);
+        java.time.Instant created = java.time.Instant.ofEpochMilli(100);
+        ProcessingJob running = new ProcessingJob(
+                "spi-retry-job", "request-2", "tenant-1", "principal-1", "artifact-1",
+                JobType.SPEECH_TO_TEXT, "provider", JobStatus.RUNNING, created,
+                java.time.Instant.ofEpochMilli(200), null, Map.of(), "", 3,
+                "sha256:" + "a".repeat(64), "request-fingerprint-2");
+        JobAttempt attemptOne = new JobAttempt(
+                running.tenantId(), running.jobId(), 1, running.providerId(), running.requestId(),
+                1, JobAttemptStatus.FAILED, created, java.time.Instant.ofEpochMilli(150), "RETRYABLE");
+        JobAttempt attemptTwo = new JobAttempt(
+                running.tenantId(), running.jobId(), 2, running.providerId(), running.requestId(),
+                2, JobAttemptStatus.RUNNING, java.time.Instant.ofEpochMilli(200), null, "");
+
+        var retryPending = MediaLifecycleProjection.projectJob(running, attemptOne,
+                new MediaLifecycleProjection.JobFacts(true, false, false));
+        var runningAgain = MediaLifecycleProjection.projectJob(running, attemptTwo,
+                MediaLifecycleProjection.JobFacts.none());
+        RunLedger firstAttempt = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                running.jobId(), "AUDIO", "STT", "collection-1", running.artifactId(),
+                Map.of(), retryPending.name(), created.toEpochMilli(), 0,
+                attemptOne.attemptNumber(), 160, null, null, running.providerId(), null,
+                "trace", running.requestId());
+        RunLedger secondAttempt = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                running.jobId(), "AUDIO", "STT", "collection-1", running.artifactId(),
+                Map.of(), runningAgain.name(), created.toEpochMilli(), 200,
+                attemptTwo.attemptNumber(), 210, null, null, running.providerId(), null,
+                "trace", running.requestId());
+
+        assertThat(firstAttempt.state()).isEqualTo(JobExecutionState.PENDING);
+        assertThat(firstAttempt.outcome()).isNull();
+        assertThat(firstAttempt.attemptNumber()).isEqualTo(attemptOne.attemptNumber());
+        assertThat(secondAttempt.state()).isEqualTo(JobExecutionState.RUNNING);
+        assertThat(secondAttempt.attemptNumber()).isEqualTo(attemptTwo.attemptNumber());
+        assertThat(projection.project(secondAttempt).store())
+                .isEqualTo(RunLedgerProjection.StoreResult.ACKNOWLEDGED);
+
+        // A delayed older attempt cannot replace the latest durable attempt,
+        // even if its observation timestamp is newer.
+        var delayed = projection.project(firstAttempt);
+        assertThat(delayed.disposition()).isEqualTo(RunLedgerProjection.Disposition.STALE);
+        assertThat(delayed.store()).isEqualTo(RunLedgerProjection.StoreResult.NOT_ATTEMPTED);
+        assertThat(writes).containsExactly(secondAttempt);
+    }
 
     @Test
     @DisplayName("Stable source observation converts to an idempotent terminal ledger replay")
