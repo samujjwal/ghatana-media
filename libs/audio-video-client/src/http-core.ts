@@ -386,6 +386,10 @@ export class MediaHttpTransport {
                     : "media.sdk.getOperation";
       throw new MediaOperationNotAdmittedError(operation);
     }
+    // Capture caller-owned request data before credential lookup can yield.
+    // The bytes used for this dispatch must not change if the caller mutates
+    // a nested object while an asynchronous token provider is resolving.
+    const serializedBody = body === undefined ? undefined : JSON.stringify(body);
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
     const timeout = setTimeout(
@@ -395,7 +399,6 @@ export class MediaHttpTransport {
     try {
       const headers = await abortable(this.headers(additionalHeaders), controller.signal);
       if (body !== undefined) headers.set("Content-Type", "application/json");
-      const serializedBody = body === undefined ? undefined : JSON.stringify(body);
       // Credential acquisition may be asynchronous. If the caller or request
       // timeout aborts while headers are being prepared, do not enter fetch:
       // no request crossed the dispatch boundary and mutations remain safely
@@ -406,16 +409,21 @@ export class MediaHttpTransport {
       // Callers that perform mutations can distinguish local setup failures
       // from failures after the request may have crossed the network boundary.
       onDispatch?.(safeIdentityHeader("requestId", headers.get("X-Request-ID") ?? undefined) ?? "");
-      const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
+      const response = await abortable(Promise.resolve().then(() => this.fetchImpl(`${this.baseUrl}${path}`, {
         method,
         headers,
         ...(serializedBody === undefined ? {} : { body: serializedBody }),
         redirect: "error",
         signal: controller.signal,
-      });
-      if (!response.ok) throw await this.errorFromResponse(response);
-      if (response.status === 204) return parser.parse(undefined);
-      return parser.parse(await response.json());
+      })), controller.signal);
+      // Keep the deadline active through response consumption and validation.
+      // Fetch implementations supplied by consumers may not reject body reads
+      // when their signal aborts, so race the whole response path explicitly.
+      return await abortable((async () => {
+        if (!response.ok) throw await this.errorFromResponse(response);
+        if (response.status === 204) return parser.parse(undefined);
+        return parser.parse(await response.json());
+      })(), controller.signal);
     } finally {
       clearTimeout(timeout);
       unlink();

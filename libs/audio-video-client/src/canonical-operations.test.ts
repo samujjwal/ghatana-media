@@ -88,6 +88,29 @@ describe("MediaCanonicalClient job operations", () => {
     expect(body.principalId).toBe("principal-1");
   });
 
+  it("serializes caller-owned mutation data before asynchronous credential lookup", async () => {
+    let releaseToken!: (value: string) => void;
+    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job(), 202));
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => token,
+      fetchImpl,
+    });
+    const parameters = { languageTag: "en-US" };
+    const pending = client.submitJob({
+      requestId: "req-snapshot", correlationId: "corr-snapshot", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", parameters, idempotencyKey: "idem-snapshot",
+    });
+    parameters.languageTag = "hi-IN";
+    releaseToken("configured-token");
+
+    await pending;
+    expect(JSON.parse(String(calls[0]?.init.body)).parameters).toEqual({ languageTag: "en-US" });
+  });
+
   it("keeps a dispatched submit with a cross-scope acknowledgement OUTCOME_UNKNOWN", async () => {
     const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({ tenantId: "tenant-2" }), 202));
     const client = clientWith(fetchImpl);
@@ -203,6 +226,30 @@ describe("MediaCanonicalClient job operations", () => {
     }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
     expect((failure as MediaOperationAmbiguousError).path).toBe("/api/v1/jobs");
+  });
+
+  it("bounds a stalled acknowledgement body and preserves OUTCOME_UNKNOWN", async () => {
+    const fetchImpl = (async () => ({
+      ok: true,
+      status: 202,
+      json: () => new Promise<never>(() => undefined),
+    }) as unknown as Response) as typeof fetch;
+    const client = createMediaCanonicalClient({
+      baseUrl: "https://media.example.test",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => "bearer-secret",
+      requestTimeoutMs: 10,
+      fetchImpl,
+    });
+
+    const failure = await client.submitJob({
+      requestId: "req-body-timeout", correlationId: "corr-body-timeout", artifactId: "art-1",
+      jobType: "SPEECH_TO_TEXT", idempotencyKey: "idem-body-timeout",
+    }).catch((error: unknown) => error);
+
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ path: "/api/v1/jobs", requestKey: "idem-body-timeout" });
   });
 
   it("maps a retryable 503 envelope after mutation dispatch to OUTCOME_UNKNOWN", async () => {

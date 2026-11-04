@@ -98,6 +98,35 @@ This host-configured command is separate from the 11 deterministic fixture
 commands in the Explorer simulator. The local consumer implementation does not
 qualify any production host or release.
 
+## Current HTTP bindings
+
+The SDK's transport methods are limited to these OpenAPI operations. Route
+observations without a corresponding SDK method remain unadvertised here.
+
+| SDK method | OpenAPI operation | Route |
+| --- | --- | --- |
+| `createUploadSession` | `beginMediaUpload` | `POST /api/v1/artifacts/uploads` |
+| `getUploadSession` | `getMediaUpload` | `GET /api/v1/artifacts/uploads/{uploadId}` |
+| `uploadPart` | `appendMediaChunk` | `PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{chunkIndex}` |
+| `completeUploadSession` | `completeMediaUpload` | `POST /api/v1/artifacts/uploads/{uploadId}/complete` |
+| `getArtifact` | `getMediaArtifact` | `GET /api/v1/artifacts/{artifactId}` |
+| `submitJob` | `submitMediaJob` | `POST /api/v1/jobs` |
+| `listJobs` | `listMediaJobs` | `GET /api/v1/jobs?limit={limit}` |
+| `getJob` | `getMediaJob` | `GET /api/v1/jobs/{jobId}` |
+| `cancelJob` | `cancelMediaJob` | `POST /api/v1/jobs/{jobId}/cancel` |
+| `openStream` | `openMediaStream` | `POST /api/v1/streams` |
+| `getStream` | `getMediaStream` | `GET /api/v1/streams/{sessionId}` |
+| `connectStream` | `connectMediaStream` | `POST /api/v1/streams/{sessionId}/connect` |
+| `submitStreamFrame` | `submitMediaStreamFrame` | `POST /api/v1/streams/{sessionId}/frames/{sequence}` |
+| `closeStream` | `closeMediaStream` | `POST /api/v1/streams/{sessionId}/close` |
+
+The compatibility modality methods, provider-capability lookup, legacy
+operation retry, cursor listing, stream watch, outcome lookup, and exact
+artifact-version inspection have no admitted method-to-route binding. They
+remain `NOT_ADMITTED`; they do not dispatch to similarly named legacy paths.
+The route-parity test checks the exported method inventory against the current
+OpenAPI and route manifest.
+
 ## Canonical upload-session read
 
 `MediaOperationClient.getUploadSession(uploadId)` reads the existing
