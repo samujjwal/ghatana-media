@@ -1,13 +1,5 @@
-import { createServer, type IncomingMessage, type ServerResponse } from 'http';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AudioVideoClient, type ServiceClientConfig } from '../index.js';
-
-interface CapturedRequest {
-  method: string;
-  path: string;
-  tenantHeader?: string;
-  correlationHeader?: string;
-}
 
 function createBaseConfig(endpoint: string): ServiceClientConfig {
   return {
@@ -36,77 +28,34 @@ function makeSttRequest() {
   };
 }
 
-describe('AudioVideoClient integration', () => {
-  let closeServer: (() => Promise<void>) | undefined;
-
-  afterEach(async () => {
-    if (closeServer) {
-      await closeServer();
-      closeServer = undefined;
-    }
-  });
-
-  it('sends tenant and correlation headers to the service endpoint', async () => {
-    let captured: CapturedRequest | undefined;
-
-    const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-      captured = {
-        method: req.method ?? '',
-        path: req.url ?? '',
-        tenantHeader: req.headers['x-tenant-id'] as string | undefined,
-        correlationHeader: req.headers['x-correlation-id'] as string | undefined,
-      };
-
-      // Consume request body before responding to simulate a real HTTP service.
-      req.on('data', () => undefined);
-      req.on('end', () => {
-        const payload = {
-          text: 'integration-ok',
-          confidence: 0.93,
-          processingTimeMs: 10,
-          language: 'en-US',
-          model: 'integration',
-        };
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(payload));
+describe('AudioVideoClient legacy route admission', () => {
+  it('returns NOT_ADMITTED without dispatching to the unbound legacy STT route', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    try {
+      const config = createBaseConfig('https://media.example.test');
+      const client = new AudioVideoClient({
+        stt: config,
+        tts: config,
+        'ai-voice': config,
+        vision: config,
+        multimodal: config,
       });
-    });
 
-    await new Promise<void>((resolve) => server.listen(0, resolve));
-    const address = server.address();
-    if (address === null || typeof address === 'string') {
-      throw new Error('Server failed to bind to a local port');
-    }
-    closeServer = async () => new Promise<void>((resolve, reject) => {
-      server.close((error?: Error) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve();
+      const result = await client.transcribe(makeSttRequest());
+
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          code: 'NOT_ADMITTED',
+          message: expect.stringContaining('media.sdk.legacy.AudioVideoClient.transcribe'),
+          service: 'stt',
+          retryable: false,
+        },
       });
-    });
-
-    const endpoint = `http://127.0.0.1:${address.port}`;
-    const config = createBaseConfig(endpoint);
-
-    const client = new AudioVideoClient({
-      stt: config,
-      tts: config,
-      'ai-voice': config,
-      vision: config,
-      multimodal: config,
-    });
-
-    const result = await client.transcribe(makeSttRequest());
-
-    expect(result.success).toBe(true);
-    expect(captured).toBeDefined();
-    expect(captured?.method).toBe('POST');
-    expect(captured?.path).toBe('/api/stt/transcribe');
-    expect(captured?.tenantHeader).toBe('tenant-int-01');
-    expect(captured?.correlationHeader).toBe('corr-int-01');
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 });
 
