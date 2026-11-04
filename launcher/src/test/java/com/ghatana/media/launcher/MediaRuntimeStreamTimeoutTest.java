@@ -31,6 +31,61 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaRuntimeStreamTimeoutTest {
 
     @Test
+    void eosFrameAckDrainsStreamWithoutClaimingProviderFinality() throws Exception {
+        var root = Files.createTempDirectory("media-stream-eos-");
+        AtomicInteger providerCalls = new AtomicInteger();
+        MediaStreamingProvider provider = new MediaStreamingProvider() {
+            @Override public String providerId() { return "eos-stream-provider"; }
+            @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public int priority() { return 1; }
+            @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+            @Override public String processingRegion() { return "local"; }
+            @Override public CompletableFuture<StreamAck> accept(StreamContext context, StreamFrame frame) {
+                providerCalls.incrementAndGet();
+                return CompletableFuture.completedFuture(
+                        new StreamAck(frame.sequence(), frame.payload().length, false));
+            }
+        };
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(),
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        try {
+            var registration = runtime.openStream(new StreamSessionRequest(
+                    "tenant-a", "principal-a", "correlation-eos", StreamKind.AUDIO,
+                    provider.providerId(), 128, Duration.ofSeconds(30), java.util.Map.of()));
+            var connected = runtime.connectStream(
+                    "tenant-a", registration.session().sessionId(), registration.connectionToken());
+
+            var ack = runtime.acceptFrame(new StreamFrame(
+                    "tenant-a", connected.sessionId(), registration.connectionToken(), 0,
+                    "final-frame".getBytes(StandardCharsets.UTF_8), true, Instant.now()));
+
+            assertThat(ack.acceptedSequence()).isZero();
+            var persisted = runtime.stream("tenant-a", connected.sessionId()).orElseThrow();
+            assertThat(persisted.state()).isEqualTo(StreamState.DRAINING);
+            assertThat(persisted.finality()).isEqualTo(StreamFinality.NONE);
+            assertThat(persisted.inFlightSequence()).isNull();
+            assertThat(providerCalls).hasValue(1);
+            assertThatThrownBy(() -> runtime.acceptFrame(new StreamFrame(
+                    "tenant-a", connected.sessionId(), registration.connectionToken(), 1,
+                    new byte[] {1}, false, Instant.now())))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("Media stream is not connected");
+            assertThat(providerCalls).hasValue(1);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void localStoreRejectsSessionPreMarkedWithUnverifiedProviderFinality() {
         Instant now = Instant.now();
         StreamSession forgedFinal = new StreamSession(

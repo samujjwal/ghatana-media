@@ -192,6 +192,68 @@ class MediaRuntimeSpeechAdmissionTest {
     }
 
     @Test
+    void authenticatedTenantAndPrincipalMustMatchBeforeAnySourceOrJobEffect() throws Exception {
+        for (var authenticated : List.of(
+                new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        "tenant-b", "principal-a", Instant.now()),
+                new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                        "tenant-a", "principal-b", Instant.now()))) {
+            var root = Files.createTempDirectory("media-stt-authenticated-identity-");
+            var jobStore = new LocalMediaRuntimeSupport.JobStore();
+            AtomicInteger providerCalls = new AtomicInteger();
+            AtomicInteger resolutions = new AtomicInteger();
+            Profile qualified = qualifiedProfile("profile-a");
+            MediaProcessingProvider provider = admittedProvider(providerCalls, qualified);
+            var runtime = runtimeWithAuthority(root, jobStore, List.of(provider),
+                    countingAuthority(resolutions), transcriptStore());
+            try {
+                var source = artifact(runtime, sourceClockMetadata());
+                ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                        speechParameters("profile-a", "en-US"), governance());
+
+                assertThatThrownBy(() -> runtime.submit(request, authenticated))
+                        .isInstanceOf(SecurityException.class)
+                        .hasMessage("Media job request does not match the authenticated principal");
+                assertNoJobOrProviderEffect(jobStore, providerCalls);
+                assertThat(resolutions).as("source rights must not be resolved for a mismatched identity")
+                        .hasValue(0);
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
+    void initiallyRevokedOrStaleSourceRightsCreateNoJobOrProviderEffect() throws Exception {
+        for (var status : List.of(
+                MediaSourceAuthorizationContracts.Status.REVOKED,
+                MediaSourceAuthorizationContracts.Status.STALE)) {
+            var root = Files.createTempDirectory("media-stt-source-rights-" + status.name().toLowerCase() + "-");
+            var jobStore = new LocalMediaRuntimeSupport.JobStore();
+            AtomicInteger providerCalls = new AtomicInteger();
+            AtomicInteger resolutions = new AtomicInteger();
+            Profile qualified = qualifiedProfile("profile-a");
+            var runtime = runtimeWithAuthority(root, jobStore,
+                    List.of(admittedProvider(providerCalls, qualified)),
+                    sourceDecisionAuthority(status, resolutions), transcriptStore());
+            try {
+                var source = artifact(runtime, sourceClockMetadata());
+                ProcessingJobRequest request = request(source.artifactId(), source.version().value(),
+                        speechParameters("profile-a", "en-US"), governance());
+
+                assertThatThrownBy(() -> runtime.submit(request,
+                        new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                                "tenant-a", "principal-a", Instant.now())))
+                        .isInstanceOf(MediaSpeechToTextAdmission.NotAdmittedException.class);
+                assertNoJobOrProviderEffect(jobStore, providerCalls);
+                assertThat(resolutions).hasValue(1);
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
     void sourceAuthorizationIsRevalidatedBeforeProviderAndBoundedSourceRead() throws Exception {
         var root = Files.createTempDirectory("media-stt-admission-authorized-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
@@ -341,6 +403,49 @@ class MediaRuntimeSpeechAdmissionTest {
                 }
                 return new MediaSourceAuthorizationContracts.Decision(
                         MediaSourceAuthorizationContracts.Status.REVOKED, null);
+            }
+        };
+    }
+
+    private static MediaSourceAuthorizationContracts.Authority countingAuthority(AtomicInteger resolutions) {
+        return new MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-counting-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public MediaSourceAuthorizationContracts.Decision resolve(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                resolutions.incrementAndGet();
+                return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, evidence(request));
+            }
+            @Override public MediaSourceAuthorizationContracts.Decision revalidate(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                return new MediaSourceAuthorizationContracts.Decision(
+                        MediaSourceAuthorizationContracts.Status.ALLOWED, expectedEvidence);
+            }
+        };
+    }
+
+    private static MediaSourceAuthorizationContracts.Authority sourceDecisionAuthority(
+            MediaSourceAuthorizationContracts.Status status, AtomicInteger resolutions) {
+        return new MediaSourceAuthorizationContracts.Authority() {
+            @Override public String authorityId() { return "fixture-source-decision-authority"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public MediaSourceAuthorizationContracts.Decision resolve(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                resolutions.incrementAndGet();
+                return new MediaSourceAuthorizationContracts.Decision(status, null);
+            }
+            @Override public MediaSourceAuthorizationContracts.Decision revalidate(
+                    MediaSourceAuthorizationContracts.Request request,
+                    MediaSourceAuthorizationContracts.Evidence expectedEvidence,
+                    MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+                throw new AssertionError("denied source rights must not reach revalidation");
             }
         };
     }
