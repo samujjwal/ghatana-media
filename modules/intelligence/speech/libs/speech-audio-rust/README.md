@@ -67,3 +67,16 @@ sample-window slicing, scalar-gain mixing, WAV writing, and waveform buckets)
 remain support operations; they are not additional capability IDs and do not
 establish provider or product behavior. Keep the exact source IDs and ownership
 in the existing source coverage/topology; do not create a second registry here.
+
+## Resampler fidelity boundary
+
+`Resampler` uses a bounded direct Blackman-windowed sinc kernel and computes
+each source position from integer rate arithmetic. Unit vectors cover impulse
+alignment, rational drift, channel isolation, an analytic in-band tone, and
+downsampling alias attenuation. These synthetic checks establish those
+specific properties for the tested vectors. They do not establish a general
+speech-quality bound, codec interoperability/fidelity, or a portable
+performance limit. `with_options` exposes tuning parameters without a fidelity
+guarantee; application qualification still needs representative, lawfully
+available source material and an independently selected reference and
+tolerance. The implementation is not a polyphase resampler.

@@ -159,13 +159,15 @@ impl DecodeLimits {
 }
 
 /**
- * Bandlimited windowed-sinc resampler with exact rational source-to-target
+ * Bounded direct windowed-sinc resampler with exact rational source-to-target
  * offsets. A Blackman-windowed sinc kernel is centered on each output position
  * and normalized by its actual tap sum, so DC gain is preserved and content
  * above the tighter of the source/target Nyquist limits is attenuated before
  * sampling. Positions come from integer rate arithmetic (`i * src / dst`),
  * never an accumulated float, so long inputs cannot drift. Non-finite input is
- * rejected rather than propagated into silently corrupt output.
+ * rejected rather than propagated into silently corrupt output. Synthetic
+ * unit vectors exercise these properties, but do not qualify speech/codec
+ * fidelity, a target error bound for arbitrary material, or host performance.
  */
 pub struct Resampler {
     target_sample_rate: u32,
@@ -188,7 +190,8 @@ impl Resampler {
     }
 
     /// Resampler with explicit kernel half-length (source samples) and cutoff
-    /// scale relative to the tighter Nyquist edge, for qualified fidelity tuning.
+    /// scale relative to the tighter Nyquist edge. These tuning options have
+    /// no fidelity guarantee without application-specific reference evaluation.
     pub fn with_options(
         target_sample_rate: u32,
         kernel_half_length: usize,
