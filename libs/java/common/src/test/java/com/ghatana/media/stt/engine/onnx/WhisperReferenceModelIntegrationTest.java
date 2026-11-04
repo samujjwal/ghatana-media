@@ -11,9 +11,7 @@ import org.junit.jupiter.api.Test;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.time.Duration;
-import java.util.HexFormat;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,18 +73,21 @@ class WhisperReferenceModelIntegrationTest {
             var result = engine.transcribe(speech, english);
             String transcript = result.getText();
             assertThat(transcript).isNotBlank();
-            assertThat(normalizeSpokenText(transcript))
+            String normalizedTranscript = normalizeSpokenText(transcript);
+            String normalizedGold = normalizeSpokenText(qualification.goldTranscript());
+            assertThat(normalizedTranscript.equals(normalizedGold))
                     .as("Whisper must reproduce all normalized ground-truth words, not just a keyword")
-                    .isEqualTo(normalizeSpokenText(qualification.goldTranscript()));
-            assertThat(result.words()).as("the pinned profile is explicitly configured without timestamps").isEmpty();
-            System.out.println("WHISPER_REFERENCE_OUTPUT=" + result.getText());
-            System.out.println("WHISPER_REFERENCE_OUTPUT_SHA256=" + sha256(result.getText().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-            System.out.println("WHISPER_REFERENCE_INPUT_PCM_SHA256=" + sha256(speech.data()));
+                    .isTrue();
+            assertThat(result.words().isEmpty())
+                    .as("the pinned profile is explicitly configured without timestamps")
+                    .isTrue();
 
             byte[] silenceBytes = new byte[16_000 * 2];
             AudioData silence = new AudioData(silenceBytes, 16_000, 1, 16,
                     Duration.ofSeconds(1), AudioFormat.PCM);
-            assertThat(engine.transcribe(silence, english).getText()).isBlank();
+            assertThat(engine.transcribe(silence, english).getText().isBlank())
+                    .as("silence must not produce a transcript")
+                    .isTrue();
 
             AudioData wrongRate = new AudioData(new byte[320], 8_000, 1, 16,
                     Duration.ofMillis(20), AudioFormat.PCM);
@@ -147,10 +148,6 @@ class WhisperReferenceModelIntegrationTest {
             return new AudioData(pcm, 16_000, 1, 16,
                     Duration.ofMillis(Math.round(pcm.length * 1_000d / (16_000 * 2))), AudioFormat.PCM);
         }
-    }
-
-    private static String sha256(byte[] value) throws Exception {
-        return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value));
     }
 
     private static void assertFeatureClose(float[][] actual, int frame, int mel, float expected) {
