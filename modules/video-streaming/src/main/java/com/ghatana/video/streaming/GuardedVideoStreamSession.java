@@ -17,10 +17,12 @@ import java.util.Objects;
  * re-evaluated on every actual egress; a revoked purpose forbids external
  * effects entirely.
  *
- * <p>Detach is a resumable transport loss; {@link #resume} restores the
- * durable ACK/keyframe/PTS position so frame identity and keyframe
- * dependencies survive a reconnect. A missing GOP keyframe is surfaced as a
- * gap — never as a decodable false success.
+ * <p>Detach is a resumable transport loss within this object; {@link #resume}
+ * accepts an owner-supplied ACK/keyframe position for reinitializing its
+ * in-memory reconciler. This helper does not read or write the canonical
+ * {@code MediaStreamSessionStore}, and the legacy unqualified PTS argument is
+ * ignored rather than restored. A missing GOP keyframe is surfaced as a gap
+ * — never as a decodable false success.
  *
  * <p>This object is an in-memory session state machine and is not thread-safe.
  * Its owner must serialize all transitions on one event loop or equivalent
@@ -276,12 +278,14 @@ public final class GuardedVideoStreamSession {
     }
 
     /**
-     * Resumes a detached session at the durable position: last ACK, last
-     * delivered keyframe and last delivered PTS — frame identity and GOP
-     * dependencies survive the reconnect. Tenant and revision mismatches are
-     * denied by the reconciler, never merged. If locally delivered frames
-     * still await provider egress, the supplied ACK must match the in-memory
-     * ACK; those bounded egress candidates are preserved across this resume.
+     * Resumes a detached in-memory session using owner-supplied ACK and
+     * keyframe position. The caller must obtain any recovery position from
+     * the canonical runtime store; this helper does not persist or verify it.
+     * The legacy unqualified PTS argument is ignored. Tenant and revision
+     * mismatches are denied by the reconciler, never merged. If locally
+     * delivered frames still await provider egress, the supplied ACK must
+     * match the in-memory ACK; those bounded egress candidates are preserved
+     * across this resume.
      */
     public void resume(
             String workerId, long presentedToken,
