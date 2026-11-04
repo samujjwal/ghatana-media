@@ -21,6 +21,9 @@ import io.grpc.stub.ServerCalls;
 import io.grpc.stub.StreamObserver;
 import io.grpc.protobuf.ProtoUtils;
 import com.google.protobuf.StringValue;
+import com.ghatana.audio.video.common.resilience.TenantAwareRateLimitingInterceptor;
+import com.ghatana.audio.video.common.security.AudioVideoRequestContextInterceptor;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -221,6 +224,16 @@ class GrpcTransportSecurityPolicyTest {
         assertThatThrownBy(() -> GrpcTransportSecurityPolicy.resolve(Map.of(), "bad-prefix"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("servicePrefix");
+    }
+
+    @Test
+    void inheritedIdentityAndTenantInterceptorsAreInstalledExactlyOnce() {
+        System.setProperty("AV_JWT_SECRET", TEST_JWT_SECRET);
+        var interceptors = GrpcInterceptorChain.build();
+
+        assertThat(interceptors).filteredOn(JwtServerInterceptor.class::isInstance).hasSize(1);
+        assertThat(interceptors).filteredOn(AudioVideoRequestContextInterceptor.class::isInstance).hasSize(1);
+        assertThat(interceptors).filteredOn(TenantAwareRateLimitingInterceptor.class::isInstance).hasSize(1);
     }
 
     @Test
