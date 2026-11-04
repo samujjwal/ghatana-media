@@ -372,3 +372,30 @@ export const SimulationStateSchema = boundedTypedValue(z.object({
   }
 }));
 export type SimulationState = z.infer<typeof SimulationStateSchema>;
+
+/**
+ * PDP-1 analytical measurement value. `numericValue` and `unitId` retain the
+ * source's JSON number and opaque unit identifier shapes; unit/dimension
+ * compatibility belongs to the owning units registry and is not inferred here.
+ */
+export const MeasurementSchema = boundedTypedValue(z.object({
+  observableId: OpaqueIdSchema,
+  modelFamilyRef: SimulationCapabilityLeafSchema,
+  modelVersionRef: VersionRefSchema,
+  familyApplicability: FamilyApplicabilitySchema,
+  familyQualificationRef: VersionRefSchema,
+  familyQualificationState: FamilyQualificationStateSchema,
+  modelRunRef: VersionRefSchema,
+  stateVersion: VersionRefSchema,
+  tSimSamplePoint: SimulationTimeSchema,
+  numericValue: z.number(),
+  unitId: OpaqueIdSchema,
+  coordinateFrameRefOrNull: NullableVersionRefSchema,
+  instrumentRef: VersionRefSchema,
+  calibrationRef: VersionRefSchema,
+  uncertaintyRef: VersionRefSchema,
+  confidenceBoundsRefOrNull: NullableVersionRefSchema,
+  validityDomainRef: VersionRefSchema,
+  provenanceRef: VersionRefSchema,
+}).strict());
+export type Measurement = z.infer<typeof MeasurementSchema>;

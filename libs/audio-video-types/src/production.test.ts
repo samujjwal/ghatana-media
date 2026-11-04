@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   ProductionSpecSchema, SceneBindingSchema, AnimationSpecSchema,
-  ModelExecutionSpecSchema, SimulationStateSchema, CaptureSourceKindSchema, SignedInt64DecimalSchema,
+  ModelExecutionSpecSchema, SimulationStateSchema, MeasurementSchema, CaptureSourceKindSchema, SignedInt64DecimalSchema,
   PositiveInt64DecimalSchema, ResourceBoundsSchema, StoryTimeSchema, VersionRefSchema, DigestSchema,
 } from './production';
 
@@ -380,5 +380,54 @@ describe('TY-04 headless declarative parsers', () => {
     expect(SimulationStateSchema.safeParse({
       ...unknownRandomness, replayability: 'UNKNOWN',
     }).success).toBe(true);
+  });
+  it('parses the closed PDP-1 measurement value and preserves exact reference formats', () => {
+    const measurement = {
+      observableId: 'observable-1',
+      modelFamilyRef: 'media.simulation.agent',
+      modelVersionRef: ref,
+      familyApplicability: { applicability: 'ADMITTED', evidenceRefs: [ref] },
+      familyQualificationRef: ref,
+      familyQualificationState: 'QUALIFIED',
+      modelRunRef: 'run/revision-7',
+      stateVersion: 'checkpoint/revision-9',
+      tSimSamplePoint: {
+        clockKind: 'simulation', clockId: 'sim-clock', streamId: 'sim-stream',
+        originRef: ref, ticks: '-9007199254740993',
+        timeBase: { numerator: '1', denominator: '90000' },
+      },
+      numericValue: -12.5,
+      unitId: 'unit-meter-per-second',
+      coordinateFrameRefOrNull: null,
+      instrumentRef: 'instrument/revision-2',
+      calibrationRef: 'calibration/revision-3',
+      uncertaintyRef: 'uncertainty/revision-1',
+      confidenceBoundsRefOrNull: null,
+      validityDomainRef: 'validity/revision-4',
+      provenanceRef: 'provenance/revision-5',
+    };
+    expect(MeasurementSchema.safeParse(measurement).success).toBe(true);
+    for (const field of Object.keys(measurement)) {
+      const missing = { ...measurement } as Record<string, unknown>;
+      delete missing[field];
+      expect(MeasurementSchema.safeParse(missing).success, `missing ${field}`).toBe(false);
+    }
+    expect(MeasurementSchema.safeParse({ ...measurement, unknown: true }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({ ...measurement, numericValue: '12.5' }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({ ...measurement, numericValue: Number.NaN }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({ ...measurement, numericValue: Number.POSITIVE_INFINITY }).success).toBe(false);
+    const missingUnit = { ...measurement } as Record<string, unknown>;
+    delete missingUnit.unitId;
+    expect(MeasurementSchema.safeParse(missingUnit).success).toBe(false);
+    expect(MeasurementSchema.safeParse({ ...measurement, unitId: 'unit/meter' }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({ ...measurement, modelRunRef: 'run revision-7' }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({
+      ...measurement,
+      tSimSamplePoint: { ...measurement.tSimSamplePoint, clockKind: 'story' },
+    }).success).toBe(false);
+    expect(MeasurementSchema.safeParse({
+      ...measurement,
+      tSimSamplePoint: { ...measurement.tSimSamplePoint, ticks: -9007199254740993 },
+    }).success).toBe(false);
   });
 });
