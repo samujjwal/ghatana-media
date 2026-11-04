@@ -184,6 +184,78 @@ class EnginePoolLifecycleTest {
     }
 
     @Test
+    void fatalCloseFailurePreservesRemainingDrainedHandlesForRetry() {
+        Engine first = new Engine();
+        Engine second = new Engine();
+        var factoryEngines = new ConcurrentLinkedQueue<>(List.of(first, second));
+        var firstAttempts = new AtomicInteger();
+        var pool = new EnginePool<>(factoryEngines::remove, resource -> true, resource -> {
+            if (resource == first && firstAttempts.incrementAndGet() == 1) {
+                throw new LinkageError("native provider close unavailable");
+            }
+            resource.closes.incrementAndGet();
+            return null;
+        }, config().minSize(2));
+
+        assertThatThrownBy(pool::close).isInstanceOf(LinkageError.class);
+        assertThat(first.closes).hasValue(0);
+        assertThat(second.closes).hasValue(0);
+        assertThat(pool.getStats().totalDestroyed).isZero();
+
+        pool.close();
+
+        assertThat(firstAttempts).hasValue(2);
+        assertThat(first.closes).hasValue(1);
+        assertThat(second.closes).hasValue(1);
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(2);
+        pool.close();
+        assertThat(first.closes).hasValue(1);
+        assertThat(second.closes).hasValue(1);
+    }
+
+    @Test
+    void fatalPendingRetryPreservesNewlyDrainedHandlesForRetry() throws Exception {
+        Engine pending = new Engine();
+        Engine idle = new Engine();
+        var factoryEngines = new ConcurrentLinkedQueue<>(List.of(pending, idle));
+        var pendingHealthy = new java.util.concurrent.atomic.AtomicBoolean(true);
+        var pendingAttempts = new AtomicInteger();
+        var pool = new EnginePool<>(factoryEngines::remove,
+                resource -> resource != pending || pendingHealthy.get(), resource -> {
+                    if (resource == pending) {
+                        int attempt = pendingAttempts.incrementAndGet();
+                        if (attempt == 1) throw new IllegalStateException("transient close failure");
+                        if (attempt == 2) throw new LinkageError("native provider close unavailable");
+                    }
+                    resource.closes.incrementAndGet();
+                    return null;
+                }, config().minSize(2));
+
+        var lease = pool.borrowLease();
+        assertThat(lease.engine()).isSameAs(pending);
+        pendingHealthy.set(false);
+        lease.close();
+        assertThat(pool.getFailedDestructionCount()).isEqualTo(1);
+        assertThat(pending.closes).hasValue(0);
+        assertThat(idle.closes).hasValue(0);
+
+        assertThatThrownBy(pool::close).isInstanceOf(LinkageError.class);
+        assertThat(pendingAttempts).hasValue(2);
+        assertThat(pending.closes).hasValue(0);
+        assertThat(idle.closes).hasValue(0);
+
+        pool.close();
+
+        assertThat(pendingAttempts).hasValue(3);
+        assertThat(pending.closes).hasValue(1);
+        assertThat(idle.closes).hasValue(1);
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(2);
+        pool.close();
+        assertThat(pending.closes).hasValue(1);
+        assertThat(idle.closes).hasValue(1);
+    }
+
+    @Test
     void blockingReturnHealthCheckDoesNotBlockPoolClose() throws Exception {
         var entered = new CountDownLatch(1);
         var release = new CountDownLatch(1);

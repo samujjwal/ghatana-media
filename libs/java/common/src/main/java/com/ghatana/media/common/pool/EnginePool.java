@@ -438,10 +438,33 @@ public class EnginePool<T> implements AutoCloseable {
         leakDetectionExecutor.shutdown();
         // Retry cleanup that failed during an earlier return/eviction before
         // disposing the idle engines drained by this close call.
-        retryPendingDestructions();
+        try {
+            retryPendingDestructions();
+        } catch (Error fatal) {
+            // Preserve the newly drained idle handles if an older pending
+            // provider cleanup fails fatally before the idle-disposal loop.
+            for (PooledEngine<T> pooled : idle) {
+                pendingDestructions.put(new IdentityKey<>(pooled.engine), pooled.engine);
+            }
+            throw fatal;
+        }
         // Borrowed engines remain usable until their owner returns them. Their
         // eventual return destroys them because the pool is already closed.
-        idle.forEach(p -> destroyEngine(p.engine));
+        for (int index = 0; index < idle.size(); index++) {
+            try {
+                destroyEngine(idle.get(index).engine);
+            } catch (Error fatal) {
+                // close() has already drained every idle handle from the
+                // available queue. Preserve all not-yet-attempted handles so
+                // a later explicit close() can retry them after this fatal
+                // provider failure is handled by the caller.
+                for (int remaining = index + 1; remaining < idle.size(); remaining++) {
+                    T engine = idle.get(remaining).engine;
+                    pendingDestructions.put(new IdentityKey<>(engine), engine);
+                }
+                throw fatal;
+            }
+        }
 
         try {
             if (!evictionExecutor.awaitTermination(5, TimeUnit.SECONDS)) evictionExecutor.shutdownNow();
