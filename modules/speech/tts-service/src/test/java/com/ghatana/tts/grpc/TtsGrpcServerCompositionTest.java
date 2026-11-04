@@ -81,7 +81,7 @@ class TtsGrpcServerCompositionTest {
                     .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(authenticatedHeaders()));
             assertThatThrownBy(() -> stub.synthesize(SynthesizeRequest.newBuilder().setText("safe fixture").build()))
                     .isInstanceOf(io.grpc.StatusRuntimeException.class)
-                    .hasMessageContaining("TTS locale/voice NOT_ADMITTED");
+                    .hasMessageContaining("TTS_VOICE_SELECTION_NOT_ADMITTED");
             verify(engine, never()).synthesize(anyString(), any());
             verifyNoInteractions(mediaRuntimePort);
             assertThat(handledCount(MetricsServerInterceptor.getInstance().scrape(), method, "UNAVAILABLE"))

@@ -10,6 +10,8 @@ import com.ghatana.tts.core.grpc.proto.AudioChunk;
 import com.ghatana.tts.core.grpc.proto.SynthesizeRequest;
 import com.ghatana.tts.core.grpc.proto.SynthesizeResponse;
 import io.grpc.Status;
+import io.grpc.Context;
+import com.ghatana.audio.video.common.security.JwtServerInterceptor;
 import io.grpc.stub.StreamObserver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
@@ -149,6 +151,11 @@ class ProductionTtsGrpcServiceConfigTest {
                 }
 
                 @Override
+                public String configuredDefaultVoiceId() {
+                    return "piper-en";
+                }
+
+                @Override
                 public boolean isReady() {
                     return true;
                 }
@@ -167,6 +174,14 @@ class ProductionTtsGrpcServiceConfigTest {
                         configured.set(config);
                         return library;
                     });
+            var identityField = JwtServerInterceptor.class.getDeclaredField("VERIFIED_IDENTITY");
+            identityField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Context.Key<JwtServerInterceptor.VerifiedIdentity> identityKey =
+                    (Context.Key<JwtServerInterceptor.VerifiedIdentity>) identityField.get(null);
+            Context identityContext = Context.current().withValue(identityKey,
+                    new JwtServerInterceptor.VerifiedIdentity("fixture-subject", "fixture-tenant"));
+            Context previousContext = identityContext.attach();
             try {
                 assertThat(configured.get()).isNotNull();
                 assertThat(configured.get().enableStreaming()).isFalse();
@@ -177,7 +192,7 @@ class ProductionTtsGrpcServiceConfigTest {
                 assertThat(Status.fromThrowable(synthesis.error.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
                 assertThat(Status.fromThrowable(synthesis.error.get()).getDescription())
                         .contains("language=unspecified");
-                assertThat(authorizationCalls).hasValue(0);
+                assertThat(authorizationCalls).hasValue(1);
                 assertThat(synthesis.value.get()).isNull();
                 org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).synthesize(
                         org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any());
@@ -193,6 +208,7 @@ class ProductionTtsGrpcServiceConfigTest {
                             .isEqualTo(Status.Code.UNAVAILABLE);
                     assertThat(mismatchedLocale.value.get()).isNull();
                 }
+                assertThat(authorizationCalls).hasValue(7);
                 // The only admitted profile is the exact configured default voice and en-US.
                 assertThat(ProductionTtsGrpcService.matchesAdmittedProfile(
                         "piper-en", "en-US", "piper-ne", java.util.Locale.forLanguageTag("en-US"))).isFalse();
@@ -203,10 +219,12 @@ class ProductionTtsGrpcServiceConfigTest {
                 RecordingObserver<AudioChunk> streaming = new RecordingObserver<>();
                 service.streamSynthesize(SynthesizeRequest.newBuilder().setText("fixture stream").build(), streaming);
                 assertThat(Status.fromThrowable(streaming.error.get()).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+                assertThat(authorizationCalls).hasValue(8);
                 org.mockito.Mockito.verify(engine, org.mockito.Mockito.never()).startStreaming(
                         org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any(),
                         org.mockito.ArgumentMatchers.any());
             } finally {
+                identityContext.detach(previousContext);
                 service.close();
             }
         } finally {

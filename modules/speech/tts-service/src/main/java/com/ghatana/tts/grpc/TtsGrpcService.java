@@ -296,11 +296,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
             text = validateText(request.getText());
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
             options = options(request);
-            requireAdmittedVoiceLanguage(options.voiceId(), options.language());
             callerIdentity = JwtServerInterceptor.verifiedIdentity();
             // Voice, tenant, consent, and rights authorization stays on the incoming gRPC
             // context and must pass before any bounded worker receives the request.
             requireAuthorizedVoiceSelection(request, TtsRequestAuthorization.Operation.SYNTHESIZE, callerIdentity);
+            requireAdmittedVoiceLanguage(options.voiceId(), options.language());
         } catch (RuntimeException exception) {
             fail(trace.observer, "Synthesis", exception);
             synthesizeTimer.record(System.nanoTime() - startedNanos, TimeUnit.NANOSECONDS);
@@ -686,6 +686,11 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 trace.finishUnknown();
                 return;
             }
+            // Capture interceptor-verified identity while still on the gRPC call context;
+            // provider callbacks and completion run on unrelated executor threads.
+            JwtServerInterceptor.VerifiedIdentity streamIdentity = JwtServerInterceptor.verifiedIdentity();
+            requireAuthorizedVoiceSelection(
+                    request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE, streamIdentity);
             requireAdmittedVoiceLanguage(synthesisOptions.voiceId(), synthesisOptions.language());
             requireAdmittedStreamingProvider();
             if (cancelled.get() || serverObserver != null && serverObserver.isCancelled()) {
@@ -694,11 +699,6 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase {
                 trace.finishUnknown();
                 return;
             }
-            // Capture interceptor-verified identity while still on the gRPC call context;
-            // provider callbacks and completion run on unrelated executor threads.
-            JwtServerInterceptor.VerifiedIdentity streamIdentity = JwtServerInterceptor.verifiedIdentity();
-            requireAuthorizedVoiceSelection(
-                    request, TtsRequestAuthorization.Operation.STREAM_SYNTHESIZE, streamIdentity);
             AtomicInteger expectedSequence = new AtomicInteger();
             AtomicBoolean finalChunkSeen = new AtomicBoolean();
             AtomicLong outputBytes = new AtomicLong();

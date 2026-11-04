@@ -25,6 +25,8 @@ import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,16 +55,16 @@ class TtsGrpcLogPrivacyTest {
                     .build(), observer);
 
             assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
+            assertThat(Status.fromThrowable(observer.error).getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
             assertThat(Status.fromThrowable(observer.error).getDescription())
-                    .contains("TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile")
+                    .contains("TTS_IDENTITY_REQUIRED", "verified tenant and subject are required")
                     .doesNotContain(TEXT_MARKER, VOICE_MARKER);
             assertMarkersAbsent(logs.output(), TEXT_MARKER, VOICE_MARKER);
         }
     }
 
     @Test
-    void providerCannotForgeLocalAdmissionReasonWithPrefix() throws ReflectiveOperationException {
+    void providerCannotForgeLocalAdmissionReasonWithPrefix() throws Exception {
         String localeSecret = "provider-locale-reason-secret-marker";
         String streamSecret = "provider-stream-reason-secret-marker";
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
@@ -98,6 +100,8 @@ class TtsGrpcLogPrivacyTest {
                 service.streamSynthesize(SynthesizeRequest.newBuilder()
                         .setText(TEXT_MARKER).setVoiceId("test-voice").build(), streaming);
 
+                assertThat(synthesis.awaitTerminal()).as("unary synthesis terminates").isTrue();
+                assertThat(streaming.awaitTerminal()).as("streaming synthesis terminates").isTrue();
                 for (Throwable failure : List.of(synthesis.error, streaming.error)) {
                     assertThat(failure).isInstanceOf(StatusRuntimeException.class);
                     assertThat(Status.fromThrowable(failure).getCode()).isEqualTo(Status.Code.UNAVAILABLE);
@@ -189,9 +193,11 @@ class TtsGrpcLogPrivacyTest {
     }
 
     private static final class CapturingObserver<T> implements StreamObserver<T> {
+        private final CountDownLatch terminal = new CountDownLatch(1);
         private Throwable error;
         @Override public void onNext(T value) { }
-        @Override public void onError(Throwable failure) { error = failure; }
-        @Override public void onCompleted() { }
+        @Override public void onError(Throwable failure) { error = failure; terminal.countDown(); }
+        @Override public void onCompleted() { terminal.countDown(); }
+        boolean awaitTerminal() throws InterruptedException { return terminal.await(5, TimeUnit.SECONDS); }
     }
 }

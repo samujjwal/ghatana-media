@@ -152,10 +152,12 @@ class TtsGrpcServiceTest {
 
     @Test
     void synthesizeFailsBeforeProviderLookupWithoutExactAdmittedVoiceLanguageRightsProfile() {
+        TtsGrpcService profileRejected = new TtsGrpcService(library, registry,
+                () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION, (voiceId, language) -> false);
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
 
-        service.synthesize(
-                SynthesizeRequest.newBuilder().setText("Hello world").build(),
+        profileRejected.synthesize(
+                SynthesizeRequest.newBuilder().setText("Hello world").setVoiceId("test-voice").build(),
                 observer);
 
         assertStatus(observer, Status.Code.UNAVAILABLE);
@@ -569,7 +571,10 @@ class TtsGrpcServiceTest {
 
     @Test
     void deniedVoiceAuthorizationRecordsAdmissionFailureWithoutProviderAccess() {
-        TtsRequestAuthorization denied = request -> TtsRequestAuthorization.Decision.DENIED;
+        TtsRequestAuthorization denied = new TtsRequestAuthorization() {
+            @Override public Decision authorize(Request request) { return Decision.DENIED; }
+            @Override public String configuredDefaultVoiceId() { return "test-only-configured-voice"; }
+        };
         TtsGrpcService serviceWithDeniedVoice = new TtsGrpcService(library, registry,
                 () -> true, () -> false, null, denied, (voiceId, language) -> true);
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
@@ -580,7 +585,9 @@ class TtsGrpcServiceTest {
                 .build(), observer);
 
         assertStatus(observer, Status.Code.PERMISSION_DENIED);
-        assertAdmissionBoundary("success", 1);
+        assertThat(registry.find("media.modality.boundary.duration")
+                .tag("modality", "tts").tag("service", "tts").tag("boundary", "admission")
+                .tag("execution_class", "control").tag("outcome", "success").timer()).isNull();
         assertAdmissionBoundary("failure", 1);
         verify(library, never()).getTtsEngine();
         verify(engine, never()).synthesize(anyString(), any());
@@ -668,58 +675,27 @@ class TtsGrpcServiceTest {
 
     @Test
     void sourceLocaleMatrixFailsWithoutDefaultSubstitution() {
-        // Exercise the server's production composition, not only the provider-neutral façade.
-        // The injected library stays unused because no exact voice-language-rights profile is
-        // source-admitted for this service cut.
-        try (ProductionTtsGrpcService production = new ProductionTtsGrpcService(library, registry)) {
-            for (String language : List.of("", "en", "ne", "hi", "en-US", "ne-NP", "hi-IN",
-                    "es", "fr", "de", "ja", "zh", "es-ES", "fr-FR", "de-DE", "ja-JP", "zh-CN", "bn-BD")) {
-                CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
-                production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
-                        .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
-                                .setLanguage(language).build()).build(), observer);
-
-                assertStatus(observer, Status.Code.UNAVAILABLE);
-                String description = ((StatusRuntimeException) observer.error).getStatus().getDescription();
-                assertThat(description).contains(
-                        "TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile");
-                String expectedLanguage = language.isBlank() ? "unspecified"
-                        : java.util.Locale.forLanguageTag(language).toLanguageTag();
-                assertThat(description).contains("language=" + expectedLanguage);
-                assertThat(description).doesNotContain("hello");
-                assertThat(observer.value).as("language %s must not produce a substituted result", language).isNull();
-                assertThat(observer.completed).as("language %s must not complete successfully", language).isFalse();
-            }
-
-            // An omitted BCP-47 option requests the provider default. It is still unadmitted,
-            // rather than permission to use the configured default voice/language.
-            CapturingObserver<SynthesizeResponse> defaultLanguage = new CapturingObserver<>();
-            production.synthesize(SynthesizeRequest.newBuilder().setText("hello").build(), defaultLanguage);
-            assertStatus(defaultLanguage, Status.Code.UNAVAILABLE);
-            assertThat(defaultLanguage.value).isNull();
-            assertThat(defaultLanguage.completed).isFalse();
-
-            CapturingObserver<SynthesizeResponse> explicitVoice = new CapturingObserver<>();
-            production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
-                    .setVoiceId("provider-default")
+        // An explicit test identity and admitted voice authorization let these requests
+        // reach the profile gate without claiming source or provider authority.
+        TtsGrpcService profileRejected = new TtsGrpcService(library, registry,
+                () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION, (voice, language) -> false);
+        for (String language : List.of("", "en", "ne", "hi", "en-US", "ne-NP", "hi-IN",
+                "es", "fr", "de", "ja", "zh", "es-ES", "fr-FR", "de-DE", "ja-JP", "zh-CN", "bn-BD")) {
+            CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+            profileRejected.synthesize(SynthesizeRequest.newBuilder().setText("hello")
                     .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
-                            .setLanguage("hi-IN").build()).build(), explicitVoice);
-            assertStatus(explicitVoice, Status.Code.UNAVAILABLE);
-            assertThat(((StatusRuntimeException) explicitVoice.error).getStatus().getDescription())
-                    .contains("TTS locale/voice NOT_ADMITTED", "voice=explicit", "language=hi-IN")
-                    .doesNotContain("provider-default");
-            assertThat(explicitVoice.value).isNull();
-            assertThat(explicitVoice.completed).isFalse();
+                            .setLanguage(language).build()).build(), observer);
 
-            CapturingObserver<SynthesizeResponse> profileDefaultLanguage = new CapturingObserver<>();
-            production.synthesize(SynthesizeRequest.newBuilder().setText("hello")
-                    .setProfileId("profile-with-ne-default").build(), profileDefaultLanguage);
-            assertStatus(profileDefaultLanguage, Status.Code.UNAVAILABLE);
-            assertThat(((StatusRuntimeException) profileDefaultLanguage.error).getStatus().getDescription())
-                    .contains("TTS locale/voice NOT_ADMITTED", "voice=default", "language=unspecified")
-                    .doesNotContain("hello", "profile-with-ne-default");
-            assertThat(profileDefaultLanguage.value).isNull();
-            assertThat(profileDefaultLanguage.completed).isFalse();
+            assertStatus(observer, Status.Code.UNAVAILABLE);
+            String description = ((StatusRuntimeException) observer.error).getStatus().getDescription();
+            assertThat(description).contains(
+                    "TTS locale/voice NOT_ADMITTED", "no exact admitted voice-language-rights profile");
+            String expectedLanguage = language.isBlank() ? "unspecified"
+                    : java.util.Locale.forLanguageTag(language).toLanguageTag();
+            assertThat(description).contains("language=" + expectedLanguage);
+            assertThat(description).doesNotContain("hello");
+            assertThat(observer.value).as("language %s must not produce a substituted result", language).isNull();
+            assertThat(observer.completed).as("language %s must not complete successfully", language).isFalse();
         }
         verify(engine, never()).synthesize(anyString(), any());
         verify(library, never()).getTtsEngine();
@@ -781,9 +757,9 @@ class TtsGrpcServiceTest {
                 .tag("outcome", "failure").timer();
         assertThat(responseFailure).isNotNull();
         assertThat(responseFailure.count()).isEqualTo(1);
-        // The voice profile is admitted, then the separate streaming provider gate
-        // rejects before rights authorization is evaluated.
-        assertAdmissionBoundary("success", 1);
+        // Authorization and the voice profile succeed before the separate streaming
+        // provider gate rejects.
+        assertAdmissionBoundary("success", 2);
         assertAdmissionBoundary("failure", 1);
     }
 
@@ -1796,8 +1772,10 @@ class TtsGrpcServiceTest {
         assertStatus(empty, Status.Code.INVALID_ARGUMENT);
 
         CapturingObserver<SynthesizeResponse> providerValidation = new CapturingObserver<>();
-        service.synthesize(
-                SynthesizeRequest.newBuilder().setText("valid input").build(),
+        TtsGrpcService profileRejected = new TtsGrpcService(library, registry,
+                () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION, (voice, language) -> false);
+        profileRejected.synthesize(
+                SynthesizeRequest.newBuilder().setText("valid input").setVoiceId("test-voice").build(),
                 providerValidation);
         assertStatus(providerValidation, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) providerValidation.error).getStatus().getDescription())
@@ -1998,8 +1976,10 @@ class TtsGrpcServiceTest {
 
     @Test
     void customVoiceAndProfileSelectionsFailBeforeDispatchWithoutAnAdmittedProviderProfile() {
+        TtsGrpcService profileRejected = new TtsGrpcService(library, registry,
+                () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION, (voice, language) -> false);
         CapturingObserver<SynthesizeResponse> voice = new CapturingObserver<>();
-        service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId("custom-voice").build(), voice);
+        profileRejected.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId("custom-voice").build(), voice);
         assertStatus(voice, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) voice.error).getStatus().getDescription())
                 .contains("TTS locale/voice NOT_ADMITTED", "voice=explicit", "language=unspecified")
@@ -2008,7 +1988,7 @@ class TtsGrpcServiceTest {
         assertThat(voice.completed).isFalse();
 
         CapturingObserver<SynthesizeResponse> profile = new CapturingObserver<>();
-        service.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
+        profileRejected.synthesize(SynthesizeRequest.newBuilder().setText("hello").setProfileId("profile-1").build(), profile);
         assertStatus(profile, Status.Code.UNAVAILABLE);
         assertThat(((StatusRuntimeException) profile.error).getStatus().getDescription())
                 .contains("TTS locale/voice NOT_ADMITTED", "voice=default", "language=unspecified")
