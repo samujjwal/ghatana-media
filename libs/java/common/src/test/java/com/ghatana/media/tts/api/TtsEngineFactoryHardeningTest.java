@@ -2,6 +2,7 @@ package com.ghatana.media.tts.api;
 
 import com.ghatana.media.AudioVideoLibrary;
 import com.ghatana.media.common.EngineStatus;
+import com.ghatana.media.common.ResourceExhaustedError;
 import com.ghatana.media.config.TtsConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -87,6 +88,23 @@ class TtsEngineFactoryHardeningTest {
         assertThatThrownBy(() -> TtsConfig.builder().maxTextLength(0).build())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("maxTextLength");
+    }
+
+    @Test
+    void syntheticFallbackRejectsOversizedOutputBeforeAllocation() {
+        TtsConfig config = TtsConfig.builder()
+                .voiceModelPath(tempDirectory.resolve("bounded-output.missing.onnx"))
+                .defaultVoiceId("bounded-output-voice")
+                .sampleRate(8_000)
+                .maxMemoryBytes(1_024)
+                .allowSyntheticFallback(true)
+                .build();
+
+        try (TtsEngine engine = TtsEngineFactory.create(config, new AudioVideoLibrary.LibraryState())) {
+            assertThatThrownBy(() -> engine.synthesize("a"))
+                    .isInstanceOf(ResourceExhaustedError.class)
+                    .hasMessageContaining("configured allocation limit");
+        }
     }
 
     private TtsConfig baseConfig(boolean allowSyntheticFallback) {

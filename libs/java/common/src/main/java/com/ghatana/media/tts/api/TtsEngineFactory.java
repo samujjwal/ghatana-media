@@ -6,6 +6,7 @@ import com.ghatana.media.common.AudioData;
 import com.ghatana.media.common.EngineMetrics;
 import com.ghatana.media.common.EngineStatus;
 import com.ghatana.media.common.InferenceError;
+import com.ghatana.media.common.ResourceExhaustedError;
 import com.ghatana.media.common.ValidationError;
 import com.ghatana.media.config.TtsConfig;
 import io.activej.promise.Promise;
@@ -187,9 +188,21 @@ public final class TtsEngineFactory {
             try {
                 concurrencyLimiter.acquire();
                 try {
-                    int samples = Math.max(1, (int) Math.ceil(text.length() * config.sampleRate() * 0.1));
+                    // Bound the local synthetic payload before allocation. The governed wrapper
+                    // also checks provider output, but that postcondition cannot prevent this
+                    // explicitly enabled fallback from allocating beyond its configured budget.
+                    long estimatedSamples = Math.max(
+                            1L,
+                            (Math.multiplyExact((long) text.length(), config.sampleRate()) + 9L) / 10L);
+                    long estimatedBytes = Math.multiplyExact(estimatedSamples, 2L);
+                    long maxArrayBytes = Math.min(config.maxMemoryBytes(), Integer.MAX_VALUE - 8L);
+                    if (estimatedBytes > maxArrayBytes) {
+                        throw new ResourceExhaustedError(
+                                "Synthetic TTS output exceeds configured allocation limit: "
+                                        + estimatedBytes + " > " + maxArrayBytes);
+                    }
                     return AudioData.builder()
-                            .data(new byte[Math.multiplyExact(samples, 2)])
+                            .data(new byte[(int) estimatedBytes])
                             .sampleRate(config.sampleRate())
                             .channels(1)
                             .bitsPerSample(16)
