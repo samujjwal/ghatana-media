@@ -208,7 +208,12 @@ class TranscriptionServiceTest extends EventloopTestBase {
         service.close();
         assertThat(injectedExecutor.isShutdown()).isFalse();
 
-        assertThat(runPromise(() -> service.save(tenantId, entity))).isSameAs(entity);
+        TranscriptionService replacement = new TranscriptionService(repository, eventloop(), injectedExecutor);
+        try {
+            assertThat(runPromise(() -> replacement.save(tenantId, entity))).isSameAs(entity);
+        } finally {
+            replacement.close();
+        }
     }
 
     // Helper methods

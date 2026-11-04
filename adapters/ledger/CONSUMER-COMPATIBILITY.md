@@ -21,8 +21,8 @@ encoded as job finality.
 | `QUEUED` | `PENDING` | none | mapped |
 | `RUNNING` | `RUNNING` | none | mapped |
 | `RETRY_PENDING` | `PENDING` | none | mapped; retry authority is not represented by the ledger state |
-| `OUTCOME_UNKNOWN` | — | — | rejected: RunLedger has no unknown state |
-| `RECONCILING` | — | — | rejected: RunLedger has no reconciliation state |
+| `OUTCOME_UNKNOWN` | `PENDING` | none | marked `jobState=UNKNOWN`, `effectFinality=UNKNOWN`; `sourceStateRef` fingerprints the source token |
+| `RECONCILING` | `PENDING` | none | same explicit unknown envelope; never a retry or progress authorization |
 | `COMPLETED` | `COMPLETED` | `SUCCEEDED` | mapped |
 | `PARTIALLY_SUCCEEDED` | `COMPLETED` | `DEGRADED` | mapped only from the explicit partial job state |
 | `FAILED` | `COMPLETED` | `FAILED` | mapped as terminal execution outcome; RunLedger has no separate failed terminal state |
@@ -30,14 +30,21 @@ encoded as job finality.
 
 Legacy phase labels `SUBMITTED`, `TRANSCODING`, `PROCESSING`, and `STORING`
 map respectively to `PENDING`, `RUNNING`, `RUNNING`, and `RUNNING`, all with
-no outcome. Other unrecognized job tokens are rejected. Media's logical
+no outcome. Unrecognized or oversized job tokens use `PENDING` only as the
+public enum's nonterminal envelope, paired with `jobState=UNKNOWN` and
+`effectFinality=UNKNOWN`. Known uncertainty tokens receive a bounded canonical
+fingerprint; arbitrary or oversized tokens use the constant
+`UNRECOGNIZED_REDACTED` reference. This does not prove dispatch did not happen
+or authorize retry. Known attempt-only,
+quality, and delivery tokens remain rejected rather than conflated with job
+uncertainty. Media's logical
 attempt states (`CLAIMED`, `DISPATCH_INTENT_RECORDED`, `DISPATCHED`, `RUNNING`,
 `CANCEL_REQUESTED`, `SUCCEEDED`, `FAILED`, `CANCEL_CONFIRMED`,
 `OUTCOME_UNKNOWN`, `SUPERSEDED`) describe an attempt, not an aggregate job;
 the adapter does not accept them as job-state substitutes. Because the method
 takes an untyped string, shared tokens `RUNNING`, `FAILED`, and
 `OUTCOME_UNKNOWN` are interpreted only by the aggregate job-state rules above
-(`OUTCOME_UNKNOWN` is rejected); this API cannot carry the attempt-state
+(`OUTCOME_UNKNOWN` becomes the explicit unknown envelope); this API cannot carry the attempt-state
 meaning for those same tokens.
 
 The quality-disposition states (`NOT_ASSESSED`, `ASSESSING`, `PASS`, `FAIL`,
@@ -49,12 +56,13 @@ The current adapter signature receives a string state token without a typed
 state-machine discriminator: lexical collisions therefore retain their
 aggregate job/legacy meaning (`SUBMITTED` and `PREPARING` map to `PENDING`,
 `FAILED` remains the canonical job state, and `OUTCOME_UNKNOWN`/
-`RECONCILING` are rejected as unrepresentable job states). The adapter cannot
+`RECONCILING` become explicit unknown envelopes). The adapter cannot
 consume a standalone delivery state context through that API. Distinct values
 such as quality `PASS` and delivery `ACKNOWLEDGED` are rejected as job inputs;
 quality `PASS` is not job success and delivery `ACKNOWLEDGED` is not job
 completion. The public RunLedger has no typed `UNKNOWN` state or outcome;
-unknown/unrepresentable job input is rejected instead of assigned a fallback.
+its coarse `PENDING` value is paired with `effectFinality=UNKNOWN` and never
+constitutes Media job authority or retry permission.
 
 ## Build profiles
 

@@ -822,7 +822,16 @@ public final class PostgresqlMediaTranscriptStore implements MediaTranscriptStor
                 JOIN media_transcript_attempt_bindings b
                   ON b.tenant_id=r.tenant_id AND b.transcript_id=r.transcript_id
                  AND b.transcript_revision=r.revision
+                JOIN media_processing_attempts a
+                  ON a.tenant_id=b.tenant_id AND a.job_id=b.job_id
+                 AND a.attempt_number=b.attempt_number
                 WHERE b.tenant_id=? AND r.principal_id=? AND b.transcript_version_ref=?
+                  AND r.job_id=b.job_id AND r.provider_id=b.provider_id
+                  AND r.source_artifact_version=b.source_artifact_version_ref
+                  AND a.state='SUCCEEDED' AND a.fencing_token=b.fencing_token
+                  AND a.provider_id=b.provider_id AND a.provider_operation_id=b.provider_operation_id
+                  AND a.provider_receipt_id=b.provider_receipt_id
+                  AND a.request_fingerprint=b.request_fingerprint AND a.result_digest=b.result_digest
                 ORDER BY r.transcript_id, r.revision
                 """)) {
             query.setString(1, tenantId);

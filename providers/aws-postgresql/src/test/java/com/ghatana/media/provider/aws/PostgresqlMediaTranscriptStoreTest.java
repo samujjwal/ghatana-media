@@ -684,6 +684,21 @@ class PostgresqlMediaTranscriptStoreTest {
                     "job-exact", "consent-exact", digest, "legacy words");
             store.append(legacy, 0);
             assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", "transcript-legacy")).isEmpty();
+
+            // A previously bound revision is not exact-version readable after the durable
+            // attempt ceases to prove success. Keep cross-store drift UNKNOWN instead of
+            // treating the transcript row alone as successful finality.
+            try (Connection connection = state.connection(); PreparedStatement update = connection.prepareStatement(
+                    "UPDATE media_processing_attempts SET state='OUTCOME_UNKNOWN' WHERE tenant_id=? AND job_id=? AND attempt_number=?")) {
+                update.setString(1, "tenant-exact");
+                update.setString(2, "job-exact");
+                update.setInt(3, 1);
+                assertThat(update.executeUpdate()).isEqualTo(1);
+            }
+            assertThat(store.revisionByVersionRef("tenant-exact", "principal-a", versionRef)).isEmpty();
+            assertThatThrownBy(() -> store.readAttemptBinding(
+                    "tenant-exact", "principal-a", bound.draft().transcriptId(), bound.revision()))
+                    .isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -1045,6 +1060,13 @@ class PostgresqlMediaTranscriptStoreTest {
                         .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
                 assertThat(reopened.attemptBinding("tenant-binding-reopen", "transcript-binding-reopen", 1))
                         .isEqualTo(expected);
+                assertThat(reopened.revisionByVersionRef("tenant-binding-reopen", "principal-a", versionRef))
+                        .contains(revision);
+                assertThat(reopened.readAttemptBinding("tenant-binding-reopen", "principal-a",
+                        "transcript-binding-reopen", 1)).isEqualTo(new TranscriptAttemptBinding(
+                                expected.jobId(), expected.attemptNumber(), expected.fencingToken(), expected.providerId(),
+                                expected.providerOperationId(), expected.providerReceiptId(), expected.requestFingerprint(),
+                                expected.sourceArtifactVersionRef(), expected.transcriptVersionRef(), expected.resultDigest()));
             }
         }
     }

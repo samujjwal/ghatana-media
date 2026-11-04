@@ -131,6 +131,7 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
         AtomicInteger maximumActive = new AtomicInteger();
         AtomicInteger terminalCount = new AtomicInteger();
         AtomicInteger successCount = new AtomicInteger();
+        CountDownLatch allAcceptedPromisesCompleted = new CountDownLatch(acceptedCount);
         AtomicReference<Exception> overflowFailure = new AtomicReference<>();
         when(repository.countByTenantId("tenant")).thenAnswer(invocation -> {
             int current = active.incrementAndGet();
@@ -170,6 +171,7 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
                     last = service.countByTenantId("tenant").whenComplete((value, failure) -> {
                         terminalCount.incrementAndGet();
                         if (failure == null) successCount.incrementAndGet();
+                        allAcceptedPromisesCompleted.countDown();
                     });
                 }
                 service.countByTenantId("tenant").whenException(overflowFailure::set);
@@ -177,6 +179,7 @@ class TranscriptionServiceLifecycleTest extends EventloopTestBase {
             });
 
             assertThat(lastResult).isEqualTo(1L);
+            assertThat(allAcceptedPromisesCompleted.await(2, TimeUnit.SECONDS)).isTrue();
             assertThat(terminalCount).hasValue(acceptedCount);
             assertThat(successCount).hasValue(acceptedCount);
             assertThat(overflowFailure.get()).isInstanceOf(RejectedExecutionException.class);

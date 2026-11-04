@@ -153,14 +153,25 @@ class AudioVideoRunLedgerAdapterTest {
         }
 
         for (String unknown : golden.getProperty("unknownStates").split(",")) {
-            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
-                    golden.getProperty("jobId"), golden.getProperty("mediaType"),
-                    golden.getProperty("processingType"), golden.getProperty("collectionId"),
-                    golden.getProperty("mediaArtifactId"), params, unknown, createdAt, startedAt,
-                    null, null, "provider", "provider-terminal", golden.getProperty("traceId"),
-                    golden.getProperty("correlationId")))
-                    .as("%s must not be conflated with aggregate job completion", unknown)
-                    .isInstanceOf(IllegalArgumentException.class);
+            if (Set.of("OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING").contains(unknown)) {
+                RunLedger uncertain = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                        golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                        golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                        golden.getProperty("mediaArtifactId"), params, unknown, createdAt, startedAt,
+                        null, null, "provider", "provider-terminal", golden.getProperty("traceId"),
+                        golden.getProperty("correlationId"));
+                assertThat(uncertain.outcome()).isNull();
+                assertThat(uncertain.attributes()).containsEntry("effectFinality", "UNKNOWN");
+            } else {
+                assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+                        golden.getProperty("jobId"), golden.getProperty("mediaType"),
+                        golden.getProperty("processingType"), golden.getProperty("collectionId"),
+                        golden.getProperty("mediaArtifactId"), params, unknown, createdAt, startedAt,
+                        null, null, "provider", "provider-terminal", golden.getProperty("traceId"),
+                        golden.getProperty("correlationId")))
+                        .as("attempt state %s must not be conflated with aggregate job state", unknown)
+                        .isInstanceOf(IllegalArgumentException.class);
+            }
         }
     }
 
@@ -607,22 +618,22 @@ class AudioVideoRunLedgerAdapterTest {
                 "j3", "a3", "provider", "p3", "   ", Map.of(), now, 0, "t", "c"))
             .isInstanceOf(IllegalArgumentException.class);
 
-        // The internal processing-state vocabulary is equally fail-closed.
-        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+        // Unknown internal processing vocabulary becomes explicitly UNKNOWN.
+        RunLedger unknownMediaState = AudioVideoRunLedgerAdapter.fromProcessingJob(
                 "job-x", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
-                "MYSTERY_STATE", now, now, null, null, null, null, "t", "c"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("unmapped Media processing job state");
+                "MYSTERY_STATE", now, now, null, null, null, null, "t", "c");
+        assertThat(unknownMediaState.attributes()).containsEntry("jobState", "UNKNOWN")
+                .containsEntry("effectFinality", "UNKNOWN")
+                .containsEntry("sourceStateRef", "UNRECOGNIZED_REDACTED");
 
-        // RunLedger has no typed UNKNOWN or cancellation-request state. Do not
-        // collapse those canonical states into RUNNING and lose their meaning.
-        for (String unrepresentable : List.of("OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING")) {
-            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
-                    "job-unresolved", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
-                    unrepresentable, now, now, null, null, null, null, "t", "c"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Media processing job state cannot be represented without loss");
-        }
+        RunLedger unresolved = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-unresolved", "AUDIO", "STT", "col-1", "artifact-src", Map.of(),
+                "OUTCOME_UNKNOWN", now, now, null, null, null, null, "t", "c");
+        assertThat(unresolved.state()).isEqualTo(JobExecutionState.PENDING);
+        assertThat(unresolved.outcome()).isNull();
+        assertThat(unresolved.attributes()).containsEntry("jobState", "UNKNOWN")
+                .containsEntry("effectFinality", "UNKNOWN");
+        assertThat(unresolved.attributes().get("sourceStateRef")).startsWith("sha256:");
 
         // Mapped nonterminal states keep an honest null outcome.
         RunLedger running = AudioVideoRunLedgerAdapter.fromProviderJobStatus(
@@ -635,7 +646,7 @@ class AudioVideoRunLedgerAdapterTest {
     @DisplayName("Invalid provider and Media state diagnostics are bounded and do not echo untrusted values")
     void testInvalidStateDiagnosticsDoNotDiscloseInput() {
         long now = System.currentTimeMillis();
-        String privateUnknownState = "user@example.invalid bearer sk-live-secret " + "x".repeat(10_000);
+        String privateUnknownState = "user@example.invalid bearer sk-live-secret " + "x".repeat(1_000_000);
 
         assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
                 "job-state-provider", "source", "provider", "provider-job", privateUnknownState,
@@ -644,12 +655,15 @@ class AudioVideoRunLedgerAdapterTest {
                 .hasMessage("unmapped provider job state")
                 .satisfies(failure -> assertThat(failure.getMessage().length()).isLessThanOrEqualTo(64));
 
-        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+        RunLedger unknownMediaState = AudioVideoRunLedgerAdapter.fromProcessingJob(
                 "job-state-media", "AUDIO", "STT", "collection", "source", Map.of(),
-                privateUnknownState, now, 0, null, null, null, null, "trace", "correlation"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("unmapped Media processing job state")
-                .satisfies(failure -> assertThat(failure.getMessage().length()).isLessThanOrEqualTo(64));
+                privateUnknownState, now, 0, null, null, null, null, "trace", "correlation");
+        assertThat(unknownMediaState.attributes()).containsEntry("jobState", "UNKNOWN")
+                .containsEntry("effectFinality", "UNKNOWN")
+                .containsEntry("sourceStateRef", "UNRECOGNIZED_REDACTED");
+        assertThat(unknownMediaState.toString()).doesNotContain("user@example.invalid", "sk-live-secret");
+        assertThat(unknownMediaState.toString()).doesNotContain("x".repeat(256));
+        assertThat(unknownMediaState.toString().length()).isLessThan(5_000);
 
         assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProviderJobStatus(
                 "job-state-terminal", "source", "provider", "provider-job", "FAILED",
@@ -695,14 +709,14 @@ class AudioVideoRunLedgerAdapterTest {
         assertThat(cancelled.state()).isEqualTo(JobExecutionState.CANCELLED);
         assertThat(cancelled.outcome()).isEqualTo(ExecutionOutcome.CANCELLED);
 
-        // UNKNOWN and RECONCILING must stay in the authoritative Media job
-        // state machine; this coarse RunLedger cannot encode them losslessly.
+        // UNKNOWN and RECONCILING remain explicitly marked in the coarse envelope.
         for (String unresolved : List.of("OUTCOME_UNKNOWN", "RECONCILING")) {
-            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+            RunLedger unknown = AudioVideoRunLedgerAdapter.fromProcessingJob(
                     "j-unresolved", "AUDIO", "STT", "col", "src", Map.of(), unresolved,
-                    now - 100, now - 90, null, null, "whisper", "pj-unresolved", "t", "c"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Media processing job state cannot be represented without loss");
+                    now - 100, now - 90, null, null, "whisper", "pj-unresolved", "t", "c");
+            assertThat(unknown.state()).isEqualTo(JobExecutionState.PENDING);
+            assertThat(unknown.outcome()).isNull();
+            assertThat(unknown.attributes()).containsEntry("effectFinality", "UNKNOWN");
         }
     }
 
@@ -748,12 +762,10 @@ class AudioVideoRunLedgerAdapterTest {
             assertThat(ledger.outcome()).as(activePhase).isNull();
         }
 
-        // The remaining canonical job states, attempt-only states and noncanonical aliases
-        // have no lossless RunLedger state. They must not become RUNNING or terminal.
+        // Attempt-only statuses cannot be substituted for aggregate job state.
         for (String unrepresentable : List.of(
-                "OUTCOME_UNKNOWN", "RECONCILING", "CLAIMED", "DISPATCH_INTENT_RECORDED",
-                "DISPATCHED", "CANCEL_REQUESTED", "CANCEL_CONFIRMED", "SUPERSEDED",
-                "ABORTED", "SUCCEEDED", "STORED", "ERROR")) {
+                "CLAIMED", "DISPATCH_INTENT_RECORDED",
+                "DISPATCHED", "CANCEL_REQUESTED", "CANCEL_CONFIRMED", "SUPERSEDED", "SUCCEEDED")) {
             assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
                     "matrix-" + unrepresentable, "AUDIO", "STT", "collection", "source",
                     Map.of(), unrepresentable, now, 0, null, null,
@@ -831,24 +843,19 @@ class AudioVideoRunLedgerAdapterTest {
                     .isInstanceOf(IllegalArgumentException.class);
         }
 
-        // RunLedger exposes no UNKNOWN lifecycle bucket. Both the canonical
-        // unknown value and unknown spellings therefore fail closed instead of
-        // being recast as progress, failure, or successful completion.
+        // RunLedger exposes no UNKNOWN lifecycle bucket, so a marked nonterminal
+        // envelope preserves uncertainty without asserting progress or finality.
         for (String unknown : List.of("UNKNOWN", "OUTCOME_UNKNOWN", "MYSTERY_STATE")) {
-            assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
+            RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
                     "matrix-unknown-" + unknown, "AUDIO", "STT", "collection", "source",
                     Map.of(), unknown, now, 0, null, null,
-                    null, null, "trace", "correlation"))
-                    .as("unknown state %s has no safe RunLedger fallback", unknown)
-                    .isInstanceOf(IllegalArgumentException.class);
+                    null, null, "trace", "correlation");
+            assertThat(ledger.state()).isEqualTo(JobExecutionState.PENDING);
+            assertThat(ledger.outcome()).isNull();
+            assertThat(ledger.attributes()).containsEntry("jobState", "UNKNOWN")
+                    .containsEntry("effectFinality", "UNKNOWN");
         }
 
-        assertThatThrownBy(() -> AudioVideoRunLedgerAdapter.fromProcessingJob(
-                "matrix-unknown", "AUDIO", "STT", "collection", "source",
-                Map.of(), "UNRECOGNIZED_STATE", now, 0, null, null,
-                null, null, "trace", "correlation"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("unmapped Media processing job state");
     }
 
     @Test

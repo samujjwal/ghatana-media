@@ -102,8 +102,10 @@ public final class AudioVideoRunLedgerAdapter {
         Objects.requireNonNull(collectionId, "collectionId must not be null");
         Objects.requireNonNull(jobState, "jobState must not be null");
 
-        JobExecutionState mappedState = mapProcessingJobState(jobState);
-        ExecutionOutcome mappedOutcome = mapProcessingJobOutcome(jobState);
+        boolean unknownState = isUnknownProcessingJobState(jobState);
+        JobExecutionState mappedState = unknownState
+                ? JobExecutionState.PENDING : mapProcessingJobState(jobState);
+        ExecutionOutcome mappedOutcome = unknownState ? null : mapProcessingJobOutcome(jobState);
         if (startedAtMs > 0 && startedAtMs < createdAtMs) {
             throw new IllegalArgumentException("job start precedes job creation");
         }
@@ -173,8 +175,14 @@ public final class AudioVideoRunLedgerAdapter {
         attributes.put("mediaArtifactId", ledgerMediaArtifactId);
         // Preserve the raw observed state so a coarse projection never drops
         // uncertainty, cancellation-requested or partial-finality information.
-        attributes.put("jobState", jobState);
-        if (mappedOutcome == null) {
+        attributes.put("jobState", unknownState ? "UNKNOWN" : jobState);
+        if (unknownState) {
+            // Data Cloud's public enum has no UNKNOWN bucket. PENDING is only a
+            // coarse transport value; this marker prevents it being read as a
+            // claim that the Media job has not dispatched or is safe to retry.
+            attributes.put("effectFinality", "UNKNOWN");
+            attributes.put("sourceStateRef", unknownStateReference(jobState));
+        } else if (mappedOutcome == null) {
             attributes.put("effectFinality", "UNRESOLVED");
         } else if (mappedOutcome == ExecutionOutcome.DEGRADED) {
             attributes.put("effectFinality", "PARTIAL");
@@ -464,13 +472,58 @@ public final class AudioVideoRunLedgerAdapter {
                  "RUNNING" -> JobExecutionState.RUNNING;
             case "COMPLETED", "FAILED", "PARTIALLY_SUCCEEDED" -> JobExecutionState.COMPLETED;
             case "CANCELLED" -> JobExecutionState.CANCELLED;
-            case "OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING" -> throw new IllegalArgumentException(
-                    "Media processing job state cannot be represented without loss");
             // An unrecognized state must never be projected as RUNNING or a
             // final outcome; fail closed so the caller must not fabricate.
-            default -> throw new IllegalArgumentException(
-                    "unmapped Media processing job state");
+            default -> throw new IllegalArgumentException("unmapped Media processing job state");
         };
+    }
+
+    /**
+     * Data Cloud has no UNKNOWN state. Preserve uncertainty using an explicitly
+     * marked, nonterminal envelope instead of rejecting a canonical ambiguous
+     * state or recasting it as progress/failure. Known non-job vocabularies
+     * remain rejected by {@link #mapProcessingJobState(String)} callers.
+     */
+    private static boolean isUnknownProcessingJobState(String jobState) {
+        if (jobState.length() > MAX_STATE_TOKEN_CHARS) {
+            return true;
+        }
+        String normalized = jobState.toUpperCase(Locale.ENGLISH);
+        if (Set.of("OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING", "UNKNOWN").contains(normalized)) {
+            return true;
+        }
+        try {
+            mapProcessingJobState(jobState);
+            return false;
+        } catch (IllegalArgumentException unmapped) {
+            // Quality, delivery, and attempt-only states have distinct owners;
+            // they must not silently become aggregate job UNKNOWN.
+            if (Set.of("PASS", "FAIL", "ABSTAINED", "ASSESSING", "NOT_ASSESSED",
+                    "REVIEW_REQUIRED", "ACKNOWLEDGED", "PARTIALLY_DELIVERED", "REVOKED",
+                    "NOT_STARTED", "READY_FOR_AUTHORIZED_DELIVERY",
+                    "CLAIMED", "DISPATCH_INTENT_RECORDED", "DISPATCHED", "CANCEL_REQUESTED",
+                    "CANCEL_CONFIRMED", "SUPERSEDED", "SUCCEEDED", "ABORTED")
+                    .contains(normalized)) {
+                throw unmapped;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Keep the source discriminator bounded: only the four known uncertainty
+     * tokens receive a stable token fingerprint. Arbitrary or oversized input
+     * is collapsed to one constant sentinel without hashing attacker-sized text.
+     */
+    private static String unknownStateReference(String jobState) {
+        if (jobState.length() > MAX_STATE_TOKEN_CHARS) {
+            return "UNRECOGNIZED_REDACTED";
+        }
+        String normalized = jobState.toUpperCase(Locale.ENGLISH);
+        if (Set.of("OUTCOME_UNKNOWN", "RECONCILING", "CANCELLING", "UNKNOWN").contains(normalized)) {
+            return ledgerFingerprint(normalized);
+        }
+        return "UNRECOGNIZED_REDACTED";
     }
 
     private static ExecutionOutcome mapProcessingJobOutcome(String jobState) {
