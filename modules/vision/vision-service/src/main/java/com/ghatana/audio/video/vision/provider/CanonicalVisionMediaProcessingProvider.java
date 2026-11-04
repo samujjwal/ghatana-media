@@ -111,12 +111,14 @@ public final class CanonicalVisionMediaProcessingProvider implements MediaProces
         Objects.requireNonNull(context, "context");
         Objects.requireNonNull(attempt, "attempt");
         return CompletableFuture.supplyAsync(() -> {
+            validateAttemptBinding(context, attempt);
             byte[] image;
+            com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt receipt;
             try {
                 ByteArrayOutputStream sink = new ByteArrayOutputStream();
                 // The reader re-validates rights, policy, tenant, principal and exact
                 // immutable source version before any byte crosses this boundary.
-                context.copySourceContentTo(sink, MAX_SOURCE_BYTES);
+                receipt = context.copySourceContentTo(sink, MAX_SOURCE_BYTES);
                 image = sink.toByteArray();
             } catch (RuntimeException | java.io.IOException failure) {
                 throw new VisionEffectAmbiguousException(
@@ -125,6 +127,7 @@ public final class CanonicalVisionMediaProcessingProvider implements MediaProces
             if (image.length == 0) {
                 throw new VisionEffectAmbiguousException("VISION source produced no bytes", null);
             }
+            validateReadReceipt(context, receipt, image);
             List<DetectedObject> detections = detector.detectObjects(image, detectionOptions());
             Map<String, Object> result = Map.of(
                     "detections", toResultEntries(detections),
@@ -137,6 +140,39 @@ public final class CanonicalVisionMediaProcessingProvider implements MediaProces
                     "vision-receipt:" + attempt.jobId() + ":" + attempt.attemptNumber(),
                     result, sha256(image), Instant.now());
         });
+    }
+
+    /** Reject a stale or cross-tenant invocation before reading source bytes. */
+    private static void validateAttemptBinding(ProcessingContext context, ProviderAttemptContext attempt) {
+        var request = context.request();
+        var artifact = context.artifact();
+        if (request.jobType() != JobType.VISION
+                || !request.tenantId().equals(artifact.tenantId())
+                || !request.principalId().equals(artifact.principalId())
+                || !request.artifactId().equals(artifact.artifactId())
+                || !request.tenantId().equals(attempt.tenantId())
+                || !request.requestId().equals(attempt.requestId())
+                || request.expectedArtifactVersion().isBlank()
+                || !request.expectedArtifactVersion().equals(artifact.version().value())) {
+            throw new VisionEffectAmbiguousException(
+                    "VISION attempt does not match tenant, principal, job, or pinned source version", null);
+        }
+    }
+
+    /** Verify both the reader's receipt and the actual staged bytes before inference. */
+    private static void validateReadReceipt(
+            ProcessingContext context,
+            com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt receipt,
+            byte[] image) {
+        if (receipt == null
+                || !receipt.version().equals(context.artifact().version())
+                || !receipt.version().value().equals(context.request().expectedArtifactVersion())
+                || !receipt.sha256().equals(context.artifact().sha256())
+                || receipt.bytesCopied() != image.length
+                || !receipt.sha256().equals(sha256(image))) {
+            throw new VisionEffectAmbiguousException(
+                    "VISION source receipt does not match the pinned artifact and staged bytes", null);
+        }
     }
 
     private DetectionOptions detectionOptions() {

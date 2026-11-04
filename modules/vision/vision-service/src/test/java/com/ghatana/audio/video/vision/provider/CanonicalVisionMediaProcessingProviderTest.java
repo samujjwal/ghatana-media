@@ -62,7 +62,8 @@ class CanonicalVisionMediaProcessingProviderTest {
 
     @Test
     void failedSourceReadIsAmbiguousAndNeverAFabricatedResult() {
-        var provider = provider(fixtureDetector(List.of()), false);
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
         var context = context((target, max) -> {
             throw new java.io.IOException("source object deleted");
         });
@@ -71,17 +72,20 @@ class CanonicalVisionMediaProcessingProviderTest {
                 .satisfies(error -> assertThat(error.getCause())
                         .isInstanceOf(CanonicalVisionMediaProcessingProvider
                                 .VisionEffectAmbiguousException.class));
+        assertThat(detected).isFalse();
     }
 
     @Test
     void emptySourceIsAmbiguousNotAZeroDetectionSuccess() {
-        var provider = provider(fixtureDetector(List.of()), false);
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
         var context = context((target, max) -> receipt());
 
         assertThatThrownBy(() -> provider.processAttempt(context, attempt()).join())
                 .satisfies(error -> assertThat(error.getCause())
                         .isInstanceOf(CanonicalVisionMediaProcessingProvider
                                 .VisionEffectAmbiguousException.class));
+        assertThat(detected).isFalse();
     }
 
     @Test
@@ -90,6 +94,85 @@ class CanonicalVisionMediaProcessingProviderTest {
         var context = context(null);
         assertThatThrownBy(() -> provider.processAttempt(context, attempt()).join())
                 .isInstanceOf(Throwable.class);
+    }
+
+    @Test
+    void wrongRequestedSourceVersionIsRejectedBeforeSourceRead() {
+        var read = new AtomicBoolean();
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
+        var source = context((target, max) -> {
+            read.set(true);
+            target.write(IMAGE);
+            return receipt();
+        });
+        var request = new MediaRuntimeContracts.ProcessingJobRequest(
+                "req-1", "tenant-a", "principal-a", "corr-1", "artifact-1",
+                "sha256:" + "b".repeat(64), MediaRuntimeContracts.JobType.VISION, "", Map.of());
+        var stale = new MediaRuntimeContracts.ProcessingContext(request, source.artifact(),
+                new MediaRuntimeContracts.Cancellation(), null,
+                (target, max) -> {
+                    read.set(true);
+                    target.write(IMAGE);
+                    return receipt();
+                });
+
+        assertVisionAmbiguous(provider, stale, attempt());
+        assertThat(read).isFalse();
+        assertThat(detected).isFalse();
+    }
+
+    @Test
+    void crossTenantAttemptIsRejectedBeforeSourceRead() {
+        var read = new AtomicBoolean();
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
+        var context = context((target, max) -> {
+            read.set(true);
+            target.write(IMAGE);
+            return receipt();
+        });
+        var foreignAttempt = new MediaRuntimeContracts.ProviderAttemptContext(
+                "tenant-b", "job-1", "req-1", 1, 1, "a".repeat(64));
+
+        assertVisionAmbiguous(provider, context, foreignAttempt);
+        assertThat(read).isFalse();
+        assertThat(detected).isFalse();
+    }
+
+    @Test
+    void mismatchedReadReceiptCannotReachDetector() {
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
+        var context = context((target, max) -> {
+            target.write(IMAGE);
+            String otherSha = "b".repeat(64);
+            return new MediaRuntimeContracts.ArtifactContentReadReceipt(
+                    MediaRuntimeContracts.ArtifactVersion.fromSha256(otherSha), otherSha, IMAGE.length);
+        });
+
+        assertVisionAmbiguous(provider, context, attempt());
+        assertThat(detected).isFalse();
+    }
+
+    @Test
+    void stagedBytesMustMatchOtherwiseValidReadReceiptBeforeDetector() {
+        var detected = new AtomicBoolean();
+        var provider = provider(trackingDetector(detected), false);
+        var context = context((target, max) -> {
+            target.write(new byte[] {1, 2, 3});
+            return receipt();
+        });
+
+        assertVisionAmbiguous(provider, context, attempt());
+        assertThat(detected).isFalse();
+    }
+
+    @Test
+    void unqualifiedVisionProviderRemainsNotProductionEligible() {
+        var unqualified = provider(fixtureDetector(List.of()), false);
+        assertThat(unqualified.productionEligible()).isFalse();
+        assertThat(unqualified.capabilities()).containsExactly(MediaRuntimeContracts.JobType.VISION);
     }
 
     @Test
@@ -138,6 +221,26 @@ class CanonicalVisionMediaProcessingProviderTest {
         };
     }
 
+    private static VisionDetector trackingDetector(AtomicBoolean detected) {
+        return new VisionDetector() {
+            @Override public boolean isInitialized() { return true; }
+            @Override public List<DetectedObject> detectObjects(byte[] data, DetectionOptions options) {
+                detected.set(true);
+                return List.of();
+            }
+        };
+    }
+
+    private static void assertVisionAmbiguous(
+            CanonicalVisionMediaProcessingProvider provider,
+            MediaRuntimeContracts.ProcessingContext context,
+            MediaRuntimeContracts.ProviderAttemptContext attempt) {
+        assertThatThrownBy(() -> provider.processAttempt(context, attempt).join())
+                .satisfies(error -> assertThat(error.getCause())
+                        .isInstanceOf(CanonicalVisionMediaProcessingProvider
+                                .VisionEffectAmbiguousException.class));
+    }
+
     private static DetectedObject object(String name, double confidence) {
         return DetectedObject.builder()
                 .className(name).confidence(confidence)
@@ -147,7 +250,7 @@ class CanonicalVisionMediaProcessingProviderTest {
 
     private static MediaRuntimeContracts.ProcessingContext context(
             MediaRuntimeContracts.MediaArtifactContentReader reader) {
-        var sha = "a".repeat(64);
+        var sha = sha256(IMAGE);
         var request = new MediaRuntimeContracts.ProcessingJobRequest(
                 "req-1", "tenant-a", "principal-a", "corr-1", "artifact-1",
                 "sha256:" + sha, MediaRuntimeContracts.JobType.VISION, "", Map.of());
@@ -165,8 +268,17 @@ class CanonicalVisionMediaProcessingProviderTest {
     }
 
     private static MediaRuntimeContracts.ArtifactContentReadReceipt receipt() {
-        String sha = "a".repeat(64);
+        String sha = sha256(IMAGE);
         return new MediaRuntimeContracts.ArtifactContentReadReceipt(
                 MediaRuntimeContracts.ArtifactVersion.fromSha256(sha), sha, IMAGE.length);
+    }
+
+    private static String sha256(byte[] bytes) {
+        try {
+            return java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
     }
 }
