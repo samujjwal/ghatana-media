@@ -45,6 +45,13 @@ const ALLOWED_TRANSIENT_SOURCE_FIELDS = Object.freeze([
 const PILOT_PROFILE_FIELDS = Object.freeze([
   'clipsPerLocale', 'purpose', 'ranking', 'speakerDisjointEvidence',
 ]);
+const DEV_TUNING_FIELDS = Object.freeze([
+  'status', 'sourceSplit', 'activeLocales', 'deferredLocales', 'clipsPerLocale', 'purpose',
+  'readsOnly', 'audioHandling', 'manifestFields', 'private', 'retentionDays',
+  'transcriptsPersisted', 'audioExtracted', 'audioDecoded', 'consumableByQualityEvidenceReader',
+  'trustedManifestDigestSource', 'replacesOfficialTestPilot', 'replacesTestAcceptance',
+  'realInferenceAdmitted',
+]);
 
 function canonicalFieldName(field) {
   return field.toLowerCase().replace(/[^a-z0-9]/gu, '');
@@ -188,6 +195,34 @@ export function validateCandidateProfile(profile) {
   assert(selection.clipManifestStatus === 'PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL'
     && selection.clipManifest.length === 0,
   'profile must report private manifest preparation without copying clip IDs or hashes into source control');
+  const devPreparation = selection.devTuningPreparation;
+  assert(devPreparation !== null && typeof devPreparation === 'object'
+    && !Array.isArray(devPreparation)
+    && Object.keys(devPreparation).sort().join(',') === [...DEV_TUNING_FIELDS].sort().join(',')
+    && devPreparation.status === 'PRIVATE_24_PER_LOCALE_DEV_MANIFEST_PREPARED'
+    && devPreparation.sourceSplit === 'dev'
+    && [...devPreparation.activeLocales].sort().join(',') === 'en,ne-NP'
+    && [...devPreparation.deferredLocales].join(',') === 'hi'
+    && devPreparation.clipsPerLocale === 24
+    && devPreparation.purpose === 'ORT_0_1_2_4_TUNING_ONLY'
+    && devPreparation.readsOnly
+      === 'TSV_METADATA_PATHS_AND_HASHES_SELECTED_COMPRESSED_AUDIO_BYTES_IN_PLACE'
+    && devPreparation.audioHandling
+      === 'HASH_SELECTED_COMPRESSED_BYTES_IN_PLACE_NO_EXTRACTION_OR_DECODING'
+    && devPreparation.private === true
+    && devPreparation.retentionDays === 90
+    && devPreparation.transcriptsPersisted === false
+    && devPreparation.audioExtracted === false
+    && devPreparation.audioDecoded === false
+    && devPreparation.consumableByQualityEvidenceReader === false
+    && devPreparation.trustedManifestDigestSource
+      === 'ACCESS_CONTROLLED_LOCAL_DEV_TUNING_MANIFEST_PER_LOCALE; NEVER_CHECKED_IN_OR_PRINTED'
+    && devPreparation.replacesOfficialTestPilot === false
+    && devPreparation.replacesTestAcceptance === false
+    && devPreparation.realInferenceAdmitted === false
+    && Array.isArray(devPreparation.manifestFields)
+    && [...devPreparation.manifestFields].sort().join(',') === [...REQUIRED_MANIFEST_FIELDS].sort().join(','),
+  'development split must remain a private metadata-only tuning manifest separate from test acceptance');
   assert(selection.trustedManifestDigestSource
     === 'ACCESS_CONTROLLED_LOCAL_PILOT_MANIFEST_PER_LOCALE; REQUIRED_BY_QUALITY_READER; NEVER_CHECKED_IN_OR_PRINTED',
   'quality evidence reader must receive the exact private per-locale manifest digest pins');

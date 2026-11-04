@@ -53,7 +53,7 @@ async function archive(locale = 'ne-NP', options = {}) {
   const {
     rowCount = ROW_COUNTS[locale], durations = {}, includeSelected = true,
     duplicate = false, unsupportedOrder = false, unsafePath = false,
-    oversizedSelected = false, oversizedMember = false, oversizedDuration = false,
+    oversizedSelected = false, oversizedMember = false, oversizedDuration = false, split = 'test',
   } = options;
   const root = await mkdtemp(join(tmpdir(), 'cv-pilot-'));
   const path = join(root, ARCHIVE_NAMES[locale]);
@@ -63,7 +63,7 @@ async function archive(locale = 'ne-NP', options = {}) {
   const durationsRows = ['clip\tduration[ms]', ...filenames.map((clip) => `${clip}\t${durations[clip] ?? 1000}`)];
   const metadata = [
     tarMember(`${REVISION}/README.md`, Buffer.from('fixture README')),
-    tarMember(`${ROOT(locale)}test.tsv`, Buffer.from(`${rows.join('\n')}\n`)),
+    tarMember(`${ROOT(locale)}${split}.tsv`, Buffer.from(`${rows.join('\n')}\n`)),
     tarMember(`${ROOT(locale)}clip_durations.tsv`, oversizedDuration ? Buffer.alloc(0) : Buffer.from(`${durationsRows.join('\n')}\n`),
       oversizedDuration ? 96 * 1024 * 1024 + 1 : undefined),
   ];
@@ -91,16 +91,18 @@ async function archive(locale = 'ne-NP', options = {}) {
 }
 
 function fixturePin(fixture, overrides = {}) { return { basename: ARCHIVE_NAMES[fixture.locale], bytes: fixture.sizeBytes, ...overrides }; }
-async function parseFixture(fixture, overrides) { return parseCommonVoicePilotArchive(fixture.path, fixture.locale, fixturePin(fixture, overrides)); }
-function makePilotManifest() {
+async function parseFixture(fixture, overrides, split = 'test') {
+  return parseCommonVoicePilotArchive(fixture.path, fixture.locale, fixturePin(fixture, overrides), { split });
+}
+function makePilotManifest(split = 'test') {
   const locales = ['en', 'ne-NP'].map((locale) => {
     const clips = Array.from({ length: 24 }, (_, i) => ({
-      locale, sourceDatasetId: DATASET_IDS[locale], sourceRevision: REVISION, sourceSplit: 'test',
+      locale, sourceDatasetId: DATASET_IDS[locale], sourceRevision: REVISION, sourceSplit: split,
       clipId: clipName(locale, i), audioSha256: createHash('sha256').update(`${locale}-${i}`).digest('hex'),
     }));
     const basename = ARCHIVE_NAMES[locale];
     return {
-      locale, sourceDatasetId: DATASET_IDS[locale], sourceRevision: REVISION, sourceSplit: 'test',
+      locale, sourceDatasetId: DATASET_IDS[locale], sourceRevision: REVISION, sourceSplit: split,
       pilotSizePerLocale: 24, clipManifest: clips,
       clipManifestDigest: createHash('sha256').update(JSON.stringify(clips)).digest('hex'),
       archive: {
@@ -114,7 +116,7 @@ function makePilotManifest() {
   });
   return {
     schemaVersion: '1.0.0', corpus: 'Mozilla Common Voice Scripted Speech 27.0',
-    sourceRevision: REVISION, sourceSplit: 'test', selection: 'sha256-rank-24-per-locale',
+    sourceRevision: REVISION, sourceSplit: split, selection: 'sha256-rank-24-per-locale',
     locales, realInferenceAdmitted: false,
   };
 }
@@ -136,6 +138,19 @@ test('streams synthetic test metadata and hashes the deterministic hash-ranked p
     assert.equal(result.archive.localArchiveSha256,
       createHash('sha256').update(await readFile(fixture.path)).digest('hex'));
     assert.equal(result.archive.observationType, 'LOCAL_COMPRESSED_ARCHIVE_SHA256_NOT_PUBLISHER_HASH');
+  } finally { await rm(fixture.root, { recursive: true, force: true }); }
+});
+
+test('prepares a separate 24-clip development manifest from dev.tsv with only approved fields', async () => {
+  const fixture = await archive('ne-NP', { rowCount: 31, split: 'dev' });
+  try {
+    const result = await parseFixture(fixture, undefined, 'dev');
+    assert.equal(result.sourceSplit, 'dev');
+    assert.equal(result.clipManifest.length, 24);
+    assert.equal(result.clipManifest.every((record) => record.sourceSplit === 'dev'
+      && Object.keys(record).sort().join(',')
+        === ['audioSha256', 'clipId', 'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit'].sort().join(',')), true);
+    await assert.rejects(parseFixture(fixture), /audio member encountered before both metadata TSVs/u);
   } finally { await rm(fixture.root, { recursive: true, force: true }); }
 });
 
@@ -227,11 +242,29 @@ test('CLI prints aggregate-only output and does not expose archive paths', async
     assert.match(output, /"en":24,"ne-NP":24/u);
     assert.doesNotMatch(output, /common_voice_|audioSha256|secret-en|secret-ne|secret-metadata-location/u);
     assert.deepEqual(prepared, {
-      archives: { en: secretEn, 'ne-NP': secretNe }, metadataRoot, audioRoot,
+      archives: { en: secretEn, 'ne-NP': secretNe }, metadataRoot, audioRoot, split: 'test',
     });
   } catch (error) {
     throw error;
   }
+});
+
+test('CLI accepts explicit dev split and emits split without private metadata', async () => {
+  let output = '';
+  let prepared;
+  await runCommonVoicePilotCli([
+    '--', '--en-archive', '/private/en.tar.gz', '--ne-np-archive', '/private/ne.tar.gz',
+    '--metadata-root', '/private/metadata', '--audio-root', '/private/audio', '--split', 'dev',
+  ], {
+    prepare: async (options) => {
+      prepared = options;
+      return { localeCounts: { en: 24, 'ne-NP': 24 }, realInferenceAdmitted: false, retained: {} };
+    },
+    stdout: (line) => { output += line; },
+  });
+  assert.equal(prepared.split, 'dev');
+  assert.match(output, /"sourceSplit":"dev"/u);
+  assert.doesNotMatch(output, /common_voice_|audioSha256|\/private\//u);
 });
 
 test('prepares and retains the assembled two-locale manifest through the owner-only path', async () => {
@@ -246,11 +279,12 @@ test('prepares and retains the assembled two-locale manifest through the owner-o
     en: `/private/downloads/${ARCHIVE_NAMES.en}`,
     'ne-NP': `/private/downloads/${ARCHIVE_NAMES['ne-NP']}`,
   };
-  const sourceLocales = makePilotManifest().locales;
+  const sourceLocales = makePilotManifest('dev').locales;
   const observed = [];
   try {
     const result = await prepareCommonVoicePilotManifest({
       archives, metadataRoot, audioRoot,
+      split: 'dev',
       now: () => new Date('2026-01-01T00:00:00.000Z'),
     }, {
       parseArchive: async (path, locale) => {
@@ -270,6 +304,9 @@ test('prepares and retains the assembled two-locale manifest through the owner-o
     const persisted = JSON.parse(await readFile(join(result.retained.directory, 'pilot-manifest.json'), 'utf8'));
     assert.deepEqual(persisted.locales.map((item) => item.locale), ['en', 'ne-NP']);
     assert.equal(persisted.realInferenceAdmitted, false);
+    assert.equal(persisted.sourceSplit, 'dev');
+    assert.equal(persisted.locales.every((item) => item.sourceSplit === 'dev'
+      && item.clipManifest.every((record) => record.sourceSplit === 'dev')), true);
     assert.equal(persisted.locales.every((item) => item.clipManifest.length === 24), true);
     assert.match(await readFile(join(result.retained.directory, 'pilot-manifest.json'), 'utf8'),
       /localArchiveSha256/u);
@@ -286,7 +323,7 @@ test('retention helper validates roots and expires a valid pilot at the exact 90
   await mkdir(audioRoot, { mode: 0o700 });
   await chmod(metadataRoot, 0o700);
   await chmod(audioRoot, 0o700);
-  const manifest = makePilotManifest();
+  const manifest = makePilotManifest('dev');
   try {
     await assert.rejects(retainCommonVoicePilotMetadata(metadataRoot, metadataRoot, manifest), /separate from and outside/u);
     const retained = await retainCommonVoicePilotMetadata(metadataRoot, audioRoot, manifest,

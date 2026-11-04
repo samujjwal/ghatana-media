@@ -103,6 +103,38 @@ test('pins a deterministic 24-clip transcript-independent pilot without assertin
   assert.throws(() => validateCandidateProfile(claimedDisjoint), /deterministic, transcript-independent/u);
 });
 
+test('keeps the private dev tuning manifest separate from official test acceptance', () => {
+  validateCandidateProfile(profile);
+  const dev = profile.selection.devTuningPreparation;
+  assert.equal(dev.sourceSplit, 'dev');
+  assert.equal(dev.clipsPerLocale, 24);
+  assert.equal(dev.purpose, 'ORT_0_1_2_4_TUNING_ONLY');
+  assert.equal(dev.retentionDays, 90);
+  assert.equal(dev.transcriptsPersisted, false);
+  assert.equal(dev.audioExtracted, false);
+  assert.equal(dev.audioDecoded, false);
+  assert.equal(dev.consumableByQualityEvidenceReader, false);
+  assert.equal(dev.trustedManifestDigestSource,
+    'ACCESS_CONTROLLED_LOCAL_DEV_TUNING_MANIFEST_PER_LOCALE; NEVER_CHECKED_IN_OR_PRINTED');
+  assert.equal(dev.audioHandling, 'HASH_SELECTED_COMPRESSED_BYTES_IN_PLACE_NO_EXTRACTION_OR_DECODING');
+  assert.equal(dev.private, true);
+  assert.equal(dev.replacesOfficialTestPilot, false);
+  assert.equal(dev.replacesTestAcceptance, false);
+  assert.equal(dev.realInferenceAdmitted, false);
+  assert.deepEqual(dev.activeLocales, ['en', 'ne-NP']);
+  assert.deepEqual(dev.deferredLocales, ['hi']);
+
+  const replacesTest = structuredClone(profile);
+  replacesTest.selection.devTuningPreparation.replacesTestAcceptance = true;
+  assert.throws(() => validateCandidateProfile(replacesTest), /separate from test acceptance/u);
+  const qualityAdmitted = structuredClone(profile);
+  qualityAdmitted.selection.devTuningPreparation.consumableByQualityEvidenceReader = true;
+  assert.throws(() => validateCandidateProfile(qualityAdmitted), /separate from test acceptance/u);
+  const transcriptLeaked = structuredClone(profile);
+  transcriptLeaked.selection.devTuningPreparation.transcript = 'must not be stored';
+  assert.throws(() => validateCandidateProfile(transcriptLeaked), /private metadata-only tuning manifest/u);
+});
+
 test('rejects transcript, speaker, demographic, and prediction fields from persisted clip manifests', () => {
   const mutated = structuredClone(profile);
   mutated.selection.clipManifest = [{ speakerID: 'opaque-speaker-id', nested: { referenceTranscript: 'private' } }];

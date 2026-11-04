@@ -105,7 +105,7 @@ function verifyHeaderChecksum(header) {
   for (let i = 0; i < 512; i += 1) sum += (i >= 148 && i < 156) ? 32 : header[i];
   assert(sum === expected, 'tar header checksum mismatch');
 }
-function parseTestTsv(text, maxRows) {
+function parseSplitTsv(text, maxRows, split) {
   const lines = text.replace(/\r\n/gu, '\n').split('\n');
   if (lines.at(-1) === '') lines.pop();
   assert(lines.length >= 1 && lines.length <= maxRows + 1, 'TSV row count exceeds bound');
@@ -115,13 +115,13 @@ function parseTestTsv(text, maxRows) {
   assert(new Set(header).size === header.length && requiredHeader.every((field) => header.includes(field))
     && header.every((field) => permittedHeader.has(field))
     && (header.length === requiredHeader.length || header.length === requiredHeader.length + 1),
-  'unexpected Common Voice test.tsv schema');
+  `unexpected Common Voice ${split}.tsv schema`);
   const pathIndex = header.indexOf('path');
   return lines.map((line) => {
     const fields = line.split('\t');
     assert(fields.length === header.length, 'malformed TSV row');
     const clipPath = fields[pathIndex];
-    assert(clipPath, 'test.tsv row has no clip path');
+    assert(clipPath, `${split}.tsv row has no clip path`);
     return clipPath;
   });
 }
@@ -188,9 +188,10 @@ export async function parseCommonVoicePilotArchive(
   path,
   locale,
   archivePin = ARCHIVES[locale],
-  { lstatArchive = lstat } = {},
+  { lstatArchive = lstat, split = 'test' } = {},
 ) {
   assert(Object.hasOwn(ARCHIVES, locale), 'unsupported Common Voice locale');
+  assert(split === 'test' || split === 'dev', 'Common Voice split must be test or dev');
   const config = { ...ARCHIVES[locale], ...archivePin };
   assert(typeof path === 'string' && isAbsolute(path), 'archive path must be absolute');
   const beforeOpen = await lstatArchive(path);
@@ -220,8 +221,8 @@ export async function parseCommonVoicePilotArchive(
   const reader = new StreamReader(gunzip, expandedCap);
   const seenRequiredMembers = new Set();
   let rows;
-  let testClipIds = new Set();
-  const seenTestAudio = new Set();
+  let splitClipIds = new Set();
+  const seenSplitAudio = new Set();
   let durations;
   let durationBytes;
   let audioStarted = false;
@@ -272,25 +273,28 @@ export async function parseCommonVoicePilotArchive(
       }
       if (suffix.endsWith('.tsv')) {
         assert(!audioStarted, 'metadata member appears after audio members');
-        if (['test.tsv', 'clip_durations.tsv'].includes(suffix)) {
+        if ([`${split}.tsv`, 'clip_durations.tsv'].includes(suffix)) {
           assert(!seenRequiredMembers.has(memberPath), 'duplicate required metadata archive member');
           seenRequiredMembers.add(memberPath);
         }
-        if (suffix !== 'test.tsv' && suffix !== 'clip_durations.tsv') {
+        if (suffix !== `${split}.tsv` && suffix !== 'clip_durations.tsv') {
           assert(size <= 2 * 1024 * 1024 * 1024, 'oversized metadata TSV');
           await reader.skip(size);
           continue;
         }
         const metadataLimit = suffix === 'clip_durations.tsv' ? MAX_DURATION_TSV_BYTES : MAX_MEMBER_BYTES;
         assert(size <= metadataLimit, suffix === 'clip_durations.tsv'
-          ? 'clip_durations.tsv exceeds 96 MiB parsing bound' : 'test.tsv exceeds 16 MiB parsing bound');
+          ? 'clip_durations.tsv exceeds 96 MiB parsing bound' : `${split}.tsv exceeds 16 MiB parsing bound`);
         const bytes = await reader.read(size, metadataLimit);
         const metadataPadding = (512 - (size % 512)) % 512;
         if (metadataPadding) await reader.read(metadataPadding);
-        if (suffix === 'test.tsv') {
-          assert(!rows, 'duplicate test.tsv');
-          rows = parseTestTsv(bytes.toString('utf8'), config.rows);
-          testClipIds = new Set(rows);
+        if (suffix === `${split}.tsv`) {
+          assert(!rows, `duplicate ${split}.tsv`);
+          rows = parseSplitTsv(bytes.toString('utf8'), split === 'test' ? config.rows : MAX_DURATION_ROWS,
+            split);
+          if (split === 'test') assert(rows.length === config.rows, 'official test.tsv row count mismatch');
+          assert(rows.length >= PILOT_SIZE, `${split}.tsv has fewer than 24 clips`);
+          splitClipIds = new Set(rows);
           selectedIds.clear();
           for (const id of choosePilotIds(locale, rows)) selectedIds.add(id);
         } else {
@@ -298,7 +302,7 @@ export async function parseCommonVoicePilotArchive(
           durationBytes = bytes;
         }
         if (rows && durationBytes) {
-          assert(rows.length === config.rows, 'official test.tsv row count mismatch');
+          if (split === 'test') assert(rows.length === config.rows, 'official test.tsv row count mismatch');
           assert(selectedIds.size === PILOT_SIZE, 'insufficient official test rows for pilot');
           durations = parseSelectedDurations(durationBytes, selectedIds);
           durationBytes = undefined;
@@ -315,9 +319,9 @@ export async function parseCommonVoicePilotArchive(
         const clip = suffix.slice(6);
         const clipPrefix = locale === 'en' ? 'common_voice_en_' : 'common_voice_ne-NP_';
         assert(new RegExp(`^${clipPrefix}\\d+\\.mp3$`, 'u').test(clip), 'clip member ID does not match pinned locale schema');
-        if (testClipIds.has(clip)) {
-          assert(!seenTestAudio.has(clip), 'duplicate official-test audio member path');
-          seenTestAudio.add(clip);
+        if (splitClipIds.has(clip)) {
+          assert(!seenSplitAudio.has(clip), `duplicate official-${split} audio member path`);
+          seenSplitAudio.add(clip);
         }
         if (selectedIds.has(clip)) assert(!audioHashes.has(clip), 'duplicate selected audio archive member');
         const hash = selectedIds.has(clip) ? createHash('sha256') : null;
@@ -336,10 +340,10 @@ export async function parseCommonVoicePilotArchive(
   assert(rows && durations && audioStarted, 'archive is missing required metadata or clips');
   assert(audioHashes.size === PILOT_SIZE, 'one or more selected audio members are missing');
   const selected = [...selectedIds].sort();
-  const clipManifest = selected.map((clipId) => ({ locale, sourceDatasetId: DATASETS[locale], sourceRevision: REVISION, sourceSplit: 'test', clipId, audioSha256: audioHashes.get(clipId) }));
+  const clipManifest = selected.map((clipId) => ({ locale, sourceDatasetId: DATASETS[locale], sourceRevision: REVISION, sourceSplit: split, clipId, audioSha256: audioHashes.get(clipId) }));
   const clipManifestDigest = createHash('sha256').update(JSON.stringify(clipManifest)).digest('hex');
   return {
-    locale, sourceDatasetId: DATASETS[locale], sourceRevision: REVISION, sourceSplit: 'test',
+    locale, sourceDatasetId: DATASETS[locale], sourceRevision: REVISION, sourceSplit: split,
     pilotSizePerLocale: PILOT_SIZE, clipManifestDigest, clipManifest,
     archive: {
       basename: config.basename, localPath: path, sourceSizeBytes: ARCHIVES[locale].bytes,
@@ -351,20 +355,21 @@ export async function parseCommonVoicePilotArchive(
 }
 
 export async function prepareCommonVoicePilotManifest(
-  { archives, metadataRoot, audioRoot, now } = {},
+  { archives, metadataRoot, audioRoot, now, split = 'test' } = {},
   { parseArchive = parseCommonVoicePilotArchive } = {},
 ) {
+  assert(split === 'test' || split === 'dev', 'Common Voice split must be test or dev');
   assert(archives && Object.keys(archives).sort().join(',') === 'en,ne-NP', 'provide exactly the pinned en and ne-NP archives');
   assert(typeof parseArchive === 'function', 'archive parser must be a function');
   const manifests = [];
   for (const locale of ['en', 'ne-NP']) {
     const path = archives[locale];
     assert(typeof path === 'string' && isAbsolute(path), 'archive paths must be explicit and absolute');
-    manifests.push(await parseArchive(path, locale));
+    manifests.push(await parseArchive(path, locale, undefined, { split }));
   }
   const complete = {
     schemaVersion: '1.0.0', corpus: 'Mozilla Common Voice Scripted Speech 27.0',
-    sourceRevision: REVISION, sourceSplit: 'test', selection: 'sha256-rank-24-per-locale',
+    sourceRevision: REVISION, sourceSplit: split, selection: 'sha256-rank-24-per-locale',
     locales: manifests, realInferenceAdmitted: false,
   };
   const retained = await retainCommonVoicePilotMetadata(metadataRoot, audioRoot, complete, { now });
@@ -376,7 +381,7 @@ function parseCli(argv) {
   const options = {};
   const flags = new Map([
     ['--en-archive', 'enArchive'], ['--ne-np-archive', 'neArchive'],
-    ['--metadata-root', 'metadataRoot'], ['--audio-root', 'audioRoot'],
+    ['--metadata-root', 'metadataRoot'], ['--audio-root', 'audioRoot'], ['--split', 'split'],
   ]);
   for (let index = 0; index < args.length; index += 1) {
     const key = flags.get(args[index]);
@@ -384,8 +389,13 @@ function parseCli(argv) {
     assert(!Object.hasOwn(options, key), 'duplicate CLI argument');
     options[key] = args[++index];
   }
-  assert(Object.keys(options).length === flags.size, 'CLI requires all four explicit arguments');
-  for (const value of Object.values(options)) assert(isAbsolute(value), 'all CLI paths must be absolute');
+  assert(['enArchive', 'neArchive', 'metadataRoot', 'audioRoot'].every((key) => Object.hasOwn(options, key)),
+    'CLI requires explicit archive and retention paths');
+  options.split ??= 'test';
+  assert(options.split === 'test' || options.split === 'dev', 'CLI --split must be test or dev');
+  for (const key of ['enArchive', 'neArchive', 'metadataRoot', 'audioRoot']) {
+    assert(isAbsolute(options[key]), 'all CLI paths must be absolute');
+  }
   return options;
 }
 
@@ -397,8 +407,9 @@ export async function runCommonVoicePilotCli(argv, {
   const result = await prepare({
     archives: { en: args.enArchive, 'ne-NP': args.neArchive },
     metadataRoot: args.metadataRoot, audioRoot: args.audioRoot,
+    split: args.split,
   });
-  stdout(`${JSON.stringify({ pilotPrepared: true, localeCounts: result.localeCounts, realInferenceAdmitted: false })}\n`);
+  stdout(`${JSON.stringify({ pilotPrepared: true, sourceSplit: args.split, localeCounts: result.localeCounts, realInferenceAdmitted: false })}\n`);
   return result;
 }
 

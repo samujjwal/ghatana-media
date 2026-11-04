@@ -108,7 +108,7 @@ function validateClipRecord(record, manifest) {
   assert(record.locale === manifest.locale
     && record.sourceDatasetId === manifest.sourceDatasetId
     && record.sourceRevision === COMMON_VOICE_V27_REVISION
-    && record.sourceSplit === 'test', 'clip record does not match the pinned v27 source');
+    && record.sourceSplit === manifest.sourceSplit, 'clip record does not match the pinned v27 source');
   requiredText(record.clipId, 'clipId', 256);
   assert(typeof record.audioSha256 === 'string' && /^[0-9a-f]{64}$/u.test(record.audioSha256),
     'clip audioSha256 must be a lowercase SHA-256 digest');
@@ -177,7 +177,7 @@ function validateCommonVoicePilotManifest(pilot) {
   assert(pilot.schemaVersion === '1.0.0'
     && pilot.corpus === 'Mozilla Common Voice Scripted Speech 27.0'
     && pilot.sourceRevision === COMMON_VOICE_V27_REVISION
-    && pilot.sourceSplit === 'test'
+    && ['test', 'dev'].includes(pilot.sourceSplit)
     && pilot.selection === 'sha256-rank-24-per-locale'
     && pilot.realInferenceAdmitted === false
     && Array.isArray(pilot.locales) && pilot.locales.length === 2,
@@ -200,7 +200,7 @@ function validateCommonVoicePilotManifest(pilot) {
       'pilot manifest has an unsupported or duplicate locale');
     seenLocales.add(locale.locale);
     assert(locale.sourceDatasetId === COMMON_VOICE_V27_DATASET_IDS[locale.locale]
-      && locale.sourceRevision === COMMON_VOICE_V27_REVISION && locale.sourceSplit === 'test'
+      && locale.sourceRevision === COMMON_VOICE_V27_REVISION && locale.sourceSplit === pilot.sourceSplit
       && locale.pilotSizePerLocale === 24 && Array.isArray(locale.clipManifest)
       && locale.clipManifest.length === 24
       && /^[0-9a-f]{64}$/u.test(locale.clipManifestDigest),

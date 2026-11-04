@@ -105,6 +105,27 @@
       "speakerDisjointEvidence": "NOT_ESTABLISHED"
     },
     "clipManifestStatus": "PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL",
+    "devTuningPreparation": {
+      "status": "PRIVATE_24_PER_LOCALE_DEV_MANIFEST_PREPARED",
+      "sourceSplit": "dev",
+      "activeLocales": ["en", "ne-NP"],
+      "deferredLocales": ["hi"],
+      "clipsPerLocale": 24,
+      "purpose": "ORT_0_1_2_4_TUNING_ONLY",
+      "readsOnly": "TSV_METADATA_PATHS_AND_HASHES_SELECTED_COMPRESSED_AUDIO_BYTES_IN_PLACE",
+      "audioHandling": "HASH_SELECTED_COMPRESSED_BYTES_IN_PLACE_NO_EXTRACTION_OR_DECODING",
+      "manifestFields": ["locale", "sourceDatasetId", "sourceRevision", "sourceSplit", "clipId", "audioSha256"],
+      "private": true,
+      "retentionDays": 90,
+      "transcriptsPersisted": false,
+      "audioExtracted": false,
+      "audioDecoded": false,
+      "consumableByQualityEvidenceReader": false,
+      "trustedManifestDigestSource": "ACCESS_CONTROLLED_LOCAL_DEV_TUNING_MANIFEST_PER_LOCALE; NEVER_CHECKED_IN_OR_PRINTED",
+      "replacesOfficialTestPilot": false,
+      "replacesTestAcceptance": false,
+      "realInferenceAdmitted": false
+    },
     "trustedManifestDigestSource": "ACCESS_CONTROLLED_LOCAL_PILOT_MANIFEST_PER_LOCALE; REQUIRED_BY_QUALITY_READER; NEVER_CHECKED_IN_OR_PRINTED",
     "clipManifest": [],
     "requiredManifestFields": [
