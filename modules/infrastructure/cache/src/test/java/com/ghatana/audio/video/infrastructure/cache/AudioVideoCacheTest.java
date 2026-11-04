@@ -128,6 +128,31 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("binary cache values are bounded by payload bytes")
+    void binaryCacheValuesObeyPayloadByteBound() {
+        @SuppressWarnings("unchecked")
+        DistributedCachePort<String, byte[]> binaryPort = mock(DistributedCachePort.class);
+        AudioVideoCache<String, byte[]> cache = new AudioVideoCache<>(binaryPort, "binary-fixture");
+        byte[] oversized = new byte[CachePolicy.MAX_VALUE_LENGTH + 1];
+        when(binaryPort.get("oversized-binary-hit"))
+                .thenReturn(AsyncOperation.success(Optional.of(oversized)));
+        when(binaryPort.get("oversized-binary-source"))
+                .thenReturn(AsyncOperation.success(Optional.empty()));
+
+        assertThat(await(cache.get("oversized-binary-hit"))).isEmpty();
+        assertThat(await(cache.getOrLoad("oversized-binary-source", ignored ->
+                AsyncOperation.success(oversized)))).isSameAs(oversized);
+        assertThatThrownBy(() -> cache.put("oversized-binary-put", oversized))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Cache value length exceeds");
+
+        verify(binaryPort, org.mockito.Mockito.never())
+                .put(eq("oversized-binary-source"), eq(oversized), any(Duration.class));
+        verify(binaryPort, org.mockito.Mockito.never())
+                .put(eq("oversized-binary-put"), eq(oversized), any(Duration.class));
+    }
+
+    @Test
     @DisplayName("oversized cached entries are evicted when the adapter supports key invalidation")
     void oversizedCachedEntriesAreQuarantinedWhenSupported() {
         DistributedCacheService service = mock(DistributedCacheService.class);

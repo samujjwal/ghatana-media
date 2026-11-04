@@ -787,13 +787,18 @@ public class AudioVideoCache<K, V> {
         return ttl.compareTo(DEFAULT_TTL) > 0 ? DEFAULT_TTL : ttl;
     }
 
-    /** Applies Shared's payload bound to strings while preserving generic port values. */
+    /** Applies a payload bound to text and binary values while preserving other generic port values. */
     private static boolean isCacheValueWithinSharedLimit(Object value) {
-        return !(value instanceof String text) || text.length() <= CachePolicy.MAX_VALUE_LENGTH;
+        if (value instanceof String text) return text.length() <= CachePolicy.MAX_VALUE_LENGTH;
+        return !(value instanceof byte[] bytes) || bytes.length <= CachePolicy.MAX_VALUE_LENGTH;
     }
 
     private static void validateCacheValue(Object value) {
-        if (value instanceof String text) CachePolicy.validateValue(text);
+        if (value instanceof String text) {
+            CachePolicy.validateValue(text);
+        } else if (value instanceof byte[] bytes && bytes.length > CachePolicy.MAX_VALUE_LENGTH) {
+            throw new IllegalArgumentException("Cache value length exceeds " + CachePolicy.MAX_VALUE_LENGTH);
+        }
     }
 
     /**
