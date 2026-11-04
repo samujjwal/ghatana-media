@@ -47,6 +47,17 @@ peak RSS was 4,947,968 bytes for the whole harness process, including setup;
 these are diagnostic host-specific observations, not thresholds or portable
 qualification.
 
+The RS-02 `decode-rss-probe` and `scripts/measure-speech-audio-rss.py` also
+measure deterministic generated PCM WAV in isolated child processes. They do
+not measure compressed-codec transient allocation: the crate pins Symphonia
+decoders but has no pinned encoder for generating a valid compressed fixture,
+and an external encoder would make the workload depend on an unpinned tool.
+`compressed_source_byte_budget_rejects_before_codec_probe` instead verifies
+that a synthetic MP3-labeled file over the caller's byte cap is rejected before
+codec probing. Compressed packet allocation therefore remains unmeasured; the
+per-packet output cap and the cooperative time ceiling do not interrupt or
+bound an individual synchronous codec allocation/call.
+
 ## Capability disposition
 
 All 63 IDs below are service-level intents assigned to RS work for review. The

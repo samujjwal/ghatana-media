@@ -3165,6 +3165,34 @@ mod tests {
     }
 
     #[test]
+    fn compressed_source_byte_budget_rejects_before_codec_probe() {
+        let temp = tempdir().unwrap();
+        let path = temp.path().join("synthetic.mp3");
+        // This synthetic, deliberately incomplete MPEG frame is enough to
+        // exercise the early source-size guard. The guard must run before
+        // Symphonia probes or allocates codec state for compressed input.
+        let bytes = [0xff, 0xfb, 0x90, 0x64, 0x00, 0x00, 0x00, 0x00];
+        std::fs::write(&path, bytes).unwrap();
+
+        let result = load_audio_buffer_bounded(
+            &path,
+            DecodeLimits {
+                max_input_bytes: (bytes.len() - 1) as u64,
+                ..DecodeLimits::DEFAULT
+            },
+        );
+        assert!(matches!(
+            result,
+            Err(SpeechAudioError::ResourceLimit(message))
+                if message == format!(
+                    "encoded audio is {} bytes, exceeding the {} byte source budget",
+                    bytes.len(),
+                    bytes.len() - 1,
+                )
+        ));
+    }
+
+    #[test]
     fn decode_limits_cannot_raise_crate_hard_caps() {
         let too_many_samples = DecodeLimits {
             max_decoded_samples: DecodeLimits::HARD_MAX_DECODED_SAMPLES + 1,
