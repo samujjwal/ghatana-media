@@ -895,6 +895,173 @@ class PostgresqlMediaTranscriptStoreTest {
     }
 
     @Test
+    void fencedAttemptPreservesSourceTicksAndMixedTagsAndRejectsInvalidSegmentProjection() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            var store = fixture.store();
+            var state = fixture.state();
+            String digest = "b".repeat(64);
+            String fingerprint = "c".repeat(64);
+            String versionRef = "urn:media:transcript-version:r04-source-ticks";
+            var sourceTicks = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "decoded", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(12_000, 48_000, "source-clock-r04", 48_000, 96_000));
+            var unqualified = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-provider", "words", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .providerTimeUnqualified(250, 750, "provider-ms"));
+            var absent = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-absent", "remain", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming.notSupplied());
+            var segments = List.of(sourceTicks, unqualified, absent);
+            var responseSegments = com.ghatana.media.runtime.MediaTranscriptContracts
+                    .segmentsToParametersValue(segments);
+
+            seed(state, "tenant-r04-positive", "principal-a", "source-r04-positive", "job-r04-positive",
+                    "consent-r04-positive", digest, false);
+            seedSuccessfulAttempt(state, "tenant-r04-positive", "principal-a", "source-r04-positive",
+                    "job-r04-positive", digest, fingerprint, 1, 71, versionRef, "decoded words remain",
+                    "provider-op-r04", "provider-receipt-r04");
+            replaceAttemptResult(state, "tenant-r04-positive", "job-r04-positive",
+                    semanticResult(state, digest, fingerprint, versionRef, "decoded words remain",
+                            "NOT_REQUESTED", null, null, false, false, false, responseSegments));
+            TranscriptDraft candidate = draftWithSegments("tenant-r04-positive", "principal-a",
+                    "transcript-r04-positive", "source-r04-positive", "job-r04-positive",
+                    "consent-r04-positive", digest, "decoded words remain", segments);
+            var committed = store.appendFromSuccessfulAttempt(candidate, 0, 1, 71, fingerprint, versionRef);
+            assertThat(committed.draft().segments()).containsExactlyElementsOf(segments);
+            assertThat(committed.draft().timingAvailability())
+                    .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
+            assertThat(store.appendFromSuccessfulAttempt(candidate, 0, 1, 71, fingerprint, versionRef))
+                    .isEqualTo(committed);
+
+            // A same segment identity cannot be repeated, even when the repeated value is exact;
+            // changing text/timing under that identity is rejected by the same contract boundary.
+            assertThatThrownBy(() -> draftWithSegments("tenant-r04-positive", "principal-a",
+                    "duplicate-same", "source-r04-positive", "job-r04-positive", "consent-r04-positive",
+                    digest, "decoded decoded", List.of(sourceTicks, sourceTicks)))
+                    .isInstanceOf(IllegalArgumentException.class);
+            var duplicateDifferent = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "changed", "PROVIDER", sourceTicks.timing());
+            assertThatThrownBy(() -> draftWithSegments("tenant-r04-positive", "principal-a",
+                    "duplicate-different", "source-r04-positive", "job-r04-positive", "consent-r04-positive",
+                    digest, "decoded changed", List.of(sourceTicks, duplicateDifferent)))
+                    .isInstanceOf(IllegalArgumentException.class);
+
+            // The attempt result is authoritative for segment timing. A candidate with a different
+            // source clock or tick interval cannot bind, even though both tuples are individually valid.
+            String mismatchVersion = "urn:media:transcript-version:r04-wrong-clock";
+            seed(state, "tenant-r04-clock", "principal-a", "source-r04-clock", "job-r04-clock",
+                    "consent-r04-clock", digest, false);
+            seedSuccessfulAttempt(state, "tenant-r04-clock", "principal-a", "source-r04-clock",
+                    "job-r04-clock", digest, fingerprint, 1, 72, mismatchVersion, "decoded",
+                    "provider-op-r04-clock", "provider-receipt-r04-clock");
+            replaceAttemptResult(state, "tenant-r04-clock", "job-r04-clock",
+                    semanticResult(state, digest, fingerprint, mismatchVersion, "decoded",
+                            "NOT_REQUESTED", null, null, false, false, false,
+                            com.ghatana.media.runtime.MediaTranscriptContracts
+                                    .segmentsToParametersValue(List.of(sourceTicks))));
+            var wrongClock = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "decoded", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(12_000, 48_000, "different-source-clock", 48_000, 96_000));
+            TranscriptDraft clockCandidate = draftWithSegments("tenant-r04-clock", "principal-a",
+                    "transcript-r04-clock", "source-r04-clock", "job-r04-clock", "consent-r04-clock",
+                    digest, "decoded", List.of(wrongClock));
+            assertNoBoundRevision(store, clockCandidate, 0, 1, 72, fingerprint, mismatchVersion);
+            assertThat(store.revisions("tenant-r04-clock", "principal-a", "transcript-r04-clock")).isEmpty();
+
+            String tickVersion = "urn:media:transcript-version:r04-wrong-ticks";
+            seed(state, "tenant-r04-ticks", "principal-a", "source-r04-ticks", "job-r04-ticks",
+                    "consent-r04-ticks", digest, false);
+            seedSuccessfulAttempt(state, "tenant-r04-ticks", "principal-a", "source-r04-ticks",
+                    "job-r04-ticks", digest, fingerprint, 1, 73, tickVersion, "decoded",
+                    "provider-op-r04-ticks", "provider-receipt-r04-ticks");
+            replaceAttemptResult(state, "tenant-r04-ticks", "job-r04-ticks",
+                    semanticResult(state, digest, fingerprint, tickVersion, "decoded",
+                            "NOT_REQUESTED", null, null, false, false, false,
+                            com.ghatana.media.runtime.MediaTranscriptContracts
+                                    .segmentsToParametersValue(List.of(sourceTicks))));
+            var wrongTicks = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "decoded", "PROVIDER",
+                    com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegmentTiming
+                            .sourceTicks(12_000, 48_001, "source-clock-r04", 48_000, 96_000));
+            TranscriptDraft tickCandidate = draftWithSegments("tenant-r04-ticks", "principal-a",
+                    "transcript-r04-ticks", "source-r04-ticks", "job-r04-ticks", "consent-r04-ticks",
+                    digest, "decoded", List.of(wrongTicks));
+            assertNoBoundRevision(store, tickCandidate, 0, 1, 73, fingerprint, tickVersion);
+            assertThat(store.revisions("tenant-r04-ticks", "principal-a", "transcript-r04-ticks")).isEmpty();
+
+            var differentDuplicatePayloadSegment = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment(
+                    "span-source", "changed", "PROVIDER", sourceTicks.timing());
+            List<List<com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptSegment>> duplicateResponses =
+                    List.of(List.of(sourceTicks, sourceTicks),
+                            List.of(sourceTicks, differentDuplicatePayloadSegment));
+            for (int duplicateCase = 0; duplicateCase < duplicateResponses.size(); duplicateCase++) {
+                String tenant = "tenant-r04-duplicate-" + duplicateCase;
+                String source = "source-r04-duplicate-" + duplicateCase;
+                String job = "job-r04-duplicate-" + duplicateCase;
+                String consent = "consent-r04-duplicate-" + duplicateCase;
+                String transcript = "transcript-r04-duplicate-" + duplicateCase;
+                String duplicateVersion = "urn:media:transcript-version:r04-duplicate-" + duplicateCase;
+                seed(state, tenant, "principal-a", source, job, consent, digest, false);
+                seedSuccessfulAttempt(state, tenant, "principal-a", source, job, digest, fingerprint,
+                        1, 80 + duplicateCase, duplicateVersion, "decoded",
+                        "provider-op-r04-duplicate-" + duplicateCase,
+                        "provider-receipt-r04-duplicate-" + duplicateCase);
+                replaceAttemptResult(state, tenant, job,
+                        semanticResult(state, digest, fingerprint, duplicateVersion, "decoded",
+                                "NOT_REQUESTED", null, null, false, false, false,
+                                com.ghatana.media.runtime.MediaTranscriptContracts
+                                        .segmentsToParametersValue(duplicateResponses.get(duplicateCase))));
+                TranscriptDraft duplicateCandidate = draftWithSegments(tenant, "principal-a", transcript,
+                        source, job, consent, digest, "decoded", List.of(sourceTicks));
+                assertNoBoundRevision(store, duplicateCandidate, 0, 1, 80 + duplicateCase,
+                        fingerprint, duplicateVersion);
+                assertThat(store.revisions(tenant, "principal-a", transcript)).isEmpty();
+            }
+
+            String revokedVersion = "urn:media:transcript-version:r04-revoked";
+            seed(state, "tenant-r04-revoked", "principal-a", "source-r04-revoked", "job-r04-revoked",
+                    "consent-r04-revoked", digest, true);
+            seedSuccessfulAttempt(state, "tenant-r04-revoked", "principal-a", "source-r04-revoked",
+                    "job-r04-revoked", digest, fingerprint, 1, 74, revokedVersion, "decoded",
+                    "provider-op-r04-revoked", "provider-receipt-r04-revoked");
+            replaceAttemptResult(state, "tenant-r04-revoked", "job-r04-revoked",
+                    semanticResult(state, digest, fingerprint, revokedVersion, "decoded",
+                            "NOT_REQUESTED", null, null, false, false, false,
+                            com.ghatana.media.runtime.MediaTranscriptContracts
+                                    .segmentsToParametersValue(List.of(sourceTicks))));
+            TranscriptDraft revokedCandidate = draftWithSegments("tenant-r04-revoked", "principal-a",
+                    "transcript-r04-revoked", "source-r04-revoked", "job-r04-revoked", "consent-r04-revoked",
+                    digest, "decoded", List.of(sourceTicks));
+            assertThatThrownBy(() -> store.appendFromSuccessfulAttempt(revokedCandidate, 0, 1, 74,
+                    fingerprint, revokedVersion))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("revoked");
+            assertThat(store.revisions("tenant-r04-revoked", "principal-a", "transcript-r04-revoked")).isEmpty();
+
+            // Recreate the runtime-state installation and store to verify persisted segment unions,
+            // aggregate timing, and fenced attempt binding survive store/runtime-state restart.
+            String bucket = state.bucket();
+            var expectedBinding = store.attemptBinding("tenant-r04-positive", "transcript-r04-positive", 1);
+            store.close();
+            state.release();
+            fixture.installed().close();
+            AutoCloseable restartedInstallation =
+                    MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+            try (restartedInstallation; PostgresqlMediaTranscriptStore reopened = new PostgresqlMediaTranscriptStore()) {
+                var restored = reopened.revisions("tenant-r04-positive", "principal-a", "transcript-r04-positive");
+                assertThat(restored).containsExactly(committed);
+                assertThat(restored.get(0).draft().segments()).containsExactlyElementsOf(segments);
+                assertThat(restored.get(0).draft().timingAvailability())
+                        .isEqualTo(com.ghatana.media.runtime.MediaTranscriptContracts.TimingAvailability.MIXED);
+                assertThat(reopened.attemptBinding("tenant-r04-positive", "transcript-r04-positive", 1))
+                        .isEqualTo(expectedBinding);
+            }
+        }
+    }
+
+    @Test
     void concurrentExactBoundAppendsResolveAsOneIdempotentRevision() throws Exception {
         try (Fixture fixture = openFixture()) {
             var store = fixture.store();
