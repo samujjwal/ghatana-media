@@ -60,6 +60,13 @@ class MediaFormatValidatorQualificationTest {
         // This identifies a plausible container/frame header only. validateAudio
         // still reports that no qualified MP3 decoder is installed.
         assertThat(MediaFormatValidator.detectAudioFormat(validMpegHeader)).isEqualTo("MP3");
+
+        byte[] emphasis5015 = validMpegHeader.clone();
+        emphasis5015[3] = 0x65;
+        byte[] emphasisJ17 = validMpegHeader.clone();
+        emphasisJ17[3] = 0x67;
+        assertThat(MediaFormatValidator.detectAudioFormat(emphasis5015)).isEqualTo("MP3");
+        assertThat(MediaFormatValidator.detectAudioFormat(emphasisJ17)).isEqualTo("MP3");
         assertThat(MediaFormatValidator.validateAudio(validMpegHeader, null, 0).valid).isFalse();
     }
 
