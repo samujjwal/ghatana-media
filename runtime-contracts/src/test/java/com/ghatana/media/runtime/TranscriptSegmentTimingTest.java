@@ -110,6 +110,12 @@ class TranscriptSegmentTimingTest {
         assertThat(draft.timingAvailability()).isEqualTo(TimingAvailability.NOT_SUPPLIED);
         assertThatThrownBy(() -> draft(List.of(segment, segment)))
                 .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> draft(List.of(
+                segment,
+                new TranscriptSegment("dup", "different text", "PROVIDER",
+                        TranscriptSegmentTiming.providerTimeUnqualified(0, 5, "provider-ms")))))
+                .as("a repeated identity cannot hide a different segment or timing observation")
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

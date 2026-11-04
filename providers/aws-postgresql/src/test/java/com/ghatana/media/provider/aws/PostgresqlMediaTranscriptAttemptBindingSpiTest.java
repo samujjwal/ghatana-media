@@ -50,10 +50,11 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
         com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBinding expectedBinding;
         try {
             seed(fixture.state(), tenant, principal, artifact, job, consent, digest);
-            String resultDigest = seedSuccessfulAttempt(fixture.state(), tenant, principal, artifact, job, digest, fingerprint,
-                    transcriptVersion, transcriptText, "provider-op-spi", "provider-receipt-spi");
             TranscriptSegment wholeSpan = new TranscriptSegment("transcript-span", transcriptText, "PROVIDER",
                     TranscriptSegmentTiming.sourceTicks(0, 16_000, "fixture-source-clock", 16_000, 16_000));
+            String resultDigest = seedSuccessfulAttempt(fixture.state(), tenant, principal, artifact, job, digest, fingerprint,
+                    transcriptVersion, transcriptText, "provider-op-spi", "provider-receipt-spi",
+                    java.util.List.of(wholeSpan));
             expectedBinding = new com.ghatana.media.runtime.MediaTranscriptContracts.TranscriptAttemptBinding(
                     job, 1, 73, "provider-a", "provider-op-spi", "provider-receipt-spi", fingerprint,
                     "sha256:" + digest, transcriptVersion, resultDigest);
@@ -203,10 +204,16 @@ class PostgresqlMediaTranscriptAttemptBindingSpiTest {
 
     private static String seedSuccessfulAttempt(MediaAwsPostgresqlRuntimeState state, String tenant, String principal,
             String artifact, String job, String digest, String fingerprint, String transcriptVersion,
-            String transcriptText, String operation, String receipt) throws Exception {
-        Map<String, Object> response = Map.of("sourceArtifactVersionRef", "sha256:" + digest,
-                "requestFingerprint", fingerprint, "transcriptVersionRef", transcriptVersion,
-                "glossaryDisposition", "NOT_REQUESTED", "transcriptText", transcriptText);
+            String transcriptText, String operation, String receipt, java.util.List<TranscriptSegment> segments)
+            throws Exception {
+        Map<String, Object> response = new java.util.LinkedHashMap<>();
+        response.put("sourceArtifactVersionRef", "sha256:" + digest);
+        response.put("requestFingerprint", fingerprint);
+        response.put("transcriptVersionRef", transcriptVersion);
+        response.put("glossaryDisposition", "NOT_REQUESTED");
+        response.put("transcriptText", transcriptText);
+        response.put("segments", com.ghatana.media.runtime.MediaTranscriptContracts
+                .segmentsToParametersValue(segments));
         Map<String, Object> observations = Map.of("requestFingerprint", fingerprint,
                 "glossaryApplication", Map.of("disposition", "NOT_REQUESTED"), "transcriptResponse", response);
         String result = state.mapper().writeValueAsString(Map.of("semanticObservations", observations));
