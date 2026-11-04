@@ -151,6 +151,14 @@ class MediaTestHarnessCatalogTest {
     }
 
     @Test
+    void inMemoryProviderLifecycleFixtureIsNotMarkedAsProductionEvidence() {
+        assertThat(MediaProviderJobLifecycleE2ETest.class.getAnnotationsByType(Tag.class))
+                .extracting(Tag::value)
+                .contains("integration")
+                .doesNotContain("production");
+    }
+
+    @Test
     void malformedCatalogEntriesFailClosed() throws Exception {
         writeCatalog("""
                 {"profiles":[{"id":"local","tier":"LOCAL_FIXTURE","selectors":[],

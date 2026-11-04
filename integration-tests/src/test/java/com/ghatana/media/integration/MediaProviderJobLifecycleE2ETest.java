@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.*;
  */
 @DisplayName("Media Provider and Job Lifecycle E2E Tests")
 @Tag("integration")
-@Tag("production")
 class MediaProviderJobLifecycleE2ETest extends EventloopTestBase {
 
     private static final String MEDIA_TENANT = "media-provider-test";
