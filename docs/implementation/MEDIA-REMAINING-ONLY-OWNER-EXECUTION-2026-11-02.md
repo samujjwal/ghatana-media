@@ -208,6 +208,8 @@ AgentTools and Media logical CLI/SDK/Events/HTTP/gRPC are **consumer contracts**
 
 ### 9.1 Exact 36 unaccepted Wave2 R8 original task IDs
 
+**Current G07 evaluation scope (2026-11-03):** use the owner-confirmed Common Voice v27 official test sets for English (`en`) and Nepali (`ne-NP`) under [the current ASR corpus disposition](MEDIA-ASR-CORPUS-DISPOSITION-2026-11-03.md). Hindi and FLEURS are deferred and do not block this phase's alternative-corpus evaluation. This scope decision does not change any original R8 row, denominator, historical result, or acceptance status; rows remain open until their original whole-row evidence is met.
+
 | Original task ID / owner | Original dependencies and gates | Required actual work / original whole-row proof |
 | --- | --- | --- |
 | **VIS-03** (PARTIAL) · `modules-vision-vision-service` | VIS-01, gates G06 | Finish broker source owner/version/auth binding and hard native OCI adversarial corpus, zero leaked processes. **Independent proof:** `docs/implementation/MEDIA-WAVE2-R8-FULL-ACCEPTANCE-MATRIX.json#/rows/0/independentAcceptanceProof` + real rights/model/source, negative, restart/unknown and host effects as applicable |

@@ -39,6 +39,20 @@ test('each unfinished task has executable owned gates, original dependencies and
   }
 });
 
+test('current G07 Common Voice route excludes Hindi and FLEURS without promoting the original gate', () => {
+  const g07 = plan.implementationGates.find((gate) => gate.id === 'G07');
+  const disposition = g07.currentPhaseDisposition;
+  const profile = read('config/qualification/common-voice-v27-asr-alternative.v1.json');
+  assert.deepEqual(disposition.activeLocales, ['en', 'ne-NP']);
+  assert.deepEqual(disposition.deferredLocales, ['hi']);
+  assert.equal(disposition.fleurs, 'DEFERRED_NON_BLOCKING');
+  assert.equal(disposition.inference, 'NOT_ADMITTED_UNTIL_CURRENT_OUTSTANDING_INPUTS_PASS');
+  assert.deepEqual(profile.dataset.activeLocaleScope, disposition.activeLocales);
+  assert.deepEqual(Object.keys(profile.dataset.deferredLocales), disposition.deferredLocales);
+  assert.equal(profile.execution.realInferenceAdmitted, false);
+  assert.equal(plan.remainingTasks.every((task) => task.taskAccepted === false && task.qualifiedResult === null), true);
+});
+
 test('engineering approval never implies external copyright, voice, biometric or product acceptance', () => {
   assert.equal(plan.notASecondPdpOrAdmittedProvider, true);
   assert.ok(plan.hardExternalGates.some((x) => x.includes('HUMAN_VOICE')));

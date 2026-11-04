@@ -155,7 +155,24 @@
       "input": "Exact attributed per-clip bytes, transcript/labels, holdout disjoint from tuning data, source-specific rights and source SHA for English/Hindi/Nepali",
       "action": "Obtain FLEURS rows through per-clip or bounded cache, or use independently rights-cleared fallback; pin 24/locale development pilots then larger holdout before final quality claims; compute WER/CER with bootstrap intervals and source-defined threshold fixed prior to final test",
       "pass": "Nonempty per-clip hashes, attribution, frozen splits, real model text, reproducible WER/CER, domain/locale limitations and threshold outcome",
-      "fallback": "If archive-only exceeds cap, do not inflate storage; source-own small true recordings for integration and obtain a separately licensed held-out corpus for quality; status remains METADATA_ONLY until clips exist"
+      "fallback": "If archive-only exceeds cap, do not inflate storage; source-own small true recordings for integration and obtain a separately licensed held-out corpus for quality; status remains METADATA_ONLY until clips exist",
+      "currentPhaseDisposition": {
+        "corpusProfile": "config/qualification/common-voice-v27-asr-alternative.v1.json",
+        "corpusDisposition": "COMMON_VOICE_V27_ALTERNATIVE_EVALUATION_ONLY",
+        "activeLocales": ["en", "ne-NP"],
+        "deferredLocales": ["hi"],
+        "fleurs": "DEFERRED_NON_BLOCKING",
+        "mdcAccessAndTerms": "OWNER_CONFIRMED_COMPLETE_FOR_EN_AND_NP; NOT_INDEPENDENTLY_VERIFIED",
+        "archiveAvailability": "OWNER_CONFIRMED_LOCAL_EN_AND_NE_NP_ARCHIVES; NO_NEW_DOWNLOAD",
+        "currentOutstandingInputs": [
+          "exact model and export rights",
+          "independent review of selected English and Nepali references",
+          "execution host qualification"
+        ],
+        "inference": "NOT_ADMITTED_UNTIL_CURRENT_OUTSTANDING_INPUTS_PASS",
+        "acceptance": "A Common Voice result is labeled with corpus, locale, revision, official test split, private manifest digest, model digest and host; it does not accept FLEURS, G07, an original Wave 2 row or production quality by itself.",
+        "originalGateAndHistoricalResults": "PRESERVED; ORIGINAL_DENOMINATOR_AND_ACCEPTANCE_STATUS_UNCHANGED"
+      }
     },
     {
       "id": "G08",
