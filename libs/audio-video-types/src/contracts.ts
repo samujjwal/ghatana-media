@@ -163,6 +163,24 @@ export const MediaJobStateSchema = z.enum([
 ]);
 export type MediaJobState = z.infer<typeof MediaJobStateSchema>;
 
+/**
+ * PDP-1 media-attempt lifecycle values. This is a value projection only;
+ * attempt identity and runtime persistence remain separately owned contracts.
+ */
+export const MediaAttemptStateSchema = z.enum([
+  "CLAIMED",
+  "DISPATCH_INTENT_RECORDED",
+  "DISPATCHED",
+  "RUNNING",
+  "CANCEL_REQUESTED",
+  "SUCCEEDED",
+  "FAILED",
+  "CANCEL_CONFIRMED",
+  "OUTCOME_UNKNOWN",
+  "SUPERSEDED",
+]);
+export type MediaAttemptState = z.infer<typeof MediaAttemptStateSchema>;
+
 /** Legacy wire spellings retained only at an explicit compatibility boundary. */
 export const LegacyMediaJobStateSchema = z.enum(["CANCELLING", "RETRYING"]);
 export type LegacyMediaJobState = z.infer<typeof LegacyMediaJobStateSchema>;

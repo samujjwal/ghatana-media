@@ -365,6 +365,27 @@ export class MediaHttpTransport {
     additionalHeaders: Readonly<Record<string, string>> = {},
     onDispatch?: (requestId: string) => void,
   ): Promise<T> {
+    // Compatibility methods remain exported for source compatibility, but
+    // `/api/v1/media/*` has no current route binding. Reject before credential
+    // acquisition or fetch so these paths cannot become accidental live APIs.
+    if (path.startsWith("/api/v1/media/")) {
+      const operation = path === "/api/v1/media/providers/capabilities"
+        ? "media.sdk.listProviderCapabilities"
+        : path === "/api/v1/media/transcriptions"
+          ? "media.sdk.transcribe"
+          : path === "/api/v1/media/syntheses"
+            ? "media.sdk.synthesize"
+            : path === "/api/v1/media/voice-models:train"
+              ? "media.sdk.trainVoiceModel"
+              : path === "/api/v1/media/voice-conversions"
+                ? "media.sdk.convertVoice"
+                : path.endsWith(":cancel")
+                  ? "media.sdk.cancelOperation"
+                  : path.endsWith("/result")
+                    ? "media.sdk.getOperationResult"
+                    : "media.sdk.getOperation";
+      throw new MediaOperationNotAdmittedError(operation);
+    }
     const controller = new AbortController();
     const unlink = linkAbortSignal(signal, controller);
     const timeout = setTimeout(

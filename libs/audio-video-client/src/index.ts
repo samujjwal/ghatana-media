@@ -29,6 +29,7 @@ import {
   parseDetectionResult,
   parseMultimodalResult,
 } from '@audio-video/types';
+import { MediaOperationNotAdmittedError } from './http-core.js';
 export {
   DOCUMENT_INTELLIGENCE_PROTOCOL_V1,
   DOCUMENT_INTELLIGENCE_WORKER_V1,
@@ -478,6 +479,16 @@ export class AudioVideoClient {
    */
   private async callService<T>(opts: ServiceCallOptions<T>): Promise<T> {
     const { method, path, body, config, serviceLabel } = opts;
+    if (!(method === 'GET' && path === '/health')) {
+      const operation: Record<string, string> = {
+        stt: 'media.sdk.legacy.AudioVideoClient.transcribe',
+        tts: 'media.sdk.legacy.AudioVideoClient.synthesize',
+        'ai-voice': 'media.sdk.processAIVoice',
+        vision: 'media.sdk.processVision',
+        multimodal: 'media.sdk.processMultimodal',
+      };
+      throw new MediaOperationNotAdmittedError(operation[serviceLabel] ?? 'media.sdk.legacy-unbound');
+    }
     const serviceType = serviceLabel as ServiceType;
     const cb = this.circuitBreakers.get(serviceType) ?? new CircuitBreaker();
     const logger = config.logger ?? console;
@@ -560,6 +571,15 @@ export class AudioVideoClient {
   }
 
   private toError(error: unknown, code: string, service: ServiceType): AudioVideoError {
+    if (error instanceof MediaOperationNotAdmittedError) {
+      return {
+        code: 'NOT_ADMITTED',
+        message: error.message,
+        service,
+        retryable: false,
+        timestamp: new Date(),
+      };
+    }
     if (error instanceof LegacyOperationOutcomeUnknownError) {
       return {
         code: 'OUTCOME_UNKNOWN',

@@ -143,7 +143,7 @@ describe('AudioVideoClient', () => {
 
   // ─── STT transcription ─────────────────────────────────────────────────
 
-  describe('transcribe()', () => {
+  describe.skip('transcribe() (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('returns success with data on 200', async () => {
       const sttResult = {
         text: 'Hello',
@@ -366,7 +366,7 @@ describe('AudioVideoClient', () => {
 
   // ─── TTS synthesis ────────────────────────────────────────────────────
 
-  describe('synthesize()', () => {
+  describe.skip('synthesize() (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('returns success with audio data on 200', async () => {
       const ttsResult = {
         audio: {
@@ -436,7 +436,7 @@ describe('AudioVideoClient', () => {
 
   // ─── Vision processing ────────────────────────────────────────────────
 
-  describe('processVision()', () => {
+  describe.skip('processVision() (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('returns detection result on success', async () => {
       const visionResult = {
         objects: [
@@ -478,7 +478,7 @@ describe('AudioVideoClient', () => {
 
   // ─── Multimodal processing ────────────────────────────────────────────
 
-  describe('processMultimodal()', () => {
+  describe.skip('processMultimodal() (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('returns success on 200', async () => {
       const multiResult = {
         result: { summary: 'ok' },
@@ -497,7 +497,7 @@ describe('AudioVideoClient', () => {
     });
   });
 
-  it('reports syntactically valid malformed POST result objects as OUTCOME_UNKNOWN', async () => {
+  it.skip('reports syntactically valid malformed POST result objects as OUTCOME_UNKNOWN (routes are UNBOUND)', async () => {
     const g = vi.spyOn(globalThis, 'fetch').mockImplementation(
       mockFetch(Array.from({ length: 5 }, () => ({ status: 200, body: {} }))),
     );
@@ -519,9 +519,24 @@ describe('AudioVideoClient', () => {
     g.mockRestore();
   });
 
+  it.each([
+    ['transcribe', (client: AudioVideoClient) => client.transcribe(makeSTTRequest())],
+    ['synthesize', (client: AudioVideoClient) => client.synthesize(makeTTSRequest())],
+    ['processAIVoice', (client: AudioVideoClient) => client.processAIVoice({ text: 'hello', task: 'enhance' })],
+    ['processVision', (client: AudioVideoClient) => client.processVision(makeVisionRequest())],
+    ['processMultimodal', (client: AudioVideoClient) => client.processMultimodal(makeMultimodalRequest())],
+  ] as const)('%s returns NOT_ADMITTED without network dispatch', async (_method, invoke) => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch([]));
+    const result = await invoke(makeClient());
+
+    expect(result).toMatchObject({ success: false, error: { code: 'NOT_ADMITTED', retryable: false } });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    fetchSpy.mockRestore();
+  });
+
   // ─── Circuit breaker ──────────────────────────────────────────────────
 
-  describe('circuit breaker', () => {
+  describe.skip('circuit breaker for unbound modality calls (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('opens after reaching failure threshold', async () => {
       const threshold = 2;
       // Threshold-many failures + 1 more call that should be rejected by open breaker
@@ -590,7 +605,7 @@ describe('AudioVideoClient', () => {
 
   // ─── Event listeners ─────────────────────────────────────────────────
 
-  describe('addEventListener / removeEventListener', () => {
+  describe.skip('modality completion events (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('emits start and complete events on successful transcription', async () => {
       const sttResult = {
         text: 'Event test',
@@ -710,11 +725,33 @@ describe('AudioVideoClient', () => {
       expect(services).toContain('vision');
       g.mockRestore();
     });
+
+    it('reuses one generated request ID across safe operational health GET retries', async () => {
+      const requestIds: Array<string | null> = [];
+      const responder = mockFetch([
+        { status: 503, body: 'temporary read failure' },
+        { status: 200, body: { status: 'UP' } },
+      ]);
+      const g = vi.spyOn(globalThis, 'fetch').mockImplementation((url, init) => {
+        requestIds.push(new Headers(init?.headers).get('X-Request-ID'));
+        return responder(url, init);
+      });
+      const client = makeClient({ retries: 1, additionalHeaders: { 'x-request-id': 'caller-id' } });
+      const pending = client.getServiceStatus('stt');
+      await vi.runAllTimersAsync();
+      await expect(pending).resolves.toMatchObject({ status: 'healthy' });
+      expect(g).toHaveBeenCalledTimes(2);
+      expect(requestIds).toHaveLength(2);
+      expect(requestIds[0]).toMatch(/^[0-9a-f-]{36}$/u);
+      expect(requestIds[0]).not.toBe('caller-id');
+      expect(requestIds[1]).toBe(requestIds[0]);
+      g.mockRestore();
+    });
   });
 
   // ─── Timeout behavior ─────────────────────────────────────────────────
 
-  describe('timeout handling', () => {
+  describe.skip('modality timeout handling (route is UNBOUND; canonical SDK is tested elsewhere)', () => {
     it('surfaces timeout as retryable error', async () => {
       const g = vi.spyOn(globalThis, 'fetch').mockImplementation(() => {
         // Simulate a hanging request that the AbortController will cut off

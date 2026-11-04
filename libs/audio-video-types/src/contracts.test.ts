@@ -8,6 +8,7 @@ import {
   TranscriptionResultSchema,
   normalizeLegacyMediaJobState,
   observeMediaJobState,
+  MediaAttemptStateSchema,
   MediaJobStateSchema,
   MediaJobStateObservationSchema,
   MediaProcessingJobSchema,
@@ -74,6 +75,28 @@ describe("media contracts", () => {
       expect(MediaJobStateObservationSchema.parse(JSON.parse(JSON.stringify(observation)))).toEqual(observation);
       expect(MediaProcessingJobSchema.parse(JSON.parse(JSON.stringify(job)))).toMatchObject(job);
     }
+  });
+
+  it("exports the complete PDP-1 attempt-state vocabulary and rejects unknown values", () => {
+    const states = [
+      "CLAIMED",
+      "DISPATCH_INTENT_RECORDED",
+      "DISPATCHED",
+      "RUNNING",
+      "CANCEL_REQUESTED",
+      "SUCCEEDED",
+      "FAILED",
+      "CANCEL_CONFIRMED",
+      "OUTCOME_UNKNOWN",
+      "SUPERSEDED",
+    ] as const;
+
+    expect(MediaAttemptStateSchema.options).toEqual(states);
+    for (const state of states) {
+      expect(MediaAttemptStateSchema.parse(JSON.parse(JSON.stringify(state)))).toBe(state);
+    }
+    expect(MediaAttemptStateSchema.safeParse("CANCELLING").success).toBe(false);
+    expect(MediaAttemptStateSchema.safeParse("UNKNOWN").success).toBe(false);
   });
 
   it.each(["CANCELLING", "RETRYING"] as const)("retains legacy job state %s without unsafe canonical coercion", (state) => {

@@ -649,7 +649,6 @@ describe("MediaOperationClient", () => {
     ["upload completion", "/api/v1/artifacts/uploads/upload-1/complete", (client: ReturnType<typeof createMediaOperationClient>) => client.completeUploadSession(
       uploadSession({ expectedSizeBytes: 3, bytesReceived: 3 }),
     )],
-    ["job cancellation", "/api/v1/media/operations/operation-1:cancel", (client: ReturnType<typeof createMediaOperationClient>) => client.cancelOperation("operation-1")],
   ] as const)("preserves ambiguous post-dispatch failures for %s", async (_label, expectedPath, invoke) => {
     for (const response of [
       jsonResponse({ error: { code: "UNAVAILABLE", message: "Unavailable", retryable: true },
@@ -672,7 +671,7 @@ describe("MediaOperationClient", () => {
     }
   });
 
-  it("keeps definitive upload and cancellation validation/authorization responses canonical", async () => {
+  it("keeps definitive upload validation/authorization responses canonical", async () => {
     const errorResponse = (status: number): Response => jsonResponse({
       error: { code: status === 403 ? "FORBIDDEN" : "INVALID_REQUEST", message: "Rejected", retryable: false },
       meta: { correlationId: `correlation-${status}` },
@@ -686,7 +685,6 @@ describe("MediaOperationClient", () => {
       (client: ReturnType<typeof createMediaOperationClient>) => client.completeUploadSession(
         uploadSession({ expectedSizeBytes: 3, bytesReceived: 3 }),
       ),
-      (client: ReturnType<typeof createMediaOperationClient>) => client.cancelOperation("operation-1"),
     ];
     for (const status of [400, 403]) {
       for (const attempt of attempts) {
@@ -700,7 +698,7 @@ describe("MediaOperationClient", () => {
     }
   });
 
-  it("keeps undocumented 409 cancellation responses ambiguous after dispatch", async () => {
+  it("keeps legacy cancellation NOT_ADMITTED regardless of a 409 response fixture", async () => {
     const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({
       error: { code: "CONFLICT", message: "Operation state changed", retryable: false },
       meta: { correlationId: "correlation-409" },
@@ -710,11 +708,8 @@ describe("MediaOperationClient", () => {
       defaultHeaders: { "X-Principal-Id": "principal-1" },
     });
 
-    await expect(client.cancelOperation("operation-1")).rejects.toMatchObject({
-      name: "MediaOperationAmbiguousError",
-      path: "/api/v1/media/operations/operation-1:cancel",
-    });
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    await expect(client.cancelOperation("operation-1")).rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 
   it("keeps header-provider and progress-callback failures distinguishable from dispatch ambiguity", async () => {
@@ -920,6 +915,99 @@ describe("MediaOperationClient", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ["provider capabilities", (client: ReturnType<typeof createMediaOperationClient>) => client.listProviderCapabilities()],
+    ["transcription", (client: ReturnType<typeof createMediaOperationClient>) => client.transcribe({
+      artifactId: "artifact-1", punctuation: true, wordTimestamps: false, alternatives: 1,
+      profanityPolicy: "PRESERVE", idempotencyKey: "transcription-1",
+    })],
+    ["synthesis", (client: ReturnType<typeof createMediaOperationClient>) => client.synthesize({
+      text: "hello", voiceId: "voice-1", languageTag: "en", outputMimeType: "audio/wav",
+      idempotencyKey: "synthesis-1",
+    })],
+    ["voice training", (client: ReturnType<typeof createMediaOperationClient>) => client.trainVoiceModel({
+      name: "voice", sampleArtifactIds: ["artifact-1"], consentReference: "consent-1",
+      rightsAttestation: true, languageTags: ["en"], idempotencyKey: "training-1",
+    })],
+    ["voice conversion", (client: ReturnType<typeof createMediaOperationClient>) => client.convertVoice({
+      sourceArtifactId: "source-1", voiceModelArtifactId: "model-1", consentReference: "consent-1",
+      idempotencyKey: "conversion-1",
+    })],
+    ["legacy job read", (client: ReturnType<typeof createMediaOperationClient>) => client.getOperation("job-1")],
+    ["legacy job cancellation", (client: ReturnType<typeof createMediaOperationClient>) => client.cancelOperation("job-1")],
+    ["legacy result read", (client: ReturnType<typeof createMediaOperationClient>) => client.getOperationResult("job-1", { parse: (value) => value })],
+  ] as const)("returns typed NOT_ADMITTED for %s before fetch", async (_label, invoke) => {
+    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
+    const client = createMediaOperationClient({ baseUrl: "https://media.example.test", tenantId: "tenant-1",
+      fetchImpl, defaultHeaders: { "X-Principal-Id": "principal-1" } });
+    await expect(invoke(client)).rejects.toBeInstanceOf(MediaOperationNotAdmittedError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  describe("canonical upload mutation credential boundary", () => {
+    const request = {
+      fileName: "source.wav", contentType: "audio/wav", expectedSizeBytes: 3,
+      expectedSha256: "a".repeat(64), classification: "INTERNAL" as const,
+      retention: "PT24H", idempotencyKey: "upload-credential-boundary",
+    };
+
+    it("does not dispatch when the caller aborts during asynchronous credential acquisition", async () => {
+      let releaseToken!: (token: string) => void;
+      const token = new Promise<string>((resolve) => { releaseToken = resolve; });
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        getAccessToken: () => token,
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+      const controller = new AbortController();
+      const pending = client.createUploadSession(request, controller.signal);
+
+      controller.abort(new DOMException("caller cancelled before dispatch", "AbortError"));
+      releaseToken("token-1");
+
+      await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it("observes credential rejection even when the request is already aborted", async () => {
+      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+      const client = createMediaOperationClient({
+        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+        getAccessToken: () => Promise.reject(new Error("credential provider unavailable")),
+        defaultHeaders: { "X-Principal-Id": "principal-1" },
+      });
+      const controller = new AbortController();
+      controller.abort(new DOMException("cancelled before request setup", "AbortError"));
+
+      await expect(client.createUploadSession(request, controller.signal))
+        .rejects.toMatchObject({ name: "AbortError" });
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it("enforces the request timeout while asynchronous credentials are pending", async () => {
+      vi.useFakeTimers();
+      try {
+        const token = new Promise<string>(() => undefined);
+        const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse(uploadSession())) as unknown as typeof fetch;
+        const client = createMediaOperationClient({
+          baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
+          getAccessToken: () => token, requestTimeoutMs: 10,
+          defaultHeaders: { "X-Principal-Id": "principal-1" },
+        });
+        const pending = client.createUploadSession(request);
+        const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
+
+        await vi.advanceTimersByTimeAsync(10);
+        await rejection;
+        expect(fetchImpl).not.toHaveBeenCalled();
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
+  describe.skip("legacy operation routes (UNBOUND; canonical SDK is tested elsewhere)", () => {
   it("maps a submit abort/timeout after dispatch to OUTCOME_UNKNOWN, never a clean failure", async () => {
     for (const name of ["AbortError", "TimeoutError"] as const) {
       const fetchImpl = vi.fn(async (): Promise<Response> => {
@@ -950,78 +1038,6 @@ describe("MediaOperationClient", () => {
       expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
       expect(failure.path).toBe("/api/v1/media/transcriptions");
       expect(fetchImpl).toHaveBeenCalledTimes(1); // no blind retry attempted
-    }
-  });
-
-  it("does not dispatch a mutation aborted while asynchronous credentials are being acquired", async () => {
-    let releaseToken!: (token: string) => void;
-    const token = new Promise<string>((resolve) => { releaseToken = resolve; });
-    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
-    const client = createMediaOperationClient({
-      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
-      getAccessToken: () => token,
-    });
-    const controller = new AbortController();
-    const pending = client.transcribe({
-      artifactId: "art-1",
-      punctuation: true,
-      wordTimestamps: false,
-      alternatives: 1,
-      profanityPolicy: "PRESERVE",
-      idempotencyKey: "submit-aborted-before-dispatch",
-    }, controller.signal);
-
-    controller.abort(new DOMException("caller cancelled before dispatch", "AbortError"));
-    releaseToken("token-1");
-
-    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
-    expect(fetchImpl).not.toHaveBeenCalled();
-  });
-
-  it("observes credential setup rejection when the request is already aborted", async () => {
-    const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
-    const client = createMediaOperationClient({
-      baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
-      getAccessToken: () => Promise.reject(new Error("credential provider unavailable")),
-    });
-    const controller = new AbortController();
-    controller.abort(new DOMException("cancelled before request setup", "AbortError"));
-
-    await expect(client.transcribe({
-      artifactId: "art-1",
-      punctuation: true,
-      wordTimestamps: false,
-      alternatives: 1,
-      profanityPolicy: "PRESERVE",
-      idempotencyKey: "submit-already-aborted",
-    }, controller.signal)).rejects.toMatchObject({ name: "AbortError" });
-    expect(fetchImpl).not.toHaveBeenCalled();
-  });
-
-  it("enforces the request timeout while asynchronous credentials are pending", async () => {
-    vi.useFakeTimers();
-    try {
-      const token = new Promise<string>(() => undefined);
-      const fetchImpl = vi.fn(async (): Promise<Response> => jsonResponse({})) as unknown as typeof fetch;
-      const client = createMediaOperationClient({
-        baseUrl: "https://media.example.test", tenantId: "tenant-1", fetchImpl,
-        getAccessToken: () => token, requestTimeoutMs: 10,
-      });
-      const pending = client.transcribe({
-        artifactId: "art-1",
-        punctuation: true,
-        wordTimestamps: false,
-        alternatives: 1,
-        profanityPolicy: "PRESERVE",
-        idempotencyKey: "submit-timeout-before-dispatch",
-      });
-      const rejection = expect(pending).rejects.toMatchObject({ name: "TimeoutError" });
-
-      await vi.advanceTimersByTimeAsync(10);
-      await rejection;
-      expect(fetchImpl).not.toHaveBeenCalled();
-    } finally {
-      vi.useRealTimers();
     }
   });
 
@@ -1201,6 +1217,8 @@ describe("MediaOperationClient", () => {
     expect(headers.get("X-Ghatana-Delegation")).toBe("delegation-token");
   });
 
+  });
+
   it("rejects malformed cross-service identity before sending", () => {
     expect(() => createMediaOperationClient({
       baseUrl: "https://media.example.test",
@@ -1209,6 +1227,7 @@ describe("MediaOperationClient", () => {
     })).toThrow(/correlationId/u);
   });
 
+  describe.skip("legacy operation observation routes (UNBOUND; canonical SDK is tested elsewhere)", () => {
   it("cancels through the canonical operation endpoint", async () => {
     const fetchImpl = vi.fn(
       async (input: RequestInfo | URL): Promise<Response> => {
@@ -1339,6 +1358,8 @@ describe("MediaOperationClient", () => {
       expect(calls.some((url) => url.endsWith("/result"))).toBe(false);
     },
   );
+
+  });
 
   it("keeps configured principal scope stable when callers mutate the original headers", async () => {
     const originalHeaders = { "X-Principal-Id": "principal-1" };

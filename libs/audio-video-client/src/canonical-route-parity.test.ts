@@ -25,6 +25,8 @@ const sdkClassSources = {
   MediaOperationClient: readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/operations.ts"), "utf8"),
   MediaCanonicalClient: readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/canonical-operations.ts"), "utf8"),
 };
+const sharedTransportSource = readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/http-core.ts"), "utf8");
+const legacyFacadeSource = readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/index.ts"), "utf8");
 
 function publicMethodBodies(source: string, className: string): Map<string, string> {
   const file = ts.createSourceFile(`${className}.ts`, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
@@ -128,31 +130,35 @@ describe("SK-01 canonical Media route parity", () => {
     const methodDisposition: Record<keyof typeof sdkClassSources, {
       canonicalHttp: string[];
       legacyUnboundHttp: string[];
+      unboundNotAdmitted: string[];
       noRoute: string[];
       local: string[];
     }> = {
       AudioVideoClient: {
         canonicalHttp: [],
-        legacyUnboundHttp: ["transcribe", "synthesize", "processAIVoice", "processVision", "processMultimodal", "getServiceStatus"],
+        legacyUnboundHttp: ["getServiceStatus"],
+        unboundNotAdmitted: ["transcribe", "synthesize", "processAIVoice", "processVision", "processMultimodal"],
         noRoute: [],
         local: ["getAllServicesStatus", "addEventListener", "removeEventListener"],
       },
       MediaOperationClient: {
         canonicalHttp: ["createUploadSession", "uploadPart", "getUploadSession", "completeUploadSession", "getArtifact"],
-        legacyUnboundHttp: ["listProviderCapabilities", "transcribe", "synthesize", "trainVoiceModel", "convertVoice", "getOperation", "cancelOperation", "getOperationResult"],
+        legacyUnboundHttp: [],
+        unboundNotAdmitted: ["listProviderCapabilities", "transcribe", "synthesize", "trainVoiceModel", "convertVoice", "getOperation", "cancelOperation", "getOperationResult"],
         noRoute: ["inspectArtifactVersion", "analyzeMultimodal", "retryOperation"],
         local: [],
       },
       MediaCanonicalClient: {
         canonicalHttp: ["submitJob", "getJob", "listJobs", "cancelJob", "openStream", "getStream", "connectStream", "submitStreamFrame", "closeStream"],
         legacyUnboundHttp: [],
+        unboundNotAdmitted: [],
         noRoute: ["watchStream", "checkOutcome", "listJobsPage", "readJobStatusDimensions"],
         local: [],
       },
     };
     for (const [className, disposition] of Object.entries(methodDisposition) as [keyof typeof sdkClassSources, typeof methodDisposition[keyof typeof sdkClassSources]][]) {
       const expected = new Set([
-        ...disposition.canonicalHttp, ...disposition.legacyUnboundHttp,
+        ...disposition.canonicalHttp, ...disposition.legacyUnboundHttp, ...disposition.unboundNotAdmitted,
         ...disposition.noRoute, ...disposition.local,
       ]);
       expect([...publicSdkMethods[className].keys()].sort(), `${className} public method inventory`)
@@ -216,6 +222,10 @@ describe("SK-01 canonical Media route parity", () => {
           .toContain(sourceNeedle);
       }
     }
+    expect(sharedTransportSource).toContain('if (path.startsWith("/api/v1/media/"))');
+    expect(sharedTransportSource).toContain("throw new MediaOperationNotAdmittedError(operation)");
+    expect(legacyFacadeSource).toContain("if (!(method === 'GET' && path === '/health'))");
+    expect(legacyFacadeSource).toContain("code: 'NOT_ADMITTED'");
     const legacyHttpRoutes = [
       ["POST", "/api/stt/transcribe"], ["POST", "/api/tts/synthesize"],
       ["POST", "/api/ai-voice/process"], ["POST", "/api/vision/analyze"],
@@ -246,13 +256,16 @@ describe("SK-01 canonical Media route parity", () => {
     }
     expect(methodDisposition.MediaCanonicalClient.canonicalHttp).toHaveLength(9);
     expect(methodDisposition.MediaOperationClient.canonicalHttp).toHaveLength(5);
-    expect(methodDisposition.AudioVideoClient.legacyUnboundHttp).toHaveLength(6);
-    expect(methodDisposition.MediaOperationClient.legacyUnboundHttp).toHaveLength(8);
+    expect(methodDisposition.AudioVideoClient.legacyUnboundHttp).toHaveLength(1);
+    expect(methodDisposition.AudioVideoClient.unboundNotAdmitted).toHaveLength(5);
+    expect(methodDisposition.MediaOperationClient.legacyUnboundHttp).toHaveLength(0);
+    expect(methodDisposition.MediaOperationClient.unboundNotAdmitted).toHaveLength(8);
     expect(Object.values(publicSdkMethods).reduce((total, methods) => total + methods.size, 0)).toBe(38);
     expect(methodDisposition.MediaCanonicalClient.canonicalHttp.length
       + methodDisposition.MediaOperationClient.canonicalHttp.length).toBe(14);
     expect(methodDisposition.AudioVideoClient.legacyUnboundHttp.length
-      + methodDisposition.MediaOperationClient.legacyUnboundHttp.length).toBe(14);
+      + methodDisposition.AudioVideoClient.unboundNotAdmitted.length
+      + methodDisposition.MediaOperationClient.unboundNotAdmitted.length).toBe(14);
   });
 
   it("binds every currently implemented canonical SDK transport operation to its exact observed route", () => {
@@ -309,8 +322,8 @@ describe("SK-01 canonical Media route parity", () => {
         expect(observedPaths, `legacy facade path unexpectedly mapped: ${method}`).not.toContain(path);
       }
     }
-    // The older operation-oriented helper also retains compatibility calls;
-    // these paths are not members of the current OpenAPI/manifest inventory.
+    // The older operation-oriented helper retains exported signatures but
+    // its routes are rejected by the shared transport admission guard.
     const operationClientSource = readFileSync(resolve(repositoryRoot, "libs/audio-video-client/src/operations.ts"), "utf8");
     for (const path of [
       "/api/v1/media/providers/capabilities", "/api/v1/media/transcriptions",
