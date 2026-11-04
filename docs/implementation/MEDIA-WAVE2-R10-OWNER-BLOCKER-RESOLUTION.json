@@ -162,6 +162,7 @@
         "activeLocales": ["en", "ne-NP"],
         "deferredLocales": ["hi"],
         "fleurs": "DEFERRED_NON_BLOCKING",
+        "scopeClarification": "The original G07 input/action/pass/fallback fields remain historical records. Only currentOutstandingInputs block this phase's Common Voice inference; neither Hindi nor FLEURS is a current requirement.",
         "mdcAccessAndTerms": "OWNER_CONFIRMED_COMPLETE_FOR_EN_AND_NP; NOT_INDEPENDENTLY_VERIFIED",
         "archiveAvailability": "OWNER_CONFIRMED_LOCAL_EN_AND_NE_NP_ARCHIVES; NO_NEW_DOWNLOAD",
         "currentOutstandingInputs": [

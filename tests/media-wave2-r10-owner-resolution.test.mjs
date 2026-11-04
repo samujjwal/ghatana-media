@@ -46,6 +46,12 @@ test('current G07 Common Voice route excludes Hindi and FLEURS without promoting
   assert.deepEqual(disposition.activeLocales, ['en', 'ne-NP']);
   assert.deepEqual(disposition.deferredLocales, ['hi']);
   assert.equal(disposition.fleurs, 'DEFERRED_NON_BLOCKING');
+  assert.match(disposition.scopeClarification, /neither Hindi nor FLEURS is a current requirement/u);
+  assert.deepEqual(disposition.currentOutstandingInputs, [
+    'exact model and export rights',
+    'independent review of selected English and Nepali references',
+    'execution host qualification',
+  ]);
   assert.equal(disposition.inference, 'NOT_ADMITTED_UNTIL_CURRENT_OUTSTANDING_INPUTS_PASS');
   assert.deepEqual(profile.dataset.activeLocaleScope, disposition.activeLocales);
   assert.deepEqual(Object.keys(profile.dataset.deferredLocales), disposition.deferredLocales);
