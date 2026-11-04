@@ -283,7 +283,9 @@ public final class AudioVideoRunLedgerAdapter {
     private static final java.util.regex.Pattern SENSITIVE_LEDGER_VALUE =
         java.util.regex.Pattern.compile(
             "(?i)(https?://|\\bbearer\\s|(?:api[_ -]?key|secret|token|password|credential)\\s*[:=]"
-                + "|\\b(?:sk|pk|ghp|gho|glpat|akia)[-_][a-z0-9_-]{8,}\\b)");
+                + "|\\b(?:sk|pk|ghp|gho|glpat)[-_][a-z0-9_-]{8,}\\b"
+                // AWS access key IDs use fixed prefixes without a separator.
+                + "|\\b(?:AKIA|ASIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASCA)[A-Z0-9]{16}\\b)");
     private static final java.util.regex.Pattern SENSITIVE_FAILURE_DETAIL =
         java.util.regex.Pattern.compile(
             "(?i)([a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}|\\b\\+?[0-9][0-9 ()-]{8,}[0-9]\\b"

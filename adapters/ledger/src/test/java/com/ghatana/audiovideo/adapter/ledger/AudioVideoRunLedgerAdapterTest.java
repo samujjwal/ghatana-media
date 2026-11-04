@@ -956,6 +956,25 @@ class AudioVideoRunLedgerAdapterTest {
     }
 
     @Test
+    @DisplayName("Recognizes separator-free AWS access key IDs under allowed ledger fields")
+    void awsAccessKeyIdsAreRedactedEvenWhenTypedAsReferencesOrFailureDetails() {
+        long now = System.currentTimeMillis();
+        String awsAccessKeyId = "AKIAIOSFODNN7EXAMPLE";
+        RunLedger ledger = AudioVideoRunLedgerAdapter.fromProcessingJob(
+                "job-aws-redaction", "AUDIO", "STT", "collection", "source",
+                Map.of("rightsRef", awsAccessKeyId), "FAILED", now, now,
+                null, "provider rejected key " + awsAccessKeyId,
+                "provider", "provider-job", "trace", "correlation");
+
+        assertThat(ledger.inputs().parameters())
+                .containsEntry("sanitizedParamsDropped", "1")
+                .doesNotContainKey("rightsRef");
+        assertThat(ledger.failureReason())
+                .isEqualTo("Failure details omitted by ledger safety filter");
+        assertThat(ledger.toString()).doesNotContain(awsAccessKeyId);
+    }
+
+    @Test
     @DisplayName("Input policy constraints retain canonical values and count rejected parameter entries")
     void testInputPolicyConstraintsUseCanonicalVocabulary() {
         long now = System.currentTimeMillis();
