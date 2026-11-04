@@ -923,14 +923,16 @@ describe("MediaOperationClient", () => {
     })],
     ["synthesis", (client: ReturnType<typeof createMediaOperationClient>) => client.synthesize({
       text: "hello", voiceId: "voice-1", languageTag: "en", outputMimeType: "audio/wav",
+      rate: 1, pitch: 1, volume: 1,
       idempotencyKey: "synthesis-1",
     })],
     ["voice training", (client: ReturnType<typeof createMediaOperationClient>) => client.trainVoiceModel({
       name: "voice", sampleArtifactIds: ["artifact-1"], consentReference: "consent-1",
-      rightsAttestation: true, languageTags: ["en"], idempotencyKey: "training-1",
+      rightsAttestation: true, languageTags: ["en"], qualityThreshold: 0.8, idempotencyKey: "training-1",
     })],
     ["voice conversion", (client: ReturnType<typeof createMediaOperationClient>) => client.convertVoice({
       sourceArtifactId: "source-1", voiceModelArtifactId: "model-1", consentReference: "consent-1",
+      pitchShiftSemitones: 0, preserveTiming: true,
       idempotencyKey: "conversion-1",
     })],
     ["legacy job read", (client: ReturnType<typeof createMediaOperationClient>) => client.getOperation("job-1")],
