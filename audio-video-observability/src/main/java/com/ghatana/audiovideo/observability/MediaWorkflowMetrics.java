@@ -136,9 +136,13 @@ public final class MediaWorkflowMetrics {
             String scope) {
         public ProviderQualitySeriesSample {
             locale = locale == null ? "" : locale.trim();
-            if (!"aggregate".equals(locale) && !locale.matches("[a-z]{3}")) {
+            // Preserve the active Common Voice v27 locale spellings. Runtime metric
+            // labels are normalized to lowercase before they reach this type; other
+            // existing sources use ISO 639-3 tags such as `eng` and `hin`.
+            if (!"aggregate".equals(locale) && !locale.matches("[a-z]{3}")
+                    && !QUALITY_TWO_LETTER_LOCALES.contains(locale)) {
                 throw new IllegalArgumentException(
-                        "quality locale must be aggregate or a 3-letter source locale code");
+                        "quality locale must be aggregate or a supported source locale code");
             }
             if (metric == null || !QUALITY_METRICS.contains(metric)) {
                 throw new IllegalArgumentException("quality metric is outside the bounded vocabulary");
@@ -191,6 +195,7 @@ public final class MediaWorkflowMetrics {
             "wer_ci95_lower", "wer_ci95_upper");
     private static final Set<String> QUALITY_SCOPES = Set.of(
             "reference_only", "independent_qualified");
+    private static final Set<String> QUALITY_TWO_LETTER_LOCALES = Set.of("en", "ne-np");
 
     private final Map<Stage, Timer> stageTimers = new EnumMap<>(Stage.class);
     private final MeterRegistry registry;

@@ -117,6 +117,32 @@ class MediaRuntimeProviderQualityMetricsTest {
     }
 
     @Test
+    void scrapesCommonVoiceEnglishAndNepaliLocaleQualityRows() throws Exception {
+        Instant checkedAt = Instant.now();
+        var provider = new QualityProvider(checkedAt);
+        Instant measuredAt = checkedAt.minusSeconds(15);
+        var scope = MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY;
+        provider.rows = List.of(
+                qualityRow("en", MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                        0.25, measuredAt, scope),
+                qualityRow("en", MediaModalityContracts.ProviderQualityObservation.Metric.CER,
+                        0.11, measuredAt, scope),
+                qualityRow("ne-np", MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                        0.40, measuredAt, scope),
+                qualityRow("ne-np", MediaModalityContracts.ProviderQualityObservation.Metric.CER,
+                        0.18, measuredAt, scope));
+
+        try (var runtime = runtime(provider)) {
+            String scrape = runtime.prometheusMetrics();
+            assertQualityMetric(scrape, "en", "wer", "reference_only", "0.25");
+            assertQualityMetric(scrape, "en", "cer", "reference_only", "0.11");
+            assertQualityMetric(scrape, "ne-np", "wer", "reference_only", "0.4");
+            assertQualityMetric(scrape, "ne-np", "cer", "reference_only", "0.18");
+            assertThat(scrape).doesNotContain("report_sha256", "transcript", "tenant_id");
+        }
+    }
+
+    @Test
     void failedProfilePollInvalidatesPriorReadinessAndQualityButKeepsLastCheckTime() throws Exception {
         Instant checkedAt = Instant.now();
         var provider = new QualityProvider(checkedAt);

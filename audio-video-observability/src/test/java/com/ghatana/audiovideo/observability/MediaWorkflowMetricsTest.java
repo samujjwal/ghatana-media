@@ -398,6 +398,25 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void measuredQualitySeriesAcceptsSourceLocaleTagsUsedByCommonVoiceV27() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant now = Instant.parse("2026-11-03T12:00:00Z");
+
+        assertThat(metrics.recordProviderQualitySeries(
+                MediaWorkflowMetrics.Modality.STT, "whisper-provider", "whisper-v1",
+                "whisper-tiny", now, java.util.List.of(
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "en", "wer", 0.25, now, "reference_only"),
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "ne-np", "cer", 0.125, now, "reference_only")))).isTrue();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "en").tag("metric", "wer").gauge().value()).isEqualTo(0.25);
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("locale", "ne-np").tag("metric", "cer").gauge().value()).isEqualTo(0.125);
+    }
+
+    @Test
     void qualityRefreshRejectsConflictingEqualTimeAndFutureMeasurements() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
