@@ -8,6 +8,8 @@ const SOURCE_EXTENSIONS = new Set(['.java', '.kt', '.kts', '.ts', '.tsx', '.mts'
 const SKIP_DIRS = new Set(['node_modules', 'build', 'dist', 'target', '.gradle', 'coverage', '.turbo']);
 // This package's CommonJS build output is ignored and emitted from tracked src/ TypeScript.
 const GENERATED_SOURCE_DIRS = new Set(['libs/audio-video-client/dist-cjs']);
+// Isolated-consumer test fixture exercises the packed DI client, not a Media OCR runtime call site.
+const TEST_ONLY_SOURCE_FILES = new Set(['libs/audio-video-client/scripts/test-isolated-package-consumer.mjs']);
 const OCR_SIGNAL = /\bOcrService\b|\bKernelOcrProviderAdapter\b|\bOcrProvider\b|\bextractText\s*\(|\bVisionCapability\.OCR\b|\bpaddleocr\b|\bPaddleOCR\b|\btesseract\b|\bTesseract\b|\bDocumentIntelligenceSceneTextAdapter\b|\bDocumentIntelligenceV1\b|"media\.ocr"/u;
 const TEST_PATH = /(^|\/)(src\/test|__tests__|test|tests)\/|\.(test|spec)\.[cm]?[jt]sx?$/u;
 const VOCABULARY = new Set(['DI_MIGRATED', 'RETIRED', 'REQUIRES_WORK', 'NOT_OCR']);
@@ -28,6 +30,7 @@ function walk(root, relative, out) {
 export function scanMediaOcrSignals(root) {
   return SOURCE_ROOTS.flatMap(dir => walk(root, dir, []))
     .filter(file => !TEST_PATH.test(file))
+    .filter(file => !TEST_ONLY_SOURCE_FILES.has(file))
     .filter(file => OCR_SIGNAL.test(fs.readFileSync(path.join(root, file), 'utf8')))
     .sort();
 }
