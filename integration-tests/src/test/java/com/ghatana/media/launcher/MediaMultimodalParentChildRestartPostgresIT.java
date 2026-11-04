@@ -20,6 +20,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderDataRetention;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -34,6 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -84,7 +87,7 @@ class MediaMultimodalParentChildRestartPostgresIT {
             String tenant = "tenant-" + runId;
             String principal = UUID.randomUUID().toString();
             String requestId = "request-lost-ack-" + runId;
-            byte[] image = ("source-image-" + runId).getBytes(StandardCharsets.UTF_8);
+            byte[] image = validPng(0xff00ff00);
             var root = Files.createTempDirectory("media-mm-lost-ack-");
             ProcessingJob committed;
             String committedParentReceipt;
@@ -94,11 +97,17 @@ class MediaMultimodalParentChildRestartPostgresIT {
             headers.put(io.grpc.Metadata.Key.of(
                     "authorization", io.grpc.Metadata.ASCII_STRING_MARSHALLER),
                     "Bearer " + signedJwt(jwtSecret, tenant, principal));
-            try (MediaRuntime runtime = runtimeWithProviders(root, List.of(
+            try (MediaRuntime runtime = runtimeWithS3Artifacts(root, List.of(
                     new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider(),
                     visionProvider(effects)))) {
-                source = uploadBytes(runtime, tenant, principal,
-                        "source-" + runId, image, "image/png");
+                String imageSha = HexFormat.of().formatHex(
+                        MessageDigest.getInstance("SHA-256").digest(image));
+                var sourceUpload = runtime.beginUpload(new UploadRequest(
+                        tenant, principal, "vision-source", "image/png", image.length, imageSha,
+                        "CONFIDENTIAL", Duration.ofDays(2),
+                        Map.of("purpose", "multimodal-operation-ingest")), "source-" + runId);
+                runtime.appendChunk(tenant, principal, sourceUpload.uploadId(), 0, image);
+                source = runtime.completeUpload(tenant, principal, sourceUpload.uploadId());
                 var binding = com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding.newBuilder()
                         .setOperationVersion(1)
                         .setCapabilityRef("media.multimodal.observe.source-grounded")
@@ -159,7 +168,7 @@ class MediaMultimodalParentChildRestartPostgresIT {
             }
             assertThat(effects).hasValue(1);
 
-            try (MediaRuntime restarted = runtimeWithProviders(root, List.of(
+            try (MediaRuntime restarted = runtimeWithS3Artifacts(root, List.of(
                     new com.ghatana.audio.video.multimodal.engine.DelegatingMultimodalProvider(),
                     visionProvider(effects)));
                  var server = new com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcServer(
@@ -356,14 +365,38 @@ class MediaMultimodalParentChildRestartPostgresIT {
 
     private static MediaRuntime runtimeWithProviders(
             java.nio.file.Path root, List<MediaProcessingProvider> providers) {
+        return runtimeWithProviders(root, providers, new LocalMediaRuntimeSupport.FileArtifactStore(root));
+    }
+
+    private static MediaRuntime runtimeWithS3Artifacts(
+            java.nio.file.Path root, List<MediaProcessingProvider> providers) {
+        return runtimeWithProviders(root, providers,
+                new com.ghatana.media.provider.aws.S3PostgresqlMediaArtifactStore());
+    }
+
+    private static MediaRuntime runtimeWithProviders(
+            java.nio.file.Path root,
+            List<MediaProcessingProvider> providers,
+            com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore artifactStore) {
         var config = new MediaRuntimeConfig(true, "test", 8_093, 1_024, 1_024, 1_048_576,
                 Duration.ofSeconds(10), 8, "", "", false, false, root);
-        return new MediaRuntime(config, new LocalMediaRuntimeSupport.FileArtifactStore(root),
+        return new MediaRuntime(config, artifactStore,
                 new PostgresqlMediaJobStore(), new LocalMediaRuntimeSupport.StreamStore(), null,
                 MediaSemanticRedactionRuntime.disabled(config.jobTimeout()),
                 MediaLifecyclePublisher.disabled(), providers,
                 List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(),
                 allowAllAuthority(), transcriptStore(), Clock.systemUTC());
+    }
+
+    private static byte[] validPng(int argb) throws Exception {
+        var image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        image.setRGB(0, 0, argb);
+        try (var output = new ByteArrayOutputStream()) {
+            if (!ImageIO.write(image, "png", output)) {
+                throw new IllegalStateException("No PNG writer is available for the local test fixture");
+            }
+            return output.toByteArray();
+        }
     }
 
     // ── Providers / fixtures ────────────────────────────────────────────────
