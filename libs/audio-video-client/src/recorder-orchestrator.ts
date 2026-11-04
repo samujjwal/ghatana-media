@@ -267,6 +267,8 @@ export function changedSceneLineages(
   prior: OrchestrationResult,
   next: OrchestrationResult,
 ): { readonly carried: readonly string[]; readonly replanned: readonly string[]; readonly removed: readonly string[] } {
+  assertBoundedSceneRuns(prior, "prior");
+  assertBoundedSceneRuns(next, "next");
   const priorRuns = new Map(prior.sceneRuns.map((run) => [run.sceneId, run]));
   const carried: string[] = [];
   const replanned: string[] = [];
@@ -280,6 +282,30 @@ export function changedSceneLineages(
     .filter((run) => !nextSceneIds.has(run.sceneId))
     .map((run) => run.sceneId);
   return { carried, replanned, removed };
+}
+
+/** Keep this public diff helper within the same limits as scenario planning. */
+function assertBoundedSceneRuns(
+  plan: OrchestrationResult,
+  label: "prior" | "next",
+): void {
+  if (!plan || typeof plan !== "object" || !Array.isArray(plan.sceneRuns)) {
+    throw new ScenarioError("INVALID_SCENARIO", `${label} plan must contain scene runs`);
+  }
+  if (plan.sceneRuns.length > MAX_SCENES) {
+    throw new ScenarioError("INVALID_SCENARIO", `${label} plan exceeds ${MAX_SCENES} scenes`);
+  }
+  const seenSceneIds = new Set<string>();
+  for (const [index, run] of plan.sceneRuns.entries()) {
+    if (!run || typeof run !== "object") {
+      throw new ScenarioError("INVALID_SCENARIO", `${label} plan sceneRuns[${index}] must be an object`);
+    }
+    const sceneId = requireText(run.sceneId, `${label} plan sceneRuns[${index}].sceneId`);
+    if (seenSceneIds.has(sceneId)) {
+      throw new ScenarioError("INVALID_SCENARIO", `${label} plan has duplicate sceneId: ${sceneId}`);
+    }
+    seenSceneIds.add(sceneId);
+  }
 }
 
 /** Compare explicit material fields; lineageId is a stable declared ID, not a content digest. */

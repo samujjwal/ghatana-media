@@ -152,6 +152,27 @@ describe("orchestrateScenario", () => {
     });
   });
 
+  it("bounds and validates prior and next plans before computing lineage diffs", () => {
+    const plan = orchestrateScenario(scenario());
+    const oversized = {
+      ...plan,
+      sceneRuns: Array.from({ length: 257 }, (_, index) => ({
+        ...plan.sceneRuns[0]!, sceneId: `scene-${index}`,
+      })),
+    } as typeof plan;
+    expect(() => changedSceneLineages(oversized, plan))
+      .toThrowError(/prior plan exceeds 256 scenes/u);
+    expect(() => changedSceneLineages(plan, oversized))
+      .toThrowError(/next plan exceeds 256 scenes/u);
+
+    const duplicateScene = {
+      ...plan,
+      sceneRuns: [plan.sceneRuns[0]!, { ...plan.sceneRuns[1]!, sceneId: "intro" }],
+    };
+    expect(() => changedSceneLineages(duplicateScene, plan))
+      .toThrowError(/prior plan has duplicate sceneId/u);
+  });
+
   it("rejects unresolved actor refs and out-of-bounds narration", () => {
     expect(() => orchestrateScenario(scenario({
       scenes: [{ ...scenario().scenes[0]!, actorRefs: ["ghost"] }],
@@ -276,6 +297,7 @@ describe("orchestrateScenario", () => {
 });
 
 describe("recaptureScenario", () => {
+  // Deterministic test fixture only; it is not a real host/source capture receipt.
   const frame: CapturedFrame = {
     sourceIdentity: "browser/demo/intro",
     purposeRef: "purpose/demo-recording",
@@ -288,6 +310,7 @@ describe("recaptureScenario", () => {
 
   it("captures admitted scenes only; unadmitted fails closed with no frames", async () => {
     const plan = orchestrateScenario(scenario());
+    // This in-memory adapter is a fixture and does not enable a production provider.
     const adapter = { capture: async () => frame };
     // No adapter admitted → zero effects.
     await expect(recaptureScenario(
