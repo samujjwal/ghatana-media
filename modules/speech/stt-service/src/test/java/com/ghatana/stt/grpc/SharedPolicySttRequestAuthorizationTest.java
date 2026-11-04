@@ -108,6 +108,32 @@ class SharedPolicySttRequestAuthorizationTest {
     }
 
     @Test
+    void authoritativeAllowForAnotherSourceOrPurposeIsRejectedBeforeProviderDispatch() {
+        AudioVideoLibrary library = mock(AudioVideoLibrary.class);
+        SttEngine provider = mock(SttEngine.class);
+        when(library.getSttEngine()).thenReturn(provider);
+        when(provider.transcribe(any(AudioData.class), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("mismatched policy must not run", 0.9, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-model"));
+
+        assertRejectedBeforeProvider(library, authorization(
+                request -> CompletableFuture.completedFuture(decisionWithContext(request,
+                        context(request, request.principalId(), request.tenantId(),
+                                "another-source", request.attributes()))),
+                rightsResolver(admitted(SOURCE_FACTS), ignored -> admitted(SOURCE_FACTS))));
+        assertRejectedBeforeProvider(library, authorization(
+                request -> {
+                    var mismatchedPurpose = new java.util.HashMap<>(request.attributes());
+                    mismatchedPurpose.put("purpose", "urn:media:purpose:another-operation");
+                    return CompletableFuture.completedFuture(decisionWithContext(request,
+                            context(request, request.principalId(), request.tenantId(), request.targetId(),
+                                    mismatchedPurpose)));
+                },
+                rightsResolver(admitted(SOURCE_FACTS), ignored -> admitted(SOURCE_FACTS))));
+        verifyNoInteractions(provider);
+    }
+
+    @Test
     void expiredConsentFactsAreRejectedBeforePolicyEvaluationAndProviderDispatch() {
         AudioVideoLibrary library = mock(AudioVideoLibrary.class);
         SttEngine provider = mock(SttEngine.class);
@@ -324,8 +350,13 @@ class SharedPolicySttRequestAuthorizationTest {
     }
 
     private static PolicyDecisionRecord decisionWithTenant(PolicyEvaluationRequest request, String tenantId) {
+        return decisionWithContext(request, context(request, request.principalId(), tenantId));
+    }
+
+    private static PolicyDecisionRecord decisionWithContext(
+            PolicyEvaluationRequest request, PolicyEvaluationContext context) {
         PolicyDecisionRecord decision = decision(PolicyDecisionOutcome.ALLOW, true, null, request);
-        when(decision.context()).thenReturn(context(request, request.principalId(), tenantId));
+        when(decision.context()).thenReturn(context);
         return decision;
     }
 
@@ -335,12 +366,18 @@ class SharedPolicySttRequestAuthorizationTest {
 
     private static PolicyEvaluationContext context(
             PolicyEvaluationRequest request, String principalId, String tenantId) {
+        return context(request, principalId, tenantId, request.targetId(), request.attributes());
+    }
+
+    private static PolicyEvaluationContext context(
+            PolicyEvaluationRequest request, String principalId, String tenantId,
+            String targetId, Map<String, ?> attributes) {
         PrincipalIdentity identity = new PrincipalIdentity(
                 tenantId, principalId, null, Set.of(), Instant.now());
         return new PolicyEvaluationContext(
                 principalId, tenantId, request.actionClass(), request.targetType(),
-                request.targetId(), request.toolId(), request.criticality(), request.reversibility(),
-                Map.of(), Instant.now(), request.correlationId(),
+                targetId, request.toolId(), request.criticality(), request.reversibility(),
+                attributes, Instant.now(), request.correlationId(),
                 com.ghatana.governance.VerifiedPolicyContext.from(identity, request.correlationId()));
     }
 

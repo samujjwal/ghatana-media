@@ -194,6 +194,13 @@ final class SharedPolicySttRequestAuthorization implements SttRequestAuthorizati
                 && context.isTrusted()
                 && context.principalId().equals(request.principalId())
                 && context.tenantId().equals(request.tenantId())
+                && context.actionClass().equals(request.actionClass())
+                && context.targetType().equals(request.targetType())
+                && Objects.equals(context.targetId(), request.targetId())
+                && Objects.equals(context.toolId(), request.toolId())
+                && context.criticality().equals(request.criticality())
+                && context.reversibility().equals(request.reversibility())
+                && context.attributes().equals(request.attributes())
                 && Objects.equals(context.correlationId(), request.correlationId())
                 && context.verifiedContext() != null
                 && context.verifiedContext().principalId().equals(request.principalId())
