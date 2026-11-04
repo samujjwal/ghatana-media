@@ -344,11 +344,19 @@ open, close, or reroute traffic based on this warning.
 
 ## Durable lifecycle outbox replay and dead-letter handling
 
-The durable lifecycle outbox is the only supported way to publish Media
-lifecycle events in staging, production, and sovereign profiles. It provides
-at-least-once delivery with safe replay; it is not exactly-once. Consumers must
-be idempotent on the stable event ID and must treat redelivery after a
-broker-acknowledged send as normal operation.
+This section documents the current `media_processing_lifecycle_outbox`
+implementation. It provides at-least-once delivery for eligible pending rows;
+it is not exactly-once, and it has no operator replay API for dead-lettered
+rows. Consumers must be idempotent on the stable event ID and treat redelivery
+after a broker-acknowledged send as normal operation.
+
+The repository still contains two outbox generations, and the deployed active
+writer and production cutover have not been verified. This section does not
+establish which publisher is canonical in a deployment or authorize running a
+second Media writer against shared state. Until the E01 ownership decision and
+M08 cutover evidence are complete, apply this as the behavior of the local
+`media_processing_lifecycle_outbox` source only, not as a production replay or
+cutover procedure.
 
 - State and outbox rows are written in the same transaction as the Media state
   transition. A crash after commit but before broker send, or after broker ACK
@@ -359,10 +367,14 @@ broker-acknowledged send as normal operation.
 - Failed publications retry with bounded backoff until the retry budget is
   exhausted, after which the event is dead-lettered rather than dropped or
   retried forever. A growing dead-letter set is an alert condition.
-- To replay, restore Event Plane connectivity and let the publisher reclaim
-  pending and dead-lettered rows in order. Replaying a dead-lettered event is
-  safe for idempotent consumers; investigate the poison payload before replay
-  so the same failure does not immediately re-dead-letter it.
+- Restoring Event Plane connectivity lets the publisher reclaim eligible
+  pending rows. Dead-lettered rows are terminal in the current Media publisher:
+  claim selection excludes them and there is no operator replay API. Do not
+  reset their database fields or edit the payload to force delivery. Record the
+  event ID and dead-letter reason, investigate the failure, and use an
+  owner-approved recovery procedure once one exists. Until then, report the
+  event as unresolved and reconcile downstream state from the durable Media
+  source of truth where an authorized read path exists.
 - Do not edit, delete, or synthesize outbox rows by hand to force delivery.
   If Media local/durable state and Event Plane diverge, reconcile from the
   durable Media state as the source of truth and record the discrepancy.
