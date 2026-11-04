@@ -47,6 +47,30 @@ takes an untyped string, shared tokens `RUNNING`, `FAILED`, and
 (`OUTCOME_UNKNOWN` becomes the explicit unknown envelope); this API cannot carry the attempt-state
 meaning for those same tokens.
 
+The complete attempt-vocabulary boundary is:
+
+| Media logical attempt state | Result when supplied as the adapter's `jobState` argument | Meaning retained by this adapter |
+| --- | --- | --- |
+| `CLAIMED` | rejected as an unmapped job state | no attempt-state field exists in `RunLedger` |
+| `DISPATCH_INTENT_RECORDED` | rejected as an unmapped job state | no attempt-state field exists in `RunLedger` |
+| `DISPATCHED` | rejected as an unmapped job state | no attempt-state field exists in `RunLedger` |
+| `RUNNING` | maps under aggregate-job meaning to `RUNNING`, no outcome | supplied attempt number is retained, but attempt state is not distinguished |
+| `CANCEL_REQUESTED` | rejected as an unmapped job state | pass the explicit whitelisted `cancellationState=REQUESTED` fact separately; it does not finalize the job |
+| `SUCCEEDED` | rejected as an unmapped job state | only aggregate `COMPLETED` supplies successful job finality |
+| `FAILED` | maps under aggregate-job meaning to `COMPLETED` + `FAILED` outcome | supplied attempt number is retained, but attempt failure cannot be distinguished from job failure |
+| `CANCEL_CONFIRMED` | rejected as an unmapped job state | pass `cancellationState=CONFIRMED` separately; aggregate finality still requires job `CANCELLED` |
+| `OUTCOME_UNKNOWN` | maps under aggregate-job meaning to the marked `PENDING`/`UNKNOWN` envelope | preserves uncertainty without claiming attempt or job progress/finality |
+| `SUPERSEDED` | rejected as an unmapped job state | no attempt-state field exists in `RunLedger` |
+
+These are input-boundary classifications, not conversion of an attempt
+state-machine record into a job record. The only attempt identity carried by
+the current public ledger contract is the caller-supplied `attemptNumber`;
+there is no attempt status or immutable attempt ID field. Source-provided
+tenant, request fingerprint/ID, source version/digest, principal, and rights
+authority remain explicit input headers when they pass the adapter's existing
+validation. A provider name or provider job reference does not supply any of
+those source facts.
+
 The quality-disposition states (`NOT_ASSESSED`, `ASSESSING`, `PASS`, `FAIL`,
 `ABSTAINED`, `REVIEW_REQUIRED`, `SUPERSEDED`) and delivery states
 (`NOT_STARTED`, `PREPARING`, `READY_FOR_AUTHORIZED_DELIVERY`, `SUBMITTED`,

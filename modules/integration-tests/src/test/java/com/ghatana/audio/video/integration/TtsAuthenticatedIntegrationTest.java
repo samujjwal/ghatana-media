@@ -239,6 +239,37 @@ class TtsAuthenticatedIntegrationTest extends EventloopTestBase {
     }
 
     @Test
+    @DisplayName("GIVEN authenticated empty synthesis input WHEN sent over gRPC or directly THEN the same validation error occurs without effects")
+    void emptyText_hasSameDirectAndTransportErrorWithoutEffects() {
+        String jwt = generateTestJwt(TEST_TENANT_ID, TEST_USER_ID);
+        Metadata headers = new Metadata();
+        headers.put(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER), "Bearer " + jwt);
+        SynthesizeRequest request = SynthesizeRequest.newBuilder()
+            .setText("")
+            .build();
+
+        io.grpc.StatusRuntimeException transportError = org.junit.jupiter.api.Assertions.assertThrows(
+            io.grpc.StatusRuntimeException.class,
+            () -> blockingStub.withInterceptors(new TestClientInterceptor(headers)).synthesize(request));
+
+        CapturingObserver<SynthesizeResponse> direct = new CapturingObserver<>();
+        io.grpc.Context.current()
+            .withValue(JwtServerInterceptor.CTX_TENANT, TEST_TENANT_ID)
+            .withValue(JwtServerInterceptor.CTX_SUBJECT, TEST_USER_ID)
+            .run(() -> grpcService.synthesize(request, direct));
+
+        assertThat(transportError.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.INVALID_ARGUMENT);
+        assertThat(transportError.getStatus().getDescription()).isEqualTo("Text cannot be empty");
+        assertThat(direct.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
+        io.grpc.StatusRuntimeException directError = (io.grpc.StatusRuntimeException) direct.error;
+        assertThat(directError.getStatus().getCode()).isEqualTo(transportError.getStatus().getCode());
+        assertThat(directError.getStatus().getDescription()).isEqualTo(transportError.getStatus().getDescription());
+
+        // Validation must happen before persistence/provider lookup for both entry paths.
+        verifyNoInteractions(audioFileService, ttsEngine, library);
+    }
+
+    @Test
     @Order(8)
     @DisplayName("GIVEN blank JWT subject WHEN synthesize THEN request fails before provider or storage effects")
     void jwtBlankSubject_failsUnauthenticatedWithoutEffects() {
