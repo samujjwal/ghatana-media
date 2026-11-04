@@ -1900,16 +1900,25 @@ mod tests {
 
     #[test]
     fn resampler_attenuates_alias_content() {
-        // 20 kHz source content is above the 4 kHz Nyquist edge of an 8 kHz
-        // target and must be attenuated before sampling, not folded.
-        let input = sine_buffer(48_000, 1, 4_800, 20_000.0);
-        let output = Resampler::new(8_000).resample(&input).unwrap();
+        // Out-of-band tones must be attenuated before sampling across distinct
+        // downsampling ratios, not folded into audible target-band aliases.
+        // These synthetic vectors exercise this kernel only; they do not
+        // establish a general stop-band specification.
+        for (source_rate, target_rate, frequency_hz) in [
+            (48_000u32, 8_000u32, 20_000.0),
+            (44_100, 16_000, 12_000.0),
+            (24_000, 8_000, 10_000.0),
+        ] {
+            let frames = source_rate as usize / 5;
+            let input = sine_buffer(source_rate, 1, frames, frequency_hz);
+            let output = Resampler::new(target_rate).resample(&input).unwrap();
+            let alias_rms = rms(&output.samples);
 
-        assert!(
-            rms(&output.samples) < 0.02,
-            "alias energy leaked: {}",
-            rms(&output.samples)
-        );
+            assert!(
+                alias_rms < 0.02,
+                "alias energy leaked for {source_rate}->{target_rate} Hz at {frequency_hz} Hz: {alias_rms}"
+            );
+        }
     }
 
     #[test]
