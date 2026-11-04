@@ -1923,11 +1923,22 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             try {
                 profiles = provider.capabilityProfiles();
             } catch (RuntimeException failure) {
+                String providerId = safeText(provider::providerId, "unknown");
+                if (!providerId.equals("unknown")) {
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                }
                 log.warn("Media provider profile poll failed provider={} failureType={}",
-                        safeText(provider::providerId, "unknown"), failure.getClass().getSimpleName());
+                        providerId, failure.getClass().getSimpleName());
                 continue;
             }
-            if (profiles == null) continue;
+            if (profiles == null || profiles.isEmpty()) {
+                String providerId = safeText(provider::providerId, "unknown");
+                if (!providerId.equals("unknown")) {
+                    workflowMetrics.markProviderProfileObservationUnknown(providerId);
+                }
+                log.warn("Media provider profile poll returned no snapshot provider={}", providerId);
+                continue;
+            }
             for (MediaModalityContracts.CapabilityProfile profile : profiles) {
                 if (profile == null || profile.modelVersions().isEmpty()) continue;
                 MediaWorkflowMetrics.Modality modality = switch (profile.modality()) {

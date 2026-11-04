@@ -433,6 +433,45 @@ class MediaWorkflowMetricsTest {
     }
 
     @Test
+    void unknownProviderPollClearsCurrentValuesButRetainsOrderingTimestamps() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+        Instant checkedAt = Instant.parse("2026-10-30T12:00:00Z");
+        Instant qualityAt = checkedAt.minusSeconds(60);
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                new MediaWorkflowMetrics.ProviderProfileObservation("provider", "v1", "profile",
+                        "revision", MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                        checkedAt, qualityAt))).isTrue();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "revision", checkedAt, java.util.List.of(
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "eng", "wer", 0.2, qualityAt, "reference_only"),
+                        new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                                "eng", "cer", 0.1, qualityAt, "reference_only")))).isTrue();
+
+        metrics.markProviderProfileObservationUnknown("provider");
+
+        assertThat(registry.get("media.provider.profile.readiness")
+                .tag("provider_id", "provider").gauge().value()).isNaN();
+        assertThat(registry.get("media.provider.profile.checked_at_seconds")
+                .tag("provider_id", "provider").gauge().value()).isEqualTo(checkedAt.getEpochSecond());
+        assertThat(registry.get("media.provider.quality.observation_timestamp_seconds")
+                .tag("provider_id", "provider").gauge().value()).isNaN();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("provider_id", "provider").tag("metric", "wer").gauge().value()).isNaN();
+        assertThat(registry.get("media.provider.quality.measured_value")
+                .tag("provider_id", "provider").tag("metric", "cer").gauge().value()).isNaN();
+
+        // The original check/refresh points still fence out late data.
+        assertThat(metrics.recordProviderProfile(MediaWorkflowMetrics.Modality.STT,
+                new MediaWorkflowMetrics.ProviderProfileObservation("provider", "v1", "profile",
+                        "revision", MediaWorkflowMetrics.ProviderReadiness.HEALTHY,
+                        checkedAt.minusSeconds(1), qualityAt))).isFalse();
+        assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                "provider", "v1", "revision", checkedAt.minusSeconds(1), java.util.List.of())).isFalse();
+    }
+
+    @Test
     void emptyQualityRefreshGroupsAndMetricIdentitiesAreBounded() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");

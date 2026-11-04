@@ -386,6 +386,30 @@ public final class MediaWorkflowMetrics {
         }
     }
 
+    /**
+     * Invalidate current provider health and measured-quality values after an
+     * inconclusive provider poll. Check/refresh timestamps remain intact so the
+     * existing ordering guards continue to reject stale observations.
+     */
+    public void markProviderProfileObservationUnknown(String providerId) {
+        if (providerId == null) return;
+        synchronized (providerProfileLock) {
+            providerProfiles.forEach((key, gauges) -> {
+                if (key.providerId().equals(providerId)) {
+                    synchronized (gauges) {
+                        gauges.readiness.set(Double.NaN);
+                        gauges.qualityObservedAt.set(Double.NaN);
+                    }
+                }
+            });
+        }
+        synchronized (providerQualityLock) {
+            providerQualitySeries.forEach((key, value) -> {
+                if (key.providerId().equals(providerId)) value.set(Double.NaN);
+            });
+        }
+    }
+
     private void registerProviderGauges(ProviderProfileKey key, ProviderProfileGauges gauges) {
         var tags = io.micrometer.core.instrument.Tags.of(
                 "service", safeService,

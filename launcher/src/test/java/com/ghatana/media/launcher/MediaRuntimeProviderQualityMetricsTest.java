@@ -116,6 +116,67 @@ class MediaRuntimeProviderQualityMetricsTest {
         }
     }
 
+    @Test
+    void failedProfilePollInvalidatesPriorReadinessAndQualityButKeepsLastCheckTime() throws Exception {
+        Instant checkedAt = Instant.now();
+        var provider = new QualityProvider(checkedAt);
+        Instant measuredAt = checkedAt.minusSeconds(15);
+        provider.source = new MediaModalityContracts.ProviderQualityObservation(
+                "quality-test", "quality-test-v1", JobType.SPEECH_TO_TEXT, "model-r1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt, "a".repeat(64));
+        provider.rows = List.of(qualityRow("eng",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt,
+                MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY));
+
+        try (var runtime = runtime(provider)) {
+            String before = runtime.prometheusMetrics();
+            assertThat(metricLine(before, "media_provider_profile_readiness")).doesNotContain("NaN");
+            assertThat(qualityLine(before)).doesNotContain("NaN");
+            assertThat(qualityMetricLine(before, "eng", "wer", "reference_only")).endsWith(" 0.2");
+
+            provider.failProfiles = true;
+            String after = runtime.prometheusMetrics();
+
+            assertThat(metricLine(after, "media_provider_profile_readiness")).endsWith(" NaN");
+            assertThat(qualityLine(after)).endsWith(" NaN");
+            assertThat(qualityMetricLine(after, "eng", "wer", "reference_only")).endsWith(" NaN");
+            String checkedAtLine = metricLine(after, "media_provider_profile_checked_at_seconds");
+            double retainedCheckedAt = Double.parseDouble(
+                    checkedAtLine.substring(checkedAtLine.lastIndexOf(' ') + 1));
+            assertThat(retainedCheckedAt).isBetween(
+                    (double) checkedAt.getEpochSecond(), (double) checkedAt.getEpochSecond() + 1.0);
+        }
+    }
+
+    @Test
+    void emptyProfileSnapshotInvalidatesPriorReadinessAndQuality() throws Exception {
+        Instant checkedAt = Instant.now();
+        var provider = new QualityProvider(checkedAt);
+        Instant measuredAt = checkedAt.minusSeconds(15);
+        provider.source = new MediaModalityContracts.ProviderQualityObservation(
+                "quality-test", "quality-test-v1", JobType.SPEECH_TO_TEXT, "model-r1",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt, "a".repeat(64));
+        provider.rows = List.of(qualityRow("eng",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.2, measuredAt,
+                MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY));
+
+        try (var runtime = runtime(provider)) {
+            String before = runtime.prometheusMetrics();
+            assertThat(qualityMetricLine(before, "eng", "wer", "reference_only")).endsWith(" 0.2");
+
+            provider.returnEmptyProfiles = true;
+            String after = runtime.prometheusMetrics();
+
+            assertThat(metricLine(after, "media_provider_profile_readiness")).endsWith(" NaN");
+            assertThat(qualityLine(after)).endsWith(" NaN");
+            assertThat(qualityMetricLine(after, "eng", "wer", "reference_only")).endsWith(" NaN");
+        }
+    }
+
     private static MediaModalityContracts.ProviderQualityObservation qualityRow(
             String locale, MediaModalityContracts.ProviderQualityObservation.Metric metric,
             double value, Instant measuredAt,
@@ -172,6 +233,11 @@ class MediaRuntimeProviderQualityMetricsTest {
                 .findFirst().orElseThrow();
     }
 
+    private static String metricLine(String scrape, String metricName) {
+        return scrape.lines().filter(line -> line.startsWith(metricName + "{"))
+                .findFirst().orElseThrow();
+    }
+
     private static MediaRuntime runtime(QualityProvider provider) throws Exception {
         var root = Files.createTempDirectory("media-provider-quality-");
         return new MediaRuntime(
@@ -192,6 +258,8 @@ class MediaRuntimeProviderQualityMetricsTest {
         private volatile Instant checkedAt;
         private volatile MediaModalityContracts.ProviderQualityObservation source;
         private volatile List<MediaModalityContracts.ProviderQualityObservation> rows = List.of();
+        private volatile boolean failProfiles;
+        private volatile boolean returnEmptyProfiles;
 
         private QualityProvider(Instant checkedAt) { this.checkedAt = checkedAt; }
 
@@ -206,6 +274,8 @@ class MediaRuntimeProviderQualityMetricsTest {
             return CompletableFuture.completedFuture(Map.of());
         }
         @Override public List<MediaModalityContracts.CapabilityProfile> capabilityProfiles() {
+            if (failProfiles) throw new IllegalStateException("source profile poll unavailable");
+            if (returnEmptyProfiles) return List.of();
             var health = new MediaModalityContracts.ProviderHealth(
                     providerId(), providerVersion(),
                     MediaModalityContracts.ProviderHealthStatus.HEALTHY,
