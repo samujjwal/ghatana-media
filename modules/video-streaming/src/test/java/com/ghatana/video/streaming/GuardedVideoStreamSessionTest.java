@@ -3,6 +3,7 @@ package com.ghatana.video.streaming;
 import com.ghatana.video.streaming.GuardedVideoStreamSession.ConsentDecision;
 import com.ghatana.video.streaming.GuardedVideoStreamSession.ConsentDeniedException;
 import com.ghatana.video.streaming.GuardedVideoStreamSession.FrameVerdict;
+import com.ghatana.video.streaming.GuardedVideoStreamSession.ProviderOutcomeUnknownException;
 import com.ghatana.video.streaming.GuardedVideoStreamSession.StaleLeaseException;
 import com.ghatana.video.streaming.VideoFrameReconciler.SessionIdentity;
 import org.junit.jupiter.api.DisplayName;
@@ -309,9 +310,16 @@ class GuardedVideoStreamSessionTest {
 
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted, f -> {
             attempts.incrementAndGet();
-            throw new IllegalStateException("provider outcome unknown");
-        })).isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("outcome unknown");
+            throw new IllegalStateException("provider-token=should-not-escape");
+        })).isInstanceOf(ProviderOutcomeUnknownException.class)
+                .hasMessageContaining("outcome is unknown")
+                .satisfies(error -> {
+                    ProviderOutcomeUnknownException unknown =
+                            (ProviderOutcomeUnknownException) error;
+                    assertThat(unknown.sequenceNumber()).isZero();
+                    assertThat(unknown.getCause()).isNull();
+                    assertThat(unknown.getMessage()).doesNotContain("provider-token");
+                });
         assertThatThrownBy(() -> session.egress("worker-a", 1L, admitted,
                 f -> attempts.incrementAndGet()))
                 .isInstanceOf(IllegalArgumentException.class)

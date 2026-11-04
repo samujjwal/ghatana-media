@@ -109,6 +109,23 @@ public final class GuardedVideoStreamSession {
         }
     }
 
+    /**
+     * The egress sink failed after dispatch began, so the provider effect may
+     * have happened. The consumed candidate cannot be replayed safely.
+     */
+    public static final class ProviderOutcomeUnknownException extends RuntimeException {
+        private final int sequenceNumber;
+
+        ProviderOutcomeUnknownException(int sequenceNumber) {
+            super("video provider egress outcome is unknown for frame " + sequenceNumber);
+            this.sequenceNumber = sequenceNumber;
+        }
+
+        public int sequenceNumber() {
+            return sequenceNumber;
+        }
+    }
+
     /** External provider/capture egress sink; reached only under lease+consent. */
     @FunctionalInterface
     public interface ProviderEgress {
@@ -268,7 +285,12 @@ public final class GuardedVideoStreamSession {
                     "video frame was not delivered as a decodable frame or was already egressed");
         }
         egressCandidates.remove(snapshot.sequenceNumber());
-        sink.accept(snapshot);
+        try {
+            sink.accept(snapshot);
+        } catch (RuntimeException ignored) {
+            // Provider exception text and type may contain sensitive details.
+            throw new ProviderOutcomeUnknownException(snapshot.sequenceNumber());
+        }
     }
 
     /** Client transport detach — the session stays resumable under its lease. */
