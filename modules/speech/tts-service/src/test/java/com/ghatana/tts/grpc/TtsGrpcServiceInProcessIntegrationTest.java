@@ -224,11 +224,14 @@ class TtsGrpcServiceInProcessIntegrationTest {
                     "{\"phoneme_id_map\":{\"^\":[1],\"$\":[2],\"_\":[0]}}\n");
             String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                     .digest(Files.readAllBytes(model)));
+            String sidecarDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(Files.readAllBytes(Path.of(model.toString() + ".json"))));
             Map<String, String> environment = Map.ofEntries(
                     Map.entry("TTS_PROVIDER_MODE", "LOCAL_ONNX"),
                     Map.entry("TTS_MODEL_ID", "fixture-model"),
                     Map.entry("TTS_MODEL_VERSION", "fixture-version"),
                     Map.entry("TTS_MODEL_SHA256", digest),
+                    Map.entry("TTS_VOICE_SIDECAR_SHA256", sidecarDigest),
                     Map.entry("TTS_MODEL_LICENSE", "test-fixture-placeholder"),
                     Map.entry("TTS_MODEL_LANGUAGE", "en-US"),
                     Map.entry("TTS_MODEL_REGION", "test-fixture-region"),

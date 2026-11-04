@@ -227,7 +227,7 @@ class ProductionVisionGrpcServiceRpcMatrixTest {
         assertCode(() -> unauthenticated.classifyImage(ClassifyRequest.getDefaultInstance()), Status.Code.UNAUTHENTICATED);
         assertCode(() -> unauthenticated.analyzeVideoFile(VideoFileRequest.getDefaultInstance()), Status.Code.UNAUTHENTICATED);
         assertProcessVideoFailure(VisionServiceGrpc.newStub(channel), VideoFrameRequest.getDefaultInstance(),
-                Status.Code.UNAUTHENTICATED, "Missing Bearer token");
+                Status.Code.UNAUTHENTICATED, JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
         assertCode(() -> unauthenticated.loadModel(LoadModelRequest.getDefaultInstance()), Status.Code.UNAUTHENTICATED);
         assertCode(() -> unauthenticated.unloadModel(UnloadModelRequest.getDefaultInstance()), Status.Code.UNAUTHENTICATED);
         assertCode(() -> unauthenticated.listModels(ListModelsRequest.getDefaultInstance()), Status.Code.UNAUTHENTICATED);

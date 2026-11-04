@@ -217,7 +217,8 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
         );
 
         assertThat(exception.getStatus().getCode()).isEqualTo(io.grpc.Status.Code.UNAUTHENTICATED);
-        assertThat(exception.getStatus().getDescription()).contains("Missing Bearer token");
+        assertThat(exception.getStatus().getDescription())
+            .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
 
         // Direct invocation without an authenticated gRPC context must fail with the same
         // status and before any provider or persistence boundary, matching interceptor denial.
@@ -226,6 +227,8 @@ class SttAuthenticatedIntegrationTest extends EventloopTestBase {
         assertThat(direct.error).isInstanceOf(io.grpc.StatusRuntimeException.class);
         assertThat(((io.grpc.StatusRuntimeException) direct.error).getStatus().getCode())
             .isEqualTo(exception.getStatus().getCode());
+        assertThat(((io.grpc.StatusRuntimeException) direct.error).getStatus().getDescription())
+            .isEqualTo(exception.getStatus().getDescription());
 
         verifyNoInteractions(audioFileService, transcriptionService, sttEngine);
     }

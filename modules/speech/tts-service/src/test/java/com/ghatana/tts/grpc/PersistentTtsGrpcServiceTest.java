@@ -111,6 +111,8 @@ class PersistentTtsGrpcServiceTest {
 
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
     }
 
     @Test
@@ -220,6 +222,8 @@ class PersistentTtsGrpcServiceTest {
             synthesisService.synthesize(SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
 
         assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
         verifyNoInteractions(persistentTtsService);
     }
 
@@ -231,6 +235,8 @@ class PersistentTtsGrpcServiceTest {
             synthesisService.synthesize(SynthesizeRequest.newBuilder().setText(TEXT).build(), observer));
 
         assertThat(statusCode(observer)).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(((StatusRuntimeException) observer.error).getStatus().getDescription())
+                .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
         verifyNoInteractions(persistentTtsService);
     }
 

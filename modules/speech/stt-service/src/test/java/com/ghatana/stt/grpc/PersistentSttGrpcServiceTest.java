@@ -142,7 +142,8 @@ class PersistentSttGrpcServiceTest {
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
         StatusRuntimeException failure = (StatusRuntimeException) observer.error;
         assertThat(failure.getStatus().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED);
-        assertThat(failure.getStatus().getDescription()).isEqualTo("Authenticated identity required");
+        assertThat(failure.getStatus().getDescription())
+                .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
     }
 
     @Test
@@ -152,8 +153,10 @@ class PersistentSttGrpcServiceTest {
         Context.current().withValue(JwtServerInterceptor.CTX_SUBJECT, USER_ID).run(() ->
                 service.transcribe(TranscribeRequest.newBuilder().setAudioData(AUDIO).build(), observer));
         assertThat(observer.error).isInstanceOf(StatusRuntimeException.class);
-        assertThat(((StatusRuntimeException) observer.error).getStatus().getCode())
-            .isEqualTo(Status.UNAUTHENTICATED.getCode());
+        StatusRuntimeException failure = (StatusRuntimeException) observer.error;
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.UNAUTHENTICATED.getCode());
+        assertThat(failure.getStatus().getDescription())
+                .isEqualTo(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
         verifyNoInteractions(persistentSttService);
         assertThat(MDC.get("tenantId")).isNull();
         assertThat(MDC.get("userId")).isNull();

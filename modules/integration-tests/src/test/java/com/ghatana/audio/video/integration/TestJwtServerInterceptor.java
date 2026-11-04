@@ -75,7 +75,8 @@ public class TestJwtServerInterceptor implements ServerInterceptor {
         String authHeader = headers.get(AUTHORIZATION_KEY);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             LOG.warn("Missing or malformed Authorization header on {}", fullMethod);
-            call.close(Status.UNAUTHENTICATED.withDescription("Missing Bearer token"), new Metadata());
+            call.close(Status.UNAUTHENTICATED.withDescription(
+                    JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION), new Metadata());
             return new ServerCall.Listener<>() {};
         }
 

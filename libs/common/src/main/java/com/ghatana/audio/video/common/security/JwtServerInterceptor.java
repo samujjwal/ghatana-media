@@ -51,6 +51,10 @@ public class JwtServerInterceptor implements ServerInterceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(JwtServerInterceptor.class);
 
+    /** Shared unauthenticated outcome for an absent verified tenant/principal at any service boundary. */
+    public static final String AUTHENTICATION_REQUIRED_DESCRIPTION =
+            "AUTHENTICATION_REQUIRED: verified tenant and subject are required";
+
     /** gRPC {@link Context} key carrying the validated JWT subject. */
     public static final Context.Key<String> CTX_SUBJECT = Context.key("av.jwt.subject");
     /** gRPC {@link Context} key carrying the validated tenant ID. */
@@ -142,7 +146,7 @@ public class JwtServerInterceptor implements ServerInterceptor {
         String authHeader = headers.get(AUTHORIZATION_KEY);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             LOG.warn("Missing or malformed Authorization header on {}", fullMethod);
-            call.close(Status.UNAUTHENTICATED.withDescription("Missing Bearer token"), new Metadata());
+            call.close(Status.UNAUTHENTICATED.withDescription(AUTHENTICATION_REQUIRED_DESCRIPTION), new Metadata());
             return new ServerCall.Listener<>() {};
         }
 

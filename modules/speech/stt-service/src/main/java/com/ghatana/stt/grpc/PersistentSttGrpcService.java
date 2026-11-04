@@ -54,7 +54,7 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
         String principalId = identity == null ? null : identity.subject();
         if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
             observer.onError(io.grpc.Status.UNAUTHENTICATED
-                    .withDescription("STT_IDENTITY_REQUIRED: authenticated tenant and subject are required")
+                    .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                     .asRuntimeException());
             return false;
         }
@@ -269,7 +269,8 @@ public class PersistentSttGrpcService extends STTServiceGrpc.STTServiceImplBase 
     io.grpc.Status toGrpcStatus(Throwable e) {
         if (e instanceof SecurityException) {
             LOG.warn("STT authenticated identity rejected failureType={}", failureType(e));
-            return io.grpc.Status.UNAUTHENTICATED.withDescription("Authenticated identity required");
+            return io.grpc.Status.UNAUTHENTICATED
+                    .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION);
         }
         if (e instanceof IllegalArgumentException) {
             LOG.warn("STT transcribe validation failed failureType={}", failureType(e));

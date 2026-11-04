@@ -55,14 +55,14 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
 
         if (tenantId == null || tenantId.isEmpty()) {
             responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant ID")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
 
         if (userIdStr == null || userIdStr.isBlank()) {
             responseObserver.onError(Status.UNAUTHENTICATED
-                .withDescription("Missing authenticated subject")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
@@ -71,7 +71,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             userId = UUID.fromString(userIdStr);
         } catch (IllegalArgumentException exception) {
             responseObserver.onError(Status.UNAUTHENTICATED
-                .withDescription("Authenticated subject is not a supported principal identifier")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
@@ -173,7 +173,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         String tenantId = getTenantId();
         if (tenantId == null || tenantId.isEmpty()) {
             responseObserver.onError(io.grpc.Status.UNAUTHENTICATED
-                .withDescription("Missing tenant ID")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
@@ -181,7 +181,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
         String userId = getUserId();
         if (userId == null || userId.isBlank()) {
             responseObserver.onError(Status.UNAUTHENTICATED
-                .withDescription("Missing authenticated subject")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
@@ -189,7 +189,7 @@ public class PersistentTtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase 
             UUID.fromString(userId);
         } catch (IllegalArgumentException invalidSubject) {
             responseObserver.onError(Status.UNAUTHENTICATED
-                .withDescription("Authenticated subject is not a supported principal identifier")
+                .withDescription(JwtServerInterceptor.AUTHENTICATION_REQUIRED_DESCRIPTION)
                 .asRuntimeException());
             return;
         }
