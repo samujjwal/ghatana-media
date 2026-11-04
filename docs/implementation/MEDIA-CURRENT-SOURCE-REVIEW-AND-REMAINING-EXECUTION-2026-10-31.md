@@ -4611,3 +4611,7 @@ These results do not prove installed Shared cache compatibility, production reso
 ### 43.223 November 4 TY-02 contract-boundary inspection
 
 `libs/audio-video-types` already enforces safe integer limits, exact decimal-string int64 parsing, bounded request/result collections, closed enums, immutable revision references and typed error categories without adding wire fields. No concrete TY-02 implementation gap was found, so no source changed. Focused `pnpm --filter @audio-video/types test` and `typecheck` could not run because this checkout lacks `vitest` and `tsc`; no dependency installation or network access was attempted. This remains source inspection, not a test PASS or a Wave 3 status change.
+
+### 43.224 November 4 MC-02 media decode-bound verification
+
+No code change was needed in `AudioConverter`, `AudioMetadataExtractor`, or `MediaFormatValidator`: current code caps materialized samples and encoded image bytes before allocation, validates unsigned WAV sizes and codec signatures, and bounds dimensions/pixel multiplication with wide arithmetic. `AudioConverterTest` passed **17/17** and `MediaFormatValidatorQualificationTest` **19/19** on Temurin JDK 27. These synthetic unit fixtures do not establish output quality or production codec qualification; no Wave 3 status changed.
