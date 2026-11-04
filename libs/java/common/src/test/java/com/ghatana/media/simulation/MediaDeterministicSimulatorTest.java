@@ -127,6 +127,23 @@ class MediaDeterministicSimulatorTest {
     }
 
     @Test
+    void adaptiveResumeRejectsFiniteCheckpointStateOutsideBoundTrajectory() {
+        var simulator = new MediaDeterministicSimulator();
+        var ir = new SimulationModelIR(
+                newtonModel(0.5), new InitialState(0, 0), BoundaryCondition.UNCONSTRAINED_1D);
+        var genuine = simulator.runAdaptive(ir, 42L, 1.0, 0.01).checkpoint();
+        var corrupted = new AdaptiveCheckpoint(genuine.acceptedStep(), genuine.simulationTimeSeconds(),
+                genuine.positionMeters() + 1.0, genuine.velocityMetersPerSecond(), genuine.seed(),
+                genuine.nextStepSizeSeconds(), genuine.minimumStepSeconds(), genuine.modelFingerprint());
+
+        var result = simulator.resumeAdaptive(ir, corrupted, 42L, 2.0);
+
+        assertThat(result.verdict()).isEqualTo(Verdict.ABSTAIN);
+        assertThat(result.abstainReason()).contains("checkpoint state");
+        assertThat(result.checkpoint()).isEqualTo(corrupted);
+    }
+
+    @Test
     void adaptiveStepperReportsStepLimitAndRejectsInvalidDurationBounds() {
         var simulator = new MediaDeterministicSimulator();
         var oneStepModel = new ModelSpec("constant-force", "1.0.0", "SI", 2.0, 6.0, 0.5, 1, 1e-9);

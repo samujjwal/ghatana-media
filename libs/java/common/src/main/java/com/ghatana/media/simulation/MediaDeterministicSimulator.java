@@ -272,6 +272,10 @@ public final class MediaDeterministicSimulator {
             return new AdaptiveResult(Verdict.ABSTAIN, List.of(), from,
                     "checkpoint model binding does not match requested model IR");
         }
+        if (!adaptiveCheckpointMatchesModel(modelIr, from)) {
+            return new AdaptiveResult(Verdict.ABSTAIN, List.of(), from,
+                    "checkpoint state does not match bound model trajectory");
+        }
         if (!Double.isFinite(durationSeconds) || durationSeconds <= from.simulationTimeSeconds()) {
             throw new IllegalArgumentException("resume duration must be finite and after checkpoint time");
         }
@@ -488,6 +492,39 @@ public final class MediaDeterministicSimulator {
                 + "|boundary=" + modelIr.boundaryCondition().name()
                 + "|x0=" + Double.toHexString(initial.positionMeters())
                 + "|v0=" + Double.toHexString(initial.velocityMetersPerSecond());
+    }
+
+    /**
+     * A fingerprint binds a checkpoint to its requested inputs, but does not
+     * prove the checkpoint's state was produced by this solver. Validate the
+     * restart point against the closed-form trajectory before using it. The
+     * elapsed-time bound follows from each accepted step being capped at the
+     * model's maximum step size; a final partial step is allowed.
+     */
+    private static boolean adaptiveCheckpointMatchesModel(
+            SimulationModelIR modelIr, AdaptiveCheckpoint checkpoint) {
+        ModelSpec model = modelIr.model();
+        if (checkpoint.acceptedStep() > model.maxSteps()) {
+            return false;
+        }
+        if (checkpoint.acceptedStep() == 0) {
+            return checkpoint.simulationTimeSeconds() == 0.0
+                    && checkpoint.positionMeters() == modelIr.initialState().positionMeters()
+                    && checkpoint.velocityMetersPerSecond() == modelIr.initialState().velocityMetersPerSecond();
+        }
+        double maximumElapsed = checkpoint.acceptedStep() * model.stepSeconds();
+        if (checkpoint.simulationTimeSeconds() > maximumElapsed
+                + 2.0 * Math.ulp(maximumElapsed)) {
+            return false;
+        }
+        double acceleration = model.forceN() / model.massKg();
+        double time = checkpoint.simulationTimeSeconds();
+        double expectedVelocity = modelIr.initialState().velocityMetersPerSecond() + acceleration * time;
+        double expectedPosition = modelIr.initialState().positionMeters()
+                + modelIr.initialState().velocityMetersPerSecond() * time
+                + 0.5 * acceleration * time * time;
+        return withinTolerance(checkpoint.velocityMetersPerSecond(), expectedVelocity, model.tolerance())
+                && withinTolerance(checkpoint.positionMeters(), expectedPosition, model.tolerance());
     }
 
     private static boolean withinTolerance(double actual, double expected, double tolerance) {
