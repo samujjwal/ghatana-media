@@ -97,6 +97,8 @@
     "test:common-voice-v27-profile": "node --test tests/media-common-voice-v27-profile.test.mjs",
     "prepare:common-voice-v27-pilot-manifest": "node scripts/qualification/common-voice-pilot-manifest.mjs",
     "test:common-voice-pilot-manifest": "node --test tests/media-common-voice-pilot-manifest.test.mjs",
+    "review:common-voice-reference-pilot": "node scripts/qualification/common-voice-reference-review.mjs",
+    "test:common-voice-reference-review": "node --test tests/media-common-voice-reference-review.test.mjs tests/media-common-voice-reference-review-ui.test.mjs tests/media-common-voice-pilot-manifest.test.mjs tests/media-common-voice-ephemeral-run.test.mjs",
     "test:common-voice-ephemeral-run": "node --test tests/media-common-voice-ephemeral-run.test.mjs",
     "cleanup:common-voice-retention": "node scripts/qualification/cleanup-common-voice-retention.mjs",
     "setup:common-voice-retention-launch-agent": "node scripts/qualification/setup-common-voice-retention-launch-agent.mjs",

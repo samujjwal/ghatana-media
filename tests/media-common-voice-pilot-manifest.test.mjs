@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import {
   COMMON_VOICE_PILOT_LIMITS,
   parseCommonVoicePilotArchive,
+  loadCommonVoiceReferenceReviewData,
   prepareCommonVoicePilotManifest,
   runCommonVoicePilotCli,
 } from '../scripts/qualification/common-voice-pilot-manifest.mjs';
@@ -54,12 +55,13 @@ async function archive(locale = 'ne-NP', options = {}) {
     rowCount = ROW_COUNTS[locale], durations = {}, includeSelected = true,
     duplicate = false, unsupportedOrder = false, unsafePath = false,
     oversizedSelected = false, oversizedMember = false, oversizedDuration = false, split = 'test',
+    sentenceForClip = () => 'private sentence',
   } = options;
   const root = await mkdtemp(join(tmpdir(), 'cv-pilot-'));
   const path = join(root, ARCHIVE_NAMES[locale]);
   const rows = ['client_id\tpath\tsentence_id\tsentence\tup_votes\tdown_votes\tage\tgender\taccents\tvariant\tlocale\tsegment\tsentence_domain'];
   const filenames = Array.from({ length: rowCount }, (_, i) => clipName(locale, i));
-  for (const clip of filenames) rows.push(`private-client\t${clip}\tprivate-sentence-id\tprivate sentence\t1\t0\t30\tunspecified\t\t\t${locale}\t\tgeneral`);
+  for (const clip of filenames) rows.push(`private-client\t${clip}\tprivate-sentence-id\t${sentenceForClip(clip)}\t1\t0\t30\tunspecified\t\t\t${locale}\t\tgeneral`);
   const durationsRows = ['clip\tduration[ms]', ...filenames.map((clip) => `${clip}\t${durations[clip] ?? 1000}`)];
   const metadata = [
     tarMember(`${REVISION}/README.md`, Buffer.from('fixture README')),
@@ -138,6 +140,81 @@ test('streams synthetic test metadata and hashes the deterministic hash-ranked p
     assert.equal(result.archive.localArchiveSha256,
       createHash('sha256').update(await readFile(fixture.path)).digest('hex'));
     assert.equal(result.archive.observationType, 'LOCAL_COMPRESSED_ARCHIVE_SHA256_NOT_PUBLISHER_HASH');
+    assert.equal(result.clipManifest.every((record) => !Object.hasOwn(record, 'sentence')
+      && !Object.hasOwn(record, 'audioBytes')), true);
+  } finally { await rm(fixture.root, { recursive: true, force: true }); }
+});
+
+test('reference review returns only manifest-selected test sentences and matching audio bytes', async () => {
+  const fixture = await archive('ne-NP', { sentenceForClip: (clipId) => `private sentence:${clipId}` });
+  try {
+    const parsed = await parseFixture(fixture);
+    const localeManifest = { ...parsed, sourceSplit: 'test' };
+    const pilotManifest = { sourceRevision: REVISION, sourceSplit: 'test', locales: [localeManifest] };
+    const result = await loadCommonVoiceReferenceReviewData({
+      archivePath: fixture.path, locale: fixture.locale, pilotManifest, archivePin: fixturePin(fixture),
+    });
+    assert.equal(result.locale, fixture.locale);
+    assert.equal(result.sourceSplit, 'test');
+    assert.equal(result.records.length, 24);
+    const selectedIds = new Set(localeManifest.clipManifest.map(({ clipId }) => clipId));
+    const nonselectedSentences = new Set(Array.from({ length: ROW_COUNTS[fixture.locale] }, (_, i) => clipName(fixture.locale, i))
+      .filter((clipId) => !selectedIds.has(clipId)).map((clipId) => `private sentence:${clipId}`));
+    for (const record of result.records) {
+      assert.equal(record.sentence, `private sentence:${record.clipId}`);
+      assert.equal(nonselectedSentences.has(record.sentence), false);
+      assert.equal(record.audioBytes.toString(), `audio:${record.clipId}`);
+      assert.equal(record.audioSha256, createHash('sha256').update(record.audioBytes).digest('hex'));
+      assert.equal(localeManifest.clipManifest.find((item) => item.clipId === record.clipId).audioSha256,
+        record.audioSha256);
+      assert.deepEqual(Object.keys(record).sort(), ['audioBytes', 'audioSha256', 'clipId', 'sentence']);
+    }
+    assert.equal(Object.hasOwn(result, 'archivePath'), false);
+    assert.equal(Object.hasOwn(result, 'localArchiveSha256'), false);
+    assert.equal(Object.isFrozen(result.records), false);
+    for (const record of result.records) {
+      record.audioBytes.fill(0);
+      record.audioBytes = Buffer.alloc(0);
+      record.sentence = '';
+      record.clipId = '';
+    }
+    assert.equal(result.records.every((record) => record.sentence === '' && record.clipId === ''
+      && record.audioBytes.length === 0), true);
+  } finally { await rm(fixture.root, { recursive: true, force: true }); }
+});
+
+test('wipes selected audio buffers when post-parse archive observation comparison fails', async () => {
+  const localeManifest = makePilotManifest().locales.find(({ locale }) => locale === 'ne-NP');
+  const pilotManifest = { sourceRevision: REVISION, sourceSplit: 'test', locales: [localeManifest] };
+  const captured = localeManifest.clipManifest.map(({ clipId, audioSha256 }) => ({
+    clipId, sentence: `private sentence:${clipId}`, audioSha256, audioBytes: Buffer.from(`audio:${clipId}`),
+  }));
+  await assert.rejects(loadCommonVoiceReferenceReviewData({
+    archivePath: '/private/fixture/archive.tar.gz', locale: 'ne-NP', pilotManifest,
+  }, {
+    parseArchive: async () => ({
+      archiveObservation: {
+        basename: 'mismatched-archive.tar.gz',
+        localFileSizeBytes: localeManifest.archive.localFileSizeBytes,
+        localArchiveSha256: localeManifest.archive.localArchiveSha256,
+      },
+      references: captured,
+    }),
+  }), /archive bytes do not match the private manifest archive observation/u);
+  assert.equal(captured.every(({ audioBytes }) => audioBytes.every((byte) => byte === 0)), true);
+});
+
+test('reference review denies a manifest whose selected audio hash does not match', async () => {
+  const fixture = await archive();
+  try {
+    const parsed = await parseFixture(fixture);
+    const localeManifest = structuredClone(parsed);
+    localeManifest.clipManifest[0].audioSha256 = 'f'.repeat(64);
+    localeManifest.clipManifestDigest = createHash('sha256').update(JSON.stringify(localeManifest.clipManifest)).digest('hex');
+    await assert.rejects(loadCommonVoiceReferenceReviewData({
+      archivePath: fixture.path, locale: fixture.locale, archivePin: fixturePin(fixture),
+      pilotManifest: { sourceRevision: REVISION, sourceSplit: 'test', locales: [localeManifest] },
+    }), /SHA-256 does not match/u);
   } finally { await rm(fixture.root, { recursive: true, force: true }); }
 });
 

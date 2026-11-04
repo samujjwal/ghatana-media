@@ -25,6 +25,13 @@ const METADATA_MARKER_KIND = 'ghatana-media-common-voice-retained-metadata';
 const METADATA_SCHEMA_VERSION = '1.0.0';
 const METADATA_RETENTION_DAYS = 90;
 const METADATA_RETENTION_MS = METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const REFERENCE_REVIEW_FIELDS = Object.freeze([
+  'locale', 'sourceDatasetId', 'sourceRevision', 'sourceSplit', 'clipManifestDigest',
+  'checkedAt', 'counts', 'completed',
+]);
+const REFERENCE_REVIEW_COUNTS_FIELDS = Object.freeze([
+  'total', 'match', 'mismatch', 'unintelligible', 'skip',
+]);
 const MAX_METADATA_BYTES = 16 * 1024 * 1024;
 const MAX_METADATA_RUN_BYTES = 16 * 1024 * 1024;
 const COMMON_VOICE_V27_REVISION = 'cv-corpus-27.0-2026-09-11';
@@ -160,6 +167,34 @@ function validateAggregate(aggregate, manifest) {
     assert(typeof aggregate[metric] === 'number' && Number.isFinite(aggregate[metric])
       && aggregate[metric] >= 0, `${metric} must be a finite nonnegative aggregate`);
   }
+}
+
+function validateReferenceReviewOutcome(outcome) {
+  exactKeys(outcome, REFERENCE_REVIEW_FIELDS,
+    'reference review outcome must contain exactly the approved aggregate fields');
+  assert(['en', 'ne-NP'].includes(outcome.locale)
+    && outcome.sourceDatasetId === COMMON_VOICE_V27_DATASET_IDS[outcome.locale]
+    && outcome.sourceRevision === COMMON_VOICE_V27_REVISION
+    && outcome.sourceSplit === 'test',
+  'reference review outcome does not match a pinned v27 test dataset');
+  assert(typeof outcome.clipManifestDigest === 'string'
+    && /^[0-9a-f]{64}$/u.test(outcome.clipManifestDigest),
+  'clipManifestDigest must be a lowercase SHA-256 digest');
+  assert(typeof outcome.checkedAt === 'string'
+    && Number.isFinite(Date.parse(outcome.checkedAt))
+    && new Date(outcome.checkedAt).toISOString() === outcome.checkedAt,
+  'checkedAt must be a canonical timestamp');
+  exactKeys(outcome.counts, REFERENCE_REVIEW_COUNTS_FIELDS,
+    'reference review counts must contain exactly the approved fields');
+  for (const field of REFERENCE_REVIEW_COUNTS_FIELDS) {
+    assert(Number.isSafeInteger(outcome.counts[field]) && outcome.counts[field] >= 0,
+      `reference review count ${field} must be a nonnegative integer`);
+  }
+  assert(outcome.counts.total === 24
+    && outcome.counts.match + outcome.counts.mismatch
+      + outcome.counts.unintelligible + outcome.counts.skip === outcome.counts.total,
+  'reference review counts must cover exactly 24 clips');
+  assert(outcome.completed === true, 'reference review outcome must be completed');
 }
 
 const PILOT_ARCHIVE_PINS = Object.freeze({
@@ -575,6 +610,46 @@ export async function retainCommonVoicePilotMetadata(
   return Object.freeze({ runId, createdAt: createdAt.toISOString(), directory: runDirectory });
 }
 
+/** Retains a human reference-review aggregate, without clip-level data or identity claims. */
+export async function retainCommonVoiceReferenceReviewMetadata(
+  metadataRootPath,
+  ephemeralAudioRootPath,
+  outcome,
+  { now = () => new Date() } = {},
+) {
+  const ownerUid = currentUid();
+  const metadataRoot = await requireSeparatePrivateRoots(metadataRootPath, ephemeralAudioRootPath, ownerUid);
+  const createdAt = now();
+  assert(createdAt instanceof Date && Number.isFinite(createdAt.getTime()),
+    'reference review retention clock must return a valid Date');
+  const snapshot = JSON.parse(canonicalJson(outcome));
+  validateReferenceReviewOutcome(snapshot);
+  const runId = randomUUID();
+  const runDirectory = join(metadataRoot, `${METADATA_PREFIX}${runId}`);
+  const marker = { kind: METADATA_MARKER_KIND, schemaVersion: METADATA_SCHEMA_VERSION,
+    runId, createdAt: createdAt.toISOString() };
+  assert(Buffer.byteLength(canonicalJson(snapshot), 'utf8') + Buffer.byteLength(canonicalJson(marker), 'utf8')
+    <= MAX_METADATA_RUN_BYTES, 'reference review metadata exceeds the permitted total size');
+  await mkdir(runDirectory, { mode: 0o700 });
+  try {
+    await chmod(runDirectory, 0o700);
+    const stat = await lstat(runDirectory);
+    assert(stat.isDirectory() && !stat.isSymbolicLink() && stat.uid === ownerUid && isMode(stat, 0o700),
+      'created reference review metadata directory is unsafe');
+    await writeAtomicOwnerOnlyJson(runDirectory, 'reference-review-outcome.json', snapshot, MAX_MARKER_BYTES);
+    await writeAtomicOwnerOnlyJson(runDirectory, METADATA_MARKER_NAME, marker, MAX_MARKER_BYTES);
+  } catch (failure) {
+    try {
+      await removeOwnedRun(metadataRoot, runDirectory, ownerUid);
+    } catch (cleanupFailure) {
+      throw new AggregateError([failure, cleanupFailure],
+        'reference review metadata write failed and its owner-only directory could not be removed');
+    }
+    throw failure;
+  }
+  return Object.freeze({ runId, createdAt: createdAt.toISOString(), directory: runDirectory });
+}
+
 /**
  * Removes only valid helper-owned v27 metadata after the exact 90-day retention
  * period. This enforces persistence duration only; it grants no access and
@@ -594,6 +669,7 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
   let retained = 0;
   const runEntriesExpected = [METADATA_MARKER_NAME, 'aggregate.json', 'run-manifest.json'].sort();
   const pilotEntriesExpected = [METADATA_MARKER_NAME, 'pilot-manifest.json'].sort();
+  const referenceReviewEntriesExpected = [METADATA_MARKER_NAME, 'reference-review-outcome.json'].sort();
   const directory = await opendir(metadataRoot);
   for await (const entry of directory) {
     if (!entry.name.startsWith(METADATA_PREFIX)) {
@@ -624,7 +700,9 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
       }
       const sortedRunEntries = runEntries.sort();
       const isPilotManifest = sortedRunEntries.join(',') === pilotEntriesExpected.join(',');
-      assert(isPilotManifest || sortedRunEntries.join(',') === runEntriesExpected.join(','),
+      const isReferenceReview = sortedRunEntries.join(',') === referenceReviewEntriesExpected.join(',');
+      assert(isPilotManifest || isReferenceReview
+        || sortedRunEntries.join(',') === runEntriesExpected.join(','),
         'metadata run has missing or unrecognized files');
       assert(totalBytes <= MAX_METADATA_RUN_BYTES,
         'metadata run exceeds the permitted total size');
@@ -644,6 +722,10 @@ export async function cleanupExpiredCommonVoiceMetadataRuns(
       if (isPilotManifest) {
         const pilot = await readBoundedOwnerOnlyJson(runDirectory, 'pilot-manifest.json', ownerUid, 1024 * 1024);
         validateCommonVoicePilotManifest(pilot);
+      } else if (isReferenceReview) {
+        const outcome = await readBoundedOwnerOnlyJson(
+          runDirectory, 'reference-review-outcome.json', ownerUid, MAX_MARKER_BYTES);
+        validateReferenceReviewOutcome(outcome);
       } else {
         const manifest = await readBoundedOwnerOnlyJson(
           runDirectory, 'run-manifest.json', ownerUid);

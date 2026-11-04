@@ -239,7 +239,7 @@ metadata and synthetic safety checks are:
     pnpm run check:common-voice-v27-profile
     pnpm run test:common-voice-v27-profile
     pnpm run test:common-voice-pilot-manifest
-    pnpm run test:common-voice-ephemeral-run
+    pnpm run test:common-voice-reference-review
     pnpm run test:common-voice-retention-cli
     pnpm run test:common-voice-retention-launch-agent
 
@@ -259,6 +259,33 @@ metadata contains local archive hashes, selected clip IDs and audio hashes;
 none should be logged or checked in. This is manifest preparation only and
 does not admit real inference, establish speaker disjointness, or satisfy
 FLEURS-specific or production-quality acceptance.
+
+For a human reference check, run the local-only review tool for
+one locale at a time, pointing it at the already prepared private manifest:
+
+```bash
+pnpm run review:common-voice-reference-pilot -- \
+  --archive "$HOME/Downloads/1789491018738-cv-corpus-27.0-2026-09-11-ne-NP.tar.gz" \
+  --locale ne-NP \
+  --pilot-manifest "$HOME/Library/Application Support/Ghatana Media/Common Voice/metadata/metadata-<run-id>/pilot-manifest.json" \
+  --metadata-root "$HOME/Library/Application Support/Ghatana Media/Common Voice/metadata" \
+  --audio-root "$HOME/Library/Application Support/Ghatana Media/Common Voice/audio"
+```
+
+The reviewer opens the printed `127.0.0.1` URL, plays each selected clip, and
+marks whether its pinned sentence matches. The loader re-streams the exact
+archive, verifies its private archive hash and the selected audio hashes, and
+parses `test.tsv` in bounded 64 KiB chunks (1 MiB maximum line), retaining only
+the selected sentences, and holds selected audio in memory. It does not
+extract audio to disk or use a model; browser traffic stays on loopback and
+the tool makes no external network request. The page disables caching; on completion, only aggregate
+counts bound to the private clip-manifest digest are retained in owner-only
+metadata for 90 days. The reviewer must be fluent in the target language; the
+tool does not establish reviewer identity, fluency, or independence. Any
+mismatch, unintelligible clip, or skip keeps the gold-reference gate open.
+Completing this reference check does not admit inference. The English archive
+is about 88 GB and must be streamed again for its selected audio, so start with
+Nepali if you want to limit the first review pass.
 
 ## Wave 2 macOS and Linux platform matrix
 

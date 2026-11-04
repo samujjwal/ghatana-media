@@ -12,6 +12,7 @@ import {
   COMMON_VOICE_RUN_MAX_INTERRUPTED_AUDIO_AGE_MS,
   COMMON_VOICE_METADATA_RETENTION_DAYS,
   readBoundedMarkerBytes,
+  retainCommonVoiceReferenceReviewMetadata,
   retainCommonVoiceRunMetadata,
   withEphemeralCommonVoiceRun,
 } from '../scripts/qualification/common-voice-ephemeral-run.mjs';
@@ -86,6 +87,20 @@ function syntheticMetadataFixture(overrides = {}) {
     ...overrides.aggregate,
   };
   return { runManifest, aggregate };
+}
+
+function syntheticReferenceReviewOutcome(overrides = {}) {
+  return {
+    locale: 'en',
+    sourceDatasetId: 'cmu5jplf300nwmh07iqvk9leo',
+    sourceRevision: 'cv-corpus-27.0-2026-09-11',
+    sourceSplit: 'test',
+    clipManifestDigest: 'c'.repeat(64),
+    checkedAt: '2026-11-03T12:00:00.000Z',
+    counts: { total: 24, match: 20, mismatch: 2, unintelligible: 1, skip: 1 },
+    completed: true,
+    ...overrides,
+  };
 }
 
 test('removes a successful run directory and its synthetic scratch file before returning', { skip: hostSkip }, async () => {
@@ -447,6 +462,91 @@ test('validates metadata digests and a unique nonempty clip manifest within the 
       },
     }), /exceeds the pinned v27 test-split count/);
     assert.deepEqual(await readdir(metadataRoot), []);
+  } finally {
+    await rm(metadataRoot, { recursive: true, force: true });
+    await rm(audioRoot, { recursive: true, force: true });
+  }
+});
+
+test('retains only a synthetic aggregate reference review in a separate owner-only root', { skip: hostSkip }, async () => {
+  const metadataRoot = await privateRoot();
+  const audioRoot = await privateRoot();
+  const now = new Date('2026-11-03T12:00:00.000Z');
+  const outcome = syntheticReferenceReviewOutcome();
+  try {
+    const retained = await retainCommonVoiceReferenceReviewMetadata(
+      metadataRoot, audioRoot, outcome, { now: () => now });
+    assert.deepEqual((await readdir(retained.directory)).sort(), [
+      '.media-common-voice-metadata.json', 'reference-review-outcome.json',
+    ]);
+    const directoryStat = await lstat(retained.directory);
+    const outcomeStat = await lstat(join(retained.directory, 'reference-review-outcome.json'));
+    assert.equal(directoryStat.mode & 0o777, 0o700);
+    assert.equal(outcomeStat.mode & 0o777, 0o600);
+    assert.deepEqual(JSON.parse(await readFile(join(retained.directory, 'reference-review-outcome.json'), 'utf8')),
+      outcome);
+    assert.deepEqual(await readdir(audioRoot), []);
+    assert.deepEqual(await cleanupExpiredCommonVoiceMetadataRuns(metadataRoot, audioRoot, {
+      now: new Date(now.getTime() + COMMON_VOICE_METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000 - 1),
+    }), { removed: 0, retained: 1, retentionDays: 90 });
+    assert.deepEqual(await cleanupExpiredCommonVoiceMetadataRuns(metadataRoot, audioRoot, {
+      now: new Date(now.getTime() + COMMON_VOICE_METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000),
+    }), { removed: 1, retained: 0, retentionDays: 90 });
+  } finally {
+    await rm(metadataRoot, { recursive: true, force: true });
+    await rm(audioRoot, { recursive: true, force: true });
+  }
+});
+
+test('rejects invalid reference review scope, extra data, incomplete reviews, and inconsistent counts', { skip: hostSkip }, async () => {
+  const metadataRoot = await privateRoot();
+  const audioRoot = await privateRoot();
+  const reject = (outcome, pattern) => assert.rejects(
+    retainCommonVoiceReferenceReviewMetadata(metadataRoot, audioRoot, outcome), pattern);
+  try {
+    await reject(syntheticReferenceReviewOutcome({ transcript: 'private' }), /exactly the approved aggregate fields/);
+    await reject(syntheticReferenceReviewOutcome({ locale: 'hi' }), /pinned v27 test dataset/);
+    await reject(syntheticReferenceReviewOutcome({ sourceSplit: 'dev' }), /pinned v27 test dataset/);
+    await reject(syntheticReferenceReviewOutcome({ completed: false }), /must be completed/);
+    await reject(syntheticReferenceReviewOutcome({ counts: { ...syntheticReferenceReviewOutcome().counts, skip: -1 } }),
+      /nonnegative integer/);
+    await reject(syntheticReferenceReviewOutcome({ counts: { ...syntheticReferenceReviewOutcome().counts, total: 23 } }),
+      /exactly 24 clips/);
+    await reject(syntheticReferenceReviewOutcome({ counts: { ...syntheticReferenceReviewOutcome().counts, match: 21 } }),
+      /exactly 24 clips/);
+    await reject(syntheticReferenceReviewOutcome({ clipManifestDigest: 'C'.repeat(64) }), /lowercase SHA-256/);
+    await reject(syntheticReferenceReviewOutcome({ checkedAt: '2026-11-03T12:00:00+00:00' }), /canonical timestamp/);
+    await assert.rejects(retainCommonVoiceReferenceReviewMetadata(metadataRoot, metadataRoot,
+      syntheticReferenceReviewOutcome()), /separate from and outside/);
+    assert.deepEqual(await readdir(metadataRoot), []);
+  } finally {
+    await rm(metadataRoot, { recursive: true, force: true });
+    await rm(audioRoot, { recursive: true, force: true });
+  }
+});
+
+test('90-day cleanup expires a valid aggregate review and preserves malformed review records', { skip: hostSkip }, async () => {
+  const metadataRoot = await privateRoot();
+  const audioRoot = await privateRoot();
+  const now = new Date('2026-11-03T12:00:00.000Z');
+  try {
+    const expired = await retainCommonVoiceReferenceReviewMetadata(metadataRoot, audioRoot,
+      syntheticReferenceReviewOutcome(), {
+        now: () => new Date(now.getTime() - COMMON_VOICE_METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000 - 1),
+      });
+    const malformed = await retainCommonVoiceReferenceReviewMetadata(metadataRoot, audioRoot,
+      syntheticReferenceReviewOutcome(), {
+        now: () => new Date(now.getTime() - COMMON_VOICE_METADATA_RETENTION_DAYS * 24 * 60 * 60 * 1000 - 1),
+      });
+    const outcomePath = join(malformed.directory, 'reference-review-outcome.json');
+    const malformedOutcome = syntheticReferenceReviewOutcome({ counts: {
+      total: 24, match: 20, mismatch: 2, unintelligible: 1, skip: 0,
+    } });
+    await writeFile(outcomePath, `${JSON.stringify(malformedOutcome)}\n`, { mode: 0o600 });
+    assert.deepEqual(await cleanupExpiredCommonVoiceMetadataRuns(metadataRoot, audioRoot, { now }),
+      { removed: 1, retained: 1, retentionDays: 90 });
+    await assert.rejects(lstat(expired.directory), { code: 'ENOENT' });
+    assert.equal((await lstat(malformed.directory)).isDirectory(), true);
   } finally {
     await rm(metadataRoot, { recursive: true, force: true });
     await rm(audioRoot, { recursive: true, force: true });
