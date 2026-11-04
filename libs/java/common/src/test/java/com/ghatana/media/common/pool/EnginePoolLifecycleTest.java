@@ -161,6 +161,29 @@ class EnginePoolLifecycleTest {
     }
 
     @Test
+    void fatalProviderCloseFailureRetainsHandleForExplicitRetry() {
+        Engine engine = new Engine();
+        var attempts = new AtomicInteger();
+        var pool = new EnginePool<>(() -> engine, resource -> true, resource -> {
+            if (attempts.incrementAndGet() == 1) {
+                throw new LinkageError("native provider close unavailable");
+            }
+            resource.closes.incrementAndGet();
+            return null;
+        }, config().minSize(1));
+
+        assertThatThrownBy(pool::close).isInstanceOf(LinkageError.class);
+        assertThat(pool.getFailedDestructionCount()).isEqualTo(1);
+        assertThat(pool.getStats().totalDestroyed).isZero();
+        assertThat(engine.closes).hasValue(0);
+
+        pool.close();
+        assertThat(attempts).hasValue(2);
+        assertThat(engine.closes).hasValue(1);
+        assertThat(pool.getStats().totalDestroyed).isEqualTo(1);
+    }
+
+    @Test
     void blockingReturnHealthCheckDoesNotBlockPoolClose() throws Exception {
         var entered = new CountDownLatch(1);
         var release = new CountDownLatch(1);

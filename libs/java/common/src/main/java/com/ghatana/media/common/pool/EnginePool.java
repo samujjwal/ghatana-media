@@ -517,6 +517,13 @@ public class EnginePool<T> implements AutoCloseable {
                 pendingDestructions.put(key, engine);
                 failedDestructions.incrementAndGet();
                 LOG.warning("Engine destruction failed; capacity remains reserved");
+            } catch (Error fatal) {
+                // Provider/native cleanup can fail with linkage or VM Errors.
+                // Preserve the handle for an explicit retry, but do not mask
+                // the fatal failure from the caller.
+                pendingDestructions.put(key, engine);
+                failedDestructions.incrementAndGet();
+                throw fatal;
             }
         }
     }
