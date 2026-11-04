@@ -100,6 +100,8 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     private final SttConfig config;
     private final ProfileBinding binding;
     private final long maxSourceBytes;
+    /** Immutable model export digest supplied by trusted server composition, or empty when unpinned. */
+    private final String pinnedModelSha256;
     /** Trusted in-process measurement source; never an RPC, request field or admission flag. */
     private final QualityEvidenceReader qualityEvidenceReader;
     private final WhisperBrokerSttProvider brokerProvider;
@@ -138,6 +140,13 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
             return latest(providerId, providerVersion, modelRevision)
                     .map(List::of).orElse(List.of());
         }
+
+        /**
+         * Additional exact export binding for readers whose evidence names a model digest.
+         * Legacy readers retain their prior behavior; digest-bound readers must override
+         * this method and return false when the provider has no matching trusted pin.
+         */
+        default boolean matchesModelExportSha256(String pinnedModelSha256) { return true; }
     }
 
     public WhisperOnnxSttProvider(
@@ -155,6 +164,8 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         this.binding = java.util.Objects.requireNonNull(binding, "binding");
         if (maxSourceBytes < 1) throw new IllegalArgumentException("maxSourceBytes must be positive");
         this.maxSourceBytes = maxSourceBytes;
+        this.pinnedModelSha256 = pinnedModelSha256 == null
+                ? "" : pinnedModelSha256.trim().toLowerCase(Locale.ROOT);
         this.qualityEvidenceReader = java.util.Objects.requireNonNull(
                 qualityEvidenceReader, "qualityEvidenceReader");
         this.brokerProvider = computeClient == null ? null : new WhisperBrokerSttProvider(
@@ -242,6 +253,9 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
         if (modality != JobType.SPEECH_TO_TEXT || closed.get() || modelRevision == null) {
             return Optional.empty();
         }
+        if (!qualityEvidenceReader.matchesModelExportSha256(pinnedModelSha256)) {
+            return Optional.empty();
+        }
         String revision = config.modelId().trim().toLowerCase(Locale.ROOT);
         if (!revision.equals(modelRevision)) return Optional.empty();
         Optional<MediaModalityContracts.ProviderQualityObservation> candidate =
@@ -258,6 +272,9 @@ public final class WhisperOnnxSttProvider implements MediaProcessingProvider {
     public List<MediaModalityContracts.ProviderQualityObservation> qualityObservations(
             JobType modality, String modelRevision) {
         if (modality != JobType.SPEECH_TO_TEXT || closed.get() || modelRevision == null) {
+            return List.of();
+        }
+        if (!qualityEvidenceReader.matchesModelExportSha256(pinnedModelSha256)) {
             return List.of();
         }
         String revision = config.modelId().trim().toLowerCase(Locale.ROOT);

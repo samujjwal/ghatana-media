@@ -23,10 +23,40 @@ test('pins English and Nepali Common Voice v27 and keeps Hindi deferred and the 
   assert.equal(profile.dataset.locales.en.datasetId, 'cmu5jplf300nwmh07iqvk9leo');
   assert.equal(profile.dataset.locales.ne.datasetId, 'cmu61478v00j9o107alzuue1z');
   assert.equal(profile.dataset.deferredLocales.hi.datasetId, 'cmu5vlext009to107ev1s9lk8');
+  assert.deepEqual(profile.dataset.deferredLocales.hi, {
+    locale: 'hi',
+    datasetId: 'cmu5vlext009to107ev1s9lk8',
+    datasetUrl: 'https://mozilladatacollective.com/datasets/cmu5vlext009to107ev1s9lk8',
+    sourceRevision: 'cv-corpus-27.0-2026-09-11',
+    license: 'CC0-1.0',
+    officialTestSplit: 'test',
+    officialTestClipCountAtReview: 3402,
+    status: 'DEFERRED_FROM_THIS_PHASE',
+    evaluationStatus: 'METADATA_ONLY_NO_DOWNLOAD_NO_EVALUATION',
+    reason: 'Hindi is excluded from current evaluation, implementation, and acceptance work.',
+  });
+  assert.deepEqual(profile.selection.activeLocales, ['en', 'ne-NP']);
+  assert.deepEqual(profile.selection.deferredLocales, ['hi']);
+  assert.deepEqual(profile.selection.clipManifest, []);
+  assert.equal(profile.execution.realInferenceAdmitted, false);
   assert.equal(profile.doesNotSupersede.includes('config/qualification/fleurs-asr-evaluation.v1.json'), true);
   assert.equal(profile.selection.clipManifestStatus,
     'PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL');
   assert.deepEqual(profile.selection.clipManifest, []);
+});
+
+test('Hindi metadata cannot enter active pilot, scoring, or inference scope', () => {
+  const mutated = structuredClone(profile);
+  mutated.dataset.activeLocaleScope.push('hi');
+  assert.throws(() => validateCandidateProfile(mutated), /active Common Voice phase must contain English and Nepali only/u);
+
+  const deferredAsActive = structuredClone(profile);
+  deferredAsActive.selection.activeLocales = ['en', 'ne-NP', 'hi'];
+  assert.throws(() => validateCandidateProfile(deferredAsActive), /selection must include English and Nepali only with Hindi deferred/u);
+
+  const admitted = structuredClone(profile);
+  admitted.execution.realInferenceAdmitted = true;
+  assert.throws(() => validateCandidateProfile(admitted), /real inference must remain disabled/u);
 });
 
 test('does not turn owner confirmation into independently verified source authority', () => {
@@ -152,6 +182,12 @@ test('records local archive and private pilot completion without exposing IDs or
   assert.match(profile.access.archivePresence.en.integrity, /24_PILOT_MP3_HASHES_RETAINED_PRIVATELY/u);
   assert.equal(profile.selection.clipManifest.length, 0);
   assert.equal(profile.execution.realInferenceAdmitted, false);
+  assert.equal(profile.execution.independentReferenceReviewStatus, 'NOT_COMPLETED');
+  assert.equal(profile.execution.executionHostQualificationStatus, 'NOT_QUALIFIED');
+  assert.equal(profile.execution.pilotEvaluationScope, '24_CLIPS_PER_ACTIVE_LOCALE_REFERENCE_ONLY');
+  assert.equal(profile.execution.pilotCanQualifyModel, false);
+  assert.equal(profile.selection.trustedManifestDigestSource,
+    'ACCESS_CONTROLLED_LOCAL_PILOT_MANIFEST_PER_LOCALE; REQUIRED_BY_QUALITY_READER; NEVER_CHECKED_IN_OR_PRINTED');
   assert.equal(profile.englishSubset.sampleAvailability, 'NOT_REQUIRED_ARCHIVE_REPORTED_PRESENT');
   assert.equal(profile.englishSubset.publisherSampleLinkVisibleOnPublicCard, false);
   assert.equal(profile.englishSubset.publicTextSampleSentenceCount, 5);

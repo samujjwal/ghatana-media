@@ -181,6 +181,46 @@ class WhisperOnnxSttProviderTest {
                 binding(false), "whisper-tiny", Optional.of(foreign))).isEmpty();
     }
 
+    @Test
+    void providerQualityReaderMustMatchThePinnedModelExportDigest() {
+        var at = Instant.now().minusSeconds(12);
+        var measured = new MediaModalityContracts.ProviderQualityObservation(
+                "whisper-provider", "whisper-v1", JobType.SPEECH_TO_TEXT, "whisper-tiny",
+                MediaModalityContracts.ProviderQualityObservation.Metric.WER,
+                0.04, at, "d".repeat(64), "ne-np",
+                MediaModalityContracts.ProviderQualityObservation.QualityScope.REFERENCE_ONLY);
+        WhisperOnnxSttProvider.QualityEvidenceReader reader = new WhisperOnnxSttProvider.QualityEvidenceReader() {
+            @Override
+            public Optional<MediaModalityContracts.ProviderQualityObservation> latest(
+                    String providerId, String providerVersion, String modelRevision) {
+                return Optional.of(measured);
+            }
+
+            @Override
+            public boolean matchesModelExportSha256(String pinnedModelSha256) {
+                return "b".repeat(64).equals(pinnedModelSha256);
+            }
+        };
+        var config = SttConfig.builder().modelId("whisper-tiny").build();
+        var matching = new WhisperOnnxSttProvider(
+                config, binding(false), 1024, reader, mock(WhisperComputeClient.class), "b".repeat(64));
+        var mismatched = new WhisperOnnxSttProvider(
+                config, binding(false), 1024, reader, mock(WhisperComputeClient.class), "c".repeat(64));
+        var unpinned = new WhisperOnnxSttProvider(
+                config, binding(false), 1024, reader, mock(WhisperComputeClient.class), "");
+        try {
+            assertThat(matching.qualityObservation(JobType.SPEECH_TO_TEXT, "whisper-tiny"))
+                    .contains(measured);
+            assertThat(mismatched.qualityObservation(JobType.SPEECH_TO_TEXT, "whisper-tiny")).isEmpty();
+            assertThat(unpinned.qualityObservation(JobType.SPEECH_TO_TEXT, "whisper-tiny")).isEmpty();
+            assertThat(mismatched.qualityObservations(JobType.SPEECH_TO_TEXT, "whisper-tiny")).isEmpty();
+        } finally {
+            matching.close();
+            mismatched.close();
+            unpinned.close();
+        }
+    }
+
     private static Map<String, Object> clockMetadata(long ticksPerSecond, long durationTicks) {
         return Map.of(
                 "sourceClockId", "src-clock",

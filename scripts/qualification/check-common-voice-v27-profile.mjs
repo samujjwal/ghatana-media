@@ -7,7 +7,7 @@ const PROFILE_URL = new URL('../../config/qualification/common-voice-v27-asr-alt
 const EXPECTED = Object.freeze({
   schemaVersion: '1.0.0',
   profileId: 'media.stt.common-voice-scripted-speech-27-alternative',
-  status: 'OWNER_CONFIRMED_ACCESS_MODEL_ARTIFACT_PENDING',
+  status: 'OWNER_CONFIRMED_ACCESS_QUALITY_GATES_PENDING',
   sourceRevision: 'cv-corpus-27.0-2026-09-11',
   license: 'CC0-1.0',
   task: 'ASR',
@@ -16,7 +16,16 @@ const EXPECTED = Object.freeze({
     ne: Object.freeze({ id: 'cmu61478v00j9o107alzuue1z', locale: 'ne-NP', clips: 302, size: '40.55 MB' }),
   }),
   deferredLocales: Object.freeze({
-    hi: Object.freeze({ id: 'cmu5vlext009to107ev1s9lk8', locale: 'hi' }),
+    hi: Object.freeze({
+      id: 'cmu5vlext009to107ev1s9lk8',
+      locale: 'hi',
+      datasetUrl: 'https://mozilladatacollective.com/datasets/cmu5vlext009to107ev1s9lk8',
+      sourceRevision: 'cv-corpus-27.0-2026-09-11',
+      license: 'CC0-1.0',
+      officialTestSplit: 'test',
+      officialTestClipCountAtReview: 3402,
+      evaluationStatus: 'METADATA_ONLY_NO_DOWNLOAD_NO_EVALUATION',
+    }),
   }),
 });
 const FORBIDDEN_FIELD_NAMES = new Set([
@@ -108,8 +117,15 @@ export function validateCandidateProfile(profile) {
   assert(Object.keys(dataset.deferredLocales ?? {}).sort().join(',') === 'hi'
     && dataset.deferredLocales.hi?.datasetId === EXPECTED.deferredLocales.hi.id
     && dataset.deferredLocales.hi?.locale === EXPECTED.deferredLocales.hi.locale
+    && dataset.deferredLocales.hi?.datasetUrl === EXPECTED.deferredLocales.hi.datasetUrl
+    && dataset.deferredLocales.hi?.sourceRevision === EXPECTED.sourceRevision
+    && dataset.deferredLocales.hi?.license === EXPECTED.license
+    && dataset.deferredLocales.hi?.officialTestSplit === 'test'
+    && dataset.deferredLocales.hi?.officialTestClipCountAtReview === 3402
     && dataset.deferredLocales.hi?.status === 'DEFERRED_FROM_THIS_PHASE',
   'Hindi must remain explicitly deferred from the active locale scope');
+  assert(dataset.deferredLocales.hi?.evaluationStatus === 'METADATA_ONLY_NO_DOWNLOAD_NO_EVALUATION',
+    'Hindi metadata must not authorize download or evaluation');
 
   // User-reported terms acceptance is preserved as a report, not promoted to
   // verified authority/access evidence. The candidate remains non-admitted.
@@ -172,6 +188,9 @@ export function validateCandidateProfile(profile) {
   assert(selection.clipManifestStatus === 'PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL'
     && selection.clipManifest.length === 0,
   'profile must report private manifest preparation without copying clip IDs or hashes into source control');
+  assert(selection.trustedManifestDigestSource
+    === 'ACCESS_CONTROLLED_LOCAL_PILOT_MANIFEST_PER_LOCALE; REQUIRED_BY_QUALITY_READER; NEVER_CHECKED_IN_OR_PRINTED',
+  'quality evidence reader must receive the exact private per-locale manifest digest pins');
   assert(Array.isArray(selection.requiredManifestFields)
     && selection.requiredManifestFields.length === REQUIRED_MANIFEST_FIELDS.length
     && [...selection.requiredManifestFields].sort().join(',') === [...REQUIRED_MANIFEST_FIELDS].sort().join(','),
@@ -194,12 +213,16 @@ export function validateCandidateProfile(profile) {
   const execution = profile.execution;
   assert(execution?.realInferenceAdmitted === false && execution.modelNetworkAccess === 'DISABLED'
     && execution.notAdmittedReason
-      === 'The pinned Whisper candidate artifacts are not available locally and their weight/export rights remain unreviewed.'
+      === 'Pinned model artifact/export rights, independent reference review, and execution-host qualification remain unresolved.'
     && execution.modelCandidateId === 'stt-whisper-tiny-multilingual'
     && execution.modelCandidateDisposition === 'REVIEW_ONLY'
     && execution.modelArtifactAvailability === 'NOT_FOUND_IN_REPOSITORY_OR_CHECKED_LOCAL_CACHES'
-    && execution.modelRightsAndExportStatus === 'NOT_REVIEWED',
-  'real inference must remain disabled until a pinned, locally available model has reviewed rights');
+    && execution.modelRightsAndExportStatus === 'NOT_REVIEWED'
+    && execution.independentReferenceReviewStatus === 'NOT_COMPLETED'
+    && execution.executionHostQualificationStatus === 'NOT_QUALIFIED'
+    && execution.pilotEvaluationScope === '24_CLIPS_PER_ACTIVE_LOCALE_REFERENCE_ONLY'
+    && execution.pilotCanQualifyModel === false,
+  'real inference must remain disabled until model rights, independent references, and host qualification pass');
   for (const field of [
     'externalProviderDispatch', 'trainingAllowed', 'speakerIdentificationAllowed',
     'voiceCloningAllowed', 'datasetRehostingOrResharingAllowed',

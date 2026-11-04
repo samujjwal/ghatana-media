@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "profileId": "media.stt.common-voice-scripted-speech-27-alternative",
-  "status": "OWNER_CONFIRMED_ACCESS_MODEL_ARTIFACT_PENDING",
+  "status": "OWNER_CONFIRMED_ACCESS_QUALITY_GATES_PENDING",
   "decisionScope": "ALTERNATIVE_ASR_EVALUATION_REPORT_ONLY",
   "doesNotSupersede": [
     "config/qualification/fleurs-asr-evaluation.v1.json",
@@ -44,7 +44,13 @@
       "hi": {
         "locale": "hi",
         "datasetId": "cmu5vlext009to107ev1s9lk8",
+        "datasetUrl": "https://mozilladatacollective.com/datasets/cmu5vlext009to107ev1s9lk8",
+        "sourceRevision": "cv-corpus-27.0-2026-09-11",
+        "license": "CC0-1.0",
+        "officialTestSplit": "test",
+        "officialTestClipCountAtReview": 3402,
         "status": "DEFERRED_FROM_THIS_PHASE",
+        "evaluationStatus": "METADATA_ONLY_NO_DOWNLOAD_NO_EVALUATION",
         "reason": "Hindi is excluded from current evaluation, implementation, and acceptance work."
       }
     }
@@ -99,6 +105,7 @@
       "speakerDisjointEvidence": "NOT_ESTABLISHED"
     },
     "clipManifestStatus": "PRIVATE_LOCAL_24_PER_LOCALE_MANIFEST_PREPARED_NOT_IN_SOURCE_CONTROL",
+    "trustedManifestDigestSource": "ACCESS_CONTROLLED_LOCAL_PILOT_MANIFEST_PER_LOCALE; REQUIRED_BY_QUALITY_READER; NEVER_CHECKED_IN_OR_PRINTED",
     "clipManifest": [],
     "requiredManifestFields": [
       "locale",
@@ -134,11 +141,15 @@
   },
   "execution": {
     "realInferenceAdmitted": false,
-    "notAdmittedReason": "The pinned Whisper candidate artifacts are not available locally and their weight/export rights remain unreviewed.",
+    "notAdmittedReason": "Pinned model artifact/export rights, independent reference review, and execution-host qualification remain unresolved.",
     "modelCandidateId": "stt-whisper-tiny-multilingual",
     "modelCandidateDisposition": "REVIEW_ONLY",
     "modelArtifactAvailability": "NOT_FOUND_IN_REPOSITORY_OR_CHECKED_LOCAL_CACHES",
     "modelRightsAndExportStatus": "NOT_REVIEWED",
+    "independentReferenceReviewStatus": "NOT_COMPLETED",
+    "executionHostQualificationStatus": "NOT_QUALIFIED",
+    "pilotEvaluationScope": "24_CLIPS_PER_ACTIVE_LOCALE_REFERENCE_ONLY",
+    "pilotCanQualifyModel": false,
     "modelNetworkAccess": "DISABLED",
     "externalProviderDispatch": false,
     "trainingAllowed": false,

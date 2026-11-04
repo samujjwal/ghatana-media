@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.stt-common-voice-pilot-evidence.v1.schema",
+  "title": "Common Voice v27 reference-only pilot provider-quality evidence",
+  "description": "A bounded, hash-pinned aggregate report contract for the 24-clip-per-locale English and Nepali Common Voice v27 pilot. The runtime reader must also receive independently trusted per-locale clip-manifest digest pins from the access-controlled local pilot manifest and compare them before emitting observations. Java semantic validation is mandatory because JSON Schema cannot enforce WER/CER equality to edit counts and denominators. This is telemetry evidence only: it cannot qualify a model, admit inference, set a threshold, or establish production quality. The report must not contain clip IDs, transcripts, predictions, speaker identifiers, demographic fields, or source paths.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "evidenceClass",
+    "scope",
+    "provider",
+    "model",
+    "host",
+    "dataset",
+    "measuredAt",
+    "results"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "media.stt-common-voice-pilot-evidence.v1"
+    },
+    "status": {
+      "enum": ["ACTIVE", "REVOKED"]
+    },
+    "evidenceClass": {
+      "const": "MEASURED_COMMON_VOICE_V27_PILOT"
+    },
+    "scope": {
+      "const": "REFERENCE_ONLY"
+    },
+    "provider": {
+      "$ref": "#/$defs/provider"
+    },
+    "model": {
+      "$ref": "#/$defs/model"
+    },
+    "host": {
+      "$ref": "#/$defs/host"
+    },
+    "dataset": {
+      "$ref": "#/$defs/dataset"
+    },
+    "measuredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "maxProperties": 2,
+      "properties": {
+        "en": {
+          "$ref": "#/$defs/localeMeasurement"
+        },
+        "ne-NP": {
+          "$ref": "#/$defs/localeMeasurement"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "token": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:+-]*$"
+    },
+    "sha256Ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/token"
+        },
+        "version": {
+          "$ref": "#/$defs/token"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "exportSha256"],
+      "properties": {
+        "revision": {
+          "$ref": "#/$defs/token"
+        },
+        "exportSha256": {
+          "$ref": "#/$defs/sha256Ref"
+        }
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "os", "architecture"],
+      "properties": {
+        "profileId": {
+          "$ref": "#/$defs/token"
+        },
+        "os": {
+          "$ref": "#/$defs/token"
+        },
+        "architecture": {
+          "$ref": "#/$defs/token"
+        }
+      }
+    },
+    "dataset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "locales"],
+      "properties": {
+        "name": {
+          "const": "Mozilla Common Voice Scripted Speech 27.0"
+        },
+        "locales": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "maxProperties": 2,
+          "properties": {
+            "en": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["datasetId", "sourceRevision", "sourceSplit", "clipManifestSha256"],
+              "properties": {
+                "datasetId": {
+                  "const": "cmu5jplf300nwmh07iqvk9leo"
+                },
+                "sourceRevision": {
+                  "const": "cv-corpus-27.0-2026-09-11"
+                },
+                "sourceSplit": {
+                  "const": "test"
+                },
+                "clipManifestSha256": {
+                  "$ref": "#/$defs/sha256Ref"
+                }
+              }
+            },
+            "ne-NP": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["datasetId", "sourceRevision", "sourceSplit", "clipManifestSha256"],
+              "properties": {
+                "datasetId": {
+                  "const": "cmu61478v00j9o107alzuue1z"
+                },
+                "sourceRevision": {
+                  "const": "cv-corpus-27.0-2026-09-11"
+                },
+                "sourceSplit": {
+                  "const": "test"
+                },
+                "clipManifestSha256": {
+                  "$ref": "#/$defs/sha256Ref"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "localeMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clipCount",
+        "wordErrors",
+        "referenceWords",
+        "wer",
+        "charErrors",
+        "referenceCodepoints",
+        "cer"
+      ],
+      "properties": {
+        "clipCount": {
+          "const": 24
+        },
+        "wordErrors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "referenceWords": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "wer": {
+          "type": "number",
+          "minimum": 0
+        },
+        "charErrors": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "referenceCodepoints": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "cer": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}
