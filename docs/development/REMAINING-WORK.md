@@ -333,7 +333,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Device/web-emulator E2E for denied permission, background, reconnect and real frame payload.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
-**`media.dev.terminal-source-capture`** · OPEN
+**`media.dev.terminal-source-capture`** · VERIFIED (TerminalCaptureAdapter: explicit-session-only, ANSI normalize, secret redact, bounded, detach-once — 12 tests green, suite 393)
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`
 - **What:** Implement bounded terminal transcript/viewport recording.
 - **How:** Capture only explicit session/PTY, redact secrets, normalize ANSI/terminal geometry, preserve timing and close on detach.

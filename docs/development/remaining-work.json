@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 89,
-      "VERIFIED": 12,
+      "OPEN": 88,
+      "VERIFIED": 13,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -690,7 +690,7 @@
     {
       "id": "media.dev.terminal-source-capture",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/capture-adapters.ts"
       ],
@@ -699,7 +699,8 @@
       "acceptance": "TTY resize, escape injection, secret redaction, cancellation, no off-session capture.",
       "requires": [
         "media.dev.capture-http-and-file-regression"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts \u2014 host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean"
     },
     {
       "id": "media.dev.grpc-source-capture",
