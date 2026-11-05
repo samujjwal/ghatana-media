@@ -81,16 +81,16 @@ test("HTTP and gRPC proposal/unresolved crosswalks partition exact current sourc
   const boundedHttpIds = [...http.matchAll(/^        (\w+): media\.operation-slice\.[^\n]+$/gmu)].map(([, identity]) => identity);
   const httpTransportOnlyIds = [...http.matchAll(/^        - (\w+)$/gmu)].map(([, identity]) => identity);
   const httpCrosswalk = [...candidateIds(http), ...boundedHttpIds, ...inlineList(http, "unresolved"), ...httpTransportOnlyIds];
-  assert.equal(httpSource.length, 27);
+  assert.equal(httpSource.length, 30);
   assertExactPartition(httpSource, httpCrosswalk, "HTTP");
 
   const grpc = surface("gRPC", "CLI fixture commands");
   const grpcSource = protoSourceIds(protos);
   const grpcAdapterRequired = grpcOwnerAdapterRequiredIds(grpc);
   const grpcCrosswalk = [...candidateIds(grpc), ...grpcAdapterRequired, ...grpcUnresolvedIds(grpc), ...grpcNonOperationIds(grpc)];
-  assert.equal(grpcSource.length, 43);
+  assert.equal(grpcSource.length, 44);
   assertExactPartition(grpcSource, grpcCrosswalk, "gRPC");
-  assert.equal(candidateIds(grpc).length, 17, "the recorded gRPC candidate count remains source-inventory-only");
+  assert.equal(candidateIds(grpc).length, 18, "the recorded gRPC candidate count remains source-inventory-only");
   assert.equal(grpcAdapterRequired.length, 4, "four STT profile methods have exact owner definitions and still need field-level adapters");
   assert.equal(grpcUnresolvedIds(grpc).length, 0, "all current gRPC identities have a candidate, adapter-required, or source-backed non-operation role");
   assert.equal(grpcNonOperationIds(grpc).length, 22, "health, provider administration, legacy TTS profiles, and unimplemented feedback retain explicit non-domain dispositions");

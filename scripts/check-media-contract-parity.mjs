@@ -539,6 +539,14 @@ export function parseSdkHttpCalls(source, sourceName = "SDK source") {
     const route = variable ? routeVariables.get(variable) : undefined;
     if (route && expression.endsWith(`\${${variable}}`)) add(method, route);
   }
+  // fetchRawMutation shares the fetchRaw(urlTemplate, { method }) call shape;
+  // without it bounded upload/stream mutations are invisible to the census.
+  for (const match of code.matchAll(/\.fetchRawMutation\(\s*`([^`]*)`\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) {
+    const [, expression, method] = match;
+    const variable = [...expression.matchAll(/\$\{([A-Za-z_$][\w$]*)\}/g)].at(-1)?.[1];
+    const route = variable ? routeVariables.get(variable) : undefined;
+    if (route && expression.endsWith(`\${${variable}}`)) add(method, route);
+  }
   for (const match of code.matchAll(/\.request\(\s*["'](GET|POST|PUT|PATCH|DELETE)["']\s*,\s*(["'`])([^"'`]+)\2/g)) add(match[1], match[3]);
   for (const match of code.matchAll(/\.submit\(\s*(["'`])([^"'`]+)\1/g)) add("POST", match[2]);
   for (const match of code.matchAll(/\.fetchImpl\(\s*(["'`])([^"'`]+)\1\s*,\s*\{\s*method:\s*["'](GET|POST|PUT|PATCH|DELETE)["']/g)) add(match[3], match[2]);

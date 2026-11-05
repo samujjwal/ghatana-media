@@ -19,8 +19,8 @@ const cloned = () => structuredClone(sourceManifest);
 test("every publicly exported TS type and schema has one explicit and source-grounded role", () => {
   const failures = analyzeTypedContractBindings(inputs);
   assert.deepEqual(failures, [], failures.join("\n"));
-  assert.equal(new Set(typeNames).size, 21);
-  assert.equal(new Set(schemaNames).size, 22);
+  assert.equal(new Set(typeNames).size, 22);
+  assert.equal(new Set(schemaNames).size, 23);
 });
 
 test("new exported type requires a new role binding", () => {

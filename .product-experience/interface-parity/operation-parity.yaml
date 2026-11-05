@@ -675,12 +675,7 @@ surfaces:
             completion evidence.
           admission: NOT_ADMITTED
     boundedCanonicalReads: [ media.sdk.getArtifact, media.sdk.getUploadSession ]
-    boundedCanonicalOperations:
-      [
-        media.sdk.createUploadSession,
-        media.sdk.uploadPart,
-        media.sdk.completeUploadSession
-      ]
+    boundedCanonicalOperations: [ media.sdk.createUploadSession, media.sdk.uploadPart, media.sdk.completeUploadSession ]
     unresolvedOperationIdentities: []
     sourceBackedNonOperationDispositions:
       TRANSPORT_ONLY: [ media.sdk.getServiceStatus, media.sdk.getAllServicesStatus ]

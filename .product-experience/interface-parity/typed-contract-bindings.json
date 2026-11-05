@@ -7,8 +7,8 @@
     ".product-experience/pdp-1-domain-data/operations.yaml"
   ],
   "denominators": {
-    "exportedTypes": 21,
-    "publicSchemas": 22
+    "exportedTypes": 22,
+    "publicSchemas": 23
   },
   "runtimeSupportImplied": false,
   "semanticOperationParity": "UNRESOLVED",
@@ -162,6 +162,17 @@
         "media.operation.job-lifecycle"
       ],
       "bindingStatus": "COMPATIBILITY_SOURCE_ONLY",
+      "runtimeSupport": false
+    },
+    {
+      "schema": "MediaAttemptStateSchema",
+      "type": "MediaAttemptState",
+      "role": "DOMAIN_STATE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.job-attempt",
+        "media.operation.job-lifecycle"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
       "runtimeSupport": false
     },
     {
@@ -381,6 +392,15 @@
         "role": "LEGACY_COMPATIBILITY",
         "semanticRef": "media-job",
         "reason": "retained RETRYING/CANCELLING strings are not canonical states",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaAttemptState",
+        "schema": "MediaAttemptStateSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-attempt",
+        "reason": "PDP-1 attempt lifecycle values; attempt identity and runtime persistence remain separately owned contracts",
         "source": "libs/audio-video-types/src/contracts.ts",
         "admission": "SOURCE_ROLE_ONLY"
       },
