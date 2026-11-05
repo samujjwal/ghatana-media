@@ -361,7 +361,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Two-run identical scenes skip, changed scene alone recaptures, provider denies and lost ACK leave honest status.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
-**`media.dev.recorder-narration-and-captions`** · OPEN
+**`media.dev.recorder-narration-and-captions`** · VERIFIED (integer-tick VTT/TTML emitters, seek/cancel, approved-narration gating, redaction — `scene-captions.ts` + 10 tests green)
 - **Where:** `libs/audio-video-client/src/recorder-orchestrator.ts`, `libs/media-experience-simulation`
 - **What:** Bind scenario cue times to real captured frames and legitimate narration.
 - **How:** Use deterministic timebase and approved TTS or user-provided narration, redact private content and generate validated VTT/TTML captions.

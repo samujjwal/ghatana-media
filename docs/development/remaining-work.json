@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 86,
-      "VERIFIED": 15,
+      "OPEN": 85,
+      "VERIFIED": 16,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -752,7 +752,7 @@
     {
       "id": "media.dev.recorder-narration-and-captions",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/recorder-orchestrator.ts",
         "libs/media-experience-simulation"
@@ -762,7 +762,8 @@
       "acceptance": "Cue offset/seek/cancel, no unsupported voice substitution, captions readable and frame-aligned.",
       "requires": [
         "media.dev.recorder-actual-execution"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/scene-captions.ts \u2014 integer-tick VTT/TTML emitters frame-aligned to declared source clock (no float drift), cue validation (ordered, integer, inside sourceDuration), cuesAtOffset seek + truncateCuesAt cancel, admitNarrationSource admits only APPROVED_TTS/USER_PROVIDED and refuses voice substitution, private-content redaction; 10 vitest cases, suite 408 green, typecheck clean"
     },
     {
       "id": "media.dev.recorder-mux-and-final-artifact",
