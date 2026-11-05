@@ -13,10 +13,12 @@ the canonical Media runtime.
 
 ## States and invariants
 
-- **Current state is fail-closed**: handlers validate input and return
-  typed `NOT_ADMITTED` results before provider dispatch. Real authorized
-  delegated execution requires the durable `InvocationLedger` and
-  canonical runtime/public ports — not yet admitted.
+- **Delegation remains fail-closed**: handlers validate input and return
+  typed `NOT_ADMITTED` results before provider dispatch. The durable
+  `FileInvocationLedger` (filesystem-backed atomic claim + CAS complete,
+  restart-surviving JSON records) now exists as the `InvocationLedger`
+  implementation; authorized delegated execution still awaits canonical
+  runtime/public ports and owner admission.
 - No direct provider bypass: handlers never call providers
   independently; delegation must carry source identity, rights scope
   and redacted results.

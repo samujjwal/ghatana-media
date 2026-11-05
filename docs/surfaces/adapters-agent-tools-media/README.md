@@ -24,14 +24,22 @@ before any provider dispatch today.
 | `AudioVideoToolHandlerFactory.create(toolId)` | Returns the typed handler, optionally wrapped by the execution binder |
 | `AudioVideoToolHandlerFactory.toolIds()` | Canonical registered tool IDs |
 | `MediaToolExecutionBinder.execute(handler, envelope, contract)` | Claim → dispatch → complete/reconcile |
-| `InvocationLedger` (interface) | Atomic claim/completion port; **no production implementation ships here** |
+| `InvocationLedger` (interface) | Atomic claim/completion port |
+| `FileInvocationLedger` | Durable filesystem backing: atomic no-replace claim, lock-file CAS complete, restart-surviving JSON records, digest filenames |
 | `MediaJobReadback` (interface) | Durable job-state read port for reconciliation |
 
 ## States and invariants
 
-- `ClaimResult`: `CLAIMED` / `ALREADY_CLAIMED` / `UNAVAILABLE`; default
-  ledger methods **fail closed** — this module does not prove durable
-  dispatch readiness.
+- `ClaimResult`: `CLAIMED` / `ALREADY_CLAIMED` / `UNAVAILABLE`; the
+  interface defaults still **fail closed** for ledgers that do not
+  implement claim/complete.
+- `FileInvocationLedger` is a single-node durable backing: records are
+  per-invocation JSON files named by SHA-256 digest (no caller identity
+  on disk), claims use atomic no-replace rename, completions serialize
+  on a lock sidecar then verify-and-replace the exact UNKNOWN fence.
+  It does not provide tenant-scoped access control, classification-aware
+  encryption, retention or multi-host replication — those remain host
+  responsibilities; replay authorization stays with the binder.
 - `LogicalOutcome`: `SUCCESS` / `FAILED` / `OUTCOME_UNKNOWN`;
   `OutcomeUnknownException` carries `invocationId` + `durableJobState`.
 - `RequestIdentity`/`LogicalAction` bind invocation id, tool id, tenant,
@@ -70,7 +78,9 @@ as `INLINE_IMAGE_NOT_ADMITTED`); `InvocationIdentityConflictException`,
 ```
 
 Suites cover binder claim/conflict/UNKNOWN behavior, input-dispatch
-boundary, admission negatives for all four handlers, descriptor identity
-(AT-01/AT-05), capability inventory and speech/vision/multimodal admission
-boundaries. Tests assert zero provider dispatch while handlers remain
-unadmitted — they do not prove real delegated execution.
+boundary, `FileInvocationLedgerTest` (durable claim/CAS/restart/
+corrupt-record/digest-filename coverage), admission negatives for all
+four handlers, descriptor identity (AT-01/AT-05), capability inventory
+and speech/vision/multimodal admission boundaries. Tests assert zero
+provider dispatch while handlers remain unadmitted — they do not prove
+real delegated execution.
