@@ -535,7 +535,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Every doc links an existing owner/test, no false completion or missing runtime caveats.
 - **Predecessors:** `media.dev.source-capability-crosswalk`
 
-**`media.dev.historical-artifact-inventory`** · OPEN
+**`media.dev.historical-artifact-inventory`** · VERIFIED (all 999MB tracked historical bytes classified — `generate:historical-inventory`; 42 large unreferenced artifacts flagged EXTERNAL_ARCHIVE for owner review, zero deletions)
 - **Where:** `docs/implementation`, `scripts/audit-media-repository.mjs`
 - **What:** Classify 995 MB of implementation artifacts and all pinned preimages before removals.
 - **How:** Generate path-by-path hash, inbound references, source-vs-derived-vs-record, restore requirements and retention ownership; mark DELETE/KEEP/EXTERNAL_ARCHIVE with reason.

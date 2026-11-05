@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 93,
-      "VERIFIED": 8,
+      "OPEN": 92,
+      "VERIFIED": 9,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -1136,7 +1136,7 @@
     {
       "id": "media.dev.historical-artifact-inventory",
       "group": "hygiene",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "docs/implementation",
         "scripts/audit-media-repository.mjs"
@@ -1144,7 +1144,8 @@
       "what": "Classify 995 MB of implementation artifacts and all pinned preimages before removals.",
       "how": "Generate path-by-path hash, inbound references, source-vs-derived-vs-record, restore requirements and retention ownership; mark DELETE/KEEP/EXTERNAL_ARCHIVE with reason.",
       "acceptance": "Zero unclassified tracked historical bytes; read-only report and no unreviewed deletions.",
-      "requires": []
+      "requires": [],
+      "verificationEvidence": "verified-2026-11-05: docs/implementation/historical-artifact-inventory.v1.json classifies all 1375 tracked historical files (999,081,965 bytes) with sha256, inbound refs, kind (source/derived/record), retention owner, disposition \u2014 1333 KEEP, 42 EXTERNAL_ARCHIVE review candidates, 0 unclassified, read-only report"
     },
     {
       "id": "media.dev.historical-artifact-retirement",
