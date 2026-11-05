@@ -549,7 +549,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** No broken links/pins; canonical authored definitions still present; Git tree materially reduced without lost source.
 - **Predecessors:** `media.dev.historical-artifact-inventory`
 
-**`media.dev.contextual-name-and-legacy-removal`** · OPEN
+**`media.dev.contextual-name-and-legacy-removal`** · VERIFIED (zero orphans/scaffolding/mocks/preview-paths — `tests/media-contextual-name-hygiene.test.mjs` green)
 - **Where:** `AGENTS.md`, `README.md`, `docs`, `scripts`, `libs`, `modules`, `archive`
 - **What:** Replace dated/batch/phase internal scaffolding with meaningful paths and delete dead code.
 - **How:** Scan imports/package exports/Gradle/tsconfig/scripts; classify deprecated, compatibility, temporary; preserve stable public/DB/PDP IDs and run source-free consumers before retirement.

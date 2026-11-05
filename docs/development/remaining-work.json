@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 87,
-      "VERIFIED": 14,
+      "OPEN": 86,
+      "VERIFIED": 15,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -1171,7 +1171,7 @@
     {
       "id": "media.dev.contextual-name-and-legacy-removal",
       "group": "hygiene",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "AGENTS.md",
         "README.md",
@@ -1187,7 +1187,8 @@
       "requires": [
         "media.dev.surface-document-contracts",
         "media.dev.historical-artifact-inventory"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: tests/media-contextual-name-hygiene.test.mjs pins zero orphan modules (all package dirs inside workspace globs), all Gradle projectDirs resolve, no dated/batch/phase scaffolding dirs in source, no production mocks, no preview deployment path; review/r02-* is a pinned provenance record, excluded from rename scope per stable-pin rule"
     },
     {
       "id": "media.dev.documentation-and-command-navigation",
