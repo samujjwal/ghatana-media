@@ -9,13 +9,17 @@ import com.ghatana.audio.video.tools.MediaToolExecutionBinder.RequestIdentity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,6 +164,91 @@ class FileInvocationLedgerTest {
             assertThat(new FileInvocationLedger(dir).find("shared-invocation")).isPresent();
         } finally {
             pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void independentProcessesRaceForExactlyOneClaim() throws Exception {
+        String classpath = System.getProperty("media.child.classpath", "");
+        org.junit.jupiter.api.Assumptions.assumeTrue(!classpath.isBlank(),
+                "media.child.classpath not provided by the test task");
+        Path java = Path.of(System.getProperty("java.home"), "bin", "java");
+        int workers = 6;
+        List<Process> children = new ArrayList<>();
+        for (int i = 0; i < workers; i++) {
+            children.add(new ProcessBuilder(java.toString(), "-cp", classpath,
+                            FileInvocationLedgerClaimWorker.class.getName(),
+                            dir.toString(), "cross-process-inv", "fp-" + i)
+                    .redirectErrorStream(true)
+                    .start());
+        }
+        int claimed = 0;
+        int alreadyClaimed = 0;
+        for (Process child : children) {
+            String output = new String(child.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            assertThat(child.waitFor(60, TimeUnit.SECONDS)).isTrue();
+            assertThat(child.exitValue()).as("worker output: " + output).isEqualTo(0);
+            String lastLine = output.substring(output.lastIndexOf('\n') + 1);
+            switch (lastLine) {
+                case "CLAIMED" -> claimed++;
+                case "ALREADY_CLAIMED" -> alreadyClaimed++;
+                default -> throw new AssertionError("unexpected worker claim result: " + output);
+            }
+        }
+        // Exactly one OS process may own the invocation fence.
+        assertThat(claimed).isEqualTo(1);
+        assertThat(alreadyClaimed).isEqualTo(workers - 1);
+        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        assertThat(restarted.find("cross-process-inv")).hasValueSatisfying(found ->
+                assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
+    }
+
+    @Test
+    void claimByExitedProcessStillFencesRedispatch() throws Exception {
+        String classpath = System.getProperty("media.child.classpath", "");
+        org.junit.jupiter.api.Assumptions.assumeTrue(!classpath.isBlank(),
+                "media.child.classpath not provided by the test task");
+        Path java = Path.of(System.getProperty("java.home"), "bin", "java");
+        Process child = new ProcessBuilder(java.toString(), "-cp", classpath,
+                        FileInvocationLedgerClaimWorker.class.getName(),
+                        dir.toString(), "crash-inv", "fp-owner")
+                .redirectErrorStream(true)
+                .start();
+        String output = new String(child.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+        assertThat(child.waitFor(60, TimeUnit.SECONDS)).isTrue();
+        assertThat(child.exitValue()).as("worker output: " + output).isEqualTo(0);
+        assertThat(output).endsWith("CLAIMED");
+
+        // The claiming process is gone; a fresh instance must still see the
+        // durable UNKNOWN fence and reject any redispatch of that invocation.
+        FileInvocationLedger restarted = new FileInvocationLedger(dir);
+        assertThat(restarted.find("crash-inv")).hasValueSatisfying(found ->
+                assertThat(found.outcome()).isEqualTo(LogicalOutcome.OUTCOME_UNKNOWN));
+        assertThat(restarted.claim(fence("crash-inv", identity("stt", "fp-retry"))))
+                .isEqualTo(ClaimResult.ALREADY_CLAIMED);
+    }
+
+    @Test
+    void claimOnUnwritableDirectoryFailsClosedWithoutClaim() throws Exception {
+        Path readOnly = Files.createDirectory(dir.resolve("read-only"));
+        try {
+            Files.setPosixFilePermissions(readOnly,
+                    PosixFilePermissions.fromString("r-xr-xr-x"));
+        } catch (UnsupportedOperationException unsupported) {
+            org.junit.jupiter.api.Assumptions.abort("POSIX permissions unsupported on this filesystem");
+        }
+        try {
+            FileInvocationLedger ledger = new FileInvocationLedger(readOnly);
+            // The fence file cannot be created: the claim must resolve to
+            // UNAVAILABLE rather than reporting a successful ownership.
+            assertThat(ledger.claim(fence("inv-ro", identity("stt", "fp"))))
+                    .isEqualTo(ClaimResult.UNAVAILABLE);
+            try (Stream<Path> files = Files.list(readOnly)) {
+                assertThat(files.filter(p -> p.toString().endsWith(".json")).toList()).isEmpty();
+            }
+        } finally {
+            Files.setPosixFilePermissions(readOnly,
+                    PosixFilePermissions.fromString("rwxr-xr-x"));
         }
     }
 

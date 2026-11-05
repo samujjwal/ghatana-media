@@ -103,14 +103,14 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Gap/reorder/lease expiry/revoke while live, backpressure, EOS, abort, restart and 1/16/64 clients.
 - **Predecessors:** `media.dev.canonical-job-reconciliation`
 
-**`media.dev.exclusive-invocation-claim-verification`** · CODE_CHANGED_NEEDS_TEST_EXECUTION
+**`media.dev.exclusive-invocation-claim-verification`** · VERIFIED (macOS focused suite green: 6-process contention → exactly one claim, crash-after-claim fence, unwritable-dir fail-closed)
 - **Where:** `adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/FileInvocationLedger.java`, `adapters/agent-tools-media/src/test/java/com/ghatana/audio/video/tools/FileInvocationLedgerTest.java`
 - **What:** Verify committed claim hard-link exclusivity and restricted legacy record semantics.
 - **How:** Run focused tests on macOS and Linux, including independent processes, crash and unsupported filesystem; require exactly one claim; review read/complete/lock path.
 - **Test/exit:** All focused tests green, no existing fence overwrite and no terminal injection through record().
 - **Predecessors:** None; start independently
 
-**`media.dev.projection-pre-dispatch-fence-verification`** · CODE_CHANGED_NEEDS_TEST_EXECUTION
+**`media.dev.projection-pre-dispatch-fence-verification`** · VERIFIED (macOS focused suite green: real JVM halt at effect boundary → durable PENDING_RECONCILIATION, no duplicate dispatch, exact-readback reconcile, corrupt state fail-closed)
 - **Where:** `adapters/ledger/src/main/java/com/ghatana/audiovideo/adapter/ledger/RunLedgerProjection.java`, `adapters/ledger/src/test/java/com/ghatana/audiovideo/adapter/ledger/FileRunLedgerProjectionStateTest.java`
 - **What:** Verify committed pre-dispatch uncertainty durability and hydration correction.
 - **How:** Run focused tests, kill process at pre-store/after-store/before-final-persist points, verify corrupt read fails and readback must match exact record.

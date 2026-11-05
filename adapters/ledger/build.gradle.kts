@@ -16,5 +16,14 @@ dependencies {
     // Testing
     testImplementation(project(":services:media:runtime-contracts"))
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
+}
+
+val ledgerTestRuntimeClasspath = sourceSets.named("test").get().runtimeClasspath
+tasks.test {
+    useJUnitPlatform()
+    // Crash-phase tests launch a separate JVM and pass the exact test runtime
+    // classpath explicitly instead of depending on Gradle Test worker classloader internals.
+    doFirst { systemProperty("media.child.classpath", ledgerTestRuntimeClasspath.asPath) }
 }

@@ -25,6 +25,10 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 
+val ledgerTestRuntimeClasspath = sourceSets.named("test").get().runtimeClasspath
 tasks.test {
     useJUnitPlatform()
+    // Cross-process claim tests launch separate JVMs and pass the exact test runtime
+    // classpath explicitly instead of depending on Gradle Test worker classloader internals.
+    doFirst { systemProperty("media.child.classpath", ledgerTestRuntimeClasspath.asPath) }
 }
