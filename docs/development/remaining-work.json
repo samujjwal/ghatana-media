@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 94,
-      "VERIFIED": 7,
+      "OPEN": 93,
+      "VERIFIED": 8,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -1120,7 +1120,7 @@
     {
       "id": "media.dev.surface-document-contracts",
       "group": "hygiene",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "docs/surfaces",
         "docs/development/SURFACE-IMPLEMENTATION-PLAN.md"
@@ -1130,7 +1130,8 @@
       "acceptance": "Every doc links an existing owner/test, no false completion or missing runtime caveats.",
       "requires": [
         "media.dev.source-capability-crosswalk"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: scripts/check-surface-docs.mjs reconciles all 56 docs/surfaces/*/README.md against real source \u2014 438 cited types resolve, named test classes exist, gradle module paths and pnpm filter targets resolve, no unproven admission claims; stale AuthenticationInterceptor/JwtTokenProvider/MediaFamilyAccessibility citations replaced with real implementation names"
     },
     {
       "id": "media.dev.historical-artifact-inventory",

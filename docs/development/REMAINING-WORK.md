@@ -528,7 +528,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 #### hygiene
 
-**`media.dev.surface-document-contracts`** · OPEN
+**`media.dev.surface-document-contracts`** · VERIFIED (all 56 READMEs reconcile via `check:surface-docs`; stale nonexistent-type citations corrected)
 - **Where:** `docs/surfaces`, `docs/development/SURFACE-IMPLEMENTATION-PLAN.md`
 - **What:** Reconcile 56 existing surface READMEs with actual operations, states, diagrams and tests.
 - **How:** Use current source and exact public implementation, replace stale pending assertions; remove phase/batch context from internal names except semantic immutable IDs.
