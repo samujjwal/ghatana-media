@@ -1,4 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   ScenarioError,
   changedSceneLineages,
@@ -6,7 +11,15 @@ import {
   recaptureScenario,
   type Scenario,
 } from "./recorder-orchestrator";
-import { CaptureNotAdmittedError, type CapturedFrame } from "./capture-adapters";
+import {
+  CaptureNotAdmittedError,
+  CaptureOutcomeUnknownError,
+  routedCaptureAdapter,
+  type CaptureRequest,
+  type CapturedFrame,
+} from "./capture-adapters";
+import { HttpApiCaptureAdapter } from "./http-capture-adapter";
+import { MediaFileCaptureAdapter } from "./file-capture-adapter";
 
 function scenario(overrides: Partial<Scenario> = {}): Scenario {
   const source = (identity: string, sourceVersionRef: string) => ({
@@ -445,5 +458,176 @@ describe("recaptureScenario", () => {
     })).rejects.toThrow(/exceeds 256 selectors/u);
     expect(eligibilityCalls).toBe(0);
     expect(captureCalls).toBe(0);
+  });
+});
+
+describe("recaptureScenario with real routed capture adapters", () => {
+  const dirs: string[] = [];
+  const servers: Server[] = [];
+
+  async function tempDir(): Promise<string> {
+    const dir = await mkdtemp(join(tmpdir(), "media-recapture-"));
+    dirs.push(dir);
+    return dir;
+  }
+
+  async function withHttpServer(
+    handler: (req: import("node:http").IncomingMessage,
+      res: import("node:http").ServerResponse) => void,
+    run: (origin: string) => Promise<void>,
+  ): Promise<void> {
+    const server = createServer(handler);
+    servers.push(server);
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address() as AddressInfo;
+    await run(`http://127.0.0.1:${address.port}`);
+  }
+
+  afterEach(async () => {
+    await Promise.all(servers.splice(0).map((server) =>
+      new Promise<void>((resolve) => server.close(() => resolve()))));
+    await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+  });
+
+  function captureRequest(kind: CaptureRequest["kind"], sourceIdentity: string): CaptureRequest {
+    return {
+      kind,
+      sourceIdentity,
+      purposeRef: "purpose/recapture-demo",
+      exactRightsScope: "rights/recapture-demo/v1",
+      sourceVersionRef: `${sourceIdentity}@v1`,
+      secretsRef: "secrets/recapture-host",
+      frameClockRef: "clock/recapture-host",
+    };
+  }
+
+  function realScene(sceneId: string, sourceRef: CaptureRequest): Scenario["scenes"][number] {
+    return {
+      sceneId,
+      sourceRef,
+      actorRefs: [],
+      narration: [],
+      captionRefs: [],
+      durationMillis: 1_000,
+    };
+  }
+
+  it("captures real file and HTTP bytes through the routed adapters", async () => {
+    const dir = await tempDir();
+    const filePayload = new Uint8Array([9, 8, 7, 6, 5]);
+    const filePath = join(dir, "scene.bin");
+    await writeFile(filePath, filePayload);
+    const httpPayload = "http-scene-real-bytes";
+    let httpRequests = 0;
+
+    await withHttpServer((_req, res) => {
+      httpRequests += 1;
+      res.writeHead(200, { "content-type": "application/octet-stream" }).end(httpPayload);
+    }, async (origin) => {
+      const fileRequest = captureRequest("MEDIA_FILE", "media-file:scene-a");
+      const httpRequest = captureRequest("HTTP_API", "api:scene-b");
+      const plan = orchestrateScenario({
+        scenarioId: "real-capture",
+        revision: "rev-1",
+        actors: [],
+        scenes: [realScene("file-scene", fileRequest), realScene("http-scene", httpRequest)],
+      });
+      expect(plan.dryRunOnly).toBe(true);
+
+      const routed = routedCaptureAdapter({
+        MEDIA_FILE: new MediaFileCaptureAdapter({
+          resolveSource: (request) => (request.sourceIdentity === "media-file:scene-a"
+            ? filePath
+            : Promise.reject(new Error("unmapped source"))),
+          allowedRoot: dir,
+        }),
+        HTTP_API: new HttpApiCaptureAdapter({
+          resolveEndpoint: () => `${origin}/capture`,
+          allowedOrigins: [origin],
+        }),
+      });
+
+      const frames = await recaptureScenario(plan, { check: () => "ADMITTED" }, routed);
+
+      expect(frames).toHaveLength(2);
+      expect(frames[0]!.bytes).toEqual(filePayload);
+      expect(frames[0]!.sourceIdentity).toBe("media-file:scene-a");
+      expect(frames[0]!.sourceVersionRef).toBe("media-file:scene-a@v1");
+      expect(frames[0]!.frameClockRef).toBe("clock/recapture-host");
+      expect(new TextDecoder().decode(frames[1]!.bytes)).toBe(httpPayload);
+      expect(frames[1]!.sourceIdentity).toBe("api:scene-b");
+      expect(httpRequests).toBe(1);
+    });
+  });
+
+  it("denied eligibility performs zero resolver, fetch or file effects", async () => {
+    const dir = await tempDir();
+    const filePath = join(dir, "scene.bin");
+    await writeFile(filePath, "payload");
+    let resolveCalls = 0;
+    let endpointCalls = 0;
+    let fetchCalls = 0;
+
+    const plan = orchestrateScenario({
+      scenarioId: "denied-capture",
+      revision: "rev-1",
+      actors: [],
+      scenes: [realScene("file-scene", captureRequest("MEDIA_FILE", "media-file:scene-a"))],
+    });
+    const routed = routedCaptureAdapter({
+      MEDIA_FILE: new MediaFileCaptureAdapter({
+        resolveSource: () => {
+          resolveCalls += 1;
+          return filePath;
+        },
+      }),
+      HTTP_API: new HttpApiCaptureAdapter({
+        resolveEndpoint: () => {
+          endpointCalls += 1;
+          return "https://api.example.com/capture";
+        },
+        fetchImpl: (async () => {
+          fetchCalls += 1;
+          throw new Error("must not be called");
+        }) as typeof fetch,
+      }),
+    });
+
+    await expect(recaptureScenario(plan, { check: () => "NOT_ADMITTED" }, routed))
+      .rejects.toBeInstanceOf(CaptureNotAdmittedError);
+    expect(resolveCalls).toBe(0);
+    expect(endpointCalls).toBe(0);
+    expect(fetchCalls).toBe(0);
+  });
+
+  it("an admitted but unwired kind fails UNKNOWN before any provider dispatch", async () => {
+    let resolveCalls = 0;
+    const plan = orchestrateScenario({
+      scenarioId: "unwired-capture",
+      revision: "rev-1",
+      actors: [],
+      scenes: [
+        realScene("camera-scene", captureRequest("CAMERA", "camera:scene-a")),
+        realScene("file-scene", captureRequest("MEDIA_FILE", "media-file:scene-b")),
+      ],
+    });
+    const routed = routedCaptureAdapter({
+      MEDIA_FILE: new MediaFileCaptureAdapter({
+        resolveSource: () => {
+          resolveCalls += 1;
+          return join(tmpdir(), "never-read.bin");
+        },
+      }),
+    });
+
+    await expect(recaptureScenario(plan, { check: () => "ADMITTED" }, routed))
+      .rejects.toMatchObject({
+        name: "CaptureOutcomeUnknownError",
+        kind: "CAMERA",
+        reason: "ADAPTER_REJECTED",
+      });
+    // The file scene was never reached: routing rejected the unwired kind
+    // before its adapter ran, and the wrapper reports post-admission UNKNOWN.
+    expect(resolveCalls).toBe(0);
   });
 });
