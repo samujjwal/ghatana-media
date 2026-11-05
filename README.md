@@ -10,6 +10,8 @@ The [PDP-0](docs/implementation/pdp-0-phase-dev-status.json), [PDP-1](docs/imple
 
 ## Start here
 
+For code, API, tests, creative features and repository hygiene across every surface, follow the [Media Surface Development Implementation Plan](docs/development/SURFACE-IMPLEMENTATION-PLAN.md). Formal lifecycle and release work are separate.
+
 Read the [documentation index](docs/README.md) for product, architecture, testing, integration, operations and migration references.
 
 **Previously selected technologies and candidates:** Start with the [Media-wide consolidated decision register](docs/implementation/MEDIA-CANDIDATE-DECISIONS-CONSOLIDATED-2026-10-28.md) and [source-linked index](docs/implementation/observations/media-candidate-decision-crosswalk-2026-10-28.json). The canonical PDP-0 38 technology decisions remain authoritative; the six R9 reference models/assets cover only Wave 2. Earlier editor/voice/image/video/music/animation/simulation decisions and historical alternatives are preserved without granting new licenses or runtime acceptance. The primary contract owners are:

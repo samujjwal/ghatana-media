@@ -1,5 +1,9 @@
 # Ghatana Media documentation
 
+## Current feature-development execution
+
+The [Media Surface Development Implementation Plan](development/SURFACE-IMPLEMENTATION-PLAN.md) is the active **implementation-only** plan for all registered surfaces, 30 product outcomes and repository hygiene. It covers feature logic, APIs, tests and stable per-surface documentation; it does not direct gtool, evidence/closure or release work. Existing dated implementation/qualification records remain source material, not a substitute for this maintained development plan.
+
 ## Current BUILD implementation plan
 
 The single canonical plan for Media's post-Discovery **BUILD / Plan Implementation** lane is [Media BUILD Implementation Plan](implementation/MEDIA-BUILD-IMPLEMENTATION-PLAN.md).
