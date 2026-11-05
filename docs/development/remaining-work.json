@@ -60,7 +60,8 @@
       "acceptance": "Roundtrip/golden/invalid/overflow/unknown-state tests and consumer ABI checks.",
       "requires": [
         "media.dev.source-capability-crosswalk"
-      ]
+      ],
+      "progress": "partial-2026-11-05: cross-language golden oracle at contracts/domain-parity/v1/golden-vectors.v1.json proves canonical job/attempt vocabularies identical across TS zod and Java projection enums plus exact sha256/rational/safe-int scalar semantics; 5 divergences recorded truthfully (DP-IDENT-MAXLENGTH, DP-TIME-NUMERATOR-ZERO, DP-SHA256-CASE, DP-BYTES-SAFE-INT, DP-UPLOAD-STATES, DP-STREAM-STATES) \u2014 upload/stream lifecycle reconciliation still required before full parity; ESM/CJS consumer ABI checks green"
     },
     {
       "id": "media.dev.rights-and-policy",

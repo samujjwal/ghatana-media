@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "media.domain-parity-golden-vectors.v1",
+  "purpose": "Cross-language golden vectors binding the canonical Media domain contract. Every vector carries a per-language expected verdict so real divergence is recorded truthfully instead of hidden by a passing test.",
+  "authorities": {
+    "typescript": "libs/audio-video-types/src/contracts.ts (zod schemas)",
+    "java": "runtime-contracts/src/main/java/com/ghatana/media/runtime (MediaLifecycleProjection / MediaRuntimeContracts)"
+  },
+  "sharedEnums": {
+    "canonicalJobStates": {
+      "authority": "PDP-1 media-job state model; MediaLifecycleProjection.LogicalJobStatus == MediaJobStateSchema",
+      "accept": ["QUEUED", "RUNNING", "RETRY_PENDING", "OUTCOME_UNKNOWN", "RECONCILING", "COMPLETED", "PARTIALLY_SUCCEEDED", "FAILED", "CANCELLED"],
+      "reject": ["PROCESSING", "DONE", "PENDING", "SUCCEEDED", "QUEUED2", "queued", "Running", "", "CANCELLING", "RETRYING"]
+    },
+    "canonicalAttemptStates": {
+      "authority": "PDP-1 media-attempt state model; MediaLifecycleProjection.LogicalAttemptStatus == MediaAttemptStateSchema",
+      "accept": ["CLAIMED", "DISPATCH_INTENT_RECORDED", "DISPATCHED", "RUNNING", "CANCEL_REQUESTED", "SUCCEEDED", "FAILED", "CANCEL_CONFIRMED", "OUTCOME_UNKNOWN", "SUPERSEDED"],
+      "reject": ["DISPATCH_INTENT", "PENDING", "LEASED", "DONE", "claimed", "RUNNING2", ""]
+    },
+    "legacyWireJobStates": {
+      "authority": "legacy wire spellings retained only at the explicit TypeScript compatibility boundary (LegacyMediaJobStateSchema); the Java canonical authority does not model them",
+      "values": ["CANCELLING", "RETRYING"],
+      "typescript": "accept-at-compatibility-boundary",
+      "java": "not-modeled"
+    }
+  },
+  "scalarVectors": {
+    "identifiers": [
+      { "value": "", "typescript": "reject", "java": "reject", "note": "empty identifier is never valid" },
+      { "value": "   ", "typescript": "reject", "java": "reject", "note": "whitespace-only is never valid" },
+      { "value": "artifact-0123456789", "typescript": "accept", "java": "accept" },
+      { "repeatChar": "x", "repeatCount": 256, "typescript": "accept", "java": "accept" },
+      { "repeatChar": "x", "repeatCount": 257, "typescript": "reject", "java": "accept", "divergence": "DP-IDENT-MAXLENGTH" }
+    ],
+    "checksumSha256Hex": [
+      { "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "accept", "java": "accept" },
+      { "value": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcde", "typescript": "reject", "java": "reject", "note": "63 hex chars" },
+      { "value": "0123456789ABCDEF0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "reject", "java": "accept", "note": "Java requireSha256 normalizes to lowercase; TS keeps wire-canonical lowercase only", "divergence": "DP-SHA256-CASE" },
+      { "value": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "typescript": "reject", "java": "reject", "note": "prefixed digest is a different field (Java ArtifactVersion identity, not checksumSha256)" }
+    ],
+    "rationalTemporal": [
+      { "numerator": 90000, "denominator": 1, "typescript": "accept", "java": "accept", "note": "MPEG-TS 90kHz" },
+      { "numerator": 30000, "denominator": 1001, "typescript": "accept", "java": "accept", "note": "NTSC" },
+      { "numerator": 1, "denominator": 0, "typescript": "reject", "java": "reject", "note": "zero denominator" },
+      { "numerator": 1, "denominator": -1, "typescript": "reject", "java": "reject" },
+      { "numerator": 0, "denominator": 1, "typescript": "accept", "java": "reject", "divergence": "DP-TIME-NUMERATOR-ZERO" }
+    ],
+    "byteCounts": [
+      { "value": 0, "typescript": "accept", "java": "accept" },
+      { "value": 9007199254740991, "typescript": "accept", "java": "accept", "note": "Number.MAX_SAFE_INTEGER; Java long-safe" },
+      { "value": -1, "typescript": "reject", "java": "reject" },
+      { "value": 1.5, "typescript": "reject", "java": "reject" },
+      { "value": 9007199254740993, "typescript": "reject", "java": "accept", "divergence": "DP-BYTES-SAFE-INT" }
+    ]
+  },
+  "vocabularyComparisons": {
+    "uploadSessionStates": {
+      "typescript": ["CREATED", "UPLOADING", "VERIFYING", "COMPLETED", "FAILED", "CANCELLED", "EXPIRED"],
+      "java": ["OPEN", "FINALIZING", "COMPLETED", "ABORTED", "EXPIRED"],
+      "verdict": "divergent-models",
+      "divergence": "DP-UPLOAD-STATES"
+    },
+    "streamStates": {
+      "typescript": "no-stream-state-contract",
+      "java": ["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"],
+      "verdict": "java-only",
+      "divergence": "DP-STREAM-STATES"
+    }
+  },
+  "knownDivergences": [
+    {
+      "id": "DP-SHA256-CASE",
+      "fields": "checksumSha256 letter case",
+      "typescript": "rejects uppercase hex (wire-canonical)",
+      "java": "accepts and normalizes to lowercase in requireSha256",
+      "reconciliation": "acceptable at an explicit normalization boundary; wire producers must emit lowercase so observations are byte-identical across languages"
+    },
+    {
+      "id": "DP-IDENT-MAXLENGTH",
+      "fields": "identifier max length",
+      "typescript": "rejects > 256 chars (IdentifierSchema.max(256))",
+      "java": "non-blank only; no length ceiling on required()",
+      "reconciliation": "either hoist the 256 bound into Java required() callsites that back the same contract, or record the TS projection bound as an intentional stricter projection — owner decision pending"
+    },
+    {
+      "id": "DP-TIME-NUMERATOR-ZERO",
+      "fields": "numerator = 0",
+      "typescript": "SourcePresentationTime accepts numerator 0 (a zero-tick point is meaningful)",
+      "java": "MediaTimebase rejects numerator < 1 (it models a positive rational rate, not a point)",
+      "reconciliation": "conceptually different contracts (time point vs timebase rate); divergence is intentional but must stay documented so a zero-point value is never routed into a rate slot"
+    },
+    {
+      "id": "DP-BYTES-SAFE-INT",
+      "fields": "byte counts above Number.MAX_SAFE_INTEGER",
+      "typescript": "rejects unsafe integers (z.number().int().safe())",
+      "java": "long accepts up to 2^63-1",
+      "reconciliation": "wire exchange should keep the TS bound as the transport ceiling; Java-side values > MAX_SAFE_INTEGER are never valid on the wire"
+    },
+    {
+      "id": "DP-UPLOAD-STATES",
+      "fields": "upload session state vocabulary",
+      "typescript": "CREATED/UPLOADING/VERIFYING/COMPLETED/FAILED/CANCELLED/EXPIRED",
+      "java": "OPEN/FINALIZING/COMPLETED/ABORTED/EXPIRED",
+      "reconciliation": "needs one canonical upload lifecycle projection like MediaLifecycleProjection provides for jobs — follow-up work, not hidden"
+    },
+    {
+      "id": "DP-STREAM-STATES",
+      "fields": "stream session state vocabulary",
+      "typescript": "no public stream-state contract",
+      "java": "OPEN/CONNECTED/DEGRADED/DRAINING/CLOSED/FAILED",
+      "reconciliation": "TS surface lacks the stream model entirely; required before stream operations reach the public SDK"
+    }
+  ]
+}
