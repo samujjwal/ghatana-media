@@ -13,6 +13,7 @@ dependencies {
     // The moved agent wrappers use Shared's agent contracts/runtime directly.
     implementation("com.ghatana.platform:agent-core:${providers.gradleProperty("ghatana.shared.version").get()}")
     implementation("com.ghatana.platform:agent-runtime:${providers.gradleProperty("ghatana.shared.version").get()}")
+    implementation(libs.jackson.databind)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
