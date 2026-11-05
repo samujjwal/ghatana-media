@@ -7,8 +7,8 @@
     ".product-experience/pdp-1-domain-data/operations.yaml"
   ],
   "denominators": {
-    "exportedTypes": 22,
-    "publicSchemas": 23
+    "exportedTypes": 24,
+    "publicSchemas": 25
   },
   "runtimeSupportImplied": false,
   "semanticOperationParity": "UNRESOLVED",
@@ -291,6 +291,26 @@
       ],
       "bindingStatus": "PROPOSAL_ROLE_ONLY",
       "runtimeSupport": false
+    },
+    {
+      "schema": "MediaRuntimeUploadStatusSchema",
+      "type": "MediaRuntimeUploadStatus",
+      "role": "DOMAIN_STATE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.upload-session"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
+    },
+    {
+      "schema": "MediaRuntimeStreamStateSchema",
+      "type": "MediaRuntimeStreamState",
+      "role": "DOMAIN_STATE_PROJECTION",
+      "pdp1Refs": [
+        "media.domain.stream-session"
+      ],
+      "bindingStatus": "PROPOSAL_ROLE_ONLY",
+      "runtimeSupport": false
     }
   ],
   "ownerDecision": ".product-experience/reviews/2026-10-07-all-gate-unblocking.md",
@@ -506,6 +526,24 @@
         "role": "STATE_PROJECTION",
         "semanticRef": "media-job",
         "reason": "raw state observation preserves machine scope and legacy uncertainty; no runtime currentness or cross-machine equivalence claim",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaRuntimeUploadStatus",
+        "schema": "MediaRuntimeUploadStatusSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-upload-and-artifact",
+        "reason": "exact Media runtime wire enum only; no legacy state conversion, artifact finality or runtime/provider admission inferred",
+        "source": "libs/audio-video-types/src/contracts.ts",
+        "admission": "SOURCE_ROLE_ONLY"
+      },
+      {
+        "type": "MediaRuntimeStreamState",
+        "schema": "MediaRuntimeStreamStateSchema",
+        "role": "STATE_PROJECTION",
+        "semanticRef": "media-stream-session",
+        "reason": "exact Media runtime wire enum only; no legacy state conversion, artifact finality or runtime/provider admission inferred",
         "source": "libs/audio-video-types/src/contracts.ts",
         "admission": "SOURCE_ROLE_ONLY"
       }

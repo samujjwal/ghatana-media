@@ -16,13 +16,18 @@ adapters (`HttpApiCaptureAdapter`, `MediaFileCaptureAdapter`,
 
 ## States and invariants
 
+- The actual five-state runtime upload `status` and six-state runtime
+  stream `state` are shared with `@audio-video/types/contracts`. The
+  older seven-state `UploadSessionSchema` is not a synonym for the actual
+  upload response; no automatic conversion is permitted.
 - Exact admission and frame binding: captured frames bind all exact
   request fields (identity, purpose, rights scope, version, secrets,
   frame clock) with detached byte storage; eligibility denial precedes
   endpoint/path resolution or transport effects.
-- Capture adapters remain bounded and host-resolved; unwired kinds
-  (BROWSER/DESKTOP/MOBILE/TERMINAL/GRPC_API/CAMERA) reject via
-  `CaptureAdapterNotWiredError` — nothing simulates them.
+- Capture adapters remain bounded and host-resolved; HTTP_API, MEDIA_FILE,
+  TERMINAL, DESKTOP, MOBILE and BROWSER have typed implementations in the
+  client source. GRPC_API and CAMERA still require real qualified host
+  adapters and must not return fabricated frames.
 - Adapter failures/malformed frames become sanitized
   `CaptureOutcomeUnknownError`; no URLs, secrets or provider detail in
   errors.
@@ -41,6 +46,7 @@ no false success after admitted effects.
 
 ## Tests
 
-`pnpm --filter @audio-video/client test` (**381 passed / 42 skipped**),
+`pnpm --filter @audio-video/client test` (the latest reported implementation
+pass grew to **435 passing tests**; re-run after contract changes),
 `typecheck`, package build (ESM+CJS), `test:package` isolated consumer,
 subpath smoke tests, `pnpm test:typed-contract-bindings` (39/39).

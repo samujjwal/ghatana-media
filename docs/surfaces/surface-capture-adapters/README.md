@@ -14,16 +14,20 @@ purpose, rights scope, version, secrets and frame-clock bindings.
 
 Concrete adapters: `HttpApiCaptureAdapter` (HTTP_API — host-resolved
 endpoints, HTTPS-or-loopback/allowlist, userinfo rejection, ≤5
-revalidated redirects, deadline, byte cap) and
+revalidated redirects, deadline, byte cap),
 `MediaFileCaptureAdapter` (MEDIA_FILE — host-resolved path, optional
-`allowedRoot` realpath containment, bounded reads).
+`allowedRoot` realpath containment, bounded reads), and host-resolved
+TERMINAL, DESKTOP, MOBILE and BROWSER source adapters. The new host-based
+adapters recheck source permissions per frame and detach once; none opens
+an unapproved OS resource or substitutes synthetic pixels.
 
 ## States and invariants
 
 - Supported kinds: BROWSER, DESKTOP, MOBILE, TERMINAL, HTTP_API,
-  GRPC_API, CAMERA, MEDIA_FILE — only HTTP_API and MEDIA_FILE are
-  wired; others reject via `CaptureAdapterNotWiredError` before
-  dispatch. Nothing simulates unwired providers.
+  GRPC_API, CAMERA, MEDIA_FILE — GRPC_API and CAMERA remain unwired
+  and reject via `CaptureAdapterNotWiredError` before dispatch.
+  Other source types still require a real host adapter and authority;
+  no source type may fabricate captured bytes.
 - Admission outcomes: `ADMITTED`, `NOT_ADMITTED`, `UNAVAILABLE`.
 - Errors never contain endpoint URLs, resolved paths, payload/provider
   detail or caller references.

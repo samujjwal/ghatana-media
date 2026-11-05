@@ -7,8 +7,8 @@ parity checks; it performs no I/O and admits nothing at runtime.
 
 ## Responsibility
 
-- Define the strict canonical projections consumed by
-  `@audio-video/client`: artifacts, upload sessions, the job state machine,
+- Define the strict typed projections consumed by
+  `@audio-video/client`: artifacts, separate legacy and runtime upload sessions, the job state machine,
   attempt states, provider capabilities, canonical errors and the
   operation request/result pairs (transcription, synthesis, voice
   training/conversion, multimodal analysis).
@@ -43,6 +43,11 @@ superset — the same parsers, not a duplicate implementation.
   at the compatibility boundary: `observeMediaJobState` records the raw
   observation with `mappingDisposition` and never coerces a legacy
   spelling into a canonical state it cannot prove.
+- `MediaRuntimeUploadStatusSchema` and `MediaRuntimeStreamStateSchema`
+  expose the exact five-state upload and six-state stream vocabularies
+  used by the Java runtime and canonical SDK. The older seven-state
+  `UploadSessionSchema` is a distinct compatibility model: never infer
+  a mapping from its values to actual upload operations.
 - `MediaAttemptStateSchema` projects the ten PDP-1 attempt states
   (`CLAIMED`…`SUPERSEDED`) as values only.
 - Identity fields reject blank/whitespace-only strings; timestamps are

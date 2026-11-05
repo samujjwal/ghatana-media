@@ -16,11 +16,13 @@ Recorder orchestration channel. Physical owner:
 
 ## States and invariants
 
-- Plan targets remaining: authorized scheduling, actual adapter
-  execution breadth, source- and scene-keyed recapture, narration,
-  subtitle mux and final recording — reuse scenario version refs.
-- Only `HTTP_API` and `MEDIA_FILE` have concrete adapters; other source
-  kinds remain honestly unwired.
+- `executeScenario` now records actual authorized per-scene attempts,
+  source digests and honest outcomes. Frame-aligned VTT/TTML caption plans
+  use integer ticks and approved-narration gating.
+- Remaining: real audio narration rendering, final media mux, qualified
+  GRPC_API/CAMERA capture, finished playable recording and persistent
+  artifact version. These are separate tasks, not a reason to recreate
+  the already implemented orchestration and captions.
 - Admission precedes resolution/transport; adapter failures become
   sanitized `CaptureOutcomeUnknownError`.
 
@@ -37,4 +39,5 @@ Eligibility denial → zero adapter calls; unwired kind →
 ## Tests
 
 `recorder-orchestrator.test.ts` end-to-end real-capture suites;
-`pnpm --filter @audio-video/client test` (381 passed).
+`pnpm --filter @audio-video/client test` (reported 435 passing in latest
+implementation pass; re-run affected suites after new API changes).

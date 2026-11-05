@@ -25,11 +25,12 @@ responses/state across every channel — no channel-private semantics.
 
 ## Failure / rollback
 
-Contract drift fails parity checks (currently pinned NON-GREEN on one
-stale multimodal SDK route disposition pending owner review); channel-
-specific bypass attempts are rejected by shared admission/binding
-rules; SDK registry crosswalk gap (60 declarations vs 33 registry rows)
-is an owner-pending reconciliation.
+Contract drift must fail parity checks. The stale legacy multimodal SDK
+route was dispositioned as non-dispatching rather than inventing an
+endpoint, and the 60-declaration/33-registry observation now has a
+source-backed crosswalk. Shared runtime upload and stream enums were
+added without converting the unrelated seven-state legacy upload view.
+Actual installed clients and real provider effects still need testing.
 
 ## Cross-child behavior test
 
