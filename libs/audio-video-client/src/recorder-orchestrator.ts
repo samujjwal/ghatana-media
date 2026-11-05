@@ -10,6 +10,7 @@
  */
 
 import {
+  CaptureNotAdmittedError,
   captureWithAdmission,
   noAdmittedCaptureAdapter,
   type CaptureAdapterEligibility,
@@ -392,6 +393,136 @@ export async function recaptureScenario(
     frames.push(await captureWithAdmission(eligibility, adapter, run.capturePlan));
   }
   return frames;
+}
+
+export type SceneAttemptOutcome = "CAPTURED" | "NOT_ADMITTED" | "OUTCOME_UNKNOWN";
+
+/**
+ * One real attempt record per executed scene. `sourceDigest` is the SHA-256
+ * of the captured frame bytes — a real observed digest, never a declared
+ * digest. `OUTCOME_UNKNOWN` is retained when a capture crosses the provider
+ * boundary without a durable ack; it is never coerced to success or failure.
+ */
+export interface SceneAttemptRecord {
+  readonly sceneId: string;
+  readonly lineageId: string;
+  readonly sourceRevision: string;
+  readonly outcome: SceneAttemptOutcome;
+  readonly sourceDigest: string | null;
+  readonly capturedBytes: number;
+  readonly attemptedAtEpochMillis: number;
+}
+
+export interface ScenarioExecutionRecord {
+  readonly scenarioId: string;
+  readonly revision: string;
+  readonly planIdentity: string;
+  readonly attempts: readonly SceneAttemptRecord[];
+  readonly executedAtEpochMillis: number;
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256",
+    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Unattended bounded scenario execution: runs each selected scene through the
+ * eligibility seam once and records a truthful per-scene attempt outcome.
+ * NOT_ADMITTED eligibility denials and lost-ack UNKNOWN outcomes are recorded
+ * verbatim — no retry, no coercion — and do not stop remaining bounded scenes.
+ */
+export async function executeScenario(
+  plan: OrchestrationResult,
+  eligibility: CaptureAdapterEligibility,
+  adapter: { capture(request: CaptureRequest): Promise<CapturedFrame> },
+  options: { readonly maxScenes?: number; readonly sceneIds?: readonly string[] } = {},
+): Promise<ScenarioExecutionRecord> {
+  if (!options || typeof options !== "object" || Array.isArray(options)) {
+    throw new ScenarioError("INVALID_SCENARIO", "execute options must be an object");
+  }
+  const maxScenes = options.maxScenes === undefined ? MAX_SCENES : options.maxScenes;
+  if (!Number.isSafeInteger(maxScenes) || maxScenes < 1 || maxScenes > MAX_SCENES) {
+    throw new ScenarioError("INVALID_SCENARIO",
+      `maxScenes must be an integer between 1 and ${MAX_SCENES}`);
+  }
+  assertBoundedSceneRuns(plan, "prior");
+  const runsById = new Map(plan.sceneRuns.map((run) => [run.sceneId, run]));
+  let selected = plan.sceneRuns;
+  if (options.sceneIds !== undefined) {
+    if (!Array.isArray(options.sceneIds)) {
+      throw new ScenarioError("INVALID_SCENARIO", "sceneIds must be an array");
+    }
+    const requested = options.sceneIds.map((id, i) => requireText(id, `sceneIds[${i}]`));
+    for (const id of requested) {
+      if (!runsById.has(id)) {
+        throw new ScenarioError("INVALID_SCENARIO", `unknown execute sceneId: ${id}`);
+      }
+    }
+    const idSet = new Set(requested);
+    if (idSet.size !== requested.length) {
+      throw new ScenarioError("INVALID_SCENARIO", "duplicate execute sceneId selector");
+    }
+    selected = plan.sceneRuns.filter((run) => idSet.has(run.sceneId));
+  }
+  if (selected.length > maxScenes) {
+    throw new ScenarioError("INVALID_SCENARIO",
+      `execution of ${selected.length} scenes exceeds bound ${maxScenes}`);
+  }
+  const attempts: SceneAttemptRecord[] = [];
+  for (const run of selected) {
+    const attemptedAt = Date.now();
+    try {
+      const frame = await captureWithAdmission(eligibility, adapter, run.capturePlan);
+      attempts.push({
+        sceneId: run.sceneId,
+        lineageId: run.lineageId,
+        sourceRevision: run.sourceRevision,
+        outcome: "CAPTURED",
+        sourceDigest: await sha256Hex(frame.bytes),
+        capturedBytes: frame.bytes.byteLength,
+        attemptedAtEpochMillis: attemptedAt,
+      });
+    } catch (error) {
+      const denied = error instanceof CaptureNotAdmittedError;
+      attempts.push({
+        sceneId: run.sceneId,
+        lineageId: run.lineageId,
+        sourceRevision: run.sourceRevision,
+        outcome: denied ? "NOT_ADMITTED" : "OUTCOME_UNKNOWN",
+        sourceDigest: null,
+        capturedBytes: 0,
+        attemptedAtEpochMillis: attemptedAt,
+      });
+    }
+  }
+  return {
+    scenarioId: plan.scenarioId,
+    revision: plan.revision,
+    planIdentity: plan.planIdentity,
+    attempts,
+    executedAtEpochMillis: Date.now(),
+  };
+}
+
+/**
+ * Selects sceneIds whose materialized fields changed relative to a prior
+ * execution — the deterministic "changed scene alone recaptures" selector.
+ * Scenes absent from prior, or whose prior attempt was not CAPTURED, run
+ * again; identical carried scenes are skipped.
+ */
+export function scenesRequiringRecapture(
+  prior: OrchestrationResult,
+  next: OrchestrationResult,
+  priorAttempts: readonly SceneAttemptRecord[] = [],
+): readonly string[] {
+  const delta = changedSceneLineages(prior, next);
+  const capturedLineages = new Set(
+    priorAttempts.filter((a) => a.outcome === "CAPTURED").map((a) => a.lineageId));
+  return next.sceneRuns
+    .filter((run) => delta.replanned.includes(run.sceneId) || !capturedLineages.has(run.lineageId))
+    .map((run) => run.sceneId);
 }
 
 export { noAdmittedCaptureAdapter };

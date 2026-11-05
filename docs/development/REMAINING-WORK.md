@@ -354,7 +354,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Consent revoked midframe, device switch, no leaked capture and PTS ordering.
 - **Predecessors:** `media.dev.stream-session-authority`
 
-**`media.dev.recorder-actual-execution`** · OPEN
+**`media.dev.recorder-actual-execution`** · VERIFIED (executeScenario records per-scene digest/outcome honestly; scenesRequiringRecapture selects only changed scenes — 5 tests green)
 - **Where:** `libs/audio-video-client/src/recorder-orchestrator.ts`, `runtime-contracts`
 - **What:** Execute admitted scenario captures unattended with deterministic selective recapture.
 - **How:** Use existing `orchestrateScenario` and `recaptureScenario`, schedule bounded adapters and record real source digest/scene revision/attempt outcome; never coerce UNKNOWN.

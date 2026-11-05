@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 88,
-      "VERIFIED": 13,
+      "OPEN": 87,
+      "VERIFIED": 14,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -736,7 +736,7 @@
     {
       "id": "media.dev.recorder-actual-execution",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/recorder-orchestrator.ts",
         "runtime-contracts"
@@ -746,7 +746,8 @@
       "acceptance": "Two-run identical scenes skip, changed scene alone recaptures, provider denies and lost ACK leave honest status.",
       "requires": [
         "media.dev.capture-http-and-file-regression"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: executeScenario + scenesRequiringRecapture added to recorder-orchestrator.ts \u2014 unattended bounded execution records per-scene lineageId/sourceRevision/outcome/real-SHA256-digest/bytes; NOT_ADMITTED and OUTCOME_UNKNOWN recorded verbatim, never coerced; two-run identical scenes skip, changed scene alone recaptures, non-CAPTURED reruns; 5 new vitest cases, suite 398 green, typecheck clean"
     },
     {
       "id": "media.dev.recorder-narration-and-captions",

@@ -7,8 +7,10 @@ import { join } from "node:path";
 import {
   ScenarioError,
   changedSceneLineages,
+  executeScenario,
   orchestrateScenario,
   recaptureScenario,
+  scenesRequiringRecapture,
   type Scenario,
 } from "./recorder-orchestrator";
 import {
@@ -629,5 +631,97 @@ describe("recaptureScenario with real routed capture adapters", () => {
     // The file scene was never reached: routing rejected the unwired kind
     // before its adapter ran, and the wrapper reports post-admission UNKNOWN.
     expect(resolveCalls).toBe(0);
+  });
+});
+describe("executeScenario", () => {
+  const frame: CapturedFrame = {
+    sourceIdentity: "browser/demo/intro",
+    purposeRef: "purpose/demo-recording",
+    exactRightsScope: "rights/demo-recording/v1",
+    sourceVersionRef: "intro@v2",
+    frameClockRef: "clock/demo-host",
+    bytes: new Uint8Array([7]),
+    capturedAtEpochMillis: 1,
+  };
+
+  it("records a real SHA-256 source digest and per-scene CAPTURED outcomes", async () => {
+    const plan = orchestrateScenario(scenario());
+    const record = await executeScenario(plan, { check: () => "ADMITTED" }, {
+      capture: async (request) => ({
+        ...frame,
+        sourceIdentity: request.sourceIdentity,
+        purposeRef: request.purposeRef,
+        exactRightsScope: request.exactRightsScope,
+        sourceVersionRef: request.sourceVersionRef,
+        frameClockRef: request.frameClockRef,
+      }),
+    });
+    expect(record.attempts).toHaveLength(2);
+    for (const attempt of record.attempts) {
+      expect(attempt.outcome).toBe("CAPTURED");
+      expect(attempt.sourceDigest).toMatch(/^[0-9a-f]{64}$/);
+      expect(attempt.capturedBytes).toBe(1);
+    }
+    const expected = Array.from(
+      new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", new Uint8Array([7]).buffer)),
+    ).map((b) => b.toString(16).padStart(2, "0")).join("");
+    expect(record.attempts[0]!.sourceDigest).toBe(expected);
+  });
+
+  it("records NOT_ADMITTED for denied scenes and OUTCOME_UNKNOWN for lost ack — never coerced", async () => {
+    const plan = orchestrateScenario(scenario());
+    let calls = 0;
+    const record = await executeScenario(plan,
+      { check: (r) => (r.sourceVersionRef === "intro@v2" ? "NOT_ADMITTED" : "ADMITTED") },
+      { capture: async () => { calls += 1; throw new Error("transport lost after dispatch"); } });
+    expect(calls).toBe(1);
+    expect(record.attempts[0]!.outcome).toBe("NOT_ADMITTED");
+    expect(record.attempts[0]!.sourceDigest).toBeNull();
+    expect(record.attempts[1]!.outcome).toBe("OUTCOME_UNKNOWN");
+    expect(record.attempts[1]!.sourceDigest).toBeNull();
+  });
+
+  it("two identical runs recapture nothing; changed scene alone is selected", async () => {
+    const prior = orchestrateScenario(scenario());
+    const first = await executeScenario(prior, { check: () => "ADMITTED" }, {
+      capture: async (request) => ({
+        ...frame,
+        sourceIdentity: request.sourceIdentity,
+        purposeRef: request.purposeRef,
+        exactRightsScope: request.exactRightsScope,
+        sourceVersionRef: request.sourceVersionRef,
+        frameClockRef: request.frameClockRef,
+      }),
+    });
+    const unchanged = orchestrateScenario(scenario());
+    expect(scenesRequiringRecapture(prior, unchanged, first.attempts)).toEqual([]);
+
+    const next = orchestrateScenario(scenario({
+      scenes: [
+        { ...scenario().scenes[0]!, sourceRef: { ...scenario().scenes[0]!.sourceRef, sourceVersionRef: "intro@v3" } },
+        scenario().scenes[1]!,
+      ],
+    }));
+    expect(scenesRequiringRecapture(prior, next, first.attempts)).toEqual(["intro"]);
+  });
+
+  it("reruns scenes whose prior attempt was not CAPTURED", async () => {
+    const prior = orchestrateScenario(scenario());
+    const denied = await executeScenario(prior, { check: () => "NOT_ADMITTED" }, {
+      capture: async () => frame,
+    });
+    const next = orchestrateScenario(scenario());
+    expect(scenesRequiringRecapture(prior, next, denied.attempts)).toEqual(["intro", "main"]);
+  });
+
+  it("rejects oversized selectors and unknown sceneIds before any capture", async () => {
+    const plan = orchestrateScenario(scenario());
+    let calls = 0;
+    const adapter = { capture: async () => { calls += 1; return frame; } };
+    await expect(executeScenario(plan, { check: () => "ADMITTED" }, adapter,
+      { sceneIds: ["nope"] })).rejects.toBeInstanceOf(ScenarioError);
+    await expect(executeScenario(plan, { check: () => "ADMITTED" }, adapter,
+      { maxScenes: 1 })).rejects.toBeInstanceOf(ScenarioError);
+    expect(calls).toBe(0);
   });
 });
