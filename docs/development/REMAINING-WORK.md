@@ -319,7 +319,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** Permission revoked, hidden/overlay, CSP, clock drift, source-version mismatch and actual video playback.
 - **Predecessors:** `media.dev.capture-http-and-file-regression`
 
-**`media.dev.desktop-source-capture`** · OPEN
+**`media.dev.desktop-source-capture`** · VERIFIED (DesktopCaptureAdapter: opt-in consent rechecked per frame, bounded, detach-once, no Tauri — 9 tests green)
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`, `modules/intelligence/ai-voice`
 - **What:** Implement opt-in desktop/window capture without resurrecting archived Tauri backend.
 - **How:** Host adapter behind OS capture rights, source and crop geometry, device changes and cancellation, no secret/window leakage.

@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 85,
-      "VERIFIED": 16,
+      "OPEN": 84,
+      "VERIFIED": 17,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -661,7 +661,7 @@
     {
       "id": "media.dev.desktop-source-capture",
       "group": "capture",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "libs/audio-video-client/src/capture-adapters.ts",
         "modules/intelligence/ai-voice"
@@ -671,7 +671,8 @@
       "acceptance": "Real desktop source fixture, permission denial, display change, no pixels after revoke.",
       "requires": [
         "media.dev.capture-http-and-file-regression"
-      ]
+      ],
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/desktop-capture-adapter.ts \u2014 opt-in host-resolved DesktopCaptureSource only (no display enumeration, no Tauri), per-frame consent recheck (no pixels after mid-run revoke), geometry validation on display change, frame/byte/duration bounds, detach exactly-once; 9 vitest cases incl. denied-before-read, revoke, resize, off-source refusal, admission seam; typecheck clean"
     },
     {
       "id": "media.dev.mobile-source-capture",
