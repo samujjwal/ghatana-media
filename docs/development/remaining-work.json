@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 90,
-      "VERIFIED": 11,
+      "OPEN": 89,
+      "VERIFIED": 12,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -450,7 +450,7 @@
     {
       "id": "media.dev.native-media-dsp",
       "group": "modalities",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs",
         "libs/java/common"
@@ -458,7 +458,8 @@
       "what": "Qualify bounded native audio decode/resample/mix and codec sample/clock accuracy.",
       "how": "Reuse existing Blackman windowed-sinc, verify overflow/alias/long duration, native resource ownership; avoid second modality provider.",
       "acceptance": "Rust property/fuzz, codec roundtrip, stereo, alias rejection, peak RSS and JNI cross-process behavior.",
-      "requires": []
+      "requires": [],
+      "verificationEvidence": "verified-2026-11-05: cargo test 60/60 green (seeded-mutation panic-free fuzz, PCM16/24 codec roundtrip byte-deterministic WAV, stereo channel isolation/interleaving, RS03 alias rejection, f32 overflow refusal, long-duration rational-endpoint drift); decode-rss-probe measured 2.6MB peak RSS for bounded 10s decode; scripts/test_measure_speech_audio_rss.py 17/17; Java-side native loading cross-process covered by WhisperCppAdapter/CoquiTtsAdapter + WhisperPerformanceQualificationTest process RSS/CPU; crate exposes no JNI surface (pure Rust lib consumed via Rust services)"
     },
     {
       "id": "media.dev.shared-engine-consolidation",

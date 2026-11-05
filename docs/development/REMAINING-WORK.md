@@ -226,7 +226,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 #### modalities
 
-**`media.dev.native-media-dsp`** · OPEN
+**`media.dev.native-media-dsp`** · VERIFIED (60 Rust tests + RSS probe + 17 Python RSS tests + Java native cross-process adapters — no new provider introduced)
 - **Where:** `modules/intelligence/speech/libs/speech-audio-rust/src/lib.rs`, `libs/java/common`
 - **What:** Qualify bounded native audio decode/resample/mix and codec sample/clock accuracy.
 - **How:** Reuse existing Blackman windowed-sinc, verify overflow/alias/long duration, native resource ownership; avoid second modality provider.
