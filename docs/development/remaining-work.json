@@ -23,11 +23,21 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 82,
       "VERIFIED": 19,
-      "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
-      "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
-    }
+      "OPEN": 83,
+      "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1
+    },
+    "byWorkStartReadiness": {
+      "ALREADY_VERIFIED_AS_REPORTED": 19,
+      "OWNER_SEMANTICS_AND_SOURCE_RECONCILED_TEST_EXECUTION_PENDING": 1,
+      "READY_FOR_INDEPENDENT_ENGINEERING": 41,
+      "OPTIONAL_DOWNSTREAM": 1,
+      "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE": 10,
+      "SAFE_PREPARATION_NOW_DELETION_HELD": 1,
+      "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS": 30
+    },
+    "archiveCandidates": 42,
+    "archiveBytes": 428652561
   },
   "tasks": [
     {
@@ -40,10 +50,14 @@
         "docs/surfaces"
       ],
       "what": "Reconcile every authored capability intent to active code/delegate/test and document the truly inapplicable leaves.",
-      "how": "Derive an implementation inventory from current PDP0\u20133, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.",
+      "how": "Derive an implementation inventory from current PDP0–3, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.",
       "acceptance": "No unclassified active intent; no fake success/N/A; retain authoritative PDP IDs.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: per-leaf inventory at docs/development/capability-implementation-crosswalk.v1.json classifies all 469 PDP-0 capability leaves (463 NOT_IMPLEMENTED with exact blocking task refs + evidence paths, 6 OPTIONAL_DEFERRED); unknown/unclassified intents fail check:capability-implementation-crosswalk; tests/media-capability-implementation-crosswalk.test.mjs green"
+      "verificationEvidence": "verified-2026-11-05: per-leaf inventory at docs/development/capability-implementation-crosswalk.v1.json classifies all 469 PDP-0 capability leaves (463 NOT_IMPLEMENTED with exact blocking task refs + evidence paths, 6 OPTIONAL_DEFERRED); unknown/unclassified intents fail check:capability-implementation-crosswalk; tests/media-capability-implementation-crosswalk.test.mjs green",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.domain-contract-parity",
@@ -61,7 +75,19 @@
       "requires": [
         "media.dev.source-capability-crosswalk"
       ],
-      "progress": "partial-2026-11-05: cross-language golden oracle at contracts/domain-parity/v1/golden-vectors.v1.json proves canonical job/attempt vocabularies identical across TS zod and Java projection enums plus exact sha256/rational/safe-int scalar semantics; 5 divergences recorded truthfully (DP-IDENT-MAXLENGTH, DP-TIME-NUMERATOR-ZERO, DP-SHA256-CASE, DP-BYTES-SAFE-INT, DP-UPLOAD-STATES, DP-STREAM-STATES) \u2014 upload/stream lifecycle reconciliation still required before full parity; ESM/CJS consumer ABI checks green"
+      "progress": "Current owner interpretation committed: five-state runtime upload and six-state runtime stream enums shared in TS and Java golden source; old seven-state UploadSessionSchema remains distinct and is never losslessly mapped. Four other scalar differences have explicit boundary policies. Code in 8f48957e; no fresh pnpm/Gradle tests run here.",
+      "workStartReadiness": "OWNER_SEMANTICS_AND_SOURCE_RECONCILED_TEST_EXECUTION_PENDING",
+      "integrationPrerequisites": [
+        "media.dev.source-capability-crosswalk"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "ownerDisposition": "DISTINCT_LEGACY_UPLOAD_AND_RUNTIME_MODEL; SHARED_RUNTIME_UPLOAD_AND_STREAM_ENUMS; TESTS_PENDING",
+      "remaining": [
+        "Run pnpm typecheck and cross-language golden suites",
+        "Run source-free installed package and HTTP/gRPC parser/API compatibility tests",
+        "Only mark VERIFIED after results and actual wire checks"
+      ]
     },
     {
       "id": "media.dev.rights-and-policy",
@@ -77,7 +103,13 @@
       "acceptance": "Wrong-tenant/cross-purpose/revoke-mid-flight/biometric/fake principal cause zero effects.",
       "requires": [
         "media.dev.domain-contract-parity"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.canonical-artifact-storage",
@@ -94,7 +126,14 @@
       "requires": [
         "media.dev.domain-contract-parity",
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity",
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.database-upgrade-compatibility",
@@ -104,12 +143,18 @@
         "providers/aws-postgresql/src/main/resources/db/media-runtime",
         "modules/infrastructure/persistence"
       ],
-      "what": "Verify actual compatible V001\u2013V029 schema upgrades without duplicate writers.",
+      "what": "Verify actual compatible V001–V029 schema upgrades without duplicate writers.",
       "how": "Exercise migrations on authentic nonproduction lineage; use DB-only single writer and revert-safe readback; do not claim production cutover.",
       "acceptance": "Testcontainers baseline->upgrade, interrupted migration, rollback and legacy-writer-denial.",
       "requires": [
         "media.dev.canonical-artifact-storage"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-artifact-storage"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.canonical-job-reconciliation",
@@ -126,7 +171,14 @@
       "requires": [
         "media.dev.canonical-artifact-storage",
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-artifact-storage",
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.transactional-event-outbox",
@@ -142,7 +194,13 @@
       "acceptance": "Lost ACK, double consumer, partition, crash-after-publish and readback parity tests.",
       "requires": [
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.rights-aware-cache",
@@ -157,7 +215,13 @@
       "acceptance": "Cross-tenant, revocation, restart, eviction, stale metadata, stampede and outage tests.",
       "requires": [
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.stream-session-authority",
@@ -173,7 +237,13 @@
       "acceptance": "Gap/reorder/lease expiry/revoke while live, backpressure, EOS, abort, restart and 1/16/64 clients.",
       "requires": [
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.exclusive-invocation-claim-verification",
@@ -187,7 +257,11 @@
       "how": "Run focused tests on macOS and Linux, including independent processes, crash and unsupported filesystem; require exactly one claim; review read/complete/lock path.",
       "acceptance": "All focused tests green, no existing fence overwrite and no terminal injection through record().",
       "requires": [],
-      "verification": "macOS focused suite green incl. 6-process contention (exactly one claim), crash-after-claim fence, unwritable-dir fail-closed; FileInvocationLedgerTest + FileInvocationLedgerClaimWorker"
+      "verification": "macOS focused suite green incl. 6-process contention (exactly one claim), crash-after-claim fence, unwritable-dir fail-closed; FileInvocationLedgerTest + FileInvocationLedgerClaimWorker",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.projection-pre-dispatch-fence-verification",
@@ -201,7 +275,11 @@
       "how": "Run focused tests, kill process at pre-store/after-store/before-final-persist points, verify corrupt read fails and readback must match exact record.",
       "acceptance": "No duplicate sink call after ambiguous crash, no stale floor reset or cross-run state injection.",
       "requires": [],
-      "verification": "macOS focused suite green incl. real JVM halt at effect boundary -> durable PENDING_RECONCILIATION fence, no duplicate dispatch, exact-readback reconcile; corrupt state fails closed; RunLedgerProjectionProcessCrashTest"
+      "verification": "macOS focused suite green incl. real JVM halt at effect boundary -> durable PENDING_RECONCILIATION fence, no duplicate dispatch, exact-readback reconcile; corrupt state fails closed; RunLedgerProjectionProcessCrashTest",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.invocation-store-security",
@@ -217,7 +295,14 @@
       "requires": [
         "media.dev.exclusive-invocation-claim-verification",
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.exclusive-invocation-claim-verification",
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.projection-single-writer-policy",
@@ -233,7 +318,13 @@
       "requires": [
         "media.dev.projection-pre-dispatch-fence-verification"
       ],
-      "verificationEvidence": "verified-2026-11-05: FileRunLedgerProjectionState.forExclusiveWriter claims a durable hard-link writer fence; second instance fails closed (ProjectionWriterConflictException); ownership re-verified on every load/save (ProjectionWriterLostException on reclaim); close releases only for matching owner; 6-JVM race test proves exactly one claimant; multi-host still requires transactional CAS (documented, not claimed)"
+      "verificationEvidence": "verified-2026-11-05: FileRunLedgerProjectionState.forExclusiveWriter claims a durable hard-link writer fence; second instance fails closed (ProjectionWriterConflictException); ownership re-verified on every load/save (ProjectionWriterLostException on reclaim); close releases only for matching owner; 6-JVM race test proves exactly one claimant; multi-host still requires transactional CAS (documented, not claimed)",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.projection-pre-dispatch-fence-verification"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.service-observability",
@@ -249,7 +340,13 @@
       "acceptance": "Local Prometheus scrape, alert fire/clear, restart, no provider leakage; 1/16/64 budgets.",
       "requires": [
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.http-operation-parity",
@@ -266,7 +363,14 @@
       "requires": [
         "media.dev.domain-contract-parity",
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity",
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.grpc-operation-parity",
@@ -284,7 +388,13 @@
       "acceptance": "44 named RPCs plus proposal-only OCR route classified; consumer tests for all methods and auth/restart cases.",
       "requires": [
         "media.dev.domain-contract-parity"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.sdk-source-declaration-crosswalk",
@@ -301,7 +411,13 @@
       "requires": [
         "media.dev.domain-contract-parity"
       ],
-      "verificationEvidence": "verified-2026-11-05: AST crosswalk at .product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json (60 public class-member declarations = 30 registry-backed + 2 overload signatures + 28 classified unregistered surface; 3 parser-artifact rows; 26 exported functions; 86 internal declarations); independent regex census test green; @audio-video/types check + @audio-video/client test:package ESM/CJS consumers pass"
+      "verificationEvidence": "verified-2026-11-05: AST crosswalk at .product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json (60 public class-member declarations = 30 registry-backed + 2 overload signatures + 28 classified unregistered surface; 3 parser-artifact rows; 26 exported functions; 86 internal declarations); independent regex census test green; @audio-video/types check + @audio-video/client test:package ESM/CJS consumers pass",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.sdk-canonical-migration",
@@ -318,7 +434,14 @@
       "requires": [
         "media.dev.sdk-source-declaration-crosswalk",
         "media.dev.http-operation-parity"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.sdk-source-declaration-crosswalk",
+        "media.dev.http-operation-parity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.multimodal-legacy-route-disposition",
@@ -335,7 +458,13 @@
       "requires": [
         "media.dev.sdk-source-declaration-crosswalk"
       ],
-      "verificationEvidence": "verified-2026-11-05: MPSEM-0023-C002 observedRoute=none/NON_DISPATCHING_FAIL_CLOSED_BEFORE_TRANSPORT with historicalObservedRoute preserved; analyzeMultimodal throws MediaOperationNotAdmittedError before transport (zero dispatch proven by tests/media-sdk-legacy-interface-dispositions.test.mjs); parity green strict+definition-only; observation digest refreshed 27bc3474"
+      "verificationEvidence": "verified-2026-11-05: MPSEM-0023-C002 observedRoute=none/NON_DISPATCHING_FAIL_CLOSED_BEFORE_TRANSPORT with historicalObservedRoute preserved; analyzeMultimodal throws MediaOperationNotAdmittedError before transport (zero dispatch proven by tests/media-sdk-legacy-interface-dispositions.test.mjs); parity green strict+definition-only; observation digest refreshed 27bc3474",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.sdk-source-declaration-crosswalk"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.structured-cli",
@@ -350,7 +479,13 @@
       "acceptance": "Source-free binary tests with successful result, forbidden operations, timeout/UNKNOWN, schema error and process restart.",
       "requires": [
         "media.dev.sdk-canonical-migration"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.sdk-canonical-migration"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.public-events",
@@ -366,7 +501,13 @@
       "acceptance": "Consumer test replay/out-of-order, auth and event payload ABI, distinct terminal job readback.",
       "requires": [
         "media.dev.transactional-event-outbox"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.transactional-event-outbox"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.authorized-agent-delegation",
@@ -384,7 +525,15 @@
         "media.dev.exclusive-invocation-claim-verification",
         "media.dev.rights-and-policy",
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.exclusive-invocation-claim-verification",
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.optional-data-cloud-adapter",
@@ -398,7 +547,11 @@
       "what": "Keep Data Cloud entirely optional, with no role in core Media readiness.",
       "how": "Retain legacy MediaProcessorPort as compatibility-unavailable because it lacks principal/sourceVersion/purpose/rights; offer a separate rights-bound read-model publication adapter only when opted-in by actual consumer; do not build Data Cloud OCR or job writer.",
       "acceptance": "No execution via legacy SPI, zero canonical state change on Data Cloud outage, standalone compile and negative tests.",
-      "requires": []
+      "requires": [],
+      "workStartReadiness": "OPTIONAL_DOWNSTREAM",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.web-host",
@@ -415,7 +568,14 @@
       "requires": [
         "media.dev.sdk-canonical-migration",
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.sdk-canonical-migration",
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.explorer-fidelity",
@@ -430,7 +590,11 @@
       "how": "Reuse authored scenario package and narration metadata; preserve source screen IDs and clearly labeled simulated state; no live-service dependency.",
       "acceptance": "CSP, browser/a11y, deterministic scenario and narration/caption sync tests.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: test/explorer-fidelity.test.mjs proves strict dev+preview CSP (no wildcard/inline/eval), simulation always labeled (Synthetic fixture + Explorer only, admission wording negated), no live-service fetch (only bundled specification/ assets), deterministic replay across all scenario ids, and caption segments ordered within declared rational duration"
+      "verificationEvidence": "verified-2026-11-05: test/explorer-fidelity.test.mjs proves strict dev+preview CSP (no wildcard/inline/eval), simulation always labeled (Synthetic fixture + Explorer only, admission wording negated), no live-service fetch (only bundled specification/ assets), deterministic replay across all scenario ids, and caption segments ordered within declared rational duration",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.voice-workflow-ui",
@@ -445,7 +609,13 @@
       "acceptance": "Real hosted UI and consent negative, playback integrity, keyboard/a11y and responsive tests.",
       "requires": [
         "media.dev.web-host"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.web-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.native-media-dsp",
@@ -459,7 +629,11 @@
       "how": "Reuse existing Blackman windowed-sinc, verify overflow/alias/long duration, native resource ownership; avoid second modality provider.",
       "acceptance": "Rust property/fuzz, codec roundtrip, stereo, alias rejection, peak RSS and JNI cross-process behavior.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: cargo test 60/60 green (seeded-mutation panic-free fuzz, PCM16/24 codec roundtrip byte-deterministic WAV, stereo channel isolation/interleaving, RS03 alias rejection, f32 overflow refusal, long-duration rational-endpoint drift); decode-rss-probe measured 2.6MB peak RSS for bounded 10s decode; scripts/test_measure_speech_audio_rss.py 17/17; Java-side native loading cross-process covered by WhisperCppAdapter/CoquiTtsAdapter + WhisperPerformanceQualificationTest process RSS/CPU; crate exposes no JNI surface (pure Rust lib consumed via Rust services)"
+      "verificationEvidence": "verified-2026-11-05: cargo test 60/60 green (seeded-mutation panic-free fuzz, PCM16/24 codec roundtrip byte-deterministic WAV, stereo channel isolation/interleaving, RS03 alias rejection, f32 overflow refusal, long-duration rational-endpoint drift); decode-rss-probe measured 2.6MB peak RSS for bounded 10s decode; scripts/test_measure_speech_audio_rss.py 17/17; Java-side native loading cross-process covered by WhisperCppAdapter/CoquiTtsAdapter + WhisperPerformanceQualificationTest process RSS/CPU; crate exposes no JNI surface (pure Rust lib consumed via Rust services)",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.shared-engine-consolidation",
@@ -474,7 +648,13 @@
       "acceptance": "Source-free ABI, 4-service auth and no native leaks, test retries under cancellation.",
       "requires": [
         "media.dev.domain-contract-parity"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.stt-model-and-quality",
@@ -491,7 +671,14 @@
       "requires": [
         "media.dev.rights-and-policy",
         "media.dev.native-media-dsp"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy",
+        "media.dev.native-media-dsp"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.stt-streaming-and-caption",
@@ -509,7 +696,15 @@
         "media.dev.stt-model-and-quality",
         "media.dev.canonical-job-reconciliation",
         "media.dev.stream-session-authority"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.stt-model-and-quality",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.stream-session-authority"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.tts-model-and-rights",
@@ -525,7 +720,14 @@
       "requires": [
         "media.dev.rights-and-policy",
         "media.dev.shared-engine-consolidation"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy",
+        "media.dev.shared-engine-consolidation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.tts-streaming-and-finality",
@@ -543,7 +745,15 @@
         "media.dev.tts-model-and-rights",
         "media.dev.canonical-job-reconciliation",
         "media.dev.stream-session-authority"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.tts-model-and-rights",
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.stream-session-authority"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.vision-model-and-geometry",
@@ -559,7 +769,14 @@
       "requires": [
         "media.dev.rights-and-policy",
         "media.dev.shared-engine-consolidation"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy",
+        "media.dev.shared-engine-consolidation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.vision-document-intelligence",
@@ -574,7 +791,13 @@
       "acceptance": "Live supported DI client positive where available, stubbed negative/timeout/source change; no Media OCR engine.",
       "requires": [
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.multimodal-child-orchestration",
@@ -591,7 +814,15 @@
         "media.dev.stt-streaming-and-caption",
         "media.dev.vision-model-and-geometry",
         "media.dev.canonical-job-reconciliation"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.vision-model-and-geometry",
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.multimodal-grounding-and-quality",
@@ -605,7 +836,13 @@
       "acceptance": "Ambiguous clock, conflicting child outputs, confidence provenance, replay and threshold tests.",
       "requires": [
         "media.dev.multimodal-child-orchestration"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.multimodal-child-orchestration"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.load-and-quality-profiles",
@@ -625,7 +862,15 @@
         "media.dev.stt-model-and-quality",
         "media.dev.tts-model-and-rights",
         "media.dev.vision-model-and-geometry"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.stt-model-and-quality",
+        "media.dev.tts-model-and-rights",
+        "media.dev.vision-model-and-geometry"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.capture-http-and-file-regression",
@@ -640,7 +885,11 @@
       "how": "Review content bounds, redirects, TLS/SSRF, file roots, symlinks, sourceVersion/rights/clock echo and recapture with real bytes.",
       "acceptance": "Existing 381-client-suite baseline plus security adversarial cases and isolated package tests.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: source review confirms bounds \u2014 http-capture-adapter: manual per-hop redirect revalidation (0..5 hops), no userinfo, https-only except loopback, origin allowlist, 8KB URL cap, streamed body cancel at maxBytes, single deadline; file-capture-adapter: realpath containment in allowedRoot, regular-file check, stat+stream byte bounds, no path disclosure in errors; both echo purposeRef/exactRightsScope/sourceVersionRef/frameClockRef; vitest 381 passed incl. redirect-escape/userinfo/symlink/oversize adversarial cases; isolated package consumer checks pass"
+      "verificationEvidence": "verified-2026-11-05: source review confirms bounds — http-capture-adapter: manual per-hop redirect revalidation (0..5 hops), no userinfo, https-only except loopback, origin allowlist, 8KB URL cap, streamed body cancel at maxBytes, single deadline; file-capture-adapter: realpath containment in allowedRoot, regular-file check, stat+stream byte bounds, no path disclosure in errors; both echo purposeRef/exactRightsScope/sourceVersionRef/frameClockRef; vitest 381 passed incl. redirect-escape/userinfo/symlink/oversize adversarial cases; isolated package consumer checks pass",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.browser-source-capture",
@@ -657,7 +906,13 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: BrowserCaptureAdapter \u2014 host-resolved origin-permitted source only (Playwright/MediaRecorder wired by host, no arbitrary privilege), per-frame origin permission+visibility recheck, source-version binding, viewport geometry + bounded clock-drift validation, bounds, detach-once; 9 vitest cases"
+      "verificationEvidence": "verified-2026-11-05: BrowserCaptureAdapter — host-resolved origin-permitted source only (Playwright/MediaRecorder wired by host, no arbitrary privilege), per-frame origin permission+visibility recheck, source-version binding, viewport geometry + bounded clock-drift validation, bounds, detach-once; 9 vitest cases",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.capture-http-and-file-regression"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.desktop-source-capture",
@@ -673,7 +928,13 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/desktop-capture-adapter.ts \u2014 opt-in host-resolved DesktopCaptureSource only (no display enumeration, no Tauri), per-frame consent recheck (no pixels after mid-run revoke), geometry validation on display change, frame/byte/duration bounds, detach exactly-once; 9 vitest cases incl. denied-before-read, revoke, resize, off-source refusal, admission seam; typecheck clean"
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/desktop-capture-adapter.ts — opt-in host-resolved DesktopCaptureSource only (no display enumeration, no Tauri), per-frame consent recheck (no pixels after mid-run revoke), geometry validation on display change, frame/byte/duration bounds, detach exactly-once; 9 vitest cases incl. denied-before-read, revoke, resize, off-source refusal, admission seam; typecheck clean",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.capture-http-and-file-regression"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.mobile-source-capture",
@@ -688,7 +949,13 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: MobileCaptureAdapter \u2014 host-resolved permission-scoped source only, per-frame permission recheck, backgrounded app emits no media, clock-epoch change on reconnect fails closed, bounds, detach-once; 9 vitest cases"
+      "verificationEvidence": "verified-2026-11-05: MobileCaptureAdapter — host-resolved permission-scoped source only, per-frame permission recheck, backgrounded app emits no media, clock-epoch change on reconnect fails closed, bounds, detach-once; 9 vitest cases",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.capture-http-and-file-regression"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.terminal-source-capture",
@@ -703,7 +970,13 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts \u2014 host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean"
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/terminal-capture-adapter.ts — host-resolved explicit TerminalSession only (no spawn/path open, non-session resolution rejects), ANSI/OSC/CSI normalization, built-in+host secret redaction, per-chunk ms timing + geometry JSONL transcript, duration/byte bounds, detach exactly-once incl. external detach unblocking in-flight read; 12/12 vitest (resize, escape injection, redaction, cancellation, off-session refusal, admission seam); suite 393 green, typecheck clean",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.capture-http-and-file-regression"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.grpc-source-capture",
@@ -719,7 +992,13 @@
       "acceptance": "Stream gap, revoke, lost ACK, reorder, EOS and exact source-version tests.",
       "requires": [
         "media.dev.stream-session-authority"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.stream-session-authority"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.camera-source-capture",
@@ -734,7 +1013,13 @@
       "acceptance": "Consent revoked midframe, device switch, no leaked capture and PTS ordering.",
       "requires": [
         "media.dev.stream-session-authority"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.stream-session-authority"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.recorder-actual-execution",
@@ -750,7 +1035,13 @@
       "requires": [
         "media.dev.capture-http-and-file-regression"
       ],
-      "verificationEvidence": "verified-2026-11-05: executeScenario + scenesRequiringRecapture added to recorder-orchestrator.ts \u2014 unattended bounded execution records per-scene lineageId/sourceRevision/outcome/real-SHA256-digest/bytes; NOT_ADMITTED and OUTCOME_UNKNOWN recorded verbatim, never coerced; two-run identical scenes skip, changed scene alone recaptures, non-CAPTURED reruns; 5 new vitest cases, suite 398 green, typecheck clean"
+      "verificationEvidence": "verified-2026-11-05: executeScenario + scenesRequiringRecapture added to recorder-orchestrator.ts — unattended bounded execution records per-scene lineageId/sourceRevision/outcome/real-SHA256-digest/bytes; NOT_ADMITTED and OUTCOME_UNKNOWN recorded verbatim, never coerced; two-run identical scenes skip, changed scene alone recaptures, non-CAPTURED reruns; 5 new vitest cases, suite 398 green, typecheck clean",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.capture-http-and-file-regression"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.recorder-narration-and-captions",
@@ -766,7 +1057,13 @@
       "requires": [
         "media.dev.recorder-actual-execution"
       ],
-      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/scene-captions.ts \u2014 integer-tick VTT/TTML emitters frame-aligned to declared source clock (no float drift), cue validation (ordered, integer, inside sourceDuration), cuesAtOffset seek + truncateCuesAt cancel, admitNarrationSource admits only APPROVED_TTS/USER_PROVIDED and refuses voice substitution, private-content redaction; 10 vitest cases, suite 408 green, typecheck clean"
+      "verificationEvidence": "verified-2026-11-05: libs/audio-video-client/src/scene-captions.ts — integer-tick VTT/TTML emitters frame-aligned to declared source clock (no float drift), cue validation (ordered, integer, inside sourceDuration), cuesAtOffset seek + truncateCuesAt cancel, admitNarrationSource admits only APPROVED_TTS/USER_PROVIDED and refuses voice substitution, private-content redaction; 10 vitest cases, suite 408 green, typecheck clean",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.recorder-actual-execution"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.recorder-mux-and-final-artifact",
@@ -782,7 +1079,14 @@
       "requires": [
         "media.dev.recorder-narration-and-captions",
         "media.dev.canonical-artifact-storage"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.recorder-narration-and-captions",
+        "media.dev.canonical-artifact-storage"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.project-timeline-engine",
@@ -799,7 +1103,14 @@
       "requires": [
         "media.dev.domain-contract-parity",
         "media.dev.canonical-artifact-storage"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.domain-contract-parity",
+        "media.dev.canonical-artifact-storage"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.storyboard-and-shot-plan",
@@ -815,7 +1126,13 @@
       "acceptance": "Scene ordering, rights, story time, stale edit and no fake renderer readiness.",
       "requires": [
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.animation-2d-renderer",
@@ -830,7 +1147,13 @@
       "acceptance": "Golden frames, easing/units/overflow/fps, renderer errors and codec playback.",
       "requires": [
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.animation-3d-rig-and-spatial",
@@ -845,7 +1168,13 @@
       "acceptance": "Rig/joint constraints, reference poses, coordinate roundtrip, source rights, decodable spatial output.",
       "requires": [
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.scientific-simulation-engine",
@@ -860,7 +1189,13 @@
       "acceptance": "Newton m=2kg F=6N t=2s -> a=3,v=6,x=6; dimensional/step convergence, conservation/uncertainty negative.",
       "requires": [
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.simulation-semantic-validation",
@@ -875,7 +1210,13 @@
       "acceptance": "Unstable solver, incompatible units, incomplete references, repeatability and no fabricated measurement.",
       "requires": [
         "media.dev.scientific-simulation-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.scientific-simulation-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.audio-repair-and-comparison",
@@ -891,7 +1232,14 @@
       "requires": [
         "media.dev.native-media-dsp",
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.native-media-dsp",
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.video-restoration-and-comparison",
@@ -906,7 +1254,13 @@
       "acceptance": "Reference frame set, perceptual metric+PSNR where meaningful, no resolution/quality false claim.",
       "requires": [
         "media.dev.vision-model-and-geometry"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.vision-model-and-geometry"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.reference-guided-generation",
@@ -921,7 +1275,13 @@
       "acceptance": "No unauthorized reference use, seed/content provenance, continuity, model unavailable and truthful failure.",
       "requires": [
         "media.dev.storyboard-and-shot-plan"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.storyboard-and-shot-plan"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.tracked-region-reversible-edits",
@@ -938,7 +1298,14 @@
       "requires": [
         "media.dev.project-timeline-engine",
         "media.dev.vision-model-and-geometry"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine",
+        "media.dev.vision-model-and-geometry"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.dubbing-and-translation",
@@ -955,7 +1322,14 @@
       "requires": [
         "media.dev.stt-streaming-and-caption",
         "media.dev.tts-streaming-and-finality"
-      ]
+      ],
+      "workStartReadiness": "READY_ENGINEERING_REAL_POSITIVE_INPUT_WHEN_AVAILABLE",
+      "integrationPrerequisites": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.tts-streaming-and-finality"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.foley-stems-mix-master",
@@ -971,7 +1345,14 @@
       "requires": [
         "media.dev.native-media-dsp",
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.native-media-dsp",
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.multitrack-composition-render",
@@ -988,7 +1369,15 @@
         "media.dev.project-timeline-engine",
         "media.dev.animation-2d-renderer",
         "media.dev.foley-stems-mix-master"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine",
+        "media.dev.animation-2d-renderer",
+        "media.dev.foley-stems-mix-master"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.quality-comparison-and-optimization",
@@ -1004,7 +1393,13 @@
       "acceptance": "Reference metrics/golden compare, invalid bounds, multiple attempts, deterministic report, undo.",
       "requires": [
         "media.dev.multitrack-composition-render"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.multitrack-composition-render"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.versioned-review-and-approval",
@@ -1021,7 +1416,14 @@
       "requires": [
         "media.dev.project-timeline-engine",
         "media.dev.rights-and-policy"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine",
+        "media.dev.rights-and-policy"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.delivery-export-destination-ack",
@@ -1038,7 +1440,14 @@
       "requires": [
         "media.dev.multitrack-composition-render",
         "media.dev.versioned-review-and-approval"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.multitrack-composition-render",
+        "media.dev.versioned-review-and-approval"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.offline-reconnect",
@@ -1055,7 +1464,14 @@
       "requires": [
         "media.dev.sdk-canonical-migration",
         "media.dev.project-timeline-engine"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.sdk-canonical-migration",
+        "media.dev.project-timeline-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.spatial-and-interactive-export",
@@ -1071,7 +1487,13 @@
       "acceptance": "Decode, image orientation, timestamps/coordinates, viewer parity and zero invented spatial metadata.",
       "requires": [
         "media.dev.animation-3d-rig-and-spatial"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.interactive-demo-player",
@@ -1088,7 +1510,14 @@
       "requires": [
         "media.dev.web-host",
         "media.dev.explorer-fidelity"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.web-host",
+        "media.dev.explorer-fidelity"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.production-studio-host",
@@ -1106,7 +1535,16 @@
         "media.dev.multitrack-composition-render",
         "media.dev.versioned-review-and-approval",
         "media.dev.web-host"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.project-timeline-engine",
+        "media.dev.multitrack-composition-render",
+        "media.dev.versioned-review-and-approval",
+        "media.dev.web-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.cross-surface-integration-harness",
@@ -1119,11 +1557,18 @@
       ],
       "what": "Establish deterministic source-free client/host end-to-end tests for every supported workflow.",
       "how": "Use Postgres/S3 + fake authority for negatives and permitted real provider for positives; compose rather than rerun module unit suites; inject crash at boundaries.",
-      "acceptance": "Test selectors for J01\u2013J30, grants/denials/UNKNOWN/restart and actual output checks.",
+      "acceptance": "Test selectors for J01–J30, grants/denials/UNKNOWN/restart and actual output checks.",
       "requires": [
         "media.dev.canonical-job-reconciliation",
         "media.dev.sdk-canonical-migration"
-      ]
+      ],
+      "workStartReadiness": "READY_FOR_INDEPENDENT_ENGINEERING",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.sdk-canonical-migration"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.surface-document-contracts",
@@ -1139,7 +1584,13 @@
       "requires": [
         "media.dev.source-capability-crosswalk"
       ],
-      "verificationEvidence": "verified-2026-11-05: scripts/check-surface-docs.mjs reconciles all 56 docs/surfaces/*/README.md against real source \u2014 438 cited types resolve, named test classes exist, gradle module paths and pnpm filter targets resolve, no unproven admission claims; stale AuthenticationInterceptor/JwtTokenProvider/MediaFamilyAccessibility citations replaced with real implementation names"
+      "verificationEvidence": "verified-2026-11-05: scripts/check-surface-docs.mjs reconciles all 56 docs/surfaces/*/README.md against real source — 438 cited types resolve, named test classes exist, gradle module paths and pnpm filter targets resolve, no unproven admission claims; stale AuthenticationInterceptor/JwtTokenProvider/MediaFamilyAccessibility citations replaced with real implementation names",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.source-capability-crosswalk"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.historical-artifact-inventory",
@@ -1153,7 +1604,11 @@
       "how": "Generate path-by-path hash, inbound references, source-vs-derived-vs-record, restore requirements and retention ownership; mark DELETE/KEEP/EXTERNAL_ARCHIVE with reason.",
       "acceptance": "Zero unclassified tracked historical bytes; read-only report and no unreviewed deletions.",
       "requires": [],
-      "verificationEvidence": "verified-2026-11-05: docs/implementation/historical-artifact-inventory.v1.json classifies all 1375 tracked historical files (999,081,965 bytes) with sha256, inbound refs, kind (source/derived/record), retention owner, disposition \u2014 1333 KEEP, 42 EXTERNAL_ARCHIVE review candidates, 0 unclassified, read-only report"
+      "verificationEvidence": "verified-2026-11-05: docs/implementation/historical-artifact-inventory.v1.json classifies all 1375 tracked historical files (999,081,965 bytes) with sha256, inbound refs, kind (source/derived/record), retention owner, disposition — 1333 KEEP, 42 EXTERNAL_ARCHIVE review candidates, 0 unclassified, read-only report",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.historical-artifact-retirement",
@@ -1163,14 +1618,23 @@
         "docs/implementation",
         ".ghatana",
         ".product-experience",
-        "docs/README.md"
+        "docs/README.md",
+        "docs/development/historical-content-preservation.json"
       ],
       "what": "Remove superseded plans/logs/snapshots from active source after exact preservation plan.",
       "how": "Move retention-required copies to authenticated immutable off-main store with verified hashes and durable pointer; use Git history only where enough; update every pinned reference and test.",
       "acceptance": "No broken links/pins; canonical authored definitions still present; Git tree materially reduced without lost source.",
       "requires": [
         "media.dev.historical-artifact-inventory"
-      ]
+      ],
+      "workStartReadiness": "SAFE_PREPARATION_NOW_DELETION_HELD",
+      "integrationPrerequisites": [
+        "media.dev.historical-artifact-inventory"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true,
+      "ownerDisposition": "NO_DELETE_BEFORE_INDEPENDENT_IMMUTABLE_OFF_MAIN_READBACK; NOT_A_RUNTIME_BLOCKER",
+      "progress": "42 exact artifacts, 428652561 bytes pinned in docs/development/historical-content-preservation.json with content SHA256/Git blob and original commit; external archive not present, deletion not permitted; all ordinary engineering starts independently."
     },
     {
       "id": "media.dev.contextual-name-and-legacy-removal",
@@ -1192,7 +1656,14 @@
         "media.dev.surface-document-contracts",
         "media.dev.historical-artifact-inventory"
       ],
-      "verificationEvidence": "verified-2026-11-05: tests/media-contextual-name-hygiene.test.mjs pins zero orphan modules (all package dirs inside workspace globs), all Gradle projectDirs resolve, no dated/batch/phase scaffolding dirs in source, no production mocks, no preview deployment path; review/r02-* is a pinned provenance record, excluded from rename scope per stable-pin rule"
+      "verificationEvidence": "verified-2026-11-05: tests/media-contextual-name-hygiene.test.mjs pins zero orphan modules (all package dirs inside workspace globs), all Gradle projectDirs resolve, no dated/batch/phase scaffolding dirs in source, no production mocks, no preview deployment path; review/r02-* is a pinned provenance record, excluded from rename scope per stable-pin rule",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.surface-document-contracts",
+        "media.dev.historical-artifact-inventory"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.documentation-and-command-navigation",
@@ -1211,7 +1682,13 @@
       "requires": [
         "media.dev.surface-document-contracts"
       ],
-      "verificationEvidence": "verified-2026-11-05: tests/media-documentation-entrypoint.test.mjs pins one Start-here selector (SURFACE-IMPLEMENTATION-PLAN + REMAINING-WORK), all relative links in 5 maintained docs resolve to tracked paths, docs/README separates implementation-only plan from BUILD lane, no stale do-next instructions"
+      "verificationEvidence": "verified-2026-11-05: tests/media-documentation-entrypoint.test.mjs pins one Start-here selector (SURFACE-IMPLEMENTATION-PLAN + REMAINING-WORK), all relative links in 5 maintained docs resolve to tracked paths, docs/README separates implementation-only plan from BUILD lane, no stale do-next instructions",
+      "workStartReadiness": "ALREADY_VERIFIED_AS_REPORTED",
+      "integrationPrerequisites": [
+        "media.dev.surface-document-contracts"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-first-use-project",
@@ -1222,14 +1699,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-01 \u2014 Real sign-in/workspace/project revision; wrong tenant, duplicate create.",
+      "what": "J-01 — Real sign-in/workspace/project revision; wrong tenant, duplicate create.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.canonical-job-reconciliation",
         "media.dev.web-host"
       ],
-      "journeyId": "J-01"
+      "journeyId": "J-01",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.web-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-resumable-artifact-intake",
@@ -1240,14 +1724,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-02 \u2014 Real chunked upload/versioned artifact and corrupt/resume/restart.",
+      "what": "J-02 — Real chunked upload/versioned artifact and corrupt/resume/restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.canonical-artifact-storage",
         "media.dev.web-host"
       ],
-      "journeyId": "J-02"
+      "journeyId": "J-02",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.canonical-artifact-storage",
+        "media.dev.web-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-transcript-to-reviewed-captions",
@@ -1258,14 +1749,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-03 \u2014 Real licensed audio -> transcript revision -> corrected caption; revoke/UNKNOWN/restart.",
+      "what": "J-03 — Real licensed audio -> transcript revision -> corrected caption; revoke/UNKNOWN/restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.stt-streaming-and-caption",
         "media.dev.web-host"
       ],
-      "journeyId": "J-03"
+      "journeyId": "J-03",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.stt-streaming-and-caption",
+        "media.dev.web-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-authorized-voice-synthesis",
@@ -1276,14 +1774,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-04 \u2014 Lawful voice -> real decoded audio; denied locale/profile/revoke.",
+      "what": "J-04 — Lawful voice -> real decoded audio; denied locale/profile/revoke.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.tts-streaming-and-finality",
         "media.dev.voice-workflow-ui"
       ],
-      "journeyId": "J-04"
+      "journeyId": "J-04",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.tts-streaming-and-finality",
+        "media.dev.voice-workflow-ui"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-vision-detection-and-tracking",
@@ -1294,13 +1799,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-05 \u2014 Actual image/video geometry+track source PTS; malformed ROI.",
+      "what": "J-05 — Actual image/video geometry+track source PTS; malformed ROI.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.vision-model-and-geometry"
       ],
-      "journeyId": "J-05"
+      "journeyId": "J-05",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.vision-model-and-geometry"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-grounded-cross-modal-result",
@@ -1311,13 +1822,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-06 \u2014 Real STT/Vision+DI child -> grounded typed response; wrong clock/rights.",
+      "what": "J-06 — Real STT/Vision+DI child -> grounded typed response; wrong clock/rights.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.multimodal-grounding-and-quality"
       ],
-      "journeyId": "J-06"
+      "journeyId": "J-06",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.multimodal-grounding-and-quality"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-audio-restoration",
@@ -1328,13 +1845,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-07 \u2014 Real denoise/declip measured A/B with source preservation.",
+      "what": "J-07 — Real denoise/declip measured A/B with source preservation.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.audio-repair-and-comparison"
       ],
-      "journeyId": "J-07"
+      "journeyId": "J-07",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.audio-repair-and-comparison"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-video-enhancement",
@@ -1345,13 +1868,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-08 \u2014 Real codec/frame repair and independent measured comparison.",
+      "what": "J-08 — Real codec/frame repair and independent measured comparison.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.video-restoration-and-comparison"
       ],
-      "journeyId": "J-08"
+      "journeyId": "J-08",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.video-restoration-and-comparison"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-brief-to-reviewed-media",
@@ -1362,14 +1891,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-09 \u2014 Versioned brief/storyboard -> render -> review output.",
+      "what": "J-09 — Versioned brief/storyboard -> render -> review output.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.storyboard-and-shot-plan",
         "media.dev.production-studio-host"
       ],
-      "journeyId": "J-09"
+      "journeyId": "J-09",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.storyboard-and-shot-plan",
+        "media.dev.production-studio-host"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-reference-continuity",
@@ -1380,13 +1916,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-10 \u2014 Rights-checked conditioned output, continuity metrics and typed unavailability.",
+      "what": "J-10 — Rights-checked conditioned output, continuity metrics and typed unavailability.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.reference-guided-generation"
       ],
-      "journeyId": "J-10"
+      "journeyId": "J-10",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.reference-guided-generation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-reversible-tracked-edit",
@@ -1397,13 +1939,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-11 \u2014 Real tracked ROI mask edit with precise version CAS and undo.",
+      "what": "J-11 — Real tracked ROI mask edit with precise version CAS and undo.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.tracked-region-reversible-edits"
       ],
-      "journeyId": "J-11"
+      "journeyId": "J-11",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.tracked-region-reversible-edits"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-two-dimensional-animation",
@@ -1414,13 +1962,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-12 \u2014 Deterministic 2D animation renders decodable frames and golden curves.",
+      "what": "J-12 — Deterministic 2D animation renders decodable frames and golden curves.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.animation-2d-renderer"
       ],
-      "journeyId": "J-12"
+      "journeyId": "J-12",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.animation-2d-renderer"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-three-dimensional-animation",
@@ -1431,13 +1985,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-13 \u2014 Rig/3D spatial render with coordinate/kinematic correctness.",
+      "what": "J-13 — Rig/3D spatial render with coordinate/kinematic correctness.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.animation-3d-rig-and-spatial"
       ],
-      "journeyId": "J-13"
+      "journeyId": "J-13",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.animation-3d-rig-and-spatial"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-scientific-simulation",
@@ -1448,13 +2008,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-14 \u2014 Unit-correct dynamics and instrument values; solver negatives.",
+      "what": "J-14 — Unit-correct dynamics and instrument values; solver negatives.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.scientific-simulation-engine"
       ],
-      "journeyId": "J-14"
+      "journeyId": "J-14",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.scientific-simulation-engine"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-validated-simulation-pass",
@@ -1465,13 +2031,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-15 \u2014 Executable constrained pass with semantic validity and abstention.",
+      "what": "J-15 — Executable constrained pass with semantic validity and abstention.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.simulation-semantic-validation"
       ],
-      "journeyId": "J-15"
+      "journeyId": "J-15",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.simulation-semantic-validation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-translated-dubbed-video",
@@ -1482,13 +2054,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-16 \u2014 Actual translation+legal dubbing, lip/timing metadata and source rights.",
+      "what": "J-16 — Actual translation+legal dubbing, lip/timing metadata and source rights.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.dubbing-and-translation"
       ],
-      "journeyId": "J-16"
+      "journeyId": "J-16",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.dubbing-and-translation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-music-effects-master",
@@ -1499,13 +2077,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-17 \u2014 Playable stems/foley/mix master with lawful input and peak caps.",
+      "what": "J-17 — Playable stems/foley/mix master with lawful input and peak caps.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.foley-stems-mix-master"
       ],
-      "journeyId": "J-17"
+      "journeyId": "J-17",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.foley-stems-mix-master"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-multitrack-finished-master",
@@ -1516,13 +2100,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-18 \u2014 Combined video+audio+caption+graphic color render with checksum.",
+      "what": "J-18 — Combined video+audio+caption+graphic color render with checksum.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.multitrack-composition-render"
       ],
-      "journeyId": "J-18"
+      "journeyId": "J-18",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.multitrack-composition-render"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-bounded-quality-improvement",
@@ -1533,13 +2123,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-19 \u2014 Real quality metric and bounded optimization/reversible comparison.",
+      "what": "J-19 — Real quality metric and bounded optimization/reversible comparison.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.quality-comparison-and-optimization"
       ],
-      "journeyId": "J-19"
+      "journeyId": "J-19",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.quality-comparison-and-optimization"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-durable-job-recovery",
@@ -1550,13 +2146,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-20 \u2014 Job pending/running/UNKNOWN/terminal across real process restart.",
+      "what": "J-20 — Job pending/running/UNKNOWN/terminal across real process restart.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.canonical-job-reconciliation"
       ],
-      "journeyId": "J-20"
+      "journeyId": "J-20",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-version-specific-review",
@@ -1567,13 +2169,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-21 \u2014 Immutable-review approval invalidated by changed source revision.",
+      "what": "J-21 — Immutable-review approval invalidated by changed source revision.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.versioned-review-and-approval"
       ],
-      "journeyId": "J-21"
+      "journeyId": "J-21",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.versioned-review-and-approval"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-acknowledged-delivery",
@@ -1584,13 +2192,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-22 \u2014 Actual export/publish destination ACK, lost-ACK reconciliation.",
+      "what": "J-22 — Actual export/publish destination ACK, lost-ACK reconciliation.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.delivery-export-destination-ack"
       ],
-      "journeyId": "J-22"
+      "journeyId": "J-22",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.delivery-export-destination-ack"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-offline-conflict-reconnect",
@@ -1601,13 +2215,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-23 \u2014 Encrypted offline edits, fresh-rights reconnect, version conflict handling.",
+      "what": "J-23 — Encrypted offline edits, fresh-rights reconnect, version conflict handling.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.offline-reconnect"
       ],
-      "journeyId": "J-23"
+      "journeyId": "J-23",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.offline-reconnect"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-structured-command-batch",
@@ -1618,13 +2238,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-24 \u2014 Authenticated CLI JSON batch with true finality and typed failures.",
+      "what": "J-24 — Authenticated CLI JSON batch with true finality and typed failures.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.structured-cli"
       ],
-      "journeyId": "J-24"
+      "journeyId": "J-24",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.structured-cli"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-authorized-agent-outcome",
@@ -1635,13 +2261,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-25 \u2014 Four agent handlers authorized delegate, no duplicate side effects.",
+      "what": "J-25 — Four agent handlers authorized delegate, no duplicate side effects.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.authorized-agent-delegation"
       ],
-      "journeyId": "J-25"
+      "journeyId": "J-25",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.authorized-agent-delegation"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-retention-and-erasure",
@@ -1652,14 +2284,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-26 \u2014 Real revoke/hold/deletion and no post-erasure disclosure.",
+      "what": "J-26 — Real revoke/hold/deletion and no post-erasure disclosure.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.rights-and-policy",
         "media.dev.canonical-artifact-storage"
       ],
-      "journeyId": "J-26"
+      "journeyId": "J-26",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.rights-and-policy",
+        "media.dev.canonical-artifact-storage"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-provider-outage-safe-path",
@@ -1670,14 +2309,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-27 \u2014 Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success.",
+      "what": "J-27 — Unavailable/degraded/no-fallback/UNKNOWN behavior without fake success.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.canonical-job-reconciliation",
         "media.dev.service-observability"
       ],
-      "journeyId": "J-27"
+      "journeyId": "J-27",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.canonical-job-reconciliation",
+        "media.dev.service-observability"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-spatial-interactive-delivery",
@@ -1688,14 +2334,21 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-28 \u2014 Real 360/spatial/interactive export and viewer fidelity.",
+      "what": "J-28 — Real 360/spatial/interactive export and viewer fidelity.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.spatial-and-interactive-export",
         "media.dev.interactive-demo-player"
       ],
-      "journeyId": "J-28"
+      "journeyId": "J-28",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.spatial-and-interactive-export",
+        "media.dev.interactive-demo-player"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-live-session-recovery",
@@ -1706,13 +2359,19 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-29 \u2014 Real media loss/reconnect/consent revoke and bounded stream recovery.",
+      "what": "J-29 — Real media loss/reconnect/consent revoke and bounded stream recovery.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
         "media.dev.stream-session-authority"
       ],
-      "journeyId": "J-29"
+      "journeyId": "J-29",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.stream-session-authority"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     },
     {
       "id": "media.dev.outcome-eligible-provider-catalog",
@@ -1723,7 +2382,7 @@
         "modules/integration-tests",
         "libs/audio-video-ui"
       ],
-      "what": "J-30 \u2014 Real qualified model/voice/host readiness with unavailable cases.",
+      "what": "J-30 — Real qualified model/voice/host readiness with unavailable cases.",
       "how": "Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.",
       "acceptance": "Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.",
       "requires": [
@@ -1732,7 +2391,16 @@
         "media.dev.tts-model-and-rights",
         "media.dev.vision-model-and-geometry"
       ],
-      "journeyId": "J-30"
+      "journeyId": "J-30",
+      "workStartReadiness": "READY_SCENARIO_DESIGN_AND_NEGATIVE_TESTS",
+      "integrationPrerequisites": [
+        "media.dev.service-observability",
+        "media.dev.stt-model-and-quality",
+        "media.dev.tts-model-and-rights",
+        "media.dev.vision-model-and-geometry"
+      ],
+      "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
+      "externalRightsAndQualifiedEffectsNotImplied": true
     }
   ],
   "surfaces": [
@@ -2659,5 +3327,15 @@
       "taskId": "media.dev.outcome-eligible-provider-catalog",
       "behavior": "Real qualified model/voice/host readiness with unavailable cases."
     }
-  ]
+  ],
+  "ownerReview": {
+    "inspectedCommit": "f889bb5e50d45bdde4cfedf711e89a954a3e1706",
+    "codeCommit": "8f48957ed02ccffce18773b8a94bec1da16e9d85",
+    "reviewDate": "2026-11-05",
+    "decisionRef": "docs/development/ENGINEERING-DECISIONS.md",
+    "historicalPreservation": "docs/development/historical-content-preservation.json",
+    "status": "ENGINEERING_START_UNBLOCKED_WITH_PRECISE_EXTERNAL_INPUT_LIMITS"
+  },
+  "dependencySemantics": "requires and integrationPrerequisites identify mandatory predecessors for a final composite/installed acceptance test, not reasons to postpone independent feature code, test harness, negative paths, contract adapters, UI algorithms or documentation.",
+  "originalTaskStatusPreserved": true
 }

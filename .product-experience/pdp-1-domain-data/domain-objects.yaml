@@ -462,7 +462,12 @@ objects:
     kind: observed-upload-lifecycle-record
     identity: bounded-canonical-key-(tenantId,uploadId); owner-scope-adds-principalId; client-request-key-is-separately-scoped-by-(tenantId,principalId,idempotencyKey)
     lifecycle: mutable-upload-session-is-distinct-from-resulting-immutable-artifact; runtime-upload-status-does-not-assert-artifact-availability
-    scopeStatus: bounded-owner-identity-and-lifecycle-separation-accepted; storage-durability-and-cross-interface-type-equivalence-remain-unresolved
+    scopeStatus: bounded-owner-identity-and-lifecycle-separation-accepted; canonical-runtime-wire-vs-legacy-client-non-equivalence-explicit; storage-and-auth-admission-separate
+    implementationProjection:
+      runtimeStates: [OPEN, FINALIZING, COMPLETED, ABORTED, EXPIRED]
+      compatibilityClientStates: [CREATED, UPLOADING, VERIFYING, COMPLETED, FAILED, CANCELLED, EXPIRED]
+      decision: distinct-models-no-lossless-enum-mapping; preserve-public-legacy-schema
+      authority: Media-implementation-owner; no-upload-provider-release-or-PDP-stage-admission
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#UploadSession
       - libs/audio-video-types/src/contracts.ts#UploadSession
@@ -482,7 +487,11 @@ objects:
     kind: mutable-tenant-scoped-stream-lifecycle
     identity: canonical-tuple-(tenantId,sessionId); principalId-and-authority-scope-are-separate-owner-guards
     lifecycle: session-versioned-state; sequence-space-and-closed-session-boundaries-are-explicit; frames-do-not-change-session-identity
-    scopeStatus: owner-defined-logical-identity; existing-DTO-and-storage-equivalence-unverified; runtime-NOT_ADMITTED
+    scopeStatus: owner-defined-logical-identity; Java-runtime-and-canonical-TypeScript-SDK-state-vocabulary-bound; storage-and-installed-client-validation-separate
+    implementationProjection:
+      states: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
+      decision: one-runtime-wire-enum-shared-by-Java-and-TS; no-fabricated-legacy-translation
+      authority: Media-implementation-owner; no-runtime-provider-or-PDP-stage-admission
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamSession
       - contracts/openapi/media.yaml#/components/schemas/StreamSession
