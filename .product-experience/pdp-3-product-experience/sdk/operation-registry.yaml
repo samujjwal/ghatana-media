@@ -8,6 +8,17 @@ sourcePopulation:
   architectureReconciliation: pending; overlapping client surfaces and entry provenance require owner review
   bindingAdmission: three-source-backed-bounded-command-crosswalks-under-PXD-051; read-bindings-retain-PXD-040-and-PXD-044; no-production-runtime-or-full-parity-admission
 canonicalRouteAuthority: contracts/openapi/media.yaml; config/route-manifest.json
+declarationCrosswalk:
+  artifact: .product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json
+  censusBasis: typescript-ast; libs/audio-video-client/node_modules/typescript
+  sourceFileCount: 15
+  publicClassMemberDeclarations: 60
+  registryBackedPublicMethods: 30
+  overloadSignatures: 2
+  unregisteredPublicMethods: 28
+  exportedFunctions: 26
+  parserArtifactRows: 3
+  reconciliationPolicy: unregistered public declarations are classified SDK surface, never silently promoted into method rows
 reconciliation:
   status: canonical-http-route-family-added; legacy-modality-routes-explicitly-compatibility-only
   canonicalProjection: libs/audio-video-client/src/canonical-routes.ts

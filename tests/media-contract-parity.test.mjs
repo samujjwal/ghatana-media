@@ -705,38 +705,42 @@ test("changing global operation scope to accepted cannot bypass exact record rev
   assert.equal(result.operationAcceptance.complete, false);
   assert.ok(result.gaps.some(gap => gap.startsWith('semantic binding unresolved:')));
 });
-test("retired unsafe retry remains in historical finding census only while source proves no dispatch", () => {
+test("retired unsafe retry and multimodal remain in historical finding census only while source proves no dispatch", () => {
   const source = readFileSync('libs/audio-video-client/src/operations.ts', 'utf8');
   const input = validStructuralInput({sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source}});
   const result = analyzeContractParity(input);
-  assert.equal(result.retiredFindings.length, 5);
-  assert.equal(result.historicalFindingCount, result.historicalObservedFindingCount + 5);
+  assert.equal(result.retiredFindings.length, 6);
+  assert.equal(result.historicalFindingCount, result.historicalObservedFindingCount + 6);
   const unsafe = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('throw new MediaOperationNotAdmittedError("media.operation.retry");', 'return this.request("POST", "/retry");')}};
   assert.equal(analyzeContractParity(unsafe).retiredFindings.some(row => row.path.endsWith(':retry')), false);
-  assert.equal(analyzeContractParity(unsafe).retiredFindings.length, 4);
+  assert.equal(analyzeContractParity(unsafe).retiredFindings.length, 5);
+  const unsafeMultimodal = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('throw new MediaOperationNotAdmittedError("media.sdk.analyzeMultimodal");', 'return this.submit("/api/v1/media/multimodal-analyses", request, MediaArtifactSchema, request.idempotencyKey, signal);')}};
+  assert.equal(analyzeContractParity(unsafeMultimodal).retiredFindings.some(row => row.path.endsWith('multimodal-analyses')), false,
+    "a re-introduced multimodal dispatch loses the retired-route classification");
   const legacyArtifact = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replace('`/api/v1/artifacts/${', '`/api/v1/media/artifacts/${')}};
   assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.some(row => row.path.includes('/artifacts/')), false);
-  assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.length, 4);
+  assert.equal(analyzeContractParity(legacyArtifact).retiredFindings.length, 5);
   const legacyUpload = {...input, sdkSourceFiles: {'libs/audio-video-client/src/operations.ts': source.replaceAll('/api/v1/artifacts/uploads', '/api/v1/media/uploads')}};
-  assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 2);
+  assert.equal(analyzeContractParity(legacyUpload).retiredFindings.length, 3);
 });
 
-test("live source finding census preserves the stale no-dispatch SDK route gap", () => {
+test("live source finding census retires the no-dispatch multimodal SDK route", () => {
   const result = analyzeContractParity(collectLiveInput());
-  // The multimodal SDK method now fails before dispatch, while its pinned
-  // route observation remains pending MPSEM-0023-C002 material review.
-  // Preserve that exact unresolved source gap; do not mutate its owner record.
+  // The multimodal SDK method fails before dispatch: its route observation is
+  // classified retired-non-dispatching while MPSEM-0023-C002 owner material
+  // review remains pending. No live divergence and no stale pin remain.
   assert.equal(result.historicalObservedFindingCount, 45);
-  assert.equal(result.observedFindingCount, 46);
+  assert.equal(result.observedFindingCount, 45);
   assert.equal(result.reconciledFindings.length, 45);
-  assert.deepEqual(result.gaps, [
-    "stale SDK route disposition has no matching current divergence: libs/audio-video-client/src/operations.ts POST /api/v1/media/multimodal-analyses",
-  ]);
-  assert.equal(result.historicalFindingCount, 50);
-  assert.equal(result.historicalDispositionedCount, 50);
+  assert.deepEqual(result.gaps, []);
+  assert.equal(result.historicalFindingCount, 51);
+  assert.equal(result.historicalDispositionedCount, 51);
   assert.equal(result.historicalUnresolvedCount, 0);
   assert.equal(result.typedContractGaps.length, 0);
-  assert.equal(result.retiredFindings.length, 5);
+  assert.equal(result.retiredFindings.length, 6);
+  assert.ok(result.retiredFindings.some((row) => row.path === "/api/v1/media/multimodal-analyses"
+    && row.disposition === "RETIRED_NOT_ADMITTED_BEFORE_DISPATCH"),
+    "the multimodal route is counted as retired, source-proven non-dispatching");
   assert.doesNotMatch(result.gaps.join("\n"), /Agent Tool structural inventory found 4 tools/u);
   assert.doesNotMatch(result.gaps.join("\n"), /PDP-1 operations remain proposal-only/u);
 });
@@ -744,20 +748,18 @@ test("live source finding census preserves the stale no-dispatch SDK route gap",
 test("definition-only mode defers the pinned proposal inventory while retaining its diagnostics", () => {
   const result = analyzeContractParity(collectLiveInput(), { mode: "definition-only" });
   assert.equal(result.mode, "definition-only");
-  assert.equal(result.passed, false, "a stale route observation remains an explicit source gap");
+  assert.equal(result.passed, true, "the retired non-dispatching multimodal route leaves no source gap");
   assert.equal(result.operationAcceptance.recordCount, 14);
   assert.equal(result.operationAcceptance.unresolvedIds.length, 0, "all 14 operation records carry complete semantics and covered actionRefs");
   assert.equal(result.gaps.some((gap) => gap.startsWith("semantic binding unresolved:")), false);
   assert.equal(result.gaps.some((gap) => gap.startsWith("semantic binding review stale:")), false);
-  assert.deepEqual(result.gaps, [
-    "stale SDK route disposition has no matching current divergence: libs/audio-video-client/src/operations.ts POST /api/v1/media/multimodal-analyses",
-  ]);
+  assert.deepEqual(result.gaps, []);
   assert.deepEqual(result.deferredFindings.map(({ id, status }) => [id, status]), [
     ["agent-tool-runtime-and-shared-admission", "DEFERRED_NOT_REQUIRED_FOR_DEVELOPMENT_COMPLETION"],
   ]);
   assert.equal(result.semanticStatus, "REVIEW_REQUIRED", "authored records still require owner review; mode promotes nothing");
-  assert.equal(result.historicalUnresolvedCount, 1, "the current stale route and deferred Agent Tool gap remain explicit");
-  assert.equal(result.observedFindingCount, 46, "the current observation and unresolved route remain in the census");
+  assert.equal(result.historicalUnresolvedCount, 1, "the deferred Agent Tool admission gap remains explicit");
+  assert.equal(result.observedFindingCount, 45, "the current observation census no longer carries the retired route pin");
 });
 
 test("operation semantic denominator excludes owner rules and requires detailed exact coverage for each family summary", () => {

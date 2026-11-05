@@ -494,7 +494,11 @@ export function parseNotAdmittedSdkRoutes(parityMatrix) {
   const findings = document?.compatibilityRouteFindings;
   if (!findings?.disposition?.startsWith("NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST")) return [];
   return (Array.isArray(findings.sourceFindings) ? findings.sourceFindings : [])
-    .filter((entry) => entry?.source && entry?.method && entry?.path)
+    .filter((entry) => entry?.source && entry?.method && entry?.path
+      // A finding explicitly retired from the live client source is not a
+      // route-disposition pin: the retired-route census proves non-dispatch
+      // against the current method body instead of expecting a live divergence.
+      && !String(entry.currentObservation ?? "").startsWith("RETIRED_FROM_SOURCE"))
     .map((entry) => ({ source: String(entry.source).trim(), method: entry.method, path: entry.path, disposition: "NOT_ADMITTED" }));
 }
 
@@ -648,6 +652,18 @@ export function retiredSdkRetryFindings(sources = {}) {
   const findings = [];
   if (body?.includes('throw new MediaOperationNotAdmittedError(') && !/this\.request\(|fetch\(/u.test(body)) findings.push({ source: path, method: 'POST', path: '/api/v1/media/operations/{parameter}:retry',
     disposition: 'RETIRED_NOT_ADMITTED_BEFORE_DISPATCH', ownerDecisionRef: '.product-experience/decision-log.md#PXD-041' });
+  // MPSEM-0023-C002 disposition: the legacy multimodal call site is kept as
+  // source-compatible API but is explicitly non-dispatching. The retired
+  // finding exists only while the live method body proves the fail-closed
+  // throw and carries no request call; a re-introduced dispatch removes the
+  // finding and resurfaces the route as a live client-path divergence.
+  const multimodalBody = sources[path]?.match(/public async analyzeMultimodal\([\s\S]*?\n  \}/u)?.[0];
+  if (multimodalBody?.includes('throw new MediaOperationNotAdmittedError("media.sdk.analyzeMultimodal")')
+      && !/this\.(?:request|submit|requestMutation)\(|fetch\(|transport\./u.test(multimodalBody)) {
+    findings.push({ source: path, method: 'POST', path: '/api/v1/media/multimodal-analyses',
+      disposition: 'RETIRED_NOT_ADMITTED_BEFORE_DISPATCH',
+      ownerDecisionRef: '.product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings' });
+  }
   const artifactRead = sources[path]?.match(/public async getArtifact\([\s\S]*?\n  \}/u)?.[0];
   if (artifactRead?.includes('Promise<CanonicalMediaArtifactObservation>')
       && artifactRead.includes('/api/v1/artifacts/') && !artifactRead.includes('/api/v1/media/artifacts/')) {

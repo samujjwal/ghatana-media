@@ -64,12 +64,12 @@ handoffs:
         existingOperationBindingCount: 14
         source: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts
       ownerDefinedOperations:
-        count: 108
+        count: 122
         source: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records
       interfaceIdentities:
-        http: {count: 27, source: contracts/openapi/media.yaml#/paths}
+        http: {count: 30, source: contracts/openapi/media.yaml#/paths}
         grpc:
-          count: 43
+          count: 44
           sources:
             - modules/speech/stt-service/src/main/proto/stt_service.proto#service.rpc
             - modules/speech/tts-service/src/main/proto/tts_service.proto#service.rpc

@@ -58,13 +58,30 @@ test("all ten current SDK method definitions have exact source, type, route, and
     const methodName = row.methodRef.split("#").at(-1).split(".").at(-1);
     assert.ok(source.includes(methodName), `${row.methodId} method is present in its cited source file`);
     assert.ok(row.requestTypeRef && (row.resultTypeRef || (row.acceptedResultTypeRef && row.returnedResultTypeRef)));
-    const routePath = row.observedRoute.replace(/^[A-Z]+\s+/u, "");
     const citedClient = row.methodRef.startsWith("libs/audio-video-client/src/index.ts") ? legacyClient : operationClient;
-    const routeSegments = routePath.split("/").filter(Boolean);
-    const staticRouteSegments = routeSegments.filter((segment) => !/^\{[^}]+\}$/u.test(segment));
-    assert.ok(staticRouteSegments.every((segment) => citedClient.includes(segment)), `${row.methodId} exact route/path segments appear in the cited client source`);
-    for (const parameter of routePath.matchAll(/\{([^}]+)\}/gu)) {
-      assert.ok(citedClient.includes(`encodeURIComponent(${parameter[1]})`), `${row.methodId} encodes route parameter ${parameter[1]}`);
+    if (row.observedRoute.startsWith("none")) {
+      // Non-dispatching compatibility: the observed route is historical only.
+      // The cited method must prove its fail-closed marker and carry no
+      // request call, and the historical path may not appear in its body.
+      assert.ok(row.historicalObservedRoute, `${row.methodId} keeps its historical route as an explicit observation`);
+      assert.ok(row.currentDispatch?.includes("MediaOperationNotAdmittedError"), `${row.methodId} names its fail-closed marker`);
+      const methodBody = citedClient.match(new RegExp(`${methodName}\\([\\s\\S]*?\\n  \\}`, "u"))?.[0];
+      assert.ok(methodBody?.includes("MediaOperationNotAdmittedError"), `${row.methodId} method body throws before transport`);
+      assert.ok(!/this\.(?:request|submit|requestMutation)\(|fetch\(|transport\./u.test(methodBody), `${row.methodId} method body has zero dispatch`);
+      const historicalPath = row.historicalObservedRoute.replace(/^[A-Z]+\s+/u, "");
+      assert.ok(!methodBody.includes(historicalPath), `${row.methodId} historical path is absent from the method body`);
+      const leafSegments = historicalPath.split("/").filter(Boolean).slice(-1);
+      for (const segment of leafSegments) {
+        assert.ok(!methodBody.includes(segment), `${row.methodId} historical path leaf ${segment} is absent from the method body`);
+      }
+    } else {
+      const routePath = row.observedRoute.replace(/^[A-Z]+\s+/u, "");
+      const routeSegments = routePath.split("/").filter(Boolean);
+      const staticRouteSegments = routeSegments.filter((segment) => !/^\{[^}]+\}$/u.test(segment));
+      assert.ok(staticRouteSegments.every((segment) => citedClient.includes(segment)), `${row.methodId} exact route/path segments appear in the cited client source`);
+      for (const parameter of routePath.matchAll(/\{([^}]+)\}/gu)) {
+        assert.ok(citedClient.includes(`encodeURIComponent(${parameter[1]})`), `${row.methodId} encodes route parameter ${parameter[1]}`);
+      }
     }
     for (const typeRef of [row.requestTypeRef, row.resultTypeRef, row.acceptedResultTypeRef, row.returnedResultTypeRef].filter(Boolean)) {
       const [sourcePath, symbol] = typeRef.split("#");

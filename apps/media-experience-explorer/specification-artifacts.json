@@ -1148,6 +1148,13 @@
     "title": "GetMediaArtifact"
   },
   {
+    "artifactId": "ART-MEDIA-3364F8C554CDF441",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaCaptionVersion.yaml",
+    "title": "GetMediaCaptionVersion"
+  },
+  {
     "artifactId": "ART-MEDIA-E24E49FB91BB3490A71A",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -1246,6 +1253,13 @@
     "title": "GrantMediaConsent"
   },
   {
+    "artifactId": "ART-MEDIA-18F6004131A93F8B",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/listMediaCaptionVersions.yaml",
+    "title": "ListMediaCaptionVersions"
+  },
+  {
     "artifactId": "ART-MEDIA-C9E8491824E4AA0B1728",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -1265,6 +1279,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/api/operations/openMediaStream.yaml",
     "title": "OpenMediaStream"
+  },
+  {
+    "artifactId": "ART-MEDIA-515DD387FC53EC7F",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/api/operations/registerMediaCaptionVersion.yaml",
+    "title": "RegisterMediaCaptionVersion"
   },
   {
     "artifactId": "ART-MEDIA-CE7E70C4196FC7E909AE",
@@ -1692,6 +1713,13 @@
     "phase": "PDP-3",
     "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.ProcessVideo.yaml",
     "title": "VisionService.ProcessVideo"
+  },
+  {
+    "artifactId": "ART-MEDIA-134896BF4138996B",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml",
+    "title": "VisionService.RecognizeSceneText"
   },
   {
     "artifactId": "ART-MEDIA-EE8431F8F54C42140EAB",
@@ -2401,6 +2429,13 @@
     "title": "Client Architecture"
   },
   {
+    "artifactId": "ART-MEDIA-SDK-DECLARATION-CROSSWALK-V1",
+    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
+    "phase": "PDP-3",
+    "path": ".product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json",
+    "title": "Declaration Crosswalk.V1"
+  },
+  {
     "artifactId": "ART-MEDIA-24164A2CBD50",
     "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
     "phase": "PDP-3",
@@ -2581,33 +2616,5 @@
     "authorityClass": "CROSS_PHASE_GOVERNANCE",
     "phase": "CROSS_PHASE",
     "title": "Source Manifest"
-  },
-  {
-    "artifactId": "ART-MEDIA-3364F8C554CDF4419E0",
-    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
-    "phase": "PDP-3",
-    "path": ".product-experience/pdp-3-product-experience/api/operations/getMediaCaptionVersion.yaml",
-    "title": "GetMediaCaptionVersion"
-  },
-  {
-    "artifactId": "ART-MEDIA-18F6004131A93F8BA10",
-    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
-    "phase": "PDP-3",
-    "path": ".product-experience/pdp-3-product-experience/api/operations/listMediaCaptionVersions.yaml",
-    "title": "ListMediaCaptionVersions"
-  },
-  {
-    "artifactId": "ART-MEDIA-515DD387FC53EC7F2E1",
-    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
-    "phase": "PDP-3",
-    "path": ".product-experience/pdp-3-product-experience/api/operations/registerMediaCaptionVersion.yaml",
-    "title": "RegisterMediaCaptionVersion"
-  },
-  {
-    "artifactId": "ART-MEDIA-134896BF4138996B9F5",
-    "authorityClass": "PRODUCT_EXPERIENCE_AUTHORITY",
-    "phase": "PDP-3",
-    "path": ".product-experience/pdp-3-product-experience/grpc/operations/VisionService.RecognizeSceneText.yaml",
-    "title": "VisionService.RecognizeSceneText"
   }
 ]

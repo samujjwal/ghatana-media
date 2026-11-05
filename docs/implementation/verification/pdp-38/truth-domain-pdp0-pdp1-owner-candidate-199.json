@@ -622,16 +622,18 @@
       "currentProposalObservation": {
         "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
         "priorSourceFileSha256": "b7e0f4d430f3f9a47deac94ad568ec140ff123901eb6433aa81dd102e55a94ad",
-        "currentSourceFileSha256": "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22",
+        "currentSourceFileSha256": "27bc34748b22e6a59ff7dd4f2e50df18a3e5415ee6acad55e466ef7bb4016bcf",
         "priorTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
         "currentTargetValuePreview": "14-of-14 observed legacy/candidate SDK paths are absent from the 27-route active manifest; this proves non-admission and does not choose a replacement route.",
-        "reason": "The operation-parity source summary was corrected against the current route manifest. The prior 27-route source/value pins remain preserved above; the new summary is recorded as a pending current-value-drift observation. This observation does not imply acceptance, semantic parity, owner approval, runtime admission, or release. Current owner-source bytes were re-observed by the narrow C002 refresh; the pending live target value remains unchanged.",
-        "previousCurrentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
-        "supersededCurrentSourceFileSha256": "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
+        "reason": "The operation-parity source summary was corrected against the current route manifest. The prior 27-route source/value pins remain preserved above; the new summary is recorded as a pending current-value-drift observation. This observation does not imply acceptance, semantic parity, owner approval, runtime admission, or release. Current owner-source bytes were re-observed by the narrow C002 refresh; the pending live target value remains unchanged. Current owner-source bytes were re-observed by the narrow C002 refresh; the pending live target value remains unchanged. Current owner-source bytes were re-observed by the narrow C002 refresh; the pending live target value remains unchanged.",
+        "previousCurrentSourceFileSha256": "4fe54a409d329ac7556cb9120c1a9c866714f2b5c722316fb62733c0e5a60225",
+        "supersededCurrentSourceFileSha256": "4fe54a409d329ac7556cb9120c1a9c866714f2b5c722316fb62733c0e5a60225",
         "sourceFileSha256History": [
           "bcc2f132b39dfe09085eef07436fdceed5561b0f06abc9ae4ca22d1a5c4e615a",
-          "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f"
+          "8fead5185a4f7378d120c6e2e91a0384face4e64cbe9953fd9c2e4f69cb3fd9f",
+          "8ea52f2208bfb873803239e0b7cb0c9299f73a2eeee160d5ed96eec884b16f22",
+          "4fe54a409d329ac7556cb9120c1a9c866714f2b5c722316fb62733c0e5a60225"
         ],
         "currentValueDriftObservation": {
           "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
@@ -10524,7 +10526,7 @@
       "priorLocatorRef": ".product-experience/pdp-1-domain-data/operations.yaml#/channelFamilies/sdk",
       "currentLocatorResolution": "RESOLVED_EXACT_SOURCE_VALUE",
       "currentTargetValueSha256": "4972a798c0789d0932f720e883c827d9e00b54ae9c1d17903bdc0900913cc391",
-      "currentTargetValuePreview": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 32 raw records, of which 29 are exported public source/class/method identities and three are parser artifacts; legacy AudioVideoClient is distinct",
+      "currentTargetValuePreview": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 33 raw records, of which 30 are exported public source/class/method identities and three are parser artifacts; legacy AudioVideoClient is distinct",
       "semanticDisposition": "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
       "materialGap": "The legacy locator is retained only as a candidate. An owner must compare this exact clause with the exact selected value and author a bounded definition where Media controls the meaning; no semantic equivalence is asserted.",
       "priorTargetValueSha256": "582e90917cf59df456418159d35f09d2ae23a3c0fc179eb6f741c32419025cb3",
@@ -10549,7 +10551,7 @@
         "currentSourceFileSha256": "3e11254e703f6a827891f3523007144d93979ef009e41dec1ca2c1077e90516b",
         "priorTargetValueSha256": "4972a798c0789d0932f720e883c827d9e00b54ae9c1d17903bdc0900913cc391",
         "currentTargetValueSha256": "4972a798c0789d0932f720e883c827d9e00b54ae9c1d17903bdc0900913cc391",
-        "currentTargetValuePreview": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 32 raw records, of which 29 are exported public source/class/method identities and three are parser artifa",
+        "currentTargetValuePreview": ".product-experience/pdp-3-product-experience/sdk/operation-registry.yaml; 33 raw records, of which 30 are exported public source/class/method identities and three are parser artifa",
         "reason": "Current-source observation refreshed to the exact live file digest; historical digest and selected target/value pins are preserved. This pending observation does not imply acceptance; acceptanceEffect remains none. Current PDP-1 operation locator refreshed after confirming the exact SDK channel-family value is unchanged. Predecessor file digests are retained in sourceFileSha256History; the observation remains pending and does not imply acceptance.",
         "supersededCurrentSourceFileSha256": "89bf4209e48a4d3ac1b411c49834554cea9999c0b3ad73829ffe46125607e419",
         "sourceFileSha256History": [

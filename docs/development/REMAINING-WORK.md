@@ -154,7 +154,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** 44 named RPCs plus proposal-only OCR route classified; consumer tests for all methods and auth/restart cases.
 - **Predecessors:** `media.dev.domain-contract-parity`
 
-**`media.dev.sdk-source-declaration-crosswalk`** · OPEN
+**`media.dev.sdk-source-declaration-crosswalk`** · VERIFIED (AST crosswalk `.product-experience/pdp-3-product-experience/sdk/declaration-crosswalk.v1.json`: 60 public class-member declarations = 30 registry-backed + 2 overload signatures + 28 classified unregistered surface; 3 parser artifacts; ESM/CJS consumer checks green)
 - **Where:** `.product-experience/pdp-3-product-experience/sdk/operation-registry.yaml`, `libs/audio-video-client/src`, `scripts/check-media-contract-parity.mjs`
 - **What:** Resolve 60 observed declarations versus 33 registry rows without inventing 27 new public methods.
 - **How:** Use TypeScript AST to enumerate class methods, exported functions, inherited/overloaded methods and compatibility exports; distinguish 3 known parser artifacts (for/if/clearTimeout), true public SDK and internal declarations; generate stable per-symbol crosswalk.
@@ -168,7 +168,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Test/exit:** No fabricated route; no legacy success to missing path; backwards-compatible isolated package tests.
 - **Predecessors:** `media.dev.sdk-source-declaration-crosswalk`, `media.dev.http-operation-parity`
 
-**`media.dev.multimodal-legacy-route-disposition`** · OPEN
+**`media.dev.multimodal-legacy-route-disposition`** · VERIFIED (MPSEM-0023-C002 `observedRoute: none` + `historicalObservedRoute` retained; `analyzeMultimodal` throws before transport, zero-dispatch proven by dispositions test; strict + definition-only parity green; observation digest refreshed)
 - **Where:** `.product-experience/interface-parity/operation-parity.yaml`, `scripts/check-media-contract-parity.mjs`, `tests/media-contract-parity-definition-only-cli.test.mjs`
 - **What:** Resolve MPSEM-0023-C002 stale SDK route observation as an explicit non-dispatching compatibility method, not an active transport.
 - **How:** Read live MediaOperationClient.analyzeMultimodal body and active route manifest; classify old /api/v1/media/multimodal-analyses as nonadmitted/absent; update exact parity observation, verifier logic and regression tests by review rather than changing expected strings alone.

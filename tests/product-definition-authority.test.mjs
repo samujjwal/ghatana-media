@@ -3252,17 +3252,17 @@ test("generated Explorer index covers every current source-manifest artifact exa
 
 test("HTTP route, SDK, and interface projections retain canonical ownership", () => {
   const result = spawnSync(process.execPath, ["scripts/check-media-contract-parity.mjs"], { cwd: root, encoding: "utf8" });
-  // NON-GREEN is the pinned state: the multimodal SDK route observation stays
-  // unresolved pending MPSEM-0023-C002 owner material review.
-  assert.equal(result.status, 1, `${result.stdout}${result.stderr}`);
+  // The multimodal SDK route is retired as source-proven non-dispatching;
+  // MPSEM-0023-C002 owner material review remains pending in the claim record.
+  assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
   const output = `${result.stdout}${result.stderr}`;
-  assert.match(output, /Media contract parity: NON-GREEN/u);
+  assert.match(output, /Media contract parity: PASS/u);
   assert.match(output, /"openapiRoutes":30,"runtimeRoutes":30,"httpRegistryRoutes":30/u);
   assert.match(output, /semantic binding: REVIEW_REQUIRED/u);
-  assert.match(output, /source findings audited: 46 \(45 dispositioned; 1 unresolved\)/u);
+  assert.match(output, /source findings audited: 45 \(45 dispositioned; 0 unresolved\)/u);
   assert.match(output, /source-dispositioned findings: 45/u);
-  assert.match(output, /historical source findings: 50 \(50 dispositioned; 0 unresolved; 5 retired routes\)/u);
-  assert.match(output, /stale SDK route disposition has no matching current divergence: libs\/audio-video-client\/src\/operations\.ts POST \/api\/v1\/media\/multimodal-analyses/u);
+  assert.match(output, /historical source findings: 51 \(51 dispositioned; 0 unresolved; 6 retired routes\)/u);
+  assert.doesNotMatch(output, /explicit gaps/u);
 });
 
 test("screen composition records retain Shared-boundary design metadata", () => {
