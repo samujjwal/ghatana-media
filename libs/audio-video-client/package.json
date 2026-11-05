@@ -54,6 +54,16 @@
       "import": "./dist/capture-adapters.js",
       "require": "./dist-cjs/capture-adapters.js"
     },
+    "./http-capture-adapter": {
+      "types": "./dist/http-capture-adapter.d.ts",
+      "import": "./dist/http-capture-adapter.js",
+      "require": "./dist-cjs/http-capture-adapter.js"
+    },
+    "./file-capture-adapter": {
+      "types": "./dist/file-capture-adapter.d.ts",
+      "import": "./dist/file-capture-adapter.js",
+      "require": "./dist-cjs/file-capture-adapter.js"
+    },
     "./recorder-orchestrator": {
       "types": "./dist/recorder-orchestrator.d.ts",
       "import": "./dist/recorder-orchestrator.js",

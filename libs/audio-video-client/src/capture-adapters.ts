@@ -172,6 +172,60 @@ function hasRequestBinding(value: string | undefined): boolean {
 }
 
 /**
+ * A concrete capture provider bound to exactly one source kind. The host
+ * wires adapters; the trusted eligibility seam still decides admission for
+ * every request, and the adapter must return real captured bytes — never
+ * synthesized frames, device claims or fabricated success.
+ */
+export interface CaptureSourceAdapter {
+  readonly kind: CaptureSourceKind;
+  capture(request: CaptureRequest): Promise<CapturedFrame>;
+}
+
+/** The admitted capture kind has no wired adapter; nothing was dispatched. */
+export class CaptureAdapterNotWiredError extends TypeError {
+  public constructor(public readonly kind: string) {
+    super("no capture adapter is wired for the admitted source kind");
+    this.name = "CaptureAdapterNotWiredError";
+  }
+}
+
+/**
+ * Routes one admitted capture request to the adapter wired for its source
+ * kind. Kinds without a wired adapter reject before any capture attempt;
+ * callers must still pass the result through `captureWithAdmission` so the
+ * trusted eligibility seam and frame binding checks apply. Wiring is
+ * validated eagerly so a mislabeled adapter fails at composition time.
+ */
+export function routedCaptureAdapter(
+  adapters: Readonly<Partial<Record<CaptureSourceKind, CaptureSourceAdapter>>>,
+): { capture(request: CaptureRequest): Promise<CapturedFrame> } {
+  if (!adapters || typeof adapters !== "object" || Array.isArray(adapters)) {
+    throw new TypeError("capture adapter registry must be an object");
+  }
+  for (const [key, adapter] of Object.entries(adapters)) {
+    if (adapter === undefined) continue;
+    if (!CAPTURE_SOURCE_KINDS.has(key) || adapter.kind !== key
+      || typeof adapter.capture !== "function") {
+      throw new TypeError("capture adapter registry entries must match their source kind");
+    }
+  }
+  return {
+    capture: (request: CaptureRequest): Promise<CapturedFrame> => {
+      const kind = request !== null && typeof request === "object" ? request.kind : undefined;
+      if (typeof kind !== "string" || !CAPTURE_SOURCE_KINDS.has(kind)) {
+        return Promise.reject(new TypeError("capture request kind is outside the supported source enum"));
+      }
+      const adapter = adapters[kind as CaptureSourceKind];
+      if (adapter === undefined) {
+        return Promise.reject(new CaptureAdapterNotWiredError(kind));
+      }
+      return adapter.capture(request);
+    },
+  };
+}
+
+/**
  * Runs one capture through an admitted adapter. Eligibility is checked per
  * request; unadmitted adapters reject before any capture attempt. The
  * adapter itself must return real captured bytes — this wrapper adds no

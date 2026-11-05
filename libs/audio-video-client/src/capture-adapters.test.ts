@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CaptureAdapterNotWiredError,
   CaptureNotAdmittedError,
   CaptureOutcomeUnknownError,
   CaptureUnavailableError,
@@ -7,9 +8,11 @@ import {
   noCaptureAdapterProbe,
   noAdmittedCaptureAdapter,
   probeCaptureAdapter,
+  routedCaptureAdapter,
   unavailableCaptureAdapter,
   type CaptureRequest,
   type CapturedFrame,
+  type CaptureSourceAdapter,
 } from "./capture-adapters";
 
 const request: CaptureRequest = {
@@ -309,6 +312,54 @@ describe("captureWithAdmission", () => {
     expect(eligibilityRequest?.frameClockRef).toBe(request.frameClockRef);
     expect(frame.sourceIdentity).toBe(request.sourceIdentity);
     expect(frame.frameClockRef).toBe(request.frameClockRef);
+  });
+});
+
+describe("routedCaptureAdapter", () => {
+  function kindAdapter(kind: CaptureRequest["kind"], bytes: number[]): CaptureSourceAdapter {
+    return {
+      kind,
+      capture: async (candidate) => capturedFrame({
+        sourceIdentity: candidate.sourceIdentity,
+        purposeRef: candidate.purposeRef,
+        exactRightsScope: candidate.exactRightsScope,
+        sourceVersionRef: candidate.sourceVersionRef,
+        frameClockRef: candidate.frameClockRef,
+        bytes: new Uint8Array(bytes),
+        capturedAtEpochMillis: 5,
+      }),
+    };
+  }
+
+  it("dispatches each admitted kind to its wired adapter", async () => {
+    const fileAdapter = kindAdapter("MEDIA_FILE", [1]);
+    const httpAdapter = kindAdapter("HTTP_API", [2]);
+    const routed = routedCaptureAdapter({ MEDIA_FILE: fileAdapter, HTTP_API: httpAdapter });
+    for (const [kind, expected] of [["MEDIA_FILE", 1], ["HTTP_API", 2]] as const) {
+      const frame = await captureWithAdmission({ check: () => "ADMITTED" }, routed,
+        { ...request, kind });
+      expect(Array.from(frame.bytes)).toEqual([expected]);
+    }
+  });
+
+  it("rejects kinds without a wired adapter before any capture", async () => {
+    const routed = routedCaptureAdapter({ MEDIA_FILE: kindAdapter("MEDIA_FILE", [1]) });
+    await expect(captureWithAdmission({ check: () => "ADMITTED" }, routed,
+      { ...request, kind: "CAMERA" }))
+      .rejects.toMatchObject({ reason: "ADAPTER_REJECTED" });
+    await expect(routed.capture({ ...request, kind: "CAMERA" }))
+      .rejects.toBeInstanceOf(CaptureAdapterNotWiredError);
+  });
+
+  it("rejects mislabeled wiring and invalid kinds at composition", () => {
+    expect(() => routedCaptureAdapter({
+      MEDIA_FILE: kindAdapter("HTTP_API", [1]),
+    })).toThrow(/match their source kind/u);
+    expect(() => routedCaptureAdapter(null as unknown as Record<string, never>))
+      .toThrow(/registry must be an object/u);
+    const routed = routedCaptureAdapter({});
+    return expect(routed.capture({ ...request, kind: "FAKE" as CaptureRequest["kind"] }))
+      .rejects.toThrow(/source enum/u);
   });
 });
 

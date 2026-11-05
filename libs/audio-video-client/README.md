@@ -183,3 +183,14 @@ rejection or invalid returned frame after dispatch raises
 reason. The error contains no request references or provider detail; callers
 must reconcile the attempt before deciding whether to recapture, and the
 client performs no automatic retry.
+
+Concrete providers ship as explicit subpaths:
+`@audio-video/client/http-capture-adapter` (`HttpApiCaptureAdapter`, real
+bounded HTTPS/loopback GET with redirect and origin policy) and
+`@audio-video/client/file-capture-adapter` (`MediaFileCaptureAdapter`,
+Node.js bounded file reads with optional `allowedRoot` containment).
+`routedCaptureAdapter` dispatches an admitted request to the adapter wired
+for its source kind; kinds without a wired provider reject before dispatch.
+Browser, desktop, mobile, terminal, gRPC and camera sources still require a
+host-qualified adapter — exporting these providers does not admit a source,
+provider, or host.
