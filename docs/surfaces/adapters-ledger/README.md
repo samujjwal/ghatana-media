@@ -14,6 +14,15 @@ authority.
   injected durable `LedgerStore` (compare-and-set backing) and reconciles
   via `LedgerReadback`; `StoreNotDispatchedException` marks
   store-guaranteed pre-dispatch refusals as unavailable.
+- `RunLedgerProjection.ProjectionStateBacking` — optional durable backing
+  for the per-run latest/unavailable/uncertain triple; hydrated once per
+  run and persisted after every transition so replay guards, ordering
+  floors, uncertain fences and terminal parity survive process restart.
+- `FileRunLedgerProjectionState` — filesystem implementation: one JSON
+  document per run (digest filenames), atomic fsync+rename writes,
+  fail-closed corrupt reads. Single-node durable state, not replicated.
+- `RunLedgerJson` — explicit field-by-field `RunLedger` codec; canonical
+  constructors re-validate invariants on decode.
 
 ## Public operations
 
@@ -24,7 +33,9 @@ authority.
 | `AudioVideoRunLedgerAdapter.validateConversion(...)` | Conversion validation |
 | `RunLedgerProjection.project(RunLedger)` | Store-backed projection → `ProjectionResult(disposition, store)` |
 | `RunLedgerProjection.reconcile(runId, readback)` | Readback reconciliation → `ReconciliationResult` |
-| `LedgerStore` / `LedgerReadback` (interfaces) | Durable CAS store and read ports — injected |
+| `LedgerStore` / `LedgerReadback` (interfaces) | Durable CAS store and read ports — injected (Data Cloud sink) |
+| `ProjectionStateBacking` (interface) | Durable per-run projection-state port |
+| `FileRunLedgerProjectionState` | Filesystem `ProjectionStateBacking` implementation |
 
 ## State mapping (LD-01 boundary)
 
@@ -56,7 +67,10 @@ rejected rather than conflated with job uncertainty.
 
 - Public `com.ghatana.datacloud.delivery.ledger.RunLedger` as an `api`
   dependency (it appears in public signatures); `LedgerStore` must provide
-  real durable compare-and-set semantics — none ships in this module.
+  real durable compare-and-set semantics — the Data Cloud sink itself is
+  injected by the host. `FileRunLedgerProjectionState` ships in this
+  module as the durable projection-state backing; it is not a ledger
+  store and does not replace the Data Cloud `LedgerStore`.
 
 ## Errors
 
@@ -70,7 +84,11 @@ references.
 ./gradlew :services:media:adapters:ledger:test
 ```
 
-Target coverage: conflict/restart/replay/lost-acknowledgement against a
-real storage adapter and public ledger client; terminal status parity
-with the Media writer. See `CONSUMER-COMPATIBILITY.md` for the consumer
-contract and the LD-01 mapping table.
+Coverage: `RunLedgerProjectionTest` (12 ordering/replay/fence cases),
+`FileRunLedgerProjectionStateTest` (8 durable-backing cases — codec
+round-trip, replay/stale/conflict/terminal parity and uncertain-fence +
+unavailable-floor survival across restart, exact-readback reconcile,
+digest filenames), `AudioVideoRunLedgerAdapterTest`. The Data Cloud
+`LedgerStore` sink and public ledger client remain host-injected; a
+real-storage end-to-end run against the live Data Cloud store is still
+tracked as integration coverage.
