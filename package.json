@@ -31,6 +31,7 @@
     "refresh:executable-representation-observations": "node scripts/refresh-executable-representation-observations.mjs",
     "check:contract-parity": "node scripts/check-media-contract-parity.mjs",
     "check:sdk-declaration-crosswalk": "node scripts/generate-media-sdk-declaration-crosswalk.mjs --check",
+    "check:capability-implementation-crosswalk": "node scripts/generate-media-capability-implementation-crosswalk.mjs --check",
     "check:design-conformance": "node scripts/check-media-design-conformance.mjs",
     "normalize:screen-design-candidates": "node scripts/normalize-media-screen-design-candidates.mjs",
     "check:presentation-architecture": "node scripts/check-media-presentation-architecture.mjs",

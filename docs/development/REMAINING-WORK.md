@@ -40,7 +40,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 #### foundations
 
-**`media.dev.source-capability-crosswalk`** · OPEN
+**`media.dev.source-capability-crosswalk`** · VERIFIED (all 469 PDP-0 capability leaves classified in `docs/development/capability-implementation-crosswalk.v1.json`: 463 NOT_IMPLEMENTED with exact blocking task refs, 6 OPTIONAL_DEFERRED; `check:capability-implementation-crosswalk` fails on any unclassified intent)
 - **Where:** `scripts/check-media-contract-parity.mjs`, `.product-experience/pdp-0-product-truth/capabilities.yaml`, `docs/surfaces`
 - **What:** Reconcile every authored capability intent to active code/delegate/test and document the truly inapplicable leaves.
 - **How:** Derive an implementation inventory from current PDP0–3, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.

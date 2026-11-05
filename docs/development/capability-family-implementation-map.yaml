@@ -1,0 +1,138 @@
+schemaVersion: media.capability-family-implementation-map.v1
+productId: media
+status: owner-directed-development-review; per-leaf implementation evidence is
+  derived mechanically by the generator, never self-promoted to runtime support
+purpose: >-
+  Reviewed mapping from each PDP-0 capability family to the remaining-work task
+  units that must complete it, the owning source paths that carry partial
+  implementation evidence, and platform-owned dependencies the capability
+  consumes without executing. Classification semantics:
+  IMPLEMENTED only where the linked register task is VERIFIED; DELEGATED only
+  where the capability intent executes wholly outside Media by owner decision;
+  OPTIONAL_DEFERRED only where the leaf itself is scope-deferred; otherwise
+  NOT_IMPLEMENTED with exact blocking task references.
+sharedBlockingTaskRefs:
+  - media.dev.domain-contract-parity
+  - media.dev.rights-and-policy
+  - media.dev.cross-surface-integration-harness
+families:
+  media.project:
+    taskRefs: [media.dev.canonical-artifact-storage, media.dev.canonical-job-reconciliation, media.dev.http-operation-parity, media.dev.project-timeline-engine, media.dev.versioned-review-and-approval, media.dev.outcome-first-use-project, media.dev.outcome-version-specific-review, media.dev.outcome-offline-conflict-reconnect]
+    evidenceRefs: [launcher, modules/infrastructure/persistence, runtime-contracts]
+  media.artifact:
+    taskRefs: [media.dev.canonical-artifact-storage, media.dev.http-operation-parity, media.dev.outcome-resumable-artifact-intake, media.dev.capture-http-and-file-regression, media.dev.browser-source-capture, media.dev.desktop-source-capture, media.dev.mobile-source-capture, media.dev.terminal-source-capture, media.dev.grpc-source-capture, media.dev.camera-source-capture]
+    evidenceRefs: [launcher, libs/audio-video-client, modules/infrastructure/persistence]
+  media.job:
+    taskRefs: [media.dev.canonical-job-reconciliation, media.dev.transactional-event-outbox, media.dev.projection-single-writer-policy, media.dev.http-operation-parity, media.dev.outcome-durable-job-recovery, media.dev.outcome-live-session-recovery, media.dev.outcome-provider-outage-safe-path]
+    evidenceRefs: [launcher, adapters/ledger, modules/infrastructure/messaging]
+  media.stream:
+    taskRefs: [media.dev.stream-session-authority, media.dev.http-operation-parity, media.dev.grpc-operation-parity, media.dev.outcome-live-session-recovery]
+    evidenceRefs: [modules/audio-streaming, modules/video-streaming, launcher]
+  media.profile:
+    taskRefs: [media.dev.domain-contract-parity, media.dev.http-operation-parity]
+    evidenceRefs: [contracts, runtime-contracts]
+  media.capability:
+    taskRefs: [media.dev.http-operation-parity, media.dev.sdk-canonical-migration, media.dev.structured-cli]
+    evidenceRefs: [libs/audio-video-client, launcher]
+  media.health:
+    taskRefs: [media.dev.http-operation-parity, media.dev.service-observability]
+    evidenceRefs: [launcher, audio-video-observability]
+  media.rights:
+    taskRefs: [media.dev.rights-and-policy, media.dev.rights-aware-cache, media.dev.authorized-agent-delegation, media.dev.outcome-retention-and-erasure, media.dev.outcome-authorized-agent-outcome]
+    evidenceRefs: [modules/infrastructure/security, adapters/agent-tools-media]
+  media.provenance:
+    taskRefs: [media.dev.canonical-artifact-storage, media.dev.canonical-job-reconciliation, media.dev.transactional-event-outbox, media.dev.outcome-reference-continuity]
+    evidenceRefs: [adapters/ledger, modules/infrastructure/persistence]
+  media.vision.scene-text:
+    taskRefs: [media.dev.vision-document-intelligence, media.dev.outcome-vision-detection-and-tracking]
+    evidenceRefs: [libs/audio-video-client/src/scene-text-adapter.ts, libs/audio-video-client/src/authorized-scene-text.ts]
+    delegatedDependencies: [document-intelligence-v1-public-client; MDI-001/PDP0-003-D4]
+  media.speech.transcription:
+    taskRefs: [media.dev.stt-model-and-quality, media.dev.stt-streaming-and-caption, media.dev.native-media-dsp, media.dev.outcome-transcript-to-reviewed-captions]
+    evidenceRefs: [modules/speech/stt-service]
+  media.vision:
+    taskRefs: [media.dev.vision-model-and-geometry, media.dev.outcome-vision-detection-and-tracking]
+    evidenceRefs: [modules/vision/vision-service]
+  media.multimodal:
+    taskRefs: [media.dev.multimodal-child-orchestration, media.dev.multimodal-grounding-and-quality, media.dev.outcome-grounded-cross-modal-result]
+    evidenceRefs: [modules/intelligence/multimodal-service]
+  media.audio.analysis:
+    taskRefs: [media.dev.native-media-dsp, media.dev.audio-repair-and-comparison, media.dev.load-and-quality-profiles]
+    evidenceRefs: [modules/audio-streaming, src]
+  media.generate.image:
+    taskRefs: [media.dev.reference-guided-generation, media.dev.load-and-quality-profiles, media.dev.outcome-brief-to-reviewed-media]
+    evidenceRefs: [providers]
+  media.generate.video:
+    taskRefs: [media.dev.reference-guided-generation, media.dev.load-and-quality-profiles, media.dev.outcome-brief-to-reviewed-media]
+    evidenceRefs: [providers]
+  media.generate.audio:
+    taskRefs: [media.dev.reference-guided-generation, media.dev.load-and-quality-profiles, media.dev.outcome-brief-to-reviewed-media]
+    evidenceRefs: [providers]
+  media.speech.synthesis:
+    taskRefs: [media.dev.tts-model-and-rights, media.dev.tts-streaming-and-finality, media.dev.outcome-authorized-voice-synthesis]
+    evidenceRefs: [modules/speech/tts-service, modules/intelligence/ai-voice]
+  media.generate.spatial:
+    taskRefs: [media.dev.reference-guided-generation, media.dev.spatial-and-interactive-export, media.dev.outcome-spatial-interactive-delivery]
+    evidenceRefs: [providers]
+  media.animation:
+    taskRefs: [media.dev.animation-2d-renderer, media.dev.animation-3d-rig-and-spatial, media.dev.project-timeline-engine, media.dev.outcome-two-dimensional-animation, media.dev.outcome-three-dimensional-animation]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.animation.editing:
+    taskRefs: [media.dev.animation-2d-renderer, media.dev.project-timeline-engine, media.dev.tracked-region-reversible-edits, media.dev.outcome-two-dimensional-animation]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.animation.output:
+    taskRefs: [media.dev.animation-2d-renderer, media.dev.spatial-and-interactive-export, media.dev.interactive-demo-player, media.dev.outcome-two-dimensional-animation]
+    evidenceRefs: [libs/media-experience-simulation, apps/media-experience-explorer]
+  media.simulation:
+    taskRefs: [media.dev.scientific-simulation-engine, media.dev.simulation-semantic-validation, media.dev.outcome-scientific-simulation]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.simulation.output:
+    taskRefs: [media.dev.scientific-simulation-engine, media.dev.simulation-semantic-validation, media.dev.outcome-scientific-simulation, media.dev.outcome-validated-simulation-pass]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.recipe.template:
+    taskRefs: [media.dev.storyboard-and-shot-plan, media.dev.outcome-brief-to-reviewed-media]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.enhance.image:
+    taskRefs: [media.dev.video-restoration-and-comparison, media.dev.quality-comparison-and-optimization, media.dev.outcome-bounded-quality-improvement]
+    evidenceRefs: [modules/vision/vision-service, src]
+  media.enhance.video:
+    taskRefs: [media.dev.video-restoration-and-comparison, media.dev.quality-comparison-and-optimization, media.dev.outcome-video-enhancement]
+    evidenceRefs: [modules/vision/vision-service, src]
+  media.enhance.audio:
+    taskRefs: [media.dev.audio-repair-and-comparison, media.dev.native-media-dsp, media.dev.outcome-audio-restoration]
+    evidenceRefs: [src]
+  media.edit:
+    taskRefs: [media.dev.tracked-region-reversible-edits, media.dev.outcome-reversible-tracked-edit]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.sync:
+    taskRefs: [media.dev.dubbing-and-translation, media.dev.outcome-translated-dubbed-video]
+    evidenceRefs: [src]
+  media.compose:
+    taskRefs: [media.dev.project-timeline-engine, media.dev.multitrack-composition-render, media.dev.outcome-multitrack-finished-master]
+    evidenceRefs: [libs/media-experience-simulation]
+  media.color:
+    taskRefs: [media.dev.multitrack-composition-render, media.dev.quality-comparison-and-optimization, media.dev.outcome-multitrack-finished-master]
+    evidenceRefs: [src]
+  media.master.audio:
+    taskRefs: [media.dev.foley-stems-mix-master, media.dev.native-media-dsp, media.dev.outcome-music-effects-master]
+    evidenceRefs: [src]
+  media.quality:
+    taskRefs: [media.dev.quality-comparison-and-optimization, media.dev.load-and-quality-profiles, media.dev.outcome-bounded-quality-improvement]
+    evidenceRefs: [audio-video-observability, benchmarks]
+  media.quality.image:
+    taskRefs: [media.dev.quality-comparison-and-optimization, media.dev.load-and-quality-profiles, media.dev.outcome-bounded-quality-improvement]
+    evidenceRefs: [benchmarks]
+  media.quality.video:
+    taskRefs: [media.dev.quality-comparison-and-optimization, media.dev.load-and-quality-profiles, media.dev.outcome-video-enhancement]
+    evidenceRefs: [benchmarks]
+  media.quality.audio:
+    taskRefs: [media.dev.quality-comparison-and-optimization, media.dev.load-and-quality-profiles, media.dev.outcome-music-effects-master]
+    evidenceRefs: [benchmarks]
+  media.deliver:
+    taskRefs: [media.dev.delivery-export-destination-ack, media.dev.spatial-and-interactive-export, media.dev.interactive-demo-player, media.dev.offline-reconnect, media.dev.outcome-acknowledged-delivery, media.dev.outcome-spatial-interactive-delivery, media.dev.outcome-structured-command-batch]
+    evidenceRefs: [launcher, apps/media-experience-explorer]
+externalOwnedDependencies:
+  document-intelligence-v1-public-client: Ghatana Document Intelligence owns generic OCR execution and the public OCR gateway (MDI-001/PDP0-003-D4); Media consumes the v1 public client for scene/time/ROI-authorized results only.
+  shared-identity-and-authorization: Ghatana Shared owns reusable identity/authorization primitives; Media capabilities still own their rights checks and effect admission.
+  tools-action-plane: Ghatana Tools owns delegated agent execution surfaces that call Media APIs; Media owns invocation fencing and per-replay authorization.
+  data-cloud-optional-downstream: Ghatana Data Cloud may index/project derived Media metadata as an optional downstream consumer (media.dev.optional-data-cloud-adapter); it is never a Media processing path or ledger.

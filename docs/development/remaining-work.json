@@ -23,8 +23,8 @@
       "journeys": 30
     },
     "byState": {
-      "OPEN": 97,
-      "VERIFIED": 4,
+      "OPEN": 96,
+      "VERIFIED": 5,
       "OPTIONAL_DEFERRED_NO_CORE_BLOCKER": 1,
       "EXISTING_CODE_REVIEW_AND_ADVERSE_TESTS": 1
     }
@@ -33,7 +33,7 @@
     {
       "id": "media.dev.source-capability-crosswalk",
       "group": "foundations",
-      "state": "OPEN",
+      "state": "VERIFIED",
       "where": [
         "scripts/check-media-contract-parity.mjs",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -42,7 +42,8 @@
       "what": "Reconcile every authored capability intent to active code/delegate/test and document the truly inapplicable leaves.",
       "how": "Derive an implementation inventory from current PDP0\u20133, routes, provider profiles and 56 topology nodes; classify IMPLEMENTED, DELEGATED, OPTIONAL, NOT_IMPLEMENTED with exact source links; make unknown counts a failing development audit.",
       "acceptance": "No unclassified active intent; no fake success/N/A; retain authoritative PDP IDs.",
-      "requires": []
+      "requires": [],
+      "verificationEvidence": "verified-2026-11-05: per-leaf inventory at docs/development/capability-implementation-crosswalk.v1.json classifies all 469 PDP-0 capability leaves (463 NOT_IMPLEMENTED with exact blocking task refs + evidence paths, 6 OPTIONAL_DEFERRED); unknown/unclassified intents fail check:capability-implementation-crosswalk; tests/media-capability-implementation-crosswalk.test.mjs green"
     },
     {
       "id": "media.dev.domain-contract-parity",
